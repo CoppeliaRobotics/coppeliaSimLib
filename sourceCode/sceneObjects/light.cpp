@@ -806,6 +806,14 @@ int CLight::setBoolProperty(const char* ppName, bool pState)
             retVal = 1;
             setLightActive(pState);
         }
+        else if (_pName == propLight_povCastShadows.name)
+        {
+            retVal = 1;
+            if (pState)
+                tt::insertKeyAndValue("shadow@povray", "true", _extensionString);
+            else
+                tt::insertKeyAndValue("shadow@povray", "false", _extensionString);
+        }
     }
 
     return retVal;
@@ -822,6 +830,14 @@ int CLight::getBoolProperty(const char* ppName, bool& pState) const
         {
             retVal = 1;
             pState = lightActive;
+        }
+        else if (_pName == propLight_povCastShadows.name)
+        {
+            retVal = 1;
+            std::string val;
+            pState = true;
+            if (tt::getValueOfKey("shadow@povray", _extensionString.c_str(), val))
+                pState = (tt::getLowerUpperCaseString(val, false).compare("false") != 0);
         }
     }
 

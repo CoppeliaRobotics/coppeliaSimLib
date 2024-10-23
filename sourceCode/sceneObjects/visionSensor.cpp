@@ -3395,6 +3395,14 @@ int CVisionSensor::setBoolProperty(const char* ppName, bool pState)
             retVal = 1;
             setEmitDepthChangedEvent(pState);
         }
+        else if (_pName == propVisionSensor_povFocalBlur.name)
+        {
+            retVal = 1;
+            if (pState)
+                tt::insertKeyAndValue("focalBlur@povray", "true", _extensionString);
+            else
+                tt::insertKeyAndValue("focalBlur@povray", "false", _extensionString);
+        }
     }
 
     return retVal;
@@ -3447,6 +3455,14 @@ int CVisionSensor::getBoolProperty(const char* ppName, bool& pState) const
             retVal = 1;
             pState = _emitDepthChangedEventEnabled;
         }
+        else if (_pName == propVisionSensor_povFocalBlur.name)
+        {
+            retVal = 1;
+            std::string val;
+            pState = false;
+            if (tt::getValueOfKey("focalBlur@povray", _extensionString.c_str(), val))
+                pState = (tt::getLowerUpperCaseString(val, false).compare("true") == 0);
+        }
     }
 
     return retVal;
@@ -3464,6 +3480,11 @@ int CVisionSensor::setIntProperty(const char* ppName, int pState)
             retVal = 1;
             setRenderMode(pState);
         }
+        else if (_pName == propVisionSensor_povBlurSamples.name)
+        {
+            retVal = 1;
+            tt::insertKeyAndValue("blurSamples@povray", utils::getIntString(false, pState).c_str(), _extensionString);
+        }
     }
 
     return retVal;
@@ -3480,6 +3501,14 @@ int CVisionSensor::getIntProperty(const char* ppName, int& pState) const
         {
             retVal = 1;
             pState = _renderMode;
+        }
+        else if (_pName == propVisionSensor_povBlurSamples.name)
+        {
+            retVal = 1;
+            std::string val;
+            pState = 10;
+            if (tt::getValueOfKey("blurSamples@povray", _extensionString.c_str(), val))
+                tt::getValidInt(val.c_str(), pState);
         }
     }
 
@@ -3500,6 +3529,16 @@ int CVisionSensor::setFloatProperty(const char* ppName, double pState)
             setVisionSensorSize(pState);
             retVal = 1;
         }
+        else if (_pName == propVisionSensor_povBlurDistance.name)
+        {
+            tt::insertKeyAndValue("blurDist@povray", utils::getSizeString(false, pState).c_str(), _extensionString);
+            retVal = 1;
+        }
+        else if (_pName == propVisionSensor_povAperture.name)
+        {
+            tt::insertKeyAndValue("aperture@povray", utils::getSizeString(false, pState).c_str(), _extensionString);
+            retVal = 1;
+        }
     }
 
     return retVal;
@@ -3517,6 +3556,22 @@ int CVisionSensor::getFloatProperty(const char* ppName, double& pState) const
         if (_pName == propVisionSensor_size.name)
         {
             pState = _visionSensorSize;
+            retVal = 1;
+        }
+        else if (_pName == propVisionSensor_povBlurDistance.name)
+        {
+            std::string val;
+            pState = 2.0;
+            if (tt::getValueOfKey("focalDist@povray", _extensionString.c_str(), val))
+                tt::getValidFloat(val.c_str(), pState);
+            retVal = 1;
+        }
+        else if (_pName == propVisionSensor_povAperture.name)
+        {
+            std::string val;
+            pState = 0.05;
+            if (tt::getValueOfKey("aperture@povray", _extensionString.c_str(), val))
+                tt::getValidFloat(val.c_str(), pState);
             retVal = 1;
         }
     }

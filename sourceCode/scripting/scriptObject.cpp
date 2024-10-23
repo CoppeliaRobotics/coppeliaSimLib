@@ -9151,6 +9151,20 @@ bool CScriptObject::_containsScriptText_old(CScriptObject *scriptObject, const c
 {
     const std::string theScript(scriptObject->getScriptText());
     size_t startPos = theScript.find(txt);
+    /*
+    if (startPos != std::string::npos)
+    {
+        size_t newlinePos = theScript.rfind('\n', startPos - 1);
+        if (newlinePos == std::string::npos)
+            newlinePos = 0;
+        size_t newlinePos2 = theScript.find('\n', startPos );
+        if (newlinePos2 == std::string::npos)
+            newlinePos2 = theScript.size();
+        std::string str(theScript.begin() + newlinePos + 1, theScript.begin() + newlinePos2);
+        printf("** %s**\n", str.c_str());
+        return false;
+    }
+    //*/
     return (startPos != std::string::npos);
 }
 void CScriptObject::_splitApiText_old(const char *txt, size_t pos, std::string &beforePart, std::string &apiWord,
@@ -9792,6 +9806,7 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
 */
+
     /* Explicit requires:
     std::string tmp;
     _scriptText.insert(0,"\n");
@@ -9864,6 +9879,309 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
 
 //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
 //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
+
+
+    std::smatch match;
+    std::regex regEx("sim.setInt32Signal\\('([^,]+),");
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, 'signal.")+match.str(1)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.setFloatSignal\\('([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, 'signal.")+match.str(1)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.setStringSignal\\('([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, 'signal.")+match.str(1)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.getInt32Signal\\('([^']+)'";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.getFloatSignal\\('([^']+)'";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.getStringSignal\\('([^']+)'";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.clearInt32Signal\\('([^']+)'";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.clearFloatSignal\\('([^']+)'";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.clearStringSignal\\('([^']+)'";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+
+    regEx = "sim.setInt32Signal\\(\"([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, \"signal.")+match.str(1)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.setFloatSignal\\(\"([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, \"signal.")+match.str(1)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.setStringSignal\\(\"([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, \"signal.")+match.str(1)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.getInt32Signal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.getFloatSignal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.getStringSignal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.clearInt32Signal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.clearFloatSignal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.clearStringSignal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+
+
+
+
+
+
+
+
+    regEx = "sim.writeCustomBufferData\\(([^,]+),'([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.")+match.str(2)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomBufferData\\(([^,]+), '([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.")+match.str(2)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomBufferData\\(([^,]+),\"([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.")+match.str(2)+",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomBufferData\\(([^,]+), \"([^,]+),";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ",");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.readCustomBufferData\\(([^,]+),'([^']+)'";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + "', {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.readCustomBufferData\\(([^,]+), '([^']+)'";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + "', {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.readCustomBufferData\\(([^,]+),\"([^\"]+)\"";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + "\", {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.readCustomBufferData\\(([^,]+), \"([^\"]+)\"";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + "\", {noError = true}");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+
+
+    regEx = "sim.writeCustomTableData\\(([^,]+),'([^,]+),([^\\)]+)\\)";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.")+match.str(2)+", sim.packTable("+match.str(3)+"))");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomTableData\\(([^,]+), '([^,]+),([^\\)]+)\\)";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.")+match.str(2)+", sim.packTable("+match.str(3)+"))");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomTableData\\(([^,]+),\"([^,]+),([^\\)]+)\\)";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.")+match.str(2)+", sim.packTable("+match.str(3)+"))");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomTableData\\(([^,]+), \"([^,]+),([^\\)]+)\\)";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.")+match.str(2)+", sim.packTable("+match.str(3)+"))");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+    std::string trueV = "true";
+    std::string falseV = "false";
+    if (scriptObject->getLang() == "python")
+    {
+        trueV = "True";
+        falseV = "False";
+    }
+
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_respondable\\s*,\\s*1\\s*\\)";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'respondable', " + trueV + ")");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_respondable\\s*,\\s*0\\s*\\)";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'respondable', " + falseV + ")");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.objintparam_visibility_layer";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setIntProperty(") + match.str(1) + ", 'layer'");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.getObjectInt32Param\\(([^,]+),\\s*sim.objintparam_visibility_layer";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getIntProperty(") + match.str(1) + ", 'layer'");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_static\\s*,\\s*1\\s*\\)";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'dynamic', " + falseV + ")");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_static\\s*,\\s*0\\s*\\)";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'dynamic', " + trueV + ")");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    regEx = "sim.getFloatParam\\(\\s*sim.floatparam_rand";
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt("sim.getFloatProperty(sim.handle_app, 'randomFloat'");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+
+
+
+    if (_containsScriptText_old(scriptObject, "Int32Signal("))
+        App::logMsg(sim_verbosity_errors, "Contains Int32Signal(...");
+    if (_containsScriptText_old(scriptObject, "FloatSignal("))
+        App::logMsg(sim_verbosity_errors, "Contains FloatSignal(...");
+    if (_containsScriptText_old(scriptObject, "StringSignal("))
+        App::logMsg(sim_verbosity_errors, "Contains StringSignal(...");
+    if (_containsScriptText_old(scriptObject, "sim.getSignalName("))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getSignalName(...");
+    if (_containsScriptText_old(scriptObject, "BoolParam("))
+        App::logMsg(sim_verbosity_errors, "Contains BoolParam(...");
+    if (_containsScriptText_old(scriptObject, "Int32Param("))
+        App::logMsg(sim_verbosity_errors, "Contains Int32Param(...");
+    if (_containsScriptText_old(scriptObject, "FloatParam("))
+        App::logMsg(sim_verbosity_errors, "Contains FloatParam(...");
+    if (_containsScriptText_old(scriptObject, "StringParam("))
+        App::logMsg(sim_verbosity_errors, "Contains StringParam(...");
+    if (_containsScriptText_old(scriptObject, "ArrayParam("))
+        App::logMsg(sim_verbosity_errors, "Contains ArrayParam(...");
+    if (_containsScriptText_old(scriptObject, "ObjectProperty("))
+        App::logMsg(sim_verbosity_errors, "Contains ObjectProperty(...");
+    if (_containsScriptText_old(scriptObject, "ObjectSpecialProperty("))
+        App::logMsg(sim_verbosity_errors, "Contains ObjectSpecialProperty(...");
+    if (_containsScriptText_old(scriptObject, "ModelProperty("))
+        App::logMsg(sim_verbosity_errors, "Contains ModelProperty(...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomString"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomString...");
+    if (_containsScriptText_old(scriptObject, "sim.writeCustomString"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomString...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomBuffer"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomBuffer...");
+    if (_containsScriptText_old(scriptObject, "sim.writeCustomBuffer"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomBuffer...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomTable"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomTable...");
+    if (_containsScriptText_old(scriptObject, "sim.writeCustomTable"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomTable...");
+
+    if (_containsScriptText_old(scriptObject, "LightParameters"))
+        App::logMsg(sim_verbosity_errors, "Contains LightParameters...");
+
 
     _replaceScriptText_old(scriptObject, "sim.light_omnidirectional_subtype", "sim.light_omnidirectional");
     _replaceScriptText_old(scriptObject, "sim.light_spot_subtype", "sim.light_spot");

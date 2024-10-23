@@ -11,6 +11,7 @@
     FUNCX(propLight_spotExponent,            "spotExponent",                             sim_propertytype_int,       0, "Spot exponent", "") \
     FUNCX(propLight_spotCutoffAngle,         "spotCutoffAngle",                          sim_propertytype_float,     0, "Cut off angle", "Spot cut off angle") \
     FUNCX(propLight_attenuationFactors,      "attenuationFactors",                       sim_propertytype_floatarray,0, "Attenuation factor", "") \
+    FUNCX(propLight_povCastShadows,          "povray.castShadows",                       sim_propertytype_bool,      0, "POV-Ray: cast shadows", "Light casts shadows (with the POV-Ray renderer plugin)") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

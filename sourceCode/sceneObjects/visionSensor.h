@@ -36,6 +36,10 @@ struct SHandlingResult
     FUNCX(propVisionSensor_emitDepthChangedEvent,   "emitDepthChangedEvent",                    sim_propertytype_bool,    0, "Emit depth change event", "") \
     FUNCX(propVisionSensor_imageBuffer,             "imageBuffer",                              sim_propertytype_buffer,  0, "RGB buffer", "") \
     FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_floatarray,  sim_propertyinfo_notwritable, "Depth buffer", "") \
+    FUNCX(propVisionSensor_povFocalBlur,            "povray.focalBlur",                         sim_propertytype_bool,    0, "POV-Ray: focal blur", "Focal blur (with the POV-Ray renderer plugin)") \
+    FUNCX(propVisionSensor_povBlurSamples,          "povray.blurSamples",                       sim_propertytype_int,     0, "POV-Ray: blur samples", "Focal blur samples (with the POV-Ray renderer plugin)") \
+    FUNCX(propVisionSensor_povBlurDistance,         "povray.blurDistance",                      sim_propertytype_float,   0, "POV-Ray: blur distance", "Focal blur distance (with the POV-Ray renderer plugin)") \
+    FUNCX(propVisionSensor_povAperture,             "povray.aperture",                          sim_propertytype_float,   0, "POV-Ray: aperture", "Aperture (with the POV-Ray renderer plugin)") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

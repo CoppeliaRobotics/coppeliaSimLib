@@ -52,6 +52,8 @@ std::map<std::string, QSystemSemaphore*> _systemSemaphores;
     do                                                                                                                 \
     {                                                                                                                  \
         _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str(), cSideErrorOrWarningReporting);         \
+        CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();                                                        \
+        CApiErrors::getAndClearLastWarningOrError();                                                                   \
         return (p);                                                                                                    \
     } while (0)
 
