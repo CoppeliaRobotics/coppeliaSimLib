@@ -1610,7 +1610,11 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
         }
         else if (strcmp(pName, propApp_flavor.name) == 0)
         {
+#ifdef SIM_FL
             pState = SIM_FL;
+#else
+            pState = -1;
+#endif
             retVal = 1;
         }
         else if (strcmp(pName, propApp_qtVersion.name) == 0)
@@ -2788,7 +2792,11 @@ void App::pushGenesisEvents()
         ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
         ev->appendKeyInt(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);
         ev->appendKeyInt(propApp_platform.name, getPlatform());
+#ifdef SIM_FL
         ev->appendKeyInt(propApp_flavor.name, SIM_FL);
+#else
+        ev->appendKeyInt(propApp_flavor.name, -1);
+#endif
         ev->appendKeyInt(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
         if (instancesList != nullptr)
         {
