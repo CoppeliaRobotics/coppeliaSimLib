@@ -134,7 +134,7 @@ class CMeshWrapper
     C3Vector getPMI() const;
     void setPMI(const C3Vector &pmi);
     std::string getInertiaErrorString() const;
-    void setInertiaAndComputePMI(const C3X3Matrix& inertia);
+    void setInertiaAndComputePMI(const C3X3Matrix& inertia, bool forcePMICalc = false);
 
     static bool getPMIFromInertia(const C3X3Matrix &tensor, C4Vector &rotation, C3Vector &principalMoments);
     static C3X3Matrix getInertiaFromPMI(const C3Vector &principalMoments, const C7Vector &newFrame);

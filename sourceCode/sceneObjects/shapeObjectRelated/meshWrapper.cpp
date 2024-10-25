@@ -468,7 +468,7 @@ void CMeshWrapper::setInertia(const C3X3Matrix &im, int modifItemRow /*=-1*/, in
     setInertiaAndComputePMI(imatrix);
 }
 
-void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia)
+void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool forcePMICalc /*= false*/)
 {
     C3X3Matrix _in(inertia);
     for (size_t i = 0; i < 3; i++)
@@ -499,6 +499,8 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia)
             App::worldContainer->pushEvent();
         }
     }
+    else if (forcePMICalc)
+        getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
 }
 
 C3Vector CMeshWrapper::getPMI() const
@@ -853,7 +855,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
-                        setInertiaAndComputePMI(_iMatrix);
+                        setInertiaAndComputePMI(_iMatrix, true);
                     }
 
                     if (theName.compare("_tb") == 0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
@@ -873,7 +875,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
-                        setInertiaAndComputePMI(_iMatrix);
+                        setInertiaAndComputePMI(_iMatrix, true);
                     }
 
                     if (theName.compare("Ifr") == 0)
@@ -901,7 +903,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                             for (size_t j = 0; j < 3; j++)
                                 ar >> _iMatrix(i, j);
                         }
-                        setInertiaAndComputePMI(_iMatrix);
+                        setInertiaAndComputePMI(_iMatrix, true);
                     }
                     if (theName.compare("Bbf") == 0)
                     {
@@ -1056,7 +1058,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
-                        setInertiaAndComputePMI(_iMatrix);
+                        setInertiaAndComputePMI(_iMatrix, true);
                     }
 
                     if (ar.xmlPushChildNode("inertiaFrame"))
@@ -1080,7 +1082,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                             for (size_t j = 0; j < 3; j++)
                                 _iMatrix(i, j) = im[i * 3 + j];
                         }
-                        setInertiaAndComputePMI(_iMatrix);
+                        setInertiaAndComputePMI(_iMatrix, true);
                     }
 
                     if (ar.xmlPushChildNode("bbFrame"))

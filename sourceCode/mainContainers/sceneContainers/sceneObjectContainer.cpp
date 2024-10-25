@@ -306,7 +306,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
             for (size_t i = 0; i < objectHandles->size(); i++)
             {
                 CSceneObject *it = getObjectFromHandle(objectHandles->at(i));
-                if (it->canDestroyNow())
+                if ( (it != nullptr) && it->canDestroyNow() )
                 {
                     toDestroy.push_back(objectHandles->at(i));
                     toDestroyPtr.push_back(it);
