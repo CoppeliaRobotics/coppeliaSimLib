@@ -335,6 +335,9 @@ void GuiApp::runGui(int options)
         uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
 
+    if (CSimFlavor::getBoolVal(20))
+        App::postExitRequest();
+
     qtApp->exec(); // sits here until quit
 
     // Send the last "instancePass" message to all old plugins:

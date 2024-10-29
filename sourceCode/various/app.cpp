@@ -275,6 +275,8 @@ void App::init(const char *appDir, int)
     cmd.intParams.clear();
     App::appendSimulationThreadCommand(cmd, 2.2);
 #endif
+    if (CSimFlavor::getBoolVal(19))
+        App::postExitRequest();
 }
 
 void App::cleanup()
