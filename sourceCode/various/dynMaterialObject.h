@@ -95,6 +95,7 @@ struct SEngMaterialProperty {
     FUNCX(propMaterial_mujocoSolimp,                        "mujoco.solimp",                 sim_propertytype_floatarray, 0,     sim_mujoco_body_solimp1, sim_mujoco_body_solimp2, sim_mujoco_body_solimp3, sim_mujoco_body_solimp4, sim_mujoco_body_solimp5, "", "") \
     FUNCX(propMaterial_mujocoSolmix,                        "mujoco.solmix",                 sim_propertytype_float, 0,      sim_mujoco_body_solmix, -1, -1, -1, -1, "", "") \
     FUNCX(propMaterial_mujocoMargin,                        "mujoco.margin",                 sim_propertytype_float, 0,      sim_mujoco_body_margin, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoGap,                           "mujoco.gap",                    sim_propertytype_float, 0,      -1, -1, -1, -1, -1, "", "") \
     FUNCX(propMaterial_mujocoCondim,                        "mujoco.condim",                 sim_propertytype_int, 0,        sim_mujoco_body_condim, -1, -1, -1, -1, "", "") \
     FUNCX(propMaterial_mujocoPriority,                      "mujoco.priority",               sim_propertytype_int, 0,        sim_mujoco_body_priority, -1, -1, -1, -1, "", "") \
 
@@ -247,6 +248,7 @@ enum
     simi_mujoco_body_solimp5,
     simi_mujoco_body_solmix,
     simi_mujoco_body_margin,
+    simi_mujoco_body_gap,
 };
 
 enum

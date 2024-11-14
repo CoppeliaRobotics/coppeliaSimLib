@@ -958,18 +958,17 @@ void CEngineProperties::_writeShape(int engine, int shapeHandle, CAnnJson &annJs
     if (engine == sim_physics_mujoco)
     {
         QJsonObject jmujoco;
-        C3Vector vec3;
-        mat->getVector3Property(propMaterial_mujocoFriction.name, &vec3);
-        annJson.addJson(jmujoco, "friction", vec3.data, 3);
-        double vec[2];
-        mat->getVector2Property(propMaterial_mujocoSolref.name, vec);
-        annJson.addJson(jmujoco, "solref", vec, 2);
         std::vector<double> v;
+        mat->getFloatArrayProperty(propMaterial_mujocoFriction.name, v);
+        annJson.addJson(jmujoco, "friction", v.data(), 3);
+        mat->getFloatArrayProperty(propMaterial_mujocoSolref.name, v);
+        annJson.addJson(jmujoco, "solref", v.data(), 2);
         mat->getFloatArrayProperty(propMaterial_mujocoSolimp.name, v);
         annJson.addJson(jmujoco, "solimp", v.data(), 5);
         annJson.addJson(jmujoco, "condim", mat->getIntPropertyValue(propMaterial_mujocoCondim.name));
         annJson.addJson(jmujoco, "solmix", mat->getFloatPropertyValue(propMaterial_mujocoSolmix.name));
         annJson.addJson(jmujoco, "margin", mat->getFloatPropertyValue(propMaterial_mujocoMargin.name));
+        annJson.addJson(jmujoco, "gap", mat->getFloatPropertyValue(propMaterial_mujocoGap.name));
         annJson.addJson(jmujoco, "priority", mat->getIntPropertyValue(propMaterial_mujocoPriority.name));
         annJson.addJson(annJson.getMainObject()[0], "mujoco", jmujoco);
     }
@@ -1184,12 +1183,9 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
             QJsonObject mujoco(val.toObject());
             double v[5];
             if (annJson.getValue(mujoco, "friction", v, 3, allErrors))
-            {
-                C3Vector vect3(v);
-                mat->setVector3Property(propMaterial_mujocoFriction.name, &vect3);
-            }
+                mat->setFloatArrayProperty(propMaterial_mujocoFriction.name, v, 3);
             if (annJson.getValue(mujoco, "solref", v, 2, allErrors))
-                mat->setVector2Property(propMaterial_mujocoSolref.name, v);
+                mat->setFloatArrayProperty(propMaterial_mujocoSolref.name, v, 2);
             if (annJson.getValue(mujoco, "solimp", v, 5, allErrors))
                 mat->setFloatArrayProperty(propMaterial_mujocoSolimp.name, v, 5);
             if (annJson.getValue(mujoco, "condim", QJsonValue::Double, val, allErrors))
@@ -1198,6 +1194,8 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
                 mat->setFloatProperty(propMaterial_mujocoSolmix.name, val.toDouble());
             if (annJson.getValue(mujoco, "margin", QJsonValue::Double, val, allErrors))
                 mat->setFloatProperty(propMaterial_mujocoMargin.name, val.toDouble());
+            if (annJson.getValue(mujoco, "gap", QJsonValue::Double, val, allErrors))
+                mat->setFloatProperty(propMaterial_mujocoGap.name, val.toDouble());
             if (annJson.getValue(mujoco, "priority", QJsonValue::Double, val, allErrors))
                 mat->setIntProperty(propMaterial_mujocoPriority.name, val.toInt());
         }

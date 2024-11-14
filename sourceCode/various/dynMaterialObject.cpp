@@ -145,7 +145,7 @@ void CDynMaterialObject::_setDefaultParameters()
 
     // Mujoco parameters:
     // ----------------------------------------------------
-    _mujocoFloatParams.push_back(1.f);    // simi_mujoco_body_friction1
+    _mujocoFloatParams.push_back(1.0);    // simi_mujoco_body_friction1
     _mujocoFloatParams.push_back(0.005);  // simi_mujoco_body_friction2
     _mujocoFloatParams.push_back(0.0001); // simi_mujoco_body_friction3
     _mujocoFloatParams.push_back(0.02);   // simi_mujoco_body_solref1
@@ -157,6 +157,7 @@ void CDynMaterialObject::_setDefaultParameters()
     _mujocoFloatParams.push_back(2.0);    // simi_mujoco_body_solimp5
     _mujocoFloatParams.push_back(1.0);    // simi_mujoco_body_solmix
     _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_margin
+    _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_gap
 
     _mujocoIntParams.push_back(3); // simi_mujoco_body_condim
     int mujocoBitCoded = 0;        // not used for now
@@ -1195,6 +1196,7 @@ void CDynMaterialObject::serialize(CSer &ar)
             ar.xmlAddNode_floats("solimp", si, 5);
             ar.xmlAddNode_float("solmix", _mujocoFloatParams[simi_mujoco_body_solmix]);
             ar.xmlAddNode_float("margin", _mujocoFloatParams[simi_mujoco_body_margin]);
+            ar.xmlAddNode_float("gap", _mujocoFloatParams[simi_mujoco_body_gap]);
             ar.xmlAddNode_int("condim", _mujocoIntParams[simi_mujoco_body_condim]);
             ar.xmlAddNode_int("priority", _mujocoIntParams[simi_mujoco_body_priority]);
             ar.xmlPopNode();
@@ -1471,6 +1473,8 @@ void CDynMaterialObject::serialize(CSer &ar)
                         _mujocoFloatParams[simi_mujoco_body_solmix] = v;
                     if (ar.xmlGetNode_float("margin", v, exhaustiveXml))
                         _mujocoFloatParams[simi_mujoco_body_margin] = v;
+                    if (ar.xmlGetNode_float("gap", v, exhaustiveXml))
+                        _mujocoFloatParams[simi_mujoco_body_gap] = v;
                     if (ar.xmlGetNode_int("condim", vi, exhaustiveXml))
                         _mujocoIntParams[simi_mujoco_body_condim] = vi;
                     if (ar.xmlGetNode_int("priority", vi, exhaustiveXml))
@@ -1833,6 +1837,7 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
     handleProp(propMaterial_newtonAngularDrag.name, _newtonFloatParams, simi_newton_body_angulardrag);
     handleProp(propMaterial_mujocoSolmix.name, _mujocoFloatParams, simi_mujoco_body_solmix);
     handleProp(propMaterial_mujocoMargin.name, _mujocoFloatParams, simi_mujoco_body_margin);
+    handleProp(propMaterial_mujocoGap.name, _mujocoFloatParams, simi_mujoco_body_gap);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -2102,6 +2107,11 @@ int CDynMaterialObject::getFloatProperty(const char* pName, double& pState) cons
     {
         retVal = 1;
         pState = _mujocoFloatParams[simi_mujoco_body_margin];
+    }
+    else if (strcmp(pName, propMaterial_mujocoGap.name) == 0)
+    {
+        retVal = 1;
+        pState = _mujocoFloatParams[simi_mujoco_body_gap];
     }
 
     return retVal;
