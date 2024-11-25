@@ -672,12 +672,12 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.writeCustomStringData", _simWriteCustomStringData},
     {"sim.readCustomStringData", _simReadCustomStringData},
     {"sim.readCustomDataTags", _simReadCustomDataTags},
-    {"sim.getEngineFloatParam_old", _simGetEngineFloatParam},
+    {"sim.getEngineFloatParam", _simGetEngineFloatParam},
     {"sim.getEngineInt32Param", _simGetEngineInt32Param},
-    {"sim.getEngineBoolParam_old", _simGetEngineBoolParam},
-    {"sim.setEngineFloatParam_old", _simSetEngineFloatParam},
+    {"sim.getEngineBoolParam", _simGetEngineBoolParam},
+    {"sim.setEngineFloatParam", _simSetEngineFloatParam},
     {"sim.setEngineInt32Param", _simSetEngineInt32Param},
-    {"sim.setEngineBoolParam_old", _simSetEngineBoolParam},
+    {"sim.setEngineBoolParam", _simSetEngineBoolParam},
 
     {"", nullptr}};
 

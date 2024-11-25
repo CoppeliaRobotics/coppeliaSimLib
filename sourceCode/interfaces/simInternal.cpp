@@ -3945,6 +3945,7 @@ int simHandleDynamics_internal(double deltaTime)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         App::currentWorld->dynamicsContainer->handleDynamics(deltaTime);
+        CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();
         if ((!App::currentWorld->dynamicsContainer->isWorldThere()) && App::currentWorld->dynamicsContainer->getDynamicsEnabled())
         {
             App::currentWorld->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();

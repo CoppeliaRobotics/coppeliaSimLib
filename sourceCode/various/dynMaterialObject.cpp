@@ -158,11 +158,19 @@ void CDynMaterialObject::_setDefaultParameters()
     _mujocoFloatParams.push_back(1.0);    // simi_mujoco_body_solmix
     _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_margin
     _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_gap
+    _mujocoFloatParams.push_back(1.0);    // simi_mujoco_body_adhesiongain
+    _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_adhesionctrl
+    _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_adhesionctrlrange1
+    _mujocoFloatParams.push_back(1000.0);    // simi_mujoco_body_adhesionctrlrange2
+    _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_adhesionforcerange1
+    _mujocoFloatParams.push_back(1000.0);    // simi_mujoco_body_adhesionforcerange2
+    _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_gravcomp
 
     _mujocoIntParams.push_back(3); // simi_mujoco_body_condim
-    int mujocoBitCoded = 0;        // not used for now
-    _mujocoIntParams.push_back(mujocoBitCoded);
     _mujocoIntParams.push_back(0); // simi_mujoco_body_priority
+    int mujocoBitCoded = 0;  // bit0: simi_mujoco_body_adhesion
+    _mujocoIntParams.push_back(mujocoBitCoded);
+    _mujocoIntParams.push_back(-1); // simi_mujoco_body_adhesionforcelimited to auto
     // ----------------------------------------------------
 }
 
@@ -1197,8 +1205,18 @@ void CDynMaterialObject::serialize(CSer &ar)
             ar.xmlAddNode_float("solmix", _mujocoFloatParams[simi_mujoco_body_solmix]);
             ar.xmlAddNode_float("margin", _mujocoFloatParams[simi_mujoco_body_margin]);
             ar.xmlAddNode_float("gap", _mujocoFloatParams[simi_mujoco_body_gap]);
+            ar.xmlAddNode_float("gravcomp", _mujocoFloatParams[simi_mujoco_body_gravcomp]);
             ar.xmlAddNode_int("condim", _mujocoIntParams[simi_mujoco_body_condim]);
             ar.xmlAddNode_int("priority", _mujocoIntParams[simi_mujoco_body_priority]);
+            ar.xmlAddNode_bool("adhesion", getBoolPropertyValue(propMaterial_mujocoAdhesion.name));
+            ar.xmlAddNode_float("adhesiongain", _mujocoFloatParams[simi_mujoco_body_adhesiongain]);
+            si[0] = _mujocoFloatParams[simi_mujoco_body_adhesionctrlrange1];
+            si[1] = _mujocoFloatParams[simi_mujoco_body_adhesionctrlrange2];
+            ar.xmlAddNode_floats("adhesionctrlrange", si, 2);
+            si[0] = _mujocoFloatParams[simi_mujoco_body_adhesionforcerange1];
+            si[1] = _mujocoFloatParams[simi_mujoco_body_adhesionforcerange2];
+            ar.xmlAddNode_floats("adhesionforcerange", si, 2);
+            ar.xmlAddNode_int("adhesionforcelimited", _mujocoIntParams[simi_mujoco_body_adhesionforcelimited]);
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -1475,10 +1493,33 @@ void CDynMaterialObject::serialize(CSer &ar)
                         _mujocoFloatParams[simi_mujoco_body_margin] = v;
                     if (ar.xmlGetNode_float("gap", v, exhaustiveXml))
                         _mujocoFloatParams[simi_mujoco_body_gap] = v;
+                    if (ar.xmlGetNode_float("gravcomp", v, exhaustiveXml))
+                        _mujocoFloatParams[simi_mujoco_body_gravcomp] = v;
                     if (ar.xmlGetNode_int("condim", vi, exhaustiveXml))
                         _mujocoIntParams[simi_mujoco_body_condim] = vi;
                     if (ar.xmlGetNode_int("priority", vi, exhaustiveXml))
                         _mujocoIntParams[simi_mujoco_body_priority] = vi;
+                    if (ar.xmlGetNode_bool("adhesion", vb, exhaustiveXml))
+                    {
+                        _mujocoIntParams[simi_mujoco_body_bitcoded] |= simi_mujoco_body_adhesion;
+                        if (!vb)
+                            _mujocoIntParams[simi_mujoco_body_bitcoded] -= simi_mujoco_body_adhesion;
+                    }
+                    if (ar.xmlGetNode_float("adhesiongain", v, exhaustiveXml))
+                        _mujocoFloatParams[simi_mujoco_body_adhesiongain] = v;
+                    if (ar.xmlGetNode_floats("adhesionctrlrange", vv, 2, exhaustiveXml))
+                    {
+                        _mujocoFloatParams[simi_mujoco_body_adhesionctrlrange1] = vv[0];
+                        _mujocoFloatParams[simi_mujoco_body_adhesionctrlrange2] = vv[1];
+                    }
+                    if (ar.xmlGetNode_floats("adhesionforcerange", vv, 2, exhaustiveXml))
+                    {
+                        _mujocoFloatParams[simi_mujoco_body_adhesionforcerange1] = vv[0];
+                        _mujocoFloatParams[simi_mujoco_body_adhesionforcerange2] = vv[1];
+                    }
+                    if (ar.xmlGetNode_int("adhesionforcelimited", vi, exhaustiveXml))
+                        _mujocoIntParams[simi_mujoco_body_adhesionforcelimited] = vi;
+
                     ar.xmlPopNode();
                 }
 
@@ -1571,6 +1612,7 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
     handleProp(propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_normangaxissameasprimangaxis);
     handleProp(propMaterial_vortexAutoAngularDamping.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_autoangulardamping);
     handleProp(propMaterial_newtonFastMoving.name, _newtonIntParams, simi_newton_body_bitcoded, simi_newton_body_fastmoving);
+    handleProp(propMaterial_mujocoAdhesion.name, _mujocoIntParams, simi_mujoco_body_bitcoded, simi_mujoco_body_adhesion);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -1651,6 +1693,11 @@ int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState) const
         retVal = 1;
         pState = _newtonIntParams[simi_newton_body_bitcoded] & simi_newton_body_fastmoving;
     }
+    else if (strcmp(pName, propMaterial_mujocoAdhesion.name) == 0)
+    {
+        retVal = 1;
+        pState = _mujocoIntParams[simi_mujoco_body_bitcoded] & simi_mujoco_body_adhesion;
+    }
 
     return retVal;
 }
@@ -1693,6 +1740,7 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
     handleProp(propMaterial_vortexMaterialUniqueId.name, _vortexIntParams, simi_vortex_body_materialuniqueid);
     handleProp(propMaterial_mujocoCondim.name, _mujocoIntParams, simi_mujoco_body_condim);
     handleProp(propMaterial_mujocoPriority.name, _mujocoIntParams, simi_mujoco_body_priority);
+    handleProp(propMaterial_mujocoAdhesionForcelimited.name, _mujocoIntParams, simi_mujoco_body_adhesionforcelimited);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -1752,6 +1800,11 @@ int CDynMaterialObject::getIntProperty(const char* pName, int& pState) const
     {
         retVal = 1;
         pState = _mujocoIntParams[simi_mujoco_body_priority];
+    }
+    else if (strcmp(pName, propMaterial_mujocoAdhesionForcelimited.name) == 0)
+    {
+        retVal = 1;
+        pState = _mujocoIntParams[simi_mujoco_body_adhesionforcelimited];
     }
 
     return retVal;
@@ -1838,6 +1891,9 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
     handleProp(propMaterial_mujocoSolmix.name, _mujocoFloatParams, simi_mujoco_body_solmix);
     handleProp(propMaterial_mujocoMargin.name, _mujocoFloatParams, simi_mujoco_body_margin);
     handleProp(propMaterial_mujocoGap.name, _mujocoFloatParams, simi_mujoco_body_gap);
+    handleProp(propMaterial_mujocoAdhesionGain.name, _mujocoFloatParams, simi_mujoco_body_adhesiongain);
+    handleProp(propMaterial_mujocoAdhesionCtrl.name, _mujocoFloatParams, simi_mujoco_body_adhesionctrl);
+    handleProp(propMaterial_mujocoGravcomp.name, _mujocoFloatParams, simi_mujoco_body_gravcomp);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -2113,6 +2169,21 @@ int CDynMaterialObject::getFloatProperty(const char* pName, double& pState) cons
         retVal = 1;
         pState = _mujocoFloatParams[simi_mujoco_body_gap];
     }
+    else if (strcmp(pName, propMaterial_mujocoAdhesionGain.name) == 0)
+    {
+        retVal = 1;
+        pState = _mujocoFloatParams[simi_mujoco_body_adhesiongain];
+    }
+    else if (strcmp(pName, propMaterial_mujocoAdhesionCtrl.name) == 0)
+    {
+        retVal = 1;
+        pState = _mujocoFloatParams[simi_mujoco_body_adhesionctrl];
+    }
+    else if (strcmp(pName, propMaterial_mujocoGravcomp.name) == 0)
+    {
+        retVal = 1;
+        pState = _mujocoFloatParams[simi_mujoco_body_gravcomp];
+    }
 
     return retVal;
 }
@@ -2313,6 +2384,8 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v
     handleProp(propMaterial_mujocoFriction.name, _mujocoFloatParams, simi_mujoco_body_friction1, 3);
     handleProp(propMaterial_mujocoSolref.name, _mujocoFloatParams, simi_mujoco_body_solref1, 2);
     handleProp(propMaterial_mujocoSolimp.name, _mujocoFloatParams, simi_mujoco_body_solimp1, 5);
+    handleProp(propMaterial_mujocoAdhesionCtrlrange.name, _mujocoFloatParams, simi_mujoco_body_adhesionctrlrange1, 2);
+    handleProp(propMaterial_mujocoAdhesionForcerange.name, _mujocoFloatParams, simi_mujoco_body_adhesionforcerange1, 2);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -2337,6 +2410,10 @@ int CDynMaterialObject::getFloatArrayProperty(const char* pName, std::vector<dou
         handleProp(_mujocoFloatParams, simi_mujoco_body_solimp1, 5);
     else if (strcmp(pName, propMaterial_mujocoFriction.name) == 0)
         handleProp(_mujocoFloatParams, simi_mujoco_body_friction1, 3);
+    else if (strcmp(pName, propMaterial_mujocoAdhesionCtrlrange.name) == 0)
+        handleProp(_mujocoFloatParams, simi_mujoco_body_adhesionctrlrange1, 2);
+    else if (strcmp(pName, propMaterial_mujocoAdhesionForcerange.name) == 0)
+        handleProp(_mujocoFloatParams, simi_mujoco_body_adhesionforcerange1, 2);
 
     return retVal;
 }

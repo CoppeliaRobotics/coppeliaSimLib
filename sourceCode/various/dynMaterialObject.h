@@ -98,6 +98,13 @@ struct SEngMaterialProperty {
     FUNCX(propMaterial_mujocoGap,                           "mujoco.gap",                    sim_propertytype_float, 0,      -1, -1, -1, -1, -1, "", "") \
     FUNCX(propMaterial_mujocoCondim,                        "mujoco.condim",                 sim_propertytype_int, 0,        sim_mujoco_body_condim, -1, -1, -1, -1, "", "") \
     FUNCX(propMaterial_mujocoPriority,                      "mujoco.priority",               sim_propertytype_int, 0,        sim_mujoco_body_priority, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoAdhesion,                      "mujoco.adhesion",               sim_propertytype_bool, 0,      -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoAdhesionGain,                  "mujoco.adhesiongain",           sim_propertytype_float, 0,     -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoAdhesionForcelimited,          "mujoco.adhesionforcelimited",   sim_propertytype_int, 0,       -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoAdhesionCtrlrange,             "mujoco.adhesionctrlrange",      sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoAdhesionForcerange,            "mujoco.adhesionforcerange",     sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoAdhesionCtrl,                  "mujoco.adhesionctrl",           sim_propertytype_float, 0,     -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoGravcomp,                      "mujoco.gravcomp",               sim_propertytype_float, 0,     -1, -1, -1, -1, -1, "", "") \
 
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SEngMaterialProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES
@@ -249,13 +256,28 @@ enum
     simi_mujoco_body_solmix,
     simi_mujoco_body_margin,
     simi_mujoco_body_gap,
+    simi_mujoco_body_adhesiongain,
+    simi_mujoco_body_adhesionctrl,
+    simi_mujoco_body_adhesionctrlrange1,
+    simi_mujoco_body_adhesionctrlrange2,
+    simi_mujoco_body_adhesionforcerange1,
+    simi_mujoco_body_adhesionforcerange2,
+    simi_mujoco_body_gravcomp,
 };
 
 enum
 { /* Mujoco body int params */
     simi_mujoco_body_condim = 0,
     simi_mujoco_body_priority,
+    simi_mujoco_body_bitcoded,
+    simi_mujoco_body_adhesionforcelimited,
 };
+
+enum
+{ /* Mujoco body bit params */
+    simi_mujoco_body_adhesion = 1
+};
+
 
 class CDynMaterialObject
 {

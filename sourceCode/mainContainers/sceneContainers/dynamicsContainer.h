@@ -57,9 +57,10 @@ struct SDynProperty {
     FUNCX(propDyn_mujocoIterations,                      "mujoco.iterations",                            sim_propertytype_int,       0, sim_mujoco_global_iterations, -1, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoRebuildTrigger,                  "mujoco.rebuildTrigger",                        sim_propertytype_int,       0, sim_mujoco_global_rebuildtrigger, -1, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoComputeInertias,                 "mujoco.computeInertias",                       sim_propertytype_bool,      0, sim_mujoco_global_computeinertias, -1, -1, -1, -1, "", "") \
-    FUNCX(propDyn_mujocoNjMax,                           "mujoco.njmax",                                 sim_propertytype_int,       0, sim_mujoco_global_njmax, -1, -1, -1, -1, "", "") \
-    FUNCX(propDyn_mujocoNconMax,                         "mujoco.nconmax",                               sim_propertytype_int,       0, sim_mujoco_global_nconmax, -1, -1, -1, -1, "", "") \
-    FUNCX(propDyn_mujocoNstack,                          "mujoco.nstack",                                sim_propertytype_int,       0, sim_mujoco_global_nstack, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoMbMemory,                        "mujoco.mbmemory",                              sim_propertytype_int,       0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoNjMax,                           "mujoco.njmax",                                 sim_propertytype_int,       0, sim_mujoco_global_njmax, -1, -1, -1, -1, "", "Deprecated. See mujoco.mbmemory instead.") \
+    FUNCX(propDyn_mujocoNconMax,                         "mujoco.nconmax",                               sim_propertytype_int,       0, sim_mujoco_global_nconmax, -1, -1, -1, -1, "", "Deprecated. See mujoco.mbmemory instead.") \
+    FUNCX(propDyn_mujocoNstack,                          "mujoco.nstack",                                sim_propertytype_int,       0, sim_mujoco_global_nstack, -1, -1, -1, -1, "", "Deprecated. See mujoco.mbmemory instead.") \
     FUNCX(propDyn_mujocoCone,                            "mujoco.cone",                                  sim_propertytype_int,       0, sim_mujoco_global_cone, -1, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoKinematicBodiesOverrideFlags,    "mujoco.kinematicBodiesOverrideFlags",          sim_propertytype_int,       0, sim_mujoco_global_overridekin, -1, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoKinematicBodiesMass,             "mujoco.kinematicBodiesMass",                   sim_propertytype_float,     0, sim_mujoco_global_kinmass, -1, -1, -1, -1, "", "") \
@@ -76,7 +77,34 @@ struct SDynProperty {
     FUNCX(propDyn_mujocoImpRatio,                        "mujoco.impratio",                              sim_propertytype_float,     0, sim_mujoco_global_impratio, -1, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoWind,                            "mujoco.wind",                                  sim_propertytype_vector3,   0, sim_mujoco_global_wind1, sim_mujoco_global_wind2, sim_mujoco_global_wind3, -1, -1, "", "") \
     FUNCX(propDyn_mujocoDensity,                         "mujoco.density",                               sim_propertytype_float,     0, sim_mujoco_global_density, -1, -1, -1, -1, "", "") \
-    FUNCX(propDyn_mujocoViscosity,                       "mujoco.viscosity",                             sim_propertytype_float,     0, sim_mujoco_global_viscosity, -1, -1, -1, -1, "", "")
+    FUNCX(propDyn_mujocoViscosity,                       "mujoco.viscosity",                             sim_propertytype_float,     0, sim_mujoco_global_viscosity, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoJacobian,                        "mujoco.jacobian",                              sim_propertytype_int,       0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoTolerance,                       "mujoco.tolerance",                             sim_propertytype_float,     0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoLs_iterations,                   "mujoco.ls_iterations",                         sim_propertytype_int,       0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoLs_tolerance,                    "mujoco.ls_tolerance",                          sim_propertytype_float,     0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoNoslip_iterations,               "mujoco.noslip_iterations",                     sim_propertytype_int,       0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoNoslip_tolerance,                "mujoco.noslip_tolerance",                      sim_propertytype_float,     0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoCcd_iterations,                  "mujoco.ccd_iterations",                        sim_propertytype_int,       0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoCcd_tolerance,                   "mujoco.ccd_tolerance",                         sim_propertytype_float,     0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoSdf_iterations,                  "mujoco.sdf_iterations",                        sim_propertytype_int,       0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoSdf_initpoints,                  "mujoco.sdf_initpoints",                        sim_propertytype_int,       0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoEqualityEnable,                  "mujoco.equalityEnable",                        sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoFrictionlossEnable,              "mujoco.frictionlossEnable",                    sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoLimitEnable,                     "mujoco.limitEnable",                           sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoContactEnable,                   "mujoco.contactEnable",                         sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoPassiveEnable,                   "mujoco.passiveEnable",                         sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoGravityEnable,                   "mujoco.gravityEnable",                         sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoWarmstartEnable,                 "mujoco.warmstartEnable",                       sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoActuationEnable,                 "mujoco.actuationEnable",                       sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoRefsafeEnable,                   "mujoco.refsafeEnable",                         sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoSensorEnable,                    "mujoco.sensorEnable",                          sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoMidphaseEnable,                  "mujoco.midphaseEnable",                        sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoEulerdampEnable,                 "mujoco.eulerdampEnable",                       sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoAutoresetEnable,                 "mujoco.autoresetEnable",                       sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoEnergyEnable,                    "mujoco.energyEnable",                          sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoInvdiscreteEnable,               "mujoco.invdiscreteEnable",                     sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoNativeccdEnable,                 "mujoco.nativeccdEnable",                       sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoAlignfree,                       "mujoco.alignfree",                             sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "", "") \
 
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDynProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES
@@ -195,6 +223,10 @@ enum
     simi_mujoco_global_overridesolimp5,
     simi_mujoco_global_kinmass,
     simi_mujoco_global_kininertia,
+    simi_mujoco_global_tolerance,
+    simi_mujoco_global_ls_tolerance,
+    simi_mujoco_global_noslip_tolerance,
+    simi_mujoco_global_ccd_tolerance,
 };
 
 enum
@@ -203,21 +235,47 @@ enum
     simi_mujoco_global_iterations,
     simi_mujoco_global_integrator,
     simi_mujoco_global_solver,
-    simi_mujoco_global_njmax,
-    simi_mujoco_global_nconmax,
+    simi_mujoco_global_njmax, // deprecated
+    simi_mujoco_global_nconmax, // deprecated
     simi_mujoco_global_cone,
     simi_mujoco_global_overridekin,
-    simi_mujoco_global_nstack,
+    simi_mujoco_global_nstack, // deprecated
     simi_mujoco_global_rebuildtrigger,
+    simi_mujoco_global_mbmemory,
+    simi_mujoco_global_jacobian,
+    simi_mujoco_global_ls_iterations,
+    simi_mujoco_global_noslip_iterations,
+    simi_mujoco_global_ccd_iterations,
+    simi_mujoco_global_sdf_iterations,
+    simi_mujoco_global_sdf_initpoints,
+    simi_mujoco_global_bitcoded2,
 };
 
 enum
 { /* Mujoco global bit params */
-    simi_mujoco_global_computeinertias = 1,
-    simi_mujoco_global_multithreaded = 2,
-    simi_mujoco_global_multiccd = 4,
-    simi_mujoco_global_balanceinertias = 8,
-    simi_mujoco_global_overridecontacts = 16
+    simi_mujoco_global_computeinertias = 0x01,
+    simi_mujoco_global_multithreaded = 0x02,
+    simi_mujoco_global_multiccd = 0x04,
+    simi_mujoco_global_balanceinertias = 0x08,
+    simi_mujoco_global_overridecontacts = 0x10,
+    /* from here, simi_mujoco_global_bitcoded2 */
+    simi_mujoco_global_equality = 0x01,
+    simi_mujoco_global_frictionloss = 0x02,
+    simi_mujoco_global_limit = 0x04,
+    simi_mujoco_global_contact = 0x08,
+    simi_mujoco_global_passive = 0x10,
+    simi_mujoco_global_gravity = 0x20,
+    simi_mujoco_global_warmstart = 0x40,
+    simi_mujoco_global_actuation = 0x80,
+    simi_mujoco_global_refsafe = 0x100,
+    simi_mujoco_global_sensor = 0x200,
+    simi_mujoco_global_midphase = 0x400,
+    simi_mujoco_global_eulerdamp = 0x800,
+    simi_mujoco_global_autoreset = 0x1000,
+    simi_mujoco_global_energy = 0x2000,
+    simi_mujoco_global_invdiscrete = 0x4000,
+    simi_mujoco_global_nativeccd = 0x8000,
+    simi_mujoco_global_alignfree = 0x10000,
 };
 
 class CViewableBase;
