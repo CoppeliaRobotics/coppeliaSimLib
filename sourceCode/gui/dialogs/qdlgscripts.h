@@ -35,6 +35,8 @@ class CQDlgScripts : public CDlgEx
 
     void on_qqExecutionOrder_currentIndexChanged(int index);
 
+    void on_qqResetAfterSimError_clicked();
+
 private:
     Ui::CQDlgScripts *ui;
 };

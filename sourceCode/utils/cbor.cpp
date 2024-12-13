@@ -390,7 +390,10 @@ size_t CCbor::getEventDepth() const
 void CCbor::createEvent(const char *event, const char *fieldName, const char *objType, long long int handle, long long int uid, bool mergeable, bool openDataField /*=true*/)
 {
     if (_eventOpen)
+    {
+        printf("[CoppeliaSim:error] creating an event where an event push is expected.\n");
         App::logMsg(sim_verbosity_errors, "creating an event where an event push is expected.");
+    }
     _eventOpen = true;
 
     SEventInf inf;

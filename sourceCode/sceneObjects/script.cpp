@@ -41,6 +41,7 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
     _localObjectSpecialProperty = 0;
     _objectProperty |= sim_objectproperty_dontshowasinsidemodel;
     _scriptSize = 0.01;
+    _resetAfterSimError = false;
 
     _visibilityLayer = SCRIPT_LAYER;
     _objectAlias = getObjectTypeInfo();
@@ -157,6 +158,7 @@ void CScript::addSpecializedObjectEventData(CCbor *ev)
     _scriptColor.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propScript_size.name, _scriptSize);
+    ev->appendKeyBool(propScript_resetAfterSimError.name, _resetAfterSimError);
     scriptObject->addSpecializedObjectEventData(ev);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // script
@@ -169,6 +171,7 @@ CSceneObject *CScript::copyYourself()
 
     _scriptColor.copyYourselfInto(&newScript->_scriptColor);
     newScript->_scriptSize = _scriptSize;
+    newScript->_resetAfterSimError = _resetAfterSimError;
 
     newScript->scriptObject = scriptObject->copyYourself();
     newScript->scriptObject->_sceneObjectScript = true;
@@ -262,6 +265,12 @@ void CScript::serialize(CSer &ar)
             ar << _scriptSize;
             ar.flush();
 
+            ar.storeDataName("Var");
+            unsigned char dummy = 0;
+            SIM_SET_CLEAR_BIT(dummy, 0, _resetAfterSimError);
+            ar << dummy;
+            ar.flush();
+
             ar.storeDataName("Soc");
             ar.setCountingMode();
             _scriptColor.serialize(ar, 0);
@@ -293,6 +302,15 @@ void CScript::serialize(CSer &ar)
                         ar >> _scriptSize;
                     }
 
+                    if (theName.compare("Var") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _resetAfterSimError = SIM_IS_BIT_SET(dummy, 0);
+                    }
+
                     if (theName.compare("Soc") == 0)
                     {
                         noHit = false;
@@ -321,6 +339,7 @@ void CScript::serialize(CSer &ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_float("size", _scriptSize);
+            ar.xmlAddNode_bool("resetAfterSimError", _resetAfterSimError);
 
             ar.xmlPushNewNode("color");
             if (exhaustiveXml)
@@ -339,6 +358,7 @@ void CScript::serialize(CSer &ar)
         else
         {
             ar.xmlGetNode_float("size", _scriptSize, exhaustiveXml);
+            ar.xmlGetNode_bool("resetAfterSimError", _resetAfterSimError, exhaustiveXml);
 
             if (ar.xmlPushChildNode("color", exhaustiveXml))
             {
@@ -383,6 +403,26 @@ double CScript::getScriptSize() const
     return (_scriptSize);
 }
 
+void CScript::reinitAfterSimulationIfNeeded()
+{
+    if (scriptObject != nullptr)
+    {
+        if (scriptObject->getScriptType() == sim_scripttype_customization)
+        {
+            if ( (scriptObject->getScriptState() & CScriptObject::scriptState_error) && _resetAfterSimError )
+            {
+                scriptObject->resetScript();
+                scriptObject->initScript();
+            }
+        }
+    }
+}
+
+bool CScript::getResetAfterSimError() const
+{
+    return _resetAfterSimError;
+}
+
 CColorObject *CScript::getScriptColor()
 {
     return (&_scriptColor);
@@ -405,6 +445,22 @@ void CScript::setScriptSize(double s)
     }
 }
 
+void CScript::resetAfterSimError(bool r)
+{
+    bool diff = (_resetAfterSimError != r);
+    if (diff)
+    {
+        _resetAfterSimError = r;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propScript_resetAfterSimError.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _resetAfterSimError);
+            App::worldContainer->pushEvent();
+        }
+    }
+}
+
 #ifdef SIM_WITH_GUI
 void CScript::display(CViewableBase *renderingObject, int displayAttrib)
 {
@@ -421,6 +477,11 @@ int CScript::setBoolProperty(const char* ppName, bool pState)
         retVal = scriptObject->setBoolProperty(pName, pState);
     if (retVal == -1)
     {
+        if (_pName == propScript_resetAfterSimError.name)
+        {
+            resetAfterSimError(pState);
+            retVal = 1;
+        }
     }
 
     return retVal;
@@ -435,6 +496,11 @@ int CScript::getBoolProperty(const char* ppName, bool& pState) const
         retVal = scriptObject->getBoolProperty(pName, pState);
     if (retVal == -1)
     {
+        if (_pName == propScript_resetAfterSimError.name)
+        {
+            pState = _resetAfterSimError;
+            retVal = 1;
+        }
     }
 
     return retVal;

@@ -8,6 +8,7 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propScript_size,                      "scriptSize",                                     sim_propertytype_float,     0, "Size", "Size of the script's 3D representation") \
+    FUNCX(propScript_resetAfterSimError,        "resetAfterSimError",                             sim_propertytype_bool,      0, "Reset after simulation error", "") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -74,10 +75,14 @@ class CScript : public CSceneObject
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     double getScriptSize() const;
+    void reinitAfterSimulationIfNeeded();
 
     CColorObject *getScriptColor();
 
     void setScriptSize(double s);
+    void resetAfterSimError(bool r);
+    bool getResetAfterSimError() const;
+
 
     CScriptObject* scriptObject;
 
@@ -86,6 +91,7 @@ class CScript : public CSceneObject
 
     CColorObject _scriptColor;
     double _scriptSize;
+    bool _resetAfterSimError;
 
 #ifdef SIM_WITH_GUI
   public:

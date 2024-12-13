@@ -304,6 +304,7 @@ void CDynamicsContainer::setDynamicEngineType(int t, int version)
             ev->appendKeyIntArray(propDyn_dynamicsEngine.name, ar, 2);
             App::worldContainer->pushEvent();
         }
+        checkIfEngineSettingsAreDefault();
 #ifdef SIM_WITH_GUI
         GuiApp::setLightDialogRefreshFlag();
 #endif
@@ -780,83 +781,98 @@ void CDynamicsContainer::checkIfEngineSettingsAreDefault()
     std::vector<double> fVals;
     std::vector<int> iVals;
 
-    getBulletDefaultFloatParams(fVals);
-    getBulletDefaultIntParams(iVals);
-    if (!_engineFloatsAreSimilar(fVals, _bulletFloatParams))
+    if (_dynamicEngineToUse == sim_physics_bullet)
     {
-        _engineSettingsAreDefault = false;
-        return;
-    }
-    for (size_t i = 0; i < iVals.size(); i++)
-    {
-        if (iVals[i] != _bulletIntParams[i])
+        getBulletDefaultFloatParams(fVals);
+        getBulletDefaultIntParams(iVals);
+        if (!_engineFloatsAreSimilar(fVals, _bulletFloatParams))
         {
             _engineSettingsAreDefault = false;
             return;
         }
+        for (size_t i = 0; i < iVals.size(); i++)
+        {
+            if (iVals[i] != _bulletIntParams[i])
+            {
+                _engineSettingsAreDefault = false;
+                return;
+            }
+        }
     }
 
-    getOdeDefaultFloatParams(fVals);
-    getOdeDefaultIntParams(iVals);
-    if (!_engineFloatsAreSimilar(fVals, _odeFloatParams))
+    if (_dynamicEngineToUse == sim_physics_ode)
     {
-        _engineSettingsAreDefault = false;
-        return;
-    }
-    for (size_t i = 0; i < iVals.size(); i++)
-    {
-        if (iVals[i] != _odeIntParams[i])
+        getOdeDefaultFloatParams(fVals);
+        getOdeDefaultIntParams(iVals);
+        if (!_engineFloatsAreSimilar(fVals, _odeFloatParams))
         {
             _engineSettingsAreDefault = false;
             return;
         }
+        for (size_t i = 0; i < iVals.size(); i++)
+        {
+            if (iVals[i] != _odeIntParams[i])
+            {
+                _engineSettingsAreDefault = false;
+                return;
+            }
+        }
     }
 
-    getVortexDefaultFloatParams(fVals);
-    getVortexDefaultIntParams(iVals);
-    if (!_engineFloatsAreSimilar(fVals, _vortexFloatParams))
+    if (_dynamicEngineToUse == sim_physics_vortex)
     {
-        _engineSettingsAreDefault = false;
-        return;
-    }
-    for (size_t i = 0; i < iVals.size(); i++)
-    {
-        if (iVals[i] != _vortexIntParams[i])
+        getVortexDefaultFloatParams(fVals);
+        getVortexDefaultIntParams(iVals);
+        if (!_engineFloatsAreSimilar(fVals, _vortexFloatParams))
         {
             _engineSettingsAreDefault = false;
             return;
         }
+        for (size_t i = 0; i < iVals.size(); i++)
+        {
+            if (iVals[i] != _vortexIntParams[i])
+            {
+                _engineSettingsAreDefault = false;
+                return;
+            }
+        }
     }
 
-    getNewtonDefaultFloatParams(fVals);
-    getNewtonDefaultIntParams(iVals);
-    if (!_engineFloatsAreSimilar(fVals, _newtonFloatParams))
+    if (_dynamicEngineToUse == sim_physics_newton)
     {
-        _engineSettingsAreDefault = false;
-        return;
-    }
-    for (size_t i = 0; i < iVals.size(); i++)
-    {
-        if (iVals[i] != _newtonIntParams[i])
+        getNewtonDefaultFloatParams(fVals);
+        getNewtonDefaultIntParams(iVals);
+        if (!_engineFloatsAreSimilar(fVals, _newtonFloatParams))
         {
             _engineSettingsAreDefault = false;
             return;
         }
+        for (size_t i = 0; i < iVals.size(); i++)
+        {
+            if (iVals[i] != _newtonIntParams[i])
+            {
+                _engineSettingsAreDefault = false;
+                return;
+            }
+        }
     }
 
-    getMujocoDefaultFloatParams(fVals);
-    getMujocoDefaultIntParams(iVals);
-    if (!_engineFloatsAreSimilar(fVals, _mujocoFloatParams))
+    if (_dynamicEngineToUse == sim_physics_mujoco)
     {
-        _engineSettingsAreDefault = false;
-        return;
-    }
-    for (size_t i = 0; i < iVals.size(); i++)
-    {
-        if (iVals[i] != _mujocoIntParams[i])
+        getMujocoDefaultFloatParams(fVals);
+        getMujocoDefaultIntParams(iVals);
+        if (!_engineFloatsAreSimilar(fVals, _mujocoFloatParams))
         {
             _engineSettingsAreDefault = false;
             return;
+        }
+        for (size_t i = 0; i < iVals.size(); i++)
+        {
+            if (iVals[i] != _mujocoIntParams[i])
+            {
+                _engineSettingsAreDefault = false;
+                return;
+            }
         }
     }
 }

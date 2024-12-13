@@ -846,8 +846,7 @@ static std::string replaceVars(const std::string &format, const std::map<std::st
     return msg;
 }
 
-void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, int consoleVerbosity /*=-1*/,
-                   int statusbarVerbosity /*=-1*/)
+void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, int consoleVerbosity /*=-1*/, int statusbarVerbosity /*=-1*/)
 {
     static bool inside = false;
     static int64_t lastTime = 0;
@@ -2094,6 +2093,51 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                 pState = getApplicationArgument(8);
                 retVal = 1;
             }
+            else if (strcmp(pName, propApp_dongleSerial.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(22);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_machineSerialND.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(23);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_machineSerial.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(24);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_dongleID.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(25);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_machineIDX.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(26);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_machineID0.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(27);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_machineID1.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(28);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_machineID2.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(29);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_machineID3.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal(30);
+                retVal = 1;
+            }
         }
     }
     else if (currentWorld != nullptr)
@@ -2781,6 +2825,7 @@ void App::pushGenesisEvents()
 {
     if ((worldContainer != nullptr) && worldContainer->getEventsEnabled())
     {
+        CSimFlavor::getStringVal(22); // trigger calculations and print mids
         CCbor *ev = worldContainer->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
         worldContainer->pushEvent();
 
@@ -2862,6 +2907,15 @@ void App::pushGenesisEvents()
             ev->appendKeyInt(propApp_notifyDeprecated.name, userSettings->notifyDeprecated);
             ev->appendKeyBool(propApp_execUnsafe.name, userSettings->execUnsafe);
             ev->appendKeyBool(propApp_execUnsafeExt.name, userSettings->execUnsafeExt);
+            ev->appendKeyText(propApp_dongleSerial.name, CSimFlavor::getStringVal(22).c_str());
+            ev->appendKeyText(propApp_machineSerialND.name, CSimFlavor::getStringVal(23).c_str());
+            ev->appendKeyText(propApp_machineSerial.name, CSimFlavor::getStringVal(24).c_str());
+            ev->appendKeyText(propApp_dongleID.name, CSimFlavor::getStringVal(25).c_str());
+            ev->appendKeyText(propApp_machineIDX.name, CSimFlavor::getStringVal(26).c_str());
+            ev->appendKeyText(propApp_machineID0.name, CSimFlavor::getStringVal(27).c_str());
+            ev->appendKeyText(propApp_machineID1.name, CSimFlavor::getStringVal(28).c_str());
+            ev->appendKeyText(propApp_machineID2.name, CSimFlavor::getStringVal(29).c_str());
+            ev->appendKeyText(propApp_machineID3.name, CSimFlavor::getStringVal(30).c_str());
         }
 #ifdef SIM_WITH_GUI
         ev->appendKeyBool(propApp_browserEnabled.name, GuiApp::getBrowserEnabled());

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>147</height>
+    <height>164</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>60</y>
+     <y>80</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -78,7 +78,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>120</y>
+     <y>140</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -600,11 +600,28 @@
     <string>Parent as proxy</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="qqResetAfterSimError">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>221</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Reset after simulation error</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>qqEnabled</tabstop>
   <tabstop>qqExecutionOrder</tabstop>
   <tabstop>qqParentProxy</tabstop>
+  <tabstop>qqResetAfterSimError</tabstop>
   <tabstop>qqSize</tabstop>
   <tabstop>qqColor</tabstop>
   <tabstop>qqApplyMainProperties</tabstop>

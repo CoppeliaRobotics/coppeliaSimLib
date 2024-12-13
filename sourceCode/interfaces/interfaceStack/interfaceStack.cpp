@@ -256,17 +256,34 @@ bool CInterfaceStack::isStackValueNull() const
 
 int CInterfaceStack::getStackTableInfo(int infoType) const
 {
+    int retVal = -1; // error
     if (_stackObjects.size() != 0)
     {
         CInterfaceStackObject *it = _stackObjects[_stackObjects.size() - 1];
         if (it->getObjectType() == sim_stackitem_table)
         {
             CInterfaceStackTable *table = (CInterfaceStackTable *)it;
-            return (table->getTableInfo(infoType));
+            retVal = table->getTableInfo(infoType);
         }
-        return (sim_stack_table_not_table);
+        else
+        { // if we have a string (text, binary or buffer), it can identify as a table too:
+            if (it->getObjectType() == sim_stackitem_string)
+            {
+                CInterfaceStackString *str = (CInterfaceStackString *)it;
+                if (infoType == 0)
+                { // array size
+                    size_t s;
+                    str->getValue(&s);
+                    retVal = int(s);
+                }
+                else
+                    retVal = 0;
+            }
+            else
+                retVal = sim_stack_table_not_table;
+        }
     }
-    return (-1); // error
+    return retVal;
 }
 
 void CInterfaceStack::clear()
@@ -293,67 +310,142 @@ void CInterfaceStack::copyFrom(const CInterfaceStack *source)
 
 bool CInterfaceStack::getStackUCharArray(unsigned char *array, int count) const
 {
-    if (_stackObjects.size() == 0)
-        return (false);
-    CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
-    if (obj->getObjectType() != sim_stackitem_table)
-        return (false);
-    CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
-    if (!table->isTableArray())
-        return (false);
-    return (table->getUCharArray(array, count));
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+            if (table->isTableArray())
+                retVal = table->getUCharArray(array, count);
+        }
+        else if (obj->getObjectType() == sim_stackitem_string)
+        { // strings can also be seen as arrays
+            CInterfaceStackString *str = (CInterfaceStackString *)obj;
+            size_t l = 0;
+            const unsigned char* strb = (unsigned char*) str->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = strb[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+    }
+    return retVal;
 }
 
 bool CInterfaceStack::getStackInt32Array(int *array, int count) const
 {
-    if (_stackObjects.size() == 0)
-        return (false);
-    CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
-    if (obj->getObjectType() != sim_stackitem_table)
-        return (false);
-    CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
-    if (!table->isTableArray())
-        return (false);
-    return (table->getInt32Array(array, count));
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+            if (table->isTableArray())
+                retVal = table->getInt32Array(array, count);
+        }
+        else if (obj->getObjectType() == sim_stackitem_string)
+        { // strings can also be seen as arrays
+            CInterfaceStackString *str = (CInterfaceStackString *)obj;
+            size_t l = 0;
+            const unsigned char* strb = (unsigned char*) str->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (int)strb[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+    }
+    return retVal;
 }
 
 bool CInterfaceStack::getStackInt64Array(long long int *array, int count) const
 {
-    if (_stackObjects.size() == 0)
-        return (false);
-    CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
-    if (obj->getObjectType() != sim_stackitem_table)
-        return (false);
-    CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
-    if (!table->isTableArray())
-        return (false);
-    return (table->getInt64Array(array, count));
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+            if (table->isTableArray())
+                retVal = table->getInt64Array(array, count);
+        }
+        else if (obj->getObjectType() == sim_stackitem_string)
+        { // strings can also be seen as arrays
+            CInterfaceStackString *str = (CInterfaceStackString *)obj;
+            size_t l = 0;
+            const unsigned char* strb = (unsigned char*) str->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (long long int)strb[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+    }
+    return retVal;
 }
 
 bool CInterfaceStack::getStackFloatArray(float *array, int count) const
 {
-    if (_stackObjects.size() == 0)
-        return (false);
-    CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
-    if (obj->getObjectType() != sim_stackitem_table)
-        return (false);
-    CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
-    if (!table->isTableArray())
-        return (false);
-    return (table->getFloatArray(array, count));
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+            if (table->isTableArray())
+                retVal = table->getFloatArray(array, count);
+        }
+        else if (obj->getObjectType() == sim_stackitem_string)
+        { // strings can also be seen as arrays
+            CInterfaceStackString *str = (CInterfaceStackString *)obj;
+            size_t l = 0;
+            const unsigned char* strb = (unsigned char*) str->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (float)strb[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0f;
+            retVal = true;
+        }
+    }
+    return retVal;
 }
 
 bool CInterfaceStack::getStackDoubleArray(double *array, int count) const
 {
-    if (_stackObjects.size() == 0)
-        return (false);
-    CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
-    if (obj->getObjectType() != sim_stackitem_table)
-        return (false);
-    CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
-    if (!table->isTableArray())
-        return (false);
-    return (table->getDoubleArray(array, count));
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+            if (table->isTableArray())
+                retVal = table->getDoubleArray(array, count);
+        }
+        else if (obj->getObjectType() == sim_stackitem_string)
+        { // strings can also be seen as arrays
+            CInterfaceStackString *str = (CInterfaceStackString *)obj;
+            size_t l = 0;
+            const unsigned char* strb = (unsigned char*) str->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (double)strb[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0;
+            retVal = true;
+        }
+    }
+    return retVal;
 }
 
 bool CInterfaceStack::getStackMapFloatArray(const char *fieldName, float *array, int count) const
@@ -535,28 +627,46 @@ bool CInterfaceStack::getStackMapStringValue(const char *fieldName, std::string 
 
 bool CInterfaceStack::unfoldStackTable()
 {
-    if (_stackObjects.size() == 0)
-        return (false);
-    CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
-    if (obj->getObjectType() != sim_stackitem_table)
-        return (false);
-    CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
-    _stackObjects.pop_back();
-    bool isArray = table->isTableArray();
-    std::vector<CInterfaceStackObject *> tableObjects;
-    table->getAllObjectsAndClearTable(tableObjects);
-    delete table;
-    if (isArray)
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
     {
-        for (size_t i = 0; i < tableObjects.size(); i++)
+        CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
         {
-            _stackObjects.push_back(new CInterfaceStackInteger(i + 1));
-            _stackObjects.push_back(tableObjects[i]);
+            CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+            _stackObjects.pop_back();
+            bool isArray = table->isTableArray();
+            std::vector<CInterfaceStackObject *> tableObjects;
+            table->getAllObjectsAndClearTable(tableObjects);
+            delete table;
+            if (isArray)
+            {
+                for (size_t i = 0; i < tableObjects.size(); i++)
+                {
+                    _stackObjects.push_back(new CInterfaceStackInteger(i + 1));
+                    _stackObjects.push_back(tableObjects[i]);
+                }
+            }
+            else
+                _stackObjects.insert(_stackObjects.end(), tableObjects.begin(), tableObjects.end());
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_string)
+        { // we can handle a string like a table of unsigned bytes
+            CInterfaceStackString *str = (CInterfaceStackString *)obj;
+            _stackObjects.pop_back();
+            size_t l;
+            const unsigned char* strv = (unsigned char*)str->getValue(&l);
+            for (size_t i = 0; i < l; i++)
+            {
+                _stackObjects.push_back(new CInterfaceStackInteger(i + 1));
+                _stackObjects.push_back(new CInterfaceStackInteger(strv[i]));
+            }
+            delete str;
+            retVal = true;
         }
     }
-    else
-        _stackObjects.insert(_stackObjects.end(), tableObjects.begin(), tableObjects.end());
-    return (true);
+    return retVal;
 }
 
 void CInterfaceStack::pushObjectOntoStack(CInterfaceStackObject *obj, bool toFront /*=false*/)

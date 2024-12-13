@@ -3380,6 +3380,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             it->setScriptIsDisabled(!it->getScriptIsDisabled());
         }
     }
+    if (cmd.cmdId == TOGGLE_RESETAFTERSIMERROR_SCRIPTGUITRIGGEREDCMD)
+    {
+        CScript *it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
+        if ( (it != nullptr) && (it->scriptObject != nullptr) )
+        {
+            if (it->scriptObject->getScriptType() == sim_scripttype_customization)
+                it->resetAfterSimError(!it->getResetAfterSimError());
+        }
+    }
     if (cmd.cmdId == PARENTPROXY_OFF_SCRIPTGUITRIGGEREDCMD)
     {
         CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);

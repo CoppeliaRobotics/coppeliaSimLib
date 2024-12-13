@@ -41,6 +41,7 @@ void CQDlgScripts::refresh()
     ui->qqExecutionOrder->clear();
     ui->qqExecutionOrder->setEnabled(sel && noEditModeNoSim);
     ui->qqEnabled->setEnabled(sel && noEditModeNoSim);
+    ui->qqResetAfterSimError->setEnabled(sel && noEditModeNoSim && (it->scriptObject->getScriptType() == sim_scripttype_customization) );
     ui->qqParentProxy->setVisible(sel && it->scriptObject->getParentIsProxy());
     ui->qqParentProxy->setEnabled(sel && noEditModeNoSim);
 
@@ -62,6 +63,7 @@ void CQDlgScripts::refresh()
         ui->qqExecutionOrder->setCurrentIndex(it->scriptObject->getScriptExecPriority());
 
         ui->qqEnabled->setChecked(!it->scriptObject->getScriptIsDisabled());
+        ui->qqResetAfterSimError->setChecked(it->getResetAfterSimError());
         ui->qqParentProxy->setChecked(it->scriptObject->getParentIsProxy());
     }
     else
@@ -70,6 +72,7 @@ void CQDlgScripts::refresh()
         ui->qqSize->setText("");
 
         ui->qqEnabled->setChecked(false);
+        ui->qqResetAfterSimError->setChecked(false);
         ui->qqParentProxy->setChecked(false);
     }
 
@@ -168,3 +171,18 @@ void CQDlgScripts::on_qqExecutionOrder_currentIndexChanged(int index)
     }
 }
 
+
+void CQDlgScripts::on_qqResetAfterSimError_clicked()
+{
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
+        if (it != nullptr)
+        {
+            App::appendSimulationThreadCommand(TOGGLE_RESETAFTERSIMERROR_SCRIPTGUITRIGGEREDCMD, it->getObjectHandle());
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
+        }
+    }
+}

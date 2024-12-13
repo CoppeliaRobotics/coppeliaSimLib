@@ -706,11 +706,9 @@ void CWorld::simulationAboutToEnd()
 void CWorld::simulationEnded(bool removeNewObjects)
 {
     TRACE_INTERNAL;
-    App::undoRedo_sceneChanged(
-        ""); // keeps this (this has the objects in their last position, including additional objects)
+    App::undoRedo_sceneChanged(""); // keeps this (this has the objects in their last position, including additional objects)
 
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
-        sim_message_eventcallback_simulationended);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationended);
     App::worldContainer->setModificationFlag(4096); // simulation ended
 
     if (removeNewObjects)
@@ -766,6 +764,11 @@ void CWorld::simulationEnded(bool removeNewObjects)
     App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
 
     App::worldContainer->callScripts(sim_syscb_aftersimulation, nullptr, nullptr);
+    for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_script); i++)
+    {
+        CScript* script = sceneObjects->getScriptFromIndex(i);
+        script->reinitAfterSimulationIfNeeded();
+    }
 }
 
 void CWorld::addGeneralObjectsToWorldAndPerformMappings(

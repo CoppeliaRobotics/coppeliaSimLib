@@ -74,6 +74,15 @@
     FUNCX(propApp_notifyDeprecated,            "notifyDeprecated",                 sim_propertytype_int,       sim_propertyinfo_notwritable, "Notify deprecated", "Notify deprecated API (0: off, 1: light, 2: full)") \
     FUNCX(propApp_execUnsafe,                  "execUnsafe",                       sim_propertytype_bool,      sim_propertyinfo_notwritable, "Execute unsafe", "") \
     FUNCX(propApp_execUnsafeExt,               "execUnsafeExt",                    sim_propertytype_bool,      sim_propertyinfo_notwritable, "Execute unsafe extended", "Execute unsafe for code triggered externally") \
+    FUNCX(propApp_dongleSerial,                "dongleSerial",                     sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_machineSerialND,             "machineSerialND",                  sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_machineSerial,               "machineSerial",                    sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_dongleID,                    "dongleID",                         sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_machineIDX,                  "machineIDX",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_machineID0,                  "machineID0",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_machineID1,                  "machineID1",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_machineID2,                  "machineID2",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_machineID3,                  "machineID3",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

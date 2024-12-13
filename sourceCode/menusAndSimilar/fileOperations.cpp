@@ -279,7 +279,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
 
             if (retVal)
             {
-                if (!simpleXml) // because lossy
+                if ( (!simpleXml)&& setCurrentDir ) // because lossy
                     App::currentWorld->environment->setScenePathAndName(_pathAndFilename.c_str());
 
                 App::currentWorld->sceneObjects->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
