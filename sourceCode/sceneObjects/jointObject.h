@@ -422,8 +422,7 @@ class CJoint : public CSceneObject
     void getDynamicJointErrorsFull(C3Vector &linear, C3Vector &angular) const;
 
     void handleMotion();
-    int handleDynJoint(int flags, const int intVals[3], double currentPosVelAccel[3], double effort, double dynStepSize,
-                       double errorV, double velAndForce[2]);
+    int handleDynJoint(int flags, const int intVals[3], double currentPosVelAccel[3], double effort, double dynStepSize, double errorV, double velForceAndCtrl[3]);
 
     void setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(double rfp, double simTime);
 

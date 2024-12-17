@@ -12060,14 +12060,11 @@ bool _simGetDistanceBetweenEntitiesIfSmaller_internal(int entity1ID, int entity2
         overrideMeasurableFlagIfNonCollection1 != 0, overrideMeasurableFlagIfNonCollection2 != 0));
 }
 
-int _simHandleJointControl_internal(const void *joint, int auxV, const int *inputValuesInt,
-                                    const double *inputValuesFloat, double *outputValues)
+int _simHandleJointControl_internal(const void *joint, int auxV, const int *inputValuesInt, const double *inputValuesFloat, double *outputValues)
 {
     C_API_START;
     double currentPosVelAccel[3] = {inputValuesFloat[0], inputValuesFloat[4], inputValuesFloat[5]};
-    return (((CJoint *)joint)
-                ->handleDynJoint(auxV, inputValuesInt, currentPosVelAccel, inputValuesFloat[1], inputValuesFloat[2],
-                                 inputValuesFloat[3], outputValues));
+    return (((CJoint *)joint)->handleDynJoint(auxV, inputValuesInt, currentPosVelAccel, inputValuesFloat[1], inputValuesFloat[2], inputValuesFloat[3], outputValues));
 }
 
 int _simGetJointDynCtrlMode_internal(const void *joint)
