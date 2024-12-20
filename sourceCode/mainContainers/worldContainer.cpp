@@ -664,13 +664,16 @@ void CWorldContainer::dispatchEvents()
             ev_->appendKeyInt("time", VDateTime::getUnixTimeInMs());
             pushEvent();
             _eventMutex.lock("CWorldContainer::dispatchEvents");
+
             std::vector<SEventInf> _eventInfos;
             _eventSeq = _events->finalizeEvents(_eventSeq, true, &_eventInfos);
             std::vector<unsigned char> ev;
             _events->swapWithEmptyBuffer(&ev);
+            int evCnt = _events->getEventCnt();
             _eventMutex.unlock(); // below might lead to a deadlock if _eventMutex still locked
+
             int auxData[2];
-            auxData[0] = int(_events->getEventCnt());
+            auxData[0] = evCnt;
             auxData[1] = int(ev.size());
             pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_events, auxData, ev.data());
             if (getSysFuncAndHookCnt(sim_syscb_event) > 0)

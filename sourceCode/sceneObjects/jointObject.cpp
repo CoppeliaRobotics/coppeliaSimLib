@@ -1398,7 +1398,7 @@ bool CJoint::getDynamicForceOrTorque(double &forceOrTorque, bool dynamicStepValu
     }
 }
 
-int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVelAccel[3], double effort, double dynStepSize, double errorV, double velForceAndCtrl[3])
+int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVelAccel[3], double effort, double dynStepSize, double errorV, double velAndForce[2])
 { // constant callback for every dynamically enabled joint, except for spherical joints. retVal: bit0 set: motor on,
   // bit1 set: motor locked
     // Called before a dyn step. After the step, setDynamicMotorReflectedPosition_useOnlyFromDynamicPart is called
@@ -1411,17 +1411,17 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
         retVal = 0;
     else if (_dynCtrlMode == sim_jointdynctrl_force)
     {
-        velForceAndCtrl[0] = 10000.0;
-        velForceAndCtrl[1] = _targetForce;
+        velAndForce[0] = 10000.0;
+        velAndForce[1] = _targetForce;
         if (_targetForce < 0.0)
-            velForceAndCtrl[0] = -10000.0; // make sure they have same sign
+            velAndForce[0] = -10000.0; // make sure they have same sign
     }
     else if (_dynCtrlMode == sim_jointdynctrl_velocity)
     {
         if (_dynVelocityCtrlType == 0)
         { // engine internal velocity ctrl
-            velForceAndCtrl[0] = _targetVel;
-            velForceAndCtrl[1] = _targetForce;
+            velAndForce[0] = _targetVel;
+            velAndForce[1] = _targetForce;
             if (_motorLock && (_targetVel == 0.0))
                 retVal |= 2;
         }
@@ -1450,10 +1450,10 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                                 ruckObj, double(dynStepSize), &pos, dynVelCtrlCurrentVelAccel,
                                 dynVelCtrlCurrentVelAccel + 1, &pos);
                             App::worldContainer->pluginContainer->ruckigPlugin_remove(ruckObj);
-                            velForceAndCtrl[0] = double(dynVelCtrlCurrentVelAccel[0]);
-                            velForceAndCtrl[1] = _targetForce;
-                            if (velForceAndCtrl[0] * velForceAndCtrl[1] < 0.0)
-                                velForceAndCtrl[1] = -velForceAndCtrl[1]; // make sure they have same sign
+                            velAndForce[0] = double(dynVelCtrlCurrentVelAccel[0]);
+                            velAndForce[1] = _targetForce;
+                            if (velAndForce[0] * velAndForce[1] < 0.0)
+                                velAndForce[1] = -velAndForce[1]; // make sure they have same sign
                         }
                     }
                 }
@@ -1465,22 +1465,22 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                         retVal |= 2;
                 }
 
-                velForceAndCtrl[0] = double(dynVelCtrlCurrentVelAccel[0]);
-                velForceAndCtrl[1] = _targetForce;
-                if (velForceAndCtrl[0] * velForceAndCtrl[1] < 0.0)
-                    velForceAndCtrl[1] = -velForceAndCtrl[1]; // make sure they have same sign
+                velAndForce[0] = double(dynVelCtrlCurrentVelAccel[0]);
+                velAndForce[1] = _targetForce;
+                if (velAndForce[0] * velAndForce[1] < 0.0)
+                    velAndForce[1] = -velAndForce[1]; // make sure they have same sign
                 if ((rk4 == 0) || (rk4 == 4))
                 {
                     _dynVelCtrl_currentVelAccel[0] = dynVelCtrlCurrentVelAccel[0];
                     _dynVelCtrl_currentVelAccel[1] = dynVelCtrlCurrentVelAccel[1];
                 }
-                _dynCtrl_previousVelForce[0] = velForceAndCtrl[0];
-                _dynCtrl_previousVelForce[1] = velForceAndCtrl[1];
+                _dynCtrl_previousVelForce[0] = velAndForce[0];
+                _dynCtrl_previousVelForce[1] = velAndForce[1];
             }
             else
             { // in case of RK4, pass1 (dt=0)
-                velForceAndCtrl[0] = _dynCtrl_previousVelForce[0];
-                velForceAndCtrl[1] = _dynCtrl_previousVelForce[1];
+                velAndForce[0] = _dynCtrl_previousVelForce[0];
+                velAndForce[1] = _dynCtrl_previousVelForce[1];
             }
         }
     }
@@ -1510,10 +1510,10 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                             ruckObj, dynStepSize, &dummy, dynPosCtrlCurrentVelAccel, dynPosCtrlCurrentVelAccel + 1,
                             &dummy);
                         App::worldContainer->pluginContainer->ruckigPlugin_remove(ruckObj);
-                        velForceAndCtrl[0] = double(dynPosCtrlCurrentVelAccel[0]);
-                        velForceAndCtrl[1] = _targetForce;
-                        if (velForceAndCtrl[0] * velForceAndCtrl[1] < 0.0)
-                            velForceAndCtrl[1] = -velForceAndCtrl[1]; // make sure they have same sign
+                        velAndForce[0] = double(dynPosCtrlCurrentVelAccel[0]);
+                        velAndForce[1] = _targetForce;
+                        if (velAndForce[0] * velAndForce[1] < 0.0)
+                            velAndForce[1] = -velAndForce[1]; // make sure they have same sign
                     }
                     if ((rk4 == 0) || (rk4 == 4))
                     {
@@ -1557,12 +1557,12 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
 
                     if ((_dynCtrlMode == sim_jointdynctrl_spring) || (_dynCtrlMode == sim_jointdynctrl_springcb))
                     { // "spring" mode, i.e. force modulation mode
-                        velForceAndCtrl[0] = fabs(_targetVel);
+                        velAndForce[0] = fabs(_targetVel);
                         if (ctrl < 0.0)
-                            velForceAndCtrl[0] = -velForceAndCtrl[0];
-                        velForceAndCtrl[1] = fabs(ctrl);
-                        if (velForceAndCtrl[0] * velForceAndCtrl[1] < 0.0)
-                            velForceAndCtrl[1] = -velForceAndCtrl[1]; // make sure they have same sign
+                            velAndForce[0] = -velAndForce[0];
+                        velAndForce[1] = fabs(ctrl);
+                        if (velAndForce[0] * velAndForce[1] < 0.0)
+                            velAndForce[1] = -velAndForce[1]; // make sure they have same sign
                     }
                     else
                     {                              // regular position control
@@ -1573,19 +1573,19 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                         if (vel < -maxVel)
                             vel = -maxVel;
 
-                        velForceAndCtrl[0] = vel;
-                        velForceAndCtrl[1] = _targetForce;
-                        if (velForceAndCtrl[0] * velForceAndCtrl[1] < 0.0)
-                            velForceAndCtrl[1] = -velForceAndCtrl[1]; // make sure they have same sign
+                        velAndForce[0] = vel;
+                        velAndForce[1] = _targetForce;
+                        if (velAndForce[0] * velAndForce[1] < 0.0)
+                            velAndForce[1] = -velAndForce[1]; // make sure they have same sign
                     }
                 }
-                _dynCtrl_previousVelForce[0] = velForceAndCtrl[0];
-                _dynCtrl_previousVelForce[1] = velForceAndCtrl[1];
+                _dynCtrl_previousVelForce[0] = velAndForce[0];
+                _dynCtrl_previousVelForce[1] = velAndForce[1];
             }
             else
             { // in case of RK4, pass1 (dt=0)
-                velForceAndCtrl[0] = _dynCtrl_previousVelForce[0];
-                velForceAndCtrl[1] = _dynCtrl_previousVelForce[1];
+                velAndForce[0] = _dynCtrl_previousVelForce[0];
+                velAndForce[1] = _dynCtrl_previousVelForce[1];
             }
         }
         if ((_dynCtrlMode == sim_jointdynctrl_callback) || (_dynCtrlMode == sim_jointdynctrl_positioncb) ||
@@ -1719,9 +1719,8 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                 // 3. Set default values:
                 if (_dynCtrlMode == sim_jointdynctrl_callback)
                 { // do not overwrite those with the old sim_jointdynctrl_positioncb and sim_jointdynctrl_springcb
-                    velForceAndCtrl[0] = 0.0;
-                    velForceAndCtrl[1] = 0.0;
-                    velForceAndCtrl[2] = 0.0;
+                    velAndForce[0] = 0.0;
+                    velAndForce[1] = 0.0;
                 }
                 // 4. Collect the return values:
                 if (outStack->getStackSize() > 0)
@@ -1729,12 +1728,34 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                     int s = outStack->getStackSize();
                     if (s > 1)
                         outStack->moveStackItemToTop(0);
-                    outStack->getStackMapDoubleValue("force", velForceAndCtrl[1]);
-                    outStack->getStackMapDoubleValue("velocity", velForceAndCtrl[0]); // deprecated
-                    outStack->getStackMapDoubleValue("vel", velForceAndCtrl[0]);
-                    outStack->getStackMapDoubleValue("ctrl", velForceAndCtrl[2]);
-                    if (velForceAndCtrl[0] * velForceAndCtrl[1] < 0.0)
-                        velForceAndCtrl[1] = -velForceAndCtrl[1]; // make sure they have same sign
+                    bool hasForce = outStack->getStackMapDoubleValue("force", velAndForce[1]);
+                    bool hasVel = outStack->getStackMapDoubleValue("velocity", velAndForce[0]); // deprecated
+                    hasVel = hasVel || outStack->getStackMapDoubleValue("vel", velAndForce[0]);
+                    if (!hasForce)
+                        hasForce = outStack->getStackMapDoubleValue("ctrl", velAndForce[1]); // "force" or "ctrl" can be used interchangebly
+                    // force, vel (and ctrl) are optional
+                    if (hasForce)
+                    {
+                        if (!hasVel)
+                        { // this is pure force control
+                           velAndForce[0] = 10000.0; // default velocity
+                            if (velAndForce[1] < 0.0)
+                                velAndForce[0] *= -1.0;
+                        }
+                        else
+                        { // this is velocity control (in physics engine), limited by force
+                            // the sign of velocity takes precedence
+                            if (velAndForce[0] * velAndForce[1] < 0.0)
+                                velAndForce[1] = -velAndForce[1]; // make sure they have same sign
+                        }
+                    }
+                    else
+                    {
+                        if (hasVel)
+                        { // this is velocity control (in physics engine), with unlimited by force
+                           velAndForce[1] = 10000.0; // default force/torque
+                        }
+                    }
                 }
                 App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
