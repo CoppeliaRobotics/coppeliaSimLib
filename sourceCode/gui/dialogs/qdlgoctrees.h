@@ -14,7 +14,7 @@ class CQDlgOctrees : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgOctrees(QWidget *parent = 0);
+    explicit CQDlgOctrees(QWidget* parent = 0);
     ~CQDlgOctrees();
 
     void refresh();
@@ -43,7 +43,7 @@ class CQDlgOctrees : public CDlgEx
     void on_qqEmissiveColor_clicked();
 
   private:
-    Ui::CQDlgOctrees *ui;
+    Ui::CQDlgOctrees* ui;
 };
 
 #endif // QDLGOCTREES_H

@@ -169,7 +169,7 @@ void CWorld::rebuildWorld_oldIk()
     ikGroups_old->connect_oldIk();
 }
 
-bool CWorld::loadScene(CSer &ar, bool forUndoRedoOperation)
+bool CWorld::loadScene(CSer& ar, bool forUndoRedoOperation)
 {
     bool retVal = false;
     sceneObjects->eraseAllObjects(true);
@@ -192,7 +192,7 @@ bool CWorld::loadScene(CSer &ar, bool forUndoRedoOperation)
     return (retVal);
 }
 
-void CWorld::saveScene(CSer &ar)
+void CWorld::saveScene(CSer& ar)
 {
     if (ar.getFileType() == CSer::filetype_csim_xml_simplescene_file)
     {
@@ -234,7 +234,7 @@ void CWorld::saveScene(CSer &ar)
     int textCnt = 0;
     while (textureContainer->getObjectAtIndex(textCnt) != nullptr)
     {
-        CTextureObject *it = textureContainer->getObjectAtIndex(textCnt);
+        CTextureObject* it = textureContainer->getObjectAtIndex(textCnt);
         if (ar.isBinary())
             textureContainer->storeTextureObject(ar, it);
         else
@@ -254,8 +254,8 @@ void CWorld::saveScene(CSer &ar)
         int dynObjId = SIM_IDSTART_DYNMATERIAL_old;
         for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
         {
-            CShape *it = sceneObjects->getShapeFromIndex(i);
-            CDynMaterialObject *mat = it->getDynMaterial();
+            CShape* it = sceneObjects->getShapeFromIndex(i);
+            CDynMaterialObject* mat = it->getDynMaterial();
             it->getMesh()->setDynMaterialId_old(dynObjId);
             mat->setObjectID(dynObjId++);
             ar.storeDataName(SER_DYNMATERIAL);
@@ -274,7 +274,7 @@ void CWorld::saveScene(CSer &ar)
         CMesh::clearTempVerticesIndicesNormalsAndEdges();
         for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
         {
-            CShape *it = sceneObjects->getShapeFromIndex(i);
+            CShape* it = sceneObjects->getShapeFromIndex(i);
             it->prepareVerticesIndicesNormalsAndEdgesForSerialization();
         }
         ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);
@@ -287,11 +287,11 @@ void CWorld::saveScene(CSer &ar)
     //------------------------------------------------------------
 
     // Save objects in hierarchial order!
-    std::vector<CSceneObject *> allObjects;
+    std::vector<CSceneObject*> allObjects;
     sceneObjects->getObjects_hierarchyOrder(allObjects);
     for (size_t i = 0; i < allObjects.size(); i++)
     {
-        CSceneObject *it = allObjects[i];
+        CSceneObject* it = allObjects[i];
         if (ar.isBinary())
             sceneObjects->writeSceneObject(ar, it);
         else
@@ -354,7 +354,7 @@ void CWorld::saveScene(CSer &ar)
     // --------------------------
     for (size_t i = 0; i < collisions_old->getObjectCount(); i++)
     {
-        CCollisionObject_old *collObj = collisions_old->getObjectFromIndex(i);
+        CCollisionObject_old* collObj = collisions_old->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_COLLISION);
@@ -372,7 +372,7 @@ void CWorld::saveScene(CSer &ar)
     }
     for (size_t i = 0; i < distances_old->getObjectCount(); i++)
     {
-        CDistanceObject_old *distObj = distances_old->getObjectFromIndex(i);
+        CDistanceObject_old* distObj = distances_old->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_DISTANCE);
@@ -390,7 +390,7 @@ void CWorld::saveScene(CSer &ar)
     }
     for (size_t i = 0; i < ikGroups_old->getObjectCount(); i++)
     {
-        CIkGroup_old *ikg = ikGroups_old->getObjectFromIndex(i);
+        CIkGroup_old* ikg = ikGroups_old->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_IK);
@@ -499,7 +499,7 @@ void CWorld::saveScene(CSer &ar)
     // --------------------------
     for (size_t i = 0; i < collections->getObjectCount(); i++)
     {
-        CCollection *coll = collections->getObjectFromIndex(i);
+        CCollection* coll = collections->getObjectFromIndex(i);
         if (coll->getCreatorHandle() == -2)
         {
             if (ar.isBinary())
@@ -522,7 +522,7 @@ void CWorld::saveScene(CSer &ar)
     {
         for (size_t i = 0; i < buttonBlockContainer_old->allBlocks.size(); i++)
         {
-            CButtonBlock *bblk = buttonBlockContainer_old->allBlocks[i];
+            CButtonBlock* bblk = buttonBlockContainer_old->allBlocks[i];
             if ((bblk->getAttributes() & sim_ui_property_systemblock) == 0)
             {
                 ar.storeDataName(SER_BUTTON_BLOCK_old);
@@ -538,7 +538,7 @@ void CWorld::saveScene(CSer &ar)
     // We serialize the old scripts (not the add-on scripts nor the sandbox script):
     for (size_t i = 0; i < sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
     {
-        CScriptObject *it = sceneObjects->embeddedScriptContainer->allScripts[i];
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->allScripts[i];
         if (it->isSimulatonCustomizationOrMainScript())
         {
             if (ar.isBinary())
@@ -565,8 +565,8 @@ void CWorld::saveScene(CSer &ar)
     App::worldContainer->callScripts(sim_syscb_aftersave, nullptr, nullptr);
 }
 
-bool CWorld::loadModel(CSer &ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector *optionalModelTr,
-                       C3Vector *optionalModelBoundingBoxSize, double *optionalModelNonDefaultTranslationStepSize)
+bool CWorld::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr,
+                       C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize)
 {
     bool retVal;
     if (ar.getFileType() == CSer::filetype_csim_xml_simplemodel_file)
@@ -582,7 +582,7 @@ bool CWorld::loadModel(CSer &ar, bool justLoadThumbnail, bool forceModelAsCopy, 
             sim_message_model_loaded); // for backward compatibility
 
         outsideCommandQueue_old->addCommand(sim_message_model_loaded, 0, 0, 0, 0, nullptr, 0); // only for Lua
-        App::worldContainer->setModificationFlag(4);                                       // model loaded
+        App::worldContainer->setModificationFlag(4);                                           // model loaded
     }
     return (retVal);
 }
@@ -603,7 +603,7 @@ void CWorld::simulationAboutToStart()
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     for (size_t i = 0; i < sceneObjects->getObjectCount(); i++)
     {
-        CSceneObject *it = sceneObjects->getObjectFromIndex(i);
+        CSceneObject* it = sceneObjects->getObjectFromIndex(i);
         _initialObjectUniqueIdentifiersForRemovingNewObjects.push_back(it->getObjectUid());
     }
     App::undoRedo_sceneChanged("");
@@ -662,7 +662,7 @@ void CWorld::simulationAboutToStart()
 
 void CWorld::simulationPaused()
 {
-    CScriptObject *mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
+    CScriptObject* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
     if (mainScript != nullptr)
         mainScript->systemCallMainScript(sim_syscb_suspend, nullptr, nullptr);
 
@@ -674,7 +674,7 @@ void CWorld::simulationPaused()
 
 void CWorld::simulationAboutToResume()
 {
-    CScriptObject *mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
+    CScriptObject* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
     if (mainScript != nullptr)
         mainScript->systemCallMainScript(sim_syscb_resume, nullptr, nullptr);
 
@@ -717,7 +717,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
         std::vector<int> toRemove;
         for (size_t i = 0; i < sceneObjects->getObjectCount(); i++)
         {
-            CSceneObject *it = sceneObjects->getObjectFromIndex(i);
+            CSceneObject* it = sceneObjects->getObjectFromIndex(i);
             bool found = false;
             for (size_t j = 0; j < _initialObjectUniqueIdentifiersForRemovingNewObjects.size(); j++)
             {
@@ -772,12 +772,12 @@ void CWorld::simulationEnded(bool removeNewObjects)
 }
 
 void CWorld::addGeneralObjectsToWorldAndPerformMappings(
-    std::vector<CSceneObject *> *loadedObjectList, std::vector<CCollection *> *loadedCollectionList,
-    std::vector<CCollisionObject_old *> *loadedCollisionList, std::vector<CDistanceObject_old *> *loadedDistanceList,
-    std::vector<CIkGroup_old *> *loadedIkGroupList, std::vector<CPathPlanningTask *> *loadedPathPlanningTaskList,
-    std::vector<CButtonBlock *> *loadedButtonBlockList, std::vector<CScriptObject *> *loadedLuaScriptList,
-    std::vector<CTextureObject *> &loadedTextureObjectList,
-    std::vector<CDynMaterialObject *> &loadedDynMaterialObjectList, bool model, int fileSimVersion,
+    std::vector<CSceneObject*>* loadedObjectList, std::vector<CCollection*>* loadedCollectionList,
+    std::vector<CCollisionObject_old*>* loadedCollisionList, std::vector<CDistanceObject_old*>* loadedDistanceList,
+    std::vector<CIkGroup_old*>* loadedIkGroupList, std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
+    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CScriptObject*>* loadedLuaScriptList,
+    std::vector<CTextureObject*>& loadedTextureObjectList,
+    std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList, bool model, int fileSimVersion,
     bool forceModelAsCopy)
 {
     TRACE_INTERNAL;
@@ -799,7 +799,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     for (size_t i = 0; i < loadedTextureObjectList.size(); i++)
     {
         int oldHandle = loadedTextureObjectList[i]->getObjectID();
-        CTextureObject *handler = textureContainer->getObject(textureContainer->addObjectWithSuffixOffset(
+        CTextureObject* handler = textureContainer->getObject(textureContainer->addObjectWithSuffixOffset(
             loadedTextureObjectList[i], objectIsACopy,
             suffixOffset)); // if a same object is found, the object is destroyed in addObject!
         if (handler != loadedTextureObjectList[i])
@@ -818,16 +818,16 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
         objectMapping[oldHandle] = loadedObjectList->at(i)->getObjectHandle();
         if (loadedObjectList->at(i)->getObjectType() == sim_sceneobject_shape)
         {
-            CShape *shape = (CShape *)loadedObjectList->at(i);
+            CShape* shape = (CShape*)loadedObjectList->at(i);
             int matId = shape->getMesh()->getDynMaterialId_old();
             if ((fileSimVersion < 30303) && (matId >= 0))
-            { // for backward compatibility(29/10/2016), when the dyn material was stored separaterly and shared among
-              // shapes
+            {   // for backward compatibility(29/10/2016), when the dyn material was stored separaterly and shared among
+                // shapes
                 for (size_t j = 0; j < loadedDynMaterialObjectList.size(); j++)
                 {
                     if (loadedDynMaterialObjectList[j]->getObjectID() == matId)
                     {
-                        CDynMaterialObject *mat = loadedDynMaterialObjectList[j]->copyYourself();
+                        CDynMaterialObject* mat = loadedDynMaterialObjectList[j]->copyYourself();
                         shape->setDynMaterial(mat);
                         break;
                     }
@@ -835,7 +835,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
             }
             if (fileSimVersion < 30301)
             { // Following for backward compatibility (09/03/2016)
-                CDynMaterialObject *mat = shape->getDynMaterial();
+                CDynMaterialObject* mat = shape->getDynMaterial();
                 if (mat->getEngineBoolParam_old(sim_bullet_body_sticky, nullptr))
                 { // Formely sticky contact objects need to be adjusted for the new Bullet:
                     if (shape->getStatic())
@@ -921,7 +921,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     // We do the mapping for the sceneObjects:
     for (size_t i = 0; i < loadedObjectList->size(); i++)
     {
-        CSceneObject *it = loadedObjectList->at(i);
+        CSceneObject* it = loadedObjectList->at(i);
         it->performObjectLoadingMapping(&objectMapping, model);
         it->performScriptLoadingMapping(&luaScriptMapping);
         it->performCollectionLoadingMapping(&collectionMapping, model);
@@ -932,48 +932,48 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     // We do the mapping for the collections (OLD):
     for (size_t i = 0; i < loadedCollectionList->size(); i++)
     {
-        CCollection *it = loadedCollectionList->at(i);
+        CCollection* it = loadedCollectionList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
     }
     // We do the mapping for the collisions (OLD):
     for (size_t i = 0; i < loadedCollisionList->size(); i++)
     {
-        CCollisionObject_old *it = loadedCollisionList->at(i);
+        CCollisionObject_old* it = loadedCollisionList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
     // We do the mapping for the distances (OLD):
     for (size_t i = 0; i < loadedDistanceList->size(); i++)
     {
-        CDistanceObject_old *it = loadedDistanceList->at(i);
+        CDistanceObject_old* it = loadedDistanceList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
     // We do the mapping for the ik groups (OLD):
     for (size_t i = 0; i < loadedIkGroupList->size(); i++)
     {
-        CIkGroup_old *it = loadedIkGroupList->at(i);
+        CIkGroup_old* it = loadedIkGroupList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performIkGroupLoadingMapping(&ikGroupMapping);
     }
     // We do the mapping for the path planning tasks (OLD):
     for (size_t i = 0; i < loadedPathPlanningTaskList->size(); i++)
     {
-        CPathPlanningTask *it = loadedPathPlanningTaskList->at(i);
+        CPathPlanningTask* it = loadedPathPlanningTaskList->at(i);
         it->performObjectLoadingMapping(&objectMapping);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
     // We do the mapping for the 2D Elements (OLD):
     for (size_t i = 0; i < loadedButtonBlockList->size(); i++)
     {
-        CButtonBlock *it = loadedButtonBlockList->at(i);
+        CButtonBlock* it = loadedButtonBlockList->at(i);
         it->performSceneObjectLoadingMapping(&objectMapping);
         it->performTextureObjectLoadingMapping(&textureMapping);
     }
     // We do the mapping for the Lua scripts:
     for (size_t i = 0; i < loadedLuaScriptList->size(); i++)
     {
-        CScriptObject *it = loadedLuaScriptList->at(i);
+        CScriptObject* it = loadedLuaScriptList->at(i);
         it->performSceneObjectLoadingMapping(&objectMapping);
     }
 
@@ -1041,7 +1041,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
         std::map<std::string, int> uniquePersistentIds;
         for (size_t i = 0; i < sceneObjects->getObjectCount(); i++)
         {
-            CSceneObject *obj = sceneObjects->getObjectFromIndex(i);
+            CSceneObject* obj = sceneObjects->getObjectFromIndex(i);
             uniquePersistentIds[obj->getUniquePersistentIdString()] = obj->getObjectHandle();
         }
         for (size_t i = 0; i < collisions_old->getObjectCount(); i++)
@@ -1067,7 +1067,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
         int handle = _loadOperationIssues[i].objectHandle;
         std::string newTxt("NAME_NOT_FOUND");
         int handle2 = getLoadingMapping(&luaScriptMapping, handle);
-        CScriptObject *script = sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(handle2);
+        CScriptObject* script = sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(handle2);
         if (script != nullptr)
             newTxt = script->getShortDescriptiveName();
         std::string msg(_loadOperationIssues[i].message);
@@ -1098,8 +1098,8 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
 }
 
 void CWorld::cleanupHashNames_allObjects(int suffix)
-{ // This function will try to use the lowest hash naming possible (e.g. model#59 --> model and model#67 --> model#0 if
-  // possible)
+{   // This function will try to use the lowest hash naming possible (e.g. model#59 --> model and model#67 --> model#0 if
+    // possible)
     // if suffix is -1, then all suffixes are cleaned, otherwise only those equal or above 'suffix'
 
     // 1. we get all object's smallest and biggest suffix:
@@ -1120,7 +1120,7 @@ void CWorld::cleanupHashNames_allObjects(int suffix)
     }
 }
 
-void CWorld::announceObjectWillBeErased(const CSceneObject *object)
+void CWorld::announceObjectWillBeErased(const CSceneObject* object)
 {
     sceneObjects->announceObjectWillBeErased(object);
     drawingCont->announceObjectWillBeErased(object);
@@ -1150,17 +1150,17 @@ void CWorld::announceScriptStateWillBeErased(int scriptHandle, bool simulationSc
     drawingCont->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-CScriptObject *CWorld::getScriptObjectFromHandle(int scriptHandle) const
+CScriptObject* CWorld::getScriptObjectFromHandle(int scriptHandle) const
 {
-    CScriptObject *retVal = nullptr;
+    CScriptObject* retVal = nullptr;
     if (sceneObjects != nullptr)
         retVal = sceneObjects->getScriptObjectFromHandle(scriptHandle);
     return (retVal);
 }
 
-CScriptObject *CWorld::getScriptObjectFromUid(int uid) const
+CScriptObject* CWorld::getScriptObjectFromUid(int uid) const
 {
-    CScriptObject *retVal = nullptr;
+    CScriptObject* retVal = nullptr;
     if (sceneObjects != nullptr)
         retVal = sceneObjects->getScriptObjectFromUid(uid);
     return (retVal);
@@ -1172,7 +1172,7 @@ void CWorld::getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse
     sceneObjects->getActiveScripts(scripts, reverse, alsoLegacyScripts);
 }
 
-void CWorld::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+void CWorld::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
     sceneObjects->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
@@ -1180,7 +1180,7 @@ void CWorld::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack
 
 void CWorld::pushGenesisEvents()
 {
-    CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+    CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
     simulation->appendGenesisData(ev);
     environment->appendGenesisData(ev);
     customSceneData.appendEventData(nullptr, ev);
@@ -1235,25 +1235,25 @@ void CWorld::announce2DElementButtonWillBeErased(int elementID, int buttonID)
 }
 // -----------
 
-bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy,
-                               C7Vector *optionalModelTr, C3Vector *optionalModelBoundingBoxSize,
-                               double *optionalModelNonDefaultTranslationStepSize)
+bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy,
+                               C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize,
+                               double* optionalModelNonDefaultTranslationStepSize)
 {
     appendLoadOperationIssue(-1, nullptr, -1); // clear
 
     CMesh::clearTempVerticesIndicesNormalsAndEdges();
     sceneObjects->deselectObjects();
 
-    std::vector<CSceneObject *> loadedObjectList;
-    std::vector<CTextureObject *> loadedTextureList;
-    std::vector<CDynMaterialObject *> loadedDynMaterialList;
-    std::vector<CCollection *> loadedCollectionList;
-    std::vector<CCollisionObject_old *> loadedCollisionList;
-    std::vector<CDistanceObject_old *> loadedDistanceList;
-    std::vector<CIkGroup_old *> loadedIkGroupList;
-    std::vector<CPathPlanningTask *> pathPlanningTaskList;
-    std::vector<CButtonBlock *> loadedButtonBlockList;
-    std::vector<CScriptObject *> loadedLuaScriptList;
+    std::vector<CSceneObject*> loadedObjectList;
+    std::vector<CTextureObject*> loadedTextureList;
+    std::vector<CDynMaterialObject*> loadedDynMaterialList;
+    std::vector<CCollection*> loadedCollectionList;
+    std::vector<CCollisionObject_old*> loadedCollisionList;
+    std::vector<CDistanceObject_old*> loadedDistanceList;
+    std::vector<CIkGroup_old*> loadedIkGroupList;
+    std::vector<CPathPlanningTask*> pathPlanningTaskList;
+    std::vector<CButtonBlock*> loadedButtonBlockList;
+    std::vector<CScriptObject*> loadedLuaScriptList;
 
     bool hasThumbnail = false;
     if (ar.isBinary())
@@ -1303,14 +1303,14 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                 }
                 //------------------------------------------------------------
 
-                CSceneObject *it = sceneObjects->readSceneObject(ar, theName.c_str(), noHit);
+                CSceneObject* it = sceneObjects->readSceneObject(ar, theName.c_str(), noHit);
                 if (it != nullptr)
                 {
                     loadedObjectList.push_back(it);
                     noHit = false;
                 }
 
-                CTextureObject *theTextureData = textureContainer->loadTextureObject(ar, theName, noHit);
+                CTextureObject* theTextureData = textureContainer->loadTextureObject(ar, theName, noHit);
                 if (theTextureData != nullptr)
                 {
                     loadedTextureList.push_back(theTextureData);
@@ -1319,7 +1319,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                 if (theName.compare(SER_DYNMATERIAL) == 0)
                 { // Following for backward compatibility (i.e. files written prior CoppeliaSim 3.4.0) (30/10/2016)
                     ar >> byteQuantity;
-                    CDynMaterialObject *myNewObject = new CDynMaterialObject();
+                    CDynMaterialObject* myNewObject = new CDynMaterialObject();
                     myNewObject->serialize(ar);
                     loadedDynMaterialList.push_back(myNewObject);
                     noHit = false;
@@ -1376,7 +1376,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors, "Contains collections...");
                     ar >> byteQuantity;
-                    CCollection *it = new CCollection(-2);
+                    CCollection* it = new CCollection(-2);
                     it->serialize(ar);
                     loadedCollectionList.push_back(it);
                     noHit = false;
@@ -1388,7 +1388,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                     if (!App::userSettings->disableOpenGlBasedCustomUi)
                     {
                         ar >> byteQuantity;
-                        CButtonBlock *it = new CButtonBlock(1, 1, 10, 10, 0);
+                        CButtonBlock* it = new CButtonBlock(1, 1, 10, 10, 0);
                         it->serialize(ar);
                         loadedButtonBlockList.push_back(it);
                         noHit = false;
@@ -1397,13 +1397,13 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                 if (theName.compare(SER_LUA_SCRIPT) == 0)
                 {
                     ar >> byteQuantity;
-                    CScriptObject *it = new CScriptObject(-1);
+                    CScriptObject* it = new CScriptObject(-1);
                     it->serialize(ar);
                     if ((it->getScriptType() == sim_scripttype_jointctrlcallback_old) ||
                         (it->getScriptType() == sim_scripttype_generalcallback_old) ||
                         (it->getScriptType() == sim_scripttype_contactcallback_old))
-                    { // joint callback, contact callback and general callback scripts are not supported anymore since
-                      // V3.6.1.rev2
+                    {   // joint callback, contact callback and general callback scripts are not supported anymore since
+                        // V3.6.1.rev2
                         std::string ml(it->getScriptText());
                         if (it->getScriptType() == sim_scripttype_jointctrlcallback_old)
                             ml = "the file contains a joint control callback script, which is a script type that is "
@@ -1445,7 +1445,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors, "Contains collision objects...");
                     ar >> byteQuantity;
-                    CCollisionObject_old *it = new CCollisionObject_old();
+                    CCollisionObject_old* it = new CCollisionObject_old();
                     it->serialize(ar);
                     loadedCollisionList.push_back(it);
                     noHit = false;
@@ -1455,7 +1455,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors, "Contains distance objects...");
                     ar >> byteQuantity;
-                    CDistanceObject_old *it = new CDistanceObject_old();
+                    CDistanceObject_old* it = new CDistanceObject_old();
                     it->serialize(ar);
                     loadedDistanceList.push_back(it);
                     noHit = false;
@@ -1465,7 +1465,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors, "Contains IK objects...");
                     ar >> byteQuantity;
-                    CIkGroup_old *it = new CIkGroup_old();
+                    CIkGroup_old* it = new CIkGroup_old();
                     it->serialize(ar);
                     loadedIkGroupList.push_back(it);
                     noHit = false;
@@ -1475,7 +1475,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                     if (CSimFlavor::getBoolVal(18))
                         App::logMsg(sim_verbosity_errors, "Contains path planning objects...");
                     ar >> byteQuantity;
-                    CPathPlanningTask *it = new CPathPlanningTask();
+                    CPathPlanningTask* it = new CPathPlanningTask();
                     it->serialize(ar);
                     pathPlanningTaskList.push_back(it);
                     noHit = false;
@@ -1500,7 +1500,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             while (true)
             {
                 bool dummy2;
-                CSceneObject *it = sceneObjects->readSceneObject(ar, "", dummy2);
+                CSceneObject* it = sceneObjects->readSceneObject(ar, "", dummy2);
                 if (it != nullptr)
                     loadedObjectList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_SCENEOBJECT, false))
@@ -1512,7 +1512,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         {
             while (true)
             {
-                CTextureObject *theTextureData = textureContainer->loadTextureObject(ar, dummy1, dummy2);
+                CTextureObject* theTextureData = textureContainer->loadTextureObject(ar, dummy1, dummy2);
                 if (theTextureData != nullptr)
                     loadedTextureList.push_back(theTextureData);
                 if (!ar.xmlPushSiblingNode(SERX_TEXTURE, false))
@@ -1566,7 +1566,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         {
             while (true)
             {
-                CCollisionObject_old *it = new CCollisionObject_old();
+                CCollisionObject_old* it = new CCollisionObject_old();
                 it->serialize(ar);
                 loadedCollisionList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_COLLISION, false))
@@ -1578,7 +1578,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         {
             while (true)
             {
-                CDistanceObject_old *it = new CDistanceObject_old();
+                CDistanceObject_old* it = new CDistanceObject_old();
                 it->serialize(ar);
                 loadedDistanceList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_DISTANCE, false))
@@ -1590,7 +1590,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         { // for backward compatibility 18.11.2020
             while (true)
             {
-                CCollection *it = new CCollection(-2);
+                CCollection* it = new CCollection(-2);
                 it->serialize(ar);
                 loadedCollectionList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_COLLECTION, false))
@@ -1602,7 +1602,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         {
             while (true)
             {
-                CIkGroup_old *it = new CIkGroup_old();
+                CIkGroup_old* it = new CIkGroup_old();
                 it->serialize(ar);
                 loadedIkGroupList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_IK, false))
@@ -1614,7 +1614,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         {
             while (true)
             {
-                CScriptObject *it = new CScriptObject(-1);
+                CScriptObject* it = new CScriptObject(-1);
                 it->serialize(ar);
                 loadedLuaScriptList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_LUA_SCRIPT, false))
@@ -1643,7 +1643,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
 
     if (!isScene)
     {
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
 
         std::vector<int> hand;
@@ -1672,13 +1672,13 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
     // Following for backward compatibility for vision sensor filters:
     for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
     {
-        CVisionSensor *it = sceneObjects->getVisionSensorFromIndex(i);
-        CComposedFilter *cf = it->getComposedFilter();
+        CVisionSensor* it = sceneObjects->getVisionSensorFromIndex(i);
+        CComposedFilter* cf = it->getComposedFilter();
         std::string txt(cf->scriptEquivalent);
         if (txt.size() > 0)
         {
             cf->scriptEquivalent.clear();
-            CScriptObject *script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, it->getObjectHandle());
+            CScriptObject* script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, it->getObjectHandle());
             if (script == nullptr)
             {
                 txt = std::string("function sysCall_init()\nend\n\n") + txt;
@@ -1696,12 +1696,12 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
     // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i = 0; i < loadedLuaScriptList.size(); i++)
     {
-        CScriptObject *script = sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(loadedLuaScriptList[i]->getScriptHandle());
+        CScriptObject* script = sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(loadedLuaScriptList[i]->getScriptHandle());
         if (script != nullptr)
         {
-            CUserParameters *params = script->getScriptParametersObject_backCompatibility();
+            CUserParameters* params = script->getScriptParametersObject_backCompatibility();
             int obj = script->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation);
-            CSceneObject *theObj = sceneObjects->getObjectFromHandle(obj);
+            CSceneObject* theObj = sceneObjects->getObjectFromHandle(obj);
             if ((theObj != nullptr) && (params != nullptr))
             {
                 if (params->userParamEntries.size() > 0)
@@ -1721,7 +1721,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             int p = sceneObjects->embeddedScriptContainer->getEquivalentScriptExecPriority_old(loadedObjectList[i]->getObjectHandle());
             if (p >= sim_scriptexecorder_first)
             {
-                CSceneObject *it = sceneObjects->getObjectFromHandle(loadedObjectList[i]->getObjectHandle());
+                CSceneObject* it = sceneObjects->getObjectFromHandle(loadedObjectList[i]->getObjectHandle());
                 it->setScriptExecPriority_raw(p);
             }
         }
@@ -1733,7 +1733,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {
             CScriptObject* scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, loadedObjectList[i]->getObjectHandle());
-            if ( (scriptObject != nullptr) && (!scriptObject->getThreadedExecution_oldThreads()) )
+            if ((scriptObject != nullptr) && (!scriptObject->getThreadedExecution_oldThreads()))
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
                 CScript* script = new CScript(scriptObject);
@@ -1753,7 +1753,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                 sceneObjects->setObjectName_old(script, nn.c_str(), false);
             }
             scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, loadedObjectList[i]->getObjectHandle());
-            if ( (scriptObject != nullptr) && (!scriptObject->getThreadedExecution_oldThreads()) )
+            if ((scriptObject != nullptr) && (!scriptObject->getThreadedExecution_oldThreads()))
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
                 CScript* script = new CScript(scriptObject);
@@ -1771,7 +1771,6 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                 std::string nn("autoConvertedCustomizationScript_");
                 nn += loadedObjectList[i]->getObjectName_old();
                 sceneObjects->setObjectName_old(script, nn.c_str(), false);
-
             }
         }
     }
@@ -1792,9 +1791,9 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                     {
                         CScript* script = (CScript*)c;
                         int id = itemDone;
-                        if ( ((itemDone & 1) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_simulation) )
+                        if (((itemDone & 1) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_simulation))
                             itemDone |= 1;
-                        if ( ((itemDone & 2) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_customization) )
+                        if (((itemDone & 2) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_customization))
                             itemDone |= 2;
                         if (itemDone != id)
                         {
@@ -1818,7 +1817,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
     return (true);
 }
 
-bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
+bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
 {
     bool retVal = true;
     bool isScene = (ar.getFileType() == CSer::filetype_csim_xml_simplescene_file);
@@ -1847,13 +1846,13 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
         ar.xmlPopNode();
     }
 
-    std::vector<CCollection *> allLoadedCollections;
-    std::map<std::string, CCollection *> _collectionLoadNamesMap;
+    std::vector<CCollection*> allLoadedCollections;
+    std::map<std::string, CCollection*> _collectionLoadNamesMap;
     if (ar.xmlPushChildNode(SERX_COLLECTION, false))
     { // for backward compatibility 18.11.2020
         while (true)
         {
-            CCollection *it = new CCollection(-2);
+            CCollection* it = new CCollection(-2);
             it->serialize(ar);
             allLoadedCollections.push_back(it);
             _collectionLoadNamesMap[it->getCollectionLoadName()] = it;
@@ -1863,12 +1862,12 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
         ar.xmlPopNode();
     }
 
-    std::vector<CIkGroup_old *> allLoadedIkGroups;
+    std::vector<CIkGroup_old*> allLoadedIkGroups;
     if (ar.xmlPushChildNode(SERX_IK, false))
     {
         while (true)
         {
-            CIkGroup_old *it = new CIkGroup_old();
+            CIkGroup_old* it = new CIkGroup_old();
             it->serialize(ar);
             allLoadedIkGroups.push_back(it);
             if (!ar.xmlPushSiblingNode(SERX_IK, false))
@@ -1880,7 +1879,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     if (isScene && (sceneObjects->embeddedScriptContainer->getMainScript() == nullptr))
         sceneObjects->embeddedScriptContainer->insertDefaultScript(sim_scripttype_main, false, true);
 
-    CCamera *mainCam = nullptr;
+    CCamera* mainCam = nullptr;
 
     C7Vector ident;
     ident.setIdentity();
@@ -1888,18 +1887,18 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     sceneObjects->readAndAddToSceneSimpleXmlSceneObjects(ar, nullptr, ident, simpleXmlObjects);
 
     bool hasAScriptAttached = false;
-    std::vector<CSceneObject *> allLoadedObjects;
+    std::vector<CSceneObject*> allLoadedObjects;
     for (size_t i = 0; i < simpleXmlObjects.size(); i++)
     {
-        CSceneObject *it = simpleXmlObjects[i].object;
-        CSceneObject *pit = simpleXmlObjects[i].parentObject;
-        CScriptObject *childScript = simpleXmlObjects[i].childScript;
-        CScriptObject *customizationScript = simpleXmlObjects[i].customizationScript;
+        CSceneObject* it = simpleXmlObjects[i].object;
+        CSceneObject* pit = simpleXmlObjects[i].parentObject;
+        CScriptObject* childScript = simpleXmlObjects[i].childScript;
+        CScriptObject* customizationScript = simpleXmlObjects[i].customizationScript;
         allLoadedObjects.push_back(it);
         if (it->getObjectType() == sim_sceneobject_camera)
         {
-            if ((mainCam == nullptr) || ((CCamera *)it)->getIsMainCamera())
-                mainCam = (CCamera *)it;
+            if ((mainCam == nullptr) || ((CCamera*)it)->getIsMainCamera())
+                mainCam = (CCamera*)it;
         }
         sceneObjects->setObjectParent(it, pit, false);
         if (childScript != nullptr)
@@ -1919,8 +1918,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     {
         pageContainer->setUpDefaultPages(true);
 #ifdef SIM_WITH_GUI
-        CSPage *page = pageContainer->getPage(pageContainer->getActivePageIndex());
-        CSView *view = page->getView(0);
+        CSPage* page = pageContainer->getPage(pageContainer->getActivePageIndex());
+        CSView* view = page->getView(0);
         if (view != nullptr)
             view->setLinkedObjectID(mainCam->getObjectHandle(), false);
 #endif
@@ -1935,11 +1934,11 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     bool objectIsACopy =
         (hasAScriptAttached &&
          (ar.getFileType() == CSer::filetype_csim_xml_simplemodel_file)); // scenes are not treated like copies!
-    std::map<std::string, CSceneObject *> _objectAliasesMap;
-    std::map<std::string, CSceneObject *> _objectTempNamesMap;
+    std::map<std::string, CSceneObject*> _objectAliasesMap;
+    std::map<std::string, CSceneObject*> _objectTempNamesMap;
     for (size_t i = 0; i < allLoadedObjects.size(); i++)
     {
-        CSceneObject *it = allLoadedObjects[i];
+        CSceneObject* it = allLoadedObjects[i];
         _objectAliasesMap[it->getObjectTempAlias()] = it;
 
         // Old, for backward compatibility:
@@ -1959,7 +1958,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
                 std::vector<int> dummyValues;
                 for (size_t i = 0; i < sceneObjects->getObjectCount(); i++)
                 { //
-                    CSceneObject *itt = sceneObjects->getObjectFromIndex(i);
+                    CSceneObject* itt = sceneObjects->getObjectFromIndex(i);
                     std::string baseNameIt(tt::getNameWithoutSuffixNumber(itt->getObjectName_old().c_str(), false));
                     if (baseName.compare(baseNameIt) == 0)
                     {
@@ -1991,7 +1990,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
             std::vector<int> dummyValues;
             for (size_t i = 0; i < sceneObjects->getObjectCount(); i++)
             {
-                CSceneObject *itt = sceneObjects->getObjectFromIndex(i);
+                CSceneObject* itt = sceneObjects->getObjectFromIndex(i);
                 std::string baseAltNameIt(tt::getNameWithoutSuffixNumber(itt->getObjectAltName_old().c_str(), false));
                 if (baseAltName.compare(baseAltNameIt) == 0)
                 {
@@ -2017,11 +2016,11 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     // -----------------------
     for (size_t i = 0; i < allLoadedCollections.size(); i++)
     {
-        CCollection *it = allLoadedCollections[i];
+        CCollection* it = allLoadedCollections[i];
         for (size_t j = 0; j < it->getElementCount(); j++)
         {
-            CCollectionElement *el = it->getElementFromIndex(j);
-            std::map<std::string, CSceneObject *>::const_iterator elIt =
+            CCollectionElement* el = it->getElementFromIndex(j);
+            std::map<std::string, CSceneObject*>::const_iterator elIt =
                 _objectTempNamesMap.find(el->getMainObjectTempName());
             if ((el->getMainObjectTempName().size() > 0) && (elIt != _objectTempNamesMap.end()))
                 el->setMainObject(elIt->second->getObjectHandle());
@@ -2048,11 +2047,11 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     }
     for (size_t i = 0; i < allLoadedIkGroups.size(); i++)
     {
-        CIkGroup_old *it = allLoadedIkGroups[i];
+        CIkGroup_old* it = allLoadedIkGroups[i];
         for (size_t j = 0; j < it->getIkElementCount(); j++)
         {
-            CIkElement_old *el = it->getIkElementFromIndex(j);
-            std::map<std::string, CSceneObject *>::const_iterator elIt = _objectTempNamesMap.find(el->getTipLoadName());
+            CIkElement_old* el = it->getIkElementFromIndex(j);
+            std::map<std::string, CSceneObject*>::const_iterator elIt = _objectTempNamesMap.find(el->getTipLoadName());
             if ((el->getTipLoadName().size() > 0) && (elIt != _objectTempNamesMap.end()))
             {
                 el->setTipHandle(elIt->second->getObjectHandle());
@@ -2082,12 +2081,12 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
 
     for (size_t i = 0; i < allLoadedObjects.size(); i++)
     {
-        CSceneObject *obj = allLoadedObjects[i];
+        CSceneObject* obj = allLoadedObjects[i];
         // Handle dummy-dummy linking:
         if (obj->getObjectType() == sim_sceneobject_dummy)
         {
-            CDummy *dummy = (CDummy *)obj;
-            std::map<std::string, CSceneObject *>::const_iterator it =
+            CDummy* dummy = (CDummy*)obj;
+            std::map<std::string, CSceneObject*>::const_iterator it =
                 _objectAliasesMap.find(dummy->getLinkedDummyLoadAlias());
             if ((dummy->getLinkedDummyLoadAlias().size() > 0) && (it != _objectAliasesMap.end()))
                 dummy->setLinkedDummyHandle(it->second->getObjectHandle(), true);
@@ -2104,8 +2103,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
         // Handle joint-joint linking:
         if (obj->getObjectType() == sim_sceneobject_joint)
         {
-            CJoint *joint = (CJoint *)obj;
-            std::map<std::string, CSceneObject *>::const_iterator it =
+            CJoint* joint = (CJoint*)obj;
+            std::map<std::string, CSceneObject*>::const_iterator it =
                 _objectAliasesMap.find(joint->getDependencyJointLoadAlias());
             if ((joint->getDependencyJointLoadAlias().size() > 0) && (it != _objectAliasesMap.end()))
                 joint->setDependencyMasterJointHandle(it->second->getObjectHandle());
@@ -2122,8 +2121,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
         // Handle camera tracking:
         if (obj->getObjectType() == sim_sceneobject_camera)
         {
-            CCamera *camera = (CCamera *)obj;
-            std::map<std::string, CSceneObject *>::const_iterator it =
+            CCamera* camera = (CCamera*)obj;
+            std::map<std::string, CSceneObject*>::const_iterator it =
                 _objectAliasesMap.find(camera->getTrackedObjectLoadAlias());
             if ((camera->getTrackedObjectLoadAlias().size() > 0) && (it != _objectAliasesMap.end()))
                 camera->setTrackedObjectHandle(it->second->getObjectHandle());
@@ -2140,8 +2139,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
         // Handle proximitySensor sensable entity linking:
         if (obj->getObjectType() == sim_sceneobject_proximitysensor)
         {
-            CProxSensor *proxSensor = (CProxSensor *)obj;
-            std::map<std::string, CSceneObject *>::const_iterator it =
+            CProxSensor* proxSensor = (CProxSensor*)obj;
+            std::map<std::string, CSceneObject*>::const_iterator it =
                 _objectAliasesMap.find(proxSensor->getSensableObjectLoadAlias());
             if ((proxSensor->getSensableObjectLoadAlias().size() > 0) && (it != _objectAliasesMap.end()))
                 proxSensor->setSensableObject(it->second->getObjectHandle());
@@ -2154,7 +2153,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
                         proxSensor->setSensableObject(it->second->getObjectHandle());
                     else
                     {
-                        std::map<std::string, CCollection *>::const_iterator itColl =
+                        std::map<std::string, CCollection*>::const_iterator itColl =
                             _collectionLoadNamesMap.find(proxSensor->getSensableObjectLoadName_old());
                         if (itColl != _collectionLoadNamesMap.end())
                             proxSensor->setSensableObject(itColl->second->getCollectionHandle());
@@ -2165,8 +2164,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
         // Handle visionSensor renderable entity linking:
         if (obj->getObjectType() == sim_sceneobject_visionsensor)
         {
-            CVisionSensor *visionSensor = (CVisionSensor *)obj;
-            std::map<std::string, CSceneObject *>::const_iterator it =
+            CVisionSensor* visionSensor = (CVisionSensor*)obj;
+            std::map<std::string, CSceneObject*>::const_iterator it =
                 _objectAliasesMap.find(visionSensor->getDetectableEntityLoadAlias());
             if ((visionSensor->getDetectableEntityLoadAlias().size() > 0) && (it != _objectAliasesMap.end()))
                 visionSensor->setDetectableEntityHandle(it->second->getObjectHandle());
@@ -2179,7 +2178,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
                         visionSensor->setDetectableEntityHandle(it->second->getObjectHandle());
                     else
                     {
-                        std::map<std::string, CCollection *>::const_iterator itColl =
+                        std::map<std::string, CCollection*>::const_iterator itColl =
                             _collectionLoadNamesMap.find(visionSensor->getDetectableEntityLoadName_old());
                         if (itColl != _collectionLoadNamesMap.end())
                             visionSensor->setDetectableEntityHandle(itColl->second->getCollectionHandle());
@@ -2197,7 +2196,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     return (retVal);
 }
 
-bool CWorld::_saveSimpleXmlScene(CSer &ar)
+bool CWorld::_saveSimpleXmlScene(CSer& ar)
 {
     bool retVal = true;
     bool isScene = (ar.getFileType() == CSer::filetype_csim_xml_simplescene_file);
@@ -2242,7 +2241,7 @@ bool CWorld::_saveSimpleXmlScene(CSer &ar)
     return (retVal);
 }
 
-void CWorld::_getMinAndMaxNameSuffixes(int &smallestSuffix, int &biggestSuffix) const
+void CWorld::_getMinAndMaxNameSuffixes(int& smallestSuffix, int& biggestSuffix) const
 {
     smallestSuffix = SIM_MAX_INT;
     biggestSuffix = -1;
@@ -2285,10 +2284,10 @@ void CWorld::_getMinAndMaxNameSuffixes(int &smallestSuffix, int &biggestSuffix) 
 }
 
 int CWorld::_getSuffixOffsetForGeneralObjectToAdd(
-    bool tempNames, std::vector<CSceneObject *> *loadedObjectList, std::vector<CCollection *> *loadedCollectionList,
-    std::vector<CCollisionObject_old *> *loadedCollisionList, std::vector<CDistanceObject_old *> *loadedDistanceList,
-    std::vector<CIkGroup_old *> *loadedIkGroupList, std::vector<CPathPlanningTask *> *loadedPathPlanningTaskList,
-    std::vector<CButtonBlock *> *loadedButtonBlockList, std::vector<CScriptObject *> *loadedLuaScriptList) const
+    bool tempNames, std::vector<CSceneObject*>* loadedObjectList, std::vector<CCollection*>* loadedCollectionList,
+    std::vector<CCollisionObject_old*>* loadedCollisionList, std::vector<CDistanceObject_old*>* loadedDistanceList,
+    std::vector<CIkGroup_old*>* loadedIkGroupList, std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
+    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CScriptObject*>* loadedLuaScriptList) const
 {
     // 1. We find out about the smallest suffix to paste:
     int smallestSuffix = SIM_MAX_INT;
@@ -2408,7 +2407,7 @@ void CWorld::_setSuffix1ToSuffix2(int suffix1, int suffix2)
     pathPlanning_old->setSuffix1ToSuffix2(suffix1, suffix2);
 }
 
-void CWorld::appendLoadOperationIssue(int verbosity, const char *text, int objectId)
+void CWorld::appendLoadOperationIssue(int verbosity, const char* text, int objectId)
 {
     if (text == nullptr)
         _loadOperationIssues.clear();
@@ -2422,7 +2421,7 @@ void CWorld::appendLoadOperationIssue(int verbosity, const char *text, int objec
     }
 }
 
-int CWorld::getLoadingMapping(const std::map<int, int> *map, int oldVal)
+int CWorld::getLoadingMapping(const std::map<int, int>* map, int oldVal)
 {
     int retVal = -1;
     auto it = map->find(oldVal);
@@ -2457,23 +2456,23 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setBoolProperty(pName, pState);
-        if ( (retVal == -1) && (simulation != nullptr) )
+        if ((retVal == -1) && (simulation != nullptr))
             retVal = simulation->setBoolProperty(pName, pState);
-        if ( (retVal == -1) && (environment != nullptr) )
+        if ((retVal == -1) && (environment != nullptr))
             retVal = environment->setBoolProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setBoolProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2506,23 +2505,23 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getBoolProperty(pName, pState);
-        if ( (retVal == -1) && (simulation != nullptr) )
+        if ((retVal == -1) && (simulation != nullptr))
             retVal = simulation->getBoolProperty(pName, pState);
-        if ( (retVal == -1) && (environment != nullptr) )
+        if ((retVal == -1) && (environment != nullptr))
             retVal = environment->getBoolProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getBoolProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2555,23 +2554,23 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntProperty(pName, pState);
-        if ( (retVal == -1) && (simulation != nullptr) )
+        if ((retVal == -1) && (simulation != nullptr))
             retVal = simulation->setIntProperty(pName, pState);
-        if ( (retVal == -1) && (environment != nullptr) )
+        if ((retVal == -1) && (environment != nullptr))
             retVal = environment->setIntProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setIntProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setIntProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2604,23 +2603,23 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntProperty(pName, pState);
-        if ( (retVal == -1) && (simulation != nullptr) )
+        if ((retVal == -1) && (simulation != nullptr))
             retVal = simulation->getIntProperty(pName, pState);
-        if ( (retVal == -1) && (environment != nullptr) )
+        if ((retVal == -1) && (environment != nullptr))
             retVal = environment->getIntProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getIntProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getIntProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2665,13 +2664,13 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
         }
         */
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setLongProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2716,13 +2715,13 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
         }
         */
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getLongProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2755,21 +2754,21 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatProperty(pName, pState);
-        if ( (retVal == -1) && (simulation != nullptr) )
+        if ((retVal == -1) && (simulation != nullptr))
             retVal = simulation->setFloatProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setFloatProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2778,7 +2777,7 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-         //   retVal = script->setFloatProperty(pName, pState);
+            //   retVal = script->setFloatProperty(pName, pState);
         }
     }
     else
@@ -2802,21 +2801,21 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatProperty(pName, pState);
-        if ( (retVal == -1) && (simulation != nullptr) )
+        if ((retVal == -1) && (simulation != nullptr))
             retVal = simulation->getFloatProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getFloatProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2825,7 +2824,7 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getFloatProperty(pName, pState);
+            //    retVal = script->getFloatProperty(pName, pState);
         }
     }
     else
@@ -2849,21 +2848,21 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setStringProperty(pName, pState);
-        if ( (retVal == -1) && (environment != nullptr) )
+        if ((retVal == -1) && (environment != nullptr))
             retVal = environment->setStringProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setStringProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setStringProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2896,21 +2895,21 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getStringProperty(pName, pState);
-        if ( (retVal == -1) && (environment != nullptr) )
+        if ((retVal == -1) && (environment != nullptr))
             retVal = environment->getStringProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getStringProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getStringProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2956,7 +2955,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
                 bool diff = customDataPtr->setData(pN.c_str(), buffer, bufferL, true);
                 if (diff && App::worldContainer->getEventsEnabled())
                 {
-                    CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                    CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
                     customDataPtr->appendEventData(pN.c_str(), ev);
                     App::worldContainer->pushEvent();
                 }
@@ -2964,13 +2963,13 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -2979,7 +2978,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setBufferProperty(pName, buffer, bufferL);
+            //    retVal = script->setBufferProperty(pName, buffer, bufferL);
         }
     }
     else
@@ -3019,13 +3018,13 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getBufferProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3034,7 +3033,7 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getBufferProperty(pName, pState);
+            //    retVal = script->getBufferProperty(pName, pState);
         }
     }
     else
@@ -3058,19 +3057,19 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntArray2Property(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setIntArray2Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setIntArray2Property(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3079,7 +3078,7 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setIntArray2Property(pName, pState);
+            //    retVal = script->setIntArray2Property(pName, pState);
         }
     }
     else
@@ -3103,19 +3102,19 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntArray2Property(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getIntArray2Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getIntArray2Property(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3124,7 +3123,7 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getIntArray2Property(pName, pState);
+            //    retVal = script->getIntArray2Property(pName, pState);
         }
     }
     else
@@ -3148,19 +3147,19 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector2Property(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setVector2Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setVector2Property(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3169,7 +3168,7 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setVector2Property(pName, pState);
+            //    retVal = script->setVector2Property(pName, pState);
         }
     }
     else
@@ -3193,19 +3192,19 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector2Property(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getVector2Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getVector2Property(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3214,7 +3213,7 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getVector2Property(pName, pState);
+            //    retVal = script->getVector2Property(pName, pState);
         }
     }
     else
@@ -3238,19 +3237,19 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector3Property(pName, &pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setVector3Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setVector3Property(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3259,7 +3258,7 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setVector3Property(pName, pState);
+            //    retVal = script->setVector3Property(pName, pState);
         }
     }
     else
@@ -3283,19 +3282,19 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector3Property(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getVector3Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getVector3Property(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3304,7 +3303,7 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getVector3Property(pName, pState);
+            //    retVal = script->getVector3Property(pName, pState);
         }
     }
     else
@@ -3332,13 +3331,13 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3347,7 +3346,7 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setQuaternionProperty(pName, pState);
+            //    retVal = script->setQuaternionProperty(pName, pState);
         }
     }
     else
@@ -3375,13 +3374,13 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3390,7 +3389,7 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getQuaternionProperty(pName, pState);
+            //    retVal = script->getQuaternionProperty(pName, pState);
         }
     }
     else
@@ -3418,13 +3417,13 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3433,7 +3432,7 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setPoseProperty(pName, pState);
+            //    retVal = script->setPoseProperty(pName, pState);
         }
     }
     else
@@ -3461,13 +3460,13 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3476,7 +3475,7 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getPoseProperty(pName, pState);
+            //    retVal = script->getPoseProperty(pName, pState);
         }
     }
     else
@@ -3500,19 +3499,19 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
         const char* pName = _pName.c_str();
         if (environment != nullptr)
             retVal = environment->setColorProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setColorProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setColorProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3521,7 +3520,7 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setColorProperty(pName, pState);
+            //    retVal = script->setColorProperty(pName, pState);
         }
     }
     else
@@ -3545,19 +3544,19 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
         const char* pName = _pName.c_str();
         if (environment != nullptr)
             retVal = environment->getColorProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getColorProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getColorProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3566,7 +3565,7 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getColorProperty(pName, pState);
+            //    retVal = script->getColorProperty(pName, pState);
         }
     }
     else
@@ -3590,19 +3589,19 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatArrayProperty(pName, v, vL);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setFloatArrayProperty(-1, pName, v, vL); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setFloatArrayProperty(target, pName, v, vL);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3611,7 +3610,7 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setFloatArrayProperty(pName, v, vL);
+            //    retVal = script->setFloatArrayProperty(pName, v, vL);
         }
     }
     else
@@ -3636,19 +3635,19 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatArrayProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getFloatArrayProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getFloatArrayProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3657,7 +3656,7 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getFloatArrayProperty(pName, pState);
+            //    retVal = script->getFloatArrayProperty(pName, pState);
         }
     }
     else
@@ -3681,19 +3680,19 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntArrayProperty(pName, v, vL);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->setIntArrayProperty(-1, pName, v, vL); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->setIntArrayProperty(target, pName, v, vL);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3702,7 +3701,7 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->setIntArrayProperty(pName, v, vL);
+            //    retVal = script->setIntArrayProperty(pName, v, vL);
         }
     }
     else
@@ -3727,19 +3726,19 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
         const char* pName = _pName.c_str();
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntArrayProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
+        if ((retVal == -1) && (sceneObjects != nullptr))
             retVal = sceneObjects->getIntArrayProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->getIntArrayProperty(target, pName, pState);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3748,7 +3747,7 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->getIntArrayProperty(pName, pState);
+            //    retVal = script->getIntArrayProperty(pName, pState);
         }
     }
     else
@@ -3781,7 +3780,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
                     bool diff = customSceneData.clearData((propertyStrings[tp] + pN).c_str());
                     if (diff && App::worldContainer->getEventsEnabled())
                     {
-                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
                         customSceneData.appendEventData(pN.c_str(), ev, true);
                         App::worldContainer->pushEvent();
                     }
@@ -3799,7 +3798,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
                     bool diff = customSceneData_volatile.clearData((propertyStrings[tp] + pN).c_str());
                     if (diff && App::worldContainer->getEventsEnabled())
                     {
-                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
                         customSceneData_volatile.appendEventData(pN.c_str(), ev, true);
                         App::worldContainer->pushEvent();
                     }
@@ -3808,13 +3807,13 @@ int CWorld::removeProperty(long long int target, const char* ppName)
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = sceneObjects->removeProperty(target, pName);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3823,7 +3822,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-        //    retVal = script->removeProperty(pName);
+            //    retVal = script->removeProperty(pName);
         }
     }
     else
@@ -3833,7 +3832,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
 
 int CWorld::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject)
 {
-    if ( (target == sim_handle_mainscript) && (targetObject != nullptr) )
+    if ((target == sim_handle_mainscript) && (targetObject != nullptr))
     {
         CScriptObject* it = targetObject->sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
@@ -3846,9 +3845,9 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         appartenance += ".scene";
         if (App::currentWorld->dynamicsContainer != nullptr)
             retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName);
-        if ( (retVal == -1) && (App::currentWorld->simulation != nullptr) )
+        if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
             retVal = App::currentWorld->simulation->getPropertyName(index, pName);
-        if ( (retVal == -1) && (App::currentWorld->environment != nullptr) )
+        if ((retVal == -1) && (App::currentWorld->environment != nullptr))
             retVal = App::currentWorld->environment->getPropertyName(index, pName);
         if (retVal == -1)
         {
@@ -3874,7 +3873,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         appartenance += ".scene";
         CSceneObjectContainer* soc = nullptr;
@@ -3882,7 +3881,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
             soc = targetObject->sceneObjects;
         retVal = CSceneObjectContainer::getPropertyName(target, index, pName, appartenance, soc);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3899,7 +3898,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
 
 int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt, CWorld* targetObject)
 {
-    if ( (target == sim_handle_mainscript) && (targetObject != nullptr) )
+    if ((target == sim_handle_mainscript) && (targetObject != nullptr))
     {
         CScriptObject* it = targetObject->sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
@@ -3913,9 +3912,9 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         const char* pName = _pName.c_str();
         if (App::currentWorld->dynamicsContainer != nullptr)
             retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
-        if ( (retVal == -1) && (App::currentWorld->simulation != nullptr) )
+        if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
             retVal = App::currentWorld->simulation->getPropertyInfo(pName, info, infoTxt);
-        if ( (retVal == -1) && (App::currentWorld->environment != nullptr) )
+        if ((retVal == -1) && (App::currentWorld->environment != nullptr))
             retVal = App::currentWorld->environment->getPropertyInfo(pName, info, infoTxt);
         if (retVal == -1)
         {
@@ -3963,7 +3962,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
@@ -3972,7 +3971,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
             soc = targetObject->sceneObjects;
         retVal = CSceneObjectContainer::getPropertyInfo(target, pName, info, infoTxt, soc);
     }
-    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr) )
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
@@ -3990,7 +3989,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
 }
 
 #ifdef SIM_WITH_GUI
-void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase *renderingObject, int displayAttrib,
+void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject, int displayAttrib,
                                                                  int windowSize[2], double verticalViewSizeOrAngle,
                                                                  bool perspective)
 {
@@ -3999,11 +3998,11 @@ void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase *
     pointCloudCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
     ghostObjectCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
     bannerCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
-                                                 perspective);
+                                                     perspective);
     dynamicsContainer->renderYour3DStuff(renderingObject, displayAttrib);
 }
 
-void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase *renderingObject, int displayAttrib,
+void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject, int displayAttrib,
                                                                 int windowSize[2], double verticalViewSizeOrAngle,
                                                                 bool perspective)
 {
@@ -4011,10 +4010,10 @@ void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase *r
     pointCloudCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib);
     ghostObjectCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib);
     bannerCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
-                                              perspective);
+                                                  perspective);
 }
 
-void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase *renderingObject, int displayAttrib,
+void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject, int displayAttrib,
                                                                   int windowSize[2], double verticalViewSizeOrAngle,
                                                                   bool perspective)
 {
@@ -4022,7 +4021,7 @@ void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase 
     pointCloudCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);
     ghostObjectCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);
     bannerCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
-                                          perspective);
+                                              perspective);
     collisions_old->renderYour3DStuff(renderingObject, displayAttrib);
     dynamicsContainer->renderYour3DStuff_overlay(renderingObject, displayAttrib);
 }

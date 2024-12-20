@@ -6,7 +6,8 @@
 #include <boost/lexical_cast.hpp>
 #include <guiApp.h>
 
-CQDlgVertexEdit::CQDlgVertexEdit(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgVertexEdit)
+CQDlgVertexEdit::CQDlgVertexEdit(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgVertexEdit)
 {
     ui->setupUi(this);
 }

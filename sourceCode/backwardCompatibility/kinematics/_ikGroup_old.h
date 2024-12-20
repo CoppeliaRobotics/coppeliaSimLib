@@ -10,9 +10,9 @@ class _CIkGroup_old
     _CIkGroup_old();
     virtual ~_CIkGroup_old();
 
-    CIkElement_old *getIkElementFromHandle(int ikElementHandle) const;
-    CIkElement_old *getIkElementFromTipHandle(int tipHandle) const;
-    CIkElement_old *getIkElementFromIndex(size_t index) const;
+    CIkElement_old* getIkElementFromHandle(int ikElementHandle) const;
+    CIkElement_old* getIkElementFromTipHandle(int tipHandle) const;
+    CIkElement_old* getIkElementFromIndex(size_t index) const;
     size_t getIkElementCount() const;
 
     int getObjectHandle() const;
@@ -42,10 +42,10 @@ class _CIkGroup_old
     virtual bool setDoOnFailOrSuccessOf(int groupID, bool check);
     virtual bool setDoOnFail(bool onFail);
     virtual bool setDoOnPerformed(bool turnOn);
-    virtual bool setObjectName(const char *newName, bool check);
+    virtual bool setObjectName(const char* newName, bool check);
 
   protected:
-    virtual void _addIkElement(CIkElement_old *anElement);
+    virtual void _addIkElement(CIkElement_old* anElement);
     virtual void _removeIkElement(int ikElementHandle);
 
     virtual void _setExplicitHandling_send(bool b) const;
@@ -59,7 +59,7 @@ class _CIkGroup_old
     virtual void _setDoOnFailOrSuccessOf_send(int h) const;
     virtual void _setDoOnFail_send(bool e) const;
     virtual void _setDoOnPerformed_send(bool e) const;
-    virtual void _setObjectName_send(const char *nm) const;
+    virtual void _setObjectName_send(const char* nm) const;
 
     int _objectHandle;
     bool _explicitHandling;
@@ -76,5 +76,5 @@ class _CIkGroup_old
     std::string _objectName;
 
   private:
-    std::vector<CIkElement_old *> _ikElements;
+    std::vector<CIkElement_old*> _ikElements;
 };

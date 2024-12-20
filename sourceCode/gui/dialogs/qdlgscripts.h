@@ -13,7 +13,7 @@ class CQDlgScripts : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgScripts(QWidget *parent = 0);
+    explicit CQDlgScripts(QWidget* parent = 0);
     ~CQDlgScripts();
 
     void refresh();
@@ -37,8 +37,8 @@ class CQDlgScripts : public CDlgEx
 
     void on_qqResetAfterSimError_clicked();
 
-private:
-    Ui::CQDlgScripts *ui;
+  private:
+    Ui::CQDlgScripts* ui;
 };
 
 #endif // QDLGSCRIPTS_H

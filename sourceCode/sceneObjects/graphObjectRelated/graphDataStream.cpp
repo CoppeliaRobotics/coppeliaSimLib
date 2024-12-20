@@ -14,7 +14,7 @@ CGraphDataStream::CGraphDataStream()
     _uid = App::getFreshUniqueId();
 }
 
-CGraphDataStream::CGraphDataStream(const char *streamName, const char *unitStr, int options, const float *color,
+CGraphDataStream::CGraphDataStream(const char* streamName, const char* unitStr, int options, const float* color,
                                    double cyclicRange, int scriptHandle)
 {
     _streamName = streamName;
@@ -32,7 +32,7 @@ CGraphDataStream::~CGraphDataStream()
 {
 }
 
-void CGraphDataStream::setBasics(const char *unitStr, int options, const float *color, double cyclicRange,
+void CGraphDataStream::setBasics(const char* unitStr, int options, const float* color, double cyclicRange,
                                  int scriptHandle)
 {
     _unitStr.clear();
@@ -102,7 +102,7 @@ long long int CGraphDataStream::getUid() const
     return _uid;
 }
 
-void CGraphDataStream::setStreamName(const char *nm)
+void CGraphDataStream::setStreamName(const char* nm)
 {
     _streamName = nm;
 }
@@ -139,7 +139,7 @@ double CGraphDataStream::getCyclicRange() const
     return (_cyclicRange);
 }
 
-const float *CGraphDataStream::getColorPtr() const
+const float* CGraphDataStream::getColorPtr() const
 {
     return (_color);
 }
@@ -158,7 +158,7 @@ void CGraphDataStream::setNextValueToInsert(double v)
     }
 }
 
-void CGraphDataStream::insertNextValue(int absIndex, bool firstValue, const std::vector<double> &times)
+void CGraphDataStream::insertNextValue(int absIndex, bool firstValue, const std::vector<double>& times)
 {
     if (!_static)
     {
@@ -291,7 +291,7 @@ void CGraphDataStream::insertNextValue(int absIndex, bool firstValue, const std:
     _nextValueToInsertIsValid = false;
 }
 
-bool CGraphDataStream::getTransformedValue(int startPt, int pos, double &retVal) const
+bool CGraphDataStream::getTransformedValue(int startPt, int pos, double& retVal) const
 {
     if (_static)
         return (false);
@@ -320,9 +320,9 @@ bool CGraphDataStream::getTransformedValue(int startPt, int pos, double &retVal)
     return (cumulativeValueCount > 0);
 }
 
-bool CGraphDataStream::getCurveData(bool staticCurve, int *index, int startPt, int ptCnt,
-                                    const std::vector<double> &times, std::string *label, std::vector<double> &xVals,
-                                    std::vector<double> &yVals, int *curveType, float col[3], double minMax[6]) const
+bool CGraphDataStream::getCurveData(bool staticCurve, int* index, int startPt, int ptCnt,
+                                    const std::vector<double>& times, std::string* label, std::vector<double>& xVals,
+                                    std::vector<double>& yVals, int* curveType, float col[3], double minMax[6]) const
 {
     if (_visible && (staticCurve == _static))
     {
@@ -428,7 +428,7 @@ bool CGraphDataStream::getCurveData(bool staticCurve, int *index, int startPt, i
     return (false);
 }
 
-bool CGraphDataStream::getExportValue(int startPt, int relPos, double *val, std::string *label) const
+bool CGraphDataStream::getExportValue(int startPt, int relPos, double* val, std::string* label) const
 { // only for non-static curves!
     if (label != nullptr)
     {
@@ -447,7 +447,7 @@ bool CGraphDataStream::getExportValue(int startPt, int relPos, double *val, std:
     return (true);
 }
 
-void CGraphDataStream::makeStatic(int startPt, int ptCnt, const std::vector<double> &times)
+void CGraphDataStream::makeStatic(int startPt, int ptCnt, const std::vector<double>& times)
 {
     if (!_static)
     {
@@ -469,7 +469,7 @@ void CGraphDataStream::makeStatic(int startPt, int ptCnt, const std::vector<doub
     }
 }
 
-void CGraphDataStream::serialize(CSer &ar, int startPt, int ptCnt, int bufferSize)
+void CGraphDataStream::serialize(CSer& ar, int startPt, int ptCnt, int bufferSize)
 {
     if (ar.isBinary())
     {
@@ -818,9 +818,9 @@ void CGraphDataStream::serialize(CSer &ar, int startPt, int ptCnt, int bufferSiz
     }
 }
 
-CGraphDataStream *CGraphDataStream::copyYourself() const
+CGraphDataStream* CGraphDataStream::copyYourself() const
 {
-    CGraphDataStream *newObj = new CGraphDataStream();
+    CGraphDataStream* newObj = new CGraphDataStream();
     newObj->_streamName = _streamName;
     newObj->_unitStr = _unitStr;
     newObj->_visible = _visible;
@@ -851,7 +851,7 @@ bool CGraphDataStream::announceScriptWillBeErased(int scriptHandle, bool simulat
     return ((scriptHandle == _scriptHandle) && (!sceneSwitchPersistentScript));
 }
 
-void CGraphDataStream::performScriptLoadingMapping(const std::map<int, int> *map)
+void CGraphDataStream::performScriptLoadingMapping(const std::map<int, int>* map)
 {
     _scriptHandle = CWorld::getLoadingMapping(map, _scriptHandle);
 }

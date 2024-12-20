@@ -26,8 +26,8 @@ class CSoftButton
     virtual ~CSoftButton();
 
     void announceSceneObjectWillBeErased(int objID);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performSceneObjectLoadingMapping(const std::map<int, int> *map);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performSceneObjectLoadingMapping(const std::map<int, int>* map);
     void setTextureDependencies(int buttonBlockID);
 
     float backgroundColor[3];
@@ -39,7 +39,7 @@ class CSoftButton
     int xPos;
     int yPos;
 
-    void serialize(CSer &ar);
+    void serialize(CSer& ar);
 
     void setSliderPos(double pos);
     double getSliderPos();
@@ -59,15 +59,15 @@ class CSoftButton
     void setAttributes(int attr);
     int getAttributes();
     int getUniqueID();
-    void setTextureProperty(CTextureProperty *tp);
+    void setTextureProperty(CTextureProperty* tp);
     void removeVisionSensorTexture();
-    CTextureProperty *getTextureProperty();
-    float *arrayColors; // not serialized, but copied!
+    CTextureProperty* getTextureProperty();
+    float* arrayColors; // not serialized, but copied!
 
-    CSoftButton *copyYourself();
+    CSoftButton* copyYourself();
 
   private:
-    CTextureProperty *_textureProperty;
+    CTextureProperty* _textureProperty;
     int _buttonAttributes;
     int length;
     int height;

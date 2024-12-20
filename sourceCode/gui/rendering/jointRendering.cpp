@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <jointRendering.h>
 #include <guiApp.h>
 
-void displayJoint(CJoint *joint, CViewableBase *renderingObject, int displayAttrib)
+void displayJoint(CJoint* joint, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(joint, renderingObject);
@@ -65,7 +65,7 @@ void displayJoint(CJoint *joint, CViewableBase *renderingObject, int displayAttr
     _commonFinish(joint, renderingObject);
 }
 
-void _displayJoint(CJoint *joint, int displayAttrib, bool partOne, double sizeParam)
+void _displayJoint(CJoint* joint, int displayAttrib, bool partOne, double sizeParam)
 {
     if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
     {

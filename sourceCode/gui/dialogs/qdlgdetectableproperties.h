@@ -14,7 +14,7 @@ class CQDlgDetectableProperties : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgDetectableProperties(QWidget *parent = 0);
+    explicit CQDlgDetectableProperties(QWidget* parent = 0);
     ~CQDlgDetectableProperties();
 
     void cancelEvent();
@@ -41,7 +41,7 @@ class CQDlgDetectableProperties : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    Ui::CQDlgDetectableProperties *ui;
+    Ui::CQDlgDetectableProperties* ui;
 };
 
 #endif // QDLGDETECTABLEPROPERTIES_H

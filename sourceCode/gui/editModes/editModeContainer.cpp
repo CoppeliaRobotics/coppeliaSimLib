@@ -39,7 +39,7 @@ bool CEditModeContainer::enterEditMode(int objID, int modeType)
 
     if (modeType & SHAPE_EDIT_MODE)
     {
-        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(objID);
+        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(objID);
         if (shape == nullptr)
             return (false);
         if (shape->isCompound())
@@ -47,13 +47,13 @@ bool CEditModeContainer::enterEditMode(int objID, int modeType)
     }
     if (modeType & PATH_EDIT_MODE_OLD)
     {
-        CPath_old *path = App::currentWorld->sceneObjects->getPathFromHandle(objID);
+        CPath_old* path = App::currentWorld->sceneObjects->getPathFromHandle(objID);
         if (path == nullptr)
             return (false);
     }
     if (modeType & MULTISHAPE_EDIT_MODE)
     {
-        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(objID);
+        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(objID);
         if (shape == nullptr)
             return (false);
         if (!shape->isCompound())
@@ -256,7 +256,7 @@ int CEditModeContainer::getEditModeBufferValue(int index)
     return (-1);
 }
 
-std::vector<int> *CEditModeContainer::getEditModeBuffer()
+std::vector<int>* CEditModeContainer::getEditModeBuffer()
 {
     TRACE_INTERNAL;
     if (_shapeEditMode != nullptr)
@@ -309,25 +309,25 @@ void CEditModeContainer::addItemToEditModeBuffer(int item, bool disableEdgeFollo
     GuiApp::setLightDialogRefreshFlag();
 }
 
-CShapeEditMode *CEditModeContainer::getShapeEditMode()
+CShapeEditMode* CEditModeContainer::getShapeEditMode()
 {
     TRACE_INTERNAL;
     return (_shapeEditMode);
 }
 
-CMultishapeEditMode *CEditModeContainer::getMultishapeEditMode()
+CMultishapeEditMode* CEditModeContainer::getMultishapeEditMode()
 {
     TRACE_INTERNAL;
     return (_multishapeEditMode);
 }
 
-CPathEditMode_old *CEditModeContainer::getPathEditMode()
+CPathEditMode_old* CEditModeContainer::getPathEditMode()
 {
     TRACE_INTERNAL;
     return (_pathEditMode);
 }
 
-CShape *CEditModeContainer::getEditModeShape()
+CShape* CEditModeContainer::getEditModeShape()
 {
     TRACE_INTERNAL;
     if (_shapeEditMode != nullptr)
@@ -337,7 +337,7 @@ CShape *CEditModeContainer::getEditModeShape()
     return (nullptr);
 }
 
-CPath_old *CEditModeContainer::getEditModePath_old()
+CPath_old* CEditModeContainer::getEditModePath_old()
 {
     TRACE_INTERNAL;
     if (_pathEditMode != nullptr)
@@ -345,7 +345,7 @@ CPath_old *CEditModeContainer::getEditModePath_old()
     return (nullptr);
 }
 
-CSceneObject *CEditModeContainer::getEditModeObject()
+CSceneObject* CEditModeContainer::getEditModeObject()
 {
     TRACE_INTERNAL;
     if (_shapeEditMode != nullptr)
@@ -357,7 +357,7 @@ CSceneObject *CEditModeContainer::getEditModeObject()
     return (nullptr);
 }
 
-CPathCont_old *CEditModeContainer::getEditModePathContainer_old()
+CPathCont_old* CEditModeContainer::getEditModePathContainer_old()
 {
     TRACE_INTERNAL;
     if (_pathEditMode != nullptr)
@@ -421,7 +421,7 @@ bool CEditModeContainer::keyPress(int key)
     return (true);
 }
 
-void CEditModeContainer::addMenu(VMenu *menu, CSceneObject *viewableObject)
+void CEditModeContainer::addMenu(VMenu* menu, CSceneObject* viewableObject)
 {
     TRACE_INTERNAL;
     if (_shapeEditMode != nullptr)
@@ -430,7 +430,7 @@ void CEditModeContainer::addMenu(VMenu *menu, CSceneObject *viewableObject)
         _pathEditMode->addMenu(menu, viewableObject);
 }
 
-bool CEditModeContainer::processCommand(int commandID, CSceneObject *viewableObject)
+bool CEditModeContainer::processCommand(int commandID, CSceneObject* viewableObject)
 {
     TRACE_INTERNAL;
 
@@ -454,7 +454,7 @@ bool CEditModeContainer::processCommand(int commandID, CSceneObject *viewableObj
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CShape *it = nullptr;
+            CShape* it = nullptr;
             if (App::currentWorld->sceneObjects->getSelectionCount() >= 1)
                 it = App::currentWorld->sceneObjects->getShapeFromHandle(
                     App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(
@@ -469,14 +469,14 @@ bool CEditModeContainer::processCommand(int commandID, CSceneObject *viewableObj
                         App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_COMPOUND_SHAPE_EDIT_MODE);
 
                         // Frame the shape
-                        CSPage *thePage = App::currentWorld->pageContainer->getPage(
+                        CSPage* thePage = App::currentWorld->pageContainer->getPage(
                             App::currentWorld->pageContainer->getActivePageIndex());
                         if (thePage != nullptr)
                         {
-                            CSView *theView = thePage->getView(0);
+                            CSView* theView = thePage->getView(0);
                             if (theView != nullptr)
                             {
-                                CCamera *theCamera =
+                                CCamera* theCamera =
                                     App::currentWorld->sceneObjects->getCameraFromHandle(theView->getLinkedObjectID());
                                 if (theCamera != nullptr)
                                 {
@@ -508,14 +508,14 @@ bool CEditModeContainer::processCommand(int commandID, CSceneObject *viewableObj
                             App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_TRIANGLE_EDIT_MODE);
 
                             // Frame the shape
-                            CSPage *thePage = App::currentWorld->pageContainer->getPage(
+                            CSPage* thePage = App::currentWorld->pageContainer->getPage(
                                 App::currentWorld->pageContainer->getActivePageIndex());
                             if (thePage != nullptr)
                             {
-                                CSView *theView = thePage->getView(0);
+                                CSView* theView = thePage->getView(0);
                                 if (theView != nullptr)
                                 {
-                                    CCamera *theCamera = App::currentWorld->sceneObjects->getCameraFromHandle(
+                                    CCamera* theCamera = App::currentWorld->sceneObjects->getCameraFromHandle(
                                         theView->getLinkedObjectID());
                                     if (theCamera != nullptr)
                                     {
@@ -548,7 +548,7 @@ bool CEditModeContainer::processCommand(int commandID, CSceneObject *viewableObj
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CPath_old *it = nullptr;
+            CPath_old* it = nullptr;
             if (App::currentWorld->sceneObjects->getSelectionCount() >= 1)
                 it = App::currentWorld->sceneObjects->getPathFromHandle(
                     App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(
@@ -560,14 +560,14 @@ bool CEditModeContainer::processCommand(int commandID, CSceneObject *viewableObj
                 {
                     App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_PATH_EDIT_MODE_OLD);
                     // Frame the path
-                    CSPage *thePage = App::currentWorld->pageContainer->getPage(
+                    CSPage* thePage = App::currentWorld->pageContainer->getPage(
                         App::currentWorld->pageContainer->getActivePageIndex());
                     if (thePage != nullptr)
                     {
-                        CSView *theView = thePage->getView(0);
+                        CSView* theView = thePage->getView(0);
                         if (theView != nullptr)
                         {
-                            CCamera *theCamera =
+                            CCamera* theCamera =
                                 App::currentWorld->sceneObjects->getCameraFromHandle(theView->getLinkedObjectID());
                             if (theCamera != nullptr)
                             {
@@ -989,7 +989,7 @@ bool CEditModeContainer::_processMultishapeEditModeCommand(int commandID)
     return (false);
 }
 
-bool CEditModeContainer::_processPathEditModeCommand_old(int commandID, CSceneObject *viewableObject)
+bool CEditModeContainer::_processPathEditModeCommand_old(int commandID, CSceneObject* viewableObject)
 {
     TRACE_INTERNAL;
     if (commandID == PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD)

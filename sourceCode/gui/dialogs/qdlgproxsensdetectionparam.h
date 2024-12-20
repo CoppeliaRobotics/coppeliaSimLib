@@ -14,7 +14,7 @@ class CQDlgProxSensDetectionParam : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgProxSensDetectionParam(QWidget *parent = 0);
+    explicit CQDlgProxSensDetectionParam(QWidget* parent = 0);
     ~CQDlgProxSensDetectionParam();
 
     void cancelEvent();
@@ -60,7 +60,7 @@ class CQDlgProxSensDetectionParam : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    Ui::CQDlgProxSensDetectionParam *ui;
+    Ui::CQDlgProxSensDetectionParam* ui;
 };
 
 #endif // QDLGPROXSENSDETECTIONPARAM_H

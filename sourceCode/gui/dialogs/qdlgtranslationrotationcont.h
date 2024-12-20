@@ -15,25 +15,25 @@ class CQDlgTranslationRotationCont : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgTranslationRotationCont(QWidget *parent = 0);
+    explicit CQDlgTranslationRotationCont(QWidget* parent = 0);
     ~CQDlgTranslationRotationCont();
 
     void refresh();
     void cancelEvent();
     void okEvent();
 
-    QVBoxLayout *bl;
+    QVBoxLayout* bl;
 
     int currentPage;
     int desiredPage;
 
-    CDlgEx *pageDlgs[2];
+    CDlgEx* pageDlgs[2];
     int originalHeights[2];
 
   private slots:
 
   private:
-    Ui::CQDlgTranslationRotationCont *ui;
+    Ui::CQDlgTranslationRotationCont* ui;
 };
 
 #endif // QDLGTRANSLATIONROTATIONCONT_H

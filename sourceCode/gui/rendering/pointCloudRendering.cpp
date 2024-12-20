@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <pointCloudRendering.h>
 #include <guiApp.h>
 
-void displayPointCloud(CPointCloud *pointCloud, CViewableBase *renderingObject, int displayAttrib)
+void displayPointCloud(CPointCloud* pointCloud, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(pointCloud, renderingObject);
@@ -49,7 +49,7 @@ void displayPointCloud(CPointCloud *pointCloud, CViewableBase *renderingObject, 
 
         _enableAuxClippingPlanes(pointCloud->getObjectHandle());
 
-        std::vector<double> &_points = pointCloud->getPoints()[0];
+        std::vector<double>& _points = pointCloud->getPoints()[0];
         if (_points.size() > 0)
         {
             pointCloud->getColor()->makeCurrentColor(false);
@@ -100,8 +100,8 @@ void displayPointCloud(CPointCloud *pointCloud, CViewableBase *renderingObject, 
             }
 
             glPointSize(float(pointCloud->getPointSize()));
-            std::vector<double> *pts = &_points;
-            std::vector<double> *cols = pointCloud->getColors();
+            std::vector<double>* pts = &_points;
+            std::vector<double>* cols = pointCloud->getColors();
             if (pointCloud->getDisplayPoints()->size() > 0)
             {
                 pts = pointCloud->getDisplayPoints();

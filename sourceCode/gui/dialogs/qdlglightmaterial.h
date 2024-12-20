@@ -16,7 +16,7 @@ class CQDlgLightMaterial : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgLightMaterial(QWidget *parent = 0);
+    explicit CQDlgLightMaterial(QWidget* parent = 0);
     ~CQDlgLightMaterial();
 
     void refresh();
@@ -33,7 +33,7 @@ class CQDlgLightMaterial : public CDlgEx
     int _lastSelectedObjectID;
     size_t _objectSelectionSize;
 
-    static void displayMaterialDlg(int objType, int objID1, int objID2, QWidget *theParentWindow);
+    static void displayMaterialDlg(int objType, int objID1, int objID2, QWidget* theParentWindow);
     void _initializeDlg(int objType, int objID1, int objID2);
     void _adjustCol(int colComponent);
 
@@ -43,7 +43,7 @@ class CQDlgLightMaterial : public CDlgEx
     void on_qqSpecularAdjust_clicked();
 
   private:
-    Ui::CQDlgLightMaterial *ui;
+    Ui::CQDlgLightMaterial* ui;
 };
 
 #endif // QDLGLIGHTMATERIAL_H

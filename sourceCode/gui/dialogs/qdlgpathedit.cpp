@@ -7,7 +7,8 @@
 #include <boost/lexical_cast.hpp>
 #include <guiApp.h>
 
-CQDlgPathEdit::CQDlgPathEdit(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgPathEdit)
+CQDlgPathEdit::CQDlgPathEdit(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgPathEdit)
 {
     _dlgType = PATH_EDITION_DLG;
     ui->setupUi(this);
@@ -33,7 +34,7 @@ void CQDlgPathEdit::refresh()
 {
     if (GuiApp::getEditModeType() != PATH_EDIT_MODE_OLD)
         return;
-    CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+    CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
     int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
 
     ui->qqClosed->setChecked(((pathCont->getAttributes() & sim_pathproperty_closed_path) != 0));
@@ -64,7 +65,7 @@ void CQDlgPathEdit::refresh()
 
     if (selectedPointCount != 0)
     {
-        CSimplePathPoint_old *it = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(
+        CSimplePathPoint_old* it = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(
             GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() - 1);
         double bInt0, bInt1;
         it->getBezierFactors(bInt0, bInt1);
@@ -94,9 +95,9 @@ void CQDlgPathEdit::refresh()
     }
 }
 
-CPathCont_old *CQDlgPathEdit::getPathCont()
+CPathCont_old* CQDlgPathEdit::getPathCont()
 {
-    CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+    CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
     return (pathCont);
 }
 
@@ -104,7 +105,7 @@ void CQDlgPathEdit::on_qqClosed_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
             pathCont->setAttributes(pathCont->getAttributes() ^ sim_pathproperty_closed_path);
         refresh();
@@ -115,7 +116,7 @@ void CQDlgPathEdit::on_qqFlat_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
             pathCont->setAttributes(pathCont->getAttributes() ^ sim_pathproperty_flat_path);
         refresh();
@@ -126,7 +127,7 @@ void CQDlgPathEdit::on_qqAutomaticOrientation_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
             pathCont->setAttributes(pathCont->getAttributes() ^ sim_pathproperty_automatic_orientation);
         refresh();
@@ -137,7 +138,7 @@ void CQDlgPathEdit::on_qqKeepXup_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
             pathCont->setAttributes(pathCont->getAttributes() ^ sim_pathproperty_keep_x_up);
         refresh();
@@ -153,7 +154,7 @@ void CQDlgPathEdit::on_qqFactor1_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             double bInt0, bInt1;
             it->getBezierFactors(bInt0, bInt1);
@@ -176,7 +177,7 @@ void CQDlgPathEdit::on_qqFactor2_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             double bInt0, bInt1;
             it->getBezierFactors(bInt0, bInt1);
@@ -199,7 +200,7 @@ void CQDlgPathEdit::on_qqPointCount_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             bool ok;
             int newVal = (int)GuiApp::getEvalInt(ui->qqPointCount->text().toStdString().c_str(), &ok);
@@ -220,7 +221,7 @@ void CQDlgPathEdit::on_qqVirtualDistance_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             bool ok;
             double newVal = GuiApp::getEvalDouble(ui->qqVirtualDistance->text().toStdString().c_str(), &ok);
@@ -239,13 +240,13 @@ void CQDlgPathEdit::on_qqApply_clicked()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount >= 2))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             double bInt0, bInt1;
             it->getBezierFactors(bInt0, bInt1);
             for (int i = 0; i < selectedPointCount - 1; i++)
             {
-                CSimplePathPoint_old *it2 =
+                CSimplePathPoint_old* it2 =
                     GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
                 it2->setBezierFactors(bInt0, bInt1);
                 it2->setMaxRelAbsVelocity(it->getMaxRelAbsVelocity());
@@ -291,7 +292,7 @@ void CQDlgPathEdit::on_qqAuxFlags_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             bool ok;
             int newVal = (int)GuiApp::getEvalInt(ui->qqAuxFlags->text().toStdString().c_str(), &ok);
@@ -315,7 +316,7 @@ void CQDlgPathEdit::on_qqAuxChannel1_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             bool ok;
             double newVal = GuiApp::getEvalDouble(ui->qqAuxChannel1->text().toStdString().c_str(), &ok);
@@ -341,7 +342,7 @@ void CQDlgPathEdit::on_qqAuxChannel2_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             bool ok;
             double newVal = GuiApp::getEvalDouble(ui->qqAuxChannel2->text().toStdString().c_str(), &ok);
@@ -367,7 +368,7 @@ void CQDlgPathEdit::on_qqAuxChannel3_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             bool ok;
             double newVal = GuiApp::getEvalDouble(ui->qqAuxChannel3->text().toStdString().c_str(), &ok);
@@ -393,7 +394,7 @@ void CQDlgPathEdit::on_qqAuxChannel4_editingFinished()
         int selectedPointCount = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
         if ((GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD) && (selectedPointCount != 0))
         {
-            CSimplePathPoint_old *it =
+            CSimplePathPoint_old* it =
                 GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount - 1);
             bool ok;
             double newVal = GuiApp::getEvalDouble(ui->qqAuxChannel4->text().toStdString().c_str(), &ok);

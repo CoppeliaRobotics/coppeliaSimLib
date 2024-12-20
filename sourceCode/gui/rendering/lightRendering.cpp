@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <lightRendering.h>
 #include <guiApp.h>
 
-void displayLight(CLight *light, CViewableBase *renderingObject, int displayAttrib)
+void displayLight(CLight* light, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(light, renderingObject);

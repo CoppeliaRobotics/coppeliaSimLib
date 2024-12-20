@@ -11,19 +11,19 @@ CCodeEditorInfos::~CCodeEditorInfos()
     clear();
 }
 
-SCodeEditorInfo *CCodeEditorInfos::getInfoFromFilename(const char *filename)
+SCodeEditorInfo* CCodeEditorInfos::getInfoFromFilename(const char* filename)
 {
-    SCodeEditorInfo *retVal = nullptr;
+    SCodeEditorInfo* retVal = nullptr;
     auto it = _allInfos.find(filename);
     if (it != _allInfos.end())
         retVal = &it->second;
     return (retVal);
 }
 
-void CCodeEditorInfos::setInfo(const char *filename, const char *info, std::string *errorString /*=nullptr*/)
+void CCodeEditorInfos::setInfo(const char* filename, const char* info, std::string* errorString /*=nullptr*/)
 {
     SCodeEditorInfo nf;
-    SCodeEditorInfo *nsinfo = getInfoFromFilename(filename);
+    SCodeEditorInfo* nsinfo = getInfoFromFilename(filename);
     if (nsinfo == nullptr)
     {
         nf.funcs = new CCodeEditorFunctions();
@@ -54,7 +54,7 @@ void CCodeEditorInfos::setInfo(const char *filename, const char *info, std::stri
         }*/
 }
 
-void CCodeEditorInfos::removeInfo(const char *filename)
+void CCodeEditorInfos::removeInfo(const char* filename)
 {
     auto it = _allInfos.find(filename);
     if (it != _allInfos.end())
@@ -75,7 +75,7 @@ void CCodeEditorInfos::clear()
     _allInfos.clear();
 }
 
-void CCodeEditorInfos::insertWhatStartsSame(const char *txt, std::set<std::string> &v, int what, const CScriptObject *requestOrigin) const
+void CCodeEditorInfos::insertWhatStartsSame(const char* txt, std::set<std::string>& v, int what, const CScriptObject* requestOrigin) const
 {
     for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
@@ -89,7 +89,7 @@ void CCodeEditorInfos::insertWhatStartsSame(const char *txt, std::set<std::strin
     }
 }
 
-std::string CCodeEditorInfos::getFunctionCalltip(const char *txt, const CScriptObject *requestOrigin) const
+std::string CCodeEditorInfos::getFunctionCalltip(const char* txt, const CScriptObject* requestOrigin) const
 {
     std::string retVal;
     for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)

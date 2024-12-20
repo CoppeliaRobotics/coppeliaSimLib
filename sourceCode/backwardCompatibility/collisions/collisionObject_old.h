@@ -24,14 +24,14 @@ class CCollisionObject_old
     std::string getUniquePersistentIdString() const;
     void _clearCollisionResult();
     void _setCollisionResult(bool result, int calcTime, int obj1Handle, int obj2Handle,
-                             const std::vector<double> &intersect);
+                             const std::vector<double>& intersect);
 
-    void serialize(CSer &ar);
-    void performObjectLoadingMapping(const std::map<int, int> *map);
-    void performCollectionLoadingMapping(const std::map<int, int> *map);
+    void serialize(CSer& ar);
+    void performObjectLoadingMapping(const std::map<int, int>* map);
+    void performCollectionLoadingMapping(const std::map<int, int>* map);
     bool announceObjectWillBeErased(int objectHandle, bool copyBuffer);
     bool announceCollectionWillBeErased(int collectionHandle, bool copyBuffer);
-    CCollisionObject_old *copyYourself();
+    CCollisionObject_old* copyYourself();
     int getCollisionColor(int entityHandle) const;
     bool canComputeCollisionContour() const;
     std::string getObjectDescriptiveName() const;
@@ -45,18 +45,18 @@ class CCollisionObject_old
     bool getExhaustiveDetection() const;
     bool getExplicitHandling() const;
     int getContourWidth() const;
-    const std::vector<double> *getIntersections() const;
+    const std::vector<double>* getIntersections() const;
 
-    CColorObject *getContourColor();
+    CColorObject* getContourColor();
 
     bool setObjectHandle(int newHandle);
-    bool setObjectName(const char *newName, bool check);
+    bool setObjectName(const char* newName, bool check);
     bool setColliderChangesColor(bool changes);
     bool setCollideeChangesColor(bool changes);
     bool setExhaustiveDetection(bool exhaustive);
     bool setExplicitHandling(bool explicitHandl);
     bool setContourWidth(int w);
-    bool setIntersections(const std::vector<double> *intersections = nullptr);
+    bool setIntersections(const std::vector<double>* intersections = nullptr);
 
 #ifdef SIM_WITH_GUI
     void displayCollisionContour();

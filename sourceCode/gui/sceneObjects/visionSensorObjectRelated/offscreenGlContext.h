@@ -19,9 +19,9 @@ class COffscreenGlContext : public QObject, protected QOpenGLFunctions
     Q_OBJECT
   public:
 #ifdef USES_QGLWIDGET
-    COffscreenGlContext(int offscreenType, int resX, int resY, QGLWidget *otherWidgetToShareResourcesWith);
+    COffscreenGlContext(int offscreenType, int resX, int resY, QGLWidget* otherWidgetToShareResourcesWith);
 #else
-    COffscreenGlContext(int offscreenType, int resX, int resY, QOpenGLWidget *otherWidgetToShareResourcesWith);
+    COffscreenGlContext(int offscreenType, int resX, int resY, QOpenGLWidget* otherWidgetToShareResourcesWith);
 #endif
     virtual ~COffscreenGlContext();
 
@@ -40,16 +40,16 @@ class COffscreenGlContext : public QObject, protected QOpenGLFunctions
     bool _isHeadless;
 
     // Qt offscreen vars:
-    QOpenGLContext *_qContext;
-    QOffscreenSurface *_qOffscreenSurface;
+    QOpenGLContext* _qContext;
+    QOffscreenSurface* _qOffscreenSurface;
 
 #ifdef USES_QGLWIDGET
-    QGLWidget *_hiddenWindow;
-    static std::vector<QGLWidget *> _allQtWidgets;
+    QGLWidget* _hiddenWindow;
+    static std::vector<QGLWidget*> _allQtWidgets;
 #else
-    QOpenGLWidget *_hiddenWindow;
-    static std::vector<QOpenGLWidget *> _allQtWidgets;
+    QOpenGLWidget* _hiddenWindow;
+    static std::vector<QOpenGLWidget*> _allQtWidgets;
 #endif
 
-    static std::vector<QOpenGLContext *> _allQtContexts;
+    static std::vector<QOpenGLContext*> _allQtContexts;
 };

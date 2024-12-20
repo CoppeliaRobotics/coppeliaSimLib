@@ -38,7 +38,7 @@ enum
     AUX_VIEW_CLOSING_BUTTON
 };
 
-void displayContainerPage(CSPage *page, const int *position, const int *size)
+void displayContainerPage(CSPage* page, const int* position, const int* size)
 {
     if (page != nullptr)
         page->render();
@@ -52,7 +52,7 @@ void displayContainerPage(CSPage *page, const int *position, const int *size)
     }
 }
 
-void displayContainerPageOverlay(const int *position, const int *size, int activePageIndex, int focusObject)
+void displayContainerPageOverlay(const int* position, const int* size, int activePageIndex, int focusObject)
 {
     // We prepare a new modelview to draw on top:
     glDisable(GL_SCISSOR_TEST);
@@ -74,7 +74,7 @@ void displayContainerPageOverlay(const int *position, const int *size, int activ
     glEnable(GL_DEPTH_TEST);
 }
 
-void displayContainerPageWatermark(const int *position, const int *size, int tagId)
+void displayContainerPageWatermark(const int* position, const int* size, int tagId)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -105,7 +105,7 @@ void displayContainerPageWatermark(const int *position, const int *size, int tag
     glEnable(GL_DEPTH_TEST);
 }
 
-void displayPage(CSPage *page, int auxViewResizingAction, int viewIndexOfResizingAction)
+void displayPage(CSPage* page, int auxViewResizingAction, int viewIndexOfResizingAction)
 {
     // We first render all regular views:
     int mp[2];
@@ -188,8 +188,8 @@ void displayPage(CSPage *page, int auxViewResizingAction, int viewIndexOfResizin
         }
 
         float txtCol[3] = {0.2f, 0.2f, 0.2f};
-        float *bkgrndCol = ogl::TITLE_BAR_COLOR;
-        CSceneObject *itObj =
+        float* bkgrndCol = ogl::TITLE_BAR_COLOR;
+        CSceneObject* itObj =
             App::currentWorld->sceneObjects->getObjectFromHandle(page->getView(i)->getLinkedObjectID());
         std::string name("  Floating view (empty)");
         std::string altName(page->getView(i)->getAlternativeViewName());
@@ -207,7 +207,7 @@ void displayPage(CSPage *page, int auxViewResizingAction, int viewIndexOfResizin
 
         pos.x = _pageSize[0] - avp[0] - auxViewsBtSize * GuiApp::sc / 2;
         size.x = auxViewsBtSize * GuiApp::sc;
-        float *bkgrndCol2 = ogl::TITLE_BAR_BUTTON_COLOR;
+        float* bkgrndCol2 = ogl::TITLE_BAR_BUTTON_COLOR;
         buttonAttrib = sim_buttonproperty_button | sim_buttonproperty_enabled |
                        sim_buttonproperty_horizontallycentered | sim_buttonproperty_verticallycentered;
         if ((auxViewResizingAction == AUX_VIEW_CLOSING_BUTTON) && (viewIndexOfResizingAction == i))
@@ -235,7 +235,7 @@ void displayPage(CSPage *page, int auxViewResizingAction, int viewIndexOfResizin
     }
 }
 
-void _drawSeparationLines(int _pageType, const int *_pageSize)
+void _drawSeparationLines(int _pageType, const int* _pageSize)
 {
     if (_pageType == SINGLE_VIEW)
     {

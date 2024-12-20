@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <thumbnailRendering.h>
 
-void displayThumbnail(CThumbnail *thumbnail, int posX, int posY, const char *name, int sc)
+void displayThumbnail(CThumbnail* thumbnail, int posX, int posY, const char* name, int sc)
 {
     int borderWidth = sc * 1;
     int textSpaceHeight = MODEL_BROWSER_TEXT_SPACE_HEIGHT * sc;
@@ -35,7 +35,7 @@ void displayThumbnail(CThumbnail *thumbnail, int posX, int posY, const char *nam
     glVertex3i(posX + borderWidth, posY - borderWidth - sc * 128 - textSpaceHeight, 0);
     glEnd();
     ogl::enableLighting_useWithCare();
-    const char *_thumbnailRGBAImage = thumbnail->getPointerToUncompressedImage();
+    const char* _thumbnailRGBAImage = thumbnail->getPointerToUncompressedImage();
     if (_thumbnailRGBAImage == nullptr)
     {
         ogl::setTextColor(0.5, 0.0, 0.0);

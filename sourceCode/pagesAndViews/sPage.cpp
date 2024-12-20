@@ -45,7 +45,7 @@ CSPage::~CSPage()
     _allViewAuxSizesAndPos.clear();
 }
 
-bool CSPage::isViewValid(CSView *v) const
+bool CSPage::isViewValid(CSView* v) const
 {
     for (size_t i = 0; i < _allViews.size(); i++)
     {
@@ -103,8 +103,8 @@ void CSPage::simulationEnded()
     for (int i = 0; i < int(_allViews.size()); i++)
     {
         if (_allViews[i]->simulationEnded())
-        { //  Following part is from 26/6/2011: we have to remove a floating view that requested destruction at
-          //  simulation end
+        {   //  Following part is from 26/6/2011: we have to remove a floating view that requested destruction at
+            //  simulation end
             // Make sure it is a floating view:
             if (removeFloatingView(size_t(i)))
                 i--; // We have to reprocess this position
@@ -151,7 +151,7 @@ bool CSPage::setPageType(int newType)
     size_t newSize = getRegularViewCount();
     for (size_t i = 0; i < newSize; i++)
     {
-        CSView *it = new CSView(-1);
+        CSView* it = new CSView(-1);
         _allViews.push_back(it);
         // Positions and sizes are relative now (2009/05/22)
         _allViewAuxSizesAndPos.push_back(0.25);
@@ -163,8 +163,8 @@ bool CSPage::setPageType(int newType)
     return (true);
 }
 
-void CSPage::getBorderCorrectedFloatingViewPosition(int posX, int posY, int sizeX, int sizeY, int &newPosX,
-                                                    int &newPosY) const
+void CSPage::getBorderCorrectedFloatingViewPosition(int posX, int posY, int sizeX, int sizeY, int& newPosX,
+                                                    int& newPosY) const
 {
     newPosX = posX;
     newPosY = posY;
@@ -192,13 +192,13 @@ void CSPage::announceObjectWillBeErased(int objectID)
             i++;
     }
 }
-void CSPage::performObjectLoadingMapping(const std::map<int, int> *map)
+void CSPage::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     for (int i = 0; i < int(_allViews.size()); i++)
         _allViews[i]->performObjectLoadingMapping(map);
 }
 
-void CSPage::getPageSizeAndPosition(int &sizeX, int &sizeY, int &posX, int &posY) const
+void CSPage::getPageSizeAndPosition(int& sizeX, int& sizeY, int& posX, int& posY) const
 {
     sizeX = _pageSize[0];
     sizeY = _pageSize[1];
@@ -576,7 +576,7 @@ void CSPage::setViewSizesAndPositions()
     }
 }
 
-CSView *CSPage::getView(size_t viewIndex)
+CSView* CSPage::getView(size_t viewIndex)
 {
     if (viewIndex >= _allViews.size())
         return (nullptr);
@@ -632,7 +632,7 @@ size_t CSPage::getRegularViewCount() const
     return (0);
 }
 
-void CSPage::addFloatingView(CSView *theFloatingView, double relSize[2], double relPos[2])
+void CSPage::addFloatingView(CSView* theFloatingView, double relSize[2], double relPos[2])
 {
     _allViews.push_back(theFloatingView);
     _allViewAuxSizesAndPos.push_back(relSize[0]);
@@ -644,7 +644,7 @@ void CSPage::addFloatingView(CSView *theFloatingView, double relSize[2], double 
 
 void CSPage::addFloatingView()
 {
-    CSView *theSubView = new CSView(-1);
+    CSView* theSubView = new CSView(-1);
     _allViews.push_back(theSubView);
     _allViewAuxSizesAndPos.push_back(0.25);
     _allViewAuxSizesAndPos.push_back(0.25);
@@ -654,7 +654,7 @@ void CSPage::addFloatingView()
     floatingViewAddOffset += 0.04;
 }
 
-void CSPage::serialize(CSer &ar)
+void CSPage::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -730,7 +730,7 @@ void CSPage::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        CSView *theSubView = new CSView(-1);
+                        CSView* theSubView = new CSView(-1);
                         theSubView->serialize(ar);
                         _allViews.push_back(theSubView);
                     }
@@ -823,7 +823,7 @@ void CSPage::serialize(CSer &ar)
             {
                 while (true)
                 {
-                    CSView *theSubView = new CSView(-1);
+                    CSView* theSubView = new CSView(-1);
                     theSubView->serialize(ar);
                     _allViews.push_back(theSubView);
                     if (!ar.xmlPushSiblingNode("view", false))
@@ -935,7 +935,7 @@ bool CSPage::doubleClickActionForView(size_t viewIndex)
 
 void CSPage::swapViews(size_t index1, size_t index2, bool alsoSizeAndPosInfo)
 {
-    CSView *it = _allViews[index1];
+    CSView* it = _allViews[index1];
     if (it->getCanSwapViewWithMainView() || ((index1 != 0) && (index2 != 0)))
     {
         _allViews[index1] = _allViews[index2];
@@ -1050,7 +1050,7 @@ int CSPage::getMousePosRelativeToFloatingViewBorders(int mouseX, int mouseY, siz
     return (AUX_VIEW_SHIFTING);
 }
 
-void CSPage::getViewRelativeMousePosition(int mouseX, int mouseY, int &relMouseX, int &relMouseY, size_t index) const
+void CSPage::getViewRelativeMousePosition(int mouseX, int mouseY, int& relMouseX, int& relMouseY, size_t index) const
 {
     int subViewSize[2];
     int subViewPos[2];
@@ -1059,8 +1059,8 @@ void CSPage::getViewRelativeMousePosition(int mouseX, int mouseY, int &relMouseX
     relMouseY = _pagePosition[1] + mouseY - subViewPos[1];
 }
 
-bool CSPage::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int &objType, int &objID, int vSize[2],
-                                             bool &viewIsPerspective) const
+bool CSPage::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int& objType, int& objID, int vSize[2],
+                                             bool& viewIsPerspective) const
 { // NOT FULLY IMPLEMENTED! objType=-1 --> not supported, 0 --> hierarchy, 1 --> 3DViewable
     if ((x < 0) || (x > _pageSize[0]) || (y < 0) || (y > _pageSize[1]))
         return (false);
@@ -1356,7 +1356,7 @@ void CSPage::mouseMove(int x, int y, bool passiveAndFocused)
     }
 }
 
-int CSPage::modelDragMoveEvent(int x, int y, C3Vector *desiredModelPosition)
+int CSPage::modelDragMoveEvent(int x, int y, C3Vector* desiredModelPosition)
 {
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
@@ -1398,7 +1398,7 @@ bool CSPage::rightMouseButtonDown(int x, int y)
     }
     return (false); // Nothing caught that action
 }
-bool CSPage::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow)
+bool CSPage::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow)
 { // return value true means we have to remove current view (command "Remove views")
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;

@@ -9,8 +9,8 @@ class VDialog : public QDialog
 {
     Q_OBJECT
   public:
-    VDialog(QWidget *pParent);
-    VDialog(QWidget *pParent, Qt::WindowFlags specialFlags);
+    VDialog(QWidget* pParent);
+    VDialog(QWidget* pParent, Qt::WindowFlags specialFlags);
     virtual ~VDialog();
 
     virtual void cancelEvent();

@@ -102,9 +102,9 @@ std::string CGraphDataComb_old::getName()
 {
     return (name);
 }
-CGraphDataComb_old *CGraphDataComb_old::copyYourself()
+CGraphDataComb_old* CGraphDataComb_old::copyYourself()
 { // Everything is copied, even the identifier and name
-    CGraphDataComb_old *newObj = new CGraphDataComb_old();
+    CGraphDataComb_old* newObj = new CGraphDataComb_old();
     newObj->setName(getName());
     newObj->setIdentifier(getIdentifier());
     newObj->setVisible(getVisible());
@@ -119,7 +119,7 @@ CGraphDataComb_old *CGraphDataComb_old::copyYourself()
     return (newObj);
 }
 
-void CGraphDataComb_old::serialize(CSer &ar)
+void CGraphDataComb_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {

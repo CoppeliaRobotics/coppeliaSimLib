@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <proximitySensorRendering.h>
 #include <guiApp.h>
 
-void displayProximitySensor(CProxSensor *proxSensor, CViewableBase *renderingObject, int displayAttrib)
+void displayProximitySensor(CProxSensor* proxSensor, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(proxSensor, renderingObject);
@@ -64,8 +64,8 @@ void displayProximitySensor(CProxSensor *proxSensor, CViewableBase *renderingObj
                     proxSensor->getRandomizedDetection())
                 {
                     ogl::buffer.clear();
-                    const std::vector<C3Vector> &_randomizedVectors = proxSensor->getPointerToRandomizedRays()[0];
-                    const std::vector<double> &_randomizedVectorDetectionStates =
+                    const std::vector<C3Vector>& _randomizedVectors = proxSensor->getPointerToRandomizedRays()[0];
+                    const std::vector<double>& _randomizedVectorDetectionStates =
                         proxSensor->getPointerToRandomizedRayDetectionStates()[0];
                     for (size_t i = 0; i < _randomizedVectors.size(); i++)
                     {

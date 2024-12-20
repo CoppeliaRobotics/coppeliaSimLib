@@ -85,7 +85,7 @@ double CVolInt::TP[3];
    ============================================================================
 */
 /* compute various integrations over projection of face */
-void CVolInt::compProjectionIntegrals(FACE *f)
+void CVolInt::compProjectionIntegrals(FACE* f)
 {
     double a0, a1, da;
     double b0, b1, db;
@@ -154,7 +154,7 @@ void CVolInt::compProjectionIntegrals(FACE *f)
     Pabb /= -60.0;
 }
 
-void CVolInt::compFaceIntegrals(FACE *f)
+void CVolInt::compFaceIntegrals(FACE* f)
 {
     double *n, w;
     double k1, k2, k3, k4;
@@ -188,9 +188,9 @@ void CVolInt::compFaceIntegrals(FACE *f)
                  w * (2 * (n[A] * Paa + n[B] * Pab) + w * Pa));
 }
 
-void CVolInt::compVolumeIntegrals(POLYHEDRON *p)
+void CVolInt::compVolumeIntegrals(POLYHEDRON* p)
 {
-    FACE *f;
+    FACE* f;
     double nx, ny, nz;
     int i;
 
@@ -237,8 +237,8 @@ void CVolInt::compVolumeIntegrals(POLYHEDRON *p)
     TP[2] /= 2;
 }
 
-double CVolInt::getMassCenterOfMassAndInertiaTensor(const double *vertices, int ptCnt, const int *indices, int triCnt,
-                                                    double density, C3Vector &centerOfMass, C3X3Matrix &inertiaTensor)
+double CVolInt::getMassCenterOfMassAndInertiaTensor(const double* vertices, int ptCnt, const int* indices, int triCnt,
+                                                    double density, C3Vector& centerOfMass, C3X3Matrix& inertiaTensor)
 { // returned inertia tensor is divided by the mass!
     POLYHEDRON p;
     for (int i = 0; i < ptCnt * 3; i++)

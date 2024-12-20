@@ -6,7 +6,7 @@
 #include <qdlgrotation.h>
 #include <guiApp.h>
 
-CQDlgTranslationRotationCont::CQDlgTranslationRotationCont(QWidget *parent)
+CQDlgTranslationRotationCont::CQDlgTranslationRotationCont(QWidget* parent)
     : CDlgEx(parent), ui(new Ui::CQDlgTranslationRotationCont)
 {
     _dlgType = TRANSLATION_ROTATION_DLG;

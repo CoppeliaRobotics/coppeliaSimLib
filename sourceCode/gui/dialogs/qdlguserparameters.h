@@ -16,7 +16,7 @@ class CQDlgUserParameters : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgUserParameters(QWidget *parent = 0);
+    explicit CQDlgUserParameters(QWidget* parent = 0);
     ~CQDlgUserParameters();
 
     void refresh();
@@ -30,14 +30,14 @@ class CQDlgUserParameters : public VDialog
     void selectObjectInList(int objectID);
     bool inSelectionRoutine;
 
-    CSceneObject *object;
+    CSceneObject* object;
 
   private slots:
     void onDeletePressed();
 
     void on_qqAddNew_clicked();
 
-    void on_qqParameterList_itemChanged(QListWidgetItem *item);
+    void on_qqParameterList_itemChanged(QListWidgetItem* item);
 
     void on_qqValue_editingFinished();
 
@@ -47,7 +47,7 @@ class CQDlgUserParameters : public VDialog
 
     void on_qqPersistent_clicked();
 
-    void on_qqClose_clicked(QAbstractButton *button);
+    void on_qqClose_clicked(QAbstractButton* button);
 
     void on_qqParameterList_itemSelectionChanged();
 
@@ -56,7 +56,7 @@ class CQDlgUserParameters : public VDialog
     void on_qqDown_clicked();
 
   private:
-    Ui::CQDlgUserParameters *ui;
+    Ui::CQDlgUserParameters* ui;
 };
 
 #endif // QDLGUSERPARAMETERS_H

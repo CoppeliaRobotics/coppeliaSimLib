@@ -3,7 +3,8 @@
 #include <tt.h>
 #include <utils.h>
 
-CQDlgSlider::CQDlgSlider(QWidget *parent) : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgSlider)
+CQDlgSlider::CQDlgSlider(QWidget* parent)
+    : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgSlider)
 {
     ui->setupUi(this);
 }

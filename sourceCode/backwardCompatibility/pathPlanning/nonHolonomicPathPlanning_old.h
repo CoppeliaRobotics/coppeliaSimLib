@@ -21,27 +21,27 @@ class CNonHolonomicPathPlanning_old : public CPathPlanning_old
     int searchPath(int maxTimePerPass);
     bool setPartialPath();
     int smoothFoundPath(int steps, int maxTimePerPass);
-    void getPathData(std::vector<double> &data);
-    void getSearchTreeData(std::vector<double> &data, bool fromStart);
+    void getPathData(std::vector<double>& data);
+    void getSearchTreeData(std::vector<double>& data, bool fromStart);
 
     void setStepSize(double size);
 
-    std::vector<CNonHolonomicPathNode_old *> fromStart;
-    std::vector<CNonHolonomicPathNode_old *> fromGoal;
-    std::vector<CNonHolonomicPathNode_old *> foundPath;
+    std::vector<CNonHolonomicPathNode_old*> fromStart;
+    std::vector<CNonHolonomicPathNode_old*> fromGoal;
+    std::vector<CNonHolonomicPathNode_old*> foundPath;
 
   private:
-    bool doCollide(double *dist);
+    bool doCollide(double* dist);
 
-    CNonHolonomicPathNode_old *getClosestNode(std::vector<CNonHolonomicPathNode_old *> &nodes,
-                                              CNonHolonomicPathNode_old *sample, bool forward, bool forConnection);
-    CNonHolonomicPathNode_old *extend(std::vector<CNonHolonomicPathNode_old *> *currentList,
-                                      CNonHolonomicPathNode_old *toBeExtended, CNonHolonomicPathNode_old *extention,
-                                      bool forward, CXDummy *startDummy);
-    CNonHolonomicPathNode_old *connect(std::vector<CNonHolonomicPathNode_old *> *currentList,
-                                       std::vector<CNonHolonomicPathNode_old *> *nextList,
-                                       CNonHolonomicPathNode_old *toBeExtended, CNonHolonomicPathNode_old *extention,
-                                       bool forward, bool connect, bool test, CXDummy *startDummy);
+    CNonHolonomicPathNode_old* getClosestNode(std::vector<CNonHolonomicPathNode_old*>& nodes,
+                                              CNonHolonomicPathNode_old* sample, bool forward, bool forConnection);
+    CNonHolonomicPathNode_old* extend(std::vector<CNonHolonomicPathNode_old*>* currentList,
+                                      CNonHolonomicPathNode_old* toBeExtended, CNonHolonomicPathNode_old* extention,
+                                      bool forward, CXDummy* startDummy);
+    CNonHolonomicPathNode_old* connect(std::vector<CNonHolonomicPathNode_old*>* currentList,
+                                       std::vector<CNonHolonomicPathNode_old*>* nextList,
+                                       CNonHolonomicPathNode_old* toBeExtended, CNonHolonomicPathNode_old* extention,
+                                       bool forward, bool connect, bool test, CXDummy* startDummy);
 
     int _startDummyID;
     double angularCoeff;

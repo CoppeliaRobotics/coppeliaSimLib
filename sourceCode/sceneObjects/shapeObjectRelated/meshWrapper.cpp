@@ -47,7 +47,7 @@ void CMeshWrapper::detachItems()
     _commonInit();
 }
 
-void CMeshWrapper::addItem(CMeshWrapper *m)
+void CMeshWrapper::addItem(CMeshWrapper* m)
 {
     childList.push_back(m);
     std::vector<double> vert;
@@ -63,7 +63,7 @@ void CMeshWrapper::_computeInertiaFromComposingInertias()
     C3Vector com(C3Vector::zeroVector);
     for (size_t i = 0; i < childList.size(); i++)
     {
-        CMeshWrapper *mesh = childList[i];
+        CMeshWrapper* mesh = childList[i];
         mass += mesh->getMass();
         com = com + mesh->getIFrame() * mesh->getCOM() * mesh->getMass();
     }
@@ -73,7 +73,7 @@ void CMeshWrapper::_computeInertiaFromComposingInertias()
     imatrix.clear();
     for (size_t i = 0; i < childList.size(); i++)
     {
-        CMeshWrapper *mesh = childList[i];
+        CMeshWrapper* mesh = childList[i];
         C3X3Matrix m(getInertiaInNewFrame(mesh->getIFrame().Q, mesh->getInertia(), C4Vector::identityRotation));
         m = m * mesh->getMass();
         C3Vector d((mesh->getIFrame() * mesh->getCOM()) - _com);
@@ -93,8 +93,8 @@ void CMeshWrapper::_computeInertiaFromComposingInertias()
     setInertiaAndComputePMI(imatrix);
 }
 
-void CMeshWrapper::display(const C7Vector &cumulIFrameTr, CShape *geomData, int displayAttrib,
-                           CColorObject *collisionColor, int dynObjFlag_forVisualization, int transparencyHandling,
+void CMeshWrapper::display(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib,
+                           CColorObject* collisionColor, int dynObjFlag_forVisualization, int transparencyHandling,
                            bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
@@ -102,46 +102,46 @@ void CMeshWrapper::display(const C7Vector &cumulIFrameTr, CShape *geomData, int 
                               dynObjFlag_forVisualization, transparencyHandling, multishapeEditSelected);
 }
 
-void CMeshWrapper::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData, int displayAttrib,
-                                       const C7Vector &tr, int shapeHandle, int &componentIndex)
+void CMeshWrapper::display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib,
+                                       const C7Vector& tr, int shapeHandle, int& componentIndex)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->display_extRenderer(cumulIFrameTr * _iFrame, geomData, displayAttrib, tr, shapeHandle,
                                           componentIndex);
 }
 
-void CMeshWrapper::display_colorCoded(const C7Vector &cumulIFrameTr, CShape *geomData, int objectId, int displayAttrib)
+void CMeshWrapper::display_colorCoded(const C7Vector& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->display_colorCoded(cumulIFrameTr * _iFrame, geomData, objectId, displayAttrib);
 }
 
-void CMeshWrapper::displayGhost(const C7Vector &cumulIFrameTr, CShape *geomData, int displayAttrib, bool originalColors,
-                                bool backfaceCulling, double transparency, const float *newColors)
+void CMeshWrapper::displayGhost(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors,
+                                bool backfaceCulling, double transparency, const float* newColors)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->displayGhost(cumulIFrameTr * _iFrame, geomData, displayAttrib, originalColors, backfaceCulling,
                                    transparency, newColors);
 }
 
-void CMeshWrapper::performSceneObjectLoadingMapping(const std::map<int, int> *map)
+void CMeshWrapper::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->performSceneObjectLoadingMapping(map);
 }
 
-void CMeshWrapper::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CMeshWrapper::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->performTextureObjectLoadingMapping(map);
 }
 
-void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     _dynMaterialId_old = CWorld::getLoadingMapping(map, _dynMaterialId_old);
 }
 
-void CMeshWrapper::announceSceneObjectWillBeErased(const CSceneObject *object)
+void CMeshWrapper::announceSceneObjectWillBeErased(const CSceneObject* object)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->announceSceneObjectWillBeErased(object);
@@ -177,7 +177,7 @@ void CMeshWrapper::removeAllTextures()
         childList[i]->removeAllTextures();
 }
 
-void CMeshWrapper::getColorStrings(std::string &colorStrings, bool onlyNamed) const
+void CMeshWrapper::getColorStrings(std::string& colorStrings, bool onlyNamed) const
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->getColorStrings(colorStrings, onlyNamed);
@@ -239,14 +239,14 @@ bool CMeshWrapper::getHideEdgeBorders_OLD() const
         childList[0]->getHideEdgeBorders_OLD()); // we just return the first setting we encounter! Normally never used
 }
 
-CMeshWrapper *CMeshWrapper::copyYourself()
+CMeshWrapper* CMeshWrapper::copyYourself()
 { // function has virtual/non-virtual counterpart!
-    CMeshWrapper *newIt = new CMeshWrapper();
+    CMeshWrapper* newIt = new CMeshWrapper();
     copyWrapperData(newIt);
     return (newIt);
 }
 
-void CMeshWrapper::copyAttributesTo(CMeshWrapper *target)
+void CMeshWrapper::copyAttributesTo(CMeshWrapper* target)
 {
     target->_mass = _mass;
     target->_name = _name;
@@ -257,12 +257,12 @@ void CMeshWrapper::copyAttributesTo(CMeshWrapper *target)
     target->_pmiRotFrame = _pmiRotFrame;
     target->_dynMaterialId_old = _dynMaterialId_old;
     if (childList.size() == 0)
-        target->takeVisualAttributesFrom((CMesh *)this);
+        target->takeVisualAttributesFrom((CMesh*)this);
     else
         target->takeVisualAttributesFrom(getFirstMesh());
 }
 
-void CMeshWrapper::copyWrapperData(CMeshWrapper *target)
+void CMeshWrapper::copyWrapperData(CMeshWrapper* target)
 {
     target->_mass = _mass;
     target->_name = _name;
@@ -287,10 +287,10 @@ void CMeshWrapper::setMass(double m)
     if (m != _mass)
     {
         _mass = m;
-        if ((_parentObjectHandle >=0) && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propMeshWrap_mass.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            const char* cmd = propMeshWrap_mass.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             ev->appendKeyDouble(cmd, _mass);
             App::worldContainer->pushEvent();
         }
@@ -322,7 +322,7 @@ void CMeshWrapper::setDynMaterialId_old(int id)
     _dynMaterialId_old = id;
 }
 
-C7Vector CMeshWrapper::getDiagonalInertiaInfo(C3Vector &diagMasslessI) const
+C7Vector CMeshWrapper::getDiagonalInertiaInfo(C3Vector& diagMasslessI) const
 {
     C7Vector retVal;
     retVal.X = _com;
@@ -331,19 +331,19 @@ C7Vector CMeshWrapper::getDiagonalInertiaInfo(C3Vector &diagMasslessI) const
     return (retVal);
 }
 
-C7Vector CMeshWrapper::getBB(C3Vector *optBBSize) const
+C7Vector CMeshWrapper::getBB(C3Vector* optBBSize) const
 {
     if (optBBSize != nullptr)
         optBBSize[0] = _bbSize;
     return (_bbFrame);
 }
 
-void CMeshWrapper::setBBFrame(const C7Vector &bbFrame)
+void CMeshWrapper::setBBFrame(const C7Vector& bbFrame)
 { // function has virtual/non-virtual counterpart!
     _bbFrame = bbFrame;
 }
 
-bool CMeshWrapper::reorientBB(const C4Vector *rot)
+bool CMeshWrapper::reorientBB(const C4Vector* rot)
 { // function has virtual/non-virtual counterpart!
     bool retVal = false;
     if ((!isMesh()) || (!isPure()))
@@ -392,8 +392,8 @@ bool CMeshWrapper::reorientBB(const C4Vector *rot)
     return (retVal);
 }
 
-bool CMeshWrapper::getShapeRelIFrame(const C7Vector &parentCumulTr, const CMeshWrapper *wrapper,
-                                     C7Vector &shapeRelIFrame) const
+bool CMeshWrapper::getShapeRelIFrame(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper,
+                                     C7Vector& shapeRelIFrame) const
 {
     bool retVal = false;
     if (wrapper == this)
@@ -415,8 +415,8 @@ bool CMeshWrapper::getShapeRelIFrame(const C7Vector &parentCumulTr, const CMeshW
     return (retVal);
 }
 
-bool CMeshWrapper::getShapeRelBB(const C7Vector &parentCumulTr, const CMeshWrapper *wrapper, C7Vector &shapeRelBB,
-                                 C3Vector *optBBSize) const
+bool CMeshWrapper::getShapeRelBB(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper, C7Vector& shapeRelBB,
+                                 C3Vector* optBBSize) const
 {
     C7Vector ifr;
     bool retVal = getShapeRelIFrame(parentCumulTr, wrapper, ifr);
@@ -435,20 +435,20 @@ C7Vector CMeshWrapper::getIFrame() const
     return _iFrame;
 }
 
-void CMeshWrapper::setIFrame(const C7Vector &iframe)
+void CMeshWrapper::setIFrame(const C7Vector& iframe)
 {
     _iFrame = iframe;
 }
 
-void CMeshWrapper::setCOM(const C3Vector &com)
+void CMeshWrapper::setCOM(const C3Vector& com)
 {
     if (_com != com)
     {
         _com = com;
-        if ((_parentObjectHandle >=0) && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propMeshWrap_com.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            const char* cmd = propMeshWrap_com.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, _com.data, 3);
             App::worldContainer->pushEvent();
         }
@@ -460,7 +460,7 @@ C3X3Matrix CMeshWrapper::getInertia() const
     return _iMatrix;
 }
 
-void CMeshWrapper::setInertia(const C3X3Matrix &im, int modifItemRow /*=-1*/, int modifItemCol /*=-1*/)
+void CMeshWrapper::setInertia(const C3X3Matrix& im, int modifItemRow /*=-1*/, int modifItemCol /*=-1*/)
 {
     C3X3Matrix imatrix(im);
     if ((modifItemRow != -1) && (modifItemCol != -1))
@@ -484,10 +484,10 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
     {
         _iMatrix = _in;
         getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
-        if ((_parentObjectHandle >=0) && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propMeshWrap_inertia.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            const char* cmd = propMeshWrap_inertia.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             double dat[9];
             _in *= _mass;
             _in.getData(dat);
@@ -508,7 +508,7 @@ C3Vector CMeshWrapper::getPMI() const
     return _pmi;
 }
 
-void CMeshWrapper::setPMI(const C3Vector &pmi)
+void CMeshWrapper::setPMI(const C3Vector& pmi)
 {
     C3X3Matrix im;
     im.clear();
@@ -576,7 +576,7 @@ bool CMeshWrapper::isConvex() const
     return (retVal);
 }
 
-CMesh *CMeshWrapper::getFirstMesh()
+CMesh* CMeshWrapper::getFirstMesh()
 { // function has virtual/non-virtual counterpart!
     return (childList[0]->getFirstMesh());
 }
@@ -593,7 +593,7 @@ CMesh* CMeshWrapper::getMeshFromUid(long long int meshUid, const C7Vector& paren
     return retVal;
 }
 
-void CMeshWrapper::takeVisualAttributesFrom(CMesh *origin)
+void CMeshWrapper::takeVisualAttributesFrom(CMesh* origin)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->takeVisualAttributesFrom(origin);
@@ -607,32 +607,32 @@ int CMeshWrapper::countTriangles() const
     return (retVal);
 }
 
-void CMeshWrapper::getCumulativeMeshes(const C7Vector &parentCumulTr, std::vector<double> &vertices,
-                                       std::vector<int> *indices, std::vector<double> *normals)
+void CMeshWrapper::getCumulativeMeshes(const C7Vector& parentCumulTr, std::vector<double>& vertices,
+                                       std::vector<int>* indices, std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->getCumulativeMeshes(parentCumulTr * _iFrame, vertices, indices, normals);
 }
 
-void CMeshWrapper::getCumulativeMeshes(const C7Vector &parentCumulTr, const CMeshWrapper *wrapper,
-                                       std::vector<double> &vertices, std::vector<int> *indices,
-                                       std::vector<double> *normals)
+void CMeshWrapper::getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper,
+                                       std::vector<double>& vertices, std::vector<int>* indices,
+                                       std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
-    const CMeshWrapper *w = wrapper;
+    const CMeshWrapper* w = wrapper;
     if (wrapper == this)
         w = nullptr;
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->getCumulativeMeshes(parentCumulTr * _iFrame, w, vertices, indices, normals);
 }
 
-void CMeshWrapper::setColor(const CShape *shape, int &elementIndex, const char *colorName, int colorComponent,
-                            const float *rgbData, int &rgbDataOffset)
+void CMeshWrapper::setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent,
+                            const float* rgbData, int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->setColor(shape, elementIndex, colorName, colorComponent, rgbData, rgbDataOffset);
 }
 
-bool CMeshWrapper::getColor(const char *colorName, int colorComponent, float *rgbData, int &rgbDataOffset) const
+bool CMeshWrapper::getColor(const char* colorName, int colorComponent, float* rgbData, int& rgbDataOffset) const
 { // function has virtual/non-virtual counterpart!
     bool retVal = false;
     for (size_t i = 0; i < childList.size(); i++)
@@ -640,19 +640,19 @@ bool CMeshWrapper::getColor(const char *colorName, int colorComponent, float *rg
     return (retVal);
 }
 
-void CMeshWrapper::getAllMeshComponentsCumulative(const C7Vector &parentCumulTr,
-                                                  std::vector<CMesh *> &shapeComponentList,
-                                                  std::vector<C7Vector> *OptParentCumulTrList /*=nullptr*/)
+void CMeshWrapper::getAllMeshComponentsCumulative(const C7Vector& parentCumulTr,
+                                                  std::vector<CMesh*>& shapeComponentList,
+                                                  std::vector<C7Vector>* OptParentCumulTrList /*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->getAllMeshComponentsCumulative(parentCumulTr * _iFrame, shapeComponentList, OptParentCumulTrList);
 }
 
-CMesh *CMeshWrapper::getMeshComponentAtIndex(const C7Vector &parentCumulTr, int &index,
-                                             C7Vector *optParentCumulTrOut /*=nullptr*/)
+CMesh* CMeshWrapper::getMeshComponentAtIndex(const C7Vector& parentCumulTr, int& index,
+                                             C7Vector* optParentCumulTrOut /*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
-    CMesh *retVal = nullptr;
+    CMesh* retVal = nullptr;
     if (index >= 0)
     {
         for (size_t i = 0; i < childList.size(); i++)
@@ -679,7 +679,7 @@ void CMeshWrapper::flipFaces()
         childList[i]->flipFaces();
 }
 
-bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &parentCumulIFrame, bool rootLevel)
+bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCumulIFrame, bool rootLevel)
 { // function has virtual/non-virtual counterpart!
     bool isNewTypeOfShapeFormat = false;
     if (rootLevel)
@@ -931,7 +931,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        CMesh *it = new CMesh();
+                        CMesh* it = new CMesh();
                         it->serialize(ar, shapeName, parentCumulIFrame * _iFrame, false);
                         childList.push_back(it);
                     }
@@ -939,7 +939,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        CMeshWrapper *it = new CMeshWrapper();
+                        CMeshWrapper* it = new CMeshWrapper();
                         it->serialize(ar, shapeName, parentCumulIFrame * _iFrame, false);
                         childList.push_back(it);
                     }
@@ -1110,7 +1110,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                     {
                         if (ar.xmlPushChildNode("mesh", false))
                         {
-                            CMesh *it = new CMesh();
+                            CMesh* it = new CMesh();
                             it->serialize(ar, shapeName, parentCumulIFrame * _iFrame, false);
                             childList.push_back(it);
                             ar.xmlPopNode();
@@ -1119,7 +1119,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                         {
                             if (ar.xmlPushChildNode("compound"))
                             {
-                                CMeshWrapper *it = new CMeshWrapper();
+                                CMeshWrapper* it = new CMeshWrapper();
                                 it->serialize(ar, shapeName, parentCumulIFrame * _iFrame, false);
                                 childList.push_back(it);
                                 ar.xmlPopNode();
@@ -1144,7 +1144,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
     return (isNewTypeOfShapeFormat);
 }
 
-bool CMeshWrapper::getPMIFromInertia(const C3X3Matrix &tensor, C4Vector &rotation, C3Vector &principalMoments)
+bool CMeshWrapper::getPMIFromInertia(const C3X3Matrix& tensor, C4Vector& rotation, C3Vector& principalMoments)
 { // tensor --> PMI + rotation (tensor and PMI are mass-less)
     Eigen::Matrix3d m;
     for (size_t i = 0; i < 3; i++)
@@ -1171,7 +1171,7 @@ bool CMeshWrapper::getPMIFromInertia(const C3X3Matrix &tensor, C4Vector &rotatio
     return ((principalMoments(0) > 0.0) && (principalMoments(1) > 0.0) && (principalMoments(2) > 0.0));
 }
 
-C3X3Matrix CMeshWrapper::getInertiaFromPMI(const C3Vector &principalMoments, const C7Vector &newFrame)
+C3X3Matrix CMeshWrapper::getInertiaFromPMI(const C3Vector& principalMoments, const C7Vector& newFrame)
 { // PMI + transf --> tensor (tensor and PMI are mass-less)
     C3X3Matrix tensor;
     tensor.clear();
@@ -1191,8 +1191,8 @@ C3X3Matrix CMeshWrapper::getInertiaFromPMI(const C3Vector &principalMoments, con
     return (tensor);
 }
 
-C3X3Matrix CMeshWrapper::getInertiaInNewFrame(const C4Vector &oldFrame, const C3X3Matrix &oldMatrix,
-                                              const C4Vector &newFrame)
+C3X3Matrix CMeshWrapper::getInertiaInNewFrame(const C4Vector& oldFrame, const C3X3Matrix& oldMatrix,
+                                              const C4Vector& newFrame)
 {
     C3X3Matrix rot(oldFrame.getMatrix().getTranspose() * newFrame.getMatrix());
     C3X3Matrix retVal(rot.getTranspose() * oldMatrix * rot);
@@ -1204,7 +1204,7 @@ std::string CMeshWrapper::getInertiaErrorString() const
     return (getInertiaErrorString(_iMatrix));
 }
 
-std::string CMeshWrapper::getInertiaErrorString(const C3X3Matrix &matrix)
+std::string CMeshWrapper::getInertiaErrorString(const C3X3Matrix& matrix)
 {
     std::string retVal = "";
     for (size_t i = 0; i < 3; i++)
@@ -1238,7 +1238,7 @@ std::string CMeshWrapper::getInertiaErrorString(const C3X3Matrix &matrix)
     return (retVal);
 }
 
-void CMeshWrapper::addSpecializedObjectEventData(int parentObjectHandle, CCbor *ev)
+void CMeshWrapper::addSpecializedObjectEventData(int parentObjectHandle, CCbor* ev)
 {
     _parentObjectHandle = parentObjectHandle;
 
@@ -1382,7 +1382,7 @@ int CMeshWrapper::getPropertyName_static_wrapper(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_meshWrap.size(); i++)
     {
-        if ( (pName.size() == 0) || utils::startsWith(allProps_meshWrap[i].name, pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith(allProps_meshWrap[i].name, pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -1411,7 +1411,7 @@ int CMeshWrapper::getPropertyInfo_static_wrapper(const char* pName, int& info, s
         {
             retVal = allProps_meshWrap[i].type;
             info = allProps_meshWrap[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_meshWrap[i].infoTxt, "") != 0) )
+            if ((infoTxt == "") && (strcmp(allProps_meshWrap[i].infoTxt, "") != 0))
                 infoTxt = allProps_meshWrap[i].infoTxt;
             else
                 infoTxt = allProps_meshWrap[i].shortInfoTxt;
@@ -1420,5 +1420,3 @@ int CMeshWrapper::getPropertyInfo_static_wrapper(const char* pName, int& info, s
     }
     return retVal;
 }
-
-

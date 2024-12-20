@@ -14,7 +14,7 @@ class CQDlgHeightfieldDimension : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgHeightfieldDimension(QWidget *parent = 0);
+    explicit CQDlgHeightfieldDimension(QWidget* parent = 0);
     ~CQDlgHeightfieldDimension();
 
     void cancelEvent();
@@ -37,7 +37,7 @@ class CQDlgHeightfieldDimension : public VDialog
     void on_qqOk_accepted();
 
   private:
-    Ui::CQDlgHeightfieldDimension *ui;
+    Ui::CQDlgHeightfieldDimension* ui;
 };
 
 #endif // QDLGHEIGHTFIELDDIMENSION_H

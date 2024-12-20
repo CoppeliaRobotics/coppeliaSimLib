@@ -24,11 +24,11 @@ class CSerialPortWin
     CSerialPortWin();
     ~CSerialPortWin();
 
-    int Open(const char *portString, int nBaud);
+    int Open(const char* portString, int nBaud);
     int Close();
 
-    int ReadData(char *buffer, int limit);
-    int SendData(const char *buffer, int size);
+    int ReadData(char* buffer, int limit);
+    int SendData(const char* buffer, int size);
     int ReadDataWaiting();
 
     int IsOpened()
@@ -40,7 +40,7 @@ class CSerialPortWin
   protected:
     int WriteCommByte(unsigned char ucByte);
 
-    void *m_hIDComDev;
+    void* m_hIDComDev;
     OVERLAPPED m_OverlappedRead, m_OverlappedWrite;
 
     int m_bOpened;

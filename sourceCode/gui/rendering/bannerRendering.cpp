@@ -20,8 +20,8 @@ See the GNU General Public License for more details.
 
 #include <bannerRendering.h>
 
-void displayBanner(int objId, int options, const float *bckColor, const C7Vector &tr, const char *label,
-                   const CColorObject &color, double height, const C4X4Matrix &cameraCTM, const int windowSize[2],
+void displayBanner(int objId, int options, const float* bckColor, const C7Vector& tr, const char* label,
+                   const CColorObject& color, double height, const C4X4Matrix& cameraCTM, const int windowSize[2],
                    double verticalViewSizeOrAngle, bool perspective)
 {
     if (options & (sim_banner_clickselectsparent + sim_banner_clicktriggersevent))

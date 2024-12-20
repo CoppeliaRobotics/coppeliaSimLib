@@ -11,23 +11,23 @@ VFileFinder::~VFileFinder()
 {
 }
 
-int VFileFinder::searchFiles(const char *pathWithoutTerminalSlash, const char *extension, const char *filter)
+int VFileFinder::searchFiles(const char* pathWithoutTerminalSlash, const char* extension, const char* filter)
 {
     return (_searchFilesOrFolders(pathWithoutTerminalSlash, extension, 0, filter));
 }
 
-int VFileFinder::searchFolders(const char *pathWithoutTerminalSlash)
+int VFileFinder::searchFolders(const char* pathWithoutTerminalSlash)
 {
     return (_searchFilesOrFolders(pathWithoutTerminalSlash, "", 1, nullptr));
 }
 
-int VFileFinder::searchFilesOrFolders(const char *pathWithoutTerminalSlash)
+int VFileFinder::searchFilesOrFolders(const char* pathWithoutTerminalSlash)
 {
     return (_searchFilesOrFolders(pathWithoutTerminalSlash, "", 2, nullptr));
 }
 
-int VFileFinder::_searchFilesOrFolders(const char *pathWithoutTerminalSlash, const char *extension, int mode,
-                                       const char *filter)
+int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash, const char* extension, int mode,
+                                       const char* filter)
 { // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
     std::string theExtension(extension);
     _searchResult.clear();
@@ -77,20 +77,20 @@ int VFileFinder::_searchFilesOrFolders(const char *pathWithoutTerminalSlash, con
     return (int(_searchResult.size()));
 }
 
-SFileOrFolder *VFileFinder::getFoundItem(int index)
+SFileOrFolder* VFileFinder::getFoundItem(int index)
 {
     if ((index < 0) || (index >= int(_searchResult.size())))
         return (nullptr);
     return (&_searchResult[index]);
 }
 
-int VFileFinder::countFiles(const char *pathWithoutTerminalSlash)
+int VFileFinder::countFiles(const char* pathWithoutTerminalSlash)
 {
     int cnt = 0;
     VFileFinder finder;
     finder.searchFilesOrFolders(pathWithoutTerminalSlash);
     int index = 0;
-    SFileOrFolder *foundItem = finder.getFoundItem(index++);
+    SFileOrFolder* foundItem = finder.getFoundItem(index++);
     while (foundItem != nullptr)
     {
         if (foundItem->isFile)
@@ -100,13 +100,13 @@ int VFileFinder::countFiles(const char *pathWithoutTerminalSlash)
     return (cnt);
 }
 
-int VFileFinder::countFolders(const char *pathWithoutTerminalSlash)
+int VFileFinder::countFolders(const char* pathWithoutTerminalSlash)
 {
     int cnt = 0;
     VFileFinder finder;
     finder.searchFilesOrFolders(pathWithoutTerminalSlash);
     int index = 0;
-    SFileOrFolder *foundItem = finder.getFoundItem(index++);
+    SFileOrFolder* foundItem = finder.getFoundItem(index++);
     while (foundItem != nullptr)
     {
         if (!foundItem->isFile)
@@ -120,13 +120,13 @@ int VFileFinder::countFolders(const char *pathWithoutTerminalSlash)
     return (cnt);
 }
 
-int VFileFinder::countFilesWithPrefix(const char *pathWithoutTerminalSlash, const char *prefix)
+int VFileFinder::countFilesWithPrefix(const char* pathWithoutTerminalSlash, const char* prefix)
 {
     int cnt = 0;
     VFileFinder finder;
     finder.searchFilesOrFolders(pathWithoutTerminalSlash);
     int index = 0;
-    SFileOrFolder *foundItem = finder.getFoundItem(index++);
+    SFileOrFolder* foundItem = finder.getFoundItem(index++);
     while (foundItem != nullptr)
     {
         if (foundItem->isFile)

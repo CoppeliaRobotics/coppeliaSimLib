@@ -14,7 +14,7 @@ class CQDlgMultishapeEdition : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgMultishapeEdition(QWidget *parent = 0);
+    explicit CQDlgMultishapeEdition(QWidget* parent = 0);
     ~CQDlgMultishapeEdition();
 
     void refresh();
@@ -33,7 +33,7 @@ class CQDlgMultishapeEdition : public CDlgEx
     void on_qqTexture_clicked();
 
   private:
-    Ui::CQDlgMultishapeEdition *ui;
+    Ui::CQDlgMultishapeEdition* ui;
 };
 
 #endif // QDLGMULTISHAPEEDITION_H

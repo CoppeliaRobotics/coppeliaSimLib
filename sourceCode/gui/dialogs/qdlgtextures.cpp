@@ -14,7 +14,8 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgTextures::CQDlgTextures(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgTextures)
+CQDlgTextures::CQDlgTextures(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgTextures)
 {
     _dlgType = TEXTURE_DLG;
     ui->setupUi(this);
@@ -33,10 +34,10 @@ void CQDlgTextures::refresh()
     if (!isLinkedDataValid())
         return;
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool applyTexture3D;
-    CMesh *geom = nullptr;
-    CTextureProperty *tp =
+    CMesh* geom = nullptr;
+    CTextureProperty* tp =
         GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, &applyTexture3D, nullptr, &geom);
     bool simStopped = App::currentWorld->simulation->isSimulationStopped();
     bool usingFixedTextureCoordinates = false;
@@ -168,7 +169,7 @@ void CQDlgTextures::refresh()
         std::string textureName = IDS_TEXTURE_NAME_NONE;
         if (tp->getTextureObjectID() > SIM_IDEND_SCENEOBJECT)
         { // we have a static texture
-            CTextureObject *to = App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
+            CTextureObject* to = App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
             if (to != nullptr)
             {
                 textureName = to->getObjectName();
@@ -181,7 +182,7 @@ void CQDlgTextures::refresh()
         }
         else
         { // we have a dynamic texture
-            CVisionSensor *rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
+            CVisionSensor* rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
             if (rs != nullptr)
             {
                 textureName = rs->getObjectAlias_printPath();
@@ -261,7 +262,7 @@ bool CQDlgTextures::isLinkedDataValid()
     {
         if (App::currentWorld->buttonBlockContainer_old->getBlockInEdition() != _objID1)
             return (false);
-        CButtonBlock *itBlock = App::currentWorld->buttonBlockContainer_old->getBlockWithID(_objID1);
+        CButtonBlock* itBlock = App::currentWorld->buttonBlockContainer_old->getBlockWithID(_objID1);
         if (itBlock == nullptr)
             return (false);
         if (App::currentWorld->buttonBlockContainer_old->selectedButtons.size() <= 0)
@@ -270,7 +271,7 @@ bool CQDlgTextures::isLinkedDataValid()
                        ->selectedButtons[App::currentWorld->buttonBlockContainer_old->selectedButtons.size() - 1];
         VPoint size;
         itBlock->getBlockSize(size);
-        CSoftButton *itButton = itBlock->getButtonAtPos(butt % size.x, butt / size.x);
+        CSoftButton* itButton = itBlock->getButtonAtPos(butt % size.x, butt / size.x);
         if (itButton == nullptr)
             return (false);
         if (itButton->buttonID != _objID2)
@@ -282,14 +283,14 @@ bool CQDlgTextures::isLinkedDataValid()
     return (isValid);
 }
 
-void CQDlgTextures::displayDlg(int objType, int objID1, int objID2, QWidget *theParentWindow)
+void CQDlgTextures::displayDlg(int objType, int objID1, int objID2, QWidget* theParentWindow)
 {
     if (GuiApp::mainWindow == nullptr)
         return;
     GuiApp::mainWindow->dlgCont->close(TEXTURE_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(TEXTURE_DLG))
     {
-        CQDlgTextures *tex = (CQDlgTextures *)GuiApp::mainWindow->dlgCont->getDialog(TEXTURE_DLG);
+        CQDlgTextures* tex = (CQDlgTextures*)GuiApp::mainWindow->dlgCont->getDialog(TEXTURE_DLG);
         if (tex != nullptr)
             tex->_initializeDlg(objType, objID1, objID2);
     }
@@ -308,7 +309,7 @@ void CQDlgTextures::_initializeDlg(int objType, int objID1, int objID2)
 
 void CQDlgTextures::_setTextureConfig(int index)
 {
-    QLineEdit *ww[6] = {ui->qqX, ui->qqY, ui->qqZ, ui->qqAlpha, ui->qqBeta, ui->qqGamma};
+    QLineEdit* ww[6] = {ui->qqX, ui->qqY, ui->qqZ, ui->qqAlpha, ui->qqBeta, ui->qqGamma};
     bool ok;
     double newVal = GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
     if (ok)
@@ -330,7 +331,7 @@ void CQDlgTextures::_setTextureConfig(int index)
 
 void CQDlgTextures::_setTextureScaling(int index)
 {
-    QLineEdit *ww[2] = {ui->qqU, ui->qqV};
+    QLineEdit* ww[2] = {ui->qqU, ui->qqV};
     bool ok;
     double newVal = GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
     if (ok)
@@ -365,8 +366,8 @@ void CQDlgTextures::_setTextureBooleanProperty(int index)
 
 void CQDlgTextures::cancelEvent() // this was empty before VDialog wrap thing
 {                                 // We just hide the dialog and destroy it at next rendering pass
-    if (isModal()) // this condition and next line on 20/5/2013: on Linux the dlg couldn't be closed! Thanks to Ulrich
-                   // Schwesinger
+    if (isModal())                // this condition and next line on 20/5/2013: on Linux the dlg couldn't be closed! Thanks to Ulrich
+                                  // Schwesinger
         defaultModalDialogEndRoutine(false);
     else
         CDlgEx::cancelEvent();
@@ -485,7 +486,7 @@ void CQDlgTextures::on_qqRemoveSelect_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CTextureProperty *tp =
+        CTextureProperty* tp =
             GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr, nullptr, nullptr);
         int tObject = -1; // means remove
         if (tp == nullptr)
@@ -527,7 +528,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                 App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD, DIRECTORY_ID_TEXTURE, -1, 0.0,
                                                    0.0, App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                 int resX, resY, n;
-                unsigned char *data = CImageLoaderSaver::load(filenameAndPath.c_str(), &resX, &resY, &n, 0, scaleTo);
+                unsigned char* data = CImageLoaderSaver::load(filenameAndPath.c_str(), &resX, &resY, &n, 0, scaleTo);
                 if ((n < 3) || (n > 4))
                 {
                     delete[] data;

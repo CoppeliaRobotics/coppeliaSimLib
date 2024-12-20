@@ -6,7 +6,7 @@
 #include <guiApp.h>
 #include <app.h>
 
-CQDlgProxSensDetectionParam::CQDlgProxSensDetectionParam(QWidget *parent)
+CQDlgProxSensDetectionParam::CQDlgProxSensDetectionParam(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgProxSensDetectionParam)
 {
     ui->setupUi(this);
@@ -38,7 +38,6 @@ void CQDlgProxSensDetectionParam::refresh()
     ui->qqMinDistEnabled->setChecked(distanceContraint);
     ui->qqMinDist->setEnabled(distanceContraint);
     ui->qqMinDist->setText(utils::getSizeString(false, minimumDistance).c_str());
-
 
     ui->qqRayCount->setVisible(App::userSettings->showOldDlgs);
     ui->qqRandomizedDetectionCount->setVisible(App::userSettings->showOldDlgs);

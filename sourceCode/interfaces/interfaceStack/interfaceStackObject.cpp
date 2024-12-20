@@ -19,32 +19,32 @@ int CInterfaceStackObject::getObjectType() const
     return (_objectType);
 }
 
-void CInterfaceStackObject::printContent(int spaces, std::string &buffer) const
+void CInterfaceStackObject::printContent(int spaces, std::string& buffer) const
 {
 }
 
-CInterfaceStackObject *CInterfaceStackObject::copyYourself() const
+CInterfaceStackObject* CInterfaceStackObject::copyYourself() const
 {
     return (nullptr);
 }
 
-std::string CInterfaceStackObject::getObjectData(std::string & /*auxInfos*/) const
+std::string CInterfaceStackObject::getObjectData(std::string& /*auxInfos*/) const
 {
     return ("");
 }
 
-void CInterfaceStackObject::addCborObjectData(CCbor *cborObj) const
+void CInterfaceStackObject::addCborObjectData(CCbor* cborObj) const
 {
 }
 
-unsigned int CInterfaceStackObject::createFromData(const char * /*data*/, unsigned char /*version*/, std::vector<CInterfaceStackObject*> &allCreatedObjects)
+unsigned int CInterfaceStackObject::createFromData(const char* /*data*/, unsigned char /*version*/, std::vector<CInterfaceStackObject*>& allCreatedObjects)
 {
     return (0);
 }
 
-CInterfaceStackObject *CInterfaceStackObject::createFromDataStatic(const char *data, unsigned int &retOffset, unsigned char version, std::vector<CInterfaceStackObject*> &allCreatedObjects)
+CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* data, unsigned int& retOffset, unsigned char version, std::vector<CInterfaceStackObject*>& allCreatedObjects)
 {
-    CInterfaceStackObject *obj = nullptr;
+    CInterfaceStackObject* obj = nullptr;
     char t = data[0];
     retOffset = 1;
     if (t == sim_stackitem_null)
@@ -55,7 +55,7 @@ CInterfaceStackObject *CInterfaceStackObject::createFromDataStatic(const char *d
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
         if (version == 0)
         { // when Lua didn't have an int type yet
-            double v = ((CInterfaceStackNumber *)obj)->getValue();
+            double v = ((CInterfaceStackNumber*)obj)->getValue();
             long long int w = (long long int)v;
             if (v == (double)w)
             {

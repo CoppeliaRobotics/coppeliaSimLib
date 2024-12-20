@@ -49,7 +49,8 @@ const int DEFAULT_MOUSE_MODE = sim_navigation_camerashift | sim_navigation_click
                                sim_navigation_ctrlselection | sim_navigation_shiftselection |
                                sim_navigation_camerazoomwheel | sim_navigation_camerarotaterightbutton;
 
-CMainWindow::CMainWindow(int operationalUiParts) : QMainWindow()
+CMainWindow::CMainWindow(int operationalUiParts)
+    : QMainWindow()
 {
     TRACE_INTERNAL;
     _operationalUiParts = operationalUiParts;
@@ -201,20 +202,20 @@ CMainWindow::CMainWindow(int operationalUiParts) : QMainWindow()
     // -----------
 
     // --- Tabbar + hierarchy + OpenGl
-    QVBoxLayout *vlay = new QVBoxLayout();
+    QVBoxLayout* vlay = new QVBoxLayout();
     vlay->addWidget(tabBar);
     vlay->addWidget(_sceneHierarchySplitter);
     vlay->setSpacing(0);
     vlay->setStretchFactor(tabBar, 0);
     vlay->setStretchFactor(openglWidget, 1);
     vlay->setContentsMargins(0, 0, 0, 0);
-    QWidget *tabHierarchyAndOpenGl = new QWidget();
+    QWidget* tabHierarchyAndOpenGl = new QWidget();
     tabHierarchyAndOpenGl->setLayout(vlay);
     // -----------
 
     // --- Status bar ---
     statusBar = new CStatusBar();
-    QTextDocument *doc = statusBar->document();
+    QTextDocument* doc = statusBar->document();
     QFont font = doc->defaultFont();
     font.setFamily("Courier New");
     doc->setDefaultFont(font);
@@ -326,7 +327,7 @@ int CMainWindow::getProxSensorClickSelectUp()
     return (_proxSensorClickSelectUp);
 }
 
-void CMainWindow::setMouseRay(const C3Vector *orig, const C3Vector *dir)
+void CMainWindow::setMouseRay(const C3Vector* orig, const C3Vector* dir)
 {
     _mouseRayValid = (orig != nullptr);
     if (_mouseRayValid)
@@ -336,7 +337,7 @@ void CMainWindow::setMouseRay(const C3Vector *orig, const C3Vector *dir)
     }
 }
 
-bool CMainWindow::getMouseRay(C3Vector &orig, C3Vector &dir)
+bool CMainWindow::getMouseRay(C3Vector& orig, C3Vector& dir)
 {
     if (_mouseRayValid)
     {
@@ -546,7 +547,7 @@ void CMainWindow::setKeyDownState(int state)
     _keyDownState = state;
 }
 
-QSignalMapper *CMainWindow::getPopupSignalMapper()
+QSignalMapper* CMainWindow::getPopupSignalMapper()
 {
     return (_popupSignalMapper);
 }
@@ -558,7 +559,7 @@ void CMainWindow::_setClientArea(int x, int y)
     simulationRecorder->setRecordingSizeChanged(x, y);
 }
 
-void CMainWindow::getClientArea(int &x, int &y) const
+void CMainWindow::getClientArea(int& x, int& y) const
 {
     x = _clientArea[0];
     y = _clientArea[1];
@@ -594,7 +595,7 @@ void CMainWindow::refreshDimensions()
     _recomputeClientSizeAndPos();
 }
 
-void CMainWindow::callDialogFunction(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CMainWindow::callDialogFunction(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     dlgCont->callDialogFunction(cmdIn, cmdOut);
 }
@@ -780,11 +781,11 @@ void CMainWindow::renderScene()
                         glClear(GL_COLOR_BUFFER_BIT);
                         if (App::userSettings->useGlFinish) // false by default!
                             glFinish();                     // Might be important later (synchronization problems)
-                                        // removed on 2009/12/09 upon recomendation of gamedev community
-                                        // re-put on 2010/01/11 because it slows down some graphic cards in a
-                                        // non-proportional way (e.g. 1 object=x ms, 5 objects=20x ms) re-removed again
-                                        // (by default) on 31/01/2013. Thanks a lot to Cedric Pradalier for pointing
-                                        // problems appearing with the NVidia drivers
+                                                            // removed on 2009/12/09 upon recomendation of gamedev community
+                                                            // re-put on 2010/01/11 because it slows down some graphic cards in a
+                                                            // non-proportional way (e.g. 1 object=x ms, 5 objects=20x ms) re-removed again
+                                                            // (by default) on 31/01/2013. Thanks a lot to Cedric Pradalier for pointing
+                                                            // problems appearing with the NVidia drivers
                     }
                     if (previousDisplayWasEnabled < 2)
                         previousDisplayWasEnabled++;
@@ -871,7 +872,7 @@ void CMainWindow::createDefaultMenuBar()
 
             if (App::worldContainer->moduleMenuItemContainer->getItemCount() != 0)
             { // Modules (plugins+add-ons)
-                VMenu *m = new VMenu();
+                VMenu* m = new VMenu();
                 App::worldContainer->moduleMenuItemContainer->_menuHandle = new VMenu();
                 _menubar->appendMenuAndDetach(App::worldContainer->moduleMenuItemContainer->_menuHandle, menuBarEnabled,
                                               (std::string("Modules") + DUMMY_SPACE_QMENUBAR_QT5).c_str());
@@ -1088,7 +1089,7 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionPageSelector, SIGNAL(triggered()), _signalMapper, SLOT(map()));
         _signalMapper->setMapping(_toolbarActionPageSelector, PAGE_SELECTOR_CMD);
 
-        QWidget *spacer = new QWidget();
+        QWidget* spacer = new QWidget();
         spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         _toolbar1->addWidget(spacer);
 
@@ -1197,7 +1198,7 @@ void CMainWindow::_createDefaultToolBars()
     GuiApp::setToolbarRefreshFlag();
 }
 
-bool CMainWindow::event(QEvent *event)
+bool CMainWindow::event(QEvent* event)
 {
     if (event->type() == QEvent::Close)
     {
@@ -1209,7 +1210,7 @@ bool CMainWindow::event(QEvent *event)
     return (QMainWindow::event(event));
 }
 
-void CMainWindow::dragEnterEvent(QDragEnterEvent *dEvent)
+void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
 {
     if (dEvent->mimeData()->hasUrls())
     {
@@ -1222,7 +1223,7 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent *dEvent)
     }
 }
 
-void CMainWindow::dragLeaveEvent(QDragLeaveEvent *dEvent)
+void CMainWindow::dragLeaveEvent(QDragLeaveEvent* dEvent)
 {
     if (_mimeText.size() != 0)
     {
@@ -1234,7 +1235,7 @@ void CMainWindow::dragLeaveEvent(QDragLeaveEvent *dEvent)
     }
 }
 
-void CMainWindow::dropEvent(QDropEvent *dEvent)
+void CMainWindow::dropEvent(QDropEvent* dEvent)
 {
     if (_mimeText.size() != 0)
     {
@@ -1386,7 +1387,7 @@ void CMainWindow::onMouseMoveTT(int xPos, int yPos)
         setCurrentCursor(cur);
 }
 
-int CMainWindow::modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPosition)
+int CMainWindow::modelDragMoveEvent(int xPos, int yPos, C3Vector* desiredModelPosition)
 {
     _mouseRenderingPos[0] = xPos;
     _mouseRenderingPos[1] = _clientArea[1] - yPos;
@@ -1462,16 +1463,16 @@ void CMainWindow::_actualizetoolbarButtonState()
 { // This is only for the default toolbars
     bool allowFitToView = false;
     int pageIndex = App::currentWorld->pageContainer->getActivePageIndex();
-    CSPage *page = App::currentWorld->pageContainer->getPage(pageIndex);
+    CSPage* page = App::currentWorld->pageContainer->getPage(pageIndex);
     if (page != nullptr)
     {
         int ind = page->getLastMouseDownViewIndex();
         if (ind == -1)
             ind = 0;
-        CSView *view = page->getView(size_t(ind));
+        CSView* view = page->getView(size_t(ind));
         if (view != nullptr)
         {
-            CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
+            CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
             allowFitToView = (cam != nullptr);
         }
     }
@@ -1493,15 +1494,15 @@ void CMainWindow::_actualizetoolbarButtonState()
     if ((selS == 1) && noSelector && (editModeContainer->getEditModeType() == NO_EDIT_MODE) &&
         App::currentWorld->simulation->isSimulationStopped())
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (it->getModelBase())
         {
-            std::vector<CSceneObject *> toExplore;
+            std::vector<CSceneObject*> toExplore;
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getOrphanCount(); i++)
                 toExplore.push_back(App::currentWorld->sceneObjects->getOrphanFromIndex(i));
             while (toExplore.size() > 0)
             {
-                CSceneObject *obj = toExplore[0];
+                CSceneObject* obj = toExplore[0];
                 toExplore.erase(toExplore.begin());
                 if (obj != it)
                 {
@@ -2032,7 +2033,7 @@ void CMainWindow::instanceHasChanged(int newInstanceIndex)
         codeEditorContainer->showOrHideAll(true);
 }
 
-void CMainWindow::newSceneNameWasSet(const char *name)
+void CMainWindow::newSceneNameWasSet(const char* name)
 {
     tabBar->setTabText(tabBar->currentIndex(), name);
 }
@@ -2042,7 +2043,7 @@ void CMainWindow::tabBarIndexChanged(int newIndex)
     App::worldContainer->processGuiCommand(SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD + newIndex);
 }
 
-void CMainWindow::_closeDialogTemporarilyIfOpened(int dlgID, std::vector<int> &vect)
+void CMainWindow::_closeDialogTemporarilyIfOpened(int dlgID, std::vector<int>& vect)
 {
     if (GuiApp::mainWindow->dlgCont->isVisible(dlgID))
     {
@@ -2247,7 +2248,7 @@ void CMainWindow::activateMainWindow()
     }
 }
 
-void CMainWindow::executeCommand(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CMainWindow::executeCommand(SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     if (cmdIn->cmdId == MAIN_WINDOW_NON_EDIT_MODE_DLG_CLOSE_MWUITHREADCMD)
         closeTemporarilyNonEditModeDialogs();

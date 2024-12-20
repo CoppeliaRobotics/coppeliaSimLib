@@ -15,10 +15,10 @@ void CUndoBufferCameras::preRestoreCameras()
 {
     if (App::userSettings->getUndoRedoOnlyPartialWithCameras())
     {
-        std::vector<CSceneObject *> cameraProxies;
+        std::vector<CSceneObject*> cameraProxies;
         for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); cnt++)
         {
-            CCamera *cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
+            CCamera* cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
             SCamBuff buff;
             buff.localTr = cam->getFullLocalTransformation();
             buff.orthoViewSize = cam->getOrthoViewSize();
@@ -54,10 +54,10 @@ void CUndoBufferCameras::restoreCameras()
     if (App::userSettings->getUndoRedoOnlyPartialWithCameras())
     {
         // this is the saved cameras, might be a while back:
-        std::vector<CSceneObject *> cameraProxies;
+        std::vector<CSceneObject*> cameraProxies;
         for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); cnt++)
         {
-            CCamera *cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
+            CCamera* cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
             std::map<std::string, SCamBuff>::iterator it = _cameraBuffers.find(cam->getObjectAlias_shortPath());
             if (it != _cameraBuffers.end())
             {
@@ -82,7 +82,7 @@ void CUndoBufferCameras::restoreCameras()
 
         for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(); cnt++)
         {
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromIndex(cnt);
+            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromIndex(cnt);
             std::map<std::string, SCamBuff>::iterator it = _cameraProxyBuffers.find(obj->getObjectAlias_shortPath());
             if (it != _cameraProxyBuffers.end())
                 obj->setLocalTransformation(it->second.localTr);
@@ -91,7 +91,7 @@ void CUndoBufferCameras::restoreCameras()
         // this is the saved cameras, just a moment ago:
         for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); cnt++)
         {
-            CCamera *cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
+            CCamera* cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
             std::map<std::string, SCamBuff>::iterator it =
                 _preRestoreCameraBuffers.find(cam->getObjectAlias_shortPath());
             if (it != _preRestoreCameraBuffers.end())
@@ -104,7 +104,7 @@ void CUndoBufferCameras::restoreCameras()
 
         for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(); cnt++)
         {
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromIndex(cnt);
+            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromIndex(cnt);
             std::map<std::string, SCamBuff>::iterator it =
                 _preRestoreCameraProxyBuffers.find(obj->getObjectAlias_shortPath());
             if (it != _preRestoreCameraProxyBuffers.end())
@@ -118,10 +118,10 @@ void CUndoBufferCameras::storeCameras()
 {
     if (App::userSettings->getUndoRedoOnlyPartialWithCameras())
     {
-        std::vector<CSceneObject *> cameraProxies;
+        std::vector<CSceneObject*> cameraProxies;
         for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); cnt++)
         {
-            CCamera *cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
+            CCamera* cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
             /*
             SCamBuff buff;
             buff.localTr=cam->getFullLocalTransformation();
@@ -171,7 +171,7 @@ void CUndoBufferCameras::releaseCameras()
     {
         for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(); cnt++)
         {
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromIndex(cnt);
+            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromIndex(cnt);
             obj->setIgnorePosAndCameraOrthoviewSize_forUndoRedo(false);
         }
     }

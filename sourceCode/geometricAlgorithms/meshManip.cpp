@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <meshRoutines.h>
 
-CMeshManip::CMeshManip(double *vertices, int verticesNb, int *indices, int indicesNb)
+CMeshManip::CMeshManip(double* vertices, int verticesNb, int* indices, int indicesNb)
 {
     // We first prepare the edges:
     edges.clear();
@@ -49,8 +49,8 @@ CMeshManip::~CMeshManip()
         delete edges[i];
 }
 
-bool CMeshManip::extractOneShape(std::vector<double> *vertices, std::vector<int> *indices,
-                                 std::vector<double> *sVertices, std::vector<int> *sIndices)
+bool CMeshManip::extractOneShape(std::vector<double>* vertices, std::vector<int>* indices,
+                                 std::vector<double>* sVertices, std::vector<int>* sIndices)
 { // This is the vector version of the routine!
     // Return value is true if the result is 2 shapes
     // Return value is false if the result is only one shape
@@ -152,8 +152,8 @@ bool CMeshManip::extractOneShape(std::vector<double> *vertices, std::vector<int>
     }
 }
 
-void CMeshManip::useOnlyReferencedVertices(std::vector<double> *vertices, std::vector<double> *sVertices,
-                                           std::vector<int> *sIndices)
+void CMeshManip::useOnlyReferencedVertices(std::vector<double>* vertices, std::vector<double>* sVertices,
+                                           std::vector<int>* sIndices)
 { // This is the vector version of the routine!
     // Now we have to remap the vertices and indices (some vertices have to be removed)
     sVertices->reserve(vertices->size());
@@ -176,7 +176,7 @@ void CMeshManip::useOnlyReferencedVertices(std::vector<double> *vertices, std::v
     }
 }
 
-double CMeshManip::getMaxEdgeLength(const std::vector<double> &vertices, const std::vector<int> &indices)
+double CMeshManip::getMaxEdgeLength(const std::vector<double>& vertices, const std::vector<int>& indices)
 {
     double retVal = 0.0;
     for (size_t i = 0; i < indices.size() / 3; i++)
@@ -198,8 +198,8 @@ double CMeshManip::getMaxEdgeLength(const std::vector<double> &vertices, const s
     return (retVal);
 }
 
-bool CMeshManip::reduceTriangleSize(std::vector<double> &vertices, std::vector<int> &indices,
-                                    std::vector<double> *normals, std::vector<float> *texCoords, double maxEdgeSize)
+bool CMeshManip::reduceTriangleSize(std::vector<double>& vertices, std::vector<int>& indices,
+                                    std::vector<double>* normals, std::vector<float>* texCoords, double maxEdgeSize)
 { // returns false if nothing is left
     // if maxEdgeSize is 0.0, then half of the maximum triangle edge is used as maxEdgeSize
     // if verticeMergeTolerance is 0.0, vertices are not merged
@@ -221,8 +221,8 @@ bool CMeshManip::reduceTriangleSize(std::vector<double> &vertices, std::vector<i
     return (indices.size() != 0);
 }
 
-int CMeshManip::_reduceTriangleSizePass(std::vector<double> &vertices, std::vector<int> &indices,
-                                        std::vector<double> *normals, std::vector<float> *texCoords, double maxEdgeSize)
+int CMeshManip::_reduceTriangleSizePass(std::vector<double>& vertices, std::vector<int>& indices,
+                                        std::vector<double>* normals, std::vector<float>* texCoords, double maxEdgeSize)
 { // normals or texCoords are optional. Return val is the nb of added triangles
     // We mark the triangles that need to be cut:
 
@@ -393,12 +393,12 @@ int CMeshManip::_reduceTriangleSizePass(std::vector<double> &vertices, std::vect
     return (trianglesAdded);
 }
 
-bool CMeshManip::correctTriangleWinding(std::vector<double> *vertices, std::vector<int> *indices)
+bool CMeshManip::correctTriangleWinding(std::vector<double>* vertices, std::vector<int>* indices)
 { // First create an edge list
     // The smallest index specifying the edge gives the position in edges array
     // eg. insertion of edge (4;6) belonging to triangle 3
     // edge[4]->Add(6); edge[4]->Add(3);
-    std::vector<std::vector<int> *> edges(vertices->size() / 3, nullptr);
+    std::vector<std::vector<int>*> edges(vertices->size() / 3, nullptr);
     for (int i = 0; i < int(indices->size()) / 3; i++)
     {
         int temp;
@@ -419,7 +419,7 @@ bool CMeshManip::correctTriangleWinding(std::vector<double> *vertices, std::vect
             }
             if (edges[v[j][0]] == nullptr)
             {
-                std::vector<int> *newList = new std::vector<int>;
+                std::vector<int>* newList = new std::vector<int>;
                 edges[v[j][0]] = newList;
             }
             edges[v[j][0]]->push_back(v[j][1]);
@@ -677,8 +677,8 @@ bool CMeshManip::correctTriangleWinding(std::vector<double> *vertices, std::vect
     return (passes == 1);
 }
 
-int CMeshManip::_getNeighbour(int actualTriangle, std::vector<int> *indices, int actualEdge[2],
-                              std::vector<std::vector<int> *> *edges, std::vector<unsigned char> *exploredState)
+int CMeshManip::_getNeighbour(int actualTriangle, std::vector<int>* indices, int actualEdge[2],
+                              std::vector<std::vector<int>*>* edges, std::vector<unsigned char>* exploredState)
 { // This routine is needed by the routine "ExtractOneShapeEdge"
     // Find the other triangle(s) on edge specified by m
     int found = -1;
@@ -736,7 +736,7 @@ int CMeshManip::_getNeighbour(int actualTriangle, std::vector<int> *indices, int
     return (found);
 }
 
-bool CMeshManip::isInsideOut(std::vector<double> *vertices, std::vector<int> *indices)
+bool CMeshManip::isInsideOut(std::vector<double>* vertices, std::vector<int>* indices)
 {
     C3Vector a, b, c, m, n, v, w, d;
     C3Vector center(0.0, 0.0, 0.0);
@@ -765,7 +765,7 @@ bool CMeshManip::isInsideOut(std::vector<double> *vertices, std::vector<int> *in
     return (total < 0.0);
 }
 
-void CMeshManip::setInsideOut(std::vector<int> *indices)
+void CMeshManip::setInsideOut(std::vector<int>* indices)
 {
     int temp;
     for (int i = 0; i < int(indices->size()) / 3; i++)
@@ -776,8 +776,8 @@ void CMeshManip::setInsideOut(std::vector<int> *indices)
     }
 }
 
-void CMeshManip::getProjectionOfPointOnLine(double x, double y, double z, double vx, double vy, double vz, double &px,
-                                            double &py, double &pz)
+void CMeshManip::getProjectionOfPointOnLine(double x, double y, double z, double vx, double vy, double vz, double& px,
+                                            double& py, double& pz)
 {
     double t = (vx * (px - x) + vy * (py - y) + vz * (pz - z)) / (vx * vx + vy * vy + vz * vz);
     px = x + t * vx;
@@ -785,8 +785,8 @@ void CMeshManip::getProjectionOfPointOnLine(double x, double y, double z, double
     pz = z + t * vz;
 }
 
-bool CMeshManip::mergeWith(std::vector<double> *tVertices, std::vector<int> *tIndices, std::vector<double> *tNormals,
-                           std::vector<double> *sVertices, std::vector<int> *sIndices, std::vector<double> *sNormals)
+bool CMeshManip::mergeWith(std::vector<double>* tVertices, std::vector<int>* tIndices, std::vector<double>* tNormals,
+                           std::vector<double>* sVertices, std::vector<int>* sIndices, std::vector<double>* sNormals)
 { // s will be merged with t. tNormals and sNormals can be nullptr (but have to be nullptr at the same time)
     // Rewrite later with correct stl function!!
     int pos = (int)tVertices->size() / 3;
@@ -827,7 +827,7 @@ void CMeshManip::calcNormal(double v[3][3], double out[3])
     reduceToUnit(out);
 }
 
-void CMeshManip::getSize(std::vector<double> *vertices, double x[2], double y[2], double z[2], bool &start)
+void CMeshManip::getSize(std::vector<double>* vertices, double x[2], double y[2], double z[2], bool& start)
 {
     for (int i = 0; i < int(vertices->size()) / 3; i++)
     {
@@ -858,7 +858,7 @@ void CMeshManip::getSize(std::vector<double> *vertices, double x[2], double y[2]
         }
     }
 }
-void CMeshManip::centerAndScale(std::vector<double> *vertices, double x, double y, double z, double sf)
+void CMeshManip::centerAndScale(std::vector<double>* vertices, double x, double y, double z, double sf)
 {
     for (int i = 0; i < int(vertices->size()) / 3; i++)
     {
@@ -871,8 +871,8 @@ void CMeshManip::centerAndScale(std::vector<double> *vertices, double x, double 
     }
 }
 
-void CMeshManip::getNormals(const std::vector<double> *vertices, const std::vector<int> *indices,
-                            std::vector<double> *normals)
+void CMeshManip::getNormals(const std::vector<double>* vertices, const std::vector<int>* indices,
+                            std::vector<double>* normals)
 { // This is the vector version of the function!
     // The size of normals is set in this function
     double v[3][3], n[3];
@@ -902,7 +902,7 @@ void CMeshManip::getNormals(const std::vector<double> *vertices, const std::vect
     }
 }
 
-void CMeshManip::getTrianglesFromPolygons(const std::vector<std::vector<int>> &polygons, std::vector<int> &indices)
+void CMeshManip::getTrianglesFromPolygons(const std::vector<std::vector<int>>& polygons, std::vector<int>& indices)
 {
     indices.clear();
     for (int i = 0; i < int(polygons.size()); i++)

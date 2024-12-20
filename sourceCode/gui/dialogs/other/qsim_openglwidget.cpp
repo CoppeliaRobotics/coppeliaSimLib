@@ -23,10 +23,11 @@ int _savedMouseMode;
 std::vector<SMouseOrKeyboardOrResizeEvent> _bufferedMouseOrKeyboardOrResizeEvents;
 
 #ifdef USES_QGLWIDGET
-COpenglWidget::COpenglWidget(QWidget *parent)
+COpenglWidget::COpenglWidget(QWidget* parent)
     : QGLWidget(QGLFormat((App::userSettings->stereoDist <= 0.0) ? (QGL::DoubleBuffer) : (QGL::StereoBuffers)), parent)
 #else
-COpenglWidget::COpenglWidget(QWidget *parent) : QOpenGLWidget(parent)
+COpenglWidget::COpenglWidget(QWidget* parent)
+    : QOpenGLWidget(parent)
 #endif
 {
     TRACE_INTERNAL;
@@ -41,7 +42,7 @@ COpenglWidget::COpenglWidget(QWidget *parent) : QOpenGLWidget(parent)
     setMouseTracking(true);
     setFocusPolicy(Qt::WheelFocus);
 
-    QTimer *timer_100ms = new QTimer(this);
+    QTimer* timer_100ms = new QTimer(this);
     connect(timer_100ms, SIGNAL(timeout()), this, SLOT(_timer100ms_fire()));
     timer_100ms->start(100);
     _modelDragAndDropInfo = nullptr;
@@ -57,7 +58,7 @@ void COpenglWidget::makeContextCurrent()
     makeCurrent();
 }
 
-void COpenglWidget::resizeEvent(QResizeEvent *rEvent)
+void COpenglWidget::resizeEvent(QResizeEvent* rEvent)
 {
     _handleMouseAndKeyboardAndResizeEvents(rEvent, 7);
 #ifdef USES_QGLWIDGET
@@ -105,7 +106,7 @@ void COpenglWidget::_setCtrlAndShiftKeyState(bool ctrlDown, bool shiftDown)
     GuiApp::mainWindow->setKeyDownState(state);
 }
 
-void COpenglWidget::mouseMoveEvent(QMouseEvent *mEvent)
+void COpenglWidget::mouseMoveEvent(QMouseEvent* mEvent)
 {
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent, 3);
@@ -125,7 +126,7 @@ void COpenglWidget::_mouseMoveEvent(SMouseOrKeyboardOrResizeEvent e)
     }
 }
 
-void COpenglWidget::mousePressEvent(QMouseEvent *mEvent)
+void COpenglWidget::mousePressEvent(QMouseEvent* mEvent)
 {
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent, 0);
@@ -219,7 +220,7 @@ void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
     CDlgEx::doTransparencyCounter++;
 }
 
-void COpenglWidget::mouseReleaseEvent(QMouseEvent *mEvent)
+void COpenglWidget::mouseReleaseEvent(QMouseEvent* mEvent)
 {
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent, 1);
@@ -270,8 +271,8 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
             if (!App::userSettings->navigationBackwardCompatibility)
             {
                 disableWheelRotateForOne500ms =
-                    (int)VDateTime::getTimeInMs(); // when the middle mouse button was released, sometimes the wheel
-                                                   // rotates involontarily
+                    (int)VDateTime::getTimeInMs();                        // when the middle mouse button was released, sometimes the wheel
+                                                                          // rotates involontarily
                 disableMouseMoveFor200ms = (int)VDateTime::getTimeInMs(); // when the middle mouse button was released,
                                                                           // sometimes the mouse moves involontarily
                 GuiApp::mainWindow->onMiddleMouseButtonUpTT(x, y);
@@ -282,7 +283,7 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
     }
 }
 
-void COpenglWidget::mouseDoubleClickEvent(QMouseEvent *mEvent)
+void COpenglWidget::mouseDoubleClickEvent(QMouseEvent* mEvent)
 {
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(mEvent, 2);
@@ -330,7 +331,7 @@ void COpenglWidget::_mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e)
     }
 }
 
-void COpenglWidget::wheelEvent(QWheelEvent *wEvent)
+void COpenglWidget::wheelEvent(QWheelEvent* wEvent)
 {
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(wEvent, 4);
@@ -361,7 +362,7 @@ bool COpenglWidget::focusNextPrevChild(bool next)
     return (false);
 }
 
-void COpenglWidget::keyPressEvent(QKeyEvent *kEvent)
+void COpenglWidget::keyPressEvent(QKeyEvent* kEvent)
 {
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(kEvent, 5);
@@ -373,7 +374,7 @@ void COpenglWidget::_keyPressEvent(SMouseOrKeyboardOrResizeEvent e)
     GuiApp::mainWindow->onKeyPress(e);
 }
 
-void COpenglWidget::keyReleaseEvent(QKeyEvent *kEvent)
+void COpenglWidget::keyReleaseEvent(QKeyEvent* kEvent)
 {
     TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(kEvent, 6);
@@ -392,7 +393,7 @@ void COpenglWidget::_timer100ms_fire()
         _handleMouseAndKeyboardAndResizeEvents(nullptr, 8);
 }
 
-void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void *event, int t)
+void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event, int t)
 {
     TRACE_INTERNAL;
     if (event != nullptr)
@@ -401,7 +402,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void *event, int t)
         e.eventType = t;
         if (t <= 3)
         { // mouse events
-            QMouseEvent *mEvent = (QMouseEvent *)event;
+            QMouseEvent* mEvent = (QMouseEvent*)event;
             e.x = mEvent->x();
             e.y = mEvent->y();
             e.ctrlDown = ((mEvent->modifiers() & Qt::ControlModifier) != 0);
@@ -415,7 +416,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void *event, int t)
         }
         if (t == 4)
         { // mouse wheel events
-            QWheelEvent *wEvent = (QWheelEvent *)event;
+            QWheelEvent* wEvent = (QWheelEvent*)event;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             e.x = wEvent->x();
             e.y = wEvent->y();
@@ -433,7 +434,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void *event, int t)
         }
         if ((t >= 5) && (t <= 6))
         { // keyboard events
-            QKeyEvent *kEvent = (QKeyEvent *)event;
+            QKeyEvent* kEvent = (QKeyEvent*)event;
             if (t == 5)
             { // press
                 bool processed = false;
@@ -515,7 +516,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void *event, int t)
         }
         if (t == 7)
         { // OpenGl surface resize
-            QResizeEvent *rEvent = (QResizeEvent *)event;
+            QResizeEvent* rEvent = (QResizeEvent*)event;
             e.x = rEvent->size().width();
             e.y = rEvent->size().height();
         }
@@ -568,7 +569,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void *event, int t)
     }
 }
 
-void COpenglWidget::_computeMousePos(int inX, int inY, int &outX, int &outY)
+void COpenglWidget::_computeMousePos(int inX, int inY, int& outX, int& outY)
 {
     outX = GuiApp::mainWindow->devicePixelRatio() * inX;
     outY = GuiApp::mainWindow->devicePixelRatio() * inY;
@@ -582,11 +583,11 @@ void COpenglWidget::_computeMousePos(int inX, int inY, int &outX, int &outY)
     _lastGlobalMousePos[1] = QCursor::pos().y();
 }
 
-void COpenglWidget::dragEnterEvent(QDragEnterEvent *dEvent)
+void COpenglWidget::dragEnterEvent(QDragEnterEvent* dEvent)
 {
     if (dEvent->mimeData()->hasText())
     {
-        const SModelThumbnailInfo *thumbnail = GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(
+        const SModelThumbnailInfo* thumbnail = GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(
             dEvent->mimeData()->text().toStdString().c_str(), nullptr);
         if (thumbnail != nullptr)
             dEvent->accept();
@@ -599,7 +600,7 @@ void COpenglWidget::dragEnterEvent(QDragEnterEvent *dEvent)
 #endif
 }
 
-void COpenglWidget::dragLeaveEvent(QDragLeaveEvent *dEvent)
+void COpenglWidget::dragLeaveEvent(QDragLeaveEvent* dEvent)
 {
     _modelDragAndDropInfo = nullptr;
 #ifdef USES_QGLWIDGET
@@ -609,7 +610,7 @@ void COpenglWidget::dragLeaveEvent(QDragLeaveEvent *dEvent)
 #endif
 }
 
-void COpenglWidget::dropEvent(QDropEvent *dEvent)
+void COpenglWidget::dropEvent(QDropEvent* dEvent)
 {
     GuiApp::mainWindow->oglSurface->hierarchy->endModelDrag();
     if (dEvent->mimeData()->hasText())
@@ -656,13 +657,13 @@ void COpenglWidget::dropEvent(QDropEvent *dEvent)
     }
 }
 
-void COpenglWidget::dragMoveEvent(QDragMoveEvent *dEvent)
+void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
 {
     if (dEvent->mimeData()->hasText())
     {
         int x, y;
         _computeMousePos(dEvent->pos().x(), dEvent->pos().y(), x, y);
-        SModelThumbnailInfo *info = GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(), nullptr);
+        SModelThumbnailInfo* info = GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(), nullptr);
         if (info != nullptr)
         {
             C3Vector desiredModelPosition;
@@ -703,7 +704,7 @@ void COpenglWidget::dragMoveEvent(QDragMoveEvent *dEvent)
     }
 }
 
-SModelThumbnailInfo *COpenglWidget::getModelDragAndDropInfo()
+SModelThumbnailInfo* COpenglWidget::getModelDragAndDropInfo()
 {
     return (_modelDragAndDropInfo);
 }

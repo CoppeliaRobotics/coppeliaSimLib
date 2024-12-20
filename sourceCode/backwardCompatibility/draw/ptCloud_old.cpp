@@ -5,8 +5,8 @@
 #endif
 
 CPtCloud_old::CPtCloud_old(int pageMask, int layerMask, int parentHandle, int options, double pointSize, int ptCnt,
-                           const double *vertices, const unsigned char *colors, const double *normals,
-                           const unsigned char *defaultColors)
+                           const double* vertices, const unsigned char* colors, const double* normals,
+                           const unsigned char* defaultColors)
 {
     _pageMask = pageMask;
     _layerMask = layerMask;
@@ -57,7 +57,7 @@ CPtCloud_old::CPtCloud_old(int pageMask, int layerMask, int parentHandle, int op
     if (normals != nullptr)
         _normals.assign(normals, normals + ptCnt * 3);
 
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
     _parentUniqueId = -1;
     if (it != nullptr)
     {
@@ -147,7 +147,7 @@ void CPtCloud_old::pushAddEvent()
             quaternions[4 * i + 3] = 1.0f;
         }
 
-        CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, -1, _uniqueId, nullptr, false);
+        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, -1, _uniqueId, nullptr, false);
         ev->appendKeyText("type", "point");
         ev->appendKeyFloatArray("color", c, 9);
         ev->appendKeyInt("maxCnt", int(_vertices.size() / 3));
@@ -179,7 +179,7 @@ void CPtCloud_old::draw(int displayAttrib)
             int currentLayers = App::currentWorld->environment->getActiveLayers();
             if (((currentLayers & _layerMask) != 0) && (_vertices.size() != 0))
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
                 displayPtCloud_old(this, it);
             }
         }

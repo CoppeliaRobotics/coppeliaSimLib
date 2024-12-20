@@ -148,7 +148,7 @@ void CPathCont_old::scaleObject(double scalingFactor)
     actualizePath();
 }
 
-void CPathCont_old::resetPath(CPath_old *it)
+void CPathCont_old::resetPath(CPath_old* it)
 {
     if (_initialValuesInitialized)
     {
@@ -159,7 +159,7 @@ void CPathCont_old::resetPath(CPath_old *it)
     _handleAttachedDummies(it);
 }
 
-bool CPathCont_old::_getBezierPointsForVirtualDistance(double &l, int &index0, int &index1, bool forwardDirection)
+bool CPathCont_old::_getBezierPointsForVirtualDistance(double& l, int& index0, int& index1, bool forwardDirection)
 {
     int c = getBezierPathPointCount();
     double pl = getBezierVirtualPathLength();
@@ -215,7 +215,7 @@ bool CPathCont_old::_getBezierPointsForVirtualDistance(double &l, int &index0, i
     return (false);
 }
 
-void CPathCont_old::handlePath(CPath_old *it, double deltaTime)
+void CPathCont_old::handlePath(CPath_old* it, double deltaTime)
 { // DEPRECATED
     if (App::currentWorld->mainSettings_old->pathMotionHandlingEnabled_DEPRECATED)
     { // we should not forget to call _handleAttachedDummies even when the path motion is disabled!!
@@ -227,11 +227,11 @@ void CPathCont_old::handlePath(CPath_old *it, double deltaTime)
     _handleAttachedDummies(it);
 }
 
-void CPathCont_old::handlePath_keepObjectUnchanged(double deltaTime, double &pos_, double &nomVel_,
-                                                   double &targetNomVel_, double maxAccel, bool invertVelocity,
+void CPathCont_old::handlePath_keepObjectUnchanged(double deltaTime, double& pos_, double& nomVel_,
+                                                   double& targetNomVel_, double maxAccel, bool invertVelocity,
                                                    bool infiniteAccel)
-{ // This function should not change any values in this object (so that the path can be handled by simFollowPath
-  // functions or such!)
+{   // This function should not change any values in this object (so that the path can be handled by simFollowPath
+    // functions or such!)
     if (deltaTime <= 0.0)
         return;
     double newPos = pos_;
@@ -259,8 +259,8 @@ void CPathCont_old::handlePath_keepObjectUnchanged(double deltaTime, double &pos
             v = targetNomVel_;
         if (_getBezierPointsForVirtualDistance(newPos, pIndex0, pIndex1, v >= 0.0))
         {
-            CBezierPathPoint_old *lowP = _bezierPathPoints[pIndex0];
-            CBezierPathPoint_old *highP = _bezierPathPoints[pIndex1];
+            CBezierPathPoint_old* lowP = _bezierPathPoints[pIndex0];
+            CBezierPathPoint_old* highP = _bezierPathPoints[pIndex1];
             double lowPos = lowP->virtualCumulativeLength;
             double highPos = highP->virtualCumulativeLength;
             if (pIndex0 == 0)
@@ -313,22 +313,22 @@ void CPathCont_old::handlePath_keepObjectUnchanged(double deltaTime, double &pos
         pos_ = tt::getLimitedDouble(0.0, getBezierVirtualPathLength(), pos_);
 }
 
-void CPathCont_old::_handleAttachedDummies(CPath_old *it)
+void CPathCont_old::_handleAttachedDummies(CPath_old* it)
 {
     if (it == nullptr)
         return; // can happen during object creation
-    std::vector<CSceneObject *> childrensChildren;
+    std::vector<CSceneObject*> childrensChildren;
     for (size_t i = 0; i < it->getChildCount(); i++)
     { // Here we handle all dummies that are direct children of this path and that are fixed or free ON the path
-        CSceneObject *child = it->getChildFromIndex(i);
+        CSceneObject* child = it->getChildFromIndex(i);
         if (child->getObjectType() == sim_sceneobject_dummy)
         {
-            CDummy *dum = (CDummy *)child;
+            CDummy* dum = (CDummy*)child;
             if (dum->getAssignedToParentPath())
             {
                 if (dum->getFreeOnPathTrajectory())
-                { // The dummy is free. We search for the closest position on the path and then assign the dummy to that
-                  // position:
+                {   // The dummy is free. We search for the closest position on the path and then assign the dummy to that
+                    // position:
                     C3Vector dp(dum->getLocalTransformation().X);
                     C7Vector conf;
                     if (getConfigurationOnBezierCurveClosestTo(dp, conf))
@@ -354,7 +354,7 @@ void CPathCont_old::_handleAttachedDummies(CPath_old *it)
     {
         if (childrensChildren[i]->getObjectType() == sim_sceneobject_dummy)
         {
-            CDummy *d = (CDummy *)childrensChildren[i];
+            CDummy* d = (CDummy*)childrensChildren[i];
             if (d->getAssignedToParentPathOrientation())
             {
                 C7Vector dctr(pctrInv * d->getFullCumulativeTransformation());
@@ -369,8 +369,8 @@ void CPathCont_old::_handleAttachedDummies(CPath_old *it)
     }
 }
 
-void CPathCont_old::_getDistinctConsecutivePoints(const std::vector<CPathPoint_old *> &ptCont,
-                                                  std::vector<C4X4Matrix> &tr, std::vector<std::vector<int>> &ptIndices)
+void CPathCont_old::_getDistinctConsecutivePoints(const std::vector<CPathPoint_old*>& ptCont,
+                                                  std::vector<C4X4Matrix>& tr, std::vector<std::vector<int>>& ptIndices)
 {
     tr.clear();
     ptIndices.clear();
@@ -416,9 +416,9 @@ void CPathCont_old::_getDistinctConsecutivePoints(const std::vector<CPathPoint_o
     }
 }
 
-void CPathCont_old::_applyDistinctConsecutivePoints(const std::vector<CPathPoint_old *> &ptCont,
-                                                    std::vector<C4X4Matrix> &tr,
-                                                    std::vector<std::vector<int>> &ptIndices)
+void CPathCont_old::_applyDistinctConsecutivePoints(const std::vector<CPathPoint_old*>& ptCont,
+                                                    std::vector<C4X4Matrix>& tr,
+                                                    std::vector<std::vector<int>>& ptIndices)
 {
     for (int i = 0; i < int(tr.size()); i++)
     {
@@ -430,7 +430,7 @@ void CPathCont_old::_applyDistinctConsecutivePoints(const std::vector<CPathPoint
     }
 }
 
-void CPathCont_old::_computeAutomaticOrientation(const std::vector<CPathPoint_old *> &pc)
+void CPathCont_old::_computeAutomaticOrientation(const std::vector<CPathPoint_old*>& pc)
 { // z along the path in the direction of the path, y pointing outwards
     // However if the path is flat, x will point like path object z axis, and y will point inwards or outwards!
     std::vector<C4X4Matrix> tr;
@@ -688,7 +688,7 @@ void CPathCont_old::_computeAutomaticOrientation(const std::vector<CPathPoint_ol
     _applyDistinctConsecutivePoints(pc, tr, ptIndices);
 }
 
-bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector &pt, C7Vector &conf)
+bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector& pt, C7Vector& conf)
 {
     // 1. Handling of special cases:
     if (_bezierPathPoints.size() == 0)
@@ -715,8 +715,8 @@ bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector &pt, C7Vecto
     {
         for (int i = 0; i < int(_bezierPathPoints.size()); i++)
         {
-            CBezierPathPoint_old *bez0 = _bezierPathPoints[i];
-            CBezierPathPoint_old *bez1 = nullptr;
+            CBezierPathPoint_old* bez0 = _bezierPathPoints[i];
+            CBezierPathPoint_old* bez1 = nullptr;
             if (i == int(_bezierPathPoints.size()) - 1)
             {
                 if ((_attributes & sim_pathproperty_closed_path) && (i != 2))
@@ -748,7 +748,7 @@ bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector &pt, C7Vecto
     return (true);
 }
 
-bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector &pt, double &distOnPath)
+bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector& pt, double& distOnPath)
 {
     // 1. Handling of special cases:
     if (_bezierPathPoints.size() == 0)
@@ -762,8 +762,8 @@ bool CPathCont_old::getPositionOnPathClosestTo(const C3Vector &pt, double &distO
     C3Vector pppt(pt);
     for (int i = 0; i < int(_bezierPathPoints.size()); i++)
     {
-        CBezierPathPoint_old *bez0 = _bezierPathPoints[i];
-        CBezierPathPoint_old *bez1 = nullptr;
+        CBezierPathPoint_old* bez0 = _bezierPathPoints[i];
+        CBezierPathPoint_old* bez1 = nullptr;
         if (i == int(_bezierPathPoints.size()) - 1)
         {
             if ((_attributes & sim_pathproperty_closed_path) && (i != 2))
@@ -828,12 +828,12 @@ void CPathCont_old::rollPathPoints(bool forward)
     actualizePath();
 }
 
-void CPathCont_old::addSimplePathPoint(CSimplePathPoint_old *it)
+void CPathCont_old::addSimplePathPoint(CSimplePathPoint_old* it)
 {
     insertSimplePathPoint(it, int(_simplePathPoints.size()));
 }
 
-void CPathCont_old::insertSimplePathPoint(CSimplePathPoint_old *it, int position)
+void CPathCont_old::insertSimplePathPoint(CSimplePathPoint_old* it, int position)
 {
     tt::limitValue(0, int(_simplePathPoints.size()), position);
     _simplePathPoints.insert(_simplePathPoints.begin() + position, it);
@@ -849,13 +849,13 @@ void CPathCont_old::removeSimplePathPoint(int position)
     actualizePath();
 }
 
-CSimplePathPoint_old *CPathCont_old::getSimplePathPoint(int position)
+CSimplePathPoint_old* CPathCont_old::getSimplePathPoint(int position)
 {
     if ((position < 0) || (position >= int(_simplePathPoints.size())))
         return (nullptr);
     return (_simplePathPoints[position]);
 }
-CBezierPathPoint_old *CPathCont_old::getBezierPathPoint(int position)
+CBezierPathPoint_old* CPathCont_old::getBezierPathPoint(int position)
 {
     if ((position < 0) || (position >= int(_bezierPathPoints.size())))
         return (nullptr);
@@ -976,11 +976,11 @@ void CPathCont_old::createEquivalent(int pathHandle)
     App::worldContainer->sandboxScript->executeScriptString(txt.c_str(), nullptr);
 }
 
-CBezierPathPoint_old *CPathCont_old::_addBezierPathPoint(const C7Vector &transf, double maxRelAbsVelocity,
+CBezierPathPoint_old* CPathCont_old::_addBezierPathPoint(const C7Vector& transf, double maxRelAbsVelocity,
                                                          double onSpotDistance, unsigned short auxFlags,
                                                          const double auxChannels[4])
 {
-    CBezierPathPoint_old *it = new CBezierPathPoint_old(transf);
+    CBezierPathPoint_old* it = new CBezierPathPoint_old(transf);
     it->setMaxRelAbsVelocity(maxRelAbsVelocity);
     it->setOnSpotDistance(onSpotDistance);
     it->setAuxFlags(auxFlags);
@@ -1000,8 +1000,8 @@ void CPathCont_old::actualizePath()
         _attributes = (_attributes | sim_pathproperty_closed_path) - sim_pathproperty_closed_path;
     if ((_attributes & sim_pathproperty_automatic_orientation) != 0)
     {
-        _computeAutomaticOrientation(((std::vector<CPathPoint_old *> *)&_simplePathPoints)[0]);
-        _computeAutomaticOrientation(((std::vector<CPathPoint_old *> *)&_bezierPathPoints)[0]);
+        _computeAutomaticOrientation(((std::vector<CPathPoint_old*>*)&_simplePathPoints)[0]);
+        _computeAutomaticOrientation(((std::vector<CPathPoint_old*>*)&_bezierPathPoints)[0]);
     }
     _recomputeBezierPathElementLengths();
     _recomputeBezierPathMaxVelocities();
@@ -1020,8 +1020,8 @@ int CPathCont_old::_removeDoubleBezierPoints(double linTol, double angTol)
     int retVal = 0;
     for (int i = 0; i < int(_bezierPathPoints.size()) - 1; i++)
     {
-        CBezierPathPoint_old *it0 = _bezierPathPoints[i + 0];
-        CBezierPathPoint_old *it1 = _bezierPathPoints[i + 1];
+        CBezierPathPoint_old* it0 = _bezierPathPoints[i + 0];
+        CBezierPathPoint_old* it1 = _bezierPathPoints[i + 1];
         C7Vector tr0(it0->getTransformation());
         C7Vector tr1(it1->getTransformation());
         if ((tr0.X - tr1.X).getLength() < linTol)
@@ -1051,8 +1051,8 @@ void CPathCont_old::_recomputeBezierPathElementLengths()
     double virtualCumulLength = 0.0;
     for (int i = 0; i < int(_bezierPathPoints.size()); i++)
     {
-        CBezierPathPoint_old *it0 = _bezierPathPoints[i + 0];
-        CBezierPathPoint_old *it1 = nullptr;
+        CBezierPathPoint_old* it0 = _bezierPathPoints[i + 0];
+        CBezierPathPoint_old* it1 = nullptr;
         if (i == int(_bezierPathPoints.size()) - 1)
             it1 = _bezierPathPoints[0];
         else
@@ -1205,13 +1205,13 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                 break;
             if ((_attributes & sim_pathproperty_closed_path) || (i != 0))
             {
-                CBezierPathPoint_old *bp_b = nullptr;
+                CBezierPathPoint_old* bp_b = nullptr;
                 if (i == 0)
                     bp_b = _bezierPathPoints[_bezierPathPoints.size() - 1];
                 else
                     bp_b = _bezierPathPoints[i - 1];
-                CBezierPathPoint_old *bp_0 = _bezierPathPoints[i + 0];
-                CBezierPathPoint_old *bp_a = nullptr;
+                CBezierPathPoint_old* bp_0 = _bezierPathPoints[i + 0];
+                CBezierPathPoint_old* bp_a = nullptr;
                 if (i == int(_bezierPathPoints.size()) - 1)
                     bp_a = _bezierPathPoints[0];
                 else
@@ -1228,8 +1228,8 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                     if (v1.getLength() == 0.0)
                         v1 = nextVectors[i + 0]; // we get the next non-zero vector
                     if ((v0.getLength() != 0.0) && (v1.getLength() != 0.0))
-                    { // unless we have a completely coincident trajectory (e.g. on-spot rotation), this should always
-                      // pass:
+                    {   // unless we have a completely coincident trajectory (e.g. on-spot rotation), this should always
+                        // pass:
                         double angle = v0.getAngle(v1);
                         double len = std::min<double>(v0.getLength(), v1.getLength());
                         double lengthByAngle = len / angle;
@@ -1251,13 +1251,13 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                 break;
             if ((_attributes & sim_pathproperty_closed_path) || (i != 0))
             {
-                CBezierPathPoint_old *bp_b = nullptr;
+                CBezierPathPoint_old* bp_b = nullptr;
                 if (i == 0)
                     bp_b = _bezierPathPoints[_bezierPathPoints.size() - 1];
                 else
                     bp_b = _bezierPathPoints[i - 1];
-                CBezierPathPoint_old *bp_0 = _bezierPathPoints[i + 0];
-                CBezierPathPoint_old *bp_a = nullptr;
+                CBezierPathPoint_old* bp_0 = _bezierPathPoints[i + 0];
+                CBezierPathPoint_old* bp_a = nullptr;
                 if (i == int(_bezierPathPoints.size()) - 1)
                     bp_a = _bezierPathPoints[0];
                 else
@@ -1343,7 +1343,7 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
         _bezierPathPoints[i]->setMaxRelAbsVelocity(maxOk[i]);
 }
 
-bool CPathCont_old::_getNextBezierPathPointIndex(int currentIndex, int &nextIndex)
+bool CPathCont_old::_getNextBezierPathPointIndex(int currentIndex, int& nextIndex)
 {
     if ((currentIndex < 0) || (currentIndex >= int(_bezierPathPoints.size())))
         return (false);
@@ -1387,7 +1387,7 @@ double CPathCont_old::getBezierAngularPathLength()
     return (_bezierPathPoints[_bezierPathPoints.size() - 1]->cumulativeAngle);
 }
 
-void CPathCont_old::_getInterpolatedBezierCurveData(int index0, double t, int &auxFlags, double auxChannels[4])
+void CPathCont_old::_getInterpolatedBezierCurveData(int index0, double t, int& auxFlags, double auxChannels[4])
 {
     int index1 = index0 + 1;
     if (index1 >= int(_bezierPathPoints.size()))
@@ -1415,7 +1415,7 @@ C7Vector CPathCont_old::_getInterpolatedBezierCurvePoint(int index0, double t)
     return (retVal);
 }
 
-bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(double &l, int &index0, double &t)
+bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(double& l, int& index0, double& t)
 {
     if (_bezierPathPoints.size() < 2)
     {
@@ -1472,7 +1472,7 @@ bool CPathCont_old::_getPointOnBezierCurveAtVirtualDistance(double &l, int &inde
     return (false);
 }
 
-bool CPathCont_old::getAuxDataOnBezierCurveAtNormalizedVirtualDistance(double l, int &auxFlags, double auxChannels[4])
+bool CPathCont_old::getAuxDataOnBezierCurveAtNormalizedVirtualDistance(double l, int& auxFlags, double auxChannels[4])
 { // l is between 0 and 1!
     double ll = l * getBezierVirtualPathLength();
     int index;
@@ -1483,7 +1483,7 @@ bool CPathCont_old::getAuxDataOnBezierCurveAtNormalizedVirtualDistance(double l,
     return (true);
 }
 
-bool CPathCont_old::getTransformationOnBezierCurveAtNormalizedVirtualDistance(double l, C7Vector &tr)
+bool CPathCont_old::getTransformationOnBezierCurveAtNormalizedVirtualDistance(double l, C7Vector& tr)
 { // l is between 0 and 1!
     double ll = l * getBezierVirtualPathLength();
     int index;
@@ -1494,7 +1494,7 @@ bool CPathCont_old::getTransformationOnBezierCurveAtNormalizedVirtualDistance(do
     return (true);
 }
 
-bool CPathCont_old::getPointOnBezierCurveAtNormalDistance(double &l, int &index0, double &t)
+bool CPathCont_old::getPointOnBezierCurveAtNormalDistance(double& l, int& index0, double& t)
 {
     if (_bezierPathPoints.size() < 2)
     {
@@ -1568,7 +1568,7 @@ void CPathCont_old::setPosition(double p)
     if (_getPointOnBezierCurveAtVirtualDistance(l, ind, t))
         _startPosition = _getInterpolatedBezierCurvePoint(ind, t).X;
     // Following is not elegant at all. Change later! (maybe simply merge the CPathCont_old and CPath_old)
-    CPath_old *parentPathObject = nullptr;
+    CPath_old* parentPathObject = nullptr;
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
     {
         parentPathObject = App::currentWorld->sceneObjects->getPathFromIndex(i);
@@ -1663,7 +1663,7 @@ void CPathCont_old::_recomputeBezierPoints()
     double auxChannels[4];
     if (_simplePathPoints.size() == 1)
     {
-        CSimplePathPoint_old *itm = _simplePathPoints[0];
+        CSimplePathPoint_old* itm = _simplePathPoints[0];
         itm->getAuxChannels(auxChannels);
         _addBezierPathPoint(itm->getTransformation(), itm->getMaxRelAbsVelocity(), itm->getOnSpotDistance(),
                             itm->getAuxFlags(), auxChannels);
@@ -1671,7 +1671,7 @@ void CPathCont_old::_recomputeBezierPoints()
     }
     if (_simplePathPoints.size() == 2)
     {
-        CSimplePathPoint_old *itm = _simplePathPoints[0];
+        CSimplePathPoint_old* itm = _simplePathPoints[0];
         itm->getAuxChannels(auxChannels);
         _addBezierPathPoint(itm->getTransformation(), itm->getMaxRelAbsVelocity(), itm->getOnSpotDistance(),
                             itm->getAuxFlags(), auxChannels);
@@ -1685,11 +1685,11 @@ void CPathCont_old::_recomputeBezierPoints()
     // Here we have at least 3 points!
     for (int i = 0; i < int(_simplePathPoints.size()); i++)
     {
-        CSimplePathPoint_old *itb = nullptr;
+        CSimplePathPoint_old* itb = nullptr;
         if (i != 0)
             itb = _simplePathPoints[i - 1];
-        CSimplePathPoint_old *itm = _simplePathPoints[i + 0];
-        CSimplePathPoint_old *ita = nullptr;
+        CSimplePathPoint_old* itm = _simplePathPoints[i + 0];
+        CSimplePathPoint_old* ita = nullptr;
         if (i != int(_simplePathPoints.size()) - 1)
             ita = _simplePathPoints[i + 1];
         if ((_attributes & sim_pathproperty_closed_path) != 0)
@@ -1823,8 +1823,8 @@ void CPathCont_old::_recomputeBezierPoints()
                 }
             }
             if ((!linOk) && (!angOk) && (!onSpotDist))
-            { // This means we either have Bezier interpol. disabled or ((coincident points or colinear points)and(two
-              // same orientations))!
+            {   // This means we either have Bezier interpol. disabled or ((coincident points or colinear points)and(two
+                // same orientations))!
                 _addBezierPathPoint(tr1, itm->getMaxRelAbsVelocity(), itm->getOnSpotDistance(), auxFlags1,
                                     auxChannels1);
             }
@@ -1832,8 +1832,8 @@ void CPathCont_old::_recomputeBezierPoints()
     }
 }
 
-C3Vector CPathCont_old::_getPointOnBezierCubic(const C3Vector &ptBefore, const C3Vector &ptMiddle,
-                                               const C3Vector &ptAfter, C3Vector &dir, double t)
+C3Vector CPathCont_old::_getPointOnBezierCubic(const C3Vector& ptBefore, const C3Vector& ptMiddle,
+                                               const C3Vector& ptAfter, C3Vector& dir, double t)
 {
     C3Vector x0, x1, retVal;
     x0.buildInterpolation(ptBefore, ptMiddle, t);
@@ -1843,8 +1843,8 @@ C3Vector CPathCont_old::_getPointOnBezierCubic(const C3Vector &ptBefore, const C
     return (retVal);
 }
 
-C4Vector CPathCont_old::_getOrientationOnBezierCubic(const C4Vector &orBefore, const C4Vector &orMiddle,
-                                                     const C4Vector &orAfter, double t)
+C4Vector CPathCont_old::_getOrientationOnBezierCubic(const C4Vector& orBefore, const C4Vector& orMiddle,
+                                                     const C4Vector& orAfter, double t)
 {
     C4Vector x0, x1, retVal;
     x0.buildInterpolation(orBefore, orMiddle, t);
@@ -1907,8 +1907,8 @@ void CPathCont_old::initializeInitialValues(bool simulationAlreadyRunning)
 }
 
 void CPathCont_old::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd())
@@ -1934,7 +1934,7 @@ double CPathCont_old::getMaxAcceleration()
     return (_maxAcceleration);
 }
 
-bool CPathCont_old::invertSimplePathPointOrder(const std::vector<int> &selectedPoints)
+bool CPathCont_old::invertSimplePathPointOrder(const std::vector<int>& selectedPoints)
 {
     if (selectedPoints.size() < 2)
         return (true);
@@ -1977,7 +1977,7 @@ bool CPathCont_old::invertSimplePathPointOrder(const std::vector<int> &selectedP
     {
         int frontIndex = pts[i];
         int backIndex = pts[pts.size() - 1 - i];
-        CSimplePathPoint_old *frontIt = _simplePathPoints[frontIndex];
+        CSimplePathPoint_old* frontIt = _simplePathPoints[frontIndex];
         _simplePathPoints[frontIndex] = _simplePathPoints[backIndex];
         _simplePathPoints[backIndex] = frontIt;
     }
@@ -1989,9 +1989,9 @@ bool CPathCont_old::invertSimplePathPointOrder(const std::vector<int> &selectedP
     return (true);
 }
 
-CPathCont_old *CPathCont_old::copyYourself()
+CPathCont_old* CPathCont_old::copyYourself()
 { // Everything is copied. Don't call any functions or procedures, copy directly!
-    CPathCont_old *newCont = new CPathCont_old();
+    CPathCont_old* newCont = new CPathCont_old();
 
     newCont->_attributes = _attributes;
     newCont->_pathModifID = _pathModifID;
@@ -2021,7 +2021,7 @@ CPathCont_old *CPathCont_old::copyYourself()
     return (newCont);
 }
 
-void CPathCont_old::serialize(CSer &ar)
+void CPathCont_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -2086,7 +2086,7 @@ void CPathCont_old::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        CSimplePathPoint_old *newPoint = new CSimplePathPoint_old();
+                        CSimplePathPoint_old* newPoint = new CSimplePathPoint_old();
                         newPoint->serialize(ar);
                         _simplePathPoints.push_back(newPoint);
                     }
@@ -2300,7 +2300,7 @@ void CPathCont_old::serialize(CSer &ar)
             {
                 while (true)
                 {
-                    CSimplePathPoint_old *newPoint = new CSimplePathPoint_old();
+                    CSimplePathPoint_old* newPoint = new CSimplePathPoint_old();
                     newPoint->serialize(ar);
                     _simplePathPoints.push_back(newPoint);
                     if (!ar.xmlPushSiblingNode("point", false))
@@ -2330,19 +2330,19 @@ void CPathCont_old::render(bool pathEditMode, int displayAttrib, bool pathIsOnly
         }
         else
             ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, 0.1f, 0.1f, 1.0f);
-        _draw(((std::vector<CPathPoint_old *> *)&_simplePathPoints)[0], pathEditMode, true, true, true, true, true,
+        _draw(((std::vector<CPathPoint_old*>*)&_simplePathPoints)[0], pathEditMode, true, true, true, true, true,
               _lineSize, _squareSize, pathIsOnlySelectedObject, objectID);
     }
     if (pathEditMode)
         glLoadName(-1);
     _lineColor.makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
-    _draw(((std::vector<CPathPoint_old *> *)&_bezierPathPoints)[0], pathEditMode, false,
+    _draw(((std::vector<CPathPoint_old*>*)&_bezierPathPoints)[0], pathEditMode, false,
           ((_attributes & sim_pathproperty_show_line) != 0) || pathEditMode, false, false,
           ((_attributes & sim_pathproperty_show_orientation) != 0) || pathEditMode, _lineSize, _squareSize,
           pathIsOnlySelectedObject, objectID);
 }
 
-void CPathCont_old::_draw(std::vector<CPathPoint_old *> &ptCont, bool pathEditMode, bool isPath, bool showLine,
+void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMode, bool isPath, bool showLine,
                           bool stripplePts, bool showSquare, bool showOrientation, int lineSize, double squareSize,
                           bool pathIsOnlySelectedObject, int objectID)
 {
@@ -2432,7 +2432,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old *> &ptCont, bool pathEditMo
 #ifdef SIM_WITH_GUI
             if (GuiApp::canShowDialogs())
             {
-                std::vector<int> *selP = GuiApp::mainWindow->editModeContainer->pathPointManipulation
+                std::vector<int>* selP = GuiApp::mainWindow->editModeContainer->pathPointManipulation
                                              ->getPointerToSelectedPathPointIndices_nonEditMode();
                 for (int i = 0; i < int(selP->size()); i++)
                     selS[selP->at(i)] = true;

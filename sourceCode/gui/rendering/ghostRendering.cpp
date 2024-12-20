@@ -20,8 +20,8 @@ See the GNU General Public License for more details.
 
 #include <ghostRendering.h>
 
-void displayGhost(CShape *shape, const C7Vector &tr, int displayAttributes, int options, double transparencyFactor,
-                  const float *color)
+void displayGhost(CShape* shape, const C7Vector& tr, int displayAttributes, int options, double transparencyFactor,
+                  const float* color)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);

@@ -11,7 +11,8 @@
 bool CQDlgShapeDyn::showDynamicWindow = false;
 bool CQDlgShapeDyn::masslessInertia = true;
 
-CQDlgShapeDyn::CQDlgShapeDyn(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgShapeDyn)
+CQDlgShapeDyn::CQDlgShapeDyn(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgShapeDyn)
 {
     _dlgType = SHAPE_DYN_DLG;
     ui->setupUi(this);
@@ -33,7 +34,7 @@ void CQDlgShapeDyn::cancelEvent()
 void CQDlgShapeDyn::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeAndNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape);
@@ -41,7 +42,7 @@ void CQDlgShapeDyn::refresh()
     bool notHeightfield = true;
     bool lastSelIsNotStatic = false;
     bool lastSelIsConvex = false;
-    CShape *it = App::currentWorld->sceneObjects->getLastSelectionShape();
+    CShape* it = App::currentWorld->sceneObjects->getLastSelectionShape();
     if (sel)
     {
         notHeightfield = (it->getMesh()->getPurePrimitiveType() != sim_primitiveshape_heightfield);
@@ -188,7 +189,7 @@ void CQDlgShapeDyn::on_qqAdjustEngineProperties_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CShape *it = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* it = App::currentWorld->sceneObjects->getLastSelectionShape();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -205,7 +206,7 @@ void CQDlgShapeDyn::on_qqRespondable_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape *it = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* it = App::currentWorld->sceneObjects->getLastSelectionShape();
         if (it != nullptr)
         {
             if ((!it->getRespondable()) && (!it->getMesh()->isPure()) && (!it->getMesh()->isConvex()))
@@ -224,7 +225,7 @@ void CQDlgShapeDyn::_toggleRespondableBits(int bits)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape *it = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* it = App::currentWorld->sceneObjects->getLastSelectionShape();
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(SET_RESPONDABLEMASK_SHAPEDYNGUITRIGGEREDCMD, it->getObjectHandle(),
@@ -323,7 +324,7 @@ void CQDlgShapeDyn::on_qqMass_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqMass->text().toStdString().c_str(), &ok);
-        CShape *shape = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::currentWorld->sceneObjects->getLastSelectionShape();
         if (ok && (shape != nullptr))
         {
             App::appendSimulationThreadCommand(SET_MASS_SHAPEDYNGUITRIGGEREDCMD, shape->getObjectHandle(), -1, newVal);
@@ -378,13 +379,13 @@ void CQDlgShapeDyn::on_qqI22_editingFinished()
     _inertiaChanged(2, 2, ui->qqI22);
 }
 
-void CQDlgShapeDyn::_inertiaChanged(size_t row, size_t col, QLineEdit *ct)
+void CQDlgShapeDyn::_inertiaChanged(size_t row, size_t col, QLineEdit* ct)
 {
     if (!ct->isModified())
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape *shape = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ct->text().toStdString().c_str(), &ok);
         if (ok && (shape != nullptr))
@@ -409,7 +410,7 @@ void CQDlgShapeDyn::on_qqPX_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape *shape = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPX->text().toStdString().c_str(), &ok);
         if (ok && (shape != nullptr))
@@ -433,7 +434,7 @@ void CQDlgShapeDyn::on_qqPY_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape *shape = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPY->text().toStdString().c_str(), &ok);
         if (ok && (shape != nullptr))
@@ -457,7 +458,7 @@ void CQDlgShapeDyn::on_qqPZ_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape *shape = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPZ->text().toStdString().c_str(), &ok);
         if (ok && (shape != nullptr))

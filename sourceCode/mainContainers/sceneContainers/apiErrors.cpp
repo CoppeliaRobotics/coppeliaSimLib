@@ -15,7 +15,7 @@ CApiErrors::~CApiErrors()
 {
 }
 
-void CApiErrors::setLastWarningOrError(const char *functionName, const char *errMsg)
+void CApiErrors::setLastWarningOrError(const char* functionName, const char* errMsg)
 {
     std::string funcName;
     if (functionName != nullptr)
@@ -56,7 +56,7 @@ void CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old()
     _clearThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiWarning_old);
     _clearThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiError_old);
 }
-void CApiErrors::setThreadBasedFirstCapiWarning_old(const char *msg)
+void CApiErrors::setThreadBasedFirstCapiWarning_old(const char* msg)
 {
     _setThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiWarning_old, msg);
 }
@@ -64,7 +64,7 @@ std::string CApiErrors::getAndClearThreadBasedFirstCapiWarning_old()
 {
     return (_getAndClearThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiWarning_old));
 }
-void CApiErrors::setThreadBasedFirstCapiError_old(const char *msg)
+void CApiErrors::setThreadBasedFirstCapiError_old(const char* msg)
 {
     _setThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiError_old, msg);
 }
@@ -72,7 +72,7 @@ std::string CApiErrors::getAndClearThreadBasedFirstCapiError_old()
 {
     return (_getAndClearThreadBasedFirstCapiMsg_old(_threadBasedFirstCapiError_old));
 }
-void CApiErrors::_clearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old> &vect)
+void CApiErrors::_clearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect)
 {
     VTHREAD_ID_TYPE threadId = VThread::getCurrentThreadId();
     _threadBasedFirstCapiErrorAndWarningMutex_old.lock("");
@@ -86,7 +86,7 @@ void CApiErrors::_clearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old
     }
     _threadBasedFirstCapiErrorAndWarningMutex_old.unlock();
 }
-void CApiErrors::_setThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old> &vect, const char *msg)
+void CApiErrors::_setThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect, const char* msg)
 {
     VTHREAD_ID_TYPE threadId = VThread::getCurrentThreadId();
     int index = -1;
@@ -108,7 +108,7 @@ void CApiErrors::_setThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old> 
     }
     _threadBasedFirstCapiErrorAndWarningMutex_old.unlock();
 }
-std::string CApiErrors::_getAndClearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old> &vect)
+std::string CApiErrors::_getAndClearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect)
 {
     std::string retVal;
     VTHREAD_ID_TYPE threadId = VThread::getCurrentThreadId();

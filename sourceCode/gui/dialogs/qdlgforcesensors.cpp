@@ -6,7 +6,8 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgForceSensors::CQDlgForceSensors(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgForceSensors)
+CQDlgForceSensors::CQDlgForceSensors(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgForceSensors)
 {
     _dlgType = FORCE_SENSOR_DLG;
     ui->setupUi(this);
@@ -25,12 +26,12 @@ void CQDlgForceSensors::cancelEvent()
 
 void CQDlgForceSensors::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_forcesensor);
     bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_forcesensor) > 1);
-    CForceSensor *it = App::currentWorld->sceneObjects->getLastSelectionForceSensor();
+    CForceSensor* it = App::currentWorld->sceneObjects->getLastSelectionForceSensor();
     bool breakingEnabled = false;
     if ((it != nullptr) && (it->getEnableForceThreshold() || it->getEnableTorqueThreshold()))
         breakingEnabled = true;

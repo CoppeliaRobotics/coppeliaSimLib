@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <visionSensorRendering.h>
 #include <guiApp.h>
 
-void displayVisionSensor(CVisionSensor *visionSensor, CViewableBase *renderingObject, int displayAttrib)
+void displayVisionSensor(CVisionSensor* visionSensor, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(visionSensor, renderingObject);

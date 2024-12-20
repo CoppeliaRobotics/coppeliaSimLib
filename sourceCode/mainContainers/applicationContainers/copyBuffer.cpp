@@ -155,8 +155,8 @@ void CCopyBuffer::restoreBuffer()
 }
 
 int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
-{ // return -1 means the operation cannot procceed because the scene is not locked (but buffer is), 0=empty buffer,
-  // 1=successful
+{   // return -1 means the operation cannot procceed because the scene is not locked (but buffer is), 0=empty buffer,
+    // 1=successful
     // This function is very similar to a model-loading operation:
     // Everything is inserted (sceneObjects, collections, etc. ) and then
     // the mapping is performed
@@ -173,40 +173,40 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     //-------------------------------- Buffer copy -----------------------------------------
     _copyIsForPasting = true;
     // First we need to copy the copy-buffers:
-    std::vector<CSceneObject *> objectCopy;
+    std::vector<CSceneObject*> objectCopy;
     for (size_t i = 0; i < objectBuffer.size(); i++)
         objectCopy.push_back(objectBuffer[i]->copyYourself());
 
-    std::vector<CScriptObject *> luaScriptCopy;
+    std::vector<CScriptObject*> luaScriptCopy;
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
         luaScriptCopy.push_back(luaScriptBuffer[i]->copyYourself());
 
-    std::vector<CTextureObject *> textureObjectCopy;
+    std::vector<CTextureObject*> textureObjectCopy;
     for (size_t i = 0; i < textureObjectBuffer.size(); i++)
         textureObjectCopy.push_back(textureObjectBuffer[i]->copyYourself());
 
     // Old:
-    std::vector<CCollection *> collectionCopy;
+    std::vector<CCollection*> collectionCopy;
     for (size_t i = 0; i < collectionBuffer.size(); i++)
         collectionCopy.push_back(collectionBuffer[i]->copyYourself());
 
-    std::vector<CCollisionObject_old *> collisionCopy;
+    std::vector<CCollisionObject_old*> collisionCopy;
     for (size_t i = 0; i < collisionBuffer.size(); i++)
         collisionCopy.push_back(collisionBuffer[i]->copyYourself());
 
-    std::vector<CDistanceObject_old *> distanceCopy;
+    std::vector<CDistanceObject_old*> distanceCopy;
     for (size_t i = 0; i < distanceBuffer.size(); i++)
         distanceCopy.push_back(distanceBuffer[i]->copyYourself());
 
-    std::vector<CIkGroup_old *> ikGroupCopy;
+    std::vector<CIkGroup_old*> ikGroupCopy;
     for (size_t i = 0; i < ikGroupBuffer.size(); i++)
         ikGroupCopy.push_back(ikGroupBuffer[i]->copyYourself());
 
-    std::vector<CPathPlanningTask *> pathPlanningTaskCopy;
+    std::vector<CPathPlanningTask*> pathPlanningTaskCopy;
     for (size_t i = 0; i < pathPlanningTaskBuffer.size(); i++)
         pathPlanningTaskCopy.push_back(pathPlanningTaskBuffer[i]->copyYourself());
 
-    std::vector<CButtonBlock *> buttonBlockCopy;
+    std::vector<CButtonBlock*> buttonBlockCopy;
     for (size_t i = 0; i < buttonBlockBuffer.size(); i++)
         buttonBlockCopy.push_back(buttonBlockBuffer[i]->copyYourself());
 
@@ -215,7 +215,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     //--------------------------------------------------------------------------------------
 
     // Following for backward compatibility (leave empty):
-    std::vector<CDynMaterialObject *> dynMaterialObjectCopy;
+    std::vector<CDynMaterialObject*> dynMaterialObjectCopy;
 
     // And we add everything to the scene:
     App::currentWorld->addGeneralObjectsToWorldAndPerformMappings(
@@ -238,7 +238,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     if ((selectionMode == 2) || (selectionMode == 3))
         App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(selectionMode == 3);
 
-    CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
     stack->pushTableOntoStack();
 
     std::vector<int> hand;
@@ -304,7 +304,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     clearBuffer();
     _bufferIsFromLockedScene = fromLockedScene;
 
-    CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
     stack->pushTableOntoStack();
 
     stack->pushTextOntoStack("objects");
@@ -326,14 +326,14 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     App::worldContainer->callScripts(sim_syscb_beforecopy, stack, nullptr); // could destroy or create objects in there!
 
     // Copy objects in hierarchial order!
-    std::vector<CSceneObject *> selObj;
-    std::vector<CSceneObject *> selObjTmp;
+    std::vector<CSceneObject*> selObj;
+    std::vector<CSceneObject*> selObjTmp;
     App::currentWorld->sceneObjects->getObjects_hierarchyOrder(selObjTmp);
     {
-        std::map<CSceneObject *, bool> selObjMap;
+        std::map<CSceneObject*, bool> selObjMap;
         for (size_t i = 0; i < sel.size(); i++)
         {
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
             if (obj != nullptr)
                 selObjMap[obj] = true;
         }
@@ -346,8 +346,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
 
     for (size_t i = 0; i < selObj.size(); i++)
     {
-        CSceneObject *original = selObj[i];
-        CSceneObject *it = original->copyYourself();
+        CSceneObject* original = selObj[i];
+        CSceneObject* it = original->copyYourself();
         if ((options & 2) != 0)
         {
             it->customObjectData.setData(nullptr, nullptr, 0, true);
@@ -372,9 +372,9 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     // sceneObjects are copied. We need to prepare the parenting info:
     for (size_t i = 0; i < selObj.size(); i++)
     {
-        CSceneObject *original = selObj[i];
-        CSceneObject *originalParent = original->getParent();
-        CSceneObject *newParent = original->getFirstParentInSelection(&selObj);
+        CSceneObject* original = selObj[i];
+        CSceneObject* originalParent = original->getParent();
+        CSceneObject* newParent = original->getFirstParentInSelection(&selObj);
         if (originalParent != newParent)
         { // We have to change position/orientation
             C7Vector cumul(original->getCumulativeTransformation());
@@ -426,7 +426,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     // Old:
     for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
     { // copy old the old collections (i.e. those that were created via the GUI):
-        CCollection *coll = App::currentWorld->collections->getObjectFromIndex(i);
+        CCollection* coll = App::currentWorld->collections->getObjectFromIndex(i);
         if (coll->getCreatorHandle() == -2)
             collectionBuffer.push_back(coll->copyYourself());
     }
@@ -446,10 +446,10 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
             buttonBlockBuffer.push_back(App::currentWorld->buttonBlockContainer_old->allBlocks[i]->copyYourself());
     }
 
-    std::vector<CSceneObject *> unselected;
+    std::vector<CSceneObject*> unselected;
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromIndex(i);
         if (!App::currentWorld->sceneObjects->isObjectInSelection(obj->getObjectHandle(), &sel))
             unselected.push_back(obj);
     }
@@ -461,7 +461,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         _announceObjectWillBeErased(unselected[i]);
 }
 
-void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7Vector &modelTr, C3Vector &modelBBSize,
+void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7Vector& modelTr, C3Vector& modelBBSize,
                                             double modelNonDefaultTranslationStepSize)
 {
     // This is used when saving a model. When saving a model, we basically perform
@@ -533,8 +533,8 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
         {
             if (objectBuffer[i]->getObjectType() == sim_sceneobject_shape)
             {
-                CShape *it = (CShape *)objectBuffer[i];
-                CDynMaterialObject *mat = it->getDynMaterial();
+                CShape* it = (CShape*)objectBuffer[i];
+                CDynMaterialObject* mat = it->getDynMaterial();
                 it->getMesh()->setDynMaterialId_old(dynObjId);
                 mat->setObjectID(dynObjId++);
                 ar.storeDataName(SER_DYNMATERIAL);
@@ -568,7 +568,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
         for (size_t i = 0; i < objectBuffer.size(); i++)
         {
             if (objectBuffer[i]->getObjectType() == sim_sceneobject_shape)
-                ((CShape *)objectBuffer[i])->prepareVerticesIndicesNormalsAndEdgesForSerialization();
+                ((CShape*)objectBuffer[i])->prepareVerticesIndicesNormalsAndEdgesForSerialization();
         }
         ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);
         ar.setCountingMode();
@@ -880,13 +880,13 @@ void CCopyBuffer::_eraseIkObjectInBuffer(int objectID)
 }
 
 //------------------ Object destruction announcement -------------------------
-void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
+void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
 {
     // First objects that won't trigger any more destructions:
     size_t i = 0;
     while (i < objectBuffer.size())
     {
-        CSceneObject *it = objectBuffer[i];
+        CSceneObject* it = objectBuffer[i];
         it->announceObjectWillBeErased(object, true);
         i++;
     }
@@ -894,7 +894,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
     i = 0;
     while (i < luaScriptBuffer.size())
     {
-        CScriptObject *it = luaScriptBuffer[i];
+        CScriptObject* it = luaScriptBuffer[i];
         if (it->announceSceneObjectWillBeErased(object, true))
         {
             _eraseScriptInBuffer(it->getScriptHandle());
@@ -907,7 +907,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
     i = 0;
     while (i < textureObjectBuffer.size())
     {
-        CTextureObject *it = textureObjectBuffer[i];
+        CTextureObject* it = textureObjectBuffer[i];
         if (it->announceGeneralObjectWillBeErased(object->getObjectHandle(), -1))
         {
             _eraseTextureObjectInBuffer(it->getObjectID());
@@ -921,7 +921,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
     i = 0;
     while (i < buttonBlockBuffer.size())
     {
-        CButtonBlock *it = buttonBlockBuffer[i];
+        CButtonBlock* it = buttonBlockBuffer[i];
         if (it->announceSceneObjectWillBeErased(object->getObjectHandle(), true) || (it->getObjectIDAttachedTo() == -1))
         {
             _erase2DElementInBuffer(it->getBlockID());
@@ -934,7 +934,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
     i = 0;
     while (i < pathPlanningTaskBuffer.size())
     {
-        CPathPlanningTask *it = pathPlanningTaskBuffer[i];
+        CPathPlanningTask* it = pathPlanningTaskBuffer[i];
         if (it->announceObjectWillBeErased(object->getObjectHandle(), true))
         {
             _erasePathPlanningTaskInBuffer(it->getObjectID());
@@ -947,7 +947,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
     i = 0;
     while (i < collisionBuffer.size())
     {
-        CCollisionObject_old *it = collisionBuffer[i];
+        CCollisionObject_old* it = collisionBuffer[i];
         if (it->announceObjectWillBeErased(object->getObjectHandle(), true))
         {
             _eraseCollisionInBuffer(it->getObjectHandle());
@@ -960,7 +960,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
     i = 0;
     while (i < distanceBuffer.size())
     {
-        CDistanceObject_old *it = distanceBuffer[i];
+        CDistanceObject_old* it = distanceBuffer[i];
         if (it->announceObjectWillBeErased(object->getObjectHandle(), true))
         {
             _eraseDistanceInBuffer(it->getObjectHandle());
@@ -973,7 +973,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
     i = 0;
     while (i < collectionBuffer.size())
     {
-        CCollection *it = collectionBuffer[i];
+        CCollection* it = collectionBuffer[i];
         if (it->announceObjectWillBeErased(object->getObjectHandle(), true))
         {
             _eraseCollectionInBuffer(it->getCollectionHandle());
@@ -986,7 +986,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject *object)
     i = 0;
     while (i < ikGroupBuffer.size())
     {
-        CIkGroup_old *it = ikGroupBuffer[i];
+        CIkGroup_old* it = ikGroupBuffer[i];
         if (it->announceObjectWillBeErased(object->getObjectHandle(), true))
         {
             _eraseIkObjectInBuffer(it->getObjectHandle());
@@ -1013,7 +1013,7 @@ void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)
     size_t i = 0;
     while (i < collisionBuffer.size())
     {
-        CCollisionObject_old *it = collisionBuffer[i];
+        CCollisionObject_old* it = collisionBuffer[i];
         if (it->announceCollectionWillBeErased(collectionID, true))
         {
             _eraseCollisionInBuffer(it->getObjectHandle());
@@ -1026,7 +1026,7 @@ void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)
     i = 0;
     while (i < distanceBuffer.size())
     {
-        CDistanceObject_old *it = distanceBuffer[i];
+        CDistanceObject_old* it = distanceBuffer[i];
         if (it->announceCollectionWillBeErased(collectionID, true))
         {
             _eraseDistanceInBuffer(it->getObjectHandle());
@@ -1039,7 +1039,7 @@ void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)
     i = 0;
     while (i < pathPlanningTaskBuffer.size())
     {
-        CPathPlanningTask *it = pathPlanningTaskBuffer[i];
+        CPathPlanningTask* it = pathPlanningTaskBuffer[i];
         if (it->announceCollectionWillBeErased(collectionID, true))
         {
             _erasePathPlanningTaskInBuffer(it->getObjectID());
@@ -1058,7 +1058,7 @@ void CCopyBuffer::_announceIkGroupWillBeErased(int ikGroupID)
     size_t i = 0;
     while (i < ikGroupBuffer.size())
     {
-        CIkGroup_old *it = ikGroupBuffer[i];
+        CIkGroup_old* it = ikGroupBuffer[i];
         if (it->announceIkGroupWillBeErased(ikGroupID, true))
         {
             _eraseIkObjectInBuffer(it->getObjectHandle());
@@ -1088,7 +1088,7 @@ void CCopyBuffer::_announce2DElementWillBeErased(int elementID)
     size_t i = 0;
     while (i < textureObjectBuffer.size())
     {
-        CTextureObject *it = textureObjectBuffer[i];
+        CTextureObject* it = textureObjectBuffer[i];
         if (it->announceGeneralObjectWillBeErased(elementID, -1))
         {
             _eraseTextureObjectInBuffer(it->getObjectID());

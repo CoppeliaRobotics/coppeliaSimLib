@@ -37,10 +37,10 @@ void CCollectionContainer::announceObjectWillBeErased(int objectHandle)
     size_t i = 0;
     while (i < getObjectCount())
     {
-        CCollection *coll = getObjectFromIndex(i);
+        CCollection* coll = getObjectFromIndex(i);
         if (coll->announceObjectWillBeErased(objectHandle, false))
         {
-            if (coll->getCreatorHandle() == -2) // Only old-type collections will be removed (those created via the GUI)
+            if (coll->getCreatorHandle() == -2)                // Only old-type collections will be removed (those created via the GUI)
                 removeCollection(coll->getCollectionHandle()); // This will call announceCollectionWillBeErased!!
             else
                 i++;
@@ -56,7 +56,7 @@ void CCollectionContainer::announceScriptStateWillBeErased(int scriptHandle, boo
     size_t i = 0;
     while (i < getObjectCount())
     {
-        CCollection *coll = getObjectFromIndex(i);
+        CCollection* coll = getObjectFromIndex(i);
         if (coll->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript))
             removeCollection(coll->getCollectionHandle()); // This will call announceCollectionWillBeErased!!
         else
@@ -69,7 +69,7 @@ void CCollectionContainer::actualizeAllCollections()
     size_t i = 0;
     while (i < getObjectCount())
     {
-        CCollection *coll = getObjectFromIndex(i);
+        CCollection* coll = getObjectFromIndex(i);
         if (!coll->actualizeCollection())
         {
             if (coll->getCreatorHandle() == -2) // Only old-type collections will be removed (those created via the GUI)
@@ -83,16 +83,16 @@ void CCollectionContainer::actualizeAllCollections()
 }
 
 void CCollectionContainer::getCollidableObjectsFromCollection(int collectionHandle,
-                                                              std::vector<CSceneObject *> &objects) const
+                                                              std::vector<CSceneObject*>& objects) const
 {
     objects.clear();
-    CCollection *theGroup = getObjectFromHandle(collectionHandle);
+    CCollection* theGroup = getObjectFromHandle(collectionHandle);
     if (theGroup != nullptr)
     {
         bool overridePropertyFlags = theGroup->getOverridesObjectMainProperties();
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
-            CSceneObject *anObject =
+            CSceneObject* anObject =
                 App::currentWorld->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyCollidable()))
             {
@@ -105,16 +105,16 @@ void CCollectionContainer::getCollidableObjectsFromCollection(int collectionHand
 }
 
 void CCollectionContainer::getMeasurableObjectsFromCollection(int collectionHandle,
-                                                              std::vector<CSceneObject *> &objects) const
+                                                              std::vector<CSceneObject*>& objects) const
 {
     objects.clear();
-    CCollection *theGroup = getObjectFromHandle(collectionHandle);
+    CCollection* theGroup = getObjectFromHandle(collectionHandle);
     if (theGroup != nullptr)
     {
         bool overridePropertyFlags = theGroup->getOverridesObjectMainProperties();
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
-            CSceneObject *anObject =
+            CSceneObject* anObject =
                 App::currentWorld->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyMeasurable()))
             {
@@ -127,17 +127,17 @@ void CCollectionContainer::getMeasurableObjectsFromCollection(int collectionHand
 }
 
 void CCollectionContainer::getDetectableObjectsFromCollection(int collectionHandle,
-                                                              std::vector<CSceneObject *> &objects,
+                                                              std::vector<CSceneObject*>& objects,
                                                               int detectableMask) const
 {
     objects.clear();
-    CCollection *theGroup = getObjectFromHandle(collectionHandle);
+    CCollection* theGroup = getObjectFromHandle(collectionHandle);
     if (theGroup != nullptr)
     {
         bool overridePropertyFlags = theGroup->getOverridesObjectMainProperties() || (detectableMask == -1);
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
-            CSceneObject *anObject =
+            CSceneObject* anObject =
                 App::currentWorld->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyDetectable()))
             {
@@ -168,7 +168,7 @@ void CCollectionContainer::removeCollection(int collectionHandle)
 #endif
 }
 
-void CCollectionContainer::getMinAndMaxNameSuffixes(int &minSuffix, int &maxSuffix) const
+void CCollectionContainer::getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const
 {
     minSuffix = -1;
     maxSuffix = -1;
@@ -228,12 +228,12 @@ void CCollectionContainer::setSuffix1ToSuffix2(int suffix1, int suffix2)
     }
 }
 
-void CCollectionContainer::addCollection(CCollection *collection, bool objectIsACopy)
+void CCollectionContainer::addCollection(CCollection* collection, bool objectIsACopy)
 {
     addCollectionWithSuffixOffset(collection, objectIsACopy, 1);
 }
 
-void CCollectionContainer::addCollectionWithSuffixOffset(CCollection *collection, bool objectIsACopy, int suffixOffset)
+void CCollectionContainer::addCollectionWithSuffixOffset(CCollection* collection, bool objectIsACopy, int suffixOffset)
 {
     std::string theName = collection->getCollectionName();
     if (theName.length() == 0)
@@ -258,7 +258,7 @@ void CCollectionContainer::addCollectionWithSuffixOffset(CCollection *collection
 
 void CCollectionContainer::addCollectionToSelection(int collectionHandle) const
 {
-    CCollection *it = getObjectFromHandle(collectionHandle);
+    CCollection* it = getObjectFromHandle(collectionHandle);
     if (it != nullptr)
     {
         for (size_t i = 0; i < it->getSceneObjectCountInCollection(); i++)
@@ -266,7 +266,7 @@ void CCollectionContainer::addCollectionToSelection(int collectionHandle) const
     }
 }
 
-void CCollectionContainer::performObjectLoadingMapping(const std::map<int, int> *map)
+void CCollectionContainer::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     for (size_t i = 0; i < getObjectCount(); i++)
         getObjectFromIndex(i)->performObjectLoadingMapping(map);
@@ -285,7 +285,7 @@ void CCollectionContainer::_removeCollection(int collectionHandle)
     }
 }
 
-void CCollectionContainer::_addCollection(CCollection *collection)
+void CCollectionContainer::_addCollection(CCollection* collection)
 {
     _allCollections.push_back(collection);
 }
@@ -295,17 +295,17 @@ size_t CCollectionContainer::getObjectCount() const
     return (_allCollections.size());
 }
 
-CCollection *CCollectionContainer::getObjectFromIndex(size_t index) const
+CCollection* CCollectionContainer::getObjectFromIndex(size_t index) const
 {
-    CCollection *retVal = nullptr;
+    CCollection* retVal = nullptr;
     if (index < _allCollections.size())
         retVal = _allCollections[index];
     return (retVal);
 }
 
-CCollection *CCollectionContainer::getObjectFromHandle(int collectionHandle) const
+CCollection* CCollectionContainer::getObjectFromHandle(int collectionHandle) const
 {
-    CCollection *retVal = nullptr;
+    CCollection* retVal = nullptr;
     for (size_t i = 0; i < _allCollections.size(); i++)
     {
         if (_allCollections[i]->getCollectionHandle() == collectionHandle)
@@ -317,9 +317,9 @@ CCollection *CCollectionContainer::getObjectFromHandle(int collectionHandle) con
     return (retVal);
 }
 
-CCollection *CCollectionContainer::getObjectFromName(const char *collectionName) const
+CCollection* CCollectionContainer::getObjectFromName(const char* collectionName) const
 {
-    CCollection *retVal = nullptr;
+    CCollection* retVal = nullptr;
     for (size_t i = 0; i < _allCollections.size(); i++)
     {
         if (_allCollections[i]->getCollectionName().compare(collectionName) == 0)

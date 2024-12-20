@@ -11,7 +11,7 @@ class CComposedFilter
     CComposedFilter();
     virtual ~CComposedFilter();
 
-    void serialize(CSer &ar);
+    void serialize(CSer& ar);
     void removeAllSimpleFilters();
 
     std::string scriptEquivalent;
@@ -19,5 +19,5 @@ class CComposedFilter
   protected:
     void _prepareScriptEquivalent();
 
-    std::vector<CSimpleFilter *> _allSimpleFilters;
+    std::vector<CSimpleFilter*> _allSimpleFilters;
 };

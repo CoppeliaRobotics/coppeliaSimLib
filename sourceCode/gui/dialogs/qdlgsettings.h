@@ -16,7 +16,7 @@ class CQDlgSettings : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgSettings(QWidget *parent = 0);
+    explicit CQDlgSettings(QWidget* parent = 0);
     ~CQDlgSettings();
 
     void refresh();
@@ -39,10 +39,10 @@ class CQDlgSettings : public CDlgEx
     void on_qqHideHierarchy_clicked();
 
   private:
-    Ui::CQDlgSettings *ui;
+    Ui::CQDlgSettings* ui;
 
-    void _selectItemOfCombobox(QComboBox *theBox, int itemData);
-    int _getIndexOfComboboxItemWithData(QComboBox *theBox, int itemData);
+    void _selectItemOfCombobox(QComboBox* theBox, int itemData);
+    int _getIndexOfComboboxItemWithData(QComboBox* theBox, int itemData);
 };
 
 #endif // QDLGSETTINGS_H

@@ -3,14 +3,14 @@
 #include <tt.h>
 
 bool CProxSensorRoutine::detectEntity(int sensorID, int entityID, bool closestFeatureMode, bool angleLimitation,
-                                      double maxAngle, C3Vector &detectedPt, double &dist, bool frontFace,
-                                      bool backFace, int &detectedObject, double minThreshold, C3Vector &triNormal,
+                                      double maxAngle, C3Vector& detectedPt, double& dist, bool frontFace,
+                                      bool backFace, int& detectedObject, double minThreshold, C3Vector& triNormal,
                                       bool overrideDetectableFlagIfNonCollection)
 { // entityID==-1 --> checks all objects in the scene
     bool returnValue = false;
     detectedObject = -1;
-    CProxSensor *sensor = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorID);
-    CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
+    CProxSensor* sensor = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorID);
+    CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
     if (sensor == nullptr)
         return (false); // should never happen!
     App::worldContainer->calcInfo->proximitySensorSimulationStart();
@@ -35,10 +35,10 @@ bool CProxSensorRoutine::detectEntity(int sensorID, int entityID, bool closestFe
     }
     else
     {
-        std::vector<CSceneObject *> group;
+        std::vector<CSceneObject*> group;
         if (entityID == -1)
         { // Special group here (all detectable objects):
-            std::vector<CSceneObject *> exception;
+            std::vector<CSceneObject*> exception;
             App::currentWorld->sceneObjects->getAllDetectableObjectsFromSceneExcept(&exception, group,
                                                                                     sensor->getSensableType());
         }
@@ -72,13 +72,13 @@ bool CProxSensorRoutine::detectEntity(int sensorID, int entityID, bool closestFe
     return (returnValue);
 }
 
-bool CProxSensorRoutine::detectPrimitive(int sensorID, double *vertexPointer, int itemType, int itemCount,
+bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, int itemType, int itemCount,
                                          bool closestFeatureMode, bool angleLimitation, double maxAngle,
-                                         C3Vector &detectedPt, double &dist, bool frontFace, bool backFace,
-                                         double minThreshold, C3Vector &triNormal)
+                                         C3Vector& detectedPt, double& dist, bool frontFace, bool backFace,
+                                         double minThreshold, C3Vector& triNormal)
 {
     bool returnValue = false;
-    CProxSensor *sens = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorID);
+    CProxSensor* sens = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorID);
     if (sens == nullptr)
         return (false); // should never happen!
 
@@ -249,11 +249,11 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double *vertexPointer, in
     return (returnValue);
 }
 
-int CProxSensorRoutine::_detectDummy(CProxSensor *sensor, CDummy *dummy, C3Vector &detectedPt, double &dist,
-                                     C3Vector &triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
+int CProxSensorRoutine::_detectDummy(CProxSensor* sensor, CDummy* dummy, C3Vector& detectedPt, double& dist,
+                                     C3Vector& triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
                                      double maxAngle, bool frontFace, bool backFace, double minThreshold)
-{ // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
-  // the sensor
+{   // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
+    // the sensor
     if (dist == 0.0)
         return (-1);
     if (sensor->getSensorType() == sim_proximitysensor_ray)
@@ -288,11 +288,11 @@ int CProxSensorRoutine::_detectDummy(CProxSensor *sensor, CDummy *dummy, C3Vecto
     return (-1);
 }
 
-int CProxSensorRoutine::_detectShape(CProxSensor *sensor, CShape *shape, C3Vector &detectedPt, double &dist,
-                                     C3Vector &triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
+int CProxSensorRoutine::_detectShape(CProxSensor* sensor, CShape* shape, C3Vector& detectedPt, double& dist,
+                                     C3Vector& triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
                                      double maxAngle, bool frontFace, bool backFace, double minThreshold)
-{ // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
-  // the sensor
+{   // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
+    // the sensor
     if (dist == 0.0)
         return (-1);
     if (!_doesSensorVolumeOverlapWithObjectBoundingBox(sensor, shape))
@@ -311,7 +311,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor *sensor, CShape *shape, C3Vecto
 
     if (sensor->getRandomizedDetection())
     {
-        bool *closeDetectionTriggered = nullptr;
+        bool* closeDetectionTriggered = nullptr;
         bool dummyVal = 0;
         if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
             closeDetectionTriggered = &dummyVal;
@@ -371,7 +371,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor *sensor, CShape *shape, C3Vecto
         { // ray-type sensor here:
             C3Vector lp(0.0, 0.0, sensor->convexVolume->getOffset());
             C3Vector lvFar(0.0, 0.0, sensor->convexVolume->getRange());
-            bool *closeDetectionTriggered = nullptr;
+            bool* closeDetectionTriggered = nullptr;
             bool dummy = 0;
             if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
                 closeDetectionTriggered = &dummy;
@@ -417,11 +417,11 @@ int CProxSensorRoutine::_detectShape(CProxSensor *sensor, CShape *shape, C3Vecto
     return (retVal);
 }
 
-int CProxSensorRoutine::_detectOctree(CProxSensor *sensor, COcTree *octree, C3Vector &detectedPt, double &dist,
-                                      C3Vector &triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
+int CProxSensorRoutine::_detectOctree(CProxSensor* sensor, COcTree* octree, C3Vector& detectedPt, double& dist,
+                                      C3Vector& triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
                                       double maxAngle, bool frontFace, bool backFace, double minThreshold)
-{ // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
-  // the sensor
+{   // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
+    // the sensor
     if (dist == 0.0)
         return (-1);
     if (octree->getOctreeInfo() == nullptr)
@@ -546,12 +546,12 @@ int CProxSensorRoutine::_detectOctree(CProxSensor *sensor, COcTree *octree, C3Ve
     return (retVal);
 }
 
-int CProxSensorRoutine::_detectPointCloud(CProxSensor *sensor, CPointCloud *pointCloud, C3Vector &detectedPt,
-                                          double &dist, C3Vector &triNormalNotNormalized, bool closestFeatureMode,
+int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor, CPointCloud* pointCloud, C3Vector& detectedPt,
+                                          double& dist, C3Vector& triNormalNotNormalized, bool closestFeatureMode,
                                           bool angleLimitation, double maxAngle, bool frontFace, bool backFace,
                                           double minThreshold)
-{ // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
-  // the sensor
+{   // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
+    // the sensor
     if (dist == 0.0)
         return (-1);
     if (pointCloud->getPointCloudInfo() == nullptr)
@@ -596,12 +596,12 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor *sensor, CPointCloud *poin
     return (retVal);
 }
 
-void CProxSensorRoutine::_orderGroupAccordingToApproxDistanceToSensingPoint(const CProxSensor *sensor,
-                                                                            std::vector<CSceneObject *> &group)
+void CProxSensorRoutine::_orderGroupAccordingToApproxDistanceToSensingPoint(const CProxSensor* sensor,
+                                                                            std::vector<CSceneObject*>& group)
 {
     std::vector<double> distances;
     std::vector<int> indexes;
-    std::vector<CSceneObject *> _group(group);
+    std::vector<CSceneObject*> _group(group);
     group.clear();
     C3Vector pt(sensor->getFullCumulativeTransformation().X);
     for (size_t i = 0; i < _group.size(); i++)
@@ -615,7 +615,7 @@ void CProxSensorRoutine::_orderGroupAccordingToApproxDistanceToSensingPoint(cons
         group.push_back(_group[indexes[i]]);
 }
 
-double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vector &point, CSceneObject *obj)
+double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vector& point, CSceneObject* obj)
 { // the returned distance is always same or smaller than the real distance!
     C3Vector halfSize;
     C7Vector tr(obj->getCumulativeTransformation() * obj->getBB(&halfSize));
@@ -630,7 +630,7 @@ double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vect
             App::worldContainer->pluginContainer->geomPlugin_getBoxPointDistance(tr, halfSize, true, point, nullptr));
 }
 
-bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSensor *sensor, CSceneObject *obj)
+bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSensor* sensor, CSceneObject* obj)
 {
     C3Vector sensorHalfSize;
     C7Vector sensorTr;
@@ -650,22 +650,22 @@ bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSens
                                                                                     objectHalfSize, true));
 }
 
-int CProxSensorRoutine::_detectObject(CProxSensor *sensor, CSceneObject *object, C3Vector &detectedPt, double &dist,
-                                      C3Vector &triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
+int CProxSensorRoutine::_detectObject(CProxSensor* sensor, CSceneObject* object, C3Vector& detectedPt, double& dist,
+                                      C3Vector& triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
                                       double maxAngle, bool frontFace, bool backFace, double minThreshold)
 {
     int retVal = -1;
     if (object->getObjectType() == sim_sceneobject_dummy)
-        retVal = _detectDummy(sensor, (CDummy *)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
+        retVal = _detectDummy(sensor, (CDummy*)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
                               angleLimitation, maxAngle, frontFace, backFace, minThreshold);
     if (object->getObjectType() == sim_sceneobject_shape)
-        retVal = _detectShape(sensor, (CShape *)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
+        retVal = _detectShape(sensor, (CShape*)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
                               angleLimitation, maxAngle, frontFace, backFace, minThreshold);
     if (object->getObjectType() == sim_sceneobject_octree)
-        retVal = _detectOctree(sensor, (COcTree *)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
+        retVal = _detectOctree(sensor, (COcTree*)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
                                angleLimitation, maxAngle, frontFace, backFace, minThreshold);
     if (object->getObjectType() == sim_sceneobject_pointcloud)
-        retVal = _detectPointCloud(sensor, (CPointCloud *)object, detectedPt, dist, triNormalNotNormalized,
+        retVal = _detectPointCloud(sensor, (CPointCloud*)object, detectedPt, dist, triNormalNotNormalized,
                                    closestFeatureMode, angleLimitation, maxAngle, frontFace, backFace, minThreshold);
     return (retVal);
 }

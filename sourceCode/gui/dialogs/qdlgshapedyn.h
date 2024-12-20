@@ -14,7 +14,7 @@ class CQDlgShapeDyn : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgShapeDyn(QWidget *parent = 0);
+    explicit CQDlgShapeDyn(QWidget* parent = 0);
     ~CQDlgShapeDyn();
 
     void refresh();
@@ -77,10 +77,10 @@ class CQDlgShapeDyn : public CDlgEx
     void on_qqMassless_clicked();
 
   private:
-    void _inertiaChanged(size_t row, size_t col, QLineEdit *ct);
+    void _inertiaChanged(size_t row, size_t col, QLineEdit* ct);
     void _toggleRespondableBits(int bits);
 
-    Ui::CQDlgShapeDyn *ui;
+    Ui::CQDlgShapeDyn* ui;
 };
 
 #endif // QDLGSHAPEDYN_H

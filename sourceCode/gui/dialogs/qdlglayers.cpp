@@ -3,7 +3,8 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgLayers::CQDlgLayers(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgLayers)
+CQDlgLayers::CQDlgLayers(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgLayers)
 {
     _dlgType = LAYERS_DLG;
     ui->setupUi(this);

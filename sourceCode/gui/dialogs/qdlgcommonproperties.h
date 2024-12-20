@@ -14,7 +14,7 @@ class CQDlgCommonProperties : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgCommonProperties(QWidget *parent = 0);
+    explicit CQDlgCommonProperties(QWidget* parent = 0);
     ~CQDlgCommonProperties();
 
     void refresh();
@@ -94,7 +94,7 @@ class CQDlgCommonProperties : public CDlgEx
     void on_qqNotMoveable_clicked();
 
   private:
-    Ui::CQDlgCommonProperties *ui;
+    Ui::CQDlgCommonProperties* ui;
 };
 
 #endif // QDLGCOMMONPROPERTIES_H

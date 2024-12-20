@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <broadcastDataVisualRendering.h>
 
-void displayEmitterOrReceiver(CBroadcastDataVisual *it)
+void displayEmitterOrReceiver(CBroadcastDataVisual* it)
 {
     if (it->_emitter)
     {

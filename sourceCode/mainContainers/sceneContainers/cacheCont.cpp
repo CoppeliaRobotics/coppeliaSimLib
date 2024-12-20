@@ -9,8 +9,8 @@ CCacheCont::~CCacheCont()
 { // beware, the current world could be nullptr
 }
 
-int CCacheCont::_getPosition(int entity1, int entity2, bool &inverted, std::vector<int> &entityPairs,
-                             std::vector<int> &cacheDat)
+int CCacheCont::_getPosition(int entity1, int entity2, bool& inverted, std::vector<int>& entityPairs,
+                             std::vector<int>& cacheDat)
 {
     inverted = false;
     int position = -1;
@@ -43,8 +43,8 @@ int CCacheCont::_getPosition(int entity1, int entity2, bool &inverted, std::vect
     return (position);
 }
 
-void CCacheCont::_getCacheData(int entity1, int entity2, int cache[4], std::vector<int> &entityPairs,
-                               std::vector<int> &cacheDat)
+void CCacheCont::_getCacheData(int entity1, int entity2, int cache[4], std::vector<int>& entityPairs,
+                               std::vector<int>& cacheDat)
 {
     bool inverted = false;
     int pos = _getPosition(entity1, entity2, inverted, entityPairs, cacheDat);
@@ -64,8 +64,8 @@ void CCacheCont::_getCacheData(int entity1, int entity2, int cache[4], std::vect
     }
 }
 
-void CCacheCont::_setCacheData(int entity1, int entity2, int cache[4], std::vector<int> &entityPairs,
-                               std::vector<int> &cacheDat)
+void CCacheCont::_setCacheData(int entity1, int entity2, int cache[4], std::vector<int>& entityPairs,
+                               std::vector<int>& cacheDat)
 {
     bool inverted = false;
     int pos = _getPosition(entity1, entity2, inverted, entityPairs, cacheDat);

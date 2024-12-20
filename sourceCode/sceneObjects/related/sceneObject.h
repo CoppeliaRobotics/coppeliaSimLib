@@ -12,75 +12,75 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propObject_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      sim_propertyinfo_notwritable, "Inherited model invisibility", "") \
-    FUNCX(propObject_modelBase,               "modelBase",                        sim_propertytype_bool,      0, "Model base", "Model base flag, indicates the scene object is the base of a model") \
-    FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0, "Visibility layer", "") \
-    FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       sim_propertyinfo_notwritable, "Child order", "") \
-    FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_long,      sim_propertyinfo_notwritable, "Parent UID", "Parent scene object unique identifier") \
-    FUNCX(propObject_objectUid,               "objectUid",                        sim_propertytype_long,      sim_propertyinfo_notwritable, "Object UID", "Scene object unique identifier") \
-    FUNCX(propObject_parentHandle,            "parentHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable, "Parent", "Parent scene object handle") \
-    FUNCX(propObject_selected,                "selected",                         sim_propertytype_bool,      0, "Selected", "Selection state") \
-    FUNCX(propObject_hierarchyColor,          "hierarchyColor",                   sim_propertytype_int,       0, "Hierarchy color", "Hierarchy color index") \
-    FUNCX(propObject_collectionSelfCollInd,   "collectionSelfCollisionIndicator", sim_propertytype_int,       0, "Collection self collision indicator", "") \
-    FUNCX(propObject_collidable,              "collidable",                       sim_propertytype_bool,      0, "Collidable", "") \
-    FUNCX(propObject_measurable,              "measurable",                       sim_propertytype_bool,      0, "Measurable", "") \
-    FUNCX(propObject_detectable,              "detectable",                       sim_propertytype_bool,      0, "Detectable", "") \
-    FUNCX(propObject_modelAcknowledgment,     "modelAcknowledgment",              sim_propertytype_string,    0, "Acknowledgment", "Model acknowledgment") \
-    FUNCX(propObject_dna,                     "dna",                              sim_propertytype_buffer,    sim_propertyinfo_notwritable, "DNA", "Scene object DNA") \
-    FUNCX(propObject_persistentUid,           "persistentUid",                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Persistent UID", "Scene object persistent unique identifier") \
-    FUNCX(propObject_calcLinearVelocity,      "calcLinearVelocity",               sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Linear velocity", "Calculated scene object linear velocity vector") \
-    FUNCX(propObject_calcRotationAxis,        "calcRotationAxis",                 sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Rotation axis", "Calculated scene object rotation axis") \
-    FUNCX(propObject_calcRotationVelocity,    "calcRotationVelocity",             sim_propertytype_float,     sim_propertyinfo_notwritable, "Rotation velocity", "Calculated scene object rotation velocity") \
-    FUNCX(propObject_dynamicIcon,             "dynamicIcon",                      sim_propertytype_int,       sim_propertyinfo_notwritable, "Dynamic icon", "") \
-    FUNCX(propObject_dynamicFlag,             "dynamicFlag",                      sim_propertytype_int,       sim_propertyinfo_notwritable, "Dynamic flag", "") \
-    FUNCX(propObject_objectProperty,          "objectPropertyFlags", /*redund.*/  sim_propertytype_int,       0, "Object flags", "Scene object flags, redundant") \
-    FUNCX(propObject_ignoreViewFitting,       "ignoreViewFitting",                sim_propertytype_bool,      0, "Ignore view fitting", "View fitting is ignored for this scene object") \
-    FUNCX(propObject_collapsed,               "collapsed",                        sim_propertytype_bool,      0, "Collapsed hierarchy", "") \
-    FUNCX(propObject_selectable,              "selectable",                       sim_propertytype_bool,      0, "Selectable", "Scene object is selectable") \
-    FUNCX(propObject_selectModel,             "selectModel",                      sim_propertytype_bool,      0, "Select model instead", "Selecting the scene object instead selects the parent model") \
-    FUNCX(propObject_hideFromModelBB,         "hideFromModelBB",                  sim_propertytype_bool,      0, "Hide from model bounding box", "Scene object is not part of a parent model's bounding box") \
-    FUNCX(propObject_selectInvisible,         "selectInvisible",                  sim_propertytype_bool,      0, "Select invisible", "Scene object is invisible during a selection operation") \
-    FUNCX(propObject_depthInvisible,          "depthInvisible",                   sim_propertytype_bool,      0, "Depth pass invisible", "Scene object is invisible for the depth buffer during a click operation") \
-    FUNCX(propObject_cannotDelete,            "cannotDelete",                     sim_propertytype_bool,      0, "Cannot delete", "Scene object cannot be deleted while simulation is not running") \
-    FUNCX(propObject_cannotDeleteSim,         "cannotDeleteInSim",                sim_propertytype_bool,      0, "Cannot delete during simulation", "Scene object cannot be deleted while simulation is running") \
-    FUNCX(propObject_modelProperty,           "modelPropertyFlags", /*redund.*/   sim_propertytype_int,       0, "Model flags", "Model flags, redundant") \
-    FUNCX(propObject_modelNotCollidable,      "modelNotCollidable",               sim_propertytype_bool,      0, "Model not collidable", "Model is not collidable") \
-    FUNCX(propObject_modelNotMeasurable,      "modelNotMeasurable",               sim_propertytype_bool,      0, "Model not measurable", "Model is not measurable") \
-    FUNCX(propObject_modelNotDetectable,      "modelNotDetectable",               sim_propertytype_bool,      0, "Model not detectable", "Model is not detectable") \
-    FUNCX(propObject_modelNotDynamic,         "modelNotDynamic",                  sim_propertytype_bool,      0, "Model not dynamic", "Model is not dynamic, i.e. model is static") \
-    FUNCX(propObject_modelNotRespondable,     "modelNotRespondable",              sim_propertytype_bool,      0, "Model not respondable", "Model is not respondable") \
-    FUNCX(propObject_modelNotVisible,         "modelNotVisible",                  sim_propertytype_bool,      0, "Model not visible", "Model is not visible") \
-    FUNCX(propObject_modelScriptsNotActive,   "modelScriptsNotActive",            sim_propertytype_bool,      0, "Model scripts inactive", "Model scripts are not active") \
-    FUNCX(propObject_modelNotInParentBB,      "modelNotInParentBB",               sim_propertytype_bool,      0, "Model invisible to other model's bounding boxes", "Model is invisible to other model's bounding boxes") \
-    FUNCX(propObject_pose,                    "pose",                             sim_propertytype_pose,      0, "Pose", "Scene object local pose") \
-    FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0, "Alias", "Scene object alias") \
-    FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      sim_propertyinfo_notwritable, "Bounding box pose", "Bounding box local pose") \
-    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Bounding box half sizes", "") \
-    FUNCX(propObject_movementOptions,         "movementOptionsFlags",             sim_propertytype_int,       0, "Movement flags", "Scene object movement flags") \
-    FUNCX(propObject_movTranslNoSim,          "movTranslNoSim",                   sim_propertytype_bool,      0, "Translation enabled", "Translation enabled when simulation is not running") \
-    FUNCX(propObject_movTranslInSim,          "movTranslInSim",                   sim_propertytype_bool,      0, "Translation enabled during simulation", "Translation enabled when simulation is running") \
-    FUNCX(propObject_movRotNoSim,             "movRotNoSim",                      sim_propertytype_bool,      0, "Rotation enabled", "Rotation enabled when simulation is not running") \
-    FUNCX(propObject_movRotInSim,             "movRotInSim",                      sim_propertytype_bool,      0, "Rotation enabled during simulation", "Rotation enabled when simulation is running") \
-    FUNCX(propObject_movAltTransl,            "movAltTransl",                     sim_propertytype_bool,      0, "Alternate translation axes enabled", "") \
-    FUNCX(propObject_movAltRot,               "movAltRot",                        sim_propertytype_bool,      0, "Alternate rotation axes enabled", "") \
-    FUNCX(propObject_movementPreferredAxes,   "movementPreferredAxesFlags",       sim_propertytype_int,       0, "Preferred axes", "Preferred axes flags (redundant)") \
-    FUNCX(propObject_movPrefTranslX,          "movPrefTranslX",                   sim_propertytype_bool,      0, "Preferred X-translation", "") \
-    FUNCX(propObject_movPrefTranslY,          "movPrefTranslY",                   sim_propertytype_bool,      0, "Preferred Y-translation", "") \
-    FUNCX(propObject_movPrefTranslZ,          "movPrefTranslZ",                   sim_propertytype_bool,      0, "Preferred Z-translation", "") \
-    FUNCX(propObject_movPrefRotX,             "movPrefRotX",                      sim_propertytype_bool,      0, "Preferred X-axis rotation", "") \
-    FUNCX(propObject_movPrefRotY,             "movPrefRotY",                      sim_propertytype_bool,      0, "Preferred Y-axis rotation", "") \
-    FUNCX(propObject_movPrefRotZ,             "movPrefRotZ",                      sim_propertytype_bool,      0, "Preferred Z-axis rotation", "") \
-    FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_floatarray,0, "Movement step sizes", "Linear and angular step sizes") \
-    FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intarray,  0, "Movement relativity", "Movement relativity, linear and angular") \
-    FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "Type", "Scene object type") \
-    FUNCX(propObject_visible,                 "visible",                          sim_propertytype_bool,      sim_propertyinfo_notwritable, "Visible", "Whether the scene object is currently visible") \
+#define DEFINE_PROPERTIES                                                                                                                                                                         \
+    FUNCX(propObject_modelInvisible, "modelInvisible", sim_propertytype_bool, sim_propertyinfo_notwritable, "Inherited model invisibility", "")                                                   \
+    FUNCX(propObject_modelBase, "modelBase", sim_propertytype_bool, 0, "Model base", "Model base flag, indicates the scene object is the base of a model")                                        \
+    FUNCX(propObject_layer, "layer", sim_propertytype_int, 0, "Visibility layer", "")                                                                                                             \
+    FUNCX(propObject_childOrder, "childOrder", sim_propertytype_int, sim_propertyinfo_notwritable, "Child order", "")                                                                             \
+    FUNCX(propObject_parentUid, "parentUid", sim_propertytype_long, sim_propertyinfo_notwritable, "Parent UID", "Parent scene object unique identifier")                                          \
+    FUNCX(propObject_objectUid, "objectUid", sim_propertytype_long, sim_propertyinfo_notwritable, "Object UID", "Scene object unique identifier")                                                 \
+    FUNCX(propObject_parentHandle, "parentHandle", sim_propertytype_int, sim_propertyinfo_notwritable, "Parent", "Parent scene object handle")                                                    \
+    FUNCX(propObject_selected, "selected", sim_propertytype_bool, 0, "Selected", "Selection state")                                                                                               \
+    FUNCX(propObject_hierarchyColor, "hierarchyColor", sim_propertytype_int, 0, "Hierarchy color", "Hierarchy color index")                                                                       \
+    FUNCX(propObject_collectionSelfCollInd, "collectionSelfCollisionIndicator", sim_propertytype_int, 0, "Collection self collision indicator", "")                                               \
+    FUNCX(propObject_collidable, "collidable", sim_propertytype_bool, 0, "Collidable", "")                                                                                                        \
+    FUNCX(propObject_measurable, "measurable", sim_propertytype_bool, 0, "Measurable", "")                                                                                                        \
+    FUNCX(propObject_detectable, "detectable", sim_propertytype_bool, 0, "Detectable", "")                                                                                                        \
+    FUNCX(propObject_modelAcknowledgment, "modelAcknowledgment", sim_propertytype_string, 0, "Acknowledgment", "Model acknowledgment")                                                            \
+    FUNCX(propObject_dna, "dna", sim_propertytype_buffer, sim_propertyinfo_notwritable, "DNA", "Scene object DNA")                                                                                \
+    FUNCX(propObject_persistentUid, "persistentUid", sim_propertytype_string, sim_propertyinfo_notwritable, "Persistent UID", "Scene object persistent unique identifier")                        \
+    FUNCX(propObject_calcLinearVelocity, "calcLinearVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Linear velocity", "Calculated scene object linear velocity vector")       \
+    FUNCX(propObject_calcRotationAxis, "calcRotationAxis", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Rotation axis", "Calculated scene object rotation axis")                      \
+    FUNCX(propObject_calcRotationVelocity, "calcRotationVelocity", sim_propertytype_float, sim_propertyinfo_notwritable, "Rotation velocity", "Calculated scene object rotation velocity")        \
+    FUNCX(propObject_dynamicIcon, "dynamicIcon", sim_propertytype_int, sim_propertyinfo_notwritable, "Dynamic icon", "")                                                                          \
+    FUNCX(propObject_dynamicFlag, "dynamicFlag", sim_propertytype_int, sim_propertyinfo_notwritable, "Dynamic flag", "")                                                                          \
+    FUNCX(propObject_objectProperty, "objectPropertyFlags", /*redund.*/ sim_propertytype_int, 0, "Object flags", "Scene object flags, redundant")                                                 \
+    FUNCX(propObject_ignoreViewFitting, "ignoreViewFitting", sim_propertytype_bool, 0, "Ignore view fitting", "View fitting is ignored for this scene object")                                    \
+    FUNCX(propObject_collapsed, "collapsed", sim_propertytype_bool, 0, "Collapsed hierarchy", "")                                                                                                 \
+    FUNCX(propObject_selectable, "selectable", sim_propertytype_bool, 0, "Selectable", "Scene object is selectable")                                                                              \
+    FUNCX(propObject_selectModel, "selectModel", sim_propertytype_bool, 0, "Select model instead", "Selecting the scene object instead selects the parent model")                                 \
+    FUNCX(propObject_hideFromModelBB, "hideFromModelBB", sim_propertytype_bool, 0, "Hide from model bounding box", "Scene object is not part of a parent model's bounding box")                   \
+    FUNCX(propObject_selectInvisible, "selectInvisible", sim_propertytype_bool, 0, "Select invisible", "Scene object is invisible during a selection operation")                                  \
+    FUNCX(propObject_depthInvisible, "depthInvisible", sim_propertytype_bool, 0, "Depth pass invisible", "Scene object is invisible for the depth buffer during a click operation")               \
+    FUNCX(propObject_cannotDelete, "cannotDelete", sim_propertytype_bool, 0, "Cannot delete", "Scene object cannot be deleted while simulation is not running")                                   \
+    FUNCX(propObject_cannotDeleteSim, "cannotDeleteInSim", sim_propertytype_bool, 0, "Cannot delete during simulation", "Scene object cannot be deleted while simulation is running")             \
+    FUNCX(propObject_modelProperty, "modelPropertyFlags", /*redund.*/ sim_propertytype_int, 0, "Model flags", "Model flags, redundant")                                                           \
+    FUNCX(propObject_modelNotCollidable, "modelNotCollidable", sim_propertytype_bool, 0, "Model not collidable", "Model is not collidable")                                                       \
+    FUNCX(propObject_modelNotMeasurable, "modelNotMeasurable", sim_propertytype_bool, 0, "Model not measurable", "Model is not measurable")                                                       \
+    FUNCX(propObject_modelNotDetectable, "modelNotDetectable", sim_propertytype_bool, 0, "Model not detectable", "Model is not detectable")                                                       \
+    FUNCX(propObject_modelNotDynamic, "modelNotDynamic", sim_propertytype_bool, 0, "Model not dynamic", "Model is not dynamic, i.e. model is static")                                             \
+    FUNCX(propObject_modelNotRespondable, "modelNotRespondable", sim_propertytype_bool, 0, "Model not respondable", "Model is not respondable")                                                   \
+    FUNCX(propObject_modelNotVisible, "modelNotVisible", sim_propertytype_bool, 0, "Model not visible", "Model is not visible")                                                                   \
+    FUNCX(propObject_modelScriptsNotActive, "modelScriptsNotActive", sim_propertytype_bool, 0, "Model scripts inactive", "Model scripts are not active")                                          \
+    FUNCX(propObject_modelNotInParentBB, "modelNotInParentBB", sim_propertytype_bool, 0, "Model invisible to other model's bounding boxes", "Model is invisible to other model's bounding boxes") \
+    FUNCX(propObject_pose, "pose", sim_propertytype_pose, 0, "Pose", "Scene object local pose")                                                                                                   \
+    FUNCX(propObject_alias, "alias", sim_propertytype_string, 0, "Alias", "Scene object alias")                                                                                                   \
+    FUNCX(propObject_bbPose, "bbPose", sim_propertytype_pose, sim_propertyinfo_notwritable, "Bounding box pose", "Bounding box local pose")                                                       \
+    FUNCX(propObject_bbHsize, "bbHSize", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Bounding box half sizes", "")                                                                   \
+    FUNCX(propObject_movementOptions, "movementOptionsFlags", sim_propertytype_int, 0, "Movement flags", "Scene object movement flags")                                                           \
+    FUNCX(propObject_movTranslNoSim, "movTranslNoSim", sim_propertytype_bool, 0, "Translation enabled", "Translation enabled when simulation is not running")                                     \
+    FUNCX(propObject_movTranslInSim, "movTranslInSim", sim_propertytype_bool, 0, "Translation enabled during simulation", "Translation enabled when simulation is running")                       \
+    FUNCX(propObject_movRotNoSim, "movRotNoSim", sim_propertytype_bool, 0, "Rotation enabled", "Rotation enabled when simulation is not running")                                                 \
+    FUNCX(propObject_movRotInSim, "movRotInSim", sim_propertytype_bool, 0, "Rotation enabled during simulation", "Rotation enabled when simulation is running")                                   \
+    FUNCX(propObject_movAltTransl, "movAltTransl", sim_propertytype_bool, 0, "Alternate translation axes enabled", "")                                                                            \
+    FUNCX(propObject_movAltRot, "movAltRot", sim_propertytype_bool, 0, "Alternate rotation axes enabled", "")                                                                                     \
+    FUNCX(propObject_movementPreferredAxes, "movementPreferredAxesFlags", sim_propertytype_int, 0, "Preferred axes", "Preferred axes flags (redundant)")                                          \
+    FUNCX(propObject_movPrefTranslX, "movPrefTranslX", sim_propertytype_bool, 0, "Preferred X-translation", "")                                                                                   \
+    FUNCX(propObject_movPrefTranslY, "movPrefTranslY", sim_propertytype_bool, 0, "Preferred Y-translation", "")                                                                                   \
+    FUNCX(propObject_movPrefTranslZ, "movPrefTranslZ", sim_propertytype_bool, 0, "Preferred Z-translation", "")                                                                                   \
+    FUNCX(propObject_movPrefRotX, "movPrefRotX", sim_propertytype_bool, 0, "Preferred X-axis rotation", "")                                                                                       \
+    FUNCX(propObject_movPrefRotY, "movPrefRotY", sim_propertytype_bool, 0, "Preferred Y-axis rotation", "")                                                                                       \
+    FUNCX(propObject_movPrefRotZ, "movPrefRotZ", sim_propertytype_bool, 0, "Preferred Z-axis rotation", "")                                                                                       \
+    FUNCX(propObject_movementStepSize, "movementStepSize", sim_propertytype_floatarray, 0, "Movement step sizes", "Linear and angular step sizes")                                                \
+    FUNCX(propObject_movementRelativity, "movementRelativity", sim_propertytype_intarray, 0, "Movement relativity", "Movement relativity, linear and angular")                                    \
+    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable, "Type", "Scene object type")                                                                \
+    FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_notwritable, "Visible", "Whether the scene object is currently visible")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_sceneObject = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_sceneObject = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -120,20 +120,20 @@ class CSceneObject
     virtual void connect_oldIk();
     virtual void remove_oldIk();
 
-    virtual void addSpecializedObjectEventData(CCbor *ev);
-    virtual CSceneObject *copyYourself();
+    virtual void addSpecializedObjectEventData(CCbor* ev);
+    virtual CSceneObject* copyYourself();
     virtual void removeSceneDependencies();
     virtual void scaleObject(double scalingFactor);
     virtual bool scaleObjectNonIsometrically(double x, double y, double z);
-    virtual void serialize(CSer &ar);
+    virtual void serialize(CSer& ar);
 
-    virtual void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    virtual void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     virtual void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript,
                                             bool copyBuffer);
 
-    virtual void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    virtual void performScriptLoadingMapping(const std::map<int, int> *map);
-    virtual void performTextureObjectLoadingMapping(const std::map<int, int> *map);
+    virtual void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    virtual void performScriptLoadingMapping(const std::map<int, int>* map);
+    virtual void performTextureObjectLoadingMapping(const std::map<int, int>* map);
 
     // Old:
     // -----------
@@ -141,12 +141,12 @@ class CSceneObject
     virtual void announceCollectionWillBeErased(int collectionID, bool copyBuffer);
     virtual void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     virtual void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
-    virtual void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    virtual void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    virtual void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    virtual void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    virtual void performGcsLoadingMapping(const std::map<int, int> *map);
-    virtual void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    virtual void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    virtual void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    virtual void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    virtual void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    virtual void performGcsLoadingMapping(const std::map<int, int>* map);
+    virtual void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     // -----------
 
     virtual void simulationAboutToStart();
@@ -162,9 +162,9 @@ class CSceneObject
     virtual bool isPotentiallyDetectable() const;
     virtual bool isPotentiallyRenderable() const;
 
-    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool *available = nullptr) const;
+    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const;
     virtual C7Vector getFullLocalTransformation() const;
-    virtual bool setParent(CSceneObject *parent);
+    virtual bool setParent(CSceneObject* parent);
     virtual void setObjectHandle(int newObjectHandle);
     virtual bool canDestroyNow();
     virtual void setIsInScene(bool s);
@@ -199,16 +199,15 @@ class CSceneObject
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
-    static  int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);
+    static int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);
     virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_bstatic(const char* pName, int& info, std::string& infoTxt);
-
 
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
 
     int getObjectType() const;
-    CSceneObject *getParent() const;
+    CSceneObject* getParent() const;
     int getObjectHandle() const;
     long long int getObjectUid() const;
     bool getSelected() const;
@@ -217,7 +216,7 @@ class CSceneObject
     std::string getExtensionString() const;
     int getVisibilityLayer() const;
     int getChildOrder() const;
-    int getHierarchyTreeObjects(std::vector<CSceneObject *> &allObjects);
+    int getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects);
     std::string getObjectAlias() const;
     std::string getObjectAliasAndOrderIfRequired() const;
     std::string getObjectAliasAndHandle() const;
@@ -234,41 +233,41 @@ class CSceneObject
     C7Vector getFullCumulativeTransformation() const;
 
     void setChildOrder(int order);
-    void setExtensionString(const char *str);
+    void setExtensionString(const char* str);
     void setVisibilityLayer(int l);
-    void setObjectAlias_direct(const char *newAlias);
-    void setObjectName_direct_old(const char *newName);
-    void setObjectAltName_direct_old(const char *newAltName);
-    void setLocalTransformation(const C7Vector &tr);
-    void setLocalTransformation(const C4Vector &q);
-    void setLocalTransformation(const C3Vector &x);
+    void setObjectAlias_direct(const char* newAlias);
+    void setObjectName_direct_old(const char* newName);
+    void setObjectAltName_direct_old(const char* newAltName);
+    void setLocalTransformation(const C7Vector& tr);
+    void setLocalTransformation(const C4Vector& q);
+    void setLocalTransformation(const C3Vector& x);
 
     void recomputeModelInfluencedValues(int overrideFlags = -1);
     void setObjectUniqueId();
     void setSelected(bool s); // doesn't generate a sync msg
-    void setParentPtr(CSceneObject *parent);
+    void setParentPtr(CSceneObject* parent);
 
-    int getScriptsInTree(std::vector<SScriptInfo> & scripts, int scriptType, bool legacyEmbeddedScripts, int depth = 0);
-    void getScriptsInChain(std::vector<int> & scripts, int scriptType, bool legacyEmbeddedScripts);
-    size_t getAttachedScripts(std::vector<CScriptObject*> & scripts, int scriptType, bool legacyEmbeddedScripts);
+    int getScriptsInTree(std::vector<SScriptInfo>& scripts, int scriptType, bool legacyEmbeddedScripts, int depth = 0);
+    void getScriptsInChain(std::vector<int>& scripts, int scriptType, bool legacyEmbeddedScripts);
+    size_t getAttachedScripts(std::vector<CScriptObject*>& scripts, int scriptType, bool legacyEmbeddedScripts);
 
     void scalePosition(double scalingFactor);
-    void getAllObjectsRecursive(std::vector<CSceneObject *> *objectList, bool baseIncluded = true,
+    void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList, bool baseIncluded = true,
                                 bool start = true) const;
-    void getChain(std::vector<CSceneObject *> &objectList, bool tipIncluded = true, bool start = true) const;
+    void getChain(std::vector<CSceneObject*>& objectList, bool tipIncluded = true, bool start = true) const;
 
-    void setReferencedHandles(size_t cnt, const int *handles, const char* tag);
+    void setReferencedHandles(size_t cnt, const int* handles, const char* tag);
     size_t getReferencedHandlesCount(const char* tag) const;
-    size_t getReferencedHandles(int *handles, const char* tag) const;
+    size_t getReferencedHandles(int* handles, const char* tag) const;
     void getReferencedHandlesTags(std::vector<std::string>& tags) const;
-    void setReferencedOriginalHandles(int cnt, const int *handles, const char* tag);
+    void setReferencedOriginalHandles(int cnt, const int* handles, const char* tag);
     size_t getReferencedOriginalHandlesCount(const char* tag) const;
-    size_t getReferencedOriginalHandles(int *handles, const char* tag) const;
+    size_t getReferencedOriginalHandles(int* handles, const char* tag) const;
     void getReferencedOriginalHandlesTags(std::vector<std::string>& tags) const;
-    void checkReferencesToOriginal(const std::map<std::string, int> &allUniquePersistentIdStrings);
+    void checkReferencesToOriginal(const std::map<std::string, int>& allUniquePersistentIdStrings);
 
-    CSceneObject *getFirstParentInSelection(const std::vector<CSceneObject *> *sel) const;
-    CSceneObject *getLastParentInSelection(const std::vector<CSceneObject *> *sel) const;
+    CSceneObject* getFirstParentInSelection(const std::vector<CSceneObject*>* sel) const;
+    CSceneObject* getLastParentInSelection(const std::vector<CSceneObject*>* sel) const;
     void setDynamicFlag(int flag);
     int getDynamicFlag() const;
 
@@ -276,7 +275,7 @@ class CSceneObject
     int getSpecificLight() const;
     bool setBeforeDeleteCallbackSent();
 
-    bool getModelBB(const C7Vector &baseCoordInv, C3Vector &minV, C3Vector &maxV, bool first);
+    bool getModelBB(const C7Vector& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first);
 
     int getModelSelectionHandle(bool firstObject = true);
 
@@ -295,16 +294,16 @@ class CSceneObject
     void setObjectMovementStepSize(int index, double s);
     double getObjectMovementStepSize(int index) const;
 
-    void writeCustomDataBlock(bool tmpData, const char *dataName, const char *data, size_t dataLength);
-    std::string readCustomDataBlock(bool tmpData, const char *dataName) const;
-    std::string getAllCustomDataBlockTags(bool tmpData, size_t *cnt) const;
-    bool getCustomDataEvents(std::map<std::string, bool> &dataEvents);
+    void writeCustomDataBlock(bool tmpData, const char* dataName, const char* data, size_t dataLength);
+    std::string readCustomDataBlock(bool tmpData, const char* dataName) const;
+    std::string getAllCustomDataBlockTags(bool tmpData, size_t* cnt) const;
+    bool getCustomDataEvents(std::map<std::string, bool>& dataEvents);
     void clearCustomDataEvents();
 
     void clearObjectCustomData_old();
     int getObjectCustomDataLength_old(int header) const;
-    void setObjectCustomData_old(int header, const char *data, int dataLength);
-    void getObjectCustomData_old(int header, char *data) const;
+    void setObjectCustomData_old(int header, const char* data, int dataLength);
+    void getObjectCustomData_old(int header, char* data) const;
 
     int getParentCount() const;
 
@@ -348,37 +347,37 @@ class CSceneObject
     bool isObjectInVisibleLayer() const;
     bool isObjectPartOfInvisibleModel() const;
 
-    void setModelAcknowledgement(const char *a);
+    void setModelAcknowledgement(const char* a);
     std::string getModelAcknowledgement() const;
 
     bool getShouldObjectBeDisplayed(int viewableHandle, int displayAttrib);
 
-    void setAssemblingLocalTransformation(const C7Vector &tr);
+    void setAssemblingLocalTransformation(const C7Vector& tr);
     C7Vector getAssemblingLocalTransformation() const;
     void setAssemblingLocalTransformationIsUsed(bool u);
     bool getAssemblingLocalTransformationIsUsed();
-    void setAssemblyMatchValues(bool asChild, const char *str);
+    void setAssemblyMatchValues(bool asChild, const char* str);
     std::string getAssemblyMatchValues(bool asChild) const;
-    const std::vector<std::string> *getChildAssemblyMatchValuesPointer() const;
-    int getAllChildrenThatMayBecomeAssemblyParent(const std::vector<std::string> *assemblingChildMatchValues,
-                                                  std::vector<CSceneObject *> &objects) const;
-    bool doesParentAssemblingMatchValuesMatchWithChild(const std::vector<std::string> *assemblingChildMatchValues,
+    const std::vector<std::string>* getChildAssemblyMatchValuesPointer() const;
+    int getAllChildrenThatMayBecomeAssemblyParent(const std::vector<std::string>* assemblingChildMatchValues,
+                                                  std::vector<CSceneObject*>& objects) const;
+    bool doesParentAssemblingMatchValuesMatchWithChild(const std::vector<std::string>* assemblingChildMatchValues,
                                                        bool ignoreDefaultNames = false) const;
 
     void generateDnaString();
     std::string getDnaString() const;
     std::string getUniquePersistentIdString() const;
-    void setCopyString(const char *str);
+    void setCopyString(const char* str);
     std::string getCopyString() const;
 
     size_t getChildCount() const;
-    CSceneObject *getChildFromIndex(size_t index) const;
-    const std::vector<CSceneObject *> *getChildren() const;
-    void addChild(CSceneObject *child);
-    bool removeChild(const CSceneObject *child);
+    CSceneObject* getChildFromIndex(size_t index) const;
+    const std::vector<CSceneObject*>* getChildren() const;
+    void addChild(CSceneObject* child);
+    bool removeChild(const CSceneObject* child);
     void handleOrderIndexOfChildren();
-    int getChildSequence(const CSceneObject *child, int* totalSiblings = nullptr) const;
-    bool setChildSequence(CSceneObject *child, int order);
+    int getChildSequence(const CSceneObject* child, int* totalSiblings = nullptr) const;
+    bool setChildSequence(CSceneObject* child, int order);
 
     void setHierarchyColorIndex(int c);
     int getHierarchyColorIndex() const;
@@ -394,31 +393,31 @@ class CSceneObject
 
     void setForceAlwaysVisible_tmp(bool force);
 
-    void setAbsoluteTransformation(const C7Vector &v);
-    void setAbsoluteTransformation(const C4Vector &q);
-    void setAbsoluteTransformation(const C3Vector &x);
+    void setAbsoluteTransformation(const C7Vector& v);
+    void setAbsoluteTransformation(const C4Vector& q);
+    void setAbsoluteTransformation(const C3Vector& x);
 
     int getIkPluginCounterpartHandle() const;
 
     std::string getDisplayName() const;
-    bool hasAncestor(const CSceneObject *potentialAncestor) const;
+    bool hasAncestor(const CSceneObject* potentialAncestor) const;
 
     void setParentHandle_forSerializationOnly(int pHandle);
 
-    void getFirstModelRelatives(std::vector<CSceneObject *> &firstModelRelatives, bool visibleModelsOnly) const;
+    void getFirstModelRelatives(std::vector<CSceneObject*>& firstModelRelatives, bool visibleModelsOnly) const;
     int countFirstModelRelatives(bool visibleModelsOnly) const;
     std::string getObjectTempAlias() const;
     std::string getObjectTempName_old() const;
     std::string getObjectTempAltName_old() const;
-    void acquireCommonPropertiesFromObject_simpleXMLLoading(const CSceneObject *obj);
-    CUserParameters *getUserScriptParameterObject();
-    void setUserScriptParameterObject(CUserParameters *obj);
+    void acquireCommonPropertiesFromObject_simpleXMLLoading(const CSceneObject* obj);
+    CUserParameters* getUserScriptParameterObject();
+    void setUserScriptParameterObject(CUserParameters* obj);
 
     void setIgnorePosAndCameraOrthoviewSize_forUndoRedo(bool s);
 
     void pushObjectCreationEvent();
     void pushObjectRefreshEvent();
-    C7Vector getBB(C3Vector *bbHalfSize) const;
+    C7Vector getBB(C3Vector* bbHalfSize) const;
     C3Vector getBBHSize() const;
 
     CCustomData customObjectData;
@@ -427,8 +426,8 @@ class CSceneObject
   protected:
     void _setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang, const C3Vector& rotAxis, double angle);
     void _setModelInvisible(bool inv);
-    void _setBB(const C7Vector &bbFrame, const C3Vector &bbHalfSize);
-    void _addCommonObjectEventData(CCbor *ev) const;
+    void _setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize);
+    void _addCommonObjectEventData(CCbor* ev) const;
 
     int _objectHandle;
     long long int _objectUid; // valid for a given session (non-persistent)
@@ -441,12 +440,12 @@ class CSceneObject
     std::string _objectAlias;
     C7Vector _localTransformation;
 
-    std::vector<CSceneObject *> _childList;
+    std::vector<CSceneObject*> _childList;
     C7Vector _assemblingLocalTransformation; // When assembling this object
     bool _assemblingLocalTransformationIsUsed;
     std::vector<std::string> _assemblyMatchValuesChild;
     std::vector<std::string> _assemblyMatchValuesParent;
-    CSceneObject *_parentObject;
+    CSceneObject* _parentObject;
     int _objectType;
     int _objectProperty;
     bool _modelBase;
@@ -488,9 +487,9 @@ class CSceneObject
 
     bool _objectMovementPreferredAxesPreviousCtrlKeyDown;
 
-    int _objectMovementPreferredAxes; // bits 0-2: position x,y,z, bits 3-5: Euler e9,e1,e2
-    int _objectMovementOptions;       // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running,
-                                      // bit2&bit3: same but for rotations, bit4: alt dir transl forbidden, bit5: alt dir rot forbidden
+    int _objectMovementPreferredAxes;  // bits 0-2: position x,y,z, bits 3-5: Euler e9,e1,e2
+    int _objectMovementOptions;        // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running,
+                                       // bit2&bit3: same but for rotations, bit4: alt dir transl forbidden, bit5: alt dir rot forbidden
     double _objectMovementStepSize[2]; // 0.0= use app default
     int _objectMovementRelativity[2];  // 0=world, 1=parent, 2=own frame
     C7Vector _bbFrame;
@@ -514,10 +513,10 @@ class CSceneObject
     unsigned char _objectManipulationMode_flaggedForGridOverlay; // is the rotation or translation axis index + 8 if it
                                                                  // is a rotation, or +16 if it is a translation
 
-    CCustomData_old *_customObjectData_old;
+    CCustomData_old* _customObjectData_old;
     std::map<std::string, std::vector<SCustomRefs>> _customReferencedHandles;
     std::map<std::string, std::vector<SCustomOriginalRefs>> _customReferencedOriginalHandles;
-    CUserParameters *_userScriptParameters;
+    CUserParameters* _userScriptParameters;
 
     // Other variables
     int _mechanismID; // don't serialize!
@@ -541,19 +540,19 @@ class CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    virtual void displayFrames(CViewableBase *renderingObject, double size, bool persp);
-    virtual void displayBoundingBox(CViewableBase *renderingObject, bool mainSelection);
-    virtual void display(CViewableBase *renderingObject, int displayAttrib);
-    void displayManipulationModeOverlayGrid(CViewableBase *renderingObject, double size, bool persp);
-    bool setLocalTransformationFromObjectRotationMode(const C4X4Matrix &cameraAbsConf, double rotationAmount,
+    virtual void displayFrames(CViewableBase* renderingObject, double size, bool persp);
+    virtual void displayBoundingBox(CViewableBase* renderingObject, bool mainSelection);
+    virtual void display(CViewableBase* renderingObject, int displayAttrib);
+    void displayManipulationModeOverlayGrid(CViewableBase* renderingObject, double size, bool persp);
+    bool setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf, double rotationAmount,
                                                       bool perspective, int eventID);
-    bool setLocalTransformationFromObjectTranslationMode(const C4X4Matrix &cameraAbsConf,
-                                                         const C3Vector &clicked3DPoint, double prevPos[2],
+    bool setLocalTransformationFromObjectTranslationMode(const C4X4Matrix& cameraAbsConf,
+                                                         const C3Vector& clicked3DPoint, double prevPos[2],
                                                          double pos[2], double screenHalfSizes[2], double halfSizes[2],
                                                          bool perspective, int eventID);
 #endif
 
   private:
-    void _setLocalTransformation_send(const C7Vector &tr) const;
+    void _setLocalTransformation_send(const C7Vector& tr) const;
     void _setParent_send(int parentHandle) const;
 };

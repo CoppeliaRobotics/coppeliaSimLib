@@ -8,11 +8,11 @@
 #include <QColor>
 #include <QtCore/QBuffer>
 
-unsigned char *CImageLoaderSaver::load(const char *filename, int *resX, int *resY, int *colorComponents,
+unsigned char* CImageLoaderSaver::load(const char* filename, int* resX, int* resY, int* colorComponents,
                                        int desiredColorComponents, int scaleTo)
 { // scaleTo is 0 by default (no scaling). ScaleTo should be a power of 2!
     std::string ext(utils::getLowerCaseString(VVarious::splitPath_fileExtension(filename).c_str()));
-    unsigned char *data = nullptr;
+    unsigned char* data = nullptr;
     if ((ext.compare("tga") == 0) || (ext.compare("gif") == 0))
     {
         data = stbi_load(filename, resX, resY, colorComponents, desiredColorComponents);
@@ -53,7 +53,7 @@ unsigned char *CImageLoaderSaver::load(const char *filename, int *resX, int *res
     }
     if ((scaleTo != 0) && (data != nullptr))
     {
-        unsigned char *img = data;
+        unsigned char* img = data;
         int s[2];
         s[0] = resX[0];
         s[1] = resY[0];
@@ -91,18 +91,18 @@ unsigned char *CImageLoaderSaver::load(const char *filename, int *resX, int *res
     return (data);
 }
 
-unsigned char *CImageLoaderSaver::loadQTgaImageData(const char *fileAndPath, int &resX, int &resY, bool &rgba,
+unsigned char* CImageLoaderSaver::loadQTgaImageData(const char* fileAndPath, int& resX, int& resY, bool& rgba,
                                                     unsigned char invisibleColor[3], int bitsPerPixel[1])
 {
-    unsigned char *data = CTGAFormat::getQ_ImageData(fileAndPath, resX, resY, rgba, invisibleColor, bitsPerPixel);
+    unsigned char* data = CTGAFormat::getQ_ImageData(fileAndPath, resX, resY, rgba, invisibleColor, bitsPerPixel);
     return (data);
 }
 
-unsigned char *CImageLoaderSaver::getScaledImage(const unsigned char *originalImg, int colorComponents, int originalX,
+unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalImg, int colorComponents, int originalX,
                                                  int originalY, int newX, int newY)
 {
     QImage::Format f = QImage::Format_RGB888;
-    unsigned char *im = new unsigned char[originalX * originalY * colorComponents];
+    unsigned char* im = new unsigned char[originalX * originalY * colorComponents];
     if (colorComponents == 4)
     {
         f = QImage::Format_ARGB32;
@@ -124,7 +124,7 @@ unsigned char *CImageLoaderSaver::getScaledImage(const unsigned char *originalIm
         }
     }
     QImage image(im, originalX, originalY, originalX * colorComponents, f);
-    unsigned char *nim = new unsigned char[newX * newY * colorComponents];
+    unsigned char* nim = new unsigned char[newX * newY * colorComponents];
     QImage nimage(image.scaled(newX, newY, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     for (int j = 0; j < newY; j++)
@@ -151,12 +151,12 @@ unsigned char *CImageLoaderSaver::getScaledImage(const unsigned char *originalIm
     return (nim);
 }
 
-bool CImageLoaderSaver::transformImage(unsigned char *img, int resX, int resY, int options)
+bool CImageLoaderSaver::transformImage(unsigned char* img, int resX, int resY, int options)
 {
     int comp = 3;
     if (options & 1)
         comp = 4;
-    unsigned char *img2 = new unsigned char[resX * resY * comp];
+    unsigned char* img2 = new unsigned char[resX * resY * comp];
     for (int i = 0; i < resX * resY * comp; i++)
         img2[i] = img[i];
     for (int x = 0; x < resX; x++)
@@ -181,7 +181,7 @@ bool CImageLoaderSaver::transformImage(unsigned char *img, int resX, int resY, i
     return (true);
 }
 
-unsigned char *CImageLoaderSaver::getScaledImage(const unsigned char *originalImg, const int resolIn[2],
+unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalImg, const int resolIn[2],
                                                  int resolOut[2], int options)
 {
     int compIn = 3;
@@ -191,7 +191,7 @@ unsigned char *CImageLoaderSaver::getScaledImage(const unsigned char *originalIm
     if (options & 2)
         compOut = 4;
     QImage::Format f = QImage::Format_RGB888;
-    unsigned char *im = new unsigned char[resolIn[0] * resolIn[1] * compIn];
+    unsigned char* im = new unsigned char[resolIn[0] * resolIn[1] * compIn];
     if (compIn == 4)
     {
         f = QImage::Format_ARGB32;
@@ -224,7 +224,7 @@ unsigned char *CImageLoaderSaver::getScaledImage(const unsigned char *originalIm
     QImage nimage(image.scaled(resolOut[0], resolOut[1], aspectRatio, transform));
     resolOut[0] = nimage.width();
     resolOut[1] = nimage.height();
-    unsigned char *nim = new unsigned char[resolOut[0] * resolOut[1] * compOut];
+    unsigned char* nim = new unsigned char[resolOut[0] * resolOut[1] * compOut];
     for (int j = 0; j < resolOut[1]; j++)
     {
         for (int i = 0; i < resolOut[0]; i++)
@@ -249,11 +249,11 @@ unsigned char *CImageLoaderSaver::getScaledImage(const unsigned char *originalIm
     return (nim);
 }
 
-bool CImageLoaderSaver::save(const unsigned char *data, const int resolution[2], int options, const char *filename,
-                             int quality, std::string *buffer)
+bool CImageLoaderSaver::save(const unsigned char* data, const int resolution[2], int options, const char* filename,
+                             int quality, std::string* buffer)
 {
     bool retVal = false;
-    unsigned char *buff = nullptr;
+    unsigned char* buff = nullptr;
     QImage::Format format = QImage::Format_ARGB32;
     buff = new unsigned char[4 * resolution[0] * resolution[1]];
     int bytesPerPixel = 4;
@@ -308,13 +308,13 @@ bool CImageLoaderSaver::save(const unsigned char *data, const int resolution[2],
     return (retVal);
 }
 
-unsigned char *CImageLoaderSaver::load(int resolution[2], int options, const char *filename, void *reserved)
+unsigned char* CImageLoaderSaver::load(int resolution[2], int options, const char* filename, void* reserved)
 {
-    unsigned char *retVal = nullptr;
+    unsigned char* retVal = nullptr;
     QImage image;
     bool loadRes = false;
     if (reserved != nullptr)
-        loadRes = image.loadFromData((const unsigned char *)filename, ((int *)reserved)[0]);
+        loadRes = image.loadFromData((const unsigned char*)filename, ((int*)reserved)[0]);
     else
         loadRes = image.load(filename, 0);
 

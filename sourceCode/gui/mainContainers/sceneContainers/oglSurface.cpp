@@ -70,8 +70,8 @@ void COglSurface::setSurfaceSizeAndPosition(int sizeX, int sizeY, int posX, int 
     _readyToRender = true;
 }
 
-bool COglSurface::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int &objType, int &objID, int vSize[2],
-                                                  bool &viewIsPerspective)
+bool COglSurface::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int& objType, int& objID, int vSize[2],
+                                                  bool& viewIsPerspective)
 { // NOT FULLY IMPLEMENTED! objType=-1 --> not supported, 0 --> hierarchy, 1 --> 3DViewable
     int offx = 0;
     int offy = 0;
@@ -312,7 +312,7 @@ void COglSurface::mouseMove(int x, int y, bool passiveAndFocused)
     mousePreviousRelativePosition[1] = mouseRelativePosition[1];
 }
 
-int COglSurface::modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPosition)
+int COglSurface::modelDragMoveEvent(int xPos, int yPos, C3Vector* desiredModelPosition)
 {
     int offx = 0;
     int offy = 0;
@@ -388,7 +388,7 @@ bool COglSurface::rightMouseButtonDown(int x, int y)
     }
     return (false); // Nothing caught that action
 }
-void COglSurface::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow)
+void COglSurface::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow)
 {
     int offx = 0;
     int offy = 0;
@@ -505,7 +505,7 @@ bool COglSurface::isViewSelectionActive()
     return (viewSelectionActive);
 }
 
-unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int mousePos[2], int *frameResol)
+unsigned char* COglSurface::render(int currentCursor, int mouseButtonState, int mousePos[2], int* frameResol)
 {
     TRACE_INTERNAL;
     if (!_readyToRender)
@@ -540,7 +540,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
             if (t & SHAPE_EDIT_MODE)
             {
                 std::string objName("ERROR");
-                CShape *theShape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+                CShape* theShape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 if (theShape != nullptr)
                     objName = theShape->getObjectAlias_printPath();
                 if (t & VERTEX_EDIT_MODE)
@@ -554,7 +554,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
             if (t & PATH_EDIT_MODE_OLD)
             {
                 std::string objName("  ERROR");
-                CPath_old *thePath = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+                CPath_old* thePath = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
                 if (thePath != nullptr)
                     objName = thePath->getObjectAlias_printPath();
                 hierarchyTitle = "  Control points (";
@@ -562,7 +562,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
             }
 
             float txtCol[3] = {0.2f, 0.2f, 0.2f};
-            float *bkgrndCol = ogl::TITLE_BAR_COLOR;
+            float* bkgrndCol = ogl::TITLE_BAR_COLOR;
             VPoint size(_hierarchyWidth - BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,
                         BROWSER_HIERARCHY_TITLE_BAR_HEIGHT * GuiApp::sc);
             VPoint pos(b + size.x / 2, surfaceSize[1] - size.y / 2);
@@ -573,7 +573,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
             pos.x = b + _hierarchyWidth + (-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH / 2) * GuiApp::sc -
                     BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH;
             size.x = BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH * GuiApp::sc;
-            float *bkgrndCol2 = ogl::TITLE_BAR_BUTTON_COLOR;
+            float* bkgrndCol2 = ogl::TITLE_BAR_BUTTON_COLOR;
             buttonAttrib = sim_buttonproperty_button | sim_buttonproperty_enabled |
                            sim_buttonproperty_horizontallycentered | sim_buttonproperty_verticallycentered;
             if (_hierarchyClosingButtonDown)
@@ -765,7 +765,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
     //*************************************************
     static int prevResX = -1;
     static int prevResY = -1;
-    static char *buff = nullptr;
+    static char* buff = nullptr;
     delete[] buff;
     buff = nullptr;
     prevResX = -1;
@@ -775,7 +775,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
     {
         frameResol[0] = surfaceSize[0];
         frameResol[1] = surfaceSize[1];
-        unsigned char *img = new unsigned char[frameResol[0] * frameResol[1] * 3];
+        unsigned char* img = new unsigned char[frameResol[0] * frameResol[1] * 3];
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glReadPixels(0, 0, surfaceSize[0], surfaceSize[1], GL_RGB, GL_UNSIGNED_BYTE, img);
         glPixelStorei(GL_PACK_ALIGNMENT, 4); // important to restore! Really?
@@ -958,7 +958,7 @@ void COglSurface::actualizeAllSurfacesSizeAndPosition()
     viewSelector->setViewSizeAndPosition(surfaceSize[0], surfaceSize[1], surfacePosition[0], surfacePosition[1]);
 }
 
-void COglSurface::keyPress(int key, QWidget *mainWindow)
+void COglSurface::keyPress(int key, QWidget* mainWindow)
 {
     if (key == ESC_KEY)
         App::currentWorld->pageContainer->clearAllLastMouseDownViewIndex();

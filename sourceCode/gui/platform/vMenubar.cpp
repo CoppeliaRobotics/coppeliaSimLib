@@ -14,7 +14,7 @@ VMenu::~VMenu()
     clear();
 }
 
-void VMenu::appendMenuAndDetach(VMenu *childMenu, bool enabled, const char *label)
+void VMenu::appendMenuAndDetach(VMenu* childMenu, bool enabled, const char* label)
 {
     childMenu->_qMenu->setTitle(label);
     childMenu->_qMenu->setEnabled(enabled);
@@ -22,9 +22,9 @@ void VMenu::appendMenuAndDetach(VMenu *childMenu, bool enabled, const char *labe
     _children.push_back(childMenu);
 }
 
-void VMenu::appendMenuItem(bool enabled, bool checkMark, int commandID, const char *label, bool showCheckmarkSpot)
+void VMenu::appendMenuItem(bool enabled, bool checkMark, int commandID, const char* label, bool showCheckmarkSpot)
 {
-    QAction *action = _qMenu->addAction(label);
+    QAction* action = _qMenu->addAction(label);
     action->setEnabled(enabled);
     action->setCheckable(showCheckmarkSpot);
     action->setChecked(checkMark);
@@ -47,7 +47,7 @@ int VMenu::trackPopupMenu()
     return (-1);
 }
 
-QMenu *VMenu::getQMenu()
+QMenu* VMenu::getQMenu()
 {
     return (_qMenu);
 }
@@ -79,7 +79,7 @@ VMenubar::~VMenubar()
     clear();
 }
 
-void VMenubar::appendMenuAndDetach(VMenu *childMenu, bool enabled, const char *label)
+void VMenubar::appendMenuAndDetach(VMenu* childMenu, bool enabled, const char* label)
 {
     childMenu->getQMenu()->setTitle(label);
     childMenu->getQMenu()->setEnabled(enabled);
@@ -87,9 +87,9 @@ void VMenubar::appendMenuAndDetach(VMenu *childMenu, bool enabled, const char *l
     _children.push_back(childMenu);
 }
 
-void VMenubar::appendMenuItem(bool enabled, bool checkMark, int commandID, const char *label, bool showCheckmarkSpot)
+void VMenubar::appendMenuItem(bool enabled, bool checkMark, int commandID, const char* label, bool showCheckmarkSpot)
 {
-    QAction *action = _qMenubar->addAction(label);
+    QAction* action = _qMenubar->addAction(label);
     action->setEnabled(enabled);
     action->setCheckable(showCheckmarkSpot);
     action->setChecked(checkMark);
@@ -115,4 +115,3 @@ QMenuBar* VMenubar::getQMenubar()
 {
     return _qMenubar;
 }
-

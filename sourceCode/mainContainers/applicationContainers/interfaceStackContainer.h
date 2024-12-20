@@ -9,12 +9,12 @@ class CInterfaceStackContainer
     CInterfaceStackContainer();
     virtual ~CInterfaceStackContainer();
 
-    CInterfaceStack *createStack();
-    CInterfaceStack *createStackCopy(CInterfaceStack *original);
+    CInterfaceStack* createStack();
+    CInterfaceStack* createStackCopy(CInterfaceStack* original);
     bool destroyStack(int id);
-    bool destroyStack(CInterfaceStack *stack);
-    CInterfaceStack *getStack(int id);
+    bool destroyStack(CInterfaceStack* stack);
+    CInterfaceStack* getStack(int id);
 
   protected:
-    std::vector<CInterfaceStack *> _allStacks;
+    std::vector<CInterfaceStack*> _allStacks;
 };

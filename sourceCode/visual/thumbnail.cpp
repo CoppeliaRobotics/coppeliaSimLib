@@ -17,7 +17,7 @@ CThumbnail::~CThumbnail()
     delete[] _thumbnailRGBAImage;
 }
 
-void CThumbnail::compressThumbnail(const char *uncompressedRGBAImage, char *compressedRGBImage)
+void CThumbnail::compressThumbnail(const char* uncompressedRGBAImage, char* compressedRGBImage)
 {
     for (int i = 0; i < 128 * 64; i++)
     {
@@ -50,7 +50,7 @@ void CThumbnail::compressThumbnail(const char *uncompressedRGBAImage, char *comp
     }
 }
 
-void CThumbnail::uncompressThumbnail(const char *compressedRGBImage, char *uncompressedRGBAImage)
+void CThumbnail::uncompressThumbnail(const char* compressedRGBImage, char* uncompressedRGBAImage)
 {
     for (int i = 0; i < 128 * 64; i++)
     {
@@ -80,7 +80,7 @@ void CThumbnail::uncompressThumbnail(const char *compressedRGBImage, char *uncom
     }
 }
 
-bool CThumbnail::getCompressedImage(char *compressedRGBImage)
+bool CThumbnail::getCompressedImage(char* compressedRGBImage)
 {
     if (_thumbnailRGBAImage == nullptr)
         return (false);
@@ -88,12 +88,12 @@ bool CThumbnail::getCompressedImage(char *compressedRGBImage)
     return (true);
 }
 
-char *CThumbnail::getPointerToUncompressedImage()
+char* CThumbnail::getPointerToUncompressedImage()
 {
     return (_thumbnailRGBAImage);
 }
 
-void CThumbnail::setUncompressedThumbnailImage(const char *uncompressedRGBAImage, bool rgba, bool verticalFlip)
+void CThumbnail::setUncompressedThumbnailImage(const char* uncompressedRGBAImage, bool rgba, bool verticalFlip)
 {
     setRandomImage();
     if (verticalFlip)
@@ -139,7 +139,7 @@ void CThumbnail::setUncompressedThumbnailImage(const char *uncompressedRGBAImage
     _compressData = false;
 }
 
-void CThumbnail::setUncompressedThumbnailImageFromFloat(const float *uncompressedRGBAImage)
+void CThumbnail::setUncompressedThumbnailImageFromFloat(const float* uncompressedRGBAImage)
 {
     setRandomImage();
     for (int i = 0; i < 128 * 128 * 4; i++)
@@ -153,7 +153,7 @@ void CThumbnail::setRandomImage()
         _thumbnailRGBAImage = new char[128 * 128 * 4];
 }
 
-void CThumbnail::setCompressedThumbnailImage(const char *compressedRGBImage)
+void CThumbnail::setCompressedThumbnailImage(const char* compressedRGBImage)
 {
     setRandomImage();
     uncompressThumbnail(compressedRGBImage, _thumbnailRGBAImage);
@@ -167,7 +167,7 @@ void CThumbnail::clearThumbnailImage()
     _compressData = false;
 }
 
-bool CThumbnail::copyUncompressedImageToBuffer(char *buffer)
+bool CThumbnail::copyUncompressedImageToBuffer(char* buffer)
 {
     if (_thumbnailRGBAImage == nullptr)
         return (false);
@@ -181,16 +181,16 @@ bool CThumbnail::hasImage()
     return (_thumbnailRGBAImage != nullptr);
 }
 
-CThumbnail *CThumbnail::copyYourself()
+CThumbnail* CThumbnail::copyYourself()
 {
-    CThumbnail *newT = new CThumbnail();
+    CThumbnail* newT = new CThumbnail();
     if (_thumbnailRGBAImage != nullptr)
         newT->setUncompressedThumbnailImage(_thumbnailRGBAImage, true, false);
     newT->_compressData = _compressData;
     return (newT);
 }
 
-void CThumbnail::copyFrom(CThumbnail *it)
+void CThumbnail::copyFrom(CThumbnail* it)
 {
     if (it->_thumbnailRGBAImage == nullptr)
     {
@@ -206,8 +206,8 @@ void CThumbnail::copyFrom(CThumbnail *it)
     _compressData = it->_compressData;
 }
 
-void CThumbnail::serializeAdditionalModelInfos(CSer &ar, C7Vector &modelTr, C3Vector &modelBBSize,
-                                               double &modelNonDefaultTranslationStepSize)
+void CThumbnail::serializeAdditionalModelInfos(CSer& ar, C7Vector& modelTr, C3Vector& modelBBSize,
+                                               double& modelNonDefaultTranslationStepSize)
 {
     if (ar.isBinary())
     {
@@ -301,7 +301,7 @@ void CThumbnail::serializeAdditionalModelInfos(CSer &ar, C7Vector &modelTr, C3Ve
     }
 }
 
-void CThumbnail::serialize(CSer &ar, bool forceCompressedSaving /*=false*/)
+void CThumbnail::serialize(CSer& ar, bool forceCompressedSaving /*=false*/)
 {
     if (ar.isBinary())
     {
@@ -316,7 +316,7 @@ void CThumbnail::serialize(CSer &ar, bool forceCompressedSaving /*=false*/)
                 if (forceCompressedSaving || _compressData)
                 {
                     ar << (unsigned char)(1);
-                    char *compressedImage = new char[128 * 64 * 3];
+                    char* compressedImage = new char[128 * 64 * 3];
                     getCompressedImage(compressedImage);
                     for (int j = 0; j < 128 * 64 * 3; j++)
                         ar << compressedImage[j];
@@ -357,7 +357,7 @@ void CThumbnail::serialize(CSer &ar, bool forceCompressedSaving /*=false*/)
                             _compressData = (compressed != 0);
                             if (_compressData)
                             {
-                                char *compressedImage = new char[128 * 64 * 3];
+                                char* compressedImage = new char[128 * 64 * 3];
                                 for (int j = 0; j < 128 * 64 * 3; j++)
                                 {
                                     ar >> dum;
@@ -395,7 +395,7 @@ void CThumbnail::serialize(CSer &ar, bool forceCompressedSaving /*=false*/)
                             _compressData = (compressed != 0);
                             if (_compressData)
                             {
-                                char *compressedImage = new char[128 * 64 * 3];
+                                char* compressedImage = new char[128 * 64 * 3];
                                 for (int j = 0; j < 128 * 64 * 3; j++)
                                 {
                                     ar >> dum;
@@ -428,11 +428,11 @@ void CThumbnail::serialize(CSer &ar, bool forceCompressedSaving /*=false*/)
             {
                 if (ar.xmlSaveDataInline(128 * 128 * 4))
                 {
-                    std::string str(base64_encode((unsigned char *)_thumbnailRGBAImage, 128 * 128 * 4));
+                    std::string str(base64_encode((unsigned char*)_thumbnailRGBAImage, 128 * 128 * 4));
                     ar.xmlAddNode_string("data_base64Coded", str.c_str());
                 }
                 else
-                    ar.xmlAddNode_imageFile("file", "thumbnail", (unsigned char *)_thumbnailRGBAImage, 128, 128, true);
+                    ar.xmlAddNode_imageFile("file", "thumbnail", (unsigned char*)_thumbnailRGBAImage, 128, 128, true);
             }
         }
         else
@@ -460,7 +460,7 @@ void CThumbnail::serialize(CSer &ar, bool forceCompressedSaving /*=false*/)
 }
 
 #ifdef SIM_WITH_GUI
-void CThumbnail::display(int posX, int posY, const char *name, int sc)
+void CThumbnail::display(int posX, int posY, const char* name, int sc)
 {
     displayThumbnail(this, posX, posY, name, sc);
 }

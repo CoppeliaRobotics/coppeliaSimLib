@@ -64,8 +64,8 @@ void CDistanceObject_old::simulationAboutToStart()
 }
 
 void CDistanceObject_old::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
     {
         setExplicitHandling(_initialExplicitHandling);
@@ -120,7 +120,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     theName = theName.append(" (");
     if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity1Handle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity1Handle);
         int t = it->getObjectType();
         if (t == sim_sceneobject_shape)
             theName += IDSN_SHAPE;
@@ -135,7 +135,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     }
     else
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(_entity1Handle);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(_entity1Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -146,7 +146,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     theName = theName.append(" - ");
     if (_entity2Handle > SIM_IDEND_SCENEOBJECT)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(_entity2Handle);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(_entity2Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -158,7 +158,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     {
         if (_entity2Handle != -1)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity2Handle);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity2Handle);
             int t = it->getObjectType();
             if (t == sim_sceneobject_shape)
                 theName += IDSN_SHAPE;
@@ -178,10 +178,10 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     return (theName);
 }
 
-bool CDistanceObject_old::setObjectName(const char *newName, bool check)
+bool CDistanceObject_old::setObjectName(const char* newName, bool check)
 { // Overridden from _CDistanceObject_
     std::string nnn;
-    CDistanceObject_old *it = nullptr;
+    CDistanceObject_old* it = nullptr;
     if (check)
         it = App::currentWorld->distances_old->getObjectFromHandle(_objectHandle);
     if (it != this)
@@ -265,7 +265,7 @@ bool CDistanceObject_old::announceCollectionWillBeErased(int collectionHandle, b
     return (false);
 }
 
-void CDistanceObject_old::performObjectLoadingMapping(const std::map<int, int> *map)
+void CDistanceObject_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
         _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);
@@ -273,7 +273,7 @@ void CDistanceObject_old::performObjectLoadingMapping(const std::map<int, int> *
         _entity2Handle = CWorld::getLoadingMapping(map, _entity2Handle);
 }
 
-void CDistanceObject_old::performCollectionLoadingMapping(const std::map<int, int> *map)
+void CDistanceObject_old::performCollectionLoadingMapping(const std::map<int, int>* map)
 {
     if (_entity1Handle > SIM_IDEND_SCENEOBJECT)
         _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);
@@ -281,9 +281,9 @@ void CDistanceObject_old::performCollectionLoadingMapping(const std::map<int, in
         _entity2Handle = CWorld::getLoadingMapping(map, _entity2Handle);
 }
 
-CDistanceObject_old *CDistanceObject_old::copyYourself()
+CDistanceObject_old* CDistanceObject_old::copyYourself()
 {
-    CDistanceObject_old *newDistObj = new CDistanceObject_old();
+    CDistanceObject_old* newDistObj = new CDistanceObject_old();
     newDistObj->_objectHandle = _objectHandle; // important for copy operations connections
     newDistObj->_entity1Handle = _entity1Handle;
     newDistObj->_entity2Handle = _entity2Handle;
@@ -311,7 +311,7 @@ bool CDistanceObject_old::setSegmentWidth(int w)
     return (diff);
 }
 
-void CDistanceObject_old::serialize(CSer &ar)
+void CDistanceObject_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -451,7 +451,7 @@ void CDistanceObject_old::serialize(CSer &ar)
             ar.xmlPopNode();
 
             std::string str(
-                base64_encode((unsigned char *)_uniquePersistentIdString.c_str(), _uniquePersistentIdString.size()));
+                base64_encode((unsigned char*)_uniquePersistentIdString.c_str(), _uniquePersistentIdString.size()));
             ar.xmlAddNode_string("uniquePersistentIdString_base64Coded", str.c_str());
         }
         else
@@ -536,7 +536,7 @@ int CDistanceObject_old::getSegmentWidth() const
     return (_segmentWidth);
 }
 
-CColorObject *CDistanceObject_old::getSegmentColor()
+CColorObject* CDistanceObject_old::getSegmentColor()
 {
     return (&_segmentColor);
 }

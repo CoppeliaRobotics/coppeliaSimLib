@@ -81,7 +81,7 @@ void CSimpleFilter::setFilterType(int t)
     if (_filterType == sim_filtercomponent_keeporremovecolors_deprecated)
     {
         _byteParameters.push_back(
-            1 + 2); // bit 0: keep (otherwise remove), bit 1: rgb (otherwise hsl), bit 2: copy removed part to buffer 1
+            1 + 2);                       // bit 0: keep (otherwise remove), bit 1: rgb (otherwise hsl), bit 2: copy removed part to buffer 1
         _floatParameters.push_back(0.5);  // r or h value
         _floatParameters.push_back(0.5);  // g or s value
         _floatParameters.push_back(0.5);  // b or l value
@@ -197,7 +197,7 @@ int CSimpleFilter::getFilterType()
     return (_filterType);
 }
 
-void CSimpleFilter::serialize(CSer &ar)
+void CSimpleFilter::serialize(CSer& ar)
 {
     if (!ar.isStoring())
     { // Loading

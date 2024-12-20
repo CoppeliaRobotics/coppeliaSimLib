@@ -32,7 +32,7 @@ void CCommTubeContainer::simulationEnded()
     }
 }
 
-int CCommTubeContainer::openTube(int header, const char *identifier, bool killAtSimulationEnd, int readBufferSize)
+int CCommTubeContainer::openTube(int header, const char* identifier, bool killAtSimulationEnd, int readBufferSize)
 { // return value is the tube handle for this partner
     // 1. Check if a related tube exists:
     int tubeIndex = -1;
@@ -63,7 +63,7 @@ int CCommTubeContainer::openTube(int header, const char *identifier, bool killAt
         int retVal;
         retVal = 2 * _nextPartnerID + 0;
         _nextPartnerID++;
-        CCommTube *it = new CCommTube(header, identifier, retVal, killAtSimulationEnd, readBufferSize);
+        CCommTube* it = new CCommTube(header, identifier, retVal, killAtSimulationEnd, readBufferSize);
         _allTubes.push_back(it);
         return (retVal);
     }
@@ -94,7 +94,7 @@ int CCommTubeContainer::_getTubeIndexForHandle(int tubeHandle)
     return (-1);
 }
 
-bool CCommTubeContainer::writeToTube_copyBuffer(int tubeHandle, const char *data, int dataLength)
+bool CCommTubeContainer::writeToTube_copyBuffer(int tubeHandle, const char* data, int dataLength)
 {
     int index = _getTubeIndexForHandle(tubeHandle);
     if ((index == -1) || (dataLength == 0))
@@ -102,7 +102,7 @@ bool CCommTubeContainer::writeToTube_copyBuffer(int tubeHandle, const char *data
     if (!_allTubes[index]->isConnected()) // Added on 2011/01/06 (writing to a non-connected tube will otherwise result
                                           // in memory leak)
         return (false);
-    char *data2 = new char[dataLength];
+    char* data2 = new char[dataLength];
     for (int i = 0; i < dataLength; i++)
         data2[i] = data[i];
     bool retVal = _allTubes[index]->writeData(tubeHandle, data2, dataLength);
@@ -111,16 +111,16 @@ bool CCommTubeContainer::writeToTube_copyBuffer(int tubeHandle, const char *data
     return (retVal);
 }
 
-char *CCommTubeContainer::readFromTube_bufferNotCopied(int tubeHandle, int &dataLength)
+char* CCommTubeContainer::readFromTube_bufferNotCopied(int tubeHandle, int& dataLength)
 {
     int index = _getTubeIndexForHandle(tubeHandle);
     if (index == -1)
         return (nullptr);
-    char *retVal = _allTubes[index]->readData(tubeHandle, dataLength);
+    char* retVal = _allTubes[index]->readData(tubeHandle, dataLength);
     return (retVal);
 }
 
-int CCommTubeContainer::getTubeStatus(int tubeHandle, int &readBufferFill, int &writeBufferFill)
+int CCommTubeContainer::getTubeStatus(int tubeHandle, int& readBufferFill, int& writeBufferFill)
 {
     int index = _getTubeIndexForHandle(tubeHandle);
     if (index == -1)

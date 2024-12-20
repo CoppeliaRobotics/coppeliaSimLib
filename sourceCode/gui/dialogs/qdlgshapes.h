@@ -14,7 +14,7 @@ class CQDlgShapes : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgShapes(QWidget *parent = 0);
+    explicit CQDlgShapes(QWidget* parent = 0);
     ~CQDlgShapes();
 
     void refresh();
@@ -51,7 +51,7 @@ class CQDlgShapes : public CDlgEx
     void on_qqEditMultishape_clicked();
 
   private:
-    Ui::CQDlgShapes *ui;
+    Ui::CQDlgShapes* ui;
 };
 
 #endif // QDLGSHAPES_H

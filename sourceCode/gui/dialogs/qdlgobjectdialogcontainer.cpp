@@ -24,7 +24,7 @@
 
 #define TOP_BORDER_WIDTH 30
 
-CQDlgObjectDialogContainer::CQDlgObjectDialogContainer(QWidget *parent)
+CQDlgObjectDialogContainer::CQDlgObjectDialogContainer(QWidget* parent)
     : CDlgEx(parent), ui(new Ui::CQDlgObjectDialogContainer)
 {
     _dlgType = OBJECT_DLG;
@@ -67,7 +67,7 @@ CQDlgObjectDialogContainer::~CQDlgObjectDialogContainer()
     delete ui;
 }
 
-void CQDlgObjectDialogContainer::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CQDlgObjectDialogContainer::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     pageDlgs[currentPage]->dialogCallbackFunc(cmdIn, cmdOut);
 }
@@ -96,7 +96,7 @@ void CQDlgObjectDialogContainer::refresh()
 #endif
     }
 
-    CSceneObject *sel = App::currentWorld->sceneObjects->getLastSelectionObject();
+    CSceneObject* sel = App::currentWorld->sceneObjects->getLastSelectionObject();
     int editMode = GuiApp::getEditModeType();
     if (sel != nullptr)
     {

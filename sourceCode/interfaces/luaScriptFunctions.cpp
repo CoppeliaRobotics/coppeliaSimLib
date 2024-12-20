@@ -34,41 +34,41 @@
 
 std::map<std::string, QSystemSemaphore*> _systemSemaphores;
 
-#define LUA_START(funcName)                                                                                            \
-    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();                                                        \
-    std::string functionName(funcName);                                                                                \
-    std::string errorString;                                                                                           \
-    std::string warningString;                                                                                         \
+#define LUA_START(funcName)                                     \
+    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
+    std::string functionName(funcName);                         \
+    std::string errorString;                                    \
+    std::string warningString;                                  \
     bool cSideErrorOrWarningReporting = true;
 
-#define LUA_START_NO_CSIDE_ERROR(funcName)                                                                             \
-    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();                                                        \
-    std::string functionName(funcName);                                                                                \
-    std::string errorString;                                                                                           \
-    std::string warningString;                                                                                         \
+#define LUA_START_NO_CSIDE_ERROR(funcName)                      \
+    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
+    std::string functionName(funcName);                         \
+    std::string errorString;                                    \
+    std::string warningString;                                  \
     bool cSideErrorOrWarningReporting = false;
 
-#define LUA_END(p)                                                                                                     \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str(), cSideErrorOrWarningReporting);         \
-        CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();                                                        \
-        CApiErrors::getAndClearLastWarningOrError();                                                                   \
-        return (p);                                                                                                    \
+#define LUA_END(p)                                                                                             \
+    do                                                                                                         \
+    {                                                                                                          \
+        _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str(), cSideErrorOrWarningReporting); \
+        CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();                                            \
+        CApiErrors::getAndClearLastWarningOrError();                                                           \
+        return (p);                                                                                            \
     } while (0)
 
 typedef int (*_ccallback_t)(int);
 
-void _reportWarningsIfNeeded(luaWrap_lua_State *L, const char *functionName, const char *warningString,
+void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* warningString,
                              bool cSideErrorOrWarningReporting)
 {
     std::string warnStr(warningString);
     if ((warnStr.size() == 0) && cSideErrorOrWarningReporting)
         warnStr = CApiErrors::getAndClearThreadBasedFirstCapiWarning_old(); // without old threads, use
                                                                             // CApiErrors::getAndClearLastWarningOrError
-    if (warnStr.size() > 0) // without old threads, check and remove "warning@" in warnStr
+    if (warnStr.size() > 0)                                                 // without old threads, check and remove "warning@" in warnStr
     {
-        CScriptObject *it =
+        CScriptObject* it =
             App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         if (it != nullptr)
         {
@@ -86,7 +86,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State *L, const char *functionName, con
     }
 }
 
-void _raiseErrorIfNeeded(luaWrap_lua_State *L, const char *functionName, const char *errorString,
+void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* errorString,
                          bool cSideErrorOrWarningReporting)
 {
     std::string errStr(errorString);
@@ -96,7 +96,7 @@ void _raiseErrorIfNeeded(luaWrap_lua_State *L, const char *functionName, const c
     if (errStr.size() == 0)
         return;
     // without old threads, filter out "warning@" in errStr
-    CScriptObject *it =
+    CScriptObject* it =
         App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
@@ -116,7 +116,7 @@ void _raiseErrorIfNeeded(luaWrap_lua_State *L, const char *functionName, const c
     luaWrap_lua_error(L); // does a long jump and never returns
 }
 
-#define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED()                                                                           \
+#define LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED() \
     _raiseErrorIfNeeded(L, functionName.c_str(), errorString.c_str(), cSideErrorOrWarningReporting)
 
 const SLuaCommands simLuaCommands[] = {
@@ -719,7 +719,6 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.objecttype_texture", sim_objecttype_texture},
     {"sim.objecttype_mesh", sim_objecttype_mesh},
 
-
     // Simulation messages:
     {"sim.message_model_loaded", sim_message_model_loaded},
     {"sim.message_scene_loaded", sim_message_scene_loaded},
@@ -800,7 +799,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.scriptstringparam_name", sim_scriptstringparam_name},
     {"sim.scriptstringparam_text", sim_scriptstringparam_text},
     {"sim.scriptstringparam_nameext", sim_scriptstringparam_nameext},
-    {"sim.scriptstringparam_lang",sim_scriptstringparam_lang},
+    {"sim.scriptstringparam_lang", sim_scriptstringparam_lang},
     // script execution order:
     {"sim.scriptexecorder_first", sim_scriptexecorder_first},
     {"sim.scriptexecorder_normal", sim_scriptexecorder_normal},
@@ -2077,7 +2076,7 @@ const SLuaVariables simLuaVariables[] = {
 
     {"", -1}};
 
-void _registerTableFunction(luaWrap_lua_State *L, char const *const tableName, char const *const functionName,
+void _registerTableFunction(luaWrap_lua_State* L, char const* const tableName, char const* const functionName,
                             luaWrap_lua_CFunction functionCallback)
 {
     luaWrap_lua_rawgeti(L, luaWrapGet_LUA_REGISTRYINDEX(), luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
@@ -2096,7 +2095,7 @@ void _registerTableFunction(luaWrap_lua_State *L, char const *const tableName, c
     luaWrap_lua_pop(L, 1); // pop table of globals
 }
 
-void getFloatsFromTable(luaWrap_lua_State *L, int tablePos, size_t floatCount, float *arrayField)
+void getFloatsFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField)
 {
     for (size_t i = 0; i < floatCount; i++)
     {
@@ -2106,7 +2105,7 @@ void getFloatsFromTable(luaWrap_lua_State *L, int tablePos, size_t floatCount, f
     }
 }
 
-void getDoublesFromTable(luaWrap_lua_State *L, int tablePos, size_t doubleCount, double *arrayField)
+void getDoublesFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField)
 {
     for (size_t i = 0; i < doubleCount; i++)
     {
@@ -2116,7 +2115,7 @@ void getDoublesFromTable(luaWrap_lua_State *L, int tablePos, size_t doubleCount,
     }
 }
 
-bool getIntsFromTable(luaWrap_lua_State *L, int tablePos, size_t intCount, int *arrayField)
+bool getIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField)
 {
     for (size_t i = 0; i < intCount; i++)
     {
@@ -2132,7 +2131,7 @@ bool getIntsFromTable(luaWrap_lua_State *L, int tablePos, size_t intCount, int *
     return (true);
 }
 
-bool getUIntsFromTable(luaWrap_lua_State *L, int tablePos, size_t intCount, unsigned int *arrayField)
+bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField)
 {
     for (size_t i = 0; i < intCount; i++)
     {
@@ -2148,7 +2147,7 @@ bool getUIntsFromTable(luaWrap_lua_State *L, int tablePos, size_t intCount, unsi
     return (true);
 }
 
-bool getUCharsFromTable(luaWrap_lua_State *L, int tablePos, size_t intCount, unsigned char *arrayField)
+bool getUCharsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField)
 {
     for (size_t i = 0; i < intCount; i++)
     {
@@ -2164,7 +2163,7 @@ bool getUCharsFromTable(luaWrap_lua_State *L, int tablePos, size_t intCount, uns
     return (true);
 }
 
-void getCharBoolsFromTable(luaWrap_lua_State *L, int tablePos, size_t boolCount, char *arrayField)
+void getCharBoolsFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField)
 {
     for (size_t i = 0; i < boolCount; i++)
     {
@@ -2174,7 +2173,7 @@ void getCharBoolsFromTable(luaWrap_lua_State *L, int tablePos, size_t boolCount,
     }
 }
 
-void pushFloatTableOntoStack(luaWrap_lua_State *L, size_t floatCount, const float *arrayField)
+void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const float* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
@@ -2185,7 +2184,7 @@ void pushFloatTableOntoStack(luaWrap_lua_State *L, size_t floatCount, const floa
     }
 }
 
-void pushDoubleTableOntoStack(luaWrap_lua_State *L, size_t doubleCount, const double *arrayField)
+void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
@@ -2196,7 +2195,7 @@ void pushDoubleTableOntoStack(luaWrap_lua_State *L, size_t doubleCount, const do
     }
 }
 
-void pushIntTableOntoStack(luaWrap_lua_State *L, size_t intCount, const int *arrayField)
+void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
@@ -2207,7 +2206,7 @@ void pushIntTableOntoStack(luaWrap_lua_State *L, size_t intCount, const int *arr
     }
 }
 
-void pushUIntTableOntoStack(luaWrap_lua_State *L, size_t intCount, const unsigned int *arrayField)
+void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
@@ -2218,7 +2217,7 @@ void pushUIntTableOntoStack(luaWrap_lua_State *L, size_t intCount, const unsigne
     }
 }
 
-void pushUCharTableOntoStack(luaWrap_lua_State *L, size_t intCount, const unsigned char *arrayField)
+void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
@@ -2229,7 +2228,7 @@ void pushUCharTableOntoStack(luaWrap_lua_State *L, size_t intCount, const unsign
     }
 }
 
-void pushStringTableOntoStack(luaWrap_lua_State *L, const std::vector<std::string> &stringTable)
+void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
@@ -2240,7 +2239,7 @@ void pushStringTableOntoStack(luaWrap_lua_State *L, const std::vector<std::strin
     }
 }
 
-void pushBufferTableOntoStack(luaWrap_lua_State *L, const std::vector<std::string> &stringTable)
+void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
@@ -2251,23 +2250,23 @@ void pushBufferTableOntoStack(luaWrap_lua_State *L, const std::vector<std::strin
     }
 }
 
-int luaToInt(luaWrap_lua_State *L, int pos)
+int luaToInt(luaWrap_lua_State* L, int pos)
 {
     return ((int)luaWrap_lua_tointeger(L, pos));
 }
 
-double luaToDouble(luaWrap_lua_State *L, int pos)
+double luaToDouble(luaWrap_lua_State* L, int pos)
 {
     return (luaWrap_lua_tonumber(L, pos));
 }
 
-bool luaToBool(luaWrap_lua_State *L, int pos)
+bool luaToBool(luaWrap_lua_State* L, int pos)
 {
     return (luaWrap_lua_toboolean(L, pos) != 0);
 }
 
-int checkOneGeneralInputArgument(luaWrap_lua_State *L, int index, int type, int cnt_orZeroIfNotTable, bool optional,
-                                 bool nilInsteadOfTypeAndCountAllowed, std::string *errStr)
+int checkOneGeneralInputArgument(luaWrap_lua_State* L, int index, int type, int cnt_orZeroIfNotTable, bool optional,
+                                 bool nilInsteadOfTypeAndCountAllowed, std::string* errStr)
 { // return -1 means error, 0 means data is missing, 1 means data is nil, 2 means data is ok
     // if cnt_orZeroIfNotTable is -1, we are expecting a table, which could also be empty
     // 1. We check if there is something on the stack at that position:
@@ -2332,7 +2331,7 @@ int checkOneGeneralInputArgument(luaWrap_lua_State *L, int index, int type, int 
     }
 }
 
-bool checkOneInputArgument(luaWrap_lua_State *L, int index, int type, std::string *errStr)
+bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::string* errStr)
 {
     // 1. We check if there is something on the stack at that position:
     if (luaWrap_lua_gettop(L) < index)
@@ -2395,7 +2394,7 @@ bool checkOneInputArgument(luaWrap_lua_State *L, int index, int type, std::strin
         else
         {
             retVal = luaWrap_lua_isbuffer(L, index);
-            if ( (!retVal) && (errStr != nullptr) )
+            if ((!retVal) && (errStr != nullptr))
             {
                 std::ostringstream oss;
                 oss << "argument " << index << " is not a string/buffer.";
@@ -2449,7 +2448,7 @@ bool checkOneInputArgument(luaWrap_lua_State *L, int index, int type, std::strin
     return (false);
 }
 
-bool checkInputArguments(luaWrap_lua_State *L, std::string *errStr, int type1, int type1Cnt_zeroIfNotTable, int type2,
+bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int type1, int type1Cnt_zeroIfNotTable, int type2,
                          int type2Cnt_zeroIfNotTable, int type3, int type3Cnt_zeroIfNotTable, int type4,
                          int type4Cnt_zeroIfNotTable, int type5, int type5Cnt_zeroIfNotTable, int type6,
                          int type6Cnt_zeroIfNotTable, int type7, int type7Cnt_zeroIfNotTable, int type8,
@@ -2461,9 +2460,9 @@ bool checkInputArguments(luaWrap_lua_State *L, std::string *errStr, int type1, i
     // if typeXCnt_zeroIfNotTable is =-1 then we are expecting a table that can have any number of elements
     bool retVal = true;
     int inArgs[11] = {type1, type2, type3, type4, type5, type6, type7, type8, type9, type10, type11};
-    int inArgsCnt_zeroIfNotTable[11] = {type1Cnt_zeroIfNotTable,  type2Cnt_zeroIfNotTable, type3Cnt_zeroIfNotTable,
-                                        type4Cnt_zeroIfNotTable,  type5Cnt_zeroIfNotTable, type6Cnt_zeroIfNotTable,
-                                        type7Cnt_zeroIfNotTable,  type8Cnt_zeroIfNotTable, type9Cnt_zeroIfNotTable,
+    int inArgsCnt_zeroIfNotTable[11] = {type1Cnt_zeroIfNotTable, type2Cnt_zeroIfNotTable, type3Cnt_zeroIfNotTable,
+                                        type4Cnt_zeroIfNotTable, type5Cnt_zeroIfNotTable, type6Cnt_zeroIfNotTable,
+                                        type7Cnt_zeroIfNotTable, type8Cnt_zeroIfNotTable, type9Cnt_zeroIfNotTable,
                                         type10Cnt_zeroIfNotTable, type11Cnt_zeroIfNotTable};
     int totArgs = 0;
     int totReqArgs = 0;
@@ -2503,7 +2502,7 @@ bool checkInputArguments(luaWrap_lua_State *L, std::string *errStr, int type1, i
     return (retVal);
 }
 
-bool doesEntityExist(std::string *errStr, int identifier)
+bool doesEntityExist(std::string* errStr, int identifier)
 {
     if (identifier > SIM_IDEND_SCENEOBJECT)
     {
@@ -2527,45 +2526,45 @@ bool doesEntityExist(std::string *errStr, int identifier)
     }
 }
 
-int _genericFunctionHandler(luaWrap_lua_State *L, void (*callback)(struct SScriptCallBack *cb),
-                            std::string &raiseErrorWithMsg, CScriptCustomFunction *func /*=nullptr*/)
+int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScriptCallBack* cb),
+                            std::string& raiseErrorWithMsg, CScriptCustomFunction* func /*=nullptr*/)
 {
     TRACE_LUA_API;
 
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *itObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* itObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
 
-    CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
     CScriptObject::buildFromInterpreterStack_lua(L, stack, 1, 0); // all stack
 
     // Now we retrieve the object ID this script might be attached to:
     int linkedObject = -1;
     if (itObj->getScriptType() == sim_scripttype_simulation)
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
             itObj->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
         if (obj != nullptr)
             linkedObject = obj->getObjectHandle();
     }
     if (itObj->getScriptType() == sim_scripttype_customization)
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
             itObj->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customization));
         if (obj != nullptr)
             linkedObject = obj->getObjectHandle();
     }
 
     // We prepare the callback structure:
-    SScriptCallBack *cb = new SScriptCallBack;
+    SScriptCallBack* cb = new SScriptCallBack;
     cb->objectID = linkedObject;
     cb->scriptID = currentScriptID;
     cb->stackID = stack->getId();
-    cb->waitUntilZero = 0;                              // old
-    char raiseErrorMsg[258];                            // old
-    raiseErrorMsg[0] = '\0';                            // old
-    cb->raiseErrorWithMessage = (char *)&raiseErrorMsg; // old
+    cb->waitUntilZero = 0;                             // old
+    char raiseErrorMsg[258];                           // old
+    raiseErrorMsg[0] = '\0';                           // old
+    cb->raiseErrorWithMessage = (char*)&raiseErrorMsg; // old
     std::string source(luaWrap_getCurrentCodeSource(L));
-    cb->source = (char *)source.c_str();
+    cb->source = (char*)source.c_str();
     cb->line = luaWrap_getCurrentCodeLine(L);
 
     // Now we can call the callback:
@@ -2582,8 +2581,8 @@ int _genericFunctionHandler(luaWrap_lua_State *L, void (*callback)(struct SScrip
         if (!CThreadPool_old::switchBackToPreviousThread())
             break;
         if (CThreadPool_old::getSimulationStopRequestedAndActivated())
-        { // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop
-          // request arrived)
+        {   // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop
+            // request arrived)
             // Following: the extension module might still write 0 into that position to signal "no more waiting" in
             // case this while loop got interrupted by a stop request.
             dontDeleteStructureYet = true;
@@ -2611,9 +2610,9 @@ int _genericFunctionHandler(luaWrap_lua_State *L, void (*callback)(struct SScrip
     return (outputArgCount);
 }
 
-int _simGenericFunctionHandler(luaWrap_lua_State *L)
-{ // THIS FUNCTION SHOULD NOT LOCK THE API (AT LEAST NOT WHILE CALLING THE CALLBACK!!) SINCE IT IS NOT DIRECTLY
-  // ACCESSING THE API!!!!
+int _simGenericFunctionHandler(luaWrap_lua_State* L)
+{   // THIS FUNCTION SHOULD NOT LOCK THE API (AT LEAST NOT WHILE CALLING THE CALLBACK!!) SINCE IT IS NOT DIRECTLY
+    // ACCESSING THE API!!!!
     TRACE_LUA_API;
     LUA_START("sim.genericFunctionHandler");
 
@@ -2632,11 +2631,11 @@ int _simGenericFunctionHandler(luaWrap_lua_State *L)
         size_t p = funcN.find('@');
         std::string namespaceAndVer(funcN.begin(), funcN.begin() + p);
         std::string funcName(funcN.begin() + p + 1, funcN.end());
-        CPlugin *plug = App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVer.c_str());
+        CPlugin* plug = App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVer.c_str());
         if (plug != nullptr)
         {
-            CPluginCallbackContainer *cont = plug->getPluginCallbackContainer();
-            SPluginCallback *pcb = cont->getCallbackFromName(funcName.c_str());
+            CPluginCallbackContainer* cont = plug->getPluginCallbackContainer();
+            SPluginCallback* pcb = cont->getCallbackFromName(funcName.c_str());
             App::logMsg(sim_verbosity_trace, (std::string("sim.genericFunctionHandler: ") + functionName).c_str());
             if (pcb != nullptr)
             {
@@ -2661,7 +2660,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State *L)
     { // old plugin functions
         for (size_t j = 0; j < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); j++)
         { // we now search for the callback to call:
-            CScriptCustomFunction *it =
+            CScriptCustomFunction* it =
                 App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
             if (it->getFunctionID() == id_old)
             { // we have the right one! Now we need to prepare the input and output argument arrays:
@@ -2688,30 +2687,30 @@ int _simGenericFunctionHandler(luaWrap_lua_State *L)
     LUA_END(outputArgCount);
 }
 
-int _ccallback0(luaWrap_lua_State *L)
+int _ccallback0(luaWrap_lua_State* L)
 {
-    return(_ccallback(L, 0));
+    return (_ccallback(L, 0));
 }
-int _ccallback1(luaWrap_lua_State *L)
+int _ccallback1(luaWrap_lua_State* L)
 {
-    return(_ccallback(L, 1));
+    return (_ccallback(L, 1));
 }
-int _ccallback2(luaWrap_lua_State *L)
+int _ccallback2(luaWrap_lua_State* L)
 {
-    return(_ccallback(L, 2));
+    return (_ccallback(L, 2));
 }
-int _ccallback3(luaWrap_lua_State *L)
+int _ccallback3(luaWrap_lua_State* L)
 {
-    return(_ccallback(L, 3));
+    return (_ccallback(L, 3));
 }
-int _ccallback(luaWrap_lua_State *L, size_t index)
+int _ccallback(luaWrap_lua_State* L, size_t index)
 {
     TRACE_LUA_API;
     LUA_START(std::string("ccallback") + std::to_string(index));
 
-    if ( (App::callbacks.size() > index) && (App::callbacks[index] != nullptr) )
+    if ((App::callbacks.size() > index) && (App::callbacks[index] != nullptr))
     {
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         CScriptObject::buildFromInterpreterStack_lua(L, stack, 1, 0);
 
         int res = ((_ccallback_t)App::callbacks[index])(stack->getId());
@@ -2731,16 +2730,16 @@ int _ccallback(luaWrap_lua_State *L, size_t index)
     LUA_END(0);
 }
 
-int _loadPlugin(luaWrap_lua_State *L)
+int _loadPlugin(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("loadPlugin");
 
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
-        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         std::string namespaceAndVersion(luaWrap_lua_tostring(L, 1));
-        CPlugin *plug = App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
+        CPlugin* plug = App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
 
         if ((plug != nullptr) && (plug->hasDependency(it->getScriptUid())))
         { // that script already loaded that plugin. If the script state has been reset, we do not enter here
@@ -2764,7 +2763,7 @@ int _loadPlugin(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _unloadPlugin(luaWrap_lua_State *L)
+int _unloadPlugin(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("unloadPlugin");
@@ -2775,7 +2774,7 @@ int _unloadPlugin(luaWrap_lua_State *L)
         int options = 0;
         if (luaWrap_lua_isinteger(L, 2))
             options = luaWrap_lua_tointeger(L, 2);
-        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         int pluginHandle = -1;
         luaWrap_lua_getfield(L, 1, "pluginHandle");
         if (luaWrap_lua_isinteger(L, -1))
@@ -2784,7 +2783,7 @@ int _unloadPlugin(luaWrap_lua_State *L)
 
         if (pluginHandle >= 0)
         {
-            CPlugin *plug = App::worldContainer->pluginContainer->getPluginFromHandle(pluginHandle);
+            CPlugin* plug = App::worldContainer->pluginContainer->getPluginFromHandle(pluginHandle);
             if ((plug != nullptr) && (plug->hasDependency(it->getScriptUid())))
             {
                 errorString.clear();
@@ -2802,7 +2801,7 @@ int _unloadPlugin(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _registerCodeEditorInfos(luaWrap_lua_State *L)
+int _registerCodeEditorInfos(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("registerCodeEditorInfos");
@@ -2815,7 +2814,7 @@ int _registerCodeEditorInfos(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _auxFunc(luaWrap_lua_State *L)
+int _auxFunc(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("auxFunc");
@@ -2826,7 +2825,7 @@ int _auxFunc(luaWrap_lua_State *L)
         if (cmd.compare("deprecatedScriptMode") == 0)
         {
             int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            CScriptObject *it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
+            CScriptObject* it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
             it->setOldCallMode();
             LUA_END(0);
         }
@@ -2845,7 +2844,7 @@ int _auxFunc(luaWrap_lua_State *L)
         {
             if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
             {
-                CScriptObject *it =
+                CScriptObject* it =
                     App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 it->addUsedModule(luaWrap_lua_tostring(L, 2));
             }
@@ -2873,7 +2872,7 @@ int _auxFunc(luaWrap_lua_State *L)
                 {
                     if (screenIndex >= 0)
                     { // desktop
-                        QList<QScreen *> screens = QGuiApplication::screens();
+                        QList<QScreen*> screens = QGuiApplication::screens();
                         QPixmap pixmap(screens[screenIndex]->grabWindow(0));
                         QImage img(pixmap.toImage());
                         buff.resize(img.height() * img.width() * 3);
@@ -2914,7 +2913,7 @@ int _auxFunc(luaWrap_lua_State *L)
                     }
                 }
 #endif
-                luaWrap_lua_pushbuffer(L, (const char *)buff.data(), res[0] * res[1] * 3);
+                luaWrap_lua_pushbuffer(L, (const char*)buff.data(), res[0] * res[1] * 3);
                 pushIntTableOntoStack(L, 2, res);
                 LUA_END(2);
             }
@@ -2931,7 +2930,7 @@ int _auxFunc(luaWrap_lua_State *L)
                 VFileFinder finder;
                 finder.searchFiles(path.c_str(), ext.c_str(), filter.c_str());
                 int cnt = 0;
-                SFileOrFolder *foundItem = finder.getFoundItem(cnt);
+                SFileOrFolder* foundItem = finder.getFoundItem(cnt);
                 std::vector<std::string> nstrs;
                 std::vector<std::string> pstrs;
                 while (foundItem != nullptr)
@@ -2968,7 +2967,7 @@ int _auxFunc(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simHandleSimulationScripts(luaWrap_lua_State *L)
+int _simHandleSimulationScripts(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleSimulationScripts");
@@ -2978,12 +2977,12 @@ int _simHandleSimulationScripts(luaWrap_lua_State *L)
     {
         int callType = luaToInt(L, 1);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject* it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
         if (it != nullptr)
         {
             if (it->getScriptType() == sim_scripttype_main)
             { // only the main script can call this function
-                CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
                 CScriptObject::buildFromInterpreterStack_lua(L, inStack, 2, 0); // skip the first arg
                 retVal = App::currentWorld->sceneObjects->callScripts_noMainScript(sim_scripttype_simulation, callType, inStack, nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
@@ -3001,7 +3000,7 @@ int _simHandleSimulationScripts(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simHandleEmbeddedScripts(luaWrap_lua_State *L)
+int _simHandleEmbeddedScripts(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleEmbeddedScripts");
@@ -3011,12 +3010,12 @@ int _simHandleEmbeddedScripts(luaWrap_lua_State *L)
     {
         int callType = luaToInt(L, 1);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject* it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
         if (it != nullptr)
         {
             if (it->getScriptType() == sim_scripttype_main)
             { // only the main script can call this function
-                CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
                 CScriptObject::buildFromInterpreterStack_lua(L, inStack, 2, 0); // skip the first arg
                 retVal = App::currentWorld->sceneObjects->callScripts_noMainScript(-1, callType, inStack, nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
@@ -3031,14 +3030,14 @@ int _simHandleEmbeddedScripts(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simHandleDynamics(luaWrap_lua_State *L)
+int _simHandleDynamics(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleDynamics");
 
     int retVal = -1; // means error
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if ((itScrObj->getScriptType() == sim_scripttype_main) ||
         (itScrObj->getScriptType() == sim_scripttype_simulation))
     {
@@ -3053,7 +3052,7 @@ int _simHandleDynamics(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simHandleProximitySensor(luaWrap_lua_State *L)
+int _simHandleProximitySensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleProximitySensor");
@@ -3086,7 +3085,7 @@ int _simHandleProximitySensor(luaWrap_lua_State *L)
     LUA_END(5);
 }
 
-int _sim_qhull(luaWrap_lua_State *L)
+int _sim_qhull(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim._qhull");
@@ -3096,11 +3095,11 @@ int _sim_qhull(luaWrap_lua_State *L)
         int vl = (int)luaWrap_lua_rawlen(L, 1);
         if (checkInputArguments(L, &errorString, lua_arg_number, vl))
         {
-            double *vertices = new double[vl];
+            double* vertices = new double[vl];
             getDoublesFromTable(L, 1, vl, vertices);
-            double *vertOut;
+            double* vertOut;
             int vertOutL;
-            int *indOut;
+            int* indOut;
             int indOutL;
             if (simGetQHull_internal(vertices, vl, &vertOut, &vertOutL, &indOut, &indOutL, 0, nullptr))
             {
@@ -3118,7 +3117,7 @@ int _sim_qhull(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simReadProximitySensor(luaWrap_lua_State *L)
+int _simReadProximitySensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.readProximitySensor");
@@ -3151,7 +3150,7 @@ int _simReadProximitySensor(luaWrap_lua_State *L)
     LUA_END(5);
 }
 
-int _simHandleVisionSensor(luaWrap_lua_State *L)
+int _simHandleVisionSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleVisionSensor");
@@ -3159,8 +3158,8 @@ int _simHandleVisionSensor(luaWrap_lua_State *L)
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        double *auxVals = nullptr;
-        int *auxValsCount = nullptr;
+        double* auxVals = nullptr;
+        int* auxValsCount = nullptr;
         retVal = simHandleVisionSensor_internal(luaToInt(L, 1), &auxVals, &auxValsCount);
         if (retVal != -1)
         {
@@ -3192,7 +3191,7 @@ int _simHandleVisionSensor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simReadVisionSensor(luaWrap_lua_State *L)
+int _simReadVisionSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.readVisionSensor");
@@ -3200,8 +3199,8 @@ int _simReadVisionSensor(luaWrap_lua_State *L)
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        double *auxVals = nullptr;
-        int *auxValsCount = nullptr;
+        double* auxVals = nullptr;
+        int* auxValsCount = nullptr;
         retVal = simReadVisionSensor_internal(luaToInt(L, 1), &auxVals, &auxValsCount);
         if (retVal != -1)
         {
@@ -3233,7 +3232,7 @@ int _simReadVisionSensor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simResetProximitySensor(luaWrap_lua_State *L)
+int _simResetProximitySensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.resetProximitySensor");
@@ -3247,7 +3246,7 @@ int _simResetProximitySensor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simResetVisionSensor(luaWrap_lua_State *L)
+int _simResetVisionSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.resetVisionSensor");
@@ -3261,7 +3260,7 @@ int _simResetVisionSensor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetVisionSensorImg(luaWrap_lua_State *L)
+int _simGetVisionSensorImg(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getVisionSensorImg");
@@ -3295,7 +3294,7 @@ int _simGetVisionSensorImg(luaWrap_lua_State *L)
                         if (res == 2)
                             getIntsFromTable(L, 5, 2, size);
                         int resolution[2];
-                        unsigned char *img =
+                        unsigned char* img =
                             simGetVisionSensorImg_internal(sensorHandle, options, rgbaCutOff, pos, size, resolution);
                         if (img != nullptr)
                         {
@@ -3308,8 +3307,8 @@ int _simGetVisionSensorImg(luaWrap_lua_State *L)
                                 size[0] = resolution[0];
                             if (size[1] == 0)
                                 size[1] = resolution[1];
-                            luaWrap_lua_pushbuffer(L, (const char *)img, s * size[0] * size[1]);
-                            delete[]((char *)img);
+                            luaWrap_lua_pushbuffer(L, (const char*)img, s * size[0] * size[1]);
+                            delete[]((char*)img);
                             pushIntTableOntoStack(L, 2, resolution);
                             LUA_END(2);
                         }
@@ -3323,7 +3322,7 @@ int _simGetVisionSensorImg(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetVisionSensorImg(luaWrap_lua_State *L)
+int _simSetVisionSensorImg(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setVisionSensorImg");
@@ -3332,17 +3331,17 @@ int _simSetVisionSensorImg(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int sensorHandle = luaToInt(L, 1);
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sensorHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sensorHandle);
         if (it != nullptr)
         { // Ok we have a valid object
             if (it->getObjectType() == sim_sceneobject_visionsensor)
             { // ok we have a valid vision sensor
                 int resolution[2];
-                ((CVisionSensor *)it)->getResolution(resolution);
+                ((CVisionSensor*)it)->getResolution(resolution);
                 if (luaWrap_lua_isstring(L, 2))
                 {
                     size_t l;
-                    unsigned char *img = (unsigned char *)luaWrap_lua_tobuffer(L, 2, &l);
+                    unsigned char* img = (unsigned char*)luaWrap_lua_tobuffer(L, 2, &l);
 
                     int options = 0;
                     int pos[2] = {0, 0};
@@ -3392,7 +3391,7 @@ int _simSetVisionSensorImg(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetVisionSensorDepth(luaWrap_lua_State *L)
+int _simGetVisionSensorDepth(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getVisionSensorDepth");
@@ -3420,15 +3419,15 @@ int _simGetVisionSensorDepth(luaWrap_lua_State *L)
                     if (res == 2)
                         getIntsFromTable(L, 4, 2, size);
                     int resolution[2];
-                    float *depth = simGetVisionSensorDepth_internal(sensorHandle, options, pos, size, resolution);
+                    float* depth = simGetVisionSensorDepth_internal(sensorHandle, options, pos, size, resolution);
                     if (depth != nullptr)
                     {
                         if (size[0] == 0)
                             size[0] = resolution[0];
                         if (size[1] == 0)
                             size[1] = resolution[1];
-                        luaWrap_lua_pushbuffer(L, (const char *)depth, size[0] * size[1] * sizeof(float));
-                        delete[]((char *)depth);
+                        luaWrap_lua_pushbuffer(L, (const char*)depth, size[0] * size[1] * sizeof(float));
+                        delete[]((char*)depth);
                         pushIntTableOntoStack(L, 2, resolution);
                         LUA_END(2);
                     }
@@ -3441,7 +3440,7 @@ int _simGetVisionSensorDepth(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simCheckProximitySensor(luaWrap_lua_State *L)
+int _simCheckProximitySensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkProximitySensor");
@@ -3450,7 +3449,7 @@ int _simCheckProximitySensor(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         int handle = luaToInt(L, 1);
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(handle);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(handle);
         if (it != nullptr)
         {
             double detPt[4];
@@ -3491,7 +3490,7 @@ int _simCheckProximitySensor(luaWrap_lua_State *L)
     LUA_END(5);
 }
 
-int _simCheckProximitySensorEx(luaWrap_lua_State *L)
+int _simCheckProximitySensorEx(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkProximitySensorEx");
@@ -3526,7 +3525,7 @@ int _simCheckProximitySensorEx(luaWrap_lua_State *L)
     LUA_END(5);
 }
 
-int _simCheckProximitySensorEx2(luaWrap_lua_State *L)
+int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkProximitySensorEx2");
@@ -3549,7 +3548,7 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State *L)
                     int mode = luaToInt(L, 5);
                     double threshold = luaToDouble(L, 6);
                     double maxAngle = luaToDouble(L, 7);
-                    double *vertices = new double[requiredValues];
+                    double* vertices = new double[requiredValues];
                     getDoublesFromTable(L, 2, requiredValues, vertices);
 
                     double detPt[4];
@@ -3579,7 +3578,7 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State *L)
     LUA_END(4);
 }
 
-int _simCheckVisionSensor(luaWrap_lua_State *L)
+int _simCheckVisionSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkVisionSensor");
@@ -3587,8 +3586,8 @@ int _simCheckVisionSensor(luaWrap_lua_State *L)
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
-        double *auxVals = nullptr;
-        int *auxValsCount = nullptr;
+        double* auxVals = nullptr;
+        int* auxValsCount = nullptr;
         retVal = simCheckVisionSensor_internal(luaToInt(L, 1), luaToInt(L, 2), &auxVals, &auxValsCount);
         if (retVal != -1)
         {
@@ -3620,7 +3619,7 @@ int _simCheckVisionSensor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCheckVisionSensorEx(luaWrap_lua_State *L)
+int _simCheckVisionSensorEx(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkVisionSensorEx");
@@ -3633,21 +3632,21 @@ int _simCheckVisionSensorEx(luaWrap_lua_State *L)
         int sensHandle = arg1 & 0xfffff;
         int res[2];
         simGetVisionSensorRes_internal(sensHandle, res);
-        float *buffer = simCheckVisionSensorEx_internal(luaToInt(L, 1), luaToInt(L, 2), returnImage);
+        float* buffer = simCheckVisionSensorEx_internal(luaToInt(L, 1), luaToInt(L, 2), returnImage);
         if (buffer != nullptr)
         {
             if ((handleFlags & sim_handleflag_codedstring) != 0)
             {
                 if (returnImage)
                 {
-                    unsigned char *buff2 = new unsigned char[res[0] * res[1] * 3];
+                    unsigned char* buff2 = new unsigned char[res[0] * res[1] * 3];
                     for (size_t i = 0; i < res[0] * res[1] * 3; i++)
                         buff2[i] = (unsigned char)(buffer[i] * 255.1);
-                    luaWrap_lua_pushbuffer(L, (const char *)buff2, res[0] * res[1] * 3);
+                    luaWrap_lua_pushbuffer(L, (const char*)buff2, res[0] * res[1] * 3);
                     delete[] buff2;
                 }
                 else
-                    luaWrap_lua_pushbuffer(L, (const char *)buffer, res[0] * res[1] * sizeof(float));
+                    luaWrap_lua_pushbuffer(L, (const char*)buffer, res[0] * res[1] * sizeof(float));
             }
             else
             {
@@ -3665,7 +3664,7 @@ int _simCheckVisionSensorEx(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _sim_getObject(luaWrap_lua_State *L)
+int _sim_getObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim._getObject");
@@ -3710,7 +3709,7 @@ int _sim_getObject(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetObjectUid(luaWrap_lua_State *L)
+int _simGetObjectUid(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectUid");
@@ -3724,7 +3723,7 @@ int _simGetObjectUid(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _sim_getObjectFromUid(luaWrap_lua_State *L)
+int _sim_getObjectFromUid(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim._getObjectFromUid");
@@ -3748,7 +3747,7 @@ int _sim_getObjectFromUid(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetScript(luaWrap_lua_State *L)
+int _simGetScript(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getScript");
@@ -3765,7 +3764,7 @@ int _simGetScript(luaWrap_lua_State *L)
             std::string scriptName;
             int res;
             // check for new arguments (scriptType, scriptName=''). Do not generate errors with arg2 & arg3:
-            if ( (luaWrap_lua_gettop(L) >= 2) && luaWrap_lua_stringtype(L, 2) )
+            if ((luaWrap_lua_gettop(L) >= 2) && luaWrap_lua_stringtype(L, 2))
                 scriptName = luaWrap_lua_tostring(L, 2);
             else
             { // check for old arguments (scriptType, objectHandle=-1, scriptName=''), for backw. comp.:
@@ -3783,7 +3782,7 @@ int _simGetScript(luaWrap_lua_State *L)
                 setCurrentScriptInfo_cSide(-1, -1);
             }
         }
-        if ( (retVal != -1) || (objectHandle != -1) )
+        if ((retVal != -1) || (objectHandle != -1))
         {
             luaWrap_lua_pushinteger(L, retVal);
             LUA_END(1);
@@ -3796,7 +3795,7 @@ int _simGetScript(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectPosition(luaWrap_lua_State *L)
+int _simGetObjectPosition(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectPosition");
@@ -3818,7 +3817,7 @@ int _simGetObjectPosition(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectOrientation(luaWrap_lua_State *L)
+int _simGetObjectOrientation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectOrientation");
@@ -3840,7 +3839,7 @@ int _simGetObjectOrientation(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectPosition(luaWrap_lua_State *L)
+int _simSetObjectPosition(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectPosition");
@@ -3872,7 +3871,7 @@ int _simSetObjectPosition(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectOrientation(luaWrap_lua_State *L)
+int _simSetObjectOrientation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectOrientation");
@@ -3904,7 +3903,7 @@ int _simSetObjectOrientation(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetJointPosition(luaWrap_lua_State *L)
+int _simGetJointPosition(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointPosition");
@@ -3923,7 +3922,7 @@ int _simGetJointPosition(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetJointPosition(luaWrap_lua_State *L)
+int _simSetJointPosition(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setJointPosition");
@@ -3937,7 +3936,7 @@ int _simSetJointPosition(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetJointTargetPosition(luaWrap_lua_State *L)
+int _simSetJointTargetPosition(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setJointTargetPosition");
@@ -3951,7 +3950,7 @@ int _simSetJointTargetPosition(luaWrap_lua_State *L)
             int h = luaToInt(L, 1);
             if (res == 2)
             {
-                CJoint *joint = App::currentWorld->sceneObjects->getJointFromHandle(h);
+                CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(h);
                 if (joint != nullptr)
                 {
                     if ((joint->getJointMode() == sim_jointmode_kinematic) ||
@@ -3976,7 +3975,7 @@ int _simSetJointTargetPosition(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetJointTargetPosition(luaWrap_lua_State *L)
+int _simGetJointTargetPosition(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointTargetPosition");
@@ -3996,7 +3995,7 @@ int _simGetJointTargetPosition(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetJointTargetForce(luaWrap_lua_State *L)
+int _simGetJointTargetForce(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointTargetForce");
@@ -4015,7 +4014,7 @@ int _simGetJointTargetForce(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetJointTargetForce(luaWrap_lua_State *L)
+int _simSetJointTargetForce(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setJointTargetForce");
@@ -4037,7 +4036,7 @@ int _simSetJointTargetForce(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetJointTargetVelocity(luaWrap_lua_State *L)
+int _simSetJointTargetVelocity(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setJointTargetVelocity");
@@ -4051,7 +4050,7 @@ int _simSetJointTargetVelocity(luaWrap_lua_State *L)
             int h = luaToInt(L, 1);
             if (res == 2)
             {
-                CJoint *joint = App::currentWorld->sceneObjects->getJointFromHandle(h);
+                CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(h);
                 if (joint != nullptr)
                 {
                     if ((joint->getJointMode() == sim_jointmode_kinematic) ||
@@ -4084,7 +4083,7 @@ int _simSetJointTargetVelocity(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetJointTargetVelocity(luaWrap_lua_State *L)
+int _simGetJointTargetVelocity(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointTargetVelocity");
@@ -4103,7 +4102,7 @@ int _simGetJointTargetVelocity(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simRefreshDialogs(luaWrap_lua_State *L)
+int _simRefreshDialogs(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.refreshDialogs");
@@ -4117,7 +4116,7 @@ int _simRefreshDialogs(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetSimulationTime(luaWrap_lua_State *L)
+int _simGetSimulationTime(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getSimulationTime");
@@ -4134,7 +4133,7 @@ int _simGetSimulationTime(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetSimulationState(luaWrap_lua_State *L)
+int _simGetSimulationState(luaWrap_lua_State* L)
 {
     // In case we copy-paste a script during execution, the new script doesn't get the sim_simulation_starting message,
     // but that is ok!!! sim_simulation_starting is only for a simulation start. For a first run in a script, use some
@@ -4149,7 +4148,7 @@ int _simGetSimulationState(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetSystemTime(luaWrap_lua_State *L)
+int _simGetSystemTime(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getSystemTime");
@@ -4159,7 +4158,7 @@ int _simGetSystemTime(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCheckCollision(luaWrap_lua_State *L)
+int _simCheckCollision(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkCollision");
@@ -4192,7 +4191,7 @@ int _simCheckCollision(luaWrap_lua_State *L)
     LUA_END(2);
 }
 
-int _simCheckCollisionEx(luaWrap_lua_State *L)
+int _simCheckCollisionEx(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkCollisionEx");
@@ -4200,13 +4199,13 @@ int _simCheckCollisionEx(luaWrap_lua_State *L)
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
-        double *intersections[1];
+        double* intersections[1];
         retVal = simCheckCollisionEx_internal(luaToInt(L, 1), luaToInt(L, 2), intersections);
         if (retVal > 0)
         {
             luaWrap_lua_pushinteger(L, retVal);
             pushDoubleTableOntoStack(L, retVal * 6, (*intersections));
-            simReleaseBuffer_internal((char *)(*intersections));
+            simReleaseBuffer_internal((char*)(*intersections));
             LUA_END(2);
         }
     }
@@ -4217,7 +4216,7 @@ int _simCheckCollisionEx(luaWrap_lua_State *L)
     LUA_END(2);
 }
 
-int _simCheckDistance(luaWrap_lua_State *L)
+int _simCheckDistance(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkDistance");
@@ -4269,7 +4268,7 @@ int _simCheckDistance(luaWrap_lua_State *L)
     LUA_END(3);
 }
 
-int _simGetSimulationTimeStep(luaWrap_lua_State *L)
+int _simGetSimulationTimeStep(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getSimulationTimeStep");
@@ -4279,14 +4278,14 @@ int _simGetSimulationTimeStep(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetSimulatorMessage(luaWrap_lua_State *L)
+int _simGetSimulatorMessage(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getSimulatorMessage");
     int auxVals[4] = {0, 0, 0, 0};
     double aux2Vals[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     int aux2Cnt = 0;
-    CScriptObject *it =
+    CScriptObject* it =
         App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     int commandID = it->extractCommandFromOutsideCommandQueue(auxVals, aux2Vals, aux2Cnt);
 
@@ -4297,7 +4296,7 @@ int _simGetSimulatorMessage(luaWrap_lua_State *L)
     LUA_END(3);
 }
 
-int _simResetGraph(luaWrap_lua_State *L)
+int _simResetGraph(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.resetGraph");
@@ -4311,7 +4310,7 @@ int _simResetGraph(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simHandleGraph(luaWrap_lua_State *L)
+int _simHandleGraph(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleGraph");
@@ -4325,7 +4324,7 @@ int _simHandleGraph(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAddGraphStream(luaWrap_lua_State *L)
+int _simAddGraphStream(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addGraphStream");
@@ -4377,7 +4376,7 @@ int _simAddGraphStream(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simDestroyGraphCurve(luaWrap_lua_State *L)
+int _simDestroyGraphCurve(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.destroyGraphCurve");
@@ -4389,7 +4388,7 @@ int _simDestroyGraphCurve(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetGraphStreamTransformation(luaWrap_lua_State *L)
+int _simSetGraphStreamTransformation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setGraphStreamTransformation");
@@ -4423,14 +4422,14 @@ int _simSetGraphStreamTransformation(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simDuplicateGraphCurveToStatic(luaWrap_lua_State *L)
+int _simDuplicateGraphCurveToStatic(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.duplicateGraphCurveToStatic");
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer, 0))
     {
         std::string name;
-        const char *str = nullptr;
+        const char* str = nullptr;
         int res = checkOneGeneralInputArgument(L, 3, lua_arg_string, 0, true, false, &errorString);
         if (res == 2)
         {
@@ -4453,7 +4452,7 @@ int _simDuplicateGraphCurveToStatic(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simAddGraphCurve(luaWrap_lua_State *L)
+int _simAddGraphCurve(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addGraphCurve");
@@ -4476,7 +4475,7 @@ int _simAddGraphCurve(luaWrap_lua_State *L)
                 if (curveName.size() != 0)
                 {
                     std::string unitStr;
-                    char *_unitStr = nullptr;
+                    char* _unitStr = nullptr;
                     res = checkOneGeneralInputArgument(L, 6, lua_arg_string, 0, true, false, &errorString);
                     if (res == 2)
                     {
@@ -4530,7 +4529,7 @@ int _simAddGraphCurve(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetGraphStreamValue(luaWrap_lua_State *L)
+int _simSetGraphStreamValue(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setGraphStreamValue");
@@ -4542,7 +4541,7 @@ int _simSetGraphStreamValue(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _addLog(luaWrap_lua_State *L)
+int _addLog(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("addLog");
@@ -4556,7 +4555,7 @@ int _addLog(luaWrap_lua_State *L)
             if (res == 2)
             {
                 std::string msg(luaWrap_lua_tostring(L, 2));
-                CScriptObject *it =
+                CScriptObject* it =
                     App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 App::logScriptMsg(it, v, msg.c_str());
             }
@@ -4571,7 +4570,7 @@ int _addLog(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _quitSimulator(luaWrap_lua_State *L)
+int _quitSimulator(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("quitSimulator");
@@ -4582,7 +4581,7 @@ int _quitSimulator(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simStopSimulation(luaWrap_lua_State *L)
+int _simStopSimulation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.stopSimulation");
@@ -4594,7 +4593,7 @@ int _simStopSimulation(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPauseSimulation(luaWrap_lua_State *L)
+int _simPauseSimulation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.pauseSimulation");
@@ -4606,7 +4605,7 @@ int _simPauseSimulation(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simStartSimulation(luaWrap_lua_State *L)
+int _simStartSimulation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.startSimulation");
@@ -4618,7 +4617,7 @@ int _simStartSimulation(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectMatrix(luaWrap_lua_State *L)
+int _simGetObjectMatrix(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectMatrix");
@@ -4640,7 +4639,7 @@ int _simGetObjectMatrix(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectMatrix(luaWrap_lua_State *L)
+int _simSetObjectMatrix(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectMatrix");
@@ -4672,7 +4671,7 @@ int _simSetObjectMatrix(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectPose(luaWrap_lua_State *L)
+int _simGetObjectPose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectPose");
@@ -4694,7 +4693,7 @@ int _simGetObjectPose(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectPose(luaWrap_lua_State *L)
+int _simSetObjectPose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectPose");
@@ -4726,7 +4725,7 @@ int _simSetObjectPose(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectChildPose(luaWrap_lua_State *L)
+int _simGetObjectChildPose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectChildPose");
@@ -4745,7 +4744,7 @@ int _simGetObjectChildPose(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectChildPose(luaWrap_lua_State *L)
+int _simSetObjectChildPose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectChildPose");
@@ -4761,7 +4760,7 @@ int _simSetObjectChildPose(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simBuildIdentityMatrix(luaWrap_lua_State *L)
+int _simBuildIdentityMatrix(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.buildIdentityMatrix");
@@ -4774,7 +4773,7 @@ int _simBuildIdentityMatrix(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simBuildMatrix(luaWrap_lua_State *L)
+int _simBuildMatrix(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.buildMatrix");
@@ -4797,7 +4796,7 @@ int _simBuildMatrix(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simBuildPose(luaWrap_lua_State *L)
+int _simBuildPose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.buildPose");
@@ -4892,7 +4891,7 @@ int _simBuildPose(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetEulerAnglesFromMatrix(luaWrap_lua_State *L)
+int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getEulerAnglesFromMatrix");
@@ -4913,7 +4912,7 @@ int _simGetEulerAnglesFromMatrix(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetMatrixInverse(luaWrap_lua_State *L)
+int _simGetMatrixInverse(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getMatrixInverse");
@@ -4935,7 +4934,7 @@ int _simGetMatrixInverse(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetPoseInverse(luaWrap_lua_State *L)
+int _simGetPoseInverse(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPoseInverse");
@@ -4957,7 +4956,7 @@ int _simGetPoseInverse(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simMultiplyMatrices(luaWrap_lua_State *L)
+int _simMultiplyMatrices(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.multiplyMatrices");
@@ -4980,7 +4979,7 @@ int _simMultiplyMatrices(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simMultiplyPoses(luaWrap_lua_State *L)
+int _simMultiplyPoses(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.multiplyPoses");
@@ -5003,7 +5002,7 @@ int _simMultiplyPoses(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simInterpolateMatrices(luaWrap_lua_State *L)
+int _simInterpolateMatrices(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.interpolateMatrices");
@@ -5026,7 +5025,7 @@ int _simInterpolateMatrices(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simInterpolatePoses(luaWrap_lua_State *L)
+int _simInterpolatePoses(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.interpolatePoses");
@@ -5049,7 +5048,7 @@ int _simInterpolatePoses(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPoseToMatrix(luaWrap_lua_State *L)
+int _simPoseToMatrix(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.poseToMatrix");
@@ -5070,7 +5069,7 @@ int _simPoseToMatrix(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simMatrixToPose(luaWrap_lua_State *L)
+int _simMatrixToPose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.matrixToPose");
@@ -5091,7 +5090,7 @@ int _simMatrixToPose(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simMultiplyVector(luaWrap_lua_State *L)
+int _simMultiplyVector(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.multiplyVector");
@@ -5136,7 +5135,7 @@ int _simMultiplyVector(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectParent(luaWrap_lua_State *L)
+int _simGetObjectParent(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectParent");
@@ -5150,7 +5149,7 @@ int _simGetObjectParent(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetObjectChild(luaWrap_lua_State *L)
+int _simGetObjectChild(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectChild");
@@ -5164,7 +5163,7 @@ int _simGetObjectChild(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetObjectHierarchyOrder(luaWrap_lua_State *L)
+int _simGetObjectHierarchyOrder(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectHierarchyOrder");
@@ -5187,7 +5186,7 @@ int _simGetObjectHierarchyOrder(luaWrap_lua_State *L)
     LUA_END(2);
 }
 
-int _simSetObjectHierarchyOrder(luaWrap_lua_State *L)
+int _simSetObjectHierarchyOrder(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectHierarchyOrder");
@@ -5199,7 +5198,7 @@ int _simSetObjectHierarchyOrder(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSystemSemaphore(luaWrap_lua_State *L)
+int _simSystemSemaphore(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.systemSemaphore");
@@ -5230,14 +5229,14 @@ int _simSystemSemaphore(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetBoolProperty(luaWrap_lua_State *L)
+int _simSetBoolProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setBoolProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_bool, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5250,12 +5249,12 @@ int _simSetBoolProperty(luaWrap_lua_State *L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if ( 1 == simSetBoolProperty_internal(target, pName.c_str(), pValue))
+        if (1 == simSetBoolProperty_internal(target, pName.c_str(), pValue))
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5272,14 +5271,14 @@ int _simSetBoolProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetBoolProperty(luaWrap_lua_State *L)
+int _simGetBoolProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getBoolProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5305,18 +5304,18 @@ int _simGetBoolProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetIntProperty(luaWrap_lua_State *L)
+int _simSetIntProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setIntProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        int pValue = luaWrap_lua_tointeger(L,3);
+        int pValue = luaWrap_lua_tointeger(L, 3);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5330,7 +5329,7 @@ int _simSetIntProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5347,14 +5346,14 @@ int _simSetIntProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetIntProperty(luaWrap_lua_State *L)
+int _simGetIntProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getIntProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5380,18 +5379,18 @@ int _simGetIntProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetLongProperty(luaWrap_lua_State *L)
+int _simSetLongProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setIntProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        long long int pValue = luaWrap_lua_tointeger(L,3);
+        long long int pValue = luaWrap_lua_tointeger(L, 3);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5405,7 +5404,7 @@ int _simSetLongProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5422,14 +5421,14 @@ int _simSetLongProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetLongProperty(luaWrap_lua_State *L)
+int _simGetLongProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getIntProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5455,18 +5454,18 @@ int _simGetLongProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetFloatProperty(luaWrap_lua_State *L)
+int _simSetFloatProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setFloatProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        double pValue = luaToDouble(L,3);
+        double pValue = luaToDouble(L, 3);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5480,7 +5479,7 @@ int _simSetFloatProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5497,14 +5496,14 @@ int _simSetFloatProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetFloatProperty(luaWrap_lua_State *L)
+int _simGetFloatProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getFloatProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5530,14 +5529,14 @@ int _simGetFloatProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetStringProperty(luaWrap_lua_State *L)
+int _simSetStringProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setStringProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5555,7 +5554,7 @@ int _simSetStringProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5572,14 +5571,14 @@ int _simSetStringProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetStringProperty(luaWrap_lua_State *L)
+int _simGetStringProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getStringProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5606,19 +5605,19 @@ int _simGetStringProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetBufferProperty(luaWrap_lua_State *L)
+int _simSetBufferProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setBufferProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_buffer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         size_t pValueL;
-        const char *pValue = ((char *)luaWrap_lua_tobuffer(L, 3, &pValueL));
+        const char* pValue = ((char*)luaWrap_lua_tobuffer(L, 3, &pValueL));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5632,7 +5631,7 @@ int _simSetBufferProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5649,14 +5648,14 @@ int _simSetBufferProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetBufferProperty(luaWrap_lua_State *L)
+int _simGetBufferProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getBufferProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5684,14 +5683,14 @@ int _simGetBufferProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetIntArray2Property(luaWrap_lua_State *L)
+int _simSetIntArray2Property(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setIntArray2Property");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 2))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5710,7 +5709,7 @@ int _simSetIntArray2Property(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5727,14 +5726,14 @@ int _simSetIntArray2Property(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetIntArray2Property(luaWrap_lua_State *L)
+int _simGetIntArray2Property(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getIntArray2Property");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5760,14 +5759,14 @@ int _simGetIntArray2Property(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetVector2Property(luaWrap_lua_State *L)
+int _simSetVector2Property(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setVector2Property");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 2))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5786,7 +5785,7 @@ int _simSetVector2Property(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5803,14 +5802,14 @@ int _simSetVector2Property(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetVector2Property(luaWrap_lua_State *L)
+int _simGetVector2Property(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getVector2Property");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5836,14 +5835,14 @@ int _simGetVector2Property(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetVector3Property(luaWrap_lua_State *L)
+int _simSetVector3Property(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setVector3Property");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 3))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5862,7 +5861,7 @@ int _simSetVector3Property(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5879,14 +5878,14 @@ int _simSetVector3Property(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetVector3Property(luaWrap_lua_State *L)
+int _simGetVector3Property(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getVector3Property");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5912,14 +5911,14 @@ int _simGetVector3Property(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetQuaternionProperty(luaWrap_lua_State *L)
+int _simSetQuaternionProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setQuaternionProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 4))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5938,7 +5937,7 @@ int _simSetQuaternionProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -5955,14 +5954,14 @@ int _simSetQuaternionProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetQuaternionProperty(luaWrap_lua_State *L)
+int _simGetQuaternionProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getQuaternionProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5988,14 +5987,14 @@ int _simGetQuaternionProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetPoseProperty(luaWrap_lua_State *L)
+int _simSetPoseProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setPoseProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 7))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6014,7 +6013,7 @@ int _simSetPoseProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -6031,14 +6030,14 @@ int _simSetPoseProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetPoseProperty(luaWrap_lua_State *L)
+int _simGetPoseProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPoseProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6064,14 +6063,14 @@ int _simGetPoseProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetColorProperty(luaWrap_lua_State *L)
+int _simSetColorProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setColorProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 3))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6090,7 +6089,7 @@ int _simSetColorProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -6107,14 +6106,14 @@ int _simSetColorProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetColorProperty(luaWrap_lua_State *L)
+int _simGetColorProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getColorProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6140,14 +6139,14 @@ int _simGetColorProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetFloatArrayProperty(luaWrap_lua_State *L)
+int _simSetFloatArrayProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setFloatArrayProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, -1))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6168,7 +6167,7 @@ int _simSetFloatArrayProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -6185,14 +6184,14 @@ int _simSetFloatArrayProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetFloatArrayProperty(luaWrap_lua_State *L)
+int _simGetFloatArrayProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getFloatArrayProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6220,14 +6219,14 @@ int _simGetFloatArrayProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetIntArrayProperty(luaWrap_lua_State *L)
+int _simSetIntArrayProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setIntArrayProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, -1))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6248,7 +6247,7 @@ int _simSetIntArrayProperty(luaWrap_lua_State *L)
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
                     nn = "app." + nn;
@@ -6265,14 +6264,14 @@ int _simSetIntArrayProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetIntArrayProperty(luaWrap_lua_State *L)
+int _simGetIntArrayProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getIntArrayProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6300,14 +6299,14 @@ int _simGetIntArrayProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simRemoveProperty(luaWrap_lua_State *L)
+int _simRemoveProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.removeProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6323,7 +6322,7 @@ int _simRemoveProperty(luaWrap_lua_State *L)
         if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
         {
             int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
             std::string nn(pName);
             if (target == sim_handle_app)
                 nn = "app." + nn;
@@ -6339,17 +6338,17 @@ int _simRemoveProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetPropertyName(luaWrap_lua_State *L)
+int _simGetPropertyName(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPropertyName");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        int index = luaWrap_lua_tointeger(L,2);
+        int index = luaWrap_lua_tointeger(L, 2);
         SPropertyOptions opt;
         std::string propertyPrefix;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -6379,14 +6378,14 @@ int _simGetPropertyName(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetPropertyInfo(luaWrap_lua_State *L)
+int _simGetPropertyInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPropertyInfo");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6420,14 +6419,14 @@ int _simGetPropertyInfo(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetEventFilters(luaWrap_lua_State *L)
+int _simSetEventFilters(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setEventFilters");
 
     if (luaWrap_lua_isnonbuffertable(L, 1))
     {
-        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         CScriptObject::buildFromInterpreterStack_lua(L, stack, 1, 1);
         std::vector<long long int> intKeys;
@@ -6436,8 +6435,8 @@ int _simSetEventFilters(luaWrap_lua_State *L)
         for (size_t i = 0; i < intKeys.size(); i++)
         {
             bool first = true;
-            CInterfaceStackObject *obj = stack->getStackIntMapObject(intKeys[i]);
-            if ( (obj != nullptr) && (obj->getObjectType() == sim_stackitem_table) )
+            CInterfaceStackObject* obj = stack->getStackIntMapObject(intKeys[i]);
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_table))
             {
                 CInterfaceStackTable* arr = ((CInterfaceStackTable*)obj);
                 if (arr->isTableArray())
@@ -6469,7 +6468,7 @@ int _simSetEventFilters(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectParent(luaWrap_lua_State *L)
+int _simSetObjectParent(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectParent");
@@ -6492,7 +6491,7 @@ int _simSetObjectParent(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetObjectType(luaWrap_lua_State *L)
+int _simGetObjectType(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectType");
@@ -6506,7 +6505,7 @@ int _simGetObjectType(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetJointType(luaWrap_lua_State *L)
+int _simGetJointType(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointType");
@@ -6520,7 +6519,7 @@ int _simGetJointType(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simRemoveObjects(luaWrap_lua_State *L)
+int _simRemoveObjects(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.removeObjects");
@@ -6551,7 +6550,7 @@ int _simRemoveObjects(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simRemoveModel(luaWrap_lua_State *L)
+int _simRemoveModel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.removeModel");
@@ -6560,7 +6559,7 @@ int _simRemoveModel(luaWrap_lua_State *L)
     {
         int objId = luaToInt(L, 1);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
         if (!it->getThreadedExecution_oldThreads())
         {
             bool delayed = false;
@@ -6570,7 +6569,7 @@ int _simRemoveModel(luaWrap_lua_State *L)
                 if (res == 2)
                     delayed = luaToBool(L, 2);
                 if (delayed)
-                    objId = -objId-1;
+                    objId = -objId - 1;
                 int retVal = simRemoveModel_internal(objId);
                 if (retVal >= 0)
                 {
@@ -6580,9 +6579,9 @@ int _simRemoveModel(luaWrap_lua_State *L)
             }
         }
         else
-        { // this script runs threaded and wants to destroy other objects. We need to make sure that it will only
-          // destroy objects that do not have any scripts attached with a non-nullptr lua state:
-            CSceneObject *objBase = App::currentWorld->sceneObjects->getObjectFromHandle(objId);
+        {   // this script runs threaded and wants to destroy other objects. We need to make sure that it will only
+            // destroy objects that do not have any scripts attached with a non-nullptr lua state:
+            CSceneObject* objBase = App::currentWorld->sceneObjects->getObjectFromHandle(objId);
             if (objBase != nullptr)
             {
                 if (objBase->getModelBase())
@@ -6593,9 +6592,9 @@ int _simRemoveModel(luaWrap_lua_State *L)
                     bool ok = true;
                     for (size_t j = 0; j < modelObjects.size(); j++)
                     {
-                        std::vector<CScriptObject *> scripts;
+                        std::vector<CScriptObject*> scripts;
                         App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptsFromObjectAttachedTo(modelObjects[j],
-                                                                                                   scripts);
+                                                                                                                 scripts);
                         for (size_t i = 0; i < scripts.size(); i++)
                         {
                             if ((it != scripts[i]) && scripts[i]->hasInterpreterState())
@@ -6626,7 +6625,7 @@ int _simRemoveModel(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectAlias(luaWrap_lua_State *L)
+int _simGetObjectAlias(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectAlias");
@@ -6639,7 +6638,7 @@ int _simGetObjectAlias(luaWrap_lua_State *L)
         {
             if (res == 2)
                 options = luaToInt(L, 2);
-            char *name = simGetObjectAlias_internal(luaToInt(L, 1), options);
+            char* name = simGetObjectAlias_internal(luaToInt(L, 1), options);
             if (name != nullptr)
             {
                 luaWrap_lua_pushtext(L, name);
@@ -6653,7 +6652,7 @@ int _simGetObjectAlias(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectAlias(luaWrap_lua_State *L)
+int _simSetObjectAlias(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectAlias");
@@ -6666,7 +6665,7 @@ int _simSetObjectAlias(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetJointInterval(luaWrap_lua_State *L)
+int _simGetJointInterval(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointInterval");
@@ -6687,7 +6686,7 @@ int _simGetJointInterval(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetJointInterval(luaWrap_lua_State *L)
+int _simSetJointInterval(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setJointInterval");
@@ -6705,14 +6704,14 @@ int _simSetJointInterval(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simLoadScene(luaWrap_lua_State *L)
+int _simLoadScene(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.loadScene");
 
     int retVal = -1; // error
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if ((script != nullptr) && ((script->getScriptType() == sim_scripttype_addonfunction) ||
                                 (script->getScriptType() == sim_scripttype_addon) ||
                                 (script->getScriptType() == sim_scripttype_sandbox)))
@@ -6720,7 +6719,7 @@ int _simLoadScene(luaWrap_lua_State *L)
         if (checkInputArguments(L, &errorString, lua_arg_string, 0))
         {
             size_t dataLength;
-            const char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
+            const char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength));
             if (dataLength < 1000)
                 retVal = simLoadScene_internal(luaWrap_lua_tostring(L, 1)); // loading from file
             else
@@ -6747,14 +6746,14 @@ int _simLoadScene(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCloseScene(luaWrap_lua_State *L)
+int _simCloseScene(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.closeScene");
 
     int retVal = -1; // error
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if ((script != nullptr) && ((script->getScriptType() == sim_scripttype_addonfunction) ||
                                 (script->getScriptType() == sim_scripttype_addon) ||
                                 (script->getScriptType() == sim_scripttype_sandbox)))
@@ -6767,7 +6766,7 @@ int _simCloseScene(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSaveScene(luaWrap_lua_State *L)
+int _simSaveScene(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.saveScene");
@@ -6804,7 +6803,7 @@ int _simSaveScene(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simLoadModel(luaWrap_lua_State *L)
+int _simLoadModel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.loadModel");
@@ -6819,7 +6818,7 @@ int _simLoadModel(luaWrap_lua_State *L)
             if (res == 2)
                 onlyThumbnails = luaToBool(L, 2);
             size_t dataLength;
-            const char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
+            const char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength));
             if (dataLength < 1000)
             { // loading from file:
                 std::string path(data, dataLength);
@@ -6838,7 +6837,7 @@ int _simLoadModel(luaWrap_lua_State *L)
 #endif
                     if (onlyThumbnails)
                     {
-                        char *buff = new char[128 * 128 * 4];
+                        char* buff = new char[128 * 128 * 4];
                         bool opRes = App::currentWorld->environment->modelThumbnail_notSerializedHere
                                          .copyUncompressedImageToBuffer(buff);
                         if (opRes)
@@ -6868,7 +6867,7 @@ int _simLoadModel(luaWrap_lua_State *L)
 #endif
                     if (onlyThumbnails)
                     {
-                        char *buff = new char[128 * 128 * 4];
+                        char* buff = new char[128 * 128 * 4];
                         bool opRes = App::currentWorld->environment->modelThumbnail_notSerializedHere
                                          .copyUncompressedImageToBuffer(buff);
                         if (opRes)
@@ -6893,7 +6892,7 @@ int _simLoadModel(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSaveModel(luaWrap_lua_State *L)
+int _simSaveModel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.saveModel");
@@ -6912,7 +6911,7 @@ int _simSaveModel(luaWrap_lua_State *L)
 
                 if (!App::currentWorld->environment->getSceneLocked())
                 {
-                    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(model);
+                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(model);
                     if (it != nullptr)
                     {
                         if (it->getModelBase())
@@ -6945,13 +6944,13 @@ int _simSaveModel(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetObjectSel(luaWrap_lua_State *L)
+int _simGetObjectSel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectSel");
 
     int selSize;
-    int *sel = simGetObjectSel_internal(&selSize);
+    int* sel = simGetObjectSel_internal(&selSize);
     if (sel != nullptr)
     {
         pushIntTableOntoStack(L, selSize, sel);
@@ -6963,7 +6962,7 @@ int _simGetObjectSel(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectSel(luaWrap_lua_State *L)
+int _simSetObjectSel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectSel");
@@ -6992,7 +6991,7 @@ int _simSetObjectSel(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetRealTimeSimulation(luaWrap_lua_State *L)
+int _simGetRealTimeSimulation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getRealTimeSimulation");
@@ -7004,7 +7003,7 @@ int _simGetRealTimeSimulation(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simLaunchExecutable(luaWrap_lua_State *L)
+int _simLaunchExecutable(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.launchExecutable");
@@ -7028,7 +7027,7 @@ int _simLaunchExecutable(luaWrap_lua_State *L)
                 int sh = VVARIOUS_SHOWNORMAL;
                 if (showStatus == 0)
                     sh = VVARIOUS_HIDE;
-                CScriptObject *it =
+                CScriptObject* it =
                     App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 std::string what(it->getDescriptiveName());
                 what += " (via sim.launchExecutable)";
@@ -7049,7 +7048,7 @@ int _simLaunchExecutable(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetExtensionString(luaWrap_lua_State *L)
+int _simGetExtensionString(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getExtensionString");
@@ -7064,7 +7063,7 @@ int _simGetExtensionString(luaWrap_lua_State *L)
             std::string key;
             if (res == 2)
                 key = luaWrap_lua_tostring(L, 3);
-            char *str = simGetExtensionString_internal(objHandle, index, key.c_str());
+            char* str = simGetExtensionString_internal(objHandle, index, key.c_str());
             if (str != nullptr)
             {
                 luaWrap_lua_pushtext(L, str);
@@ -7078,7 +7077,7 @@ int _simGetExtensionString(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simComputeMassAndInertia(luaWrap_lua_State *L)
+int _simComputeMassAndInertia(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.computeMassAndInertia");
@@ -7096,7 +7095,7 @@ int _simComputeMassAndInertia(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simTest(luaWrap_lua_State *L)
+int _simTest(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.test");
@@ -7125,7 +7124,7 @@ int _simTest(luaWrap_lua_State *L)
             getIntsFromTable(L, 5, il, indices.data());
             std::vector<double> path;
             int debugShape = -1;
-            int *_debugShape = nullptr;
+            int* _debugShape = nullptr;
             if (luaToBool(L, 7))
                 _debugShape = &debugShape;
             double dist = CMeshRoutines::getGeodesicDistanceOnConvexMesh(pt1, pt2, vertices, &indices, &path,
@@ -7139,10 +7138,10 @@ int _simTest(luaWrap_lua_State *L)
         {
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
-                CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
+                CShape* it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 if (!it->getStatic())
                 {
-                    CMeshWrapper *mesh = it->getMesh();
+                    CMeshWrapper* mesh = it->getMesh();
                     double mass = mesh->getMass();
                     C3Vector diagI;
                     mesh->getDiagonalInertiaInfo(diagI);
@@ -7166,10 +7165,10 @@ int _simTest(luaWrap_lua_State *L)
         {
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
-                CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
+                CShape* it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 if (!it->getStatic())
                 {
-                    CMeshWrapper *mesh = it->getMesh();
+                    CMeshWrapper* mesh = it->getMesh();
                     double mass = mesh->getMass();
                     if (it->computeMassAndInertia(1000.0))
                     {
@@ -7190,7 +7189,7 @@ int _simTest(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simTextEditorOpen(luaWrap_lua_State *L)
+int _simTextEditorOpen(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.textEditorOpen");
@@ -7201,8 +7200,8 @@ int _simTextEditorOpen(luaWrap_lua_State *L)
     {
         if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
         {
-            const char *arg1 = luaWrap_lua_tostring(L, 1);
-            const char *arg2 = luaWrap_lua_tostring(L, 2);
+            const char* arg1 = luaWrap_lua_tostring(L, 1);
+            const char* arg2 = luaWrap_lua_tostring(L, 2);
             retVal = GuiApp::mainWindow->codeEditorContainer->open(
                 arg1, arg2, CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         }
@@ -7216,7 +7215,7 @@ int _simTextEditorOpen(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simTextEditorClose(luaWrap_lua_State *L)
+int _simTextEditorClose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.textEditorClose");
@@ -7246,7 +7245,7 @@ int _simTextEditorClose(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simTextEditorShow(luaWrap_lua_State *L)
+int _simTextEditorShow(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.textEditorShow");
@@ -7273,7 +7272,7 @@ int _simTextEditorShow(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simTextEditorGetInfo(luaWrap_lua_State *L)
+int _simTextEditorGetInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.textEditorGetInfo");
@@ -7306,7 +7305,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetJointDependency(luaWrap_lua_State *L)
+int _simSetJointDependency(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setJointDependency");
@@ -7331,7 +7330,7 @@ int _simSetJointDependency(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetJointDependency(luaWrap_lua_State *L)
+int _simGetJointDependency(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointDependency");
@@ -7357,7 +7356,7 @@ int _simGetJointDependency(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetStackTraceback(luaWrap_lua_State *L)
+int _simGetStackTraceback(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getLastStackTraceback");
@@ -7370,7 +7369,7 @@ int _simGetStackTraceback(luaWrap_lua_State *L)
     }
     else
         scriptHandle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
     if (it != nullptr)
         retVal = it->getAndClearLastStackTraceback();
 
@@ -7379,7 +7378,7 @@ int _simGetStackTraceback(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetNavigationMode(luaWrap_lua_State *L)
+int _simSetNavigationMode(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setNavigationMode");
@@ -7393,7 +7392,7 @@ int _simSetNavigationMode(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetNavigationMode(luaWrap_lua_State *L)
+int _simGetNavigationMode(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getNavigationMode");
@@ -7406,7 +7405,7 @@ int _simGetNavigationMode(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetPage(luaWrap_lua_State *L)
+int _simSetPage(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setPage");
@@ -7420,7 +7419,7 @@ int _simSetPage(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetPage(luaWrap_lua_State *L)
+int _simGetPage(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPage");
@@ -7433,7 +7432,7 @@ int _simGetPage(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCopyPasteObjects(luaWrap_lua_State *L)
+int _simCopyPasteObjects(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.copyPasteObjects");
@@ -7462,7 +7461,7 @@ int _simCopyPasteObjects(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simScaleObjects(luaWrap_lua_State *L)
+int _simScaleObjects(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.scaleObjects");
@@ -7485,7 +7484,7 @@ int _simScaleObjects(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetAutoYieldDelay(luaWrap_lua_State *L)
+int _simSetAutoYieldDelay(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setAutoYieldDelay");
@@ -7494,7 +7493,7 @@ int _simSetAutoYieldDelay(luaWrap_lua_State *L)
     {
         int timeInMs = int(luaToDouble(L, 1) * 1000.0);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
         if (it != nullptr)
             it->setDelayForAutoYielding(timeInMs);
 
@@ -7505,14 +7504,14 @@ int _simSetAutoYieldDelay(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetAutoYieldDelay(luaWrap_lua_State *L)
+int _simGetAutoYieldDelay(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getAutoYieldDelay");
 
     int timeInMs = 0;
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if (it != nullptr)
         timeInMs = it->getDelayForAutoYielding();
 
@@ -7520,7 +7519,7 @@ int _simGetAutoYieldDelay(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _setAutoYield(luaWrap_lua_State *L)
+int _setAutoYield(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("setAutoYield");
@@ -7528,7 +7527,7 @@ int _setAutoYield(luaWrap_lua_State *L)
     if (luaWrap_lua_gettop(L) > 0)
     {
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
         if (it != nullptr)
         {
             int retVal;
@@ -7557,12 +7556,12 @@ int _setAutoYield(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _getAutoYield(luaWrap_lua_State *L)
+int _getAutoYield(luaWrap_lua_State* L)
 { // doesn't generate an error
     TRACE_LUA_API;
     LUA_START("getAutoYield");
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     bool retVal = false;
     int level = 0;
     if (it != nullptr)
@@ -7576,12 +7575,12 @@ int _getAutoYield(luaWrap_lua_State *L)
     LUA_END(2);
 }
 
-int _getYieldAllowed(luaWrap_lua_State *L)
+int _getYieldAllowed(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("getYieldAllowed");
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     bool canYield = true;
     if (it != nullptr)
         canYield = it->canManualYield();
@@ -7589,7 +7588,7 @@ int _getYieldAllowed(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _setYieldAllowed(luaWrap_lua_State *L)
+int _setYieldAllowed(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("setYieldAllowed");
@@ -7597,7 +7596,7 @@ int _setYieldAllowed(luaWrap_lua_State *L)
     if (luaWrap_lua_gettop(L) > 0)
     {
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
         if (it != nullptr)
         {
             int retVal;
@@ -7625,7 +7624,7 @@ int _setYieldAllowed(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _registerScriptFuncHook(luaWrap_lua_State *L)
+int _registerScriptFuncHook(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("registerScriptFuncHook");
@@ -7633,8 +7632,8 @@ int _registerScriptFuncHook(luaWrap_lua_State *L)
     int retVal = -1;
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0, lua_arg_bool, 0))
     {
-        const char *systemFunc = luaWrap_lua_tostring(L, 1);
-        const char *userFunc = luaWrap_lua_tostring(L, 2);
+        const char* systemFunc = luaWrap_lua_tostring(L, 1);
+        const char* userFunc = luaWrap_lua_tostring(L, 2);
         bool execBefore = luaToBool(L, 3);
         retVal = simRegisterScriptFuncHook_internal(CScriptObject::getScriptHandleFromInterpreterState_lua(L),
                                                     systemFunc, userFunc, execBefore, 0);
@@ -7645,7 +7644,7 @@ int _registerScriptFuncHook(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSaveImage(luaWrap_lua_State *L)
+int _simSaveImage(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.saveImage");
@@ -7655,7 +7654,7 @@ int _simSaveImage(luaWrap_lua_State *L)
                             lua_arg_number, 0))
     {
         size_t dataLength;
-        char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
+        char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength));
         std::string img(data, dataLength);
         int res[2];
         getIntsFromTable(L, 2, 2, res);
@@ -7675,9 +7674,9 @@ int _simSaveImage(luaWrap_lua_State *L)
                 {
                     bool err;
                     if (filename[0] != '.')
-                        err = (1 != simSaveImage_internal((unsigned char *)&img[0], res, options, filename.c_str(), quality, nullptr));
+                        err = (1 != simSaveImage_internal((unsigned char*)&img[0], res, options, filename.c_str(), quality, nullptr));
                     else
-                        err = !CImageLoaderSaver::save((unsigned char *)&img[0], res, options, filename.c_str(), quality, &retBuffer); // to memory
+                        err = !CImageLoaderSaver::save((unsigned char*)&img[0], res, options, filename.c_str(), quality, &retBuffer); // to memory
                     if (err)
                         errorString = SIM_ERROR_OPERATION_FAILED;
                 }
@@ -7696,7 +7695,7 @@ int _simSaveImage(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simLoadImage(luaWrap_lua_State *L)
+int _simLoadImage(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.loadImage");
@@ -7705,9 +7704,9 @@ int _simLoadImage(luaWrap_lua_State *L)
     {
         int options = luaToInt(L, 1);
         size_t dataLength;
-        char *data = ((char *)luaWrap_lua_tobuffer(L, 2, &dataLength));
+        char* data = ((char*)luaWrap_lua_tobuffer(L, 2, &dataLength));
         int resol[2];
-        unsigned char *img = nullptr;
+        unsigned char* img = nullptr;
         if ((dataLength > 4) && (data[0] == '@') && (data[1] == 'm') && (data[2] == 'e') && (data[3] == 'm'))
         {
             int reserved[1] = {(int)dataLength};
@@ -7720,8 +7719,8 @@ int _simLoadImage(luaWrap_lua_State *L)
             int s = resol[0] * resol[1] * 3;
             if (options & 1)
                 s = resol[0] * resol[1] * 4;
-            luaWrap_lua_pushbuffer(L, (const char *)img, s);
-            delete[]((char *)img);
+            luaWrap_lua_pushbuffer(L, (const char*)img, s);
+            delete[]((char*)img);
             pushIntTableOntoStack(L, 2, resol);
             LUA_END(2);
         }
@@ -7731,7 +7730,7 @@ int _simLoadImage(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetScaledImage(luaWrap_lua_State *L)
+int _simGetScaledImage(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getScaledImage");
@@ -7740,7 +7739,7 @@ int _simGetScaledImage(luaWrap_lua_State *L)
                             0))
     {
         size_t dataLength;
-        char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
+        char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength));
         std::string imgIn(data, dataLength);
         int resIn[2];
         getIntsFromTable(L, 2, 2, resIn);
@@ -7754,15 +7753,15 @@ int _simGetScaledImage(luaWrap_lua_State *L)
         {
             if ((resIn[0] > 0) && (resIn[1] > 0) && (resOut[0] > 0) && (resOut[1] > 0))
             {
-                unsigned char *imgOut =
-                    simGetScaledImage_internal((unsigned char *)&imgIn[0], resIn, resOut, options, nullptr);
+                unsigned char* imgOut =
+                    simGetScaledImage_internal((unsigned char*)&imgIn[0], resIn, resOut, options, nullptr);
                 if (imgOut != nullptr)
                 {
                     int s = resOut[0] * resOut[1] * 3;
                     if (options & 2)
                         s = resOut[0] * resOut[1] * 4;
-                    luaWrap_lua_pushbuffer(L, (const char *)imgOut, s);
-                    delete[]((char *)imgOut);
+                    luaWrap_lua_pushbuffer(L, (const char*)imgOut, s);
+                    delete[]((char*)imgOut);
                     pushIntTableOntoStack(L, 2, resOut);
                     LUA_END(2);
                 }
@@ -7778,7 +7777,7 @@ int _simGetScaledImage(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simTransformImage(luaWrap_lua_State *L)
+int _simTransformImage(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.transformImage");
@@ -7787,7 +7786,7 @@ int _simTransformImage(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 2, lua_arg_number, 0))
     {
         size_t dataLength;
-        char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
+        char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength));
         int resol[2];
         getIntsFromTable(L, 2, 2, resol);
         int options = luaToInt(L, 3);
@@ -7797,7 +7796,7 @@ int _simTransformImage(luaWrap_lua_State *L)
         if (int(dataLength) >= resol[0] * resol[1] * channels)
         {
             if ((resol[0] > 0) && (resol[1] > 0))
-                retVal = simTransformImage_internal((unsigned char *)data, resol, options, nullptr, nullptr, nullptr);
+                retVal = simTransformImage_internal((unsigned char*)data, resol, options, nullptr, nullptr, nullptr);
             else
                 errorString = SIM_ERROR_INVALID_RESOLUTION;
         }
@@ -7810,7 +7809,7 @@ int _simTransformImage(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simPackInt32Table(luaWrap_lua_State *L)
+int _simPackInt32Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.packInt32Table");
@@ -7841,18 +7840,18 @@ int _simPackInt32Table(luaWrap_lua_State *L)
                         count = tableSize - startIndex;
                     if (count > 0)
                     {
-                        char *data = new char[sizeof(int) * count];
+                        char* data = new char[sizeof(int) * count];
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
                             int v = luaToInt(L, -1);
-                            data[4 * i + 0] = ((char *)&v)[0];
-                            data[4 * i + 1] = ((char *)&v)[1];
-                            data[4 * i + 2] = ((char *)&v)[2];
-                            data[4 * i + 3] = ((char *)&v)[3];
+                            data[4 * i + 0] = ((char*)&v)[0];
+                            data[4 * i + 1] = ((char*)&v)[1];
+                            data[4 * i + 2] = ((char*)&v)[2];
+                            data[4 * i + 3] = ((char*)&v)[3];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(int));
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(int));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -7869,7 +7868,7 @@ int _simPackInt32Table(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPackUInt32Table(luaWrap_lua_State *L)
+int _simPackUInt32Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.packUInt32Table");
@@ -7900,18 +7899,18 @@ int _simPackUInt32Table(luaWrap_lua_State *L)
                         count = tableSize - startIndex;
                     if (count > 0)
                     {
-                        char *data = new char[sizeof(unsigned int) * count];
+                        char* data = new char[sizeof(unsigned int) * count];
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
                             unsigned int v = (unsigned int)luaToInt(L, -1);
-                            data[4 * i + 0] = ((char *)&v)[0];
-                            data[4 * i + 1] = ((char *)&v)[1];
-                            data[4 * i + 2] = ((char *)&v)[2];
-                            data[4 * i + 3] = ((char *)&v)[3];
+                            data[4 * i + 0] = ((char*)&v)[0];
+                            data[4 * i + 1] = ((char*)&v)[1];
+                            data[4 * i + 2] = ((char*)&v)[2];
+                            data[4 * i + 3] = ((char*)&v)[3];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(unsigned int));
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(unsigned int));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -7928,7 +7927,7 @@ int _simPackUInt32Table(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPackFloatTable(luaWrap_lua_State *L)
+int _simPackFloatTable(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.packFloatTable");
@@ -7959,18 +7958,18 @@ int _simPackFloatTable(luaWrap_lua_State *L)
                         count = tableSize - startIndex;
                     if (count > 0)
                     {
-                        char *data = new char[sizeof(float) * count];
+                        char* data = new char[sizeof(float) * count];
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
                             float v = luaToDouble(L, -1);
-                            data[4 * i + 0] = ((char *)&v)[0];
-                            data[4 * i + 1] = ((char *)&v)[1];
-                            data[4 * i + 2] = ((char *)&v)[2];
-                            data[4 * i + 3] = ((char *)&v)[3];
+                            data[4 * i + 0] = ((char*)&v)[0];
+                            data[4 * i + 1] = ((char*)&v)[1];
+                            data[4 * i + 2] = ((char*)&v)[2];
+                            data[4 * i + 3] = ((char*)&v)[3];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(float));
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(float));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -7987,7 +7986,7 @@ int _simPackFloatTable(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPackDoubleTable(luaWrap_lua_State *L)
+int _simPackDoubleTable(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.packDoubleTable");
@@ -8018,22 +8017,22 @@ int _simPackDoubleTable(luaWrap_lua_State *L)
                         count = tableSize - startIndex;
                     if (count > 0)
                     {
-                        char *data = new char[sizeof(double) * count];
+                        char* data = new char[sizeof(double) * count];
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
                             double v = luaToDouble(L, -1);
-                            data[sizeof(double) * i + 0] = ((char *)&v)[0];
-                            data[sizeof(double) * i + 1] = ((char *)&v)[1];
-                            data[sizeof(double) * i + 2] = ((char *)&v)[2];
-                            data[sizeof(double) * i + 3] = ((char *)&v)[3];
-                            data[sizeof(double) * i + 4] = ((char *)&v)[4];
-                            data[sizeof(double) * i + 5] = ((char *)&v)[5];
-                            data[sizeof(double) * i + 6] = ((char *)&v)[6];
-                            data[sizeof(double) * i + 7] = ((char *)&v)[7];
+                            data[sizeof(double) * i + 0] = ((char*)&v)[0];
+                            data[sizeof(double) * i + 1] = ((char*)&v)[1];
+                            data[sizeof(double) * i + 2] = ((char*)&v)[2];
+                            data[sizeof(double) * i + 3] = ((char*)&v)[3];
+                            data[sizeof(double) * i + 4] = ((char*)&v)[4];
+                            data[sizeof(double) * i + 5] = ((char*)&v)[5];
+                            data[sizeof(double) * i + 6] = ((char*)&v)[6];
+                            data[sizeof(double) * i + 7] = ((char*)&v)[7];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(double));
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(double));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -8050,7 +8049,7 @@ int _simPackDoubleTable(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPackUInt8Table(luaWrap_lua_State *L)
+int _simPackUInt8Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.packUInt8Table");
@@ -8081,15 +8080,15 @@ int _simPackUInt8Table(luaWrap_lua_State *L)
                         count = tableSize - startIndex;
                     if (count > 0)
                     {
-                        char *data = new char[sizeof(char) * count];
+                        char* data = new char[sizeof(char) * count];
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
                             unsigned char v = (unsigned char)luaToInt(L, -1);
-                            data[i] = ((char *)&v)[0];
+                            data[i] = ((char*)&v)[0];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(char));
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(char));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -8106,7 +8105,7 @@ int _simPackUInt8Table(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPackUInt16Table(luaWrap_lua_State *L)
+int _simPackUInt16Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.packUInt16Table");
@@ -8137,16 +8136,16 @@ int _simPackUInt16Table(luaWrap_lua_State *L)
                         count = tableSize - startIndex;
                     if (count > 0)
                     {
-                        char *data = new char[sizeof(short) * count];
+                        char* data = new char[sizeof(short) * count];
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
                             unsigned short v = (unsigned short)luaToInt(L, -1);
-                            data[2 * i + 0] = ((char *)&v)[0];
-                            data[2 * i + 1] = ((char *)&v)[1];
+                            data[2 * i + 0] = ((char*)&v)[0];
+                            data[2 * i + 1] = ((char*)&v)[1];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(short));
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(short));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -8163,7 +8162,7 @@ int _simPackUInt16Table(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simUnpackInt32Table(luaWrap_lua_State *L)
+int _simUnpackInt32Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.unpackInt32Table");
@@ -8192,7 +8191,7 @@ int _simUnpackInt32Table(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
+                    char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = sizeof(int) * ((dataLength - additionalCharOffset) / sizeof(int));
                     int packetCount = int(dataLength / sizeof(int));
                     if (count == 0)
@@ -8210,14 +8209,14 @@ int _simUnpackInt32Table(luaWrap_lua_State *L)
                             if (startIndex + count > packetCount)
                                 count = packetCount - startIndex;
 
-                            int *theInts = new int[count];
+                            int* theInts = new int[count];
                             for (int i = 0; i < int(count); i++)
                             {
                                 int v;
-                                ((char *)&v)[0] = data[sizeof(int) * (i + startIndex) + 0];
-                                ((char *)&v)[1] = data[sizeof(int) * (i + startIndex) + 1];
-                                ((char *)&v)[2] = data[sizeof(int) * (i + startIndex) + 2];
-                                ((char *)&v)[3] = data[sizeof(int) * (i + startIndex) + 3];
+                                ((char*)&v)[0] = data[sizeof(int) * (i + startIndex) + 0];
+                                ((char*)&v)[1] = data[sizeof(int) * (i + startIndex) + 1];
+                                ((char*)&v)[2] = data[sizeof(int) * (i + startIndex) + 2];
+                                ((char*)&v)[3] = data[sizeof(int) * (i + startIndex) + 3];
                                 theInts[i] = v;
                             }
                             pushIntTableOntoStack(L, count, theInts);
@@ -8234,7 +8233,7 @@ int _simUnpackInt32Table(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simUnpackUInt32Table(luaWrap_lua_State *L)
+int _simUnpackUInt32Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.unpackUInt32Table");
@@ -8263,7 +8262,7 @@ int _simUnpackUInt32Table(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
+                    char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = sizeof(unsigned int) * ((dataLength - additionalCharOffset) / sizeof(unsigned int));
                     int packetCount = int(dataLength / sizeof(unsigned int));
                     if (count == 0)
@@ -8281,14 +8280,14 @@ int _simUnpackUInt32Table(luaWrap_lua_State *L)
                             if (startIndex + count > packetCount)
                                 count = packetCount - startIndex;
 
-                            unsigned int *theInts = new unsigned int[count];
+                            unsigned int* theInts = new unsigned int[count];
                             for (int i = 0; i < int(count); i++)
                             {
                                 unsigned int v;
-                                ((char *)&v)[0] = data[sizeof(unsigned int) * (i + startIndex) + 0];
-                                ((char *)&v)[1] = data[sizeof(unsigned int) * (i + startIndex) + 1];
-                                ((char *)&v)[2] = data[sizeof(unsigned int) * (i + startIndex) + 2];
-                                ((char *)&v)[3] = data[sizeof(unsigned int) * (i + startIndex) + 3];
+                                ((char*)&v)[0] = data[sizeof(unsigned int) * (i + startIndex) + 0];
+                                ((char*)&v)[1] = data[sizeof(unsigned int) * (i + startIndex) + 1];
+                                ((char*)&v)[2] = data[sizeof(unsigned int) * (i + startIndex) + 2];
+                                ((char*)&v)[3] = data[sizeof(unsigned int) * (i + startIndex) + 3];
                                 theInts[i] = v;
                             }
                             pushUIntTableOntoStack(L, count, theInts);
@@ -8305,7 +8304,7 @@ int _simUnpackUInt32Table(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simUnpackFloatTable(luaWrap_lua_State *L)
+int _simUnpackFloatTable(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.unpackFloatTable");
@@ -8334,7 +8333,7 @@ int _simUnpackFloatTable(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
+                    char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = sizeof(float) * ((dataLength - additionalCharOffset) / sizeof(float));
                     int packetCount = int(dataLength / sizeof(float));
                     if (count == 0)
@@ -8352,14 +8351,14 @@ int _simUnpackFloatTable(luaWrap_lua_State *L)
                             if (startIndex + count > packetCount)
                                 count = packetCount - startIndex;
 
-                            float *theFloats = new float[count];
+                            float* theFloats = new float[count];
                             for (int i = 0; i < int(count); i++)
                             {
                                 float v;
-                                ((char *)&v)[0] = data[sizeof(float) * (i + startIndex) + 0];
-                                ((char *)&v)[1] = data[sizeof(float) * (i + startIndex) + 1];
-                                ((char *)&v)[2] = data[sizeof(float) * (i + startIndex) + 2];
-                                ((char *)&v)[3] = data[sizeof(float) * (i + startIndex) + 3];
+                                ((char*)&v)[0] = data[sizeof(float) * (i + startIndex) + 0];
+                                ((char*)&v)[1] = data[sizeof(float) * (i + startIndex) + 1];
+                                ((char*)&v)[2] = data[sizeof(float) * (i + startIndex) + 2];
+                                ((char*)&v)[3] = data[sizeof(float) * (i + startIndex) + 3];
                                 theFloats[i] = v;
                             }
                             pushFloatTableOntoStack(L, count, theFloats);
@@ -8376,7 +8375,7 @@ int _simUnpackFloatTable(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simUnpackDoubleTable(luaWrap_lua_State *L)
+int _simUnpackDoubleTable(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.unpackDoubleTable");
@@ -8405,7 +8404,7 @@ int _simUnpackDoubleTable(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
+                    char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = sizeof(double) * ((dataLength - additionalCharOffset) / sizeof(double));
                     int packetCount = int(dataLength / sizeof(double));
                     if (count == 0)
@@ -8423,18 +8422,18 @@ int _simUnpackDoubleTable(luaWrap_lua_State *L)
                             if (startIndex + count > packetCount)
                                 count = packetCount - startIndex;
 
-                            double *theDoubles = new double[count];
+                            double* theDoubles = new double[count];
                             for (int i = 0; i < int(count); i++)
                             {
                                 double v;
-                                ((char *)&v)[0] = data[sizeof(double) * (i + startIndex) + 0];
-                                ((char *)&v)[1] = data[sizeof(double) * (i + startIndex) + 1];
-                                ((char *)&v)[2] = data[sizeof(double) * (i + startIndex) + 2];
-                                ((char *)&v)[3] = data[sizeof(double) * (i + startIndex) + 3];
-                                ((char *)&v)[4] = data[sizeof(double) * (i + startIndex) + 4];
-                                ((char *)&v)[5] = data[sizeof(double) * (i + startIndex) + 5];
-                                ((char *)&v)[6] = data[sizeof(double) * (i + startIndex) + 6];
-                                ((char *)&v)[7] = data[sizeof(double) * (i + startIndex) + 7];
+                                ((char*)&v)[0] = data[sizeof(double) * (i + startIndex) + 0];
+                                ((char*)&v)[1] = data[sizeof(double) * (i + startIndex) + 1];
+                                ((char*)&v)[2] = data[sizeof(double) * (i + startIndex) + 2];
+                                ((char*)&v)[3] = data[sizeof(double) * (i + startIndex) + 3];
+                                ((char*)&v)[4] = data[sizeof(double) * (i + startIndex) + 4];
+                                ((char*)&v)[5] = data[sizeof(double) * (i + startIndex) + 5];
+                                ((char*)&v)[6] = data[sizeof(double) * (i + startIndex) + 6];
+                                ((char*)&v)[7] = data[sizeof(double) * (i + startIndex) + 7];
                                 theDoubles[i] = v;
                             }
                             pushDoubleTableOntoStack(L, count, theDoubles);
@@ -8451,7 +8450,7 @@ int _simUnpackDoubleTable(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simUnpackUInt8Table(luaWrap_lua_State *L)
+int _simUnpackUInt8Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.unpackUInt8Table");
@@ -8473,7 +8472,7 @@ int _simUnpackUInt8Table(luaWrap_lua_State *L)
                     count = luaToInt(L, 3);
 
                 size_t dataLength;
-                const char *data = (char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+                const char* data = (char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
                 int packetCount = (int)dataLength;
                 if (count == 0)
                     count = int(1999999999);
@@ -8490,11 +8489,11 @@ int _simUnpackUInt8Table(luaWrap_lua_State *L)
                         if (startIndex + count > packetCount)
                             count = packetCount - startIndex;
 
-                        int *theBytes = new int[count];
+                        int* theBytes = new int[count];
                         for (int i = 0; i < count; i++)
                         {
                             unsigned char v;
-                            ((char *)&v)[0] = data[i + startIndex];
+                            ((char*)&v)[0] = data[i + startIndex];
                             theBytes[i] = v;
                         }
                         pushIntTableOntoStack(L, count, theBytes);
@@ -8510,7 +8509,7 @@ int _simUnpackUInt8Table(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simUnpackUInt16Table(luaWrap_lua_State *L)
+int _simUnpackUInt16Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.unpackUInt16Table");
@@ -8539,7 +8538,7 @@ int _simUnpackUInt16Table(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
+                    char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = 2 * ((dataLength - additionalCharOffset) / 2);
                     int packetCount = (int)dataLength / 2;
                     if (count == 0)
@@ -8557,12 +8556,12 @@ int _simUnpackUInt16Table(luaWrap_lua_State *L)
                             if (startIndex + count > packetCount)
                                 count = packetCount - startIndex;
 
-                            int *theWords = new int[count];
+                            int* theWords = new int[count];
                             for (int i = 0; i < int(count); i++)
                             {
                                 unsigned short v;
-                                ((char *)&v)[0] = data[2 * (i + startIndex) + 0];
-                                ((char *)&v)[1] = data[2 * (i + startIndex) + 1];
+                                ((char*)&v)[0] = data[2 * (i + startIndex) + 0];
+                                ((char*)&v)[1] = data[2 * (i + startIndex) + 1];
                                 theWords[i] = v;
                             }
                             pushIntTableOntoStack(L, count, theWords);
@@ -8579,7 +8578,7 @@ int _simUnpackUInt16Table(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simTransformBuffer(luaWrap_lua_State *L)
+int _simTransformBuffer(luaWrap_lua_State* L)
 { // string inBuffer,number inFormat,number multiplier,number offset,number outFormat
     TRACE_LUA_API;
     LUA_START("sim.transformBuffer");
@@ -8599,7 +8598,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const float *data = (const float *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+            const float* data = (const float*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % sizeof(float));
             dataLength /= sizeof(float);
@@ -8607,7 +8606,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             {
                 if (outFormat == sim_buffer_uint8)
                 {
-                    unsigned char *dat = new unsigned char[dataLength];
+                    unsigned char* dat = new unsigned char[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -8640,13 +8639,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (unsigned char)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_uint8rgb)
                 {
-                    unsigned char *dat = new unsigned char[dataLength * 3];
+                    unsigned char* dat = new unsigned char[dataLength * 3];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -8691,13 +8690,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * 3);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * 3);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_int8)
                 {
-                    char *dat = new char[dataLength];
+                    char* dat = new char[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -8730,13 +8729,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (char)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_uint16)
                 {
-                    uint16_t *dat = new uint16_t[dataLength];
+                    uint16_t* dat = new uint16_t[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -8769,13 +8768,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (uint16_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(uint16_t));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(uint16_t));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_int16)
                 {
-                    int16_t *dat = new int16_t[dataLength];
+                    int16_t* dat = new int16_t[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -8808,13 +8807,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (int16_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(int16_t));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(int16_t));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_uint32)
                 {
-                    uint32_t *dat = new uint32_t[dataLength];
+                    uint32_t* dat = new uint32_t[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -8847,13 +8846,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (uint32_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(uint32_t));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(uint32_t));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_int32)
                 {
-                    int32_t *dat = new int32_t[dataLength];
+                    int32_t* dat = new int32_t[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -8888,13 +8887,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (int32_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(int32_t));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(int32_t));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_float)
                 {
-                    float *dat = new float[dataLength];
+                    float* dat = new float[dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -8905,13 +8904,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                         for (size_t i = 0; i < dataLength; i++)
                             dat[i] = data[i] * mult + off;
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(float));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(float));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_double)
                 {
-                    double *dat = new double[dataLength];
+                    double* dat = new double[dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -8922,7 +8921,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                         for (size_t i = 0; i < dataLength; i++)
                             dat[i] = (double)(data[i] * mult + off);
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(double));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(double));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8936,7 +8935,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const double *data = (const double *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+            const double* data = (const double*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % sizeof(double));
             dataLength /= sizeof(double);
@@ -8944,7 +8943,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             {
                 if (outFormat == sim_buffer_uint8)
                 {
-                    unsigned char *dat = new unsigned char[dataLength];
+                    unsigned char* dat = new unsigned char[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -8977,13 +8976,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (unsigned char)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_uint8rgb)
                 {
-                    unsigned char *dat = new unsigned char[dataLength * 3];
+                    unsigned char* dat = new unsigned char[dataLength * 3];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -9028,13 +9027,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * 3);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * 3);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_int8)
                 {
-                    char *dat = new char[dataLength];
+                    char* dat = new char[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -9067,13 +9066,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (char)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_uint16)
                 {
-                    uint16_t *dat = new uint16_t[dataLength];
+                    uint16_t* dat = new uint16_t[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -9106,13 +9105,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (uint16_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(uint16_t));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(uint16_t));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_int16)
                 {
-                    int16_t *dat = new int16_t[dataLength];
+                    int16_t* dat = new int16_t[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -9145,13 +9144,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (int16_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(int16_t));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(int16_t));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_uint32)
                 {
-                    uint32_t *dat = new uint32_t[dataLength];
+                    uint32_t* dat = new uint32_t[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -9184,13 +9183,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (uint32_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(uint32_t));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(uint32_t));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_int32)
                 {
-                    int32_t *dat = new int32_t[dataLength];
+                    int32_t* dat = new int32_t[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -9225,13 +9224,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (int32_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(int32_t));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(int32_t));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_float)
                 {
-                    float *dat = new float[dataLength];
+                    float* dat = new float[dataLength];
                     if (clamp)
                     {
                         if (noScalingNorOffset)
@@ -9264,13 +9263,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (float)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(float));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(float));
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_double)
                 {
-                    double *dat = new double[dataLength];
+                    double* dat = new double[dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9281,7 +9280,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                         for (size_t i = 0; i < dataLength; i++)
                             dat[i] = data[i] * mult + off;
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(double));
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength * sizeof(double));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -9295,7 +9294,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+            const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % 3);
             dataLength /= 3;
@@ -9304,7 +9303,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                 if (((inFormat == sim_buffer_uint8rgb) && (outFormat == sim_buffer_uint8bgr)) ||
                     ((inFormat == sim_buffer_uint8bgr) && (outFormat == sim_buffer_uint8rgb)))
                 {
-                    unsigned char *dat = new unsigned char[3 * dataLength];
+                    unsigned char* dat = new unsigned char[3 * dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9338,13 +9337,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (inFormat == outFormat)
                 {
-                    unsigned char *dat = new unsigned char[3 * dataLength];
+                    unsigned char* dat = new unsigned char[3 * dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9378,7 +9377,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -9392,7 +9391,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+            const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % 4);
             dataLength /= 4;
@@ -9400,7 +9399,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             {
                 if (outFormat == sim_buffer_uint8rgb)
                 {
-                    unsigned char *dat = new unsigned char[3 * dataLength];
+                    unsigned char* dat = new unsigned char[3 * dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9434,13 +9433,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == inFormat)
                 {
-                    unsigned char *dat = new unsigned char[4 * dataLength];
+                    unsigned char* dat = new unsigned char[4 * dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9478,7 +9477,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, 4 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, 4 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -9492,7 +9491,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+            const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % 4);
             dataLength /= 4;
@@ -9500,7 +9499,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             {
                 if (outFormat == sim_buffer_uint8rgb)
                 {
-                    unsigned char *dat = new unsigned char[3 * dataLength];
+                    unsigned char* dat = new unsigned char[3 * dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9534,13 +9533,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == inFormat)
                 {
-                    unsigned char *dat = new unsigned char[4 * dataLength];
+                    unsigned char* dat = new unsigned char[4 * dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9578,7 +9577,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, 4 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, 4 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -9592,7 +9591,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+            const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             if (dataLength != 0)
             {
@@ -9626,7 +9625,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                 }
                 if (outFormat == sim_buffer_uint8)
                 {
-                    unsigned char *dat = new unsigned char[dataLength];
+                    unsigned char* dat = new unsigned char[dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9648,13 +9647,13 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (unsigned char)(double(data[i]) * mult + off);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_uint8rgb)
                 {
-                    unsigned char *dat = new unsigned char[3 * dataLength];
+                    unsigned char* dat = new unsigned char[3 * dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9686,7 +9685,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -9700,7 +9699,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+            const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % 3);
             dataLength /= 3;
@@ -9708,7 +9707,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             {
                 if (outFormat == sim_buffer_uint8)
                 {
-                    unsigned char *dat = new unsigned char[dataLength];
+                    unsigned char* dat = new unsigned char[dataLength];
                     if (noScalingNorOffset)
                     {
                         for (size_t i = 0; i < dataLength; i++)
@@ -9737,7 +9736,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -9748,7 +9747,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
         }
         if (inFormat == sim_buffer_base64)
         {
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
+            const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             if (dataLength != 0)
             {
@@ -9773,7 +9772,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simCombineRgbImages(luaWrap_lua_State *L)
+int _simCombineRgbImages(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.combineRgbImages");
@@ -9782,8 +9781,8 @@ int _simCombineRgbImages(luaWrap_lua_State *L)
                             lua_arg_number, 0))
     {
         size_t img1Length, img2Length;
-        char *img1 = (char *)luaWrap_lua_tobuffer(L, 1, &img1Length);
-        char *img2 = (char *)luaWrap_lua_tobuffer(L, 3, &img2Length);
+        char* img1 = (char*)luaWrap_lua_tobuffer(L, 1, &img1Length);
+        char* img2 = (char*)luaWrap_lua_tobuffer(L, 3, &img2Length);
         int res1[2];
         int res2[2];
         getIntsFromTable(L, 2, 2, res1);
@@ -9795,13 +9794,13 @@ int _simCombineRgbImages(luaWrap_lua_State *L)
             {
                 if (res1[0] == res2[0])
                 {
-                    unsigned char *dat = new unsigned char[(res1[0] * res1[1] + res2[0] * res2[1]) * 3];
+                    unsigned char* dat = new unsigned char[(res1[0] * res1[1] + res2[0] * res2[1]) * 3];
                     size_t l = size_t(res1[0] * res1[1] * 3);
                     for (size_t i = 0; i < l; i++)
                         dat[i] = img1[i];
                     for (size_t i = 0; i < size_t(res2[0] * res2[1] * 3); i++)
                         dat[l + i] = img2[i];
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, (res1[0] * res1[1] + res2[0] * res2[1]) * 3);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, (res1[0] * res1[1] + res2[0] * res2[1]) * 3);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -9812,7 +9811,7 @@ int _simCombineRgbImages(luaWrap_lua_State *L)
             {
                 if (res1[1] == res2[1])
                 {
-                    unsigned char *dat = new unsigned char[(res1[0] * res1[1] + res2[0] * res2[1]) * 3];
+                    unsigned char* dat = new unsigned char[(res1[0] * res1[1] + res2[0] * res2[1]) * 3];
                     for (size_t y = 0; y < size_t(res1[1]); y++)
                     {
                         int off1 = (int)y * res1[0] * 3;
@@ -9824,7 +9823,7 @@ int _simCombineRgbImages(luaWrap_lua_State *L)
                         for (size_t i = 0; i < size_t(res2[0] * 3); i++)
                             dat[off3 + i] = img2[off2 + i];
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)dat, (res1[0] * res1[1] + res2[0] * res2[1]) * 3);
+                    luaWrap_lua_pushbuffer(L, (const char*)dat, (res1[0] * res1[1] + res2[0] * res2[1]) * 3);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -9840,7 +9839,7 @@ int _simCombineRgbImages(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simAddDrawingObject(luaWrap_lua_State *L)
+int _simAddDrawingObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addDrawingObject");
@@ -9854,9 +9853,9 @@ int _simAddDrawingObject(luaWrap_lua_State *L)
         double duplicateTolerance = luaToDouble(L, 3);
         int parentID = luaToInt(L, 4);
         int maxItemCount = luaToInt(L, 5);
-        float *ambient = nullptr;
-        float *specular = nullptr;
-        float *emission = nullptr;
+        float* ambient = nullptr;
+        float* specular = nullptr;
+        float* emission = nullptr;
         int res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 3, true, true, &errorString);
         int okToGo = (res != -1);
         if (okToGo)
@@ -9935,7 +9934,7 @@ int _simAddDrawingObject(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simRemoveDrawingObject(luaWrap_lua_State *L)
+int _simRemoveDrawingObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.removeDrawingObject");
@@ -9945,10 +9944,10 @@ int _simRemoveDrawingObject(luaWrap_lua_State *L)
     {
         int objectHandle = luaToInt(L, 1);
         if (objectHandle == sim_handle_all)
-        { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from
-          // add-on:
+        {   // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from
+            // add-on:
             int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            CScriptObject *itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+            CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
             App::currentWorld->drawingCont->eraseAllObjects();
             retVal = 1;
         }
@@ -9961,7 +9960,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAddDrawingObjectItem(luaWrap_lua_State *L)
+int _simAddDrawingObjectItem(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addDrawingObjectItem");
@@ -9972,7 +9971,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State *L)
         int h = luaToInt(L, 1);
         int handleFlags = h & 0xff00000;
         h = h & 0xfffff;
-        CDrawingObject *it = App::currentWorld->drawingCont->getObject(h);
+        CDrawingObject* it = App::currentWorld->drawingCont->getObject(h);
         size_t d = 3;
         if (it != nullptr)
         {
@@ -9984,14 +9983,14 @@ int _simAddDrawingObjectItem(luaWrap_lua_State *L)
                 if (res == 2)
                 { // append data from string
                     size_t dataLength;
-                    const char *data = luaWrap_lua_tobuffer(L, 2, &dataLength);
+                    const char* data = luaWrap_lua_tobuffer(L, 2, &dataLength);
                     size_t itemCnt = (dataLength / sizeof(float)) / d;
                     if (itemCnt > 0)
                     {
                         std::vector<double> vertices;
                         vertices.resize(itemCnt * d);
                         for (size_t i = 0; i < itemCnt * d; i++)
-                            vertices[i] = double(((float *)data)[i]);
+                            vertices[i] = double(((float*)data)[i]);
                         it->addItems(vertices.data(), itemCnt);
                         retVal = 1;
                     }
@@ -10069,7 +10068,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAddParticleObject(luaWrap_lua_State *L)
+int _simAddParticleObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addParticleObject");
@@ -10095,7 +10094,7 @@ int _simAddParticleObject(luaWrap_lua_State *L)
                     int paramLen = int(luaWrap_lua_rawlen(L, 4));
                     paramLen = (paramLen - 1) / 2;
                     paramLen = paramLen * 2 + 1;
-                    void *params = nullptr;
+                    void* params = nullptr;
                     if (!luaWrap_lua_isnil(L, 4))
                     {
                         int intParams[30];
@@ -10103,18 +10102,18 @@ int _simAddParticleObject(luaWrap_lua_State *L)
                         getIntsFromTable(L, 4, paramLen, intParams);
                         getDoublesFromTable(L, 4, paramLen, floatParams);
                         params = new char[paramLen * sizeof(int)];
-                        ((int *)params)[0] = std::min<int>(intParams[0], (paramLen - 1) / 2);
+                        ((int*)params)[0] = std::min<int>(intParams[0], (paramLen - 1) / 2);
                         for (int i = 0; i < (paramLen - 1) / 2; i++)
                         {
-                            ((int *)params)[1 + 2 * i] = intParams[1 + 2 * i + 0];
-                            ((float *)params)[1 + 2 * i + 1] = (float)(floatParams[1 + 2 * i + 1]);
+                            ((int*)params)[1 + 2 * i] = intParams[1 + 2 * i + 0];
+                            ((float*)params)[1 + 2 * i + 1] = (float)(floatParams[1 + 2 * i + 1]);
                         }
                     }
                     double lifeTime = luaToDouble(L, 5);
                     int maxItemCount = luaToInt(L, 6);
-                    float *ambient = nullptr;
-                    float *specular = nullptr;
-                    float *emission = nullptr;
+                    float* ambient = nullptr;
+                    float* specular = nullptr;
+                    float* emission = nullptr;
                     int res = checkOneGeneralInputArgument(L, 7, lua_arg_number, 3, true, true, &errorString);
                     int okToGo = (res != -1);
                     if (okToGo)
@@ -10176,7 +10175,7 @@ int _simAddParticleObject(luaWrap_lua_State *L)
                                     specular, emission);
                         }
                     }
-                    delete[]((char *)params);
+                    delete[]((char*)params);
                 }
             }
         }
@@ -10187,7 +10186,7 @@ int _simAddParticleObject(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simRemoveParticleObject(luaWrap_lua_State *L)
+int _simRemoveParticleObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.removeParticleObject");
@@ -10204,7 +10203,7 @@ int _simRemoveParticleObject(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAddParticleObjectItem(luaWrap_lua_State *L)
+int _simAddParticleObjectItem(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addParticleObjectItem");
@@ -10244,7 +10243,7 @@ int _simAddParticleObjectItem(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetObjectSizeFactor(luaWrap_lua_State *L)
+int _simGetObjectSizeFactor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectSizeFactor");
@@ -10258,7 +10257,7 @@ int _simGetObjectSizeFactor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simReadForceSensor(luaWrap_lua_State *L)
+int _simReadForceSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.readForceSensor");
@@ -10276,7 +10275,7 @@ int _simReadForceSensor(luaWrap_lua_State *L)
     LUA_END(3);
 }
 
-int _simGetVelocity(luaWrap_lua_State *L)
+int _simGetVelocity(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getVelocity");
@@ -10292,7 +10291,7 @@ int _simGetVelocity(luaWrap_lua_State *L)
     LUA_END(2);
 }
 
-int _simGetObjectVelocity(luaWrap_lua_State *L)
+int _simGetObjectVelocity(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectVelocity");
@@ -10308,7 +10307,7 @@ int _simGetObjectVelocity(luaWrap_lua_State *L)
     LUA_END(2);
 }
 
-int _simGetJointVelocity(luaWrap_lua_State *L)
+int _simGetJointVelocity(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointVelocity");
@@ -10328,7 +10327,7 @@ int _simGetJointVelocity(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simAddForceAndTorque(luaWrap_lua_State *L)
+int _simAddForceAndTorque(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addForceAndTorque");
@@ -10359,7 +10358,7 @@ int _simAddForceAndTorque(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAddForce(luaWrap_lua_State *L)
+int _simAddForce(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addForce");
@@ -10379,7 +10378,7 @@ int _simAddForce(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetExplicitHandling(luaWrap_lua_State *L)
+int _simSetExplicitHandling(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setExplicitHandling");
@@ -10393,7 +10392,7 @@ int _simSetExplicitHandling(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetExplicitHandling(luaWrap_lua_State *L)
+int _simGetExplicitHandling(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getExplicitHandling");
@@ -10407,7 +10406,7 @@ int _simGetExplicitHandling(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetLinkDummy(luaWrap_lua_State *L)
+int _simGetLinkDummy(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getLinkDummy");
@@ -10421,7 +10420,7 @@ int _simGetLinkDummy(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetLinkDummy(luaWrap_lua_State *L)
+int _simSetLinkDummy(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setLinkDummy");
@@ -10435,7 +10434,7 @@ int _simSetLinkDummy(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetShapeColor(luaWrap_lua_State *L)
+int _simSetShapeColor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setShapeColor");
@@ -10445,8 +10444,8 @@ int _simSetShapeColor(luaWrap_lua_State *L)
     bool ok = false;
     bool correctColors = false;
     if (!checkInputArguments(L, nullptr, lua_arg_number, 0))
-    { // this section is to guarantee backward compatibility: color values have changed in the release following 3.1.3.
-      // So we need to adjust them
+    {   // this section is to guarantee backward compatibility: color values have changed in the release following 3.1.3.
+        // So we need to adjust them
         if (checkInputArguments(L, &errorString, lua_arg_string, 0))
         {
             std::string txt(luaWrap_lua_tostring(L, 1));
@@ -10474,7 +10473,7 @@ int _simSetShapeColor(luaWrap_lua_State *L)
     if (ok)
     { // First arg ok
         std::string strTmp;
-        char *str = nullptr;
+        char* str = nullptr;
         int colorComponent = 0;
         bool err = false;
         bool transformColor = false;
@@ -10482,7 +10481,7 @@ int _simSetShapeColor(luaWrap_lua_State *L)
         if (res == 2)
         {
             strTmp = luaWrap_lua_tostring(L, 2);
-            str = (char *)strTmp.c_str();
+            str = (char*)strTmp.c_str();
             transformColor = ((strTmp.length() > 1) && (strTmp[0] == '@'));
         }
         err = err || (res < 1);
@@ -10503,7 +10502,7 @@ int _simSetShapeColor(luaWrap_lua_State *L)
                 {
                     if (strTmp.compare("@compound") == 0)
                     {
-                        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+                        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
                         if (shape != nullptr)
                             floatsInTableExpected *= shape->getComponentCount();
                     }
@@ -10534,7 +10533,7 @@ int _simSetShapeColor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetShapeColor(luaWrap_lua_State *L)
+int _simGetShapeColor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getShapeColor");
@@ -10544,14 +10543,14 @@ int _simGetShapeColor(luaWrap_lua_State *L)
     { // First arg ok
         int shapeHandle = luaToInt(L, 1);
         std::string strTmp;
-        char *str = nullptr;
+        char* str = nullptr;
         int colorComponent = 0;
         bool err = false;
         int res = checkOneGeneralInputArgument(L, 2, lua_arg_string, 0, false, true, &errorString);
         if (res == 2)
         {
             strTmp = luaWrap_lua_tostring(L, 2);
-            str = (char *)strTmp.c_str();
+            str = (char*)strTmp.c_str();
         }
         err = err || (res < 1);
         if (!err)
@@ -10565,7 +10564,7 @@ int _simGetShapeColor(luaWrap_lua_State *L)
                 int res = 1;
                 if (strTmp.compare("@compound") == 0)
                 {
-                    CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+                    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
                     if (shape != nullptr)
                         res = shape->getComponentCount();
                 }
@@ -10591,7 +10590,7 @@ int _simGetShapeColor(luaWrap_lua_State *L)
     LUA_END(2);
 }
 
-int _simSetObjectColor(luaWrap_lua_State *L)
+int _simSetObjectColor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectColor");
@@ -10613,7 +10612,7 @@ int _simSetObjectColor(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectColor(luaWrap_lua_State *L)
+int _simGetObjectColor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectColor");
@@ -10633,7 +10632,7 @@ int _simGetObjectColor(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simResetDynamicObject(luaWrap_lua_State *L)
+int _simResetDynamicObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.resetDynamicObject");
@@ -10647,7 +10646,7 @@ int _simResetDynamicObject(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetJointMode(luaWrap_lua_State *L)
+int _simSetJointMode(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setJointMode");
@@ -10661,7 +10660,7 @@ int _simSetJointMode(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetJointMode(luaWrap_lua_State *L)
+int _simGetJointMode(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointMode");
@@ -10677,7 +10676,7 @@ int _simGetJointMode(luaWrap_lua_State *L)
     LUA_END(2);
 }
 
-int _simSerialOpen(luaWrap_lua_State *L)
+int _simSerialOpen(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim._serialOpen");
@@ -10687,7 +10686,7 @@ int _simSerialOpen(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
     {
         size_t dataLength;
-        const char *portName = luaWrap_lua_tobuffer(L, 1, &dataLength);
+        const char* portName = luaWrap_lua_tobuffer(L, 1, &dataLength);
         int baudrate = luaToInt(L, 2);
         retVal = App::worldContainer->serialPortContainer->serialPortOpen(true, portName, baudrate);
     }
@@ -10698,7 +10697,7 @@ int _simSerialOpen(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSerialClose(luaWrap_lua_State *L)
+int _simSerialClose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim._serialClose");
@@ -10710,7 +10709,7 @@ int _simSerialClose(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSerialSend(luaWrap_lua_State *L)
+int _simSerialSend(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.serialSend");
@@ -10719,7 +10718,7 @@ int _simSerialSend(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
     {
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
+        char* data = (char*)luaWrap_lua_tobuffer(L, 2, &dataLength);
         retVal = simSerialSend_internal(luaToInt(L, 1), data, (int)dataLength);
     }
 
@@ -10728,7 +10727,7 @@ int _simSerialSend(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSerialRead(luaWrap_lua_State *L)
+int _simSerialRead(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim._serialRead");
@@ -10738,7 +10737,7 @@ int _simSerialRead(luaWrap_lua_State *L)
         size_t maxLength = (size_t)luaToInt(L, 2);
         std::string data;
         data.resize(maxLength);
-        int nb = simSerialRead_internal(luaToInt(L, 1), (char *)data.c_str(), (int)maxLength);
+        int nb = simSerialRead_internal(luaToInt(L, 1), (char*)data.c_str(), (int)maxLength);
         if (nb > 0)
         {
             luaWrap_lua_pushbuffer(L, data.c_str(), nb);
@@ -10750,7 +10749,7 @@ int _simSerialRead(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSerialCheck(luaWrap_lua_State *L)
+int _simSerialCheck(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.serialCheck");
@@ -10764,7 +10763,7 @@ int _simSerialCheck(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetContactInfo(luaWrap_lua_State *L)
+int _simGetContactInfo(luaWrap_lua_State* L)
 { // problematic for remote API and in general: function returns different return value count
     TRACE_LUA_API;
     LUA_START("sim.getContactInfo");
@@ -10798,7 +10797,7 @@ int _simGetContactInfo(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simAuxiliaryConsoleOpen(luaWrap_lua_State *L)
+int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.auxiliaryConsoleOpen");
@@ -10808,7 +10807,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State *L)
     {
         int mode = luaToInt(L, 3);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
         if ((itScrObj->getScriptType() == sim_scripttype_main) ||
             (itScrObj->getScriptType() == sim_scripttype_simulation))
         { // Add-ons and customization scripts do not have this restriction
@@ -10820,10 +10819,10 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State *L)
             mode |= 16;
             mode -= 16;
         }
-        int *p = nullptr;
-        int *s = nullptr;
-        float *tc = nullptr;
-        float *bc = nullptr;
+        int* p = nullptr;
+        int* s = nullptr;
+        float* tc = nullptr;
+        float* bc = nullptr;
         int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 2, true, true, &errorString);
         if (res >= 0)
         {
@@ -10879,7 +10878,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAuxiliaryConsoleClose(luaWrap_lua_State *L)
+int _simAuxiliaryConsoleClose(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.auxiliaryConsoleClose");
@@ -10893,7 +10892,7 @@ int _simAuxiliaryConsoleClose(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAuxiliaryConsoleShow(luaWrap_lua_State *L)
+int _simAuxiliaryConsoleShow(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.auxiliaryConsoleShow");
@@ -10907,7 +10906,7 @@ int _simAuxiliaryConsoleShow(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAuxiliaryConsolePrint(luaWrap_lua_State *L)
+int _simAuxiliaryConsolePrint(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.auxiliaryConsolePrint");
@@ -10927,7 +10926,7 @@ int _simAuxiliaryConsolePrint(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simImportShape(luaWrap_lua_State *L)
+int _simImportShape(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.importShape");
@@ -10950,7 +10949,7 @@ int _simImportShape(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simImportMesh(luaWrap_lua_State *L)
+int _simImportMesh(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.importMesh");
@@ -10964,10 +10963,10 @@ int _simImportMesh(luaWrap_lua_State *L)
         int options = luaToInt(L, 3);
         double identicalVerticeTolerance = luaToDouble(L, 4);
         double scalingFactor = luaToDouble(L, 5);
-        double **vertices;
-        int *verticesSizes;
-        int **indices;
-        int *indicesSizes;
+        double** vertices;
+        int* verticesSizes;
+        int** indices;
+        int* indicesSizes;
         int elementCount =
             simImportMesh_internal(fileType, pathAndFilename.c_str(), options, identicalVerticeTolerance, scalingFactor,
                                    &vertices, &verticesSizes, &indices, &indicesSizes, nullptr, nullptr);
@@ -11020,7 +11019,7 @@ int _simImportMesh(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simExportMesh(luaWrap_lua_State *L)
+int _simExportMesh(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.exportMesh");
@@ -11043,13 +11042,13 @@ int _simExportMesh(luaWrap_lua_State *L)
         if ((checkOneGeneralInputArgument(L, 5, lua_arg_table, elementCount, false, false, &errorString) == 2) &&
             (checkOneGeneralInputArgument(L, 6, lua_arg_table, elementCount, false, false, &errorString) == 2))
         {
-            double **vertices;
-            int *verticesSizes;
-            int **indices;
-            int *indicesSizes;
-            vertices = new double *[elementCount];
+            double** vertices;
+            int* verticesSizes;
+            int** indices;
+            int* indicesSizes;
+            vertices = new double*[elementCount];
             verticesSizes = new int[elementCount];
-            indices = new int *[elementCount];
+            indices = new int*[elementCount];
             indicesSizes = new int[elementCount];
             // Following needed if we break before (because one table in a table is not correct (or not a table)):
             for (int i = 0; i < elementCount; i++)
@@ -11107,7 +11106,7 @@ int _simExportMesh(luaWrap_lua_State *L)
 
             if (!error)
                 retVal = simExportMesh_internal(fileType, pathAndFilename.c_str(), options, scalingFactor, elementCount,
-                                                (const double **)vertices, verticesSizes, (const int **)indices,
+                                                (const double**)vertices, verticesSizes, (const int**)indices,
                                                 indicesSizes, nullptr, nullptr);
 
             for (int i = 0; i < elementCount; i++)
@@ -11127,7 +11126,7 @@ int _simExportMesh(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateShape(luaWrap_lua_State *L)
+int _simCreateShape(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createShape");
@@ -11160,12 +11159,12 @@ int _simCreateShape(luaWrap_lua_State *L)
 
                 std::vector<double> normals;
                 normals.resize(il * 3);
-                double *_normals = nullptr;
+                double* _normals = nullptr;
                 std::vector<float> texCoords;
                 texCoords.resize(il * 2);
-                float *_texCoords = nullptr;
+                float* _texCoords = nullptr;
                 int resol[2];
-                unsigned char *img = nullptr;
+                unsigned char* img = nullptr;
 
                 res = checkOneGeneralInputArgument(L, 5, lua_arg_number, il * 3, true, true, &errorString);
                 if (res == 2)
@@ -11182,7 +11181,7 @@ int _simCreateShape(luaWrap_lua_State *L)
                 res = checkOneGeneralInputArgument(L, 7, lua_arg_string, 0, true, true, &errorString);
                 size_t l;
                 if (res == 2)
-                    img = (unsigned char *)luaWrap_lua_tobuffer(L, 7, &l);
+                    img = (unsigned char*)luaWrap_lua_tobuffer(L, 7, &l);
                 res = checkOneGeneralInputArgument(L, 8, lua_arg_integer, 2, true, true, &errorString);
                 if (res == 2)
                     getIntsFromTable(L, 8, 2, resol);
@@ -11197,18 +11196,18 @@ int _simCreateShape(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetShapeMesh(luaWrap_lua_State *L)
+int _simGetShapeMesh(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getShapeMesh");
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        double *vertices;
+        double* vertices;
         int verticesSize;
-        int *indices;
+        int* indices;
         int indicesSize;
-        double *normals;
+        double* normals;
         int result =
             simGetShapeMesh_internal(luaToInt(L, 1), &vertices, &verticesSize, &indices, &indicesSize, &normals);
         if (result > 0)
@@ -11227,7 +11226,7 @@ int _simGetShapeMesh(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetShapeBB(luaWrap_lua_State *L)
+int _simGetShapeBB(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getShapeBB");
@@ -11260,7 +11259,7 @@ int _simGetShapeBB(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simCreatePrimitiveShape(luaWrap_lua_State *L)
+int _simCreatePrimitiveShape(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createPrimitiveShape");
@@ -11286,7 +11285,7 @@ int _simCreatePrimitiveShape(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateHeightfieldShape(luaWrap_lua_State *L)
+int _simCreateHeightfieldShape(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createHeightfieldShape");
@@ -11304,7 +11303,7 @@ int _simCreateHeightfieldShape(luaWrap_lua_State *L)
             checkOneGeneralInputArgument(L, 6, lua_arg_number, xPointCount * yPointCount, false, false, &errorString);
         if (res == 2)
         {
-            double *heights = new double[xPointCount * yPointCount];
+            double* heights = new double[xPointCount * yPointCount];
             getDoublesFromTable(L, 6, xPointCount * yPointCount, heights);
             retVal =
                 simCreateHeightfieldShape_internal(options, shadingAngle, xPointCount, yPointCount, xSize, heights);
@@ -11317,7 +11316,7 @@ int _simCreateHeightfieldShape(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateJoint(luaWrap_lua_State *L)
+int _simCreateJoint(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createJoint");
@@ -11328,9 +11327,9 @@ int _simCreateJoint(luaWrap_lua_State *L)
         int jointType = luaToInt(L, 1);
         int jointMode = luaToInt(L, 2);
         int options = luaToInt(L, 3);
-        double *sizes = nullptr;
-        double *colorA = nullptr;
-        double *colorB = nullptr;
+        double* sizes = nullptr;
+        double* colorA = nullptr;
+        double* colorB = nullptr;
         double s[2];
         double cA[12];
         double cB[12];
@@ -11369,7 +11368,7 @@ int _simCreateJoint(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateDummy(luaWrap_lua_State *L)
+int _simCreateDummy(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createDummy");
@@ -11378,7 +11377,7 @@ int _simCreateDummy(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double size = luaToDouble(L, 1);
-        float *color = nullptr;
+        float* color = nullptr;
         float c[12] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.25, 0.25, 0.0, 0.0, 0.0};
         int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 3, true, true, &errorString);
         if (res >= 0)
@@ -11397,7 +11396,7 @@ int _simCreateDummy(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateScript(luaWrap_lua_State *L)
+int _simCreateScript(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createScript");
@@ -11430,7 +11429,7 @@ int _simCreateScript(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateProximitySensor(luaWrap_lua_State *L)
+int _simCreateProximitySensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createProximitySensor");
@@ -11447,7 +11446,7 @@ int _simCreateProximitySensor(luaWrap_lua_State *L)
         getIntsFromTable(L, 4, 8, intParams);
         getDoublesFromTable(L, 5, 15, floatParams);
 
-        double *color = nullptr;
+        double* color = nullptr;
         double c[48];
         int res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 48, true, true, &errorString);
         if (res >= 0)
@@ -11466,7 +11465,7 @@ int _simCreateProximitySensor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateForceSensor(luaWrap_lua_State *L)
+int _simCreateForceSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createForceSensor");
@@ -11480,7 +11479,7 @@ int _simCreateForceSensor(luaWrap_lua_State *L)
         getIntsFromTable(L, 2, 5, intParams);
         getDoublesFromTable(L, 3, 5, floatParams);
 
-        double *color = nullptr;
+        double* color = nullptr;
         double c[24];
         int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 24, true, true, &errorString);
         if (res >= 0)
@@ -11499,7 +11498,7 @@ int _simCreateForceSensor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateVisionSensor(luaWrap_lua_State *L)
+int _simCreateVisionSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createVisionSensor");
@@ -11513,7 +11512,7 @@ int _simCreateVisionSensor(luaWrap_lua_State *L)
         getIntsFromTable(L, 2, 4, intParams);
         getDoublesFromTable(L, 3, 11, floatParams);
 
-        double *color = nullptr;
+        double* color = nullptr;
         double c[48];
         int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 48, true, true, &errorString);
         if (res >= 0)
@@ -11532,7 +11531,7 @@ int _simCreateVisionSensor(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simFloatingViewAdd(luaWrap_lua_State *L)
+int _simFloatingViewAdd(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.floatingViewAdd");
@@ -11548,7 +11547,7 @@ int _simFloatingViewAdd(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simFloatingViewRemove(luaWrap_lua_State *L)
+int _simFloatingViewRemove(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.floatingViewRemove");
@@ -11562,7 +11561,7 @@ int _simFloatingViewRemove(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAdjustView(luaWrap_lua_State *L)
+int _simAdjustView(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.adjustView");
@@ -11573,9 +11572,9 @@ int _simAdjustView(luaWrap_lua_State *L)
         int res = checkOneGeneralInputArgument(L, 4, lua_arg_string, 0, true, true, &errorString);
         if (res >= 0)
         {
-            char *txt = nullptr;
+            char* txt = nullptr;
             if (res == 2)
-                txt = (char *)luaWrap_lua_tostring(L, 4);
+                txt = (char*)luaWrap_lua_tostring(L, 4);
             if ((txt != nullptr) && (strlen(txt) > 0))
                 retVal = simAdjustView_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), txt);
             else
@@ -11588,7 +11587,7 @@ int _simAdjustView(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCameraFitToView(luaWrap_lua_State *L)
+int _simCameraFitToView(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.cameraFitToView");
@@ -11596,14 +11595,14 @@ int _simCameraFitToView(luaWrap_lua_State *L)
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        int *objPtr = nullptr;
+        int* objPtr = nullptr;
         int options = 0;
         double scaling = 1.0;
         int tableLen = 2;
         if (luaWrap_lua_isnonbuffertable(L, 2))
         {
             tableLen = int(luaWrap_lua_rawlen(L, 2));
-            int *buffer = new int[tableLen];
+            int* buffer = new int[tableLen];
             objPtr = buffer;
             getIntsFromTable(L, 2, tableLen, buffer);
         }
@@ -11632,7 +11631,7 @@ int _simCameraFitToView(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAnnounceSceneContentChange(luaWrap_lua_State *L)
+int _simAnnounceSceneContentChange(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.announceSceneContentChange");
@@ -11644,7 +11643,7 @@ int _simAnnounceSceneContentChange(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetRotationAxis(luaWrap_lua_State *L)
+int _simGetRotationAxis(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getRotationAxis");
@@ -11705,7 +11704,7 @@ int _simGetRotationAxis(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simRotateAroundAxis(luaWrap_lua_State *L)
+int _simRotateAroundAxis(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.rotateAroundAxis");
@@ -11769,7 +11768,7 @@ int _simRotateAroundAxis(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetJointForce(luaWrap_lua_State *L)
+int _simGetJointForce(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getJointForce");
@@ -11787,7 +11786,7 @@ int _simGetJointForce(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simIsHandle(luaWrap_lua_State *L)
+int _simIsHandle(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.isHandle");
@@ -11812,7 +11811,7 @@ int _simIsHandle(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simRuckigPos(luaWrap_lua_State *L)
+int _simRuckigPos(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.ruckigPos");
@@ -11877,7 +11876,7 @@ int _simRuckigPos(luaWrap_lua_State *L)
                          // for autom. object deletion when script ends)
             int retVal = simRuckigPos_internal(dofs, timeStep, flags, &currentPosVelAccel[0], &currentPosVelAccel[dofs],
                                                &currentPosVelAccel[dofs * 2], &minMaxVel[0], &minMaxAccel[0],
-                                               &maxJerk[0], (bool *)selection.data(), &targetPosVel[0],
+                                               &maxJerk[0], (bool*)selection.data(), &targetPosVel[0],
                                                &targetPosVel[dofs], nullptr, nullptr);
             setCurrentScriptInfo_cSide(-1, -1);
 
@@ -11893,7 +11892,7 @@ int _simRuckigPos(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simRuckigVel(luaWrap_lua_State *L)
+int _simRuckigVel(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.ruckigVel");
@@ -11948,7 +11947,7 @@ int _simRuckigVel(luaWrap_lua_State *L)
                          // for autom. object deletion when script ends)
             int retVal = simRuckigVel_internal(dofs, timeStep, flags, &currentPosVelAccel[0], &currentPosVelAccel[dofs],
                                                &currentPosVelAccel[dofs * 2], &minMaxAccel[0], &maxJerk[0],
-                                               (bool *)selection.data(), &targetVel[0], nullptr, nullptr);
+                                               (bool*)selection.data(), &targetVel[0], nullptr, nullptr);
             setCurrentScriptInfo_cSide(-1, -1);
 
             if (retVal >= 0)
@@ -11963,7 +11962,7 @@ int _simRuckigVel(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simRuckigStep(luaWrap_lua_State *L)
+int _simRuckigStep(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.ruckigStep");
@@ -11992,7 +11991,7 @@ int _simRuckigStep(luaWrap_lua_State *L)
     LUA_END(3);
 }
 
-int _simRuckigRemove(luaWrap_lua_State *L)
+int _simRuckigRemove(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.ruckigRemove");
@@ -12012,7 +12011,7 @@ int _simRuckigRemove(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetObjectQuaternion(luaWrap_lua_State *L)
+int _simGetObjectQuaternion(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectQuaternion");
@@ -12034,7 +12033,7 @@ int _simGetObjectQuaternion(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetObjectQuaternion(luaWrap_lua_State *L)
+int _simSetObjectQuaternion(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setObjectQuaternion");
@@ -12066,7 +12065,7 @@ int _simSetObjectQuaternion(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simBuildMatrixQ(luaWrap_lua_State *L)
+int _simBuildMatrixQ(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.buildMatrixQ");
@@ -12089,7 +12088,7 @@ int _simBuildMatrixQ(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetQuaternionFromMatrix(luaWrap_lua_State *L)
+int _simGetQuaternionFromMatrix(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getQuaternionFromMatrix");
@@ -12110,14 +12109,14 @@ int _simGetQuaternionFromMatrix(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simCallScriptFunction(luaWrap_lua_State *L)
+int _simCallScriptFunction(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.callScriptFunction");
 
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
     {
-        CScriptObject *script = nullptr;
+        CScriptObject* script = nullptr;
         std::string funcName;
         int scriptHandleOrType = luaToInt(L, 2);
         if (scriptHandleOrType == sim_handle_self)
@@ -12130,7 +12129,7 @@ int _simCallScriptFunction(luaWrap_lua_State *L)
         {
             if (script->hasInterpreterState())
             {
-                CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
                 CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 0); // skip the two first args
 
                 if (script->getThreadedExecutionIsUnderWay_oldThreads())
@@ -12161,11 +12160,11 @@ int _simCallScriptFunction(luaWrap_lua_State *L)
                     }
                     else
                     { // we have to execute that function via another thread!
-                        void *d[4];
+                        void* d[4];
                         int callType = 1;
                         d[0] = &callType;
                         d[1] = script;
-                        d[2] = (void *)funcName.c_str();
+                        d[2] = (void*)funcName.c_str();
                         d[3] = stack;
                         int retVal =
                             CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(), d);
@@ -12232,7 +12231,7 @@ int _simCallScriptFunction(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetShapeMass(luaWrap_lua_State *L)
+int _simGetShapeMass(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getShapeMass");
@@ -12253,7 +12252,7 @@ int _simGetShapeMass(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetShapeMass(luaWrap_lua_State *L)
+int _simSetShapeMass(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setShapeMass");
@@ -12269,7 +12268,7 @@ int _simSetShapeMass(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetShapeInertia(luaWrap_lua_State *L)
+int _simGetShapeInertia(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getShapeInertia");
@@ -12292,7 +12291,7 @@ int _simGetShapeInertia(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetShapeInertia(luaWrap_lua_State *L)
+int _simSetShapeInertia(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setShapeInertia");
@@ -12311,7 +12310,7 @@ int _simSetShapeInertia(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simIsDynamicallyEnabled(luaWrap_lua_State *L)
+int _simIsDynamicallyEnabled(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.isDynamicallyEnabled");
@@ -12331,7 +12330,7 @@ int _simIsDynamicallyEnabled(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGenerateShapeFromPath(luaWrap_lua_State *L)
+int _simGenerateShapeFromPath(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.generateShapeFromPath");
@@ -12345,7 +12344,7 @@ int _simGenerateShapeFromPath(luaWrap_lua_State *L)
         getDoublesFromTable(L, 1, luaWrap_lua_rawlen(L, 1), &ppath[0]);
         getDoublesFromTable(L, 2, luaWrap_lua_rawlen(L, 2), &section[0]);
         int options = 0;
-        double *zvect = nullptr;
+        double* zvect = nullptr;
         int res = checkOneGeneralInputArgument(L, 3, lua_arg_integer, 0, true, true, &errorString);
         if (res >= 0)
         {
@@ -12375,7 +12374,7 @@ int _simGenerateShapeFromPath(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetClosestPosOnPath(luaWrap_lua_State *L)
+int _simGetClosestPosOnPath(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getClosestPosOnPath");
@@ -12406,7 +12405,7 @@ int _simGetClosestPosOnPath(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simInitScript(luaWrap_lua_State *L)
+int _simInitScript(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.initScript");
@@ -12421,7 +12420,7 @@ int _simInitScript(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simModuleEntry(luaWrap_lua_State *L)
+int _simModuleEntry(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.moduleEntry");
@@ -12429,7 +12428,7 @@ int _simModuleEntry(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0))
     {
         int itemHandle = luaToInt(L, 1);
-        const char *label = nullptr;
+        const char* label = nullptr;
         std::string _label;
         int state = -1;
         int res = checkOneGeneralInputArgument(L, 2, lua_arg_string, 0, false, true, &errorString);
@@ -12465,7 +12464,7 @@ int _simModuleEntry(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPushUserEvent(luaWrap_lua_State *L)
+int _simPushUserEvent(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.pushUserEvent");
@@ -12485,13 +12484,13 @@ int _simPushUserEvent(luaWrap_lua_State *L)
                     options = luaToInt(L, 5);
                 if (App::worldContainer->getEventsEnabled())
                 {
-                    CCbor *ev = App::worldContainer->createNakedEvent(eventStr.c_str(), handle, uid, (options & 1) != 0);
+                    CCbor* ev = App::worldContainer->createNakedEvent(eventStr.c_str(), handle, uid, (options & 1) != 0);
                     ev->appendText("data");
-                    CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+                    CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
                     CScriptObject::buildFromInterpreterStack_lua(L, stack, 4, 1); // skip the 3 first args
                     std::string buff = stack->getCborEncodedBuffer(0);
                     App::worldContainer->interfaceStackContainer->destroyStack(stack);
-                    ev->appendRaw((unsigned char *)buff.data(), buff.size());
+                    ev->appendRaw((unsigned char*)buff.data(), buff.size());
                     App::worldContainer->pushEvent();
                 }
             }
@@ -12503,7 +12502,7 @@ int _simPushUserEvent(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simBroadcastMsg(luaWrap_lua_State *L)
+int _simBroadcastMsg(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.broadcastMsg");
@@ -12516,7 +12515,7 @@ int _simBroadcastMsg(luaWrap_lua_State *L)
         {
             if (res == 2)
                 options = luaToInt(L, 2);
-            CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L, stack, 1, 0);
             int scriptHandle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             stack->pushInt32OntoStack(scriptHandle, false);
@@ -12530,7 +12529,7 @@ int _simBroadcastMsg(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetVisionSensorRes(luaWrap_lua_State *L)
+int _simGetVisionSensorRes(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getVisionSensorRes");
@@ -12549,20 +12548,20 @@ int _simGetVisionSensorRes(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simHandleJointMotion(luaWrap_lua_State *L)
+int _simHandleJointMotion(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleJointMotion");
 
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if (it != nullptr)
     {
         if (it->getScriptType() == sim_scripttype_main)
         {
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
             {
-                CJoint *it = App::currentWorld->sceneObjects->getJointFromIndex(i);
+                CJoint* it = App::currentWorld->sceneObjects->getJointFromIndex(i);
                 if (it->getJointMode() == sim_jointmode_kinematic)
                     it->handleMotion();
             }
@@ -12575,7 +12574,7 @@ int _simHandleJointMotion(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetGenesisEvents(luaWrap_lua_State *L)
+int _simGetGenesisEvents(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getGenesisEvents");
@@ -12584,14 +12583,14 @@ int _simGetGenesisEvents(luaWrap_lua_State *L)
 
     std::vector<unsigned char> genesisEvents;
     App::worldContainer->getGenesisEvents(&genesisEvents, nullptr);
-    luaWrap_lua_pushbuffer(L, (char *)genesisEvents.data(), genesisEvents.size());
+    luaWrap_lua_pushbuffer(L, (char*)genesisEvents.data(), genesisEvents.size());
     LUA_END(1);
 
     //    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     //    LUA_END(0);
 }
 
-int _simGroupShapes(luaWrap_lua_State *L)
+int _simGroupShapes(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.groupShapes");
@@ -12606,7 +12605,7 @@ int _simGroupShapes(luaWrap_lua_State *L)
             if (res == 2)
                 mergeShapes = luaToBool(L, 2);
             int tableSize = int(luaWrap_lua_rawlen(L, 1));
-            int *theTable = new int[tableSize];
+            int* theTable = new int[tableSize];
             getIntsFromTable(L, 1, tableSize, theTable);
             if (mergeShapes)
                 tableSize = -tableSize;
@@ -12620,7 +12619,7 @@ int _simGroupShapes(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simUngroupShape(luaWrap_lua_State *L)
+int _simUngroupShape(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.ungroupShape");
@@ -12629,7 +12628,7 @@ int _simUngroupShape(luaWrap_lua_State *L)
     {
         int shapeHandle = luaToInt(L, 1);
         int count;
-        int *handles = simUngroupShape_internal(shapeHandle, &count);
+        int* handles = simUngroupShape_internal(shapeHandle, &count);
         if (handles != nullptr)
         {
             pushIntTableOntoStack(L, count, handles);
@@ -12642,7 +12641,7 @@ int _simUngroupShape(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetShapeMaterial(luaWrap_lua_State *L)
+int _simSetShapeMaterial(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setShapeMaterial");
@@ -12660,7 +12659,7 @@ int _simSetShapeMaterial(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetTextureId(luaWrap_lua_State *L)
+int _simGetTextureId(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getTextureId");
@@ -12682,7 +12681,7 @@ int _simGetTextureId(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simReadTexture(luaWrap_lua_State *L)
+int _simReadTexture(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.readTexture");
@@ -12718,7 +12717,7 @@ int _simReadTexture(luaWrap_lua_State *L)
                         if (res == 2)
                             sizeY = luaToInt(L, 6);
 
-                        CTextureObject *to = App::currentWorld->textureContainer->getObject(textureId);
+                        CTextureObject* to = App::currentWorld->textureContainer->getObject(textureId);
                         if (to != nullptr)
                         {
                             int tSizeX, tSizeY;
@@ -12736,11 +12735,11 @@ int _simReadTexture(luaWrap_lua_State *L)
                                     posY = 0;
                                     sizeY = tSizeY;
                                 }
-                                unsigned char *textureData =
+                                unsigned char* textureData =
                                     simReadTexture_internal(textureId, options, posX, posY, sizeX, sizeY);
                                 if (textureData != nullptr)
                                 { // here we return RGB data in a string
-                                    luaWrap_lua_pushbuffer(L, (char *)textureData, sizeX * sizeY * 3);
+                                    luaWrap_lua_pushbuffer(L, (char*)textureData, sizeX * sizeY * 3);
                                     simReleaseBuffer_internal(textureData);
                                     LUA_END(1);
                                 }
@@ -12760,7 +12759,7 @@ int _simReadTexture(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simWriteTexture(luaWrap_lua_State *L)
+int _simWriteTexture(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.writeTexture");
@@ -12771,7 +12770,7 @@ int _simWriteTexture(luaWrap_lua_State *L)
         int textureId = luaToInt(L, 1);
         int options = luaToInt(L, 2);
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
+        char* data = (char*)luaWrap_lua_tobuffer(L, 3, &dataLength);
         if (dataLength >= 3)
         {
             int posX = 0;
@@ -12806,7 +12805,7 @@ int _simWriteTexture(luaWrap_lua_State *L)
                             {
                                 if (res == 2)
                                     interpol = luaToDouble(L, 8);
-                                CTextureObject *to = App::currentWorld->textureContainer->getObject(textureId);
+                                CTextureObject* to = App::currentWorld->textureContainer->getObject(textureId);
                                 if (to != nullptr)
                                 {
                                     int tSizeX, tSizeY;
@@ -12860,7 +12859,7 @@ int _simWriteTexture(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateTexture(luaWrap_lua_State *L)
+int _simCreateTexture(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createTexture");
@@ -12869,11 +12868,11 @@ int _simCreateTexture(luaWrap_lua_State *L)
     {
         std::string fileName(luaWrap_lua_tostring(L, 1));
         int options = luaToInt(L, 2);
-        double *planeSizesP = nullptr;
+        double* planeSizesP = nullptr;
         double planeSizes[2];
-        double *scalingUVP = nullptr;
+        double* scalingUVP = nullptr;
         double scalingUV[2];
-        double *xy_gP = nullptr;
+        double* xy_gP = nullptr;
         double xy_g[3];
         int resolution[2] = {0, 0}; // means: just any!
 
@@ -12948,7 +12947,7 @@ int _simCreateTexture(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetShapeGeomInfo(luaWrap_lua_State *L)
+int _simGetShapeGeomInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getShapeGeomInfo");
@@ -12969,7 +12968,7 @@ int _simGetShapeGeomInfo(luaWrap_lua_State *L)
     LUA_END(3);
 }
 
-int _simGetObjects(luaWrap_lua_State *L)
+int _simGetObjects(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjects");
@@ -12983,7 +12982,7 @@ int _simGetObjects(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetObjectsInTree(luaWrap_lua_State *L)
+int _simGetObjectsInTree(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getObjectsInTree");
@@ -13004,11 +13003,11 @@ int _simGetObjectsInTree(luaWrap_lua_State *L)
                 if (res == 2)
                     options = luaToInt(L, 3);
                 int objCnt = 0;
-                int *objHandles = simGetObjectsInTree_internal(handle, objType, options, &objCnt);
+                int* objHandles = simGetObjectsInTree_internal(handle, objType, options, &objCnt);
                 if (objHandles != nullptr)
                 {
                     pushIntTableOntoStack(L, objCnt, objHandles);
-                    simReleaseBuffer_internal((char *)objHandles);
+                    simReleaseBuffer_internal((char*)objHandles);
                     LUA_END(1);
                 }
             }
@@ -13019,7 +13018,7 @@ int _simGetObjectsInTree(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simScaleObject(luaWrap_lua_State *L)
+int _simScaleObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.scaleObject");
@@ -13047,7 +13046,7 @@ int _simScaleObject(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetShapeTexture(luaWrap_lua_State *L)
+int _simSetShapeTexture(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setShapeTexture");
@@ -13062,8 +13061,8 @@ int _simSetShapeTexture(luaWrap_lua_State *L)
         int options = luaToInt(L, 4);
         double uvScaling[2];
         getDoublesFromTable(L, 5, 2, uvScaling);
-        double *posP = nullptr;
-        double *orP = nullptr;
+        double* posP = nullptr;
+        double* orP = nullptr;
         double _pos[3];
         double _or[3];
         int res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 3, true, true, &errorString);
@@ -13092,7 +13091,7 @@ int _simSetShapeTexture(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetShapeTextureId(luaWrap_lua_State *L)
+int _simGetShapeTextureId(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getShapeTextureId");
@@ -13109,7 +13108,7 @@ int _simGetShapeTextureId(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateCollectionEx(luaWrap_lua_State *L)
+int _simCreateCollectionEx(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createCollectionEx");
@@ -13131,7 +13130,7 @@ int _simCreateCollectionEx(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simAddItemToCollection(luaWrap_lua_State *L)
+int _simAddItemToCollection(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.addItemToCollection");
@@ -13150,7 +13149,7 @@ int _simAddItemToCollection(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simDestroyCollection(luaWrap_lua_State *L)
+int _simDestroyCollection(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.destroyCollection");
@@ -13162,7 +13161,7 @@ int _simDestroyCollection(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetCollectionObjects(luaWrap_lua_State *L)
+int _simGetCollectionObjects(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getCollectionObjects");
@@ -13171,7 +13170,7 @@ int _simGetCollectionObjects(luaWrap_lua_State *L)
     {
         int handle = luaToInt(L, 1);
         int cnt;
-        int *objHandles = simGetCollectionObjects_internal(handle, &cnt);
+        int* objHandles = simGetCollectionObjects_internal(handle, &cnt);
         pushIntTableOntoStack(L, cnt, objHandles);
         delete[] objHandles;
         LUA_END(1);
@@ -13181,14 +13180,14 @@ int _simGetCollectionObjects(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simHandleAddOnScripts(luaWrap_lua_State *L)
+int _simHandleAddOnScripts(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleAddOnScripts");
 
     int retVal = -1;
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
         if (checkInputArguments(L, &errorString, lua_arg_number, 0))
@@ -13211,13 +13210,13 @@ int _simHandleAddOnScripts(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simHandleSandboxScript(luaWrap_lua_State *L)
+int _simHandleSandboxScript(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleSandboxScript");
 
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
         if (checkInputArguments(L, &errorString, lua_arg_number, 0))
@@ -13238,7 +13237,7 @@ int _simHandleSandboxScript(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simAlignShapeBB(luaWrap_lua_State *L)
+int _simAlignShapeBB(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.alignShapeBB");
@@ -13257,7 +13256,7 @@ int _simAlignShapeBB(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simRelocateShapeFrame(luaWrap_lua_State *L)
+int _simRelocateShapeFrame(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.relocateShapeFrame");
@@ -13276,7 +13275,7 @@ int _simRelocateShapeFrame(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreateOctree(luaWrap_lua_State *L)
+int _simCreateOctree(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createOctree");
@@ -13295,7 +13294,7 @@ int _simCreateOctree(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCreatePointCloud(luaWrap_lua_State *L)
+int _simCreatePointCloud(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.createPointCloud");
@@ -13316,7 +13315,7 @@ int _simCreatePointCloud(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSetPointCloudOptions(luaWrap_lua_State *L)
+int _simSetPointCloudOptions(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setPointCloudOptions");
@@ -13338,7 +13337,7 @@ int _simSetPointCloudOptions(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetPointCloudOptions(luaWrap_lua_State *L)
+int _simGetPointCloudOptions(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPointCloudOptions");
@@ -13366,7 +13365,7 @@ int _simGetPointCloudOptions(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
+int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.insertVoxelsIntoOctree");
@@ -13378,7 +13377,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
         int handleFlags = handle & 0xff00000;
         handle = handle & 0xfffff;
         int options = luaToInt(L, 2);
-        unsigned char *cols = nullptr;
+        unsigned char* cols = nullptr;
         std::vector<unsigned char> _cols;
         int v = 3;
         std::vector<double> pts;
@@ -13387,7 +13386,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
             if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0))
             {
                 size_t dataLength;
-                const char *data = luaWrap_lua_tobuffer(L, 3, &dataLength);
+                const char* data = luaWrap_lua_tobuffer(L, 3, &dataLength);
                 int ptCnt = int((dataLength / sizeof(float)) / 3);
                 pts.resize(ptCnt * 3);
                 if (options & 2)
@@ -13396,13 +13395,13 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
                 if (res >= 0)
                 {
                     for (int i = 0; i < ptCnt * 3; i++)
-                        pts[i] = double(((float *)data)[i]);
+                        pts[i] = double(((float*)data)[i]);
                     if (res == 2)
                     {
                         data = luaWrap_lua_tobuffer(L, 4, &dataLength);
                         _cols.resize(v);
                         for (int i = 0; i < std::min<int>(v, int(dataLength)); i++)
-                            _cols[i] = ((unsigned char *)data)[i];
+                            _cols[i] = ((unsigned char*)data)[i];
                         cols = &_cols[0];
                     }
                     res = checkOneGeneralInputArgument(L, 5, lua_arg_string, 0, true, true, &errorString);
@@ -13413,14 +13412,14 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
                                                                         nullptr, nullptr);
                         else
                         {
-                            unsigned int *tags = nullptr;
+                            unsigned int* tags = nullptr;
                             std::vector<unsigned int> _tags;
                             if (res == 2)
                             {
                                 data = luaWrap_lua_tobuffer(L, 5, &dataLength);
                                 _tags.resize(v / 3);
                                 for (int i = 0; i < std::min<int>(v / 3, int(dataLength / sizeof(int))); i++)
-                                    _tags[i] = ((unsigned int *)data)[i];
+                                    _tags[i] = ((unsigned int*)data)[i];
                                 tags = &_tags[0];
                             }
                             retVal = simInsertVoxelsIntoOctree_internal(handle, options, &pts[0], ptCnt, cols, tags,
@@ -13456,7 +13455,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
                                                                         nullptr, nullptr);
                         else
                         {
-                            unsigned int *tags = nullptr;
+                            unsigned int* tags = nullptr;
                             std::vector<unsigned int> _tags;
                             if (res == 2)
                             {
@@ -13478,7 +13477,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simRemoveVoxelsFromOctree(luaWrap_lua_State *L)
+int _simRemoveVoxelsFromOctree(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.removeVoxelsFromOctree");
@@ -13509,7 +13508,7 @@ int _simRemoveVoxelsFromOctree(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simInsertPointsIntoPointCloud(luaWrap_lua_State *L)
+int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.insertPointsIntoPointCloud");
@@ -13522,9 +13521,9 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State *L)
         handle = handle & 0xfffff;
         int options = luaToInt(L, 2);
         float optionalValues[2];
-        ((int *)optionalValues)[0] = 1; // duplicate tolerance bit
-        optionalValues[1] = 0.0;        // duplicate tolerance
-        unsigned char *cols = nullptr;
+        ((int*)optionalValues)[0] = 1; // duplicate tolerance bit
+        optionalValues[1] = 0.0;       // duplicate tolerance
+        unsigned char* cols = nullptr;
         std::vector<unsigned char> _cols;
         int v = 3;
         std::vector<double> pts;
@@ -13533,7 +13532,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State *L)
             if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0))
             {
                 size_t dataLength;
-                const char *data = luaWrap_lua_tobuffer(L, 3, &dataLength);
+                const char* data = luaWrap_lua_tobuffer(L, 3, &dataLength);
                 int ptCnt = int((dataLength / sizeof(float))) / 3;
                 pts.resize(ptCnt * 3);
                 if (options & 2)
@@ -13542,13 +13541,13 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State *L)
                 if (res >= 0)
                 {
                     for (int i = 0; i < ptCnt * 3; i++)
-                        pts[i] = double(((float *)data)[i]);
+                        pts[i] = double(((float*)data)[i]);
                     if (res == 2)
                     {
                         data = luaWrap_lua_tobuffer(L, 4, &dataLength);
                         _cols.resize(v);
                         for (int i = 0; i < std::min<int>(v, int(dataLength)); i++)
-                            _cols[i] = ((unsigned char *)data)[i];
+                            _cols[i] = ((unsigned char*)data)[i];
                         cols = &_cols[0];
                     }
                     res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 0, true, true, &errorString);
@@ -13608,7 +13607,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simRemovePointsFromPointCloud(luaWrap_lua_State *L)
+int _simRemovePointsFromPointCloud(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.removePointsFromPointCloud");
@@ -13646,7 +13645,7 @@ int _simRemovePointsFromPointCloud(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simIntersectPointsWithPointCloud(luaWrap_lua_State *L)
+int _simIntersectPointsWithPointCloud(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.intersectPointsWithPointCloud");
@@ -13684,7 +13683,7 @@ int _simIntersectPointsWithPointCloud(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetOctreeVoxels(luaWrap_lua_State *L)
+int _simGetOctreeVoxels(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getOctreeVoxels");
@@ -13693,7 +13692,7 @@ int _simGetOctreeVoxels(luaWrap_lua_State *L)
     {
         int handle = luaToInt(L, 1);
         int ptCnt = -1;
-        const double *p = simGetOctreeVoxels_internal(handle, &ptCnt, nullptr);
+        const double* p = simGetOctreeVoxels_internal(handle, &ptCnt, nullptr);
         if (ptCnt >= 0)
         {
             pushDoubleTableOntoStack(L, ptCnt * 3, p);
@@ -13705,7 +13704,7 @@ int _simGetOctreeVoxels(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetPointCloudPoints(luaWrap_lua_State *L)
+int _simGetPointCloudPoints(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPointCloudPoints");
@@ -13714,7 +13713,7 @@ int _simGetPointCloudPoints(luaWrap_lua_State *L)
     {
         int handle = luaToInt(L, 1);
         int ptCnt = -1;
-        const double *p = simGetPointCloudPoints_internal(handle, &ptCnt, nullptr);
+        const double* p = simGetPointCloudPoints_internal(handle, &ptCnt, nullptr);
         if (ptCnt >= 0)
         {
             pushDoubleTableOntoStack(L, ptCnt * 3, p);
@@ -13726,7 +13725,7 @@ int _simGetPointCloudPoints(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simInsertObjectIntoOctree(luaWrap_lua_State *L)
+int _simInsertObjectIntoOctree(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.insertObjectIntoOctree");
@@ -13738,7 +13737,7 @@ int _simInsertObjectIntoOctree(luaWrap_lua_State *L)
         int handle2 = luaToInt(L, 2);
         int options = luaToInt(L, 3);
         unsigned char col[3];
-        unsigned char *c = nullptr;
+        unsigned char* c = nullptr;
         int tag = 0;
         int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 3, true, true, &errorString);
         if (res >= 0)
@@ -13760,7 +13759,7 @@ int _simInsertObjectIntoOctree(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSubtractObjectFromOctree(luaWrap_lua_State *L)
+int _simSubtractObjectFromOctree(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.subtractObjectFromOctree");
@@ -13779,7 +13778,7 @@ int _simSubtractObjectFromOctree(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simInsertObjectIntoPointCloud(luaWrap_lua_State *L)
+int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.insertObjectIntoPointCloud");
@@ -13793,10 +13792,10 @@ int _simInsertObjectIntoPointCloud(luaWrap_lua_State *L)
         int options = luaToInt(L, 3);
         double gridSize = luaToDouble(L, 4);
         float optionalValues[2];
-        ((int *)optionalValues)[0] = 1; // duplicate tolerance bit
-        optionalValues[1] = 0.0;        // duplicate tolerance
+        ((int*)optionalValues)[0] = 1; // duplicate tolerance bit
+        optionalValues[1] = 0.0;       // duplicate tolerance
         unsigned char col[3];
-        unsigned char *c = nullptr;
+        unsigned char* c = nullptr;
         int res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 3, true, true, &errorString);
         if (res >= 0)
         {
@@ -13825,7 +13824,7 @@ int _simInsertObjectIntoPointCloud(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simSubtractObjectFromPointCloud(luaWrap_lua_State *L)
+int _simSubtractObjectFromPointCloud(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.subtractObjectFromPointCloud");
@@ -13846,7 +13845,7 @@ int _simSubtractObjectFromPointCloud(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simCheckOctreePointOccupancy(luaWrap_lua_State *L)
+int _simCheckOctreePointOccupancy(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.checkOctreePointOccupancy");
@@ -13877,7 +13876,7 @@ int _simCheckOctreePointOccupancy(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simPackTable(luaWrap_lua_State *L)
+int _simPackTable(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.packTable");
@@ -13892,7 +13891,7 @@ int _simPackTable(luaWrap_lua_State *L)
                 int scheme = 0;
                 if (res == 2)
                     scheme = luaToInt(L, 2);
-                CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
                 CScriptObject::buildFromInterpreterStack_lua(L, stack, 1, 1);
                 std::string s;
                 if (scheme == 0)
@@ -13916,7 +13915,7 @@ int _simPackTable(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simUnpackTable(luaWrap_lua_State *L)
+int _simUnpackTable(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.unpackTable");
@@ -13924,8 +13923,8 @@ int _simUnpackTable(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         size_t l;
-        const char *s = luaWrap_lua_tobuffer(L, 1, &l);
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        const char* s = luaWrap_lua_tobuffer(L, 1, &l);
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         if (stack->pushTableFromBuffer(s, (unsigned int)l))
         {
             CScriptObject::buildOntoInterpreterStack_lua(L, stack, true);
@@ -13940,14 +13939,14 @@ int _simUnpackTable(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simHandleSimulationStart(luaWrap_lua_State *L)
+int _simHandleSimulationStart(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleSimulationStart");
 
     int retVal = -1;
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
         // Following is for velocity measurement (initial):
@@ -13964,20 +13963,20 @@ int _simHandleSimulationStart(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simHandleSensingStart(luaWrap_lua_State *L)
+int _simHandleSensingStart(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleSensingStart");
 
     int retVal = -1;
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
         // Following is for camera tracking!
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
         {
-            CCamera *it = App::currentWorld->sceneObjects->getCameraFromIndex(i);
+            CCamera* it = App::currentWorld->sceneObjects->getCameraFromIndex(i);
             it->handleCameraTracking();
         }
 
@@ -13997,7 +13996,7 @@ int _simHandleSensingStart(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simAuxFunc(luaWrap_lua_State *L)
+int _simAuxFunc(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.auxFunc");
@@ -14011,7 +14010,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
             {
                 double s[2];
                 getDoublesFromTable(L, 2, 2, s);
-                CMirror *m = new CMirror();
+                CMirror* m = new CMirror();
                 m->setMirrorWidth(s[0]);
                 m->setMirrorHeight(s[1]);
                 App::currentWorld->sceneObjects->addObjectToScene(m, false, true);
@@ -14047,7 +14046,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 int graphHandle = luaToInt(L, 2);
                 int curveType = luaToInt(L, 3);
                 std::string curveName(luaWrap_lua_tostring(L, 4));
-                CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+                CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it != nullptr)
                 {
                     it->curveToClipboard(curveType, curveName.c_str());
@@ -14065,7 +14064,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 int graphHandle = luaToInt(L, 2);
                 int curveType = luaToInt(L, 3);
                 std::string curveName(luaWrap_lua_tostring(L, 4));
-                CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+                CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it != nullptr)
                 {
                     it->curveToStatic(curveType, curveName.c_str());
@@ -14083,7 +14082,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 int graphHandle = luaToInt(L, 2);
                 int curveType = luaToInt(L, 3);
                 std::string curveName(luaWrap_lua_tostring(L, 4));
-                CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+                CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
                 if (it != nullptr)
                 {
                     it->removeStaticCurve(curveType, curveName.c_str());
@@ -14101,7 +14100,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 int objHandle = luaToInt(L, 2);
                 bool childAttr = luaToBool(L, 3);
                 std::string matchValues(luaWrap_lua_tostring(L, 4));
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
                 if (it != nullptr)
                 {
                     it->setAssemblyMatchValues(childAttr, matchValues.c_str());
@@ -14117,7 +14116,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
             {
                 int objHandle = luaToInt(L, 2);
                 bool childAttr = luaToBool(L, 3);
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
                 if (it != nullptr)
                 {
                     std::string str(it->getAssemblyMatchValues(childAttr));
@@ -14137,7 +14136,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 int res[2];
                 getIntsFromTable(L, 3, 2, res);
                 size_t imgLen;
-                const char *img = luaWrap_lua_tobuffer(L, 2, &imgLen);
+                const char* img = luaWrap_lua_tobuffer(L, 2, &imgLen);
                 if (imgLen == size_t(3 * res[0] * res[1]))
                 {
                     std::vector<int> lines;
@@ -14148,7 +14147,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                     int col[3];
                     getIntsFromTable(L, 5, 3, col);
                     int lineWidth = luaToInt(L, 6);
-                    QImage qimg((const unsigned char *)img, res[0], res[1], res[0] * 3, QImage::Format_RGB888);
+                    QImage qimg((const unsigned char*)img, res[0], res[1], res[0] * 3, QImage::Format_RGB888);
                     QPixmap pix(QPixmap::fromImage(qimg));
                     QPainter paint(&pix);
                     QColor qcol(col[0], col[1], col[2], 255);
@@ -14170,7 +14169,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                             img2[y * res[0] * 3 + 3 * x + 2] = qBlue(rgb);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)&img2[0], res[0] * res[1] * 3);
+                    luaWrap_lua_pushbuffer(L, (const char*)&img2[0], res[0] * res[1] * 3);
                     LUA_END(1);
                 }
             }
@@ -14183,7 +14182,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 int res[2];
                 getIntsFromTable(L, 3, 2, res);
                 size_t imgLen;
-                const char *img = luaWrap_lua_tobuffer(L, 2, &imgLen);
+                const char* img = luaWrap_lua_tobuffer(L, 2, &imgLen);
                 if (imgLen == size_t(3 * res[0] * res[1]))
                 {
                     std::vector<int> rects;
@@ -14194,7 +14193,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                     int col[3];
                     getIntsFromTable(L, 5, 3, col);
                     int lineWidth = luaToInt(L, 6);
-                    QImage qimg((const unsigned char *)img, res[0], res[1], res[0] * 3, QImage::Format_RGB888);
+                    QImage qimg((const unsigned char*)img, res[0], res[1], res[0] * 3, QImage::Format_RGB888);
                     QPixmap pix(QPixmap::fromImage(qimg));
                     QPainter paint(&pix);
                     QColor qcol(col[0], col[1], col[2], 255);
@@ -14216,7 +14215,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                             img2[y * res[0] * 3 + 3 * x + 2] = qBlue(rgb);
                         }
                     }
-                    luaWrap_lua_pushbuffer(L, (const char *)&img2[0], res[0] * res[1] * 3);
+                    luaWrap_lua_pushbuffer(L, (const char*)&img2[0], res[0] * res[1] * 3);
                     LUA_END(1);
                 }
             }
@@ -14227,7 +14226,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetReferencedHandles(luaWrap_lua_State *L)
+int _simSetReferencedHandles(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setReferencedHandles");
@@ -14266,7 +14265,7 @@ int _simSetReferencedHandles(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetReferencedHandles(luaWrap_lua_State *L)
+int _simGetReferencedHandles(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getReferencedHandles");
@@ -14277,7 +14276,7 @@ int _simGetReferencedHandles(luaWrap_lua_State *L)
         if (checkInputArguments(L, nullptr, lua_arg_number, 0, lua_arg_string, 0))
             tag = luaWrap_lua_tostring(L, 2);
         int objHandle = luaToInt(L, 1);
-        int *handles;
+        int* handles;
         int cnt = simGetReferencedHandles_internal(objHandle, &handles, tag.c_str(), nullptr);
         if (cnt >= 0)
         {
@@ -14290,7 +14289,7 @@ int _simGetReferencedHandles(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetReferencedHandlesTags(luaWrap_lua_State *L)
+int _simGetReferencedHandlesTags(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getReferencedHandlesTags");
@@ -14300,7 +14299,7 @@ int _simGetReferencedHandlesTags(luaWrap_lua_State *L)
         int objHandle = luaToInt(L, 1);
         int handleFlags = objHandle & 0xff00000;
         objHandle = objHandle & 0xfffff;
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
         if (it != nullptr)
         {
             std::vector<std::string> tags;
@@ -14318,7 +14317,7 @@ int _simGetReferencedHandlesTags(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetGraphCurve(luaWrap_lua_State *L)
+int _simGetGraphCurve(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getGraphCurve");
@@ -14328,7 +14327,7 @@ int _simGetGraphCurve(luaWrap_lua_State *L)
         int graphHandle = luaToInt(L, 1);
         int graphType = luaToInt(L, 2);
         int index = luaToInt(L, 3);
-        CGraph *graph = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraph* graph = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         if (graph != nullptr)
         {
             std::vector<double> xVals;
@@ -14367,7 +14366,7 @@ int _simGetGraphCurve(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetGraphInfo(luaWrap_lua_State *L)
+int _simGetGraphInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getGraphInfo");
@@ -14375,7 +14374,7 @@ int _simGetGraphInfo(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int graphHandle = luaToInt(L, 1);
-        CGraph *graph = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraph* graph = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         if (graph != nullptr)
         {
             int bitCoded = 0;
@@ -14391,7 +14390,7 @@ int _simGetGraphInfo(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetShapeViz(luaWrap_lua_State *L)
+int _simGetShapeViz(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getShapeViz");
@@ -14404,7 +14403,7 @@ int _simGetShapeViz(luaWrap_lua_State *L)
         int ret = simGetShapeVizf_internal(shapeHandle + sim_handleflag_extended, index, &info);
         if (ret > 0)
         {
-            CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
             stack->pushTableOntoStack();
 
             stack->insertKeyFloatArrayIntoStackTable("vertices", info.vertices, size_t(info.verticesSize));
@@ -14445,7 +14444,7 @@ int _simGetShapeViz(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simExecuteScriptString(luaWrap_lua_State *L)
+int _simExecuteScriptString(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.executeScriptString");
@@ -14453,7 +14452,7 @@ int _simExecuteScriptString(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
     {
         std::string stringToExecute(luaWrap_lua_tostring(L, 1));
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         int scriptID = luaToInt(L, 2);
         if (scriptID == sim_handle_self)
             scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -14483,7 +14482,7 @@ int _simExecuteScriptString(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetApiFunc(luaWrap_lua_State *L)
+int _simGetApiFunc(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getApiFunc");
@@ -14491,7 +14490,7 @@ int _simGetApiFunc(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
     {
         std::string apiWord(luaWrap_lua_tostring(L, 2));
-        char *str = simGetApiFunc_internal(luaToInt(L, 1), apiWord.c_str());
+        char* str = simGetApiFunc_internal(luaToInt(L, 1), apiWord.c_str());
         std::vector<std::string> strTable;
         if (str != nullptr)
         {
@@ -14515,7 +14514,7 @@ int _simGetApiFunc(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetApiInfo(luaWrap_lua_State *L)
+int _simGetApiInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getApiInfo");
@@ -14523,7 +14522,7 @@ int _simGetApiInfo(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
     {
         std::string apiWord(luaWrap_lua_tostring(L, 2));
-        char *str = simGetApiInfo_internal(luaToInt(L, 1), apiWord.c_str());
+        char* str = simGetApiInfo_internal(luaToInt(L, 1), apiWord.c_str());
         if (str != nullptr)
         {
             luaWrap_lua_pushtext(L, str);
@@ -14537,7 +14536,7 @@ int _simGetApiInfo(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetPluginName(luaWrap_lua_State *L)
+int _simGetPluginName(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPluginName");
@@ -14545,7 +14544,7 @@ int _simGetPluginName(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         unsigned char version;
-        char *name = simGetPluginName_internal(luaToInt(L, 1), &version);
+        char* name = simGetPluginName_internal(luaToInt(L, 1), &version);
         if (name != nullptr)
         {
             luaWrap_lua_pushtext(L, name);
@@ -14559,14 +14558,14 @@ int _simGetPluginName(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetPluginInfo(luaWrap_lua_State *L)
+int _simGetPluginInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPluginInfo");
 
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
     {
-        char *stringInfo;
+        char* stringInfo;
         int intInfo;
         std::string pluginName(luaWrap_lua_tostring(L, 1));
         int infoType = luaToInt(L, 2);
@@ -14593,7 +14592,7 @@ int _simGetPluginInfo(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetPluginInfo(luaWrap_lua_State *L)
+int _simSetPluginInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.setPluginInfo");
@@ -14621,7 +14620,7 @@ int _simSetPluginInfo(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simHandleExtCalls(luaWrap_lua_State *L)
+int _simHandleExtCalls(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleExtCalls");
@@ -14629,12 +14628,12 @@ int _simHandleExtCalls(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simGetLastInfo(luaWrap_lua_State *L)
+int _simGetLastInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getLastInfo");
 
-    const char *info = simGetLastInfo_internal();
+    const char* info = simGetLastInfo_internal();
     std::string inf;
     if (info != nullptr)
     {
@@ -14645,13 +14644,13 @@ int _simGetLastInfo(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetRandom(luaWrap_lua_State *L)
+int _simGetRandom(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getRandom");
 
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
     if (it != nullptr)
     {
         int res = checkOneGeneralInputArgument(L, 1, lua_arg_number, 0, true, true, &errorString);

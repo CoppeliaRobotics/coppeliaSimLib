@@ -14,7 +14,7 @@ class CQDlgGeometry : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgGeometry(QWidget *parent = 0);
+    explicit CQDlgGeometry(QWidget* parent = 0);
     ~CQDlgGeometry();
 
     void refresh();
@@ -29,7 +29,7 @@ class CQDlgGeometry : public CDlgEx
     void _readSize(int index);
     void _readScaling(int index);
 
-    static void display(int shapeHandle, QWidget *theParentWindow);
+    static void display(int shapeHandle, QWidget* theParentWindow);
 
     int _shapeHandle;
     double scaleVal[3];
@@ -64,7 +64,7 @@ class CQDlgGeometry : public CDlgEx
     void on_qqApplyScale_clicked();
 
   private:
-    Ui::CQDlgGeometry *ui;
+    Ui::CQDlgGeometry* ui;
 };
 
 #endif // QDLGGEOMETRY_H

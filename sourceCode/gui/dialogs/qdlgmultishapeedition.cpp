@@ -9,9 +9,10 @@
 #include <qdlgmaterial.h>
 #include <guiApp.h>
 
-CMesh *theGeom = nullptr;
+CMesh* theGeom = nullptr;
 
-CQDlgMultishapeEdition::CQDlgMultishapeEdition(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgMultishapeEdition)
+CQDlgMultishapeEdition::CQDlgMultishapeEdition(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgMultishapeEdition)
 {
     _dlgType = MULTISHAPE_EDITION_DLG;
     ui->setupUi(this);
@@ -32,7 +33,7 @@ void CQDlgMultishapeEdition::cancelEvent()
 
 void CQDlgMultishapeEdition::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     theGeom = nullptr;
     if (GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->isCurrentMultishapeGeometricComponentValid())
         theGeom =
@@ -65,7 +66,7 @@ void CQDlgMultishapeEdition::on_qqBackfaceCulling_clicked()
     {
         if (theGeom == nullptr)
             return;
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
         int index =
             GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if (shape != nullptr)
@@ -84,7 +85,7 @@ void CQDlgMultishapeEdition::on_qqShowEdges_clicked()
     {
         if (theGeom == nullptr)
             return;
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
         int index =
             GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if (shape != nullptr)
@@ -107,7 +108,7 @@ void CQDlgMultishapeEdition::on_qqShadingAngle_editingFinished()
             return;
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqShadingAngle->text().toStdString().c_str(), &ok);
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
         int index =
             GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if ((shape != nullptr) && ok)

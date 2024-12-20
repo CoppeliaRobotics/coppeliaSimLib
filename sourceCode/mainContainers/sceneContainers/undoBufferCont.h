@@ -32,14 +32,14 @@ class CUndoBufferCont
     CUndoBufferArrays undoBufferArrays;
 
   private:
-    CUndoBufferCameras *_getFullBuffer(int index, std::vector<char> &fullBuff);
+    CUndoBufferCameras* _getFullBuffer(int index, std::vector<char>& fullBuff);
     int _getUsedMemory();
     bool _isGoodToMemorizeUndoOrRedo();
     void _commonInit();
     void _rememberSelectionState();
     void _restoreSelectionState();
     int _currentStateIndex;
-    std::vector<CUndoBuffer *> _buffers;
+    std::vector<CUndoBuffer*> _buffers;
     bool _announceChangeStartCalled;
     int _announceChangeGradualCalledTime;
     bool _sceneSaveMightBeNeeded;

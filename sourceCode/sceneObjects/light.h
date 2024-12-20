@@ -4,20 +4,20 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propLight_size,                    "lightSize",                                sim_propertytype_float,     0, "Size", "Light size") \
-    FUNCX(propLight_enabled,                 "enabled",                                  sim_propertytype_bool,      0, "Enabled", "") \
-    FUNCX(propLight_lightType,               "lightType",                                sim_propertytype_int,       sim_propertyinfo_notwritable, "Type", "Light type") \
-    FUNCX(propLight_spotExponent,            "spotExponent",                             sim_propertytype_int,       0, "Spot exponent", "") \
-    FUNCX(propLight_spotCutoffAngle,         "spotCutoffAngle",                          sim_propertytype_float,     0, "Cut off angle", "Spot cut off angle") \
-    FUNCX(propLight_attenuationFactors,      "attenuationFactors",                       sim_propertytype_floatarray,0, "Attenuation factor", "") \
-    FUNCX(propLight_povCastShadows,          "povray.castShadows",                       sim_propertytype_bool,      0, "POV-Ray: cast shadows", "Light casts shadows (with the POV-Ray renderer plugin)") \
+#define DEFINE_PROPERTIES                                                                                                 \
+    FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0, "Size", "Light size")                                   \
+    FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0, "Enabled", "")                                          \
+    FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Light type")     \
+    FUNCX(propLight_spotExponent, "spotExponent", sim_propertytype_int, 0, "Spot exponent", "")                           \
+    FUNCX(propLight_spotCutoffAngle, "spotCutoffAngle", sim_propertytype_float, 0, "Cut off angle", "Spot cut off angle") \
+    FUNCX(propLight_attenuationFactors, "attenuationFactors", sim_propertytype_floatarray, 0, "Attenuation factor", "")   \
+    FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, 0, "POV-Ray: cast shadows", "Light casts shadows (with the POV-Ray renderer plugin)")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_light = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_light = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -30,23 +30,23 @@ class CLight : public CSceneObject
     virtual ~CLight();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer &ar);
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void serialize(CSer& ar);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -94,7 +94,7 @@ class CLight : public CSceneObject
     static void setMaxAvailableOglLights(int c);
     static int getMaxAvailableOglLights();
 
-    CColorObject *getColor(bool getLightColor);
+    CColorObject* getColor(bool getLightColor);
 
   protected:
     void _setDefaultColors();
@@ -119,6 +119,6 @@ class CLight : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib);
 #endif
 };

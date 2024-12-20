@@ -7,7 +7,7 @@
 class CVThreadData
 {
   public:
-    CVThreadData(void *_vthread, VTHREAD_ID_TYPE _vthreadID)
+    CVThreadData(void* _vthread, VTHREAD_ID_TYPE _vthreadID)
     {
         thread = _vthread;
         threadID = _vthreadID;
@@ -19,7 +19,7 @@ class CVThreadData
         threadSwitchShouldTriggerNoOtherThread = false;
         threadResumeLocationAndOrder = 1; // see below (but 1 is default)
         threadShouldNotSwitch =
-            0; // can be used to avoid switching between two consecutive commands that need sequential execution
+            0;                                           // can be used to avoid switching between two consecutive commands that need sequential execution
         allowToExecuteAgainInThisSimulationStep = false; // when scripts are forward-relocated for resume, we want to
                                                          // execute them a second time in the same simulation step
     }
@@ -27,7 +27,7 @@ class CVThreadData
     {
     }
 
-    volatile void *thread;
+    volatile void* thread;
     volatile VTHREAD_ID_TYPE threadID;
     volatile int threadDesiredTiming;
     volatile int threadExecutionTime;
@@ -49,9 +49,9 @@ class CThreadPool_old
     static VTHREAD_ID_TYPE createNewThread(VTHREAD_START_ADDRESS threadStartAddress);
     static void switchToThread(VTHREAD_ID_TYPE threadID);
     static bool setThreadSwitchTiming(int timeInMs);
-    static bool getThreadSwitchTiming(int &timeInMs);
+    static bool getThreadSwitchTiming(int& timeInMs);
 
-    static int callRoutineViaSpecificThread(VTHREAD_ID_TYPE theThread, void *data);
+    static int callRoutineViaSpecificThread(VTHREAD_ID_TYPE theThread, void* data);
     static bool setThreadAutomaticSwitchForbidLevel(int forbidLevel);
     static bool getThreadAutomaticSwitch();
 
@@ -65,8 +65,8 @@ class CThreadPool_old
     static int handleThread_ifHasResumeLocation(VTHREAD_ID_TYPE theThread, bool allThreadsWithResumeLocation,
                                                 int location);
 
-    static CVThreadData *getCurrentThreadData();
-    static CVThreadData *getThreadData(VTHREAD_ID_TYPE threadId);
+    static CVThreadData* getCurrentThreadData();
+    static CVThreadData* getThreadData(VTHREAD_ID_TYPE threadId);
     static int getThreadPoolThreadCount();
 
     // Regular stop request (e.g. when the stop button is pressed, or when simStopSimulation is called.
@@ -91,7 +91,7 @@ class CThreadPool_old
     static void _lock(unsigned char debugInfo);
     static void _unlock(unsigned char debugInfo);
 
-    static void *_tmpData;
+    static void* _tmpData;
     static int _tmpRetData;
     static int _inInterceptRoutine;
     static VTHREAD_RETURN_TYPE _tmpCallback(VTHREAD_ARGUMENT_TYPE lpData);
@@ -102,7 +102,7 @@ class CThreadPool_old
     static void _terminateThread();
     static VTHREAD_START_ADDRESS _threadStartAdd;
 
-    static std::vector<CVThreadData *> _allThreadData;
+    static std::vector<CVThreadData*> _allThreadData;
 
     static std::vector<VTHREAD_ID_TYPE> _threadQueue;
     static std::vector<int> _threadStartTime;

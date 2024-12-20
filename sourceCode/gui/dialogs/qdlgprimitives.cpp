@@ -7,7 +7,8 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgPrimitives::CQDlgPrimitives(QWidget *parent) : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgPrimitives)
+CQDlgPrimitives::CQDlgPrimitives(QWidget* parent)
+    : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgPrimitives)
 {
     ui->setupUi(this);
 }
@@ -27,7 +28,7 @@ void CQDlgPrimitives::okEvent()
     defaultModalDialogEndRoutine(true);
 }
 
-void CQDlgPrimitives::initialize(int type, const C3Vector *sizes)
+void CQDlgPrimitives::initialize(int type, const C3Vector* sizes)
 {
     if (sizes != nullptr)
     {

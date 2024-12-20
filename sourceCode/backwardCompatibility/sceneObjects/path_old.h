@@ -10,23 +10,23 @@ class CPath_old : public CSceneObject
     virtual ~CPath_old();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer &ar);
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void serialize(CSer& ar);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -56,14 +56,14 @@ class CPath_old : public CSceneObject
     int getShapingType();
     void setShapingThroughConvexHull(bool c);
     bool getShapingThroughConvexHull();
-    CShape *getShape() const;
+    CShape* getShape() const;
 
     void setShapingScaling(double s);
     double getShapingScaling() const;
-    CColorObject *getShapingColor();
+    CColorObject* getShapingColor();
 
     // Variables which need to be copied and serialized:
-    CPathCont_old *pathContainer;
+    CPathCont_old* pathContainer;
     std::vector<double> shapingCoordinates;
 
     // Other variables:
@@ -93,8 +93,8 @@ class CPath_old : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
-    bool transformSelectedPathPoints(const C4X4Matrix &cameraAbsConf, const C3Vector &clicked3DPoint, double prevPos[2],
+    void display(CViewableBase* renderingObject, int displayAttrib);
+    bool transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf, const C3Vector& clicked3DPoint, double prevPos[2],
                                      double pos[2], double screenHalfSizes[2], double halfSizes[2], bool perspective,
                                      int eventID);
 #endif

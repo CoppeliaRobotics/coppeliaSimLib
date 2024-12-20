@@ -7,7 +7,7 @@
 int CQDlgTextureLoadOptions::scaleTo = 256;
 bool CQDlgTextureLoadOptions::scale = true;
 
-CQDlgTextureLoadOptions::CQDlgTextureLoadOptions(QWidget *parent)
+CQDlgTextureLoadOptions::CQDlgTextureLoadOptions(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgTextureLoadOptions)
 {
     ui->setupUi(this);

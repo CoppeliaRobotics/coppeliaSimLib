@@ -16,7 +16,7 @@ class CQDlgModelThumbnail : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgModelThumbnail(QWidget *parent = 0);
+    explicit CQDlgModelThumbnail(QWidget* parent = 0);
     ~CQDlgModelThumbnail();
 
     void cancelEvent();
@@ -25,7 +25,7 @@ class CQDlgModelThumbnail : public VDialog
     void initialize();
     void actualizeBitmap();
 
-    CVisionSensor *rs;
+    CVisionSensor* rs;
     double rotX;
     double rotY;
     double zoom;
@@ -71,7 +71,7 @@ class CQDlgModelThumbnail : public VDialog
     void on_qqAntialiasing_clicked(bool checked);
 
   private:
-    Ui::CQDlgModelThumbnail *ui;
+    Ui::CQDlgModelThumbnail* ui;
 };
 
 #endif // QDLGMODELTHUMBNAIL_H

@@ -9,9 +9,9 @@
 #include <unordered_set>
 #include <app.h>
 
-void CMeshRoutines::getEdgeFeatures(double *vertices, int verticesLength, int *indices, int indicesLength,
-                                    std::vector<int> *theVertexIDs, std::vector<int> *theEdgeIDs,
-                                    std::vector<int> *theFaceIDs, double angleTolerance, bool forDisplay,
+void CMeshRoutines::getEdgeFeatures(double* vertices, int verticesLength, int* indices, int indicesLength,
+                                    std::vector<int>* theVertexIDs, std::vector<int>* theEdgeIDs,
+                                    std::vector<int>* theFaceIDs, double angleTolerance, bool forDisplay,
                                     bool hideEdgeBorders)
 { // theVertexIDs, theEdgeIDs or theFaceIDs can be nullptr
     // For each vertex, edge and face, an identifier will be associated:
@@ -56,7 +56,7 @@ void CMeshRoutines::getEdgeFeatures(double *vertices, int verticesLength, int *i
                         if (ked == 3)
                             ked = 0;
                     }
-                    CEdgeElement *edgeIt = mesh.edges[ind[0]];
+                    CEdgeElement* edgeIt = mesh.edges[ind[0]];
                     int neighbourCount = 0;
                     int neighbourWithNoEdgeShowCount = 0;
                     while (edgeIt != nullptr)
@@ -100,7 +100,7 @@ void CMeshRoutines::getEdgeFeatures(double *vertices, int verticesLength, int *i
     int edgeIDCounter = 0;
     for (int i = 0; i < int(mesh.edges.size()); i++) // In fact we could go to the half only!
     {
-        CEdgeElement *edgeIt = mesh.edges[i];
+        CEdgeElement* edgeIt = mesh.edges[i];
         while (edgeIt != nullptr)
         {
             if (edgeIDs[3 * edgeIt->triangle + edgeIt->pos] == -2)
@@ -126,7 +126,7 @@ void CMeshRoutines::getEdgeFeatures(double *vertices, int verticesLength, int *i
                     for (int side = 0; side < 2; side++)
                     {
                         int vertexID = pointIDs[side];
-                        CEdgeElement *edgeIt2 = mesh.edges[vertexID];
+                        CEdgeElement* edgeIt2 = mesh.edges[vertexID];
                         while (edgeIt2 != nullptr)
                         {
                             if (edgeIDs[3 * edgeIt2->triangle + edgeIt2->pos] == -2)
@@ -158,7 +158,7 @@ void CMeshRoutines::getEdgeFeatures(double *vertices, int verticesLength, int *i
     // Now we have to do a last thing: disable all vertices which have only disabled edges:
     for (int i = 0; i < verticesLength / 3; i++)
     {
-        CEdgeElement *edgeIt = mesh.edges[i];
+        CEdgeElement* edgeIt = mesh.edges[i];
         bool hasActiveEdge = false;
         while (edgeIt != nullptr)
         {
@@ -187,7 +187,7 @@ void CMeshRoutines::getEdgeFeatures(double *vertices, int verticesLength, int *i
     }
 }
 
-void CMeshRoutines::removeThinTriangles(std::vector<double> &vertices, std::vector<int> &indices,
+void CMeshRoutines::removeThinTriangles(std::vector<double>& vertices, std::vector<int>& indices,
                                         double percentageToKeep)
 {
     std::vector<std::pair<double, size_t>> thinPairs;
@@ -221,7 +221,7 @@ void CMeshRoutines::removeThinTriangles(std::vector<double> &vertices, std::vect
         thinPairs.push_back(std::make_pair(thinness, i));
     }
     std::sort(thinPairs.begin(), thinPairs.end(),
-              [](const std::pair<double, int> &p1, const std::pair<double, int> &p2) { return p1.first > p2.first; });
+              [](const std::pair<double, int>& p1, const std::pair<double, int>& p2) { return p1.first > p2.first; });
 
     std::vector<int> nind;
     nind.swap(indices);
@@ -235,25 +235,25 @@ void CMeshRoutines::removeThinTriangles(std::vector<double> &vertices, std::vect
     removeNonReferencedVertices(vertices, indices);
 }
 
-bool CMeshRoutines::getConvexHull(const std::vector<double> &verticesIn, std::vector<double> &verticesOut,
-                                  std::vector<int> &indicesOut)
+bool CMeshRoutines::getConvexHull(const std::vector<double>& verticesIn, std::vector<double>& verticesOut,
+                                  std::vector<int>& indicesOut)
 { // If algo fails, verticesOut are the same as verticesIn, and indicesOut is not touched
     // Keep in mind that verticesIn and verticesOut could be the same buffer
     std::vector<double> initVerticesIn(verticesIn);
     std::vector<double> vert(initVerticesIn);
     int verticesInLength = int(vert.size());
-    void *data[10];
-    data[0] = (double *)vert.data();
+    void* data[10];
+    data[0] = (double*)vert.data();
     data[1] = &verticesInLength;
     bool generateIndices = true;
     data[2] = &generateIndices;
     bool success = false;
     data[3] = &success;
-    double *outVert = nullptr;
+    double* outVert = nullptr;
     data[4] = &outVert;
     int outVertLength;
     data[5] = &outVertLength;
-    int *outInd = nullptr;
+    int* outInd = nullptr;
     data[6] = &outInd;
     int outIndLength;
     data[7] = &outIndLength;
@@ -286,7 +286,7 @@ bool CMeshRoutines::getConvexHull(const std::vector<double> &verticesIn, std::ve
                 break;
             removeThinTriangles(vertices, indices, 0.99);
             vert.swap(vertices);
-            data[0] = (double *)vert.data();
+            data[0] = (double*)vert.data();
             verticesInLength = int(vert.size());
         }
     }
@@ -294,9 +294,9 @@ bool CMeshRoutines::getConvexHull(const std::vector<double> &verticesIn, std::ve
     return (false);
 }
 
-bool CMeshRoutines::getDecimatedMesh(const std::vector<double> &verticesIn, const std::vector<int> &indicesIn,
-                                     double percentageToKeep, std::vector<double> &verticesOut,
-                                     std::vector<int> &indicesOut, double distTolerance)
+bool CMeshRoutines::getDecimatedMesh(const std::vector<double>& verticesIn, const std::vector<int>& indicesIn,
+                                     double percentageToKeep, std::vector<double>& verticesOut,
+                                     std::vector<int>& indicesOut, double distTolerance)
 {
     bool retVal = false;
     if ((verticesIn.size() >= 9) && (indicesIn.size() >= 6))
@@ -305,7 +305,7 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<double> &verticesIn, cons
         std::vector<int> ind(indicesIn);
         removeDuplicateVerticesAndTriangles(vert, &ind, nullptr, nullptr, distTolerance);
 
-        void *data[20];
+        void* data[20];
         data[0] = vert.data();
         int vl = (int)vert.size();
         data[1] = &vl;
@@ -317,11 +317,11 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<double> &verticesIn, cons
         data[5] = &version;
         bool success = false;
         data[6] = &success;
-        double *outVert = nullptr;
+        double* outVert = nullptr;
         data[7] = &outVert;
         int outVertLength;
         data[8] = &outVertLength;
-        int *outInd = nullptr;
+        int* outInd = nullptr;
         data[9] = &outInd;
         int outIndLength;
         data[10] = &outIndLength;
@@ -346,9 +346,9 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<double> &verticesIn, cons
     return (retVal);
 }
 
-int CMeshRoutines::convexDecompose(const double *vertices, int verticesLength, const int *indices, int indicesLength,
-                                   std::vector<std::vector<double> *> &verticesList,
-                                   std::vector<std::vector<int> *> &indicesList, size_t nClusters, double concavity,
+int CMeshRoutines::convexDecompose(const double* vertices, int verticesLength, const int* indices, int indicesLength,
+                                   std::vector<std::vector<double>*>& verticesList,
+                                   std::vector<std::vector<int>*>& indicesList, size_t nClusters, double concavity,
                                    bool addExtraDistPoints, bool addFacesPoints, double ccConnectDist,
                                    size_t targetNTrianglesDecimatedMesh, size_t maxHullVertices,
                                    double smallestClusterThreshold, bool useHACD, int resolution_VHACD,
@@ -358,16 +358,16 @@ int CMeshRoutines::convexDecompose(const double *vertices, int verticesLength, c
                                    int maxVerticesPerCH_VHACD, double minVolumePerCH_VHACD)
 { // 2 100 0 1 1 30 2000
     TRACE_INTERNAL;
-    void *data[30];
+    void* data[30];
     int el = 0;
-    double **vertList = nullptr;
-    int **indList = nullptr;
-    int *vertCountList = nullptr;
-    int *indCountList = nullptr;
+    double** vertList = nullptr;
+    int** indList = nullptr;
+    int* vertCountList = nullptr;
+    int* indCountList = nullptr;
 
-    data[0] = (double *)vertices;
+    data[0] = (double*)vertices;
     data[1] = &verticesLength;
-    data[2] = (int *)indices;
+    data[2] = (int*)indices;
     data[3] = &indicesLength;
     if (useHACD)
     {
@@ -410,8 +410,8 @@ int CMeshRoutines::convexDecompose(const double *vertices, int verticesLength, c
 
     for (int mesh = 0; mesh < el; mesh++)
     {
-        std::vector<double> *_vert = new std::vector<double>;
-        std::vector<int> *_ind = new std::vector<int>;
+        std::vector<double>* _vert = new std::vector<double>;
+        std::vector<int>* _ind = new std::vector<int>;
         for (int i = 0; i < vertCountList[mesh]; i++)
             _vert->push_back(vertList[mesh][i]);
         for (int i = 0; i < indCountList[mesh]; i++)
@@ -461,7 +461,7 @@ int CMeshRoutines::convexDecompose(const double *vertices, int verticesLength, c
     return ((int)verticesList.size());
 }
 
-void CMeshRoutines::_insertEdge(std::vector<std::vector<int> *> &allEdges, int vertexIndex1, int vertexIndex2,
+void CMeshRoutines::_insertEdge(std::vector<std::vector<int>*>& allEdges, int vertexIndex1, int vertexIndex2,
                                 int triangleIndex)
 {
     int minI = std::min<int>(vertexIndex1, vertexIndex2);
@@ -472,7 +472,7 @@ void CMeshRoutines::_insertEdge(std::vector<std::vector<int> *> &allEdges, int v
     allEdges[minI]->push_back(triangleIndex);
 }
 
-int CMeshRoutines::_getTriangleIndexFromEdge(std::vector<std::vector<int> *> &allEdges, int vertexIndex1,
+int CMeshRoutines::_getTriangleIndexFromEdge(std::vector<std::vector<int>*>& allEdges, int vertexIndex1,
                                              int vertexIndex2, int triangleIndexToExclude)
 { // returns -1 if there is no such triangle, or more than 1
     int minI = std::min<int>(vertexIndex1, vertexIndex2);
@@ -494,7 +494,7 @@ int CMeshRoutines::_getTriangleIndexFromEdge(std::vector<std::vector<int> *> &al
     return (-1);
 }
 
-int CMeshRoutines::getConvexType(const std::vector<double> &vertices, const std::vector<int> &indices,
+int CMeshRoutines::getConvexType(const std::vector<double>& vertices, const std::vector<int>& indices,
                                  double distanceToleranceInPercent)
 { // retVal=0: convex, 1: not convex, 2: not Delaunay mesh
     // Since identical vertices are allowed, first merge them:
@@ -576,7 +576,7 @@ int CMeshRoutines::getConvexType(const std::vector<double> &vertices, const std:
     return (0);
 }
 
-void CMeshRoutines::createCube(std::vector<double> &vertices, std::vector<int> &indices, const C3Vector &sizes,
+void CMeshRoutines::createCube(std::vector<double>& vertices, std::vector<int>& indices, const C3Vector& sizes,
                                const int subdivisions[3])
 {
     vertices.clear();
@@ -941,7 +941,7 @@ void CMeshRoutines::createCube(std::vector<double> &vertices, std::vector<int> &
     }
 }
 
-void CMeshRoutines::createCapsule(std::vector<double> &vertices, std::vector<int> &indices, const C3Vector &sizes,
+void CMeshRoutines::createCapsule(std::vector<double>& vertices, std::vector<int>& indices, const C3Vector& sizes,
                                   int sides, int faceSubdiv)
 { // sizes[0]&sizes[1]: diameters, sizes[2]: tube length
     vertices.clear();
@@ -1029,7 +1029,7 @@ void CMeshRoutines::createCapsule(std::vector<double> &vertices, std::vector<int
     tt::addToIntArray(&indices, off3 + off1 - 1, 1, off2 + off1 - 1);
 }
 
-void CMeshRoutines::createSphere(std::vector<double> &vertices, std::vector<int> &indices, const C3Vector &sizes,
+void CMeshRoutines::createSphere(std::vector<double>& vertices, std::vector<int>& indices, const C3Vector& sizes,
                                  int sides, int faces)
 {
     vertices.clear();
@@ -1086,7 +1086,7 @@ void CMeshRoutines::createSphere(std::vector<double> &vertices, std::vector<int>
     }
 }
 
-void CMeshRoutines::createCylinder(std::vector<double> &vertices, std::vector<int> &indices, const C3Vector &sizes,
+void CMeshRoutines::createCylinder(std::vector<double>& vertices, std::vector<int>& indices, const C3Vector& sizes,
                                    int sides, int faces, int discDiv, bool openEnds, bool cone)
 {
     vertices.clear();
@@ -1243,7 +1243,7 @@ void CMeshRoutines::createCylinder(std::vector<double> &vertices, std::vector<in
     }
 }
 
-void CMeshRoutines::createAnnulus(std::vector<double> &vertices, std::vector<int> &indices, double Dlarge,
+void CMeshRoutines::createAnnulus(std::vector<double>& vertices, std::vector<int>& indices, double Dlarge,
                                   double Dsmall, double zShift, int sides, bool faceUp)
 {
     vertices.clear();
@@ -1305,7 +1305,7 @@ class CKdNode1
             delete kdNodes[1];
     }
 
-    CKdNode1 *insert(double newVal, double tolerance)
+    CKdNode1* insert(double newVal, double tolerance)
     {
         if (fabs(val - newVal) < tolerance)
         {
@@ -1331,19 +1331,19 @@ class CKdNode1
         }
     }
 
-    CKdNode1 *kdNodes[2]; // neg and pos
+    CKdNode1* kdNodes[2]; // neg and pos
     double val;
     int index;
     int cnt;
 };
 
-void CMeshRoutines::toDelaunayMesh(const std::vector<double> &vertices, std::vector<int> &indices,
-                                   std::vector<double> *normals, std::vector<float> *texCoords)
+void CMeshRoutines::toDelaunayMesh(const std::vector<double>& vertices, std::vector<int>& indices,
+                                   std::vector<double>* normals, std::vector<float>* texCoords)
 { // converts the mesh to a "Delaunay mesh", i.e. all touching edges have the same length
     if (getConvexType(vertices, indices, 0.015) == 2)
     {                                      // we indeed have a non-Delaunay mesh
         std::vector<int> directionIndices; // same size as indices
-        CKdNode1 *allDirectionsTree = nullptr;
+        CKdNode1* allDirectionsTree = nullptr;
         int nextDirectionsIndex = 0;
         std::vector<std::vector<int>> directionsOfVertices; // same size as number of nodes in allDirectionsTree
         for (size_t i = 0; i < indices.size() / 3; i++)
@@ -1361,7 +1361,7 @@ void CMeshRoutines::toDelaunayMesh(const std::vector<double> &vertices, std::vec
                 for (size_t l = 0; l < 3; l++)
                     dx(l) = fabs(dx(l));
                 double directionHash = dx(0) + 2.0 * dx(1) * 3.0 * dx(2);
-                CKdNode1 *node = nullptr;
+                CKdNode1* node = nullptr;
                 if (allDirectionsTree == nullptr)
                 {
                     allDirectionsTree = new CKdNode1(directionHash);
@@ -1542,16 +1542,16 @@ struct SGeodVertNode
 {
     int index;
     double dist;
-    SGeodVertNode *prevNode;
+    SGeodVertNode* prevNode;
     bool visited;
-    std::set<SGeodVertNode *> connectedNodes; // unordered_set is somehow slower
+    std::set<SGeodVertNode*> connectedNodes; // unordered_set is somehow slower
 };
 
-double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector &pt1, const C3Vector &pt2,
-                                                      const std::vector<double> &vertices,
-                                                      const std::vector<int> *auxIndices /*=nullptr*/,
-                                                      std::vector<double> *path /*=nullptr*/,
-                                                      double maxEdgeLength /*=0.01*/, int *debugShape /*=nullptr*/)
+double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1, const C3Vector& pt2,
+                                                      const std::vector<double>& vertices,
+                                                      const std::vector<int>* auxIndices /*=nullptr*/,
+                                                      std::vector<double>* path /*=nullptr*/,
+                                                      double maxEdgeLength /*=0.01*/, int* debugShape /*=nullptr*/)
 {
     double retVal = DBL_MAX;
     std::vector<double> vert;
@@ -1585,15 +1585,15 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector &pt1, const
     }
     if ((vert.size() >= 9) && (ind.size() >= 3))
     {
-        std::unordered_set<SGeodVertNode *> unvisitedNodes;
-        std::vector<SGeodVertNode *> allNodes;
+        std::unordered_set<SGeodVertNode*> unvisitedNodes;
+        std::vector<SGeodVertNode*> allNodes;
         CMeshManip::reduceTriangleSize(vert, ind, nullptr, nullptr, maxEdgeLength);
         if (debugShape != nullptr)
             debugShape[0] = simCreateShape_internal(0, 0.0, vert.data(), vert.size(), ind.data(), ind.size(), nullptr, nullptr, nullptr, nullptr);
         // Prepare data structure for dijkstra algo:
         for (size_t i = 0; i < vert.size() / 3; i++)
         {
-            SGeodVertNode *n = new SGeodVertNode;
+            SGeodVertNode* n = new SGeodVertNode;
             n->index = int(i);
             n->dist = DBL_MAX;
             n->prevNode = nullptr;
@@ -1604,7 +1604,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector &pt1, const
         for (size_t i = 0; i < ind.size() / 3; i++)
         {
             int tri[3] = {ind[3 * i + 0], ind[3 * i + 1], ind[3 * i + 2]};
-            SGeodVertNode *nodes[3] = {allNodes[tri[0]], allNodes[tri[1]], allNodes[tri[2]]};
+            SGeodVertNode* nodes[3] = {allNodes[tri[0]], allNodes[tri[1]], allNodes[tri[2]]};
             nodes[0]->connectedNodes.insert(nodes[1]);
             nodes[0]->connectedNodes.insert(nodes[2]);
             nodes[1]->connectedNodes.insert(nodes[0]);
@@ -1614,8 +1614,8 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector &pt1, const
         }
 
         // Identify the start and goal nodes:
-        SGeodVertNode *startNode;
-        SGeodVertNode *goalNode;
+        SGeodVertNode* startNode;
+        SGeodVertNode* goalNode;
         double startD = DBL_MAX;
         double goalD = DBL_MAX;
         for (size_t i = 0; i < vert.size() / 3; i++)
@@ -1644,7 +1644,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector &pt1, const
             {
                 // Find closest in unvisited:
                 double d = DBL_MAX;
-                SGeodVertNode *mnode = nullptr;
+                SGeodVertNode* mnode = nullptr;
                 for (auto it = unvisitedNodes.begin(); it != unvisitedNodes.end(); it++)
                 {
                     if ((*it)->dist < d)
@@ -1680,7 +1680,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector &pt1, const
             if (path != nullptr)
             {
                 path->clear();
-                SGeodVertNode *node = goalNode;
+                SGeodVertNode* node = goalNode;
                 while (true)
                 {
                     path->push_back(vert[3 * node->index + 0]);
@@ -1705,7 +1705,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector &pt1, const
 class CKdNode3
 {
   public:
-    CKdNode3(const C3Vector &vert, size_t vertIndex)
+    CKdNode3(const C3Vector& vert, size_t vertIndex)
     {
         kdNodes[0] = nullptr;
         kdNodes[1] = nullptr;
@@ -1720,7 +1720,7 @@ class CKdNode3
             delete kdNodes[1];
     }
 
-    CKdNode3 *insert(const C3Vector &vert, size_t vertIndex, double tolerance, size_t axis = 0)
+    CKdNode3* insert(const C3Vector& vert, size_t vertIndex, double tolerance, size_t axis = 0)
     {
         size_t naxis = axis + 1;
         if (naxis > 2)
@@ -1728,7 +1728,7 @@ class CKdNode3
         double d = vert(axis) - vertex(axis);
         if (fabs(d) < tolerance)
         {
-            CKdNode3 *retNode = nullptr;
+            CKdNode3* retNode = nullptr;
             if ((vert - vertex).getLength() < tolerance)
                 retNode = this;
             else
@@ -1757,7 +1757,7 @@ class CKdNode3
         }
     }
 
-    CKdNode3 *getSimilar(const C3Vector &vert, size_t vertIndex, double tolerance, size_t axis = 0)
+    CKdNode3* getSimilar(const C3Vector& vert, size_t vertIndex, double tolerance, size_t axis = 0)
     {
         size_t naxis = axis + 1;
         if (naxis > 2)
@@ -1768,7 +1768,7 @@ class CKdNode3
             if ((vert - vertex).getLength() < tolerance)
                 return this;
         }
-        CKdNode3 *retNode = nullptr;
+        CKdNode3* retNode = nullptr;
         if (d < tolerance)
         {
             if (kdNodes[0] != nullptr)
@@ -1782,13 +1782,13 @@ class CKdNode3
         return retNode;
     }
 
-    CKdNode3 *kdNodes[2]; // neg and pos
+    CKdNode3* kdNodes[2]; // neg and pos
     C3Vector vertex;
     size_t index;
 };
 
-void CMeshRoutines::removeDuplicateVerticesAndTriangles(std::vector<double> &vertices, std::vector<int> *indices,
-                                                        std::vector<double> *normals, std::vector<float> *texCoords,
+void CMeshRoutines::removeDuplicateVerticesAndTriangles(std::vector<double>& vertices, std::vector<int>* indices,
+                                                        std::vector<double>* normals, std::vector<float>* texCoords,
                                                         double distTolerance)
 {
     // slightly mix vertices:
@@ -1822,11 +1822,11 @@ void CMeshRoutines::removeDuplicateVerticesAndTriangles(std::vector<double> &ver
     }
 
     // Identify duplicate vertices:
-    CKdNode3 *startNode = nullptr;
+    CKdNode3* startNode = nullptr;
     for (size_t i = 0; i < nvert.size() / 3; i++)
     {
         C3Vector v(nvert.data() + 3 * i);
-        CKdNode3 *node = nullptr;
+        CKdNode3* node = nullptr;
         if (i == 0)
         {
             startNode = new CKdNode3(v, i);
@@ -2003,7 +2003,7 @@ void CMeshRoutines::removeDuplicateVerticesAndTriangles(std::vector<double> &ver
     }
 }
 
-void CMeshRoutines::removeNonReferencedVertices(std::vector<double> &vertices, std::vector<int> &indices)
+void CMeshRoutines::removeNonReferencedVertices(std::vector<double>& vertices, std::vector<int>& indices)
 {
     std::vector<double> vertTmp(vertices);
     vertices.clear();

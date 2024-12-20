@@ -7,18 +7,20 @@
 
 int CDlgEx::doTransparencyCounter = 0;
 
-CDlgEx::CDlgEx(QWidget *pParent) : VDialog(pParent)
+CDlgEx::CDlgEx(QWidget* pParent)
+    : VDialog(pParent)
 {
     _markedForDestruction = false;
     initializationEvent();
 }
-CDlgEx::CDlgEx(QWidget *pParent, Qt::WindowFlags specialFlags) : VDialog(pParent, specialFlags)
+CDlgEx::CDlgEx(QWidget* pParent, Qt::WindowFlags specialFlags)
+    : VDialog(pParent, specialFlags)
 {
     _markedForDestruction = false;
     initializationEvent();
 }
 
-bool CDlgEx::event(QEvent *event)
+bool CDlgEx::event(QEvent* event)
 {
     return (QDialog::event(event));
 }
@@ -31,7 +33,7 @@ void CDlgEx::refresh()
 {
 }
 
-void CDlgEx::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CDlgEx::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
 }
 
@@ -65,9 +67,9 @@ void CDlgEx::initializationEvent()
     refresh();
 }
 
-QLineEdit *CDlgEx::getSelectedLineEdit()
+QLineEdit* CDlgEx::getSelectedLineEdit()
 {
-    QList<QLineEdit *> wl = ((QWidget *)this)->findChildren<QLineEdit *>(QString());
+    QList<QLineEdit*> wl = ((QWidget*)this)->findChildren<QLineEdit*>(QString());
     for (int i = 0; i < wl.size(); i++)
     {
         if (wl[i]->selectedText().size() > 0)
@@ -76,7 +78,7 @@ QLineEdit *CDlgEx::getSelectedLineEdit()
     return (nullptr);
 }
 
-void CDlgEx::selectLineEdit(QLineEdit *edit)
+void CDlgEx::selectLineEdit(QLineEdit* edit)
 {
     if (edit != nullptr)
     {

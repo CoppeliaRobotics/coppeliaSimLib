@@ -15,11 +15,11 @@ class CQDlgFilters : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgFilters(QWidget *parent = 0);
+    explicit CQDlgFilters(QWidget* parent = 0);
     ~CQDlgFilters();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
     void cancelEvent();
 
     void updateObjectsInList();
@@ -35,7 +35,7 @@ class CQDlgFilters : public CDlgEx
 
     void on_qqFilterCombo_currentIndexChanged(int index);
 
-    void on_qqFilterList_itemDoubleClicked(QListWidgetItem *item);
+    void on_qqFilterList_itemDoubleClicked(QListWidgetItem* item);
 
     void on_qqAddFilter_clicked();
 
@@ -50,7 +50,7 @@ class CQDlgFilters : public CDlgEx
     void on_qqApply_clicked();
 
   private:
-    Ui::CQDlgFilters *ui;
+    Ui::CQDlgFilters* ui;
 };
 
 #endif // QDLGFILTERS_H

@@ -107,9 +107,9 @@ int CScriptObject::setHandle()
     _scriptHandle = _nextScriptHandle++;
     if (_nextScriptHandle > SIM_IDEND_LUASCRIPT)
         _nextScriptHandle = SIM_IDSTART_LUASCRIPT;
-    while ( (App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr) && (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(_scriptHandle) != nullptr) )
+    while ((App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr) && (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(_scriptHandle) != nullptr))
     {
-        _scriptHandle ++;
+        _scriptHandle++;
         if (_scriptHandle > SIM_IDEND_LUASCRIPT)
             _scriptHandle = SIM_IDSTART_LUASCRIPT;
     }
@@ -166,7 +166,7 @@ void CScriptObject::initSandbox()
     }
 }
 
-void CScriptObject::destroy(CScriptObject *obj, bool registeredObject, bool announceScriptDestruction /*= true*/)
+void CScriptObject::destroy(CScriptObject* obj, bool registeredObject, bool announceScriptDestruction /*= true*/)
 {
     if (registeredObject)
     {
@@ -192,7 +192,7 @@ std::string CScriptObject::getFilenameForExternalScriptEditor()
             _filenameForExternalScriptEditor = "mainScript-";
         else
         {
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
             if (obj != nullptr)
             {
                 _filenameForExternalScriptEditor = obj->getObjectAlias();
@@ -332,7 +332,7 @@ void CScriptObject::fromBufferToFile() const
     }
 }
 
-int CScriptObject::getSystemCallbackFromString(const char *cb)
+int CScriptObject::getSystemCallbackFromString(const char* cb)
 {
     if (std::string(cb) == "sysCall_info")
         return (sim_syscb_info);
@@ -426,8 +426,8 @@ int CScriptObject::getSystemCallbackFromString(const char *cb)
 }
 
 std::string CScriptObject::getSystemCallbackString(int calltype, int what)
-{ // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
-  // if not deprecated
+{   // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
+    // if not deprecated
     if (calltype == sim_syscb_info)
     {
         std::string r("sysCall_info");
@@ -737,12 +737,12 @@ std::string CScriptObject::getSystemCallbackString(int calltype, int what)
     return ("");
 }
 
-bool CScriptObject::wasModulePreviouslyUsed(const char *moduleName) const
+bool CScriptObject::wasModulePreviouslyUsed(const char* moduleName) const
 {
     return (_previouslyUsedModules.find(moduleName) != _previouslyUsedModules.end());
 }
 
-void CScriptObject::addUsedModule(const char *module)
+void CScriptObject::addUsedModule(const char* module)
 {
     _previouslyUsedModules.insert(module);
 }
@@ -777,21 +777,21 @@ void CScriptObject::addModulesDetectedInCode()
     }
 }
 
-void CScriptObject::getMatchingFunctions(const char *txt, std::set<std::string> &v, const CScriptObject *requestOrigin)
+void CScriptObject::getMatchingFunctions(const char* txt, std::set<std::string>& v, const CScriptObject* requestOrigin)
 {
     App::worldContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt, v); // old plugins
 
     App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 1, requestOrigin);
 }
 
-void CScriptObject::getMatchingConstants(const char *txt, std::set<std::string> &v, const CScriptObject *requestOrigin)
+void CScriptObject::getMatchingConstants(const char* txt, std::set<std::string>& v, const CScriptObject* requestOrigin)
 {
     App::worldContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt, v); // old plugins
 
     App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 2, requestOrigin);
 }
 
-std::string CScriptObject::getFunctionCalltip(const char *txt, const CScriptObject *requestOrigin)
+std::string CScriptObject::getFunctionCalltip(const char* txt, const CScriptObject* requestOrigin)
 {
     std::string retVal = App::worldContainer->codeEditorInfos->getFunctionCalltip(txt, requestOrigin);
 
@@ -799,7 +799,7 @@ std::string CScriptObject::getFunctionCalltip(const char *txt, const CScriptObje
     { // Check old plugin functions' calltips:
         for (size_t j = 0; j < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); j++)
         {
-            CScriptCustomFunction *it =
+            CScriptCustomFunction* it =
                 App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
             std::string n = it->getFunctionName();
             if (n.compare(txt) == 0)
@@ -996,8 +996,8 @@ int CScriptObject::getInExternalCall()
 }
 
 std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptType, int what)
-{ // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
-  // if not deprecated
+{   // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
+    // if not deprecated
     std::vector<int> ct = getAllSystemCallbacks(scriptType, false);
     std::vector<std::string> retVal;
     for (size_t i = 0; i < ct.size(); i++)
@@ -1088,7 +1088,7 @@ std::string CScriptObject::getScriptName() const
         return (_addOnMenuName);
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (obj != nullptr)
             return (obj->getObjectAlias());
         return ("error");
@@ -1102,7 +1102,7 @@ int CScriptObject::getAddOnUiMenuHandle() const
     return (_addOnUiMenuHandle);
 }
 
-void CScriptObject::setAddOnPath(const char *p)
+void CScriptObject::setAddOnPath(const char* p)
 {
     _addOnPath = p;
 }
@@ -1117,7 +1117,7 @@ int CScriptObject::getScriptState() const
     return _scriptState;
 }
 
-void CScriptObject::addSpecializedObjectEventData(CCbor *ev)
+void CScriptObject::addSpecializedObjectEventData(CCbor* ev)
 {
     if (_scriptHandle >= SIM_IDSTART_LUASCRIPT)
         ev->appendKeyText(propObject_objectType.name, "detachedScript");
@@ -1141,8 +1141,8 @@ void CScriptObject::setScriptState(int state)
         _scriptState = state;
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScriptObj_scriptState.name;
-            CCbor *ev;
+            const char* cmd = propScriptObj_scriptState.name;
+            CCbor* ev;
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
@@ -1158,7 +1158,7 @@ void CScriptObject::setScriptExecPriority(int priority)
     bool diff = false;
     if (_sceneObjectHandle != -1)
     { // i.e. all new script objects, and all old associated scripts
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
         {
             int p = it->getScriptExecPriority();
@@ -1176,8 +1176,8 @@ void CScriptObject::setScriptExecPriority(int priority)
     {
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScriptObj_execPriority.name;
-            CCbor *ev;
+            const char* cmd = propScriptObj_execPriority.name;
+            CCbor* ev;
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
@@ -1193,7 +1193,7 @@ int CScriptObject::getScriptExecPriority() const
     int retVal = sim_scriptexecorder_normal;
     if (_sceneObjectHandle != -1)
     { // i.e. all new script objects, and all old associated scripts
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             retVal = it->getScriptExecPriority();
     }
@@ -1229,8 +1229,8 @@ void CScriptObject::simulationAboutToStart()
 }
 
 void CScriptObject::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (isSimulationOrMainScript())
     {
         if (_outsideCommandQueue != nullptr)
@@ -1257,8 +1257,8 @@ void CScriptObject::setScriptIsDisabled(bool isDisabled)
         _scriptIsDisabled = isDisabled;
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScriptObj_scriptDisabled.name;
-            CCbor *ev;
+            const char* cmd = propScriptObj_scriptDisabled.name;
+            CCbor* ev;
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
@@ -1291,7 +1291,7 @@ bool CScriptObject::getParentIsProxy() const
 
 bool CScriptObject::isNotInCopyBuffer() const
 { // corresponds to the getIsInScene function with scene objects
-    bool retVal = ( (_scriptType == sim_scripttype_sandbox) || (_scriptType == sim_scripttype_addon) );
+    bool retVal = ((_scriptType == sim_scripttype_sandbox) || (_scriptType == sim_scripttype_addon));
     if (!retVal)
     {
         if (App::currentWorld->sceneObjects != nullptr)
@@ -1312,8 +1312,8 @@ void CScriptObject::setAutoRestartOnError(bool restart)
         _autoRestartOnError = restart;
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScriptObj_restartOnError.name;
-            CCbor *ev;
+            const char* cmd = propScriptObj_restartOnError.name;
+            CCbor* ev;
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
@@ -1350,7 +1350,7 @@ bool CScriptObject::getFlaggedForDestruction() const
     return (_flaggedForDestruction);
 }
 
-bool CScriptObject::setScriptTextFromFile(const char *filename)
+bool CScriptObject::setScriptTextFromFile(const char* filename)
 {
     std::string t;
     bool retVal = false;
@@ -1376,7 +1376,7 @@ bool CScriptObject::setScriptTextFromFile(const char *filename)
     return (retVal);
 }
 
-void CScriptObject::setScriptText(const char *scriptTxt, bool toFileIfApplicable /*= true*/)
+void CScriptObject::setScriptText(const char* scriptTxt, bool toFileIfApplicable /*= true*/)
 {
     bool diff = false;
     if (scriptTxt == nullptr)
@@ -1390,8 +1390,8 @@ void CScriptObject::setScriptText(const char *scriptTxt, bool toFileIfApplicable
             _scriptText = scriptTxt;
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScriptObj_code.name;
-            CCbor *ev;
+            const char* cmd = propScriptObj_code.name;
+            CCbor* ev;
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
@@ -1404,7 +1404,7 @@ void CScriptObject::setScriptText(const char *scriptTxt, bool toFileIfApplicable
     }
 }
 
-const char *CScriptObject::getScriptText()
+const char* CScriptObject::getScriptText()
 {
     fromFileToBuffer();
     return (_scriptText.c_str());
@@ -1449,7 +1449,7 @@ std::string CScriptObject::getDescriptiveName() const
             retVal += "Customization script";
         else
             retVal += "Passive script";
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it == nullptr)
             retVal += " (unassociated)";
         else
@@ -1483,7 +1483,7 @@ std::string CScriptObject::getShortDescriptiveName() const
         retVal += "mainScript";
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it == nullptr)
             retVal += "???";
         else
@@ -1513,19 +1513,19 @@ std::string CScriptObject::getShortDescriptiveName() const
     return (retVal);
 }
 
-void CScriptObject::setDisplayAddOnName(const char *name)
+void CScriptObject::setDisplayAddOnName(const char* name)
 {
-    _addOnMenuName = name; // e.g. "Animation capture"
+    _addOnMenuName = name;           // e.g. "Animation capture"
     _addOnMenuPath = _addOnMenuName; // e.g. "Tools >> Blabla" (if sysCall_info returns menu = 'Tools\nBlabla')
 }
 
-void CScriptObject::performSceneObjectLoadingMapping(const std::map<int, int> *map)
+void CScriptObject::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (App::currentWorld->sceneObjects != nullptr)
         _sceneObjectHandle = CWorld::getLoadingMapping(map, _sceneObjectHandle);
 }
 
-bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // script will be erased if attached to object (if threaded simulation is not running!)
     bool retVal = false;
     if (copyBuffer)
@@ -1615,7 +1615,7 @@ bool CScriptObject::getCalledInThisSimulationStep() const
     return (_calledInThisSimulationStep);
 }
 
-int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceStack *inStack, CInterfaceStack *outStack)
+int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
 
@@ -1649,7 +1649,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceSt
     return (retVal);
 }
 
-int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack, CInterfaceStack *outStack,
+int CScriptObject::systemCallScript(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack,
                                     bool addOnManuallyStarted /*=false*/)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
@@ -1726,7 +1726,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
 
     if (_addOnUiMenuHandle != -1)
     {
-        CModuleMenuItem *m = App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
+        CModuleMenuItem* m = App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
         if (m != nullptr)
         {
             std::string txt(_addOnMenuPath);
@@ -1756,7 +1756,7 @@ bool CScriptObject::shouldTemporarilySuspendMainScript()
     bool retVal = false;
     if (_scriptType == sim_scripttype_sandbox)
         setScriptState(_scriptState & 7); // remove a possible error flag
-    CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
     _callSystemScriptFunction(sim_syscb_beforemainscript, nullptr, outStack);
     bool doNotRunMainScript;
     if (outStack->getStackMapBoolValue("doNotRunMainScript", doNotRunMainScript))
@@ -1772,7 +1772,7 @@ void CScriptObject::_handleInfoCallback()
 {
     if (_autoStartAddOn == -1)
     { // do this only once!
-        CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
         systemCallScript(sim_syscb_info, nullptr, outStack);
         resetScript();
         bool boolVal = true;
@@ -1803,8 +1803,8 @@ void CScriptObject::_handleInfoCallback()
     }
 }
 
-int CScriptObject::___loadCode(const char *code, const char *functionsToFind, std::vector<bool> &functionsFound,
-                               std::string *errorMsg)
+int CScriptObject::___loadCode(const char* code, const char* functionsToFind, std::vector<bool>& functionsFound,
+                               std::string* errorMsg)
 { // retVal: -1=compil error, 0=runtime error, 1=no error
     int retVal = -1;
 
@@ -1900,8 +1900,7 @@ int CScriptObject::___loadCode(const char *code, const char *functionsToFind, st
                 "]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
     }
 
-
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     _raiseErrors_backCompatibility = true;
     if (_checkIfMixingOldAndNewCallMethods_old())
     {
@@ -2028,7 +2027,7 @@ bool CScriptObject::_loadCode()
 #endif
                     if (_compatibilityMode_oldLua)
                     {
-                        _execSimpleString_safe_lua((luaWrap_lua_State *)_interpreterState, "_S.sysCallEx_init()");
+                        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState, "_S.sysCallEx_init()");
                         setScriptState(scriptState_initialized);
                     }
                     else
@@ -2068,7 +2067,7 @@ bool CScriptObject::_loadCode()
     return ((_scriptState == scriptState_uninitialized) || (_scriptState == scriptState_initialized));
 }
 
-int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack *inStack, CInterfaceStack *outStack)
+int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // retval: -1: runtimeError, 0: function not there or not called, 1: ok
     if (_compatibilityMode_oldLua)
         return (0);
@@ -2094,7 +2093,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
         if (callType == sim_syscb_cleanup)
         {
             int ss = (_scriptState & scriptState_error); // keep the error flag
-            ss |= scriptState_ended; // set the ended state
+            ss |= scriptState_ended;                     // set the ended state
             setScriptState(ss);
         }
         else
@@ -2102,7 +2101,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
             if ((_scriptState & scriptState_error) != 0)
                 return (0);
             if (callType == sim_syscb_aos_resume)
-                setScriptState( (_scriptState | scriptState_suspended) - scriptState_suspended);
+                setScriptState((_scriptState | scriptState_suspended) - scriptState_suspended);
             if ((_scriptState & scriptState_suspended) != 0)
                 return (0);
             if (callType == sim_syscb_aos_suspend)
@@ -2111,15 +2110,15 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
     }
 
     if (_executionDepth == 0)
-    { // remember: a script func. can call another script func indirectly via the system, even system callback can do
-      // that!
+    {   // remember: a script func. can call another script func indirectly via the system, even system callback can do
+        // that!
         _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
         _forbidOverallYieldingLevel = 0;
     }
     else
         changeOverallYieldingForbidLevel(1, false);
 
-    CInterfaceStack *_outStack = App::worldContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* _outStack = App::worldContainer->interfaceStackContainer->createStack();
     if (outStack == nullptr)
         outStack = _outStack;
 
@@ -2142,7 +2141,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
     }
 
     // Following to make sure we get updates on the presence of sim_syscb_userconfig:
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     std::string tmp(getSystemCallbackString(sim_syscb_userconfig, 0));
     luaWrap_lua_getglobal(L, tmp.c_str());
     _containedSystemCallbacks[sim_syscb_userconfig] = luaWrap_lua_isfunction(L, -1);
@@ -2189,8 +2188,8 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
         changeOverallYieldingForbidLevel(-1, false);
 
     if (_executionDepth == 0)
-    { // a system script func. could call a custom script function which could call a system script function, etc. Let
-      // the calls unwind before doing anything heavy!
+    {   // a system script func. could call a custom script function which could call a system script function, etc. Let
+        // the calls unwind before doing anything heavy!
         if ((_scriptState & scriptState_error) != 0)
         { // We got an error
             if (callType == sim_syscb_info)
@@ -2217,8 +2216,8 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
                         _killInterpreterState();
                 }
                 else
-                { // Following for backward compatibility with older add-ons: they could return 1 (sim_syscb_cleanup) to
-                  // request cleanup
+                {   // Following for backward compatibility with older add-ons: they could return 1 (sim_syscb_cleanup) to
+                    // request cleanup
                     long long int theValue;
                     if ((_scriptType == sim_scripttype_addon) && (outStack->getStackStrictInt64Value(theValue)) &&
                         (theValue == 1))
@@ -2231,8 +2230,8 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
     return (retVal);
 }
 
-int CScriptObject::_callScriptFunction(int sysCallType, const char *functionName, const CInterfaceStack *inStack,
-                                       CInterfaceStack *outStack, std::string *errorMsg)
+int CScriptObject::_callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack,
+                                       CInterfaceStack* outStack, std::string* errorMsg)
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     // This will also execute function hooks
     int retVal = 1;
@@ -2287,7 +2286,7 @@ int CScriptObject::_callScriptFunction(int sysCallType, const char *functionName
                           (sysCallType == sim_syscb_aos_suspend) || (sysCallType == sim_syscb_aos_resume) ||
                           (sysCallType == sim_syscb_userconfig)))
     {
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
 
         stack->pushTableOntoStack();
 
@@ -2319,13 +2318,13 @@ int CScriptObject::_callScriptFunction(int sysCallType, const char *functionName
     return (retVal);
 }
 
-int CScriptObject::_callScriptFunc(const char *functionName, const CInterfaceStack *inStack, CInterfaceStack *outStack,
-                                   std::string *errorMsg)
+int CScriptObject::_callScriptFunc(const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack,
+                                   std::string* errorMsg)
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     int retVal = 0;
     std::string func(functionName);
 
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     bool funcDoesNotExist = false;
     int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
     // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
@@ -2381,7 +2380,7 @@ int CScriptObject::_callScriptFunc(const char *functionName, const CInterfaceSta
         int argCnt = inputArgs;
         int errindex = -argCnt - 2;
         luaWrap_lua_insert(L, errindex);
-        if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
+        if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
         { // a runtime error occurred!
             retVal = -1;
             if (errorMsg != nullptr)
@@ -2416,27 +2415,27 @@ int CScriptObject::_callScriptFunc(const char *functionName, const CInterfaceSta
     return (retVal);
 }
 
-int CScriptObject::callCustomScriptFunction(const char *functionName, CInterfaceStack *inOutStack)
+int CScriptObject::callCustomScriptFunction(const char* functionName, CInterfaceStack* inOutStack)
 { // retval: -1: runtimeError, 0: function not there or not executed, 1: ok
     int retVal = 0;
     if (_scriptState == scriptState_initialized)
     {
         changeOverallYieldingForbidLevel(1, false); // never yield from such a call
-        CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
         // -------------------------------------
         std::string errMsg;
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
         setExecutionDepth(_executionDepth + 1);
 
-        luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+        luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
         luaWrap_lua_getglobal(L, "sysCall_ext");
         bool extFunc = luaWrap_lua_isfunction(L, -1);
         luaWrap_lua_pop(L, 1);
         if (extFunc || hasFunctionHook("sysCall_ext"))
-        { // if sysCall_ext is present, the original func won't be called. Otherwise yes, independently of any such
-          // hooks
-            CInterfaceStack *inStack = nullptr;
+        {   // if sysCall_ext is present, the original func won't be called. Otherwise yes, independently of any such
+            // hooks
+            CInterfaceStack* inStack = nullptr;
             if (inOutStack)
                 inStack = App::worldContainer->interfaceStackContainer->createStackCopy(inOutStack);
             else
@@ -2483,9 +2482,9 @@ int CScriptObject::callCustomScriptFunction(const char *functionName, CInterface
     return (retVal);
 }
 
-int CScriptObject::executeScriptString(const char *scriptString, CInterfaceStack *outStack)
-{ // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string
-  // didn't cause an error
+int CScriptObject::executeScriptString(const char* scriptString, CInterfaceStack* outStack)
+{   // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string
+    // didn't cause an error
     int retVal = -2;
     changeOverallYieldingForbidLevel(1, false);
     if (_scriptState == scriptState_initialized)
@@ -2505,11 +2504,11 @@ int CScriptObject::executeScriptString(const char *scriptString, CInterfaceStack
     return (retVal);
 }
 
-bool CScriptObject::_execScriptString(const char *scriptString, CInterfaceStack *outStack)
+bool CScriptObject::_execScriptString(const char* scriptString, CInterfaceStack* outStack)
 { // retVal: success, otherwise error
     bool retVal = false;
 
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
     std::string theString("return ");
     theString += scriptString;
@@ -2626,12 +2625,12 @@ bool CScriptObject::_killInterpreterState()
             // if (_scriptType==sim_scripttype_sandbox) // Not needed
         }
         App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationOrMainScript(), isSceneSwitchPersistentScript());
-        luaWrap_lua_close((luaWrap_lua_State *)_interpreterState);
+        luaWrap_lua_close((luaWrap_lua_State*)_interpreterState);
         _interpreterState = nullptr;
     }
 
     int ss = (_scriptState & scriptState_error); // keep the error flag
-    ss |= scriptState_ended; // set the ended state
+    ss |= scriptState_ended;                     // set the ended state
     setScriptState(ss);
     _scriptTextExec.clear();
     setExecutionDepth(0);
@@ -2682,9 +2681,9 @@ bool CScriptObject::_killInterpreterState()
     return (retVal);
 }
 
-CScriptObject *CScriptObject::copyYourself()
+CScriptObject* CScriptObject::copyYourself()
 {
-    CScriptObject *it = new CScriptObject(_scriptType);
+    CScriptObject* it = new CScriptObject(_scriptType);
 
     it->_scriptType = _scriptType;
     // it->_scriptHandle=_scriptHandle;
@@ -2736,23 +2735,23 @@ bool CScriptObject::prepareFilteredEventsBuffer(const std::vector<unsigned char>
 
         output.push_back(input[0]); // "array open" (holding all events)
         size_t p = 1;
-        for (size_t ev = 0; ev < inf.size(); ev ++)
+        for (size_t ev = 0; ev < inf.size(); ev++)
         {
             long long int t = inf[ev].target;
             long long int altT = t;
-            if ( (t >= 0) && (t <= SIM_IDEND_SCENEOBJECT) )
+            if ((t >= 0) && (t <= SIM_IDEND_SCENEOBJECT))
                 altT = sim_handle_sceneobject;
-            else if ( (t >= SIM_IDSTART_LUASCRIPT) && (t <= SIM_IDEND_LUASCRIPT) )
+            else if ((t >= SIM_IDSTART_LUASCRIPT) && (t <= SIM_IDEND_LUASCRIPT))
             {
                 if (t == App::worldContainer->sandboxScript->getScriptHandle())
                     altT = sim_handle_sandbox;
-                else if ( (mainScriptHandle != -1) && (t == mainScriptHandle) )
+                else if ((mainScriptHandle != -1) && (t == mainScriptHandle))
                     altT = sim_handle_mainscript;
             }
             else if (t >= SIM_UIDSTART)
                 altT = sim_handle_mesh;
             auto s_event = _eventFilters.find(t);
-            if ( (s_event == _eventFilters.end()) && (t != altT) )
+            if ((s_event == _eventFilters.end()) && (t != altT))
                 s_event = _eventFilters.find(altT);
             if (s_event != _eventFilters.end())
             { // we keep that event... maybe (if not empty)
@@ -2784,7 +2783,7 @@ bool CScriptObject::prepareFilteredEventsBuffer(const std::vector<unsigned char>
     return retVal;
 }
 
-int CScriptObject::extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int &aux2Count)
+int CScriptObject::extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int& aux2Count)
 {
     if (_outsideCommandQueue != nullptr)
         return (_outsideCommandQueue->extractOneCommand(auxVals, aux2Vals, aux2Count));
@@ -2799,10 +2798,10 @@ void CScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
         _announceErrorWasRaisedAndPossiblyPauseSimulation(tmp.c_str(), true);
     }
 
-    luaWrap_lua_yield((luaWrap_lua_State *)_interpreterState, 0);
+    luaWrap_lua_yield((luaWrap_lua_State*)_interpreterState, 0);
 }
 
-void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char *errMsg, bool runtimeError)
+void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg, bool runtimeError)
 { // errMsg is in the form: xxxx:lineNb: msg
     std::string errM(errMsg);
     if ((errM.find("attempt to yield across metamethod/C-call boundary") == std::string::npos) &&
@@ -2819,9 +2818,9 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
 #endif
 }
 
-int CScriptObject::getScriptHandleFromInterpreterState_lua(void *LL)
+int CScriptObject::getScriptHandleFromInterpreterState_lua(void* LL)
 {
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int retVal = -1;
     luaWrap_lua_getglobal(L, SIM_SCRIPT_HANDLE);
     if (luaWrap_lua_isnumber(L, -1))
@@ -2830,27 +2829,27 @@ int CScriptObject::getScriptHandleFromInterpreterState_lua(void *LL)
     return (retVal);
 }
 
-void CScriptObject::_setScriptHandleToInterpreterState_lua(void *LL, int h)
+void CScriptObject::_setScriptHandleToInterpreterState_lua(void* LL, int h)
 {
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     std::string tmp(SIM_SCRIPT_HANDLE);
     tmp += "=";
     tmp += std::to_string(h);
     luaWrap_luaL_dostring(L, tmp.c_str());
 }
 
-void CScriptObject::setScriptNameIndexToInterpreterState_lua_old(void *LL, int index)
+void CScriptObject::setScriptNameIndexToInterpreterState_lua_old(void* LL, int index)
 {
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     std::string tmp(SIM_SCRIPT_NAME_INDEX_OLD);
     tmp += "=";
     tmp += std::to_string(index);
     luaWrap_luaL_dostring(L, tmp.c_str());
 }
 
-int CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(void *LL)
+int CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(void* LL)
 {
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int retVal = -1;
     luaWrap_lua_getglobal(L, SIM_SCRIPT_NAME_INDEX_OLD);
     if (luaWrap_lua_isnumber(L, -1))
@@ -2930,7 +2929,7 @@ std::string CScriptObject::_removeLangTagInCode()
     while (utils::extractLine(tmpCode, l))
     {
         utils::removeSpacesAtBeginningAndEnd(l);
-        if ( (l.size() > 0) && (l[0] == '#') )
+        if ((l.size() > 0) && (l[0] == '#'))
         {
             l.erase(l.begin());
             utils::removeSpacesAtBeginningAndEnd(l);
@@ -2950,7 +2949,7 @@ std::string CScriptObject::_removeLangTagInCode()
                 break;
             }
         }
-        else if ( (l.size() > 1) && (l[0] == '-') && (l[1] == '-') )
+        else if ((l.size() > 1) && (l[0] == '-') && (l[1] == '-'))
         {
             l.erase(l.begin());
             l.erase(l.begin());
@@ -2987,7 +2986,7 @@ void CScriptObject::setLang(const char* lang)
     if (lang != nullptr)
     {
         _lang = lang;
-        if ( (_lang != "lua") && (_lang != "python") )
+        if ((_lang != "lua") && (_lang != "python"))
             _scriptIsDisabled = true;
     }
     else
@@ -3009,7 +3008,7 @@ int CScriptObject::getExecutionDepth() const
     return _executionDepth;
 }
 
-bool CScriptObject::_initInterpreterState(std::string *errorMsg)
+bool CScriptObject::_initInterpreterState(std::string* errorMsg)
 {
     _previouslyUsedModules.clear();
     _calledInThisSimulationStep = false;
@@ -3019,7 +3018,7 @@ bool CScriptObject::_initInterpreterState(std::string *errorMsg)
     _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
     _forbidOverallYieldingLevel = 0;
 
-    luaWrap_lua_State *L = luaWrap_luaL_newstate();
+    luaWrap_lua_State* L = luaWrap_luaL_newstate();
     _interpreterState = L;
     luaWrap_luaL_openlibs(L);
     _execSimpleString_safe_lua(L, "os.setlocale'C'");
@@ -3080,15 +3079,15 @@ bool CScriptObject::_initInterpreterState(std::string *errorMsg)
     return (_interpreterState != nullptr);
 }
 
-void CScriptObject::_hookFunction_lua(void *LL, void *arr)
+void CScriptObject::_hookFunction_lua(void* LL, void* arr)
 {
     TRACE_INTERNAL;
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
-    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(getScriptHandleFromInterpreterState_lua(L));
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
+    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
 
-    luaWrap_lua_Debug *ar = (luaWrap_lua_Debug *)arr;
+    luaWrap_lua_Debug* ar = (luaWrap_lua_Debug*)arr;
 
     if (ar->event != luaWrapGet_LUA_HOOKCALL())
     {
@@ -3142,10 +3141,10 @@ void CScriptObject::_hookFunction_lua(void *LL, void *arr)
     }
 }
 
-void CScriptObject::buildFromInterpreterStack_lua(void *LL, CInterfaceStack *stack, int fromPos, int cnt)
+void CScriptObject::buildFromInterpreterStack_lua(void* LL, CInterfaceStack* stack, int fromPos, int cnt)
 { // fromPos: 1-n, cnt==0 --> all
     // !! LL is not the same for a script when in normal or inside a coroutine !!
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     stack->clear();
     int numberOfArguments = luaWrap_lua_gettop(L);
     if (fromPos > 1)
@@ -3154,15 +3153,15 @@ void CScriptObject::buildFromInterpreterStack_lua(void *LL, CInterfaceStack *sta
         numberOfArguments = std::min<int>(numberOfArguments, cnt);
     for (int i = fromPos; i < fromPos + numberOfArguments; i++)
     {
-        std::map<void *, bool> visitedTables;
-        CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, i, visitedTables);
+        std::map<void*, bool> visitedTables;
+        CInterfaceStackObject* obj = _generateObjectFromInterpreterStack_lua(L, i, visitedTables);
         stack->pushObjectOntoStack(obj);
     }
 }
 
-void CScriptObject::buildOntoInterpreterStack_lua(void *LL, const CInterfaceStack *stack, bool takeOnlyTop)
+void CScriptObject::buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop)
 { // !! LL is not the same for a script when in normal or inside a coroutine !!
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     if (takeOnlyTop)
     {
         if (stack->getStackSize() > 0)
@@ -3172,7 +3171,7 @@ void CScriptObject::buildOntoInterpreterStack_lua(void *LL, const CInterfaceStac
     {
         for (size_t i = 0; i < int(stack->getStackSize()); i++)
         {
-            CInterfaceStackObject *obj = stack->getStackObjectFromIndex(i);
+            CInterfaceStackObject* obj = stack->getStackObjectFromIndex(i);
             _pushOntoInterpreterStack_lua(L, obj);
         }
     }
@@ -3180,7 +3179,7 @@ void CScriptObject::buildOntoInterpreterStack_lua(void *LL, const CInterfaceStac
 
 void CScriptObject::registerNewFunctions_lua()
 {
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     // CoppeliaSim API functions:
     for (int i = 0; simLuaCommands[i].name != ""; i++)
     { // i.e. loadPlugin, sim.getObject, sim_2_0.getObject, etc.
@@ -3196,8 +3195,8 @@ void CScriptObject::registerNewFunctions_lua()
             luaWrap_lua_register(L, simLuaCommands[i].name.c_str(), simLuaCommands[i].func);
     }
     if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
-    { // i.e. sim_old.simGetObjectHandle, etc. We need to put this in the global namespace, since we do not have a lazy
-      // load option
+    {   // i.e. sim_old.simGetObjectHandle, etc. We need to put this in the global namespace, since we do not have a lazy
+        // load option
         for (int i = 0; simLuaCommandsOldApi[i].name != ""; i++)
         {
             std::string name(simLuaCommandsOldApi[i].name);
@@ -3213,7 +3212,7 @@ void CScriptObject::registerNewFunctions_lua()
     }
 }
 
-bool CScriptObject::hasFunctionHook(const char *sysFunc) const
+bool CScriptObject::hasFunctionHook(const char* sysFunc) const
 {
     for (size_t i = 0; i < _functionHooks_before.size() / 2; i++)
     {
@@ -3306,7 +3305,7 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
     }
 }
 
-int CScriptObject::registerFunctionHook(const char *sysFunc, const char *userFunc, bool before)
+int CScriptObject::registerFunctionHook(const char* sysFunc, const char* userFunc, bool before)
 {
     int sysFuncNb = getSystemCallbackFromString(sysFunc);
     if (strlen(sysFunc) == 0)
@@ -3325,7 +3324,7 @@ int CScriptObject::registerFunctionHook(const char *sysFunc, const char *userFun
     }
     else
     {
-        std::vector<std::string> *l = &_functionHooks_after;
+        std::vector<std::string>* l = &_functionHooks_after;
         if (before)
             l = &_functionHooks_before;
         bool userFuncEmpty = strlen(userFunc) == 0;
@@ -3389,7 +3388,7 @@ int CScriptObject::registerFunctionHook(const char *sysFunc, const char *userFun
     }
 }
 
-bool CScriptObject::replaceScriptText(const char *oldTxt, const char *newTxt)
+bool CScriptObject::replaceScriptText(const char* oldTxt, const char* newTxt)
 {
     std::string theScript(getScriptText());
     size_t startPos = theScript.find(oldTxt, 0);
@@ -3407,12 +3406,12 @@ bool CScriptObject::replaceScriptText(const char *oldTxt, const char *newTxt)
 
 void CScriptObject::printInterpreterStack() const
 {
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int cnt = luaWrap_lua_gettop(L);
     printf("***Lua stack***\n");
     for (int i = 1; i <= cnt; i++)
     {
-        printf("%i: type: %s: ", i, lua_typename((lua_State *)L, lua_type((lua_State *)L, i)));
+        printf("%i: type: %s: ", i, lua_typename((lua_State*)L, lua_type((lua_State*)L, i)));
         if (luaWrap_lua_isnil(L, i))
             printf("nil\n");
         if (luaWrap_lua_isboolean(L, i))
@@ -3431,19 +3430,19 @@ void CScriptObject::printInterpreterStack() const
     printf("***********\n");
 }
 
-void CScriptObject::loadPluginFuncsAndVars(CPlugin *plug)
+void CScriptObject::loadPluginFuncsAndVars(CPlugin* plug)
 {
     static std::set<std::string> failedLuaExecs;
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
 
     _execSimpleString_safe_lua(L, "__tmploadPluginFuncsAndVars1 = {}");
 
     // Now load the callbacks into Lua state:
-    CPluginCallbackContainer *cbCont = plug->getPluginCallbackContainer();
+    CPluginCallbackContainer* cbCont = plug->getPluginCallbackContainer();
     size_t index = 0;
     while (true)
     {
-        SPluginCallback *dat = cbCont->getCallbackFromIndex(index++);
+        SPluginCallback* dat = cbCont->getCallbackFromIndex(index++);
         if (dat != nullptr)
         {
             std::string idName(plug->getName() + "@" + dat->funcName);
@@ -3461,11 +3460,11 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin *plug)
     }
 
     // Now load the variables into Lua state:
-    CPluginVariableContainer *varCont = plug->getPluginVariableContainer();
+    CPluginVariableContainer* varCont = plug->getPluginVariableContainer();
     index = 0;
     while (true)
     {
-        SPluginVariable *dat = varCont->getVariableFromIndex(index++);
+        SPluginVariable* dat = varCont->getVariableFromIndex(index++);
         if (dat != nullptr)
         {
             // Following just a simple way to make sure cascaded namespaces exist
@@ -3488,7 +3487,7 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin *plug)
             if (dat->stackHandle <= 0)
             { // simple variable
                 std::string tmp(variableName + " = " + dat->varValue);
-                if ( (0 != _execSimpleString_safe_lua(L, tmp.c_str())) && (failedLuaExecs.find(tmp) == failedLuaExecs.end()) )
+                if ((0 != _execSimpleString_safe_lua(L, tmp.c_str())) && (failedLuaExecs.find(tmp) == failedLuaExecs.end()))
                 { // warning only once
                     failedLuaExecs.insert(tmp);
                     tmp = "failed executing '" + tmp + "' (plugin '" + plug->getName() + "')";
@@ -3497,7 +3496,7 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin *plug)
             }
             else
             { // stack variable
-                CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->getStack(dat->stackHandle);
+                CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(dat->stackHandle);
                 buildOntoInterpreterStack_lua(L, stack, true);
                 luaWrap_lua_setglobal(L, variableName.c_str());
             }
@@ -3522,7 +3521,7 @@ void CScriptObject::registerPluginFunctions()
 {
     for (size_t i = 0; i < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); i++)
     {
-        CScriptCustomFunction *customFunc =
+        CScriptCustomFunction* customFunc =
             App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(i);
         if (customFunc->hasCallback())
         {
@@ -3530,7 +3529,7 @@ void CScriptObject::registerPluginFunctions()
             int functionID = customFunc->getFunctionID();
 
             size_t p = functionName.find(".");
-            luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+            luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
             if (p != std::string::npos)
             { // this is the new notation, e.g. simUI.create()
                 std::string prefix(functionName.begin(), functionName.begin() + p);
@@ -3565,7 +3564,7 @@ void CScriptObject::registerPluginFunctions()
 
 void CScriptObject::_registerNewVariables_lua()
 {
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     for (size_t i = 0; simLuaVariables[i].name != ""; i++)
     {
         std::string tmp(simLuaVariables[i].name.c_str());
@@ -3573,8 +3572,8 @@ void CScriptObject::_registerNewVariables_lua()
         _execSimpleString_safe_lua(L, tmp.c_str());
     }
     if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
-    { // i.e. sim_old.sim_handle_all, etc. We need to put this in the global namespace, since we do not have a lazy load
-      // option
+    {   // i.e. sim_old.sim_handle_all, etc. We need to put this in the global namespace, since we do not have a lazy load
+        // option
         for (size_t i = 0; simLuaVariablesOldApi[i].name != ""; i++)
         {
             std::string tmp(simLuaVariablesOldApi[i].name.c_str());
@@ -3593,13 +3592,13 @@ bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
 {
     for (size_t i = 0; i < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomVariableCount(); i++)
     {
-        CScriptCustomVariable *customVar =
+        CScriptCustomVariable* customVar =
             App::worldContainer->scriptCustomFuncAndVarContainer->getCustomVariableFromIndex(i);
         std::string variableName(customVar->getVariableName());
         std::string variableValue(customVar->getVariableValue());
         int variableStackId = customVar->getVariableStackId();
 
-        luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+        luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
         if (variableStackId == 0)
         { // simple variable
             bool doIt = false;
@@ -3630,7 +3629,7 @@ bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
             {
                 if (!onlyRequireStatements)
                 {
-                    CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->getStack(variableStackId);
+                    CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(variableStackId);
                     buildOntoInterpreterStack_lua(L, stack, true);
                     luaWrap_lua_setglobal(L, variableName.c_str());
                 }
@@ -3640,7 +3639,7 @@ bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
     return (true);
 }
 
-void CScriptObject::serialize(CSer &ar)
+void CScriptObject::serialize(CSer& ar)
 {
     _removeLangTagInCode();
     if (ar.isBinary())
@@ -4023,24 +4022,24 @@ void CScriptObject::serialize(CSer &ar)
     }
 }
 
-int CScriptObject::_execSimpleString_safe_lua(void *LL, const char *string)
+int CScriptObject::_execSimpleString_safe_lua(void* LL, const char* string)
 {
     int t1 = _forbidAutoYieldingLevel;
     int t2 = _forbidOverallYieldingLevel;
-    int retVal = luaWrap_luaL_dostring((luaWrap_lua_State *)LL, string);
+    int retVal = luaWrap_luaL_dostring((luaWrap_lua_State*)LL, string);
     _forbidAutoYieldingLevel = t1;
     _forbidOverallYieldingLevel = t2;
     return (retVal);
 }
 
-bool CScriptObject::_loadBuffer_lua(const char *buff, size_t sz, const char *name)
+bool CScriptObject::_loadBuffer_lua(const char* buff, size_t sz, const char* name)
 {
     // This is the slow version (loading and compiling the buffer over and over):
     // int loadBufferRes=luaWrap_luaL_loadbuffer(luaState,buff,sz,name);
     // return(loadBufferRes==0);
 
     // This is the faster version (loading and compiling the buffer once only):
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     if (_loadBufferResult_lua != 0)
     {
         _loadBufferResult_lua = luaWrap_luaL_loadbuffer(L, buff, sz, name);
@@ -4052,7 +4051,7 @@ bool CScriptObject::_loadBuffer_lua(const char *buff, size_t sz, const char *nam
     return (_loadBufferResult_lua == 0);
 }
 
-void CScriptObject::_printContext(const char *str, size_t p)
+void CScriptObject::_printContext(const char* str, size_t p)
 {
     size_t off = 60;
     if (p + off >= strlen(str))
@@ -4065,9 +4064,9 @@ void CScriptObject::_printContext(const char *str, size_t p)
     }
 }
 
-int CScriptObject::_countInterpreterStackTableEntries_lua(void *LL, int index)
+int CScriptObject::_countInterpreterStackTableEntries_lua(void* LL, int index)
 { // !! LL is not the same for a script when in normal or inside a coroutine !!
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int cnt = 0;
     luaWrap_lua_pushvalue(L, index); // copy of the table to the top
     luaWrap_lua_pushnil(L);          // nil on top
@@ -4082,12 +4081,12 @@ int CScriptObject::_countInterpreterStackTableEntries_lua(void *LL, int index)
     return (cnt);
 }
 
-CInterfaceStackTable *CScriptObject::_generateTableMapFromInterpreterStack_lua(void *LL, int index,
-                                                                               std::map<void *, bool> &visitedTables)
+CInterfaceStackTable* CScriptObject::_generateTableMapFromInterpreterStack_lua(void* LL, int index,
+                                                                               std::map<void*, bool>& visitedTables)
 { // there must be a table at the given index.
     // !! LL is not the same for a script when in normal or inside a coroutine !!
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
-    CInterfaceStackTable *table = new CInterfaceStackTable();
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
+    CInterfaceStackTable* table = new CInterfaceStackTable();
     luaWrap_lua_pushvalue(L, index); // copy of the table to the top
     luaWrap_lua_pushnil(L);          // nil on top
     while (luaWrap_lua_next(L, -2))  // pops a value, then pushes a key-value pair (if table is not empty)
@@ -4099,30 +4098,30 @@ CInterfaceStackTable *CScriptObject::_generateTableMapFromInterpreterStack_lua(v
         if (t == sim_stackitem_double)
         { // the key is a number
             double key = luaWrap_lua_tonumber(L, -1);
-            CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
+            CInterfaceStackObject* obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
             table->appendMapObject_object(key, obj);
         }
         else if (t == sim_stackitem_integer)
         { // the key is an integer
             long long int key = luaWrap_lua_tointeger(L, -1);
-            CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
+            CInterfaceStackObject* obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
             table->appendMapObject_object(key, obj);
         }
         else if (t == sim_stackitem_bool)
         { // the key is a bool
             bool key = luaWrap_lua_toboolean(L, -1) != 0;
-            CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
+            CInterfaceStackObject* obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
             table->appendMapObject_object(key, obj);
         }
         else if (t == sim_stackitem_string)
         { // the key is a string
             const char* txtStr = luaWrap_lua_tostring(L, -1);
-            CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
+            CInterfaceStackObject* obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
             table->appendMapObject_object(txtStr, obj);
         }
         else
         { // the key is something weird, e.g. a table, a thread, etc. Convert this to a string:
-            void *p = (void *)luaWrap_lua_topointer(L, -1);
+            void* p = (void*)luaWrap_lua_topointer(L, -1);
             char num[21];
             snprintf(num, 20, "%p", p);
             std::string str;
@@ -4140,7 +4139,7 @@ CInterfaceStackTable *CScriptObject::_generateTableMapFromInterpreterStack_lua(v
                 str = "<UNKNOWNTYPE ";
             str += num;
             str += ">";
-            CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
+            CInterfaceStackObject* obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
             table->appendMapObject_object(str.c_str(), obj);
         }
         luaWrap_lua_pop(L, 2); // pop 2 values (key+value)
@@ -4151,29 +4150,29 @@ CInterfaceStackTable *CScriptObject::_generateTableMapFromInterpreterStack_lua(v
     return (table);
 }
 
-CInterfaceStackTable *CScriptObject::_generateTableArrayFromInterpreterStack_lua(void *LL, int index,
-                                                                                 std::map<void *, bool> &visitedTables)
+CInterfaceStackTable* CScriptObject::_generateTableArrayFromInterpreterStack_lua(void* LL, int index,
+                                                                                 std::map<void*, bool>& visitedTables)
 { // there must be a table at the given index.
     // !! LL is not the same for a script when in normal or inside a coroutine !!
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
-    CInterfaceStackTable *table = new CInterfaceStackTable();
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
+    CInterfaceStackTable* table = new CInterfaceStackTable();
     int arraySize = int(luaWrap_lua_rawlen(L, index));
     for (int i = 0; i < arraySize; i++)
     {
         // Push the element i+1 of the table to the top of Lua's stack:
         luaWrap_lua_rawgeti(L, index, i + 1);
-        CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -1, visitedTables);
+        CInterfaceStackObject* obj = _generateObjectFromInterpreterStack_lua(L, -1, visitedTables);
         luaWrap_lua_pop(L, 1); // we pop one element from the stack;
         table->appendArrayObject(obj);
     }
     return (table);
 }
 
-CInterfaceStackObject *CScriptObject::_generateObjectFromInterpreterStack_lua(void *LL, int index,
-                                                                              std::map<void *, bool> &visitedTables)
+CInterfaceStackObject* CScriptObject::_generateObjectFromInterpreterStack_lua(void* LL, int index,
+                                                                              std::map<void*, bool>& visitedTables)
 { // generates just one object at the given index
     // !! LL is not the same for a script when in normal or inside a coroutine !!
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int t = luaWrap_lua_stype(L, index);
     if (t == sim_stackitem_null)
         return (new CInterfaceStackNull());
@@ -4186,9 +4185,9 @@ CInterfaceStackObject *CScriptObject::_generateObjectFromInterpreterStack_lua(vo
     else if (t == sim_stackitem_string)
     {
         size_t l;
-        const char *c = luaWrap_lua_tobuffer(L, index, &l);
-//        if (CCbor::isText(c, l))
-//            return (new CInterfaceStackString(c)); // text
+        const char* c = luaWrap_lua_tobuffer(L, index, &l);
+        //        if (CCbor::isText(c, l))
+        //            return (new CInterfaceStackString(c)); // text
         return (new CInterfaceStackString(c, l, false));
     }
     else if (t == sim_stackitem_table)
@@ -4196,14 +4195,14 @@ CInterfaceStackObject *CScriptObject::_generateObjectFromInterpreterStack_lua(vo
         if (luaWrap_lua_isbuffer(L, index))
         { // this is a buffer
             size_t l;
-            const char *c = luaWrap_lua_tobuffer(L, index, &l);
+            const char* c = luaWrap_lua_tobuffer(L, index, &l);
             return (new CInterfaceStackString(c, l, true));
         }
         else
         { // Following to avoid getting trapped in circular references:
-            void *p = (void *)luaWrap_lua_topointer(L, index);
-            std::map<void *, bool>::iterator it = visitedTables.find(p);
-            CInterfaceStackTable *table = nullptr;
+            void* p = (void*)luaWrap_lua_topointer(L, index);
+            std::map<void*, bool>::iterator it = visitedTables.find(p);
+            CInterfaceStackTable* table = nullptr;
             if (it != visitedTables.end())
             { // we have a circular reference!
                 table = new CInterfaceStackTable();
@@ -4230,7 +4229,7 @@ CInterfaceStackObject *CScriptObject::_generateObjectFromInterpreterStack_lua(vo
     }
     else
     { // following types translate to strings (i.e. can't be handled outside of the Lua state)
-        void *p = (void *)luaWrap_lua_topointer(L, index);
+        void* p = (void*)luaWrap_lua_topointer(L, index);
         char num[21];
         snprintf(num, 20, "%p", p);
         std::string str;
@@ -4250,27 +4249,27 @@ CInterfaceStackObject *CScriptObject::_generateObjectFromInterpreterStack_lua(vo
     }
 }
 
-void CScriptObject::_pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObject *obj)
+void CScriptObject::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj)
 { // !! LL is not the same for a script when in normal or inside a coroutine !!
-    luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int t = obj->getObjectType();
     if (t == sim_stackitem_null)
         luaWrap_lua_pushnil(L);
     else if (t == sim_stackitem_bool)
-        luaWrap_lua_pushboolean(L, ((CInterfaceStackBool *)obj)->getValue());
+        luaWrap_lua_pushboolean(L, ((CInterfaceStackBool*)obj)->getValue());
     else if (t == sim_stackitem_double)
-        luaWrap_lua_pushnumber(L, ((CInterfaceStackNumber *)obj)->getValue());
+        luaWrap_lua_pushnumber(L, ((CInterfaceStackNumber*)obj)->getValue());
     else if (t == sim_stackitem_integer)
-        luaWrap_lua_pushinteger(L, ((CInterfaceStackInteger *)obj)->getValue());
+        luaWrap_lua_pushinteger(L, ((CInterfaceStackInteger*)obj)->getValue());
     else if (t == sim_stackitem_string)
     {
         size_t l;
-        const char *str = ((CInterfaceStackString *)obj)->getValue(&l);
-        if ( ((CInterfaceStackString *)obj)->isBuffer() )
+        const char* str = ((CInterfaceStackString*)obj)->getValue(&l);
+        if (((CInterfaceStackString*)obj)->isBuffer())
             luaWrap_lua_pushbuffer(L, str, l);
         else
         {
-            if ( ((CInterfaceStackString *)obj)->isText() )
+            if (((CInterfaceStackString*)obj)->isText())
                 luaWrap_lua_pushtext(L, str);
             else
                 luaWrap_lua_pushbinarystring(L, str, l);
@@ -4279,12 +4278,12 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObjec
     else if (t == sim_stackitem_table)
     {
         luaWrap_lua_newtable(L);
-        CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+        CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
         if (table->isTableArray())
         { // array-type table
             for (size_t i = 0; i < table->getArraySize(); i++)
             {
-                CInterfaceStackObject *tobj = table->getArrayItemAtIndex(i);
+                CInterfaceStackObject* tobj = table->getArrayItemAtIndex(i);
                 _pushOntoInterpreterStack_lua(L, tobj);
                 luaWrap_lua_rawseti(L, -2, int(i) + 1);
             }
@@ -4298,7 +4297,7 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObjec
                 long long int integerKey;
                 bool boolKey;
                 int keyType = -1;
-                CInterfaceStackObject *tobj = table->getMapItemAtIndex(i, stringKey, numberKey, integerKey, boolKey, keyType);
+                CInterfaceStackObject* tobj = table->getMapItemAtIndex(i, stringKey, numberKey, integerKey, boolKey, keyType);
                 if (keyType == sim_stackitem_string)
                     luaWrap_lua_pushbinarystring(L, stringKey.c_str(), stringKey.size());
                 else if (keyType == sim_stackitem_double)
@@ -4334,12 +4333,12 @@ int CScriptObject::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = -1;
 
-    if ( strcmp(propScriptObj_scriptDisabled.name, pName) == 0 )
+    if (strcmp(propScriptObj_scriptDisabled.name, pName) == 0)
     {
         retVal = 1;
         setScriptIsDisabled(pState);
     }
-    else if ( strcmp(propScriptObj_restartOnError.name, pName) == 0 )
+    else if (strcmp(propScriptObj_restartOnError.name, pName) == 0)
     {
         retVal = 1;
         setAutoRestartOnError(pState);
@@ -4352,12 +4351,12 @@ int CScriptObject::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = -1;
 
-    if ( strcmp(propScriptObj_scriptDisabled.name, pName) == 0 )
+    if (strcmp(propScriptObj_scriptDisabled.name, pName) == 0)
     {
         retVal = 1;
         pState = _scriptIsDisabled;
     }
-    else if ( strcmp(propScriptObj_restartOnError.name, pName) == 0 )
+    else if (strcmp(propScriptObj_restartOnError.name, pName) == 0)
     {
         retVal = 1;
         pState = _autoRestartOnError;
@@ -4370,7 +4369,7 @@ int CScriptObject::setIntProperty(const char* pName, int pState)
 {
     int retVal = -1;
 
-    if ( strcmp(propScriptObj_execPriority.name, pName) == 0 )
+    if (strcmp(propScriptObj_execPriority.name, pName) == 0)
     {
         retVal = 1;
         setScriptExecPriority(pState);
@@ -4383,22 +4382,22 @@ int CScriptObject::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = -1;
 
-    if ( strcmp(propScriptObj_execPriority.name, pName) == 0 )
+    if (strcmp(propScriptObj_execPriority.name, pName) == 0)
     {
         retVal = 1;
         pState = getScriptExecPriority();
     }
-    else if ( strcmp(propScriptObj_scriptType.name, pName) == 0 )
+    else if (strcmp(propScriptObj_scriptType.name, pName) == 0)
     {
         retVal = 1;
         pState = _scriptType;
     }
-    else if ( strcmp(propScriptObj_executionDepth.name, pName) == 0 )
+    else if (strcmp(propScriptObj_executionDepth.name, pName) == 0)
     {
         retVal = 1;
         pState = _executionDepth;
     }
-    else if ( strcmp(propScriptObj_scriptState.name, pName) == 0 )
+    else if (strcmp(propScriptObj_scriptState.name, pName) == 0)
     {
         retVal = 1;
         pState = _scriptState;
@@ -4425,7 +4424,7 @@ int CScriptObject::setStringProperty(const char* pName, const char* pState)
 {
     int retVal = -1;
 
-    if ( strcmp(propScriptObj_code.name, pName) == 0 )
+    if (strcmp(propScriptObj_code.name, pName) == 0)
     {
         retVal = 1;
         setScriptText(pState);
@@ -4438,27 +4437,27 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
 {
     int retVal = -1;
 
-    if ( strcmp(propScriptObj_code.name, pName) == 0 )
+    if (strcmp(propScriptObj_code.name, pName) == 0)
     {
         retVal = 1;
         pState = _scriptText;
     }
-    else if ( strcmp(propScriptObj_language.name, pName) == 0 )
+    else if (strcmp(propScriptObj_language.name, pName) == 0)
     {
         retVal = 1;
         pState = _lang;
     }
-    else if ( strcmp(propScriptObj_scriptName.name, pName) == 0 )
+    else if (strcmp(propScriptObj_scriptName.name, pName) == 0)
     {
         retVal = 1;
         pState = getScriptName();
     }
-    else if ( strcmp(propScriptObj_addOnPath.name, pName) == 0 )
+    else if (strcmp(propScriptObj_addOnPath.name, pName) == 0)
     {
         retVal = 1;
         pState = _addOnPath;
     }
-    else if ( strcmp(propScriptObj_addOnMenuPath.name, pName) == 0 )
+    else if (strcmp(propScriptObj_addOnMenuPath.name, pName) == 0)
     {
         retVal = 1;
         pState = _addOnMenuPath;
@@ -4478,7 +4477,7 @@ int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::s
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
     {
-        if ( (pName.size() == 0) || utils::startsWith(allProps_scriptObject[i].name, pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith(allProps_scriptObject[i].name, pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -4499,7 +4498,7 @@ int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& in
     int retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt, detachedScript);
     if (retVal != -1)
     {
-        if ( strcmp(propScriptObj_code.name, pName) == 0 )
+        if (strcmp(propScriptObj_code.name, pName) == 0)
         {
             if (_scriptText.size() > LARGE_PROPERTY_SIZE)
                 info = info | 0x100;
@@ -4521,7 +4520,7 @@ int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::st
         {
             retVal = allProps_scriptObject[i].type;
             info = allProps_scriptObject[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_scriptObject[i].infoTxt, "") != 0) )
+            if ((infoTxt == "") && (strcmp(allProps_scriptObject[i].infoTxt, "") != 0))
                 infoTxt = allProps_scriptObject[i].infoTxt;
             else
                 infoTxt = allProps_scriptObject[i].shortInfoTxt;
@@ -4535,7 +4534,7 @@ int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::st
 // **************************************************************
 // **************************************************************
 VMutex CScriptObject::_globalMutex_oldThreads;
-std::vector<CScriptObject *> CScriptObject::toBeCalledByThread_oldThreads;
+std::vector<CScriptObject*> CScriptObject::toBeCalledByThread_oldThreads;
 std::map<std::string, std::string> CScriptObject::_newApiMap_old;
 const SNewApiMapping _simApiMapping[] = {
     "sim.mainscriptcall_initialization",
@@ -7410,7 +7409,12 @@ const SNewApiMapping _simCamApiMapping[] = {
     "",
 };
 const SNewApiMapping _simJoyApiMapping[] = {
-    "simExtJoyGetCount", "simJoy.getCount", "simExtJoyGetData", "simJoy.getData", "", "",
+    "simExtJoyGetCount",
+    "simJoy.getCount",
+    "simExtJoyGetData",
+    "simJoy.getData",
+    "",
+    "",
 };
 const SNewApiMapping _simWiiApiMapping[] = {
     "simExtWiiStart",
@@ -7425,7 +7429,12 @@ const SNewApiMapping _simWiiApiMapping[] = {
     "",
 };
 const SNewApiMapping _simURDFApiMapping[] = {
-    "simExtImportUrdf", "simURDF.import", "simExtImportUrdfFile", "simURDF.importFile", "", "",
+    "simExtImportUrdf",
+    "simURDF.import",
+    "simExtImportUrdfFile",
+    "simURDF.importFile",
+    "",
+    "",
 };
 const SNewApiMapping _simBWFApiMapping[] = {
     "simExtBwf_query",
@@ -7768,7 +7777,12 @@ const SNewApiMapping _simROSApiMapping[] = {
     "",
 };
 const SNewApiMapping _simICPApiMapping[] = {
-    "simExtICP_match", "simICP.match", "simExtICP_matchToShape", "simICP.matchToShape", "", "",
+    "simExtICP_match",
+    "simICP.match",
+    "simExtICP_matchToShape",
+    "simICP.matchToShape",
+    "",
+    "",
 };
 const SNewApiMapping _simOMPLApiMapping[] = {
     "simExtOMPL_createStateSpace",
@@ -7889,7 +7903,12 @@ const SNewApiMapping _simOMPLApiMapping[] = {
     "",
 };
 const SNewApiMapping _simSDFApiMapping[] = {
-    "simExtSDF_import", "simSDF.import", "simExtSDF_dump", "simSDF.dump", "", "",
+    "simExtSDF_import",
+    "simSDF.import",
+    "simExtSDF_dump",
+    "simSDF.dump",
+    "",
+    "",
 };
 const SNewApiMapping _simSurfRecApiMapping[] = {
     "simExtSurfaceReconstruction_reconstruct",
@@ -8183,7 +8202,7 @@ bool CScriptObject::getRaiseErrors_backCompatibility() const
 {
     return (_raiseErrors_backCompatibility);
 }
-void CScriptObject::setObjectCustomData_old(int header, const char *data, int dataLength)
+void CScriptObject::setObjectCustomData_old(int header, const char* data, int dataLength)
 {
     if (_customObjectData_old == nullptr)
         _customObjectData_old = new CCustomData_old();
@@ -8195,13 +8214,13 @@ int CScriptObject::getObjectCustomDataLength_old(int header) const
         return (0);
     return (_customObjectData_old->getDataLength(header));
 }
-void CScriptObject::getObjectCustomData_old(int header, char *data) const
+void CScriptObject::getObjectCustomData_old(int header, char* data) const
 {
     if (_customObjectData_old == nullptr)
         return;
     _customObjectData_old->getData(header, data);
 }
-void CScriptObject::setObjectCustomData_tempData_old(int header, const char *data, int dataLength)
+void CScriptObject::setObjectCustomData_tempData_old(int header, const char* data, int dataLength)
 {
     if (_customObjectData_tempData_old == nullptr)
         _customObjectData_tempData_old = new CCustomData_old();
@@ -8213,7 +8232,7 @@ int CScriptObject::getObjectCustomDataLength_tempData_old(int header) const
         return (0);
     return (_customObjectData_tempData_old->getDataLength(header));
 }
-void CScriptObject::getObjectCustomData_tempData_old(int header, char *data) const
+void CScriptObject::getObjectCustomData_tempData_old(int header, char* data) const
 {
     if (_customObjectData_tempData_old == nullptr)
         return;
@@ -8259,7 +8278,7 @@ void CScriptObject::_handleCallbackEx_old(int calltype)
     if (e.size() > 0)
     {
         e = "if " + e + " then " + e + "() end";
-        _execSimpleString_safe_lua((luaWrap_lua_State *)_interpreterState, e.c_str());
+        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState, e.c_str());
     }
 }
 int CScriptObject::_getScriptNameIndexNumber_old() const
@@ -8267,7 +8286,7 @@ int CScriptObject::_getScriptNameIndexNumber_old() const
     int retVal = -1;
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             retVal = tt::getNameSuffixNumber(it->getObjectName_old().c_str(), true);
     }
@@ -8277,7 +8296,7 @@ std::string CScriptObject::getScriptPseudoName_old() const
 {
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             return (it->getObjectName_old());
     }
@@ -8344,9 +8363,9 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
     if (_interpreterState == nullptr)
     {
         if (_initInterpreterState(nullptr))
-            _execSimpleString_safe_lua((luaWrap_lua_State *)_interpreterState, "_S.sysCallEx_init()");
+            _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState, "_S.sysCallEx_init()");
     }
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     _execSimpleString_safe_lua(L, "sim_call_type=-1"); // for backward compatibility
 
     if (_loadBuffer_lua(_scriptTextExec.c_str(), _scriptTextExec.size(), getShortDescriptiveName().c_str()))
@@ -8360,7 +8379,7 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
         setExecutionDepth(_executionDepth + 1);
-        if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
+        if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
         { // a runtime error occurred!
             setExecutionDepth(_executionDepth - 1);
             if (_executionDepth == 0)
@@ -8410,7 +8429,7 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
                     if (_executionDepth == 0)
                         _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
                     setExecutionDepth(_executionDepth + 1);
-                    if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(),
+                    if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(),
                                           errindex) != 0)
                     { // a runtime error occurred!
                         setExecutionDepth(_executionDepth - 1);
@@ -8467,7 +8486,7 @@ int CScriptObject::resumeThreadedChildScriptIfLocationMatch_oldThreads(int resum
     _calledInThisSimulationStep = _calledInThisSimulationStep || res;
     return (res);
 }
-bool CScriptObject::_callScriptChunk_old(int callType, const CInterfaceStack *inStack, CInterfaceStack *outStack)
+bool CScriptObject::_callScriptChunk_old(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     if (!_compatibilityMode_oldLua)
         return (false);
@@ -8479,7 +8498,7 @@ bool CScriptObject::_callScriptChunk_old(int callType, const CInterfaceStack *in
     _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
     _forbidOverallYieldingLevel = 0;
 
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
     std::string tmp("sim_call_type=");
     tmp += std::to_string(callType);
@@ -8502,7 +8521,7 @@ bool CScriptObject::_callScriptChunk_old(int callType, const CInterfaceStack *in
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
         setExecutionDepth(_executionDepth + 1);
-        if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
+        if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
         { // a runtime error occurred!
             setExecutionDepth(_executionDepth - 1);
             if (_executionDepth == 0)
@@ -8547,7 +8566,7 @@ VTHREAD_RETURN_TYPE CScriptObject::_startAddressForThreadedScripts_oldThreads(VT
 {
     TRACE_INTERNAL;
     _globalMutex_oldThreads.lock("CScriptObject::_startAddressForThreadedScripts()");
-    CScriptObject *it = toBeCalledByThread_oldThreads[0];
+    CScriptObject* it = toBeCalledByThread_oldThreads[0];
     toBeCalledByThread_oldThreads.erase(toBeCalledByThread_oldThreads.begin());
     _globalMutex_oldThreads.unlock();
 
@@ -8558,7 +8577,7 @@ VTHREAD_RETURN_TYPE CScriptObject::_startAddressForThreadedScripts_oldThreads(VT
 
     return (VTHREAD_RETURN_VAL);
 }
-int CScriptObject::callScriptFunction_DEPRECATED(const char *functionName, SLuaCallBack *pdata)
+int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata)
 {                    // DEPRECATED
     int retVal = -1; // means error
 
@@ -8566,7 +8585,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char *functionName, SLuaC
         return (retVal);
 
     changeOverallYieldingForbidLevel(1, false);
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
 
     _execSimpleString_safe_lua(L, "sim_call_type=-1"); // for backward compatibility
@@ -8621,7 +8640,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char *functionName, SLuaC
     if (_executionDepth == 0)
         _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
     setExecutionDepth(_executionDepth + 1);
-    if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
+    if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
     { // a runtime error occurred!
         setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
@@ -8724,12 +8743,12 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char *functionName, SLuaC
     changeOverallYieldingForbidLevel(-1, false);
     return (retVal);
 }
-int CScriptObject::setScriptVariable_old(const char *variableName, CInterfaceStack *stack)
+int CScriptObject::setScriptVariable_old(const char* variableName, CInterfaceStack* stack)
 {
     int retVal = -1;
     if (_scriptState != scriptState_initialized)
         return (retVal);
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
 
     std::string var(variableName);
@@ -8780,9 +8799,9 @@ int CScriptObject::setScriptVariable_old(const char *variableName, CInterfaceSta
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
     return (retVal);
 }
-int CScriptObject::clearScriptVariable_DEPRECATED(const char *variableName)
+int CScriptObject::clearScriptVariable_DEPRECATED(const char* variableName)
 { // deprecated
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     if (L == nullptr)
         return (-1);
 
@@ -8826,7 +8845,7 @@ int CScriptObject::clearScriptVariable_DEPRECATED(const char *variableName)
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
     return (0);
 }
-CUserParameters *CScriptObject::getScriptParametersObject_backCompatibility()
+CUserParameters* CScriptObject::getScriptParametersObject_backCompatibility()
 {
     return (_scriptParameters_backCompatibility);
 }
@@ -8835,10 +8854,10 @@ bool CScriptObject::_checkIfMixingOldAndNewCallMethods_old()
     return ((_scriptText.find("sim_call_type") != std::string::npos) &&
             (_scriptText.find("sysCall_") != std::string::npos));
 }
-int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char *keyName, const char *data,
+int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data,
                                                const int what[2])
 { // DEPRECATED since 23/2/2016
-    luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     if ((L == nullptr) && _threadedExecution_oldThreads)
         return (-1); // threaded scripts must be called from within!
 
@@ -8892,11 +8911,11 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char
             if (w == sim_script_arg_bool)
                 luaWrap_lua_pushboolean(L, data[i]);
             if (w == sim_script_arg_int32)
-                luaWrap_lua_pushinteger(L, ((int *)data)[i]);
+                luaWrap_lua_pushinteger(L, ((int*)data)[i]);
             if (w == sim_script_arg_float)
-                luaWrap_lua_pushnumber(L, ((double *)data)[i]);
+                luaWrap_lua_pushnumber(L, ((double*)data)[i]);
             if (w == sim_script_arg_double)
-                luaWrap_lua_pushnumber(L, ((double *)data)[i]);
+                luaWrap_lua_pushnumber(L, ((double*)data)[i]);
             if (w == sim_script_arg_string)
             {
                 luaWrap_lua_pushtext(L, data + stringOff);
@@ -8912,11 +8931,11 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char
         if (w == sim_script_arg_bool)
             luaWrap_lua_pushboolean(L, data[0]);
         if (w == sim_script_arg_int32)
-            luaWrap_lua_pushinteger(L, ((int *)data)[0]);
+            luaWrap_lua_pushinteger(L, ((int*)data)[0]);
         if (w == sim_script_arg_float)
-            luaWrap_lua_pushnumber(L, ((double *)data)[0]);
+            luaWrap_lua_pushnumber(L, ((double*)data)[0]);
         if (w == sim_script_arg_double)
-            luaWrap_lua_pushnumber(L, ((double *)data)[0]);
+            luaWrap_lua_pushnumber(L, ((double*)data)[0]);
         if (w == sim_script_arg_string)
             luaWrap_lua_pushtext(L, data);
         if (w == sim_script_arg_charbuff)
@@ -8936,7 +8955,7 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
     return (0);
 }
-void CScriptObject::setLastError_old(const char *err)
+void CScriptObject::setLastError_old(const char* err)
 {
     _lastError_old = err;
 }
@@ -8972,7 +8991,7 @@ bool CScriptObject::checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014
     _warning_simRMLVelocity_oldCompatibility_30_8_2014 = true;
     return (retVal);
 }
-void CScriptObject::_insertScriptText_old(CScriptObject *scriptObject, bool toFront, const char *txt)
+void CScriptObject::_insertScriptText_old(CScriptObject* scriptObject, bool toFront, const char* txt)
 {
     std::string theScript(scriptObject->getScriptText());
     if (toFront)
@@ -8981,7 +9000,7 @@ void CScriptObject::_insertScriptText_old(CScriptObject *scriptObject, bool toFr
         theScript += txt;
     scriptObject->setScriptText(theScript.c_str());
 }
-std::string CScriptObject::_replaceOldApi(const char *txt, bool forwardAdjustment)
+std::string CScriptObject::_replaceOldApi(const char* txt, bool forwardAdjustment)
 { // recursive
     size_t p = std::string(txt).find("sim");
     if (p != std::string::npos)
@@ -9003,9 +9022,9 @@ std::string CScriptObject::_replaceOldApi(const char *txt, bool forwardAdjustmen
     }
     return (std::string(txt));
 }
-void CScriptObject::_performNewApiAdjustments_old(CScriptObject *scriptObject, bool forwardAdjustment)
+void CScriptObject::_performNewApiAdjustments_old(CScriptObject* scriptObject, bool forwardAdjustment)
 {
-    std::vector<const SNewApiMapping *> all;
+    std::vector<const SNewApiMapping*> all;
     if (_newApiMap_old.begin() == _newApiMap_old.end())
         all.push_back(_simApiMapping);
     all.push_back(_simBubbleApiMapping);
@@ -9032,7 +9051,7 @@ void CScriptObject::_performNewApiAdjustments_old(CScriptObject *scriptObject, b
 
     for (size_t j = 0; j < all.size(); j++)
     {
-        const SNewApiMapping *aMapping = all[j];
+        const SNewApiMapping* aMapping = all[j];
         for (int i = 0; aMapping[i].oldApi != ""; i++)
         {
             if (forwardAdjustment)
@@ -9047,14 +9066,14 @@ void CScriptObject::_performNewApiAdjustments_old(CScriptObject *scriptObject, b
     scriptObject->setScriptText(theScript.c_str());
 }
 
-bool CScriptObject::_replaceScriptText_old(CScriptObject *scriptObject, const char *oldTxt, const char *newTxt)
+bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt, const char* newTxt)
 {
     return scriptObject->replaceScriptText(oldTxt, newTxt);
 }
 
-bool CScriptObject::_replaceScriptTextKeepMiddleUnchanged_old(CScriptObject *scriptObject, const char *oldTxtStart,
-                                                              const char *oldTxtEnd, const char *newTxtStart,
-                                                              const char *newTxtEnd)
+bool CScriptObject::_replaceScriptTextKeepMiddleUnchanged_old(CScriptObject* scriptObject, const char* oldTxtStart,
+                                                              const char* oldTxtEnd, const char* newTxtStart,
+                                                              const char* newTxtEnd)
 { // Will do following: oldTextStart*oldTextEnd --> nextTextStart*newTextEnd
     std::string theScript(scriptObject->getScriptText());
     size_t startPos = theScript.find(oldTxtStart, 0);
@@ -9092,8 +9111,8 @@ bool CScriptObject::_replaceScriptTextKeepMiddleUnchanged_old(CScriptObject *scr
         scriptObject->setScriptText(theScript.c_str());
     return (replacedSomething);
 }
-bool CScriptObject::_replaceScriptText_old(CScriptObject *scriptObject, const char *oldTxt1, const char *oldTxt2,
-                                           const char *oldTxt3, const char *newTxt)
+bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt1, const char* oldTxt2,
+                                           const char* oldTxt3, const char* newTxt)
 { // there can be spaces between the 3 words
     std::string theScript(scriptObject->getScriptText());
     size_t l1 = strlen(oldTxt1);
@@ -9147,7 +9166,7 @@ bool CScriptObject::_replaceScriptText_old(CScriptObject *scriptObject, const ch
         scriptObject->setScriptText(theScript.c_str());
     return (replacedSomething);
 }
-bool CScriptObject::_containsScriptText_old(CScriptObject *scriptObject, const char *txt)
+bool CScriptObject::_containsScriptText_old(CScriptObject* scriptObject, const char* txt)
 {
     const std::string theScript(scriptObject->getScriptText());
     size_t startPos = theScript.find(txt);
@@ -9167,8 +9186,8 @@ bool CScriptObject::_containsScriptText_old(CScriptObject *scriptObject, const c
     //*/
     return (startPos != std::string::npos);
 }
-void CScriptObject::_splitApiText_old(const char *txt, size_t pos, std::string &beforePart, std::string &apiWord,
-                                      std::string &afterPart)
+void CScriptObject::_splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord,
+                                      std::string& afterPart)
 {
     size_t endPos;
     for (size_t i = pos; i < strlen(txt); i++)
@@ -9190,7 +9209,7 @@ void CScriptObject::_splitApiText_old(const char *txt, size_t pos, std::string &
     else
         afterPart.clear();
 }
-void CScriptObject::_adjustScriptText1_old(CScriptObject *scriptObject, bool doIt, bool doIt2)
+void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doIt, bool doIt2)
 {
     if (!doIt)
         return;
@@ -9354,21 +9373,21 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject *scriptObject, bool doI
         _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_last", "sim.syscb_cleanup");
     }
 }
-void CScriptObject::_adjustScriptText2_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText2_old(CScriptObject* scriptObject, bool doIt)
 {
     if (!doIt)
         return;
     if ((scriptObject->getScriptType() == sim_scripttype_simulation) &&
         scriptObject->getThreadedExecution_oldThreads())
-    { // to correct for a forgotten thing. Happens only with files I modified between 11/8/2014 and 13/8/2014 (half of
-      // the demo scenes and models)
+    {   // to correct for a forgotten thing. Happens only with files I modified between 11/8/2014 and 13/8/2014 (half of
+        // the demo scenes and models)
         _replaceScriptText_old(scriptObject, "pcall(threadFunction)", "@@call(threadFunction)");
         _replaceScriptText_old(scriptObject, "@@call(threadFunction)",
                                "res,err=xpcall(threadFunction,function(err) return debug.traceback(err) end)\nif not "
                                "res then\n\tsimAddStatusbarMessage('Lua runtime error: '..err)\nend");
     }
 }
-void CScriptObject::_adjustScriptText3_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText3_old(CScriptObject* scriptObject, bool doIt)
 {
     if (!doIt)
         return;
@@ -9400,14 +9419,14 @@ void CScriptObject::_adjustScriptText3_old(CScriptObject *scriptObject, bool doI
         }
     }
 }
-void CScriptObject::_adjustScriptText4_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText4_old(CScriptObject* scriptObject, bool doIt)
 {
     if (!doIt)
         return;
     _replaceScriptText_old(scriptObject, "res,err=pcall(threadFunction)",
                            "res,err=xpcall(threadFunction,function(err) return debug.traceback(err) end)");
 }
-void CScriptObject::_adjustScriptText5_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText5_old(CScriptObject* scriptObject, bool doIt)
 { // Following since 19/12/2015: not really needed, but better.
     if (!doIt)
         return;
@@ -9420,13 +9439,13 @@ void CScriptObject::_adjustScriptText5_old(CScriptObject *scriptObject, bool doI
     _replaceScriptText_old(scriptObject, "simGetObjectIntParameter", "simGetObjectInt32Parameter");
     _replaceScriptText_old(scriptObject, "simSetObjectIntParameter", "simSetObjectInt32Parameter");
 }
-void CScriptObject::_adjustScriptText6_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText6_old(CScriptObject* scriptObject, bool doIt)
 { // since 19/1/2016 we don't use tabs anymore in embedded scripts:
     if (!doIt)
         return;
     _replaceScriptText_old(scriptObject, "\t", "    "); // tab to 4 spaces
 }
-void CScriptObject::_adjustScriptText7_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText7_old(CScriptObject* scriptObject, bool doIt)
 { // Following since 13/9/2016, but active only since V3.3.3 (or V3.4.0)
     if (!doIt)
         return;
@@ -9443,7 +9462,7 @@ void CScriptObject::_adjustScriptText7_old(CScriptObject *scriptObject, bool doI
     _replaceScriptText_old(scriptObject, "simUnpackBytes", "simUnpackUInt8Table");
     _replaceScriptText_old(scriptObject, "simUnpackWords", "simUnpackUInt16Table");
 }
-void CScriptObject::_adjustScriptText10_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText10_old(CScriptObject* scriptObject, bool doIt)
 { // some various small details:
     //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('/",".lua')","require('/","')");
     //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"/",".lua\")","require('/","')");
@@ -9459,7 +9478,7 @@ void CScriptObject::_adjustScriptText10_old(CScriptObject *scriptObject, bool do
     _replaceScriptText_old(scriptObject, " onchange=\"", " on-change=\"");
     _replaceScriptText_old(scriptObject, " onclick=\"", " on-click=\"");
 }
-void CScriptObject::_adjustScriptText11_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool doIt)
 { // A subtle bug was corrected in below function in CoppeliaSim4.0.1. Below to keep old code working as previously
     if (!doIt)
         return;
@@ -9631,7 +9650,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject *scriptObject, bool do
         _insertScriptText_old(scriptObject, true, txt.c_str());
     }
 }
-void CScriptObject::_adjustScriptText12_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText12_old(CScriptObject* scriptObject, bool doIt)
 { // ROS2 functions:
     if (!doIt)
         return;
@@ -9653,7 +9672,7 @@ void CScriptObject::_adjustScriptText12_old(CScriptObject *scriptObject, bool do
     _replaceScriptText_old(scriptObject, "simROS2.subscribe", "simROS2.createSubscription");
     _replaceScriptText_old(scriptObject, "simROS2.advertise", "simROS2.createPublisher");
 }
-void CScriptObject::_adjustScriptText13_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText13_old(CScriptObject* scriptObject, bool doIt)
 { // for release 4.2.0:
     if (!doIt)
         return;
@@ -9679,7 +9698,7 @@ void CScriptObject::_adjustScriptText13_old(CScriptObject *scriptObject, bool do
         _replaceScriptText_old(scriptObject, txt1, txt2);
     }
 }
-bool CScriptObject::_convertThreadedScriptToCoroutine_old(CScriptObject *scriptObject)
+bool CScriptObject::_convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject)
 { // try to transform the threaded script into a non-threaded script with coroutines:
     bool retVal = false;
     if (_containsScriptText_old(scriptObject, "sysCall_threadmain"))
@@ -9703,7 +9722,7 @@ function sysCall_actuation()\n\
     }
     return retVal;
 }
-void CScriptObject::_adjustScriptText14_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText14_old(CScriptObject* scriptObject, bool doIt)
 { // for release 4.2.1:
     if (!doIt)
         return;
@@ -9736,7 +9755,7 @@ void CScriptObject::_adjustScriptText14_old(CScriptObject *scriptObject, bool do
     _replaceScriptText_old(scriptObject, "sim.clearIntegerSignal", "sim.clearInt32Signal");
 }
 
-void CScriptObject::_adjustScriptText15_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject, bool doIt)
 { // for release 4.3.0 and earlier:
     if (!doIt)
         return;
@@ -9752,7 +9771,7 @@ void CScriptObject::_adjustScriptText15_old(CScriptObject *scriptObject, bool do
     _replaceScriptText_old(scriptObject, "sim.rml_no_sync", "sim.ruckig_nosync");
 }
 
-void CScriptObject::_adjustScriptText16_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject, bool doIt)
 { // for release 4.4.0 and earlier:
     if (!doIt)
         return;
@@ -9784,7 +9803,7 @@ void CScriptObject::_adjustScriptText16_old(CScriptObject *scriptObject, bool do
     _replaceScriptText_old(scriptObject, "simIK.addIkElementFromScene", "simIK.addElementFromScene");
 }
 
-void CScriptObject::_adjustScriptText17_old(CScriptObject *scriptObject, bool doIt)
+void CScriptObject::_adjustScriptText17_old(CScriptObject* scriptObject, bool doIt)
 { // for release 4.5.1 and earlier:
     if (!doIt)
         return;
@@ -9792,7 +9811,7 @@ void CScriptObject::_adjustScriptText17_old(CScriptObject *scriptObject, bool do
     // _replaceScriptText_old(scriptObject,"sim.switchThread","sim.step");
 }
 
-void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
+void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
     /*
     if (_containsScriptText_old(scriptObject, "sim.getStringSignal"))
@@ -9877,216 +9896,204 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     // if (getLanguage()==sim_lang_lua)
     //    _scriptText.insert(0,"--lua\n\n");
 
-//    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
-//    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
-
+    //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
+    //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
 
     std::smatch match;
     std::regex regEx("sim.setInt32Signal\\('([^,]+),");
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, 'signal.")+match.str(1)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.setFloatSignal\\('([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, 'signal.")+match.str(1)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.setStringSignal\\('([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, 'signal.")+match.str(1)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.getInt32Signal\\('([^']+)'";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.getFloatSignal\\('([^']+)'";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.getStringSignal\\('([^']+)'";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.clearInt32Signal\\('([^']+)'";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.clearFloatSignal\\('([^']+)'";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.clearStringSignal\\('([^']+)'";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.")+match.str(1)+"', {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
-
 
     regEx = "sim.setInt32Signal\\(\"([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, \"signal.")+match.str(1)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.setFloatSignal\\(\"([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, \"signal.")+match.str(1)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.setStringSignal\\(\"([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, \"signal.")+match.str(1)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.getInt32Signal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.getFloatSignal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.getStringSignal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.clearInt32Signal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.clearFloatSignal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.clearStringSignal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.")+match.str(1)+"\", {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
-
-
-
-
-
-
-
-
     regEx = "sim.writeCustomBufferData\\(([^,]+),'([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.")+match.str(2)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.writeCustomBufferData\\(([^,]+), '([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.")+match.str(2)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.writeCustomBufferData\\(([^,]+),\"([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.")+match.str(2)+",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.writeCustomBufferData\\(([^,]+), \"([^,]+),";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ",");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.readCustomBufferData\\(([^,]+),'([^']+)'";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + "', {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.readCustomBufferData\\(([^,]+), '([^']+)'";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + "', {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.readCustomBufferData\\(([^,]+),\"([^\"]+)\"";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + "\", {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.readCustomBufferData\\(([^,]+), \"([^\"]+)\"";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + "\", {noError = true}");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
-
-
     regEx = "sim.writeCustomTableData\\(([^,]+),'([^,]+),([^\\)]+)\\)";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.")+match.str(2)+", sim.packTable("+match.str(3)+"))");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.writeCustomTableData\\(([^,]+), '([^,]+),([^\\)]+)\\)";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.")+match.str(2)+", sim.packTable("+match.str(3)+"))");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.writeCustomTableData\\(([^,]+),\"([^,]+),([^\\)]+)\\)";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.")+match.str(2)+", sim.packTable("+match.str(3)+"))");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     regEx = "sim.writeCustomTableData\\(([^,]+), \"([^,]+),([^\\)]+)\\)";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.")+match.str(2)+", sim.packTable("+match.str(3)+"))");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
     std::string trueV = "true";
@@ -10098,49 +10105,47 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     }
 
     regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_respondable\\s*,\\s*1\\s*\\)";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'respondable', " + trueV + ")");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_respondable\\s*,\\s*0\\s*\\)";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'respondable', " + falseV + ")");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.objintparam_visibility_layer";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.setIntProperty(") + match.str(1) + ", 'layer'");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.getObjectInt32Param\\(([^,]+),\\s*sim.objintparam_visibility_layer";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.getIntProperty(") + match.str(1) + ", 'layer'");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_static\\s*,\\s*1\\s*\\)";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'dynamic', " + falseV + ")");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_static\\s*,\\s*0\\s*\\)";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'dynamic', " + trueV + ")");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
     regEx = "sim.getFloatParam\\(\\s*sim.floatparam_rand";
-    while (std::regex_search(_scriptText,match,regEx))
+    while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt("sim.getFloatProperty(sim.handle_app, 'randomFloat'");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
-
-
 
     if (_containsScriptText_old(scriptObject, "Int32Signal("))
         App::logMsg(sim_verbosity_errors, "Contains Int32Signal(...");
@@ -10181,7 +10186,6 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
 
     if (_containsScriptText_old(scriptObject, "LightParameters"))
         App::logMsg(sim_verbosity_errors, "Contains LightParameters...");
-
 
     _replaceScriptText_old(scriptObject, "sim.light_omnidirectional_subtype", "sim.light_omnidirectional");
     _replaceScriptText_old(scriptObject, "sim.light_spot_subtype", "sim.light_spot");
@@ -10241,8 +10245,6 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
         App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_handle...");
     if (_containsScriptText_old(scriptObject, "sim.scriptintparam_objecthandle"))
         App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_objecthandle...");
-
-
 
     if (_containsScriptText_old(scriptObject, "sim.convexDecompose"))
         App::logMsg(sim_verbosity_errors, "Contains sim.convexDecompose...");

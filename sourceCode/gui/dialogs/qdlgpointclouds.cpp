@@ -8,7 +8,8 @@
 #include <sceneObjectOperations.h>
 #include <guiApp.h>
 
-CQDlgPointclouds::CQDlgPointclouds(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgPointclouds)
+CQDlgPointclouds::CQDlgPointclouds(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgPointclouds)
 {
     ui->setupUi(this);
 }
@@ -26,14 +27,14 @@ void CQDlgPointclouds::cancelEvent()
 
 void CQDlgPointclouds::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
     bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
 
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_pointcloud);
     size_t objCnt = App::currentWorld->sceneObjects->getSelectionCount();
     bool octreeStruct = false;
-    CPointCloud *it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+    CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
     if (sel)
         octreeStruct = !it->getDoNotUseCalculationStructure();
 
@@ -173,7 +174,7 @@ void CQDlgPointclouds::on_qqInsert_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+        CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -224,7 +225,7 @@ void CQDlgPointclouds::on_qqNoOctreeStructure_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+        CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
         if (it != nullptr)
         {
             if (!it->getDoNotUseCalculationStructure())
@@ -275,7 +276,7 @@ void CQDlgPointclouds::on_qqSubtract_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+        CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;

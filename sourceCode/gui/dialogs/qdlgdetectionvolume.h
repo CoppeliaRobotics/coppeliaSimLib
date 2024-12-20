@@ -16,13 +16,13 @@ class CQDlgDetectionVolume : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgDetectionVolume(QWidget *parent = 0);
+    explicit CQDlgDetectionVolume(QWidget* parent = 0);
     ~CQDlgDetectionVolume();
 
     void refresh();
     void cancelEvent();
 
-    CConvexVolume *getCurrentConvexVolume();
+    CConvexVolume* getCurrentConvexVolume();
 
     bool inMainRefreshRoutine;
 
@@ -60,7 +60,7 @@ class CQDlgDetectionVolume : public CDlgEx
     void on_qqApplyAll_clicked();
 
   private:
-    Ui::CQDlgDetectionVolume *ui;
+    Ui::CQDlgDetectionVolume* ui;
 };
 
 #endif // QDLGDETECTIONVOLUME_H

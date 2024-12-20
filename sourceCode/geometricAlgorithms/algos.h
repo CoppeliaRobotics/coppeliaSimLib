@@ -8,8 +8,8 @@
 class CAlgos
 {
   public:
-    static C7Vector getMeshBoundingBox(const std::vector<double> &vert, const std::vector<int> &ind,
-                                       bool findNewBBFrameOrientation, C3Vector *bbSize = nullptr);
-    static C4X4Matrix getMainAxis(const std::vector<double> &vertices, const std::vector<int> &indices);
-    static bool isBoxOutsideVolumeApprox(const C4X4Matrix &tr, const C3Vector &s, const std::vector<double> *planes);
+    static C7Vector getMeshBoundingBox(const std::vector<double>& vert, const std::vector<int>& ind,
+                                       bool findNewBBFrameOrientation, C3Vector* bbSize = nullptr);
+    static C4X4Matrix getMainAxis(const std::vector<double>& vertices, const std::vector<int>& indices);
+    static bool isBoxOutsideVolumeApprox(const C4X4Matrix& tr, const C3Vector& s, const std::vector<double>* planes);
 };

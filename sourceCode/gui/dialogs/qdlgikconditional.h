@@ -16,7 +16,7 @@ class CQDlgIkConditional : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgIkConditional(QWidget *parent = 0);
+    explicit CQDlgIkConditional(QWidget* parent = 0);
     ~CQDlgIkConditional();
 
     void cancelEvent();
@@ -25,7 +25,7 @@ class CQDlgIkConditional : public VDialog
     void refresh();
 
     bool inMainRefreshRoutine;
-    CIkGroup_old *ikGroup;
+    CIkGroup_old* ikGroup;
 
     int doOnFailOrSuccessOf;
     int ikResult;
@@ -35,7 +35,7 @@ class CQDlgIkConditional : public VDialog
     bool firstHere;
 
   private slots:
-    void on_qqClose_clicked(QAbstractButton *button);
+    void on_qqClose_clicked(QAbstractButton* button);
 
     void on_qqIkGroupCombo_currentIndexChanged(int index);
 
@@ -46,7 +46,7 @@ class CQDlgIkConditional : public VDialog
     void on_qqFailedAngular_clicked();
 
   private:
-    Ui::CQDlgIkConditional *ui;
+    Ui::CQDlgIkConditional* ui;
 };
 
 #endif // QDLGIKCONDITIONAL_H

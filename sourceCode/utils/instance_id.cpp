@@ -32,11 +32,18 @@ static bool pidExists(int pid)
 #elif defined(_WIN32)
     // On Windows, use OpenProcess with specific access rights to check if the process exists
     HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, static_cast<DWORD>(pid));
-    if (process != NULL) { CloseHandle(process); return true; }
-    else { return false; }
+    if (process != NULL)
+    {
+        CloseHandle(process);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 #else
-    // Unsupported platform
-    #error Unsupported platform: pidExists function not implemented for this platform.
+// Unsupported platform
+#error Unsupported platform: pidExists function not implemented for this platform.
     return false;
 #endif
 }
@@ -48,8 +55,8 @@ static int thisInstancePid()
 #elif defined(_WIN32)
     return GetCurrentProcessId();
 #else
-    // Unsupported platform
-    #error Unsupported platform: thisInstancePid function not implemented for this platform.
+// Unsupported platform
+#error Unsupported platform: thisInstancePid function not implemented for this platform.
     return -1;
 #endif
 }
@@ -63,8 +70,10 @@ InstancesList::InstancesList()
 
     QSystemSemaphore semaphore(SEMAPHORE_KEY, 1);
 
-    if (!sharedMemory.attach()) {
-        if (!sharedMemory.create(SHAREDMEM_SIZE)) {
+    if (!sharedMemory.attach())
+    {
+        if (!sharedMemory.create(SHAREDMEM_SIZE))
+        {
             std::string errStr("Failed to create shared memory segment: ");
             errStr += sharedMemory.errorString().toStdString();
             App::logMsg(sim_verbosity_errors, errStr.c_str());
@@ -114,8 +123,10 @@ QMap<int, int> InstancesList::readInstancesList()
 
     QMap<int, int> instancesList;
 
-    if (!sharedMemory.isAttached()) {
-        if (!sharedMemory.attach()) {
+    if (!sharedMemory.isAttached())
+    {
+        if (!sharedMemory.attach())
+        {
             std::string errStr("Failed to attach to shared memory segment: ");
             errStr += sharedMemory.errorString().toStdString();
             App::logMsg(sim_verbosity_errors, errStr.c_str());
@@ -124,7 +135,8 @@ QMap<int, int> InstancesList::readInstancesList()
     }
 
     // Lock the shared memory for reading
-    if (!sharedMemory.lock()) {
+    if (!sharedMemory.lock())
+    {
         App::logMsg(sim_verbosity_errors, "Failed to lock shared memory segment.");
         return instancesList;
     }
@@ -147,22 +159,27 @@ QMap<int, int> InstancesList::readInstancesList()
     sharedMemory.unlock();
 
     // remove "dead" instances:
-    for (auto it = instancesList.begin(); it != instancesList.end(); ) {
+    for (auto it = instancesList.begin(); it != instancesList.end();)
+    {
         int pid = it.key();
-        if (!pidExists(pid)) {
+        if (!pidExists(pid))
+        {
             it = instancesList.erase(it);
             //qDebug() << "InstancesList::readInstancesList: removing \"dead\" pid" << pid;
         }
-        else ++it;
+        else
+            ++it;
     }
 
     return instancesList;
 }
 
-void InstancesList::writeInstancesList(const QMap<int, int> &instancesList)
+void InstancesList::writeInstancesList(const QMap<int, int>& instancesList)
 {
-    if (!sharedMemory.isAttached()) {
-        if (!sharedMemory.attach()) {
+    if (!sharedMemory.isAttached())
+    {
+        if (!sharedMemory.attach())
+        {
             std::string errStr("Failed to attach to shared memory segment: ");
             errStr += sharedMemory.errorString().toStdString();
             App::logMsg(sim_verbosity_errors, errStr.c_str());
@@ -185,7 +202,8 @@ void InstancesList::writeInstancesList(const QMap<int, int> &instancesList)
     stream << instancesList;
 
     // Lock the shared memory for writing
-    if (!sharedMemory.lock()) {
+    if (!sharedMemory.lock())
+    {
         App::logMsg(sim_verbosity_errors, "Failed to lock shared memory segment.");
         return;
     }
@@ -198,13 +216,13 @@ void InstancesList::writeInstancesList(const QMap<int, int> &instancesList)
     sharedMemory.unlock();
 }
 
-
-int InstancesList::nextInstanceId(const QMap<int, int> &m)
+int InstancesList::nextInstanceId(const QMap<int, int>& m)
 {
     int nextId = 0;
     auto values = m.values();
     QSet<int> valuesSet(values.begin(), values.end());
-    while (valuesSet.contains(nextId)) ++nextId;
+    while (valuesSet.contains(nextId))
+        ++nextId;
     return nextId;
 }
 

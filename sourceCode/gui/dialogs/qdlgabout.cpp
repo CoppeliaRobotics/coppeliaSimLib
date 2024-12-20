@@ -8,7 +8,7 @@
 #include <app.h>
 #include <simFlavor.h>
 
-CQDlgAbout::CQDlgAbout(QWidget *parent)
+CQDlgAbout::CQDlgAbout(QWidget* parent)
     : VDialog(parent,
               QT_MODAL_DLG_STYLE | Qt::CustomizeWindowHint | Qt::WindowTitleHint), // since Qt5.1: Tool --> Dialog
       ui(new Ui::CQDlgAbout)
@@ -45,7 +45,7 @@ void CQDlgAbout::initializationEvent()
     ui->info->setText(txt.c_str());
 }
 
-void CQDlgAbout::on_qqClose_clicked(QAbstractButton *button)
+void CQDlgAbout::on_qqClose_clicked(QAbstractButton* button)
 {
     defaultModalDialogEndRoutine(true);
 }

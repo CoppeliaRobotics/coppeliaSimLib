@@ -15,18 +15,18 @@ class CQDlgShapeEditionContainer : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgShapeEditionContainer(QWidget *parent = 0);
+    explicit CQDlgShapeEditionContainer(QWidget* parent = 0);
     ~CQDlgShapeEditionContainer();
 
     void refresh();
     void cancelEvent();
     void okEvent();
 
-    QVBoxLayout *bl;
+    QVBoxLayout* bl;
     int currentPage;
     int desiredPage;
 
-    CDlgEx *pageDlgs[3];
+    CDlgEx* pageDlgs[3];
     int originalHeights[3];
 
   private slots:
@@ -37,7 +37,7 @@ class CQDlgShapeEditionContainer : public CDlgEx
     void on_qqEdgeMode_clicked();
 
   private:
-    Ui::CQDlgShapeEditionContainer *ui;
+    Ui::CQDlgShapeEditionContainer* ui;
 };
 
 #endif // QDLGSHAPEEDITIONCONTAINER_H

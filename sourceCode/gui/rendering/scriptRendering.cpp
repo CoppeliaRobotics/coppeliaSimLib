@@ -1,7 +1,7 @@
 #include <scriptRendering.h>
 #include <guiApp.h>
 
-void displayScript(CScript *script, CViewableBase *renderingObject, int displayAttrib)
+void displayScript(CScript* script, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(script, renderingObject);

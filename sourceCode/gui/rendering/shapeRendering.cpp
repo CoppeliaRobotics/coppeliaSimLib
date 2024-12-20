@@ -23,7 +23,7 @@ See the GNU General Public License for more details.
 #include <mesh.h>
 #include <guiApp.h>
 
-void displayShape(CShape *shape, CViewableBase *renderingObject, int displayAttrib)
+void displayShape(CShape* shape, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(shape, renderingObject);
@@ -133,7 +133,7 @@ void displayShape(CShape *shape, CViewableBase *renderingObject, int displayAttr
     _commonFinish(shape, renderingObject);
 }
 
-void _displayInertia(const C7Vector &tr, const C3Vector &pmi, double comFrameSize)
+void _displayInertia(const C7Vector& tr, const C3Vector& pmi, double comFrameSize)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
@@ -167,16 +167,16 @@ void _displayInertia(const C7Vector &tr, const C3Vector &pmi, double comFrameSiz
     glPopMatrix();
 }
 
-void _displayTriangles(CMesh *geometric, int geomModifCounter, CTextureProperty *tp)
+void _displayTriangles(CMesh* geometric, int geomModifCounter, CTextureProperty* tp)
 {
     if ((!App::currentWorld->environment->getShapeTexturesEnabled()) ||
         CEnvironment::getShapeTexturesTemporarilyDisabled())
         tp = nullptr;
-    std::vector<float> *textureCoords = nullptr;
-    int *texCoordBufferIdPtr = nullptr;
-    const std::vector<float> &_vertices = geometric->getVerticesForDisplayAndDisk()[0];
-    const std::vector<int> &_indices = geometric->getIndices()[0];
-    const std::vector<float> &_normals = geometric->getNormalsForDisplayAndDisk()[0];
+    std::vector<float>* textureCoords = nullptr;
+    int* texCoordBufferIdPtr = nullptr;
+    const std::vector<float>& _vertices = geometric->getVerticesForDisplayAndDisk()[0];
+    const std::vector<int>& _indices = geometric->getIndices()[0];
+    const std::vector<float>& _normals = geometric->getNormalsForDisplayAndDisk()[0];
     if (tp != nullptr)
     {
         textureCoords = tp->getTextureCoordinates(geomModifCounter, _vertices, _indices);
@@ -195,8 +195,8 @@ void _displayTriangles(CMesh *geometric, int geomModifCounter, CTextureProperty 
                        nullptr, geometric->getVertexBufferIdPtr(), geometric->getNormalBufferIdPtr(), nullptr);
 }
 
-void displayGeometric(const C7Vector &cumulIFrameTr, CMesh *geometric, CShape *geomData, int displayAttrib,
-                      CColorObject *collisionColor, int dynObjFlag_forVisualization, int transparencyHandling,
+void displayGeometric(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
+                      CColorObject* collisionColor, int dynObjFlag_forVisualization, int transparencyHandling,
                       bool multishapeEditSelected)
 {
     //    printf("A: %f, %f, %f\n",cumulIFrameTr.X(0),cumulIFrameTr.X(1),cumulIFrameTr.X(2));
@@ -357,9 +357,9 @@ void displayGeometric(const C7Vector &cumulIFrameTr, CMesh *geometric, CShape *g
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
             }
-            std::vector<float> &_vertices = geometric->getVerticesForDisplayAndDisk()[0];
-            std::vector<int> &_indices = geometric->getIndices()[0];
-            std::vector<unsigned char> &_edges = geometric->getEdges()[0];
+            std::vector<float>& _vertices = geometric->getVerticesForDisplayAndDisk()[0];
+            std::vector<int>& _indices = geometric->getIndices()[0];
+            std::vector<unsigned char>& _edges = geometric->getEdges()[0];
             bool nothingDisplayed = (!_drawEdges(&_vertices[0], (int)_vertices.size() / 3, &_indices[0],
                                                  (int)_indices.size(), &_edges[0], geometric->getEdgeBufferIdPtr()));
 
@@ -439,7 +439,7 @@ void displayGeometric(const C7Vector &cumulIFrameTr, CMesh *geometric, CShape *g
     glPopMatrix();
 }
 
-void displayGeometric_colorCoded(const C7Vector &cumulIFrameTr, CMesh *geometric, CShape *geomData, int objectId,
+void displayGeometric_colorCoded(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int objectId,
                                  int displayAttrib)
 {
     glPushMatrix();
@@ -460,9 +460,9 @@ void displayGeometric_colorCoded(const C7Vector &cumulIFrameTr, CMesh *geometric
 
     if ((displayAttrib & sim_displayattribute_colorcodedtriangles) != 0)
     {
-        std::vector<float> &_vertices = geometric->getVerticesForDisplayAndDisk()[0];
-        std::vector<int> &_indices = geometric->getIndices()[0];
-        std::vector<float> &_normals = geometric->getNormalsForDisplayAndDisk()[0];
+        std::vector<float>& _vertices = geometric->getVerticesForDisplayAndDisk()[0];
+        std::vector<int>& _indices = geometric->getIndices()[0];
+        std::vector<float>& _normals = geometric->getNormalsForDisplayAndDisk()[0];
         _drawColorCodedTriangles(&_vertices[0], (int)_vertices.size() / 3, &_indices[0], (int)_indices.size(),
                                  &_normals[0], geometric->getVertexBufferIdPtr(), geometric->getNormalBufferIdPtr());
     }
@@ -475,8 +475,8 @@ void displayGeometric_colorCoded(const C7Vector &cumulIFrameTr, CMesh *geometric
     glPopMatrix();
 }
 
-void displayGeometricGhost(const C7Vector &cumulIFrameTr, CMesh *geometric, CShape *geomData, int displayAttrib,
-                           bool originalColors, bool backfaceCulling, double transparency, const float *newColors)
+void displayGeometricGhost(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
+                           bool originalColors, bool backfaceCulling, double transparency, const float* newColors)
 {
     if (originalColors)
     {
@@ -583,9 +583,9 @@ void displayGeometricGhost(const C7Vector &cumulIFrameTr, CMesh *geometric, CSha
                 glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
             }
 
-            std::vector<float> &_vertices = geometric->getVerticesForDisplayAndDisk()[0];
-            std::vector<int> &_indices = geometric->getIndices()[0];
-            std::vector<unsigned char> &_edges = geometric->getEdges()[0];
+            std::vector<float>& _vertices = geometric->getVerticesForDisplayAndDisk()[0];
+            std::vector<int>& _indices = geometric->getIndices()[0];
+            std::vector<unsigned char>& _edges = geometric->getEdges()[0];
             bool nothingDisplayed = (!_drawEdges(&_vertices[0], (int)_vertices.size() / 3, &_indices[0],
                                                  (int)_indices.size(), &_edges[0], geometric->getEdgeBufferIdPtr()));
 

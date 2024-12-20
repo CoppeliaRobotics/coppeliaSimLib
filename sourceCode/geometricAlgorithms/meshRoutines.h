@@ -7,9 +7,9 @@
 class CMeshRoutines
 {
   public:
-    static int convexDecompose(const double *vertices, int verticesLength, const int *indices, int indicesLength,
-                               std::vector<std::vector<double> *> &verticesList,
-                               std::vector<std::vector<int> *> &indicesList, size_t nClusters, double concavity,
+    static int convexDecompose(const double* vertices, int verticesLength, const int* indices, int indicesLength,
+                               std::vector<std::vector<double>*>& verticesList,
+                               std::vector<std::vector<int>*>& indicesList, size_t nClusters, double concavity,
                                bool addExtraDistPoints, bool addFacesPoints, double ccConnectDist,
                                size_t targetNTrianglesDecimatedMesh, size_t maxHullVertices,
                                double smallestClusterThreshold, bool useHACD, int resolution_VHACD, int depth_VHACD_old,
@@ -17,19 +17,19 @@ class CMeshRoutines
                                double alpha_VHACD, double beta_VHACD, double gamma_VHACD_old, bool pca_VHACD,
                                bool voxelBased_VHACD, int maxVerticesPerCH_VHACD, double minVolumePerCH_VHACD);
 
-    static void getEdgeFeatures(double *vertices, int verticesLength, int *indices, int indicesLength,
-                                std::vector<int> *vertexIDs, std::vector<int> *edgeIDs, std::vector<int> *faceIDs,
+    static void getEdgeFeatures(double* vertices, int verticesLength, int* indices, int indicesLength,
+                                std::vector<int>* vertexIDs, std::vector<int>* edgeIDs, std::vector<int>* faceIDs,
                                 double angleTolerance, bool forDisplay, bool hideEdgeBorders);
 
-    static bool getConvexHull(const std::vector<double> &verticesIn, std::vector<double> &verticesOut,
-                              std::vector<int> &indicesOut);
-    static bool getDecimatedMesh(const std::vector<double> &verticesIn, const std::vector<int> &indicesIn,
-                                 double percentageToKeep, std::vector<double> &verticesOut,
-                                 std::vector<int> &indicesOut, double distTolerance);
+    static bool getConvexHull(const std::vector<double>& verticesIn, std::vector<double>& verticesOut,
+                              std::vector<int>& indicesOut);
+    static bool getDecimatedMesh(const std::vector<double>& verticesIn, const std::vector<int>& indicesIn,
+                                 double percentageToKeep, std::vector<double>& verticesOut,
+                                 std::vector<int>& indicesOut, double distTolerance);
 
-    inline static bool getMinDistBetweenSegmentAndPoint_IfSmaller(const C3Vector &lp0, const C3Vector &lv0,
-                                                                  const C3Vector &dummyPos, double &dist,
-                                                                  C3Vector &segA)
+    inline static bool getMinDistBetweenSegmentAndPoint_IfSmaller(const C3Vector& lp0, const C3Vector& lv0,
+                                                                  const C3Vector& dummyPos, double& dist,
+                                                                  C3Vector& segA)
     { // dist & segA are modified only if the distance is smaller than 'dist' which was input
         // Return value of true means: the dist is smaller
         // The segment can be degenerated (point)
@@ -81,41 +81,41 @@ class CMeshRoutines
         return (smaller);
     }
 
-    inline static double getMinDistPtBetweenPointAndLine(const C3Vector &point, const C3Vector &lp, const C3Vector &lv)
+    inline static double getMinDistPtBetweenPointAndLine(const C3Vector& point, const C3Vector& lp, const C3Vector& lv)
     {
         C3Vector d(point - lp);
         return ((d * lv) / (lv * lv));
     };
 
-    static int getConvexType(const std::vector<double> &vertices, const std::vector<int> &indices,
+    static int getConvexType(const std::vector<double>& vertices, const std::vector<int>& indices,
                              double distanceToleranceInPercent);
 
-    static void createCube(std::vector<double> &vertices, std::vector<int> &indices, const C3Vector &sizes,
+    static void createCube(std::vector<double>& vertices, std::vector<int>& indices, const C3Vector& sizes,
                            const int subdivisions[3]);
-    static void createSphere(std::vector<double> &vertices, std::vector<int> &indices, const C3Vector &sizes, int sides,
+    static void createSphere(std::vector<double>& vertices, std::vector<int>& indices, const C3Vector& sizes, int sides,
                              int faces);
-    static void createCapsule(std::vector<double> &vertices, std::vector<int> &indices, const C3Vector &sizes,
+    static void createCapsule(std::vector<double>& vertices, std::vector<int>& indices, const C3Vector& sizes,
                               int sides, int faceSubdiv);
-    static void createCylinder(std::vector<double> &vertices, std::vector<int> &indices, const C3Vector &sizes,
+    static void createCylinder(std::vector<double>& vertices, std::vector<int>& indices, const C3Vector& sizes,
                                int sides, int faces, int discDiv, bool openEnds, bool cone);
-    static void createAnnulus(std::vector<double> &vertices, std::vector<int> &indices, double Dlarge, double Dsmall,
+    static void createAnnulus(std::vector<double>& vertices, std::vector<int>& indices, double Dlarge, double Dsmall,
                               double zShift, int sides, bool faceUp);
-    static double getGeodesicDistanceOnConvexMesh(const C3Vector &pt1, const C3Vector &pt2,
-                                                  const std::vector<double> &vertices,
-                                                  const std::vector<int> *auxIndices = nullptr,
-                                                  std::vector<double> *path = nullptr, double maxEdgeLength = 0.01,
-                                                  int *debugShape = nullptr);
-    static void toDelaunayMesh(const std::vector<double> &vertices, std::vector<int> &indices,
-                               std::vector<double> *normals, std::vector<float> *texCoords);
-    static void removeDuplicateVerticesAndTriangles(std::vector<double> &vertices, std::vector<int> *indices,
-                                                    std::vector<double> *normals, std::vector<float> *texCoords,
+    static double getGeodesicDistanceOnConvexMesh(const C3Vector& pt1, const C3Vector& pt2,
+                                                  const std::vector<double>& vertices,
+                                                  const std::vector<int>* auxIndices = nullptr,
+                                                  std::vector<double>* path = nullptr, double maxEdgeLength = 0.01,
+                                                  int* debugShape = nullptr);
+    static void toDelaunayMesh(const std::vector<double>& vertices, std::vector<int>& indices,
+                               std::vector<double>* normals, std::vector<float>* texCoords);
+    static void removeDuplicateVerticesAndTriangles(std::vector<double>& vertices, std::vector<int>* indices,
+                                                    std::vector<double>* normals, std::vector<float>* texCoords,
                                                     double distTolerance);
-    static void removeNonReferencedVertices(std::vector<double> &vertices, std::vector<int> &indices);
-    static void removeThinTriangles(std::vector<double> &vertices, std::vector<int> &indices, double percentageToKeep);
+    static void removeNonReferencedVertices(std::vector<double>& vertices, std::vector<int>& indices);
+    static void removeThinTriangles(std::vector<double>& vertices, std::vector<int>& indices, double percentageToKeep);
 
   private:
-    static void _insertEdge(std::vector<std::vector<int> *> &allEdges, int vertexIndex1, int vertexIndex2,
+    static void _insertEdge(std::vector<std::vector<int>*>& allEdges, int vertexIndex1, int vertexIndex2,
                             int triangleIndex); // used for convex check
-    static int _getTriangleIndexFromEdge(std::vector<std::vector<int> *> &allEdges, int vertexIndex1, int vertexIndex2,
+    static int _getTriangleIndexFromEdge(std::vector<std::vector<int>*>& allEdges, int vertexIndex1, int vertexIndex2,
                                          int triangleIndexToExclude); // used for convex check
 };

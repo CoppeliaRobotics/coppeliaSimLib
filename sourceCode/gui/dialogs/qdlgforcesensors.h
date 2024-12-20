@@ -14,7 +14,7 @@ class CQDlgForceSensors : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgForceSensors(QWidget *parent = 0);
+    explicit CQDlgForceSensors(QWidget* parent = 0);
     ~CQDlgForceSensors();
 
     void cancelEvent();
@@ -49,7 +49,7 @@ class CQDlgForceSensors : public CDlgEx
     void on_qqApplyBreaking_clicked();
 
   private:
-    Ui::CQDlgForceSensors *ui;
+    Ui::CQDlgForceSensors* ui;
 };
 
 #endif // QDLGFORCESENSORS_H

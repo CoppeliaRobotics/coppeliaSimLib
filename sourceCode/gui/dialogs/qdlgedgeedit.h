@@ -14,7 +14,7 @@ class CQDlgEdgeEdit : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgEdgeEdit(QWidget *parent = 0);
+    explicit CQDlgEdgeEdit(QWidget* parent = 0);
     ~CQDlgEdgeEdit();
 
     void refresh();
@@ -37,7 +37,7 @@ class CQDlgEdgeEdit : public CDlgEx
     void on_qqInvertSelection_clicked();
 
   private:
-    Ui::CQDlgEdgeEdit *ui;
+    Ui::CQDlgEdgeEdit* ui;
 };
 
 #endif // QDLGEDGEEDIT_H

@@ -82,7 +82,7 @@ CFolderSystem::CFolderSystem()
     VFileFinder finder;
     finder.searchFolders(_autoSavedScenesContainingPath.c_str());
     int index = 0;
-    SFileOrFolder *foundItem = finder.getFoundItem(index++);
+    SFileOrFolder* foundItem = finder.getFoundItem(index++);
     while (foundItem != nullptr)
     {
         if ((foundItem->name != ".") && (foundItem->name != "..") &&
@@ -98,13 +98,13 @@ CFolderSystem::CFolderSystem()
 }
 
 #ifndef __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that
-int unlinkCb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+int unlinkCb(const char* fpath, const struct stat* sb, int typeflag, struct FTW* ftwbuf)
 {
     int rv = remove(fpath);
     return rv;
 }
 
-int rmrf(const char *path)
+int rmrf(const char* path)
 {
     return nftw(path, unlinkCb, 64, FTW_DEPTH | FTW_PHYS);
 }
@@ -122,7 +122,7 @@ CFolderSystem::~CFolderSystem()
         {
             std::filesystem::remove_all(_tempDataPath.c_str());
         }
-        catch (std::filesystem::filesystem_error const &e)
+        catch (std::filesystem::filesystem_error const& e)
         {
         }
 #else
@@ -131,12 +131,12 @@ CFolderSystem::~CFolderSystem()
     }
 }
 
-std::string CFolderSystem::getPathFromFull(const char *full)
+std::string CFolderSystem::getPathFromFull(const char* full)
 { // no final slash is returned
     return (VVarious::splitPath_path(full));
 }
 
-std::string CFolderSystem::getNameFromFull(const char *full)
+std::string CFolderSystem::getNameFromFull(const char* full)
 {
     return (VVarious::splitPath_fileBase(full));
 }
@@ -191,7 +191,7 @@ std::string CFolderSystem::getScenesPath() const
     return (_scenesPath);
 }
 
-void CFolderSystem::setScenesPath(const char *path)
+void CFolderSystem::setScenesPath(const char* path)
 {
     std::string pp(path);
     VVarious::removePathFinalSlashOrBackslash(pp);
@@ -201,8 +201,8 @@ void CFolderSystem::setScenesPath(const char *path)
         _scenesPath = pp;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propApp_sceneDir.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            const char* cmd = propApp_sceneDir.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyText(cmd, _scenesPath.c_str());
             App::worldContainer->pushEvent();
         }
@@ -214,7 +214,7 @@ std::string CFolderSystem::getModelsPath() const
     return (_modelsPath);
 }
 
-void CFolderSystem::setModelsPath(const char *path)
+void CFolderSystem::setModelsPath(const char* path)
 {
     std::string pp(path);
     VVarious::removePathFinalSlashOrBackslash(pp);
@@ -224,8 +224,8 @@ void CFolderSystem::setModelsPath(const char *path)
         _modelsPath = pp;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propApp_modelDir.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            const char* cmd = propApp_modelDir.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyText(cmd, _modelsPath.c_str());
             App::worldContainer->pushEvent();
         }
@@ -237,7 +237,7 @@ std::string CFolderSystem::getImportExportPath() const
     return (_importExportPath);
 }
 
-void CFolderSystem::setImportExportPath(const char *path)
+void CFolderSystem::setImportExportPath(const char* path)
 {
     std::string pp(path);
     VVarious::removePathFinalSlashOrBackslash(pp);
@@ -247,8 +247,8 @@ void CFolderSystem::setImportExportPath(const char *path)
         _importExportPath = pp;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propApp_importExportDir.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            const char* cmd = propApp_importExportDir.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyText(cmd, _importExportPath.c_str());
             App::worldContainer->pushEvent();
         }
@@ -281,17 +281,17 @@ std::string CFolderSystem::getUserSettingsPath()
     if (userSettingsFolder.size() == 0)
     {
         std::string usrSet("CoppeliaSim");
-        char *ps = std::getenv("COPPELIASIM_USER_SETTINGS_FOLDER_SUFFIX");
+        char* ps = std::getenv("COPPELIASIM_USER_SETTINGS_FOLDER_SUFFIX");
         if (ps != nullptr)
             usrSet += ps;
-        const char *home = std::getenv("HOME");
+        const char* home = std::getenv("HOME");
 #ifdef WIN_SIM
-        const char *appData = std::getenv("appdata");
+        const char* appData = std::getenv("appdata");
         if (appData != nullptr)
             userSettingsFolder = std::string(appData) + "/" + usrSet;
 #endif
 #ifdef LIN_SIM
-        const char *xdghome = std::getenv("XDG_CONFIG_HOME"); // takes precedence
+        const char* xdghome = std::getenv("XDG_CONFIG_HOME"); // takes precedence
         if ((xdghome != nullptr) && (strlen(xdghome) != 0))
             home = xdghome;
         if ((home != nullptr) && (strlen(home) != 0))
@@ -313,7 +313,7 @@ std::string CFolderSystem::getUserSettingsPath()
     return (userSettingsFolder);
 }
 
-void CFolderSystem::setTexturesPath(const char *path)
+void CFolderSystem::setTexturesPath(const char* path)
 {
     _texturesPath = path;
     VVarious::removePathFinalSlashOrBackslash(_texturesPath);
@@ -324,7 +324,7 @@ std::string CFolderSystem::getVideosPath() const
     return (_videosPath);
 }
 
-void CFolderSystem::setVideosPath(const char *path)
+void CFolderSystem::setVideosPath(const char* path)
 {
     _videosPath = path;
     VVarious::removePathFinalSlashOrBackslash(_videosPath);
@@ -335,7 +335,7 @@ std::string CFolderSystem::getOtherFilesPath() const
     return (_otherFilesPath);
 }
 
-void CFolderSystem::setOtherFilesPath(const char *path)
+void CFolderSystem::setOtherFilesPath(const char* path)
 {
     _otherFilesPath = path;
     VVarious::removePathFinalSlashOrBackslash(_otherFilesPath);

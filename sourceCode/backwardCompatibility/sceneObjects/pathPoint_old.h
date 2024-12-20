@@ -9,7 +9,7 @@ class CPathPoint_old
     CPathPoint_old();
     virtual ~CPathPoint_old();
 
-    void setTransformation(const C7Vector &tr, int attributes);
+    void setTransformation(const C7Vector& tr, int attributes);
     C7Vector getTransformation();
     void setMaxRelAbsVelocity(double t);
     double getMaxRelAbsVelocity();

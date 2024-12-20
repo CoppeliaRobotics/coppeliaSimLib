@@ -18,7 +18,7 @@ void CPathPointManipulation_old::keyPress(int key)
 {
 }
 
-std::vector<int> *CPathPointManipulation_old::getPointerToSelectedPathPointIndices_nonEditMode()
+std::vector<int>* CPathPointManipulation_old::getPointerToSelectedPathPointIndices_nonEditMode()
 {
     return (&_selectedPathPointIndices_nonEditMode);
 }
@@ -81,7 +81,7 @@ void CPathPointManipulation_old::announceObjectSelectionChanged()
         return;
     if ((App::currentWorld->sceneObjects->getSelectionCount() == 1) && _simulationStopped)
     {
-        CPath_old *selPath = App::currentWorld->sceneObjects->getPathFromHandle(
+        CPath_old* selPath = App::currentWorld->sceneObjects->getPathFromHandle(
             App::currentWorld->sceneObjects->getLastSelectionHandle());
         if (selPath != nullptr)
         {

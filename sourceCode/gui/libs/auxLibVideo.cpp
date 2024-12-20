@@ -27,7 +27,7 @@ bool CAuxLibVideo::loadLibrary()
     return (retVal);
 }
 
-bool CAuxLibVideo::_loadLibrary(const char *pathAndFilename)
+bool CAuxLibVideo::_loadLibrary(const char* pathAndFilename)
 {
     std::string errStr;
     _lib = VVarious::openLibrary(pathAndFilename, &errStr);
@@ -48,7 +48,7 @@ void CAuxLibVideo::unloadLibrary()
     _lib = nullptr;
 }
 
-WLibraryFunc CAuxLibVideo::_getProcAddress(const char *funcName)
+WLibraryFunc CAuxLibVideo::_getProcAddress(const char* funcName)
 {
     return (VVarious::resolveLibraryFuncName(_lib, funcName));
 }

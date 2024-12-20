@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <viewRendering.h>
 
-void displayView(CSView *view, CSceneObject *it, int mainWindowXPos, bool clipWithMainWindowXPos, bool drawText,
+void displayView(CSView* view, CSceneObject* it, int mainWindowXPos, bool clipWithMainWindowXPos, bool drawText,
                  bool passiveSubView)
 {
     int _viewPosition[2];
@@ -42,11 +42,11 @@ void displayView(CSView *view, CSceneObject *it, int mainWindowXPos, bool clipWi
         if (xSize > 0) // to avoid strange effects!
         {
             if (it->getObjectType() == sim_sceneobject_camera)
-                ((CCamera *)it)->lookIn(nullptr, view, drawText, passiveSubView);
+                ((CCamera*)it)->lookIn(nullptr, view, drawText, passiveSubView);
             if (it->getObjectType() == sim_sceneobject_graph)
-                ((CGraph *)it)->lookAt(nullptr, view, view->getTimeGraph(), drawText, passiveSubView, true);
+                ((CGraph*)it)->lookAt(nullptr, view, view->getTimeGraph(), drawText, passiveSubView, true);
             if (it->getObjectType() == sim_sceneobject_visionsensor)
-                ((CVisionSensor *)it)->lookAt(view);
+                ((CVisionSensor*)it)->lookAt(view);
         }
         glDisable(GL_SCISSOR_TEST);
     }

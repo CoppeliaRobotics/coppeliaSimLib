@@ -13,7 +13,7 @@ class CQDlgCameras : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgCameras(QWidget *parent = 0);
+    explicit CQDlgCameras(QWidget* parent = 0);
     ~CQDlgCameras();
 
     void refresh();
@@ -54,7 +54,7 @@ class CQDlgCameras : public CDlgEx
     void on_qqShowVolume_clicked();
 
   private:
-    Ui::CQDlgCameras *ui;
+    Ui::CQDlgCameras* ui;
 };
 
 #endif // QDLGCAMERAS_H

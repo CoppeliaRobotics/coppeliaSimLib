@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <pathPlanningTaskRendering_old.h>
 
-void displayPathPlanningTask(const C3Vector *corners)
+void displayPathPlanningTask(const C3Vector* corners)
 {
     ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorCyan);
     ogl::buffer.clear();

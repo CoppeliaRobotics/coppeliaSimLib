@@ -38,8 +38,8 @@ void CSView::initializeInitialValues(bool simulationAlreadyRunning)
 }
 
 bool CSView::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
     {
         perspectiveDisplay = _initialPerspectiveDisplay;
@@ -155,7 +155,7 @@ void CSView::setLinkedObjectID(int theNewLinkedObjectID, bool noDefaultValues)
     linkedObjectID = theNewLinkedObjectID;
 }
 
-void CSView::setAlternativeViewName(const char *name)
+void CSView::setAlternativeViewName(const char* name)
 {
     _alternativeViewName = name;
 }
@@ -349,7 +349,7 @@ bool CSView::announceObjectWillBeErased(int objectID)
     return (false);
 }
 
-void CSView::performObjectLoadingMapping(const std::map<int, int> *map)
+void CSView::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     linkedObjectID = CWorld::getLoadingMapping(map, linkedObjectID);
 }
@@ -393,9 +393,9 @@ int CSView::getSelectionStatus() const
     return (selectionStatus);
 }
 
-CSView *CSView::copyYourself()
+CSView* CSView::copyYourself()
 {
-    CSView *newView = new CSView(linkedObjectID);
+    CSView* newView = new CSView(linkedObjectID);
     newView->setDefaultValues();
     newView->linkedObjectID = linkedObjectID;
     newView->perspectiveDisplay = perspectiveDisplay;
@@ -447,7 +447,7 @@ size_t CSView::getViewIndex() const
     return (_viewIndex);
 }
 
-void CSView::serialize(CSer &ar)
+void CSView::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -618,7 +618,7 @@ void CSView::serialize(CSer &ar)
 void CSView::render(int mainWindowXPos, bool clipWithMainWindowXPos, bool drawText, bool passiveSubView)
 {
     TRACE_INTERNAL;
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
     displayView(this, it, mainWindowXPos, clipWithMainWindowXPos, drawText, passiveSubView);
 }
 
@@ -806,7 +806,7 @@ bool CSView::processCommand(int commandID, int subViewIndex)
             std::vector<int> sel;
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
             if ((camera != nullptr) && (sel.size() == 1))
             {
                 camera->setTrackedObjectHandle(sel[0]);
@@ -827,7 +827,7 @@ bool CSView::processCommand(int commandID, int subViewIndex)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
             if (camera != nullptr)
             {
                 camera->setTrackedObjectHandle(-1);
@@ -847,12 +847,12 @@ bool CSView::processCommand(int commandID, int subViewIndex)
     return (false);
 }
 
-void CSView::addMenu(VMenu *menu)
+void CSView::addMenu(VMenu* menu)
 {
     // bool lastSelIsGraph=false;
-    CGraph *graph = App::currentWorld->sceneObjects->getGraphFromHandle(linkedObjectID);
-    CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
-    CVisionSensor *sensor = App::currentWorld->sceneObjects->getVisionSensorFromHandle(linkedObjectID);
+    CGraph* graph = App::currentWorld->sceneObjects->getGraphFromHandle(linkedObjectID);
+    CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+    CVisionSensor* sensor = App::currentWorld->sceneObjects->getVisionSensorFromHandle(linkedObjectID);
     size_t selSize = App::currentWorld->sceneObjects->getSelectionCount();
     bool lastSelIsCamera = false;
     bool lastSelIsRendSens = false;
@@ -874,7 +874,7 @@ void CSView::addMenu(VMenu *menu)
 
         menu->appendMenuItem(true, false, VIEW_SELECTOR_SELECT_ANY_VSCMD, IDSN_SELECT_VIEWABLE_OBJECT);
 
-        CSceneObject *trkObj = App::currentWorld->sceneObjects->getObjectFromHandle(camera->getTrackedObjectHandle());
+        CSceneObject* trkObj = App::currentWorld->sceneObjects->getObjectFromHandle(camera->getTrackedObjectHandle());
         if (trkObj != nullptr)
         {
             std::string tmp(IDS_DONT_TRACK_OBJECT__MENU_ITEM);
@@ -924,9 +924,9 @@ void CSView::addMenu(VMenu *menu)
         menu->appendMenuItem(true, false, VIEW_SELECTOR_SELECT_ANY_VSCMD, IDSN_SELECT_VIEWABLE_OBJECT);
     }
     if (sensor != nullptr)
-    { // The linked object is a vision sensor:
-      //        if ( (selSize==1)&&lastSelIsGraph )
-      //            menu->appendMenuItem(true,false,VIEW_FUNCTIONS_LOOK_AT_GRAPH_VFCMD,IDS_LOOK_AT_SELECTED_GRAPH_MENU_ITEM);
+    {   // The linked object is a vision sensor:
+        //        if ( (selSize==1)&&lastSelIsGraph )
+        //            menu->appendMenuItem(true,false,VIEW_FUNCTIONS_LOOK_AT_GRAPH_VFCMD,IDS_LOOK_AT_SELECTED_GRAPH_MENU_ITEM);
         /*else*/ if ((selSize == 1) && lastSelIsCamera)
             menu->appendMenuItem(true, false, VIEW_FUNCTIONS_LOOK_THROUGH_CAMERA_VFCMD,
                                  IDS_LOOK_THROUGH_SELECTED_CAMERA_MENU_ITEM);
@@ -987,27 +987,27 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
         return (false);
     if (y > _viewSize[1])
         return (false);
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
     if (it != nullptr)
     {
         deltaZ = int(double(deltaZ) * App::userSettings->mouseWheelZoomFactor * 1.001);
         if (it->getObjectType() == sim_sceneobject_camera)
         {
-            CSceneObject *cameraParentProxy = nullptr;
-            if (((CCamera *)it)->getUseParentObjectAsManipulationProxy())
-                cameraParentProxy = ((CCamera *)it)->getParent();
+            CSceneObject* cameraParentProxy = nullptr;
+            if (((CCamera*)it)->getUseParentObjectAsManipulationProxy())
+                cameraParentProxy = ((CCamera*)it)->getParent();
             if (!perspectiveDisplay)
             {
-                ((CCamera *)it)
-                    ->setOrthoViewSize(((CCamera *)it)->getOrthoViewSize() * (1.0 + double(deltaZ) / 1920.0));
+                ((CCamera*)it)
+                    ->setOrthoViewSize(((CCamera*)it)->getOrthoViewSize() * (1.0 + double(deltaZ) / 1920.0));
                 if (cameraParentProxy != nullptr)
                 { // We report the same camera opening to all cameras attached to cameraParentProxy
                     for (size_t i = 0; i < cameraParentProxy->getChildCount(); i++)
                     {
-                        CSceneObject *child = cameraParentProxy->getChildFromIndex(i);
+                        CSceneObject* child = cameraParentProxy->getChildFromIndex(i);
                         if (child->getObjectType() == sim_sceneobject_camera)
                         {
-                            ((CCamera *)child)->setOrthoViewSize(((CCamera *)it)->getOrthoViewSize());
+                            ((CCamera*)child)->setOrthoViewSize(((CCamera*)it)->getOrthoViewSize());
                             App::undoRedo_sceneChangedGradual(""); // **************** UNDO THINGY ****************
                         }
                     }
@@ -1033,18 +1033,18 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
                     fact = 1.0;
                 previousRl = rl;
                 lastTime = ct;
-                C4X4Matrix local(((CCamera *)it)->getFullLocalTransformation().getMatrix());
+                C4X4Matrix local(((CCamera*)it)->getFullLocalTransformation().getMatrix());
                 C4X4Matrix localNew(local);
                 double np, fp;
-                ((CCamera *)it)->getClippingPlanes(np, fp);
+                ((CCamera*)it)->getClippingPlanes(np, fp);
                 localNew.X -= localNew.M.axis[2] * 0.01 * (np / 0.05) * fact *
                               double(deltaZ) /
                               120.0;
-                ((CCamera *)it)->shiftCameraInCameraManipulationMode(localNew.X);
+                ((CCamera*)it)->shiftCameraInCameraManipulationMode(localNew.X);
                 if (cameraParentProxy != nullptr)
                 { // We manipulate the parent object instead:
-                    C7Vector local1(((CCamera *)it)->getFullLocalTransformation());
-                    ((CCamera *)it)->setLocalTransformation(local.getTransformation()); // we reset to initial
+                    C7Vector local1(((CCamera*)it)->getFullLocalTransformation());
+                    ((CCamera*)it)->setLocalTransformation(local.getTransformation()); // we reset to initial
                     cameraParentProxy->setLocalTransformation(cameraParentProxy->getFullLocalTransformation() * local1 *
                                                               (local.getInverse()).getTransformation());
                 }
@@ -1059,7 +1059,7 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
             graphSize[1] = graphSize[1] * (1.0 + zoomFact);
             graphPosition[0] = centerPos[0] - graphSize[0] / 2.0;
             graphPosition[1] = centerPos[1] - graphSize[1] / 2.0;
-            ((CGraph *)it)
+            ((CGraph*)it)
                 ->validateViewValues(_viewSize, graphPosition, graphSize, graphIsTimeGraph, false, false, false);
             App::undoRedo_sceneChangedGradual(""); // **************** UNDO THINGY ****************
         }
@@ -1067,8 +1067,8 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
     return (true); // This event was caught
 }
 
-bool CSView::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int &objType, int &objID, int vSize[2],
-                                             bool &viewIsPerspective) const
+bool CSView::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int& objType, int& objID, int vSize[2],
+                                             bool& viewIsPerspective) const
 { // NOT FULLY IMPLEMENTED! objType=-1 --> not supported, 0 --> hierarchy, 1 --> 3DViewable
     if ((x < 0) || (y < 0) || (x > _viewSize[0]) || (y > _viewSize[1]))
         return (false);
@@ -1092,7 +1092,7 @@ void CSView::_handleClickRayIntersection_old(int x, int y, bool mouseDown)
 {
     if (GuiApp::mainWindow->getKeyDownState() & 3)
         return; // doesn't generate any message when the ctrl or shift key is pressed
-    CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+    CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
     if (cam == nullptr)
         return;
 
@@ -1169,7 +1169,7 @@ int CSView::getCursor(int x, int y) const
     int navigationMode = GuiApp::getMouseMode() & 0x00ff;
     if ((navigationMode == sim_navigation_objectshift) || (navigationMode == sim_navigation_objectrotate))
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
         if (cam != nullptr)
         {
             if ((GuiApp::mainWindow->getMouseButtonState() & 1) == 0)
@@ -1215,7 +1215,7 @@ bool CSView::leftMouseButtonDown(int x, int y, int selStatus)
     // Clear all manip mode overlay grid flags:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
         it->clearManipulationModeOverlayGridFlag();
     }
 
@@ -1265,7 +1265,7 @@ void CSView::mouseMove(int x, int y, bool passiveAndFocused)
     {
         if ((x >= 0) && (y >= 0) && (x < _viewSize[0]) && (y < _viewSize[1]) && (linkedObjectID != -1))
         {
-            CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
             if (cam != nullptr)
             {
                 C4X4Matrix tr;
@@ -1328,16 +1328,16 @@ void CSView::mouseMove(int x, int y, bool passiveAndFocused)
     }
 }
 
-int CSView::modelDragMoveEvent(int x, int y, C3Vector *desiredModelPosition)
+int CSView::modelDragMoveEvent(int x, int y, C3Vector* desiredModelPosition)
 {
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
     if ((x < 0) || (y < 0) || (x > _viewSize[0]) || (y > _viewSize[1]))
         return (-2); // mouse not in this view
-    CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
+    CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
     if ((obj != nullptr) && (obj->getObjectType() == sim_sceneobject_camera))
     {
-        CCamera *thecam = (CCamera *)obj;
+        CCamera* thecam = (CCamera*)obj;
 
         int relPos[2] = {x, y};
         int viewSize[2] = {_viewSize[0], _viewSize[1]};
@@ -1449,7 +1449,7 @@ bool CSView::rightMouseButtonDown(int x, int y, bool _subViewIsPassive)
     rightButtonIsCaught = true;
     return (true); // The right button was caught
 }
-bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow, int subViewIndex)
+bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow, int subViewIndex)
 { // true indicates that this view has to be removed (command "Remove view")
     bool caughtSave = rightButtonIsCaught;
     rightButtonIsCaught = false;
@@ -1474,7 +1474,7 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainW
     // The mouse went up in this subview
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
     int linkedObj = -1;
     if (it != nullptr)
     {
@@ -1493,19 +1493,19 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainW
             VMenu mainMenu = VMenu();
 
             mainMenu.appendMenuItem(true, false, REMOVE_VIEW_CMD, IDS_REMOVE_PAGE_MENU_ITEM);
-            VMenu *viewMenu = new VMenu();
+            VMenu* viewMenu = new VMenu();
             addMenu(viewMenu);
             mainMenu.appendMenuAndDetach(viewMenu, true, IDS_VIEW_MENU_ITEM);
             if ((GuiApp::getEditModeType() == NO_EDIT_MODE))
             {
                 if (linkedObj == 0)
                 {
-                    VMenu *objectEditMenu = new VMenu();
+                    VMenu* objectEditMenu = new VMenu();
                     CSceneObjectOperations::addMenu(objectEditMenu);
                     mainMenu.appendMenuAndDetach(objectEditMenu, true, IDS_EDIT_MENU_ITEM);
                 }
 
-                VMenu *addMenu = new VMenu();
+                VMenu* addMenu = new VMenu();
                 CAddOperations::addMenu(addMenu, this, linkedObj == -1, -1);
                 mainMenu.appendMenuAndDetach(addMenu, true, IDS_ADD_MENU_ITEM);
             }
@@ -1514,13 +1514,13 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainW
                 int t = GuiApp::getEditModeType();
                 if (t & SHAPE_EDIT_MODE)
                 {
-                    VMenu *triangleVertexEditMenu = new VMenu();
+                    VMenu* triangleVertexEditMenu = new VMenu();
                     GuiApp::mainWindow->editModeContainer->addMenu(triangleVertexEditMenu, nullptr);
                     mainMenu.appendMenuAndDetach(triangleVertexEditMenu, true, IDS_EDIT_MENU_ITEM);
                 }
                 if (t & PATH_EDIT_MODE_OLD)
                 {
-                    VMenu *pathEditMenu = new VMenu();
+                    VMenu* pathEditMenu = new VMenu();
                     GuiApp::mainWindow->editModeContainer->addMenu(
                         pathEditMenu, App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
                     mainMenu.appendMenuAndDetach(pathEditMenu, true, IDS_EDIT_MENU_ITEM);
@@ -1531,7 +1531,7 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainW
             {
                 if (linkedObj != -1)
                 {
-                    VMenu *simulationMenu = new VMenu();
+                    VMenu* simulationMenu = new VMenu();
                     App::currentWorld->simulation->addMenu(simulationMenu);
                     mainMenu.appendMenuAndDetach(simulationMenu, true, IDS_SIMULATION_MENU_ITEM);
                 }
@@ -1687,7 +1687,7 @@ void CSView::handleCameraOrGraphMotion()
 
 void CSView::graphMotion()
 {
-    CGraph *graph = App::currentWorld->sceneObjects->getGraphFromHandle(linkedObjectID);
+    CGraph* graph = App::currentWorld->sceneObjects->getGraphFromHandle(linkedObjectID);
     if (graph == nullptr)
         return;
 
@@ -1770,10 +1770,10 @@ void CSView::cameraAndObjectMotion()
         if (mouseDownInitialInstance != App::worldContainer->getCurrentWorldIndex())
             eventID++;
     }
-    CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+    CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
     if (camera == nullptr)
         return;
-    CSceneObject *cameraParentProxy = nullptr;
+    CSceneObject* cameraParentProxy = nullptr;
     if (camera->getUseParentObjectAsManipulationProxy())
         cameraParentProxy = camera->getParent();
     VPoint activeWinSize(_viewSize[0], _viewSize[1]);
@@ -1872,22 +1872,22 @@ void CSView::cameraAndObjectMotion()
                 // Prepare the object that will be rotated, and all other objects in selection appropriately:
                 // There is one master object that acts as the rotation pivot. That object needs to be carefully
                 // selected
-                std::vector<CSceneObject *> allSelObj;
+                std::vector<CSceneObject*> allSelObj;
                 for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
                 {
-                    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(
+                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(
                         App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     allSelObj.push_back(it);
                 }
-                std::vector<CSceneObject *> allSelObjects;
-                std::map<CSceneObject *, bool> occ;
-                CSceneObject *masterObj = nullptr;
+                std::vector<CSceneObject*> allSelObjects;
+                std::map<CSceneObject*, bool> occ;
+                CSceneObject* masterObj = nullptr;
                 for (int i = int(allSelObj.size()) - 1; i >= 0; i--)
                 {
-                    CSceneObject *it = allSelObj[i]->getLastParentInSelection(&allSelObj);
+                    CSceneObject* it = allSelObj[i]->getLastParentInSelection(&allSelObj);
                     if (it == nullptr)
                         it = allSelObj[i];
-                    std::map<CSceneObject *, bool>::iterator it2 = occ.find(it);
+                    std::map<CSceneObject*, bool>::iterator it2 = occ.find(it);
                     if (it2 == occ.end())
                     {
                         occ[it] = true;
@@ -1910,7 +1910,7 @@ void CSView::cameraAndObjectMotion()
                         C7Vector shift(newTr * oldTr.getInverse());
                         for (size_t i = 0; i < allSelObjects.size(); i++)
                         {
-                            CSceneObject *obj = allSelObjects[i];
+                            CSceneObject* obj = allSelObjects[i];
                             C7Vector oldLTr = obj->getLocalTransformation();
                             C7Vector parentTr = obj->getFullParentCumulativeTransformation();
                             obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
@@ -1990,22 +1990,22 @@ void CSView::cameraAndObjectMotion()
             { // Object shifting/zooming
                 // Prepare the object that will be shifted, and all other objects in selection appropriately:
                 // There is one master object that acts as the shift pivot. That object needs to be carefully selected
-                std::vector<CSceneObject *> allSelObj;
+                std::vector<CSceneObject*> allSelObj;
                 for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
                 {
-                    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(
+                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(
                         App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     allSelObj.push_back(it);
                 }
-                std::vector<CSceneObject *> allSelObjects;
-                std::map<CSceneObject *, bool> occ;
-                CSceneObject *masterObj = nullptr;
+                std::vector<CSceneObject*> allSelObjects;
+                std::map<CSceneObject*, bool> occ;
+                CSceneObject* masterObj = nullptr;
                 for (int i = int(allSelObj.size()) - 1; i >= 0; i--)
                 {
-                    CSceneObject *it = allSelObj[i]->getLastParentInSelection(&allSelObj);
+                    CSceneObject* it = allSelObj[i]->getLastParentInSelection(&allSelObj);
                     if (it == nullptr)
                         it = allSelObj[i];
-                    std::map<CSceneObject *, bool>::iterator it2 = occ.find(it);
+                    std::map<CSceneObject*, bool>::iterator it2 = occ.find(it);
                     if (it2 == occ.end())
                     {
                         occ[it] = true;
@@ -2078,7 +2078,7 @@ void CSView::cameraAndObjectMotion()
                     }
                     else
                     { // path point shifting (non-edit mode!):
-                        ((CPath_old *)masterObj)
+                        ((CPath_old*)masterObj)
                             ->transformSelectedPathPoints(camera->getFullCumulativeTransformation().getMatrix(),
                                                           centerPos, prevPos, pos, screenHalfSizes, halfSizes,
                                                           perspective, eventID);
@@ -2090,7 +2090,7 @@ void CSView::cameraAndObjectMotion()
                         C7Vector shift(newTr * oldTr.getInverse());
                         for (size_t i = 0; i < allSelObjects.size(); i++)
                         {
-                            CSceneObject *obj = allSelObjects[i];
+                            CSceneObject* obj = allSelObjects[i];
                             C7Vector oldLTr = obj->getLocalTransformation();
                             C7Vector parentTr = obj->getFullParentCumulativeTransformation();
                             obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
@@ -2100,7 +2100,7 @@ void CSView::cameraAndObjectMotion()
             }
             if (GuiApp::getEditModeType() & SHAPE_EDIT_MODE)
             { // Vertice shifting/zooming
-                CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+                CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 C7Vector objCTM(shape->getCumulativeTransformation());
                 C7Vector objCTMI(objCTM.getInverse());
                 objCTM.X += absoluteTransl;
@@ -2164,7 +2164,7 @@ void CSView::cameraAndObjectMotion()
                 }
                 C3Vector centerPos(centerPosition);
 
-                CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+                CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
                 path->transformSelectedPathPoints(camera->getFullCumulativeTransformation().getMatrix(), centerPos,
                                                   prevPos, pos, screenHalfSizes, halfSizes, perspective, eventID);
             }
@@ -2187,9 +2187,9 @@ void CSView::cameraAndObjectMotion()
             { // We report the same camera opening to all cameras attached to cameraPrentProxy
                 for (size_t i = 0; i < cameraParentProxy->getChildCount(); i++)
                 {
-                    CSceneObject *child = cameraParentProxy->getChildFromIndex(i);
+                    CSceneObject* child = cameraParentProxy->getChildFromIndex(i);
                     if (child->getObjectType() == sim_sceneobject_camera)
-                        ((CCamera *)child)->setViewAngle(newViewAngle);
+                        ((CCamera*)child)->setViewAngle(newViewAngle);
                 }
             }
         }
@@ -2200,9 +2200,9 @@ void CSView::cameraAndObjectMotion()
             { // We report the same camera opening to all cameras attached to cameraPrentProxy
                 for (size_t i = 0; i < cameraParentProxy->getChildCount(); i++)
                 {
-                    CSceneObject *child = cameraParentProxy->getChildFromIndex(i);
+                    CSceneObject* child = cameraParentProxy->getChildFromIndex(i);
                     if (child->getObjectType() == sim_sceneobject_camera)
-                        ((CCamera *)child)->setOrthoViewSize(camera->getOrthoViewSize() * (1.0 + zoomFactor));
+                        ((CCamera*)child)->setOrthoViewSize(camera->getOrthoViewSize() * (1.0 + zoomFactor));
                 }
             }
         }

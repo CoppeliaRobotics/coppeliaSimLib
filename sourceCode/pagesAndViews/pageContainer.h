@@ -20,9 +20,9 @@ class CPageContainer
     void removeAllPages();
     void setUpDefaultPages(bool createASingleView = false);
     void announceObjectWillBeErased(int objectID);
-    void serialize(CSer &ar);
-    void performObjectLoadingMapping(const std::map<int, int> *map);
-    CSPage *getPage(int pageIndex) const;
+    void serialize(CSer& ar);
+    void performObjectLoadingMapping(const std::map<int, int>* map);
+    CSPage* getPage(int pageIndex) const;
     int getMainCameraHandle() const;
 
     void setPageSizeAndPosition(int sizeX, int sizeY, int posX, int posY);
@@ -30,7 +30,7 @@ class CPageContainer
     int getPageCount() const;
 
   private:
-    CSPage *_allPages[PAGES_COUNT];
+    CSPage* _allPages[PAGES_COUNT];
     int _activePageIndex;
 
     int _initialValuesInitialized;
@@ -56,26 +56,26 @@ class CPageContainer
     void renderCurrentPage(bool hideWatermark);
     void setActivePage(int pageIndex);
     int getActivePageIndex() const;
-    void addPageMenu(VMenu *menu);
+    void addPageMenu(VMenu* menu);
     void clearAllLastMouseDownViewIndex();
 
     bool leftMouseButtonDown(int x, int y, int selectionStatus);
-    bool getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int &objType, int &objID, int vSize[2],
-                                         bool &viewIsPerspective) const;
+    bool getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int& objType, int& objID, int vSize[2],
+                                         bool& viewIsPerspective) const;
     void leftMouseButtonUp(int x, int y);
     void mouseMove(int x, int y, bool passiveAndFocused);
-    int modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPosition);
+    int modelDragMoveEvent(int xPos, int yPos, C3Vector* desiredModelPosition);
     int getCursor(int x, int y) const;
     void mouseWheel(int deltaZ, int x, int y);
     bool middleMouseButtonDown(int x, int y);
     void middleMouseButtonUp(int x, int y);
     bool rightMouseButtonDown(int x, int y);
-    void rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow);
+    void rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow);
     bool leftMouseButtonDoubleClick(int x, int y, int selectionStatus);
     void looseFocus();
     int getFocusObject() const;
     void setFocusObject(int obj);
-    void keyPress(int key, QWidget *mainWindow);
+    void keyPress(int key, QWidget* mainWindow);
     int getCaughtElements() const;
     void clearCaughtElements(int keepMask);
 #endif

@@ -7,7 +7,7 @@
 #include <guiApp.h>
 #include <tt.h>
 
-CQDlgModelProperties::CQDlgModelProperties(QWidget *parent)
+CQDlgModelProperties::CQDlgModelProperties(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgModelProperties)
 {
     ui->setupUi(this);
@@ -70,7 +70,7 @@ void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
                 App::currentWorld->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
                 SSimulationThreadCommand cmd;
                 cmd.cmdId = SET_THUMBNAIL_GUITRIGGEREDCMD;
-                unsigned char *img = (unsigned char *)dlg.thumbnail.getPointerToUncompressedImage();
+                unsigned char* img = (unsigned char*)dlg.thumbnail.getPointerToUncompressedImage();
                 for (size_t i = 0; i < 128 * 128 * 4; i++)
                     cmd.uint8Params.push_back(img[i]);
                 App::appendSimulationThreadCommand(cmd);
@@ -142,7 +142,7 @@ void CQDlgModelProperties::on_qqNotInsideModelBBox_clicked(bool checked)
     refresh();
 }
 
-void CQDlgModelProperties::on_qqClose_clicked(QAbstractButton *button)
+void CQDlgModelProperties::on_qqClose_clicked(QAbstractButton* button)
 {
     std::string acknowledgment(ui->qqAcknowledgments->toPlainText().toStdString());
     tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(acknowledgment);

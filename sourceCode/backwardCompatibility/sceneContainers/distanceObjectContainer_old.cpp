@@ -29,7 +29,7 @@ void CDistanceObjectContainer_old::simulationEnded()
         getObjectFromIndex(i)->simulationEnded();
 }
 
-void CDistanceObjectContainer_old::getMinAndMaxNameSuffixes(int &minSuffix, int &maxSuffix) const
+void CDistanceObjectContainer_old::getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const
 {
     minSuffix = -1;
     maxSuffix = -1;
@@ -88,12 +88,12 @@ void CDistanceObjectContainer_old::setSuffix1ToSuffix2(int suffix1, int suffix2)
     }
 }
 
-void CDistanceObjectContainer_old::addObject(CDistanceObject_old *newDistObj, bool objectIsACopy)
+void CDistanceObjectContainer_old::addObject(CDistanceObject_old* newDistObj, bool objectIsACopy)
 {
     addObjectWithSuffixOffset(newDistObj, objectIsACopy, 1);
 }
 
-void CDistanceObjectContainer_old::addObjectWithSuffixOffset(CDistanceObject_old *newDistObj, bool objectIsACopy,
+void CDistanceObjectContainer_old::addObjectWithSuffixOffset(CDistanceObject_old* newDistObj, bool objectIsACopy,
                                                              int suffixOffset)
 {
     std::string oName = newDistObj->getObjectName();
@@ -117,7 +117,7 @@ void CDistanceObjectContainer_old::addObjectWithSuffixOffset(CDistanceObject_old
 #endif
 }
 
-int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Handle, const char *objName)
+int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Handle, const char* objName)
 { // We check if the objects are valid:
     if (entity1Handle <= SIM_IDEND_SCENEOBJECT)
     {
@@ -171,7 +171,7 @@ int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Han
             return (-1);
     }
 
-    CDistanceObject_old *newDistObject = new CDistanceObject_old(entity1Handle, entity2Handle);
+    CDistanceObject_old* newDistObject = new CDistanceObject_old(entity1Handle, entity2Handle);
     newDistObject->setObjectName(objName, false);
     addObject(newDistObject, false);
 
@@ -260,7 +260,7 @@ double CDistanceObjectContainer_old::handleAllDistances(bool exceptExplicitHandl
     return (retVal);
 }
 
-void CDistanceObjectContainer_old::_addObject(CDistanceObject_old *newDistObj)
+void CDistanceObjectContainer_old::_addObject(CDistanceObject_old* newDistObj)
 {
     _distanceObjects.push_back(newDistObj);
 }
@@ -283,15 +283,15 @@ size_t CDistanceObjectContainer_old::getObjectCount() const
     return (_distanceObjects.size());
 }
 
-CDistanceObject_old *CDistanceObjectContainer_old::getObjectFromIndex(size_t index) const
+CDistanceObject_old* CDistanceObjectContainer_old::getObjectFromIndex(size_t index) const
 {
-    CDistanceObject_old *retVal = nullptr;
+    CDistanceObject_old* retVal = nullptr;
     if (index < _distanceObjects.size())
         retVal = _distanceObjects[index];
     return (retVal);
 }
 
-CDistanceObject_old *CDistanceObjectContainer_old::getObjectFromHandle(int objectHandle) const
+CDistanceObject_old* CDistanceObjectContainer_old::getObjectFromHandle(int objectHandle) const
 {
     for (size_t i = 0; i < _distanceObjects.size(); i++)
     {
@@ -301,7 +301,7 @@ CDistanceObject_old *CDistanceObjectContainer_old::getObjectFromHandle(int objec
     return (nullptr);
 }
 
-CDistanceObject_old *CDistanceObjectContainer_old::getObjectFromName(const char *objName) const
+CDistanceObject_old* CDistanceObjectContainer_old::getObjectFromName(const char* objName) const
 {
     for (size_t i = 0; i < _distanceObjects.size(); i++)
     {
@@ -312,7 +312,7 @@ CDistanceObject_old *CDistanceObjectContainer_old::getObjectFromName(const char 
 }
 
 #ifdef SIM_WITH_GUI
-void CDistanceObjectContainer_old::renderYour3DStuff(CViewableBase *renderingObject, int displayAttrib)
+void CDistanceObjectContainer_old::renderYour3DStuff(CViewableBase* renderingObject, int displayAttrib)
 {
     if (displayAttrib & sim_displayattribute_renderpass)
         displayDistanceSegments();

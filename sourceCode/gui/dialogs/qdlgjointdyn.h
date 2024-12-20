@@ -14,7 +14,7 @@ class CQDlgJointDyn : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgJointDyn(QWidget *parent = 0);
+    explicit CQDlgJointDyn(QWidget* parent = 0);
     ~CQDlgJointDyn();
 
     void refresh();
@@ -54,7 +54,7 @@ class CQDlgJointDyn : public CDlgEx
   private:
     bool inMainRefreshRoutine;
 
-    Ui::CQDlgJointDyn *ui;
+    Ui::CQDlgJointDyn* ui;
 };
 
 #endif // QDLGJOINTDYN_H

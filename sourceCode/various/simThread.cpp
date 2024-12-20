@@ -34,13 +34,13 @@ void CSimThread::executeMessages()
 {
 #ifdef SIM_WITH_GUI
     if (_renderRequired() && (GuiApp::mainWindow != nullptr))
-    { // we always enter here, unless we skip display frames during simulation. In idle mode, _renderRequired will sleep
-      // appropriately
+    {   // we always enter here, unless we skip display frames during simulation. In idle mode, _renderRequired will sleep
+        // appropriately
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
             {
-                CCamera *it = App::currentWorld->sceneObjects->getCameraFromIndex(i);
+                CCamera* it = App::currentWorld->sceneObjects->getCameraFromIndex(i);
                 it->handleCameraTracking();
             }
         }
@@ -49,7 +49,7 @@ void CSimThread::executeMessages()
         {
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
             {
-                CPath_old *it = App::currentWorld->sceneObjects->getPathFromIndex(i);
+                CPath_old* it = App::currentWorld->sceneObjects->getPathFromIndex(i);
                 it->resetPath();
             }
         }
@@ -210,7 +210,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_SHAPE_TRANSPARENCY_CMD)
     {
-        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (shape != nullptr)
         {
             if (!shape->isCompound())
@@ -223,8 +223,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == MAKE_OBJECT_CHILD_OF_CMD)
     {
-        CSceneObject *child = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
-        CSceneObject *parent = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
+        CSceneObject* child = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* parent = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
         if (child != nullptr)
         {
             App::currentWorld->sceneObjects->setObjectParent(child, parent, true);
@@ -249,20 +249,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_SHAPE_SHADING_ANGLE_CMD)
     {
-        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if ((shape != nullptr) && shape->getMesh()->isMesh())
             shape->getSingleMesh()->setShadingAngle(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_SHAPE_EDGE_ANGLE_CMD)
     {
-        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if ((shape != nullptr) && shape->getMesh()->isMesh())
             shape->getSingleMesh()->setEdgeThresholdAngle(cmd.doubleParams[0]);
     }
 
     if (cmd.cmdId == TOGGLE_EXPAND_COLLAPSE_HIERARCHY_OBJECT_CMD)
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (obj != nullptr)
         {
             obj->setObjectProperty(obj->getObjectProperty() ^ sim_objectproperty_collapsed);
@@ -273,7 +273,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         for (size_t i = 0; i < cmd.intParams.size(); i++)
         {
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
             if (obj != nullptr)
             {
                 if (cmd.boolParams[i])
@@ -289,7 +289,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SWAP_VIEWS_CMD)
     {
-        CSPage *p = App::currentWorld->pageContainer->getPage(cmd.intParams[0]);
+        CSPage* p = App::currentWorld->pageContainer->getPage(cmd.intParams[0]);
         if (p != nullptr)
         {
             p->swapViews(size_t(cmd.intParams[1]), size_t(cmd.intParams[2]), cmd.boolParams[0]);
@@ -299,10 +299,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_MODULE_ENTRY_CMD)
     {
-        CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(cmd.intParams[0]);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(cmd.intParams[0]);
         if (script != nullptr)
         {
-            CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
             inStack->pushTextOntoStack("handle");
             inStack->pushInt32OntoStack(cmd.intParams[1]);
@@ -317,7 +317,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_USER_CONFIG_CALLBACK_CMD)
     { // cmd.intParams[0] is an object handle
-        CScriptObject *script = App::currentWorld->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
+        CScriptObject* script = App::currentWorld->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
         if (script == nullptr)
             script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, cmd.intParams[0]);
         if ((script != nullptr) && (script->hasSystemFunctionOrHook(sim_syscb_userconfig)))
@@ -331,7 +331,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             cmdIn.cmdId = OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD;
             cmdIn.intParams.push_back(cmd.intParams[0]);
             // Make sure we have a script param object:
-            CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+            CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
             if (object->getUserScriptParameterObject() == nullptr)
                 object->setUserScriptParameterObject(new CUserParameters());
             {
@@ -344,9 +344,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == OPEN_SCRIPT_EDITOR_CMD)
     {
-        if ( (GuiApp::getEditModeType() == NO_EDIT_MODE) && (GuiApp::mainWindow != nullptr) )
+        if ((GuiApp::getEditModeType() == NO_EDIT_MODE) && (GuiApp::mainWindow != nullptr))
         {
-            CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
+            CScriptObject* it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
             if (it != nullptr)
             {
                 if (it->getScriptType() == sim_scripttype_customization)
@@ -378,11 +378,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CLOSE_FLOATING_VIEW_CMD)
     {
-        CSPage *page =
+        CSPage* page =
             App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
         if (page != nullptr)
         {
-            CSView *theFloatingView = page->getView(size_t(cmd.intParams[0]));
+            CSView* theFloatingView = page->getView(size_t(cmd.intParams[0]));
             if (theFloatingView != nullptr)
             {
                 if (theFloatingView->getCanBeClosed())
@@ -405,10 +405,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if ((GuiApp::mainWindow != nullptr) && (cmd.cmdId > EDIT_MODE_COMMANDS_START_EMCMD) &&
         (cmd.cmdId < EDIT_MODE_COMMANDS_END_EMCMD))
     {
-        CSceneObject *additionalSceneObject = nullptr;
+        CSceneObject* additionalSceneObject = nullptr;
         if (cmd.cmdId == PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
         {
-            additionalSceneObject = (CSceneObject *)cmd.objectParams[0];
+            additionalSceneObject = (CSceneObject*)cmd.objectParams[0];
             if (additionalSceneObject != nullptr)
             { // make sure that object is still valid:
                 if (!App::currentWorld->sceneObjects->doesObjectExist(additionalSceneObject))
@@ -439,13 +439,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if ((cmd.cmdId > ADD_COMMANDS_START_ACCMD) && (cmd.cmdId < ADD_COMMANDS_END_ACCMD))
     {
-        CSView *subview = nullptr;
+        CSView* subview = nullptr;
         if (cmd.objectParams.size() > 0)
         {
-            subview = (CSView *)cmd.objectParams[0];
+            subview = (CSView*)cmd.objectParams[0];
             if (subview != nullptr)
             { // make sure that object is still valid:
-                CSPage *page =
+                CSPage* page =
                     App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
                 if (!page->isViewValid(subview))
                     subview = nullptr;
@@ -501,7 +501,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == RESTART_SCRIPT_CMD)
     {
-        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(cmd.intParams[0]);
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && it->resetScript())
         {
             std::string msg(it->getDescriptiveName());
@@ -512,11 +512,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if ((cmd.cmdId > VIEW_FUNCTIONS_START_VFCMD) && (cmd.cmdId < VIEW_FUNCTIONS_END_VFCMD))
     {
-        CSPage *page =
+        CSPage* page =
             App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
         if (page != nullptr)
         {
-            CSView *view = page->getView(size_t(cmd.intParams[0]));
+            CSView* view = page->getView(size_t(cmd.intParams[0]));
             if (view != nullptr)
                 view->processCommand(cmd.cmdId, cmd.intParams[0]);
         }
@@ -537,7 +537,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::logMsg(sim_verbosity_msgs, IDSNS_MODEL_LOADED);
             if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
             { // we could have several model bases (in the old fileformat)
-                CSceneObject *obj = App::currentWorld->sceneObjects->getLastSelectionObject();
+                CSceneObject* obj = App::currentWorld->sceneObjects->getLastSelectionObject();
                 if (obj != nullptr)
                 {
                     if (cmd.intParams[0] >= 0)
@@ -589,7 +589,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == DRAGENTER_GUITRIGGEREDCMD)
     {
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->insertKeyTextIntoStackTable("id", "dragEnterEvent");
         stack->pushTextOntoStack("data");
@@ -602,7 +602,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == DRAGLEAVE_GUITRIGGEREDCMD)
     {
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->insertKeyTextIntoStackTable("id", "dragLeaveEvent");
         stack->pushTextOntoStack("data");
@@ -615,7 +615,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == DRAGDROP_GUITRIGGEREDCMD)
     {
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->insertKeyTextIntoStackTable("id", "dragDropEvent");
         stack->pushTextOntoStack("data");
@@ -634,19 +634,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_VIEW_ANGLE_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setViewAngle(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_ORTHO_VIEW_SIZE_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setOrthoViewSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_NEAR_CLIPPING_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
         {
             double np, fp;
@@ -656,7 +656,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_FAR_CLIPPING_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
         {
             double np, fp;
@@ -666,14 +666,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_TRACKED_OBJECT_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
         {
             if (cmd.intParams[1] < 0)
                 cam->setTrackedObjectHandle(-1);
             else
             {
-                CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
+                CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
                 if (obj != nullptr)
                     cam->setTrackedObjectHandle(obj->getObjectHandle());
             }
@@ -681,61 +681,61 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_SHOWFOG_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setShowFogIfAvailable(!cam->getShowFogIfAvailable());
     }
     if (cmd.cmdId == TOGGLE_SHOWVOLUME_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setShowVolume(!cam->getShowVolume());
     }
     if (cmd.cmdId == TOGGLE_USEPARENTASMANIPPROXY_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setUseParentObjectAsManipulationProxy(!cam->getUseParentObjectAsManipulationProxy());
     }
     if (cmd.cmdId == TOGGLE_ALLOWTRANSLATION_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setAllowTranslation(!cam->getAllowTranslation());
     }
     if (cmd.cmdId == TOGGLE_ALLOWROTATION_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setAllowRotation(!cam->getAllowRotation());
     }
     if (cmd.cmdId == SET_SIZE_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setCameraSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == TOGGLE_LOCALLIGHTS_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setUseLocalLights(!cam->getuseLocalLights());
     }
     if (cmd.cmdId == TOGGLE_ALLOWPICKING_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setAllowPicking(!cam->getAllowPicking());
     }
     if (cmd.cmdId == SET_RENDERMODE_CAMERAGUITRIGGEREDCMD)
     {
-        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
+        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
             cam->setRenderMode(cmd.intParams[1], cmd.boolParams[0], cmd.boolParams[1]);
     }
     if (cmd.cmdId == NEW_COLLECTION_COLLECTIONGUITRIGGEREDCMD)
     {
-        CCollection *newGroup = new CCollection(-2);
+        CCollection* newGroup = new CCollection(-2);
         newGroup->setCollectionName(IDSOGL_COLLECTION, false);
         App::currentWorld->collections->addCollection(newGroup, false);
         // Now select the new collection in the UI. We need to post it so that it arrives after the dialog refresh!:
@@ -748,7 +748,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_OVERRIDE_COLLECTIONGUITRIGGEREDCMD)
     {
-        CCollection *theGroup = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
+        CCollection* theGroup = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
         if (theGroup != nullptr)
             theGroup->setOverridesObjectMainProperties(!theGroup->getOverridesObjectMainProperties());
     }
@@ -758,7 +758,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == REMOVE_COLLECTION_ITEM_COLLECTIONGUITRIGGEREDCMD)
     {
-        CCollection *theGroup = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
+        CCollection* theGroup = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
         if (theGroup != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
@@ -771,31 +771,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == RENAME_COLLECTION_COLLECTIONGUITRIGGEREDCMD)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setCollectionName(cmd.stringParams[0].c_str(), true);
     }
     if (cmd.cmdId == ADD_COLLECTION_ITEM_EVERYTHING_COLLECTIONGUITRIGGEREDCMD)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CCollectionElement *grEl = new CCollectionElement(-1, sim_collectionelement_all, true);
+            CCollectionElement* grEl = new CCollectionElement(-1, sim_collectionelement_all, true);
             it->addCollectionElement(grEl);
         }
     }
     if (cmd.cmdId == ADD_COLLECTION_ITEM_LOOS_COLLECTIONGUITRIGGEREDCMD)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
         bool additive = cmd.boolParams[0];
         if (it != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+                CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
                 if (obj != nullptr)
                 {
-                    CCollectionElement *grEl =
+                    CCollectionElement* grEl =
                         new CCollectionElement(obj->getObjectHandle(), sim_collectionelement_loose, additive);
                     it->addCollectionElement(grEl);
                 }
@@ -804,36 +804,36 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == ADD_COLLECTION_ITEM_FROMBASE_COLLECTIONGUITRIGGEREDCMD)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
         bool additive = cmd.boolParams[0];
         bool baseInclusive = cmd.boolParams[1];
         if (it != nullptr)
         {
-            CSceneObject *lastSel = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
+            CSceneObject* lastSel = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
             if (lastSel != nullptr)
             {
                 int grpType = sim_collectionelement_frombaseincluded;
                 if (!baseInclusive)
                     grpType = sim_collectionelement_frombaseexcluded;
-                CCollectionElement *grEl = new CCollectionElement(lastSel->getObjectHandle(), grpType, additive);
+                CCollectionElement* grEl = new CCollectionElement(lastSel->getObjectHandle(), grpType, additive);
                 it->addCollectionElement(grEl);
             }
         }
     }
     if (cmd.cmdId == ADD_COLLECTION_ITEM_FROMTIP_COLLECTIONGUITRIGGEREDCMD)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(cmd.intParams[0]);
         bool additive = cmd.boolParams[0];
         bool tipInclusive = cmd.boolParams[1];
         if (it != nullptr)
         {
-            CSceneObject *lastSel = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
+            CSceneObject* lastSel = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[1]);
             if (lastSel != nullptr)
             {
                 int grpType = sim_collectionelement_fromtipincluded;
                 if (!tipInclusive)
                     grpType = sim_collectionelement_fromtipexcluded;
-                CCollectionElement *grEl = new CCollectionElement(lastSel->getObjectHandle(), grpType, additive);
+                CCollectionElement* grEl = new CCollectionElement(lastSel->getObjectHandle(), grpType, additive);
                 it->addCollectionElement(grEl);
             }
         }
@@ -841,37 +841,37 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == TOGGLE_EXPLICITHANDLING_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExplicitHandling(!it->getExplicitHandling());
     }
     if (cmd.cmdId == TOGGLE_EXTERNALINPUT_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setUseExternalImage(!it->getUseExternalImage());
     }
     if (cmd.cmdId == TOGGLE_LOCALLIGHTS_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setUseLocalLights(!it->getuseLocalLights());
     }
     if (cmd.cmdId == TOGGLE_SHOWVOLUME_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShowVolume(!it->getShowVolume());
     }
     if (cmd.cmdId == TOGGLE_SHOWFOG_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShowFogIfAvailable(!it->getShowFogIfAvailable());
     }
     if (cmd.cmdId == SET_NEARCLIPPING_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double np, fp;
@@ -881,7 +881,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_FARCLIPPING_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double np, fp;
@@ -891,7 +891,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_PERSPECTANGLE_OR_ORTHOSIZE_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (it->getPerspective())
@@ -902,19 +902,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setResolution(&cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setVisionSensorSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_DEFAULTIMGCOL_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             float w[3] = {(float)cmd.doubleParams[0], (float)cmd.doubleParams[1], (float)cmd.doubleParams[2]};
@@ -924,7 +924,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_MAINPROP_TO_SELECTION_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *last = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* last = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             int r[2];
@@ -933,7 +933,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             last->getDefaultBufferValues(b);
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[i]);
+                CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     it->setRenderMode(last->getRenderMode());
@@ -960,12 +960,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_VISUALPROP_TO_SELECTION_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *last = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* last = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[i]);
+                CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     last->getColor()->copyYourselfInto(it->getColor());
@@ -977,25 +977,25 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_IGNORERGB_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setIgnoreRGBInfo(!it->getIgnoreRGBInfo());
     }
     if (cmd.cmdId == TOGGLE_IGNOREDEPTH_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setIgnoreDepthInfo(!it->getIgnoreDepthInfo());
     }
     if (cmd.cmdId == TOGGLE_PACKET1BLANK_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setComputeImageBasicStats(!it->getComputeImageBasicStats());
     }
     if (cmd.cmdId == SET_RENDERMODE_VISIONSENSORGUITRIGGEREDCMD)
     {
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setRenderMode(cmd.intParams[1]);
     }
@@ -1013,13 +1013,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_OBJECTNAME_COLLISIONGUITRIGGEREDCMD)
     {
-        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
+        CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectName(cmd.stringParams[0].c_str(), true);
     }
     if (cmd.cmdId == DELETE_OBJECT_COLLISIONGUITRIGGEREDCMD)
     {
-        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
+        CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             App::currentWorld->collisions_old->removeObject(it->getObjectHandle());
     }
@@ -1030,31 +1030,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_EXPLICITHANDLING_COLLISIONGUITRIGGEREDCMD)
     {
-        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
+        CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExplicitHandling(!it->getExplicitHandling());
     }
     if (cmd.cmdId == TOGGLE_COLLIDERCOLORCHANGES_COLLISIONGUITRIGGEREDCMD)
     {
-        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
+        CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setColliderChangesColor(!it->getColliderChangesColor());
     }
     if (cmd.cmdId == TOGGLE_COLLIDEECOLORCHANGES_COLLISIONGUITRIGGEREDCMD)
     {
-        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
+        CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setCollideeChangesColor(!it->getCollideeChangesColor());
     }
     if (cmd.cmdId == TOGGLE_COLLISIONCONTOUR_COLLISIONGUITRIGGEREDCMD)
     {
-        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
+        CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExhaustiveDetection(!it->getExhaustiveDetection());
     }
     if (cmd.cmdId == SET_CONTOURWIDTH_COLLISIONGUITRIGGEREDCMD)
     {
-        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
+        CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setContourWidth(cmd.intParams[1]);
     }
@@ -1072,13 +1072,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_OBJECTNAME_DISTANCEGUITRIGGEREDCMD)
     {
-        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
+        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectName(cmd.stringParams[0].c_str(), true);
     }
     if (cmd.cmdId == DELETE_OBJECT_DISTANCEGUITRIGGEREDCMD)
     {
-        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
+        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             App::currentWorld->distances_old->removeObject(it->getObjectHandle());
     }
@@ -1089,68 +1089,68 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_EXPLICITHANDLING_DISTANCEGUITRIGGEREDCMD)
     {
-        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
+        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExplicitHandling(!it->getExplicitHandling());
     }
     if (cmd.cmdId == TOGGLE_USETHRESHOLD_DISTANCEGUITRIGGEREDCMD)
     {
-        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
+        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setThresholdEnabled(!it->getTreshholdEnabled());
     }
     if (cmd.cmdId == SET_THRESHOLD_DISTANCEGUITRIGGEREDCMD)
     {
-        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
+        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setThreshold(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == TOGGLE_SEGMENTDISPLAY_DISTANCEGUITRIGGEREDCMD)
     {
-        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
+        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setDisplaySegment(!it->getDisplaySegment());
     }
     if (cmd.cmdId == SET_SEGMENTWIDTH_DISTANCEGUITRIGGEREDCMD)
     {
-        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
+        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setSegmentWidth(cmd.doubleParams[0]);
     }
 
     if (cmd.cmdId == TOGGLE_SELECTABLE_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_selectable);
     }
     if (cmd.cmdId == TOGGLE_SELECTBASEOFMODEL_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_selectmodelbaseinstead);
     }
     if (cmd.cmdId == TOGGLE_DONGTSHOWINSIDEMODELSELECTION_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_dontshowasinsidemodel);
     }
     if (cmd.cmdId == TOGGLE_VIEWFITTINGIGNORED_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_ignoreviewfitting);
     }
     if (cmd.cmdId == APPLY_GENERALPROP_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             int lastType = last->getObjectType();
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     int objPropToCopy = sim_objectproperty_selectable | sim_objectproperty_selectmodelbaseinstead |
@@ -1168,7 +1168,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->setVisibilityLayer(cmd.intParams[1]);
@@ -1180,12 +1180,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_VISIBILITYPROP_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     it->setVisibilityLayer(last->getVisibilityLayer());
@@ -1196,7 +1196,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_MODELBASE_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->setModelBase(!it->getModelBase());
@@ -1206,28 +1206,28 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_COLLIDABLE_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && it->isPotentiallyCollidable())
             it->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty() ^
                                               sim_objectspecialproperty_collidable);
     }
     if (cmd.cmdId == TOGGLE_MEASURABLE_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && it->isPotentiallyMeasurable())
             it->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty() ^
                                               sim_objectspecialproperty_measurable);
     }
     if (cmd.cmdId == TOGGLE_RENDERABLE_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && it->isPotentiallyRenderable())
             it->setLocalObjectSpecialProperty(it->getLocalObjectSpecialProperty() ^
                                               sim_objectspecialproperty_renderable);
     }
     if (cmd.cmdId == TOGGLE_DETECTABLE_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && it->isPotentiallyDetectable())
         {
             int t = it->getLocalObjectSpecialProperty() & sim_objectspecialproperty_detectable;
@@ -1243,13 +1243,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_DETECTABLEITEMS_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && it->isPotentiallyDetectable())
             it->setLocalObjectSpecialProperty(cmd.intParams[1]);
     }
     if (cmd.cmdId == APPLY_SPECIALPROP_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             int settableBits = 0;
@@ -1264,7 +1264,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             int stateOfSettableBits = last->getLocalObjectSpecialProperty() & settableBits;
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     int objProp =
@@ -1276,37 +1276,37 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_SELECTINVISIBLE_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_selectinvisible);
     }
     if (cmd.cmdId == TOGGLE_DEPTHMAPIGNORED_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_depthinvisible);
     }
     if (cmd.cmdId == TOGGLE_CANNOTBEDELETED_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_cannotdelete);
     }
     if (cmd.cmdId == TOGGLE_CANNOTBEDELETEDDURINGSIMULATION_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_cannotdeleteduringsim);
     }
     if (cmd.cmdId == TOGGLE_HIDDENDURINGSIMULATION_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectProperty(it->getObjectProperty() ^ sim_objectproperty_hiddenforsimulation);
     }
     if (cmd.cmdId == TOGGLE_NOTMOVEABLE_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             int p = it->getObjectMovementOptions();
@@ -1319,19 +1319,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_SELFCOLLISIONINDICATOR_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setCollectionSelfCollisionIndicator(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_CANBESEENBY_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setAuthorizedViewableObjects(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_EXTENSIONSTRING_COMMONPROPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExtensionString(cmd.stringParams[0].c_str());
     }
@@ -1347,7 +1347,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_OVERRIDEPROPANDACKNOWLEDGMENT_MODELGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->setModelProperty(cmd.intParams[1]);
@@ -1434,36 +1434,36 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_EXPLICITHANDLING_PROXSENSORGUITRIGGEREDCMD)
     {
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExplicitHandling(!it->getExplicitHandling());
     }
     if (cmd.cmdId == SET_SENSORSUBTYPE_PROXSENSORGUITRIGGEREDCMD)
     {
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setSensableType(cmd.intParams[1]);
     }
     if (cmd.cmdId == TOGGLE_SHOWVOLUME_PROXSENSORGUITRIGGEREDCMD)
     {
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShowVolume(!it->getShowVolume());
     }
     if (cmd.cmdId == SET_POINTSIZE_PROXSENSORGUITRIGGEREDCMD)
     {
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setProxSensorSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == APPLY_MAINPROP_PROXSENSORGUITRIGGEREDCMD)
     {
-        CProxSensor *last = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CProxSensor* last = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[i]);
+                CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     it->setSensableType(last->getSensableType());
@@ -1485,12 +1485,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_VISUALPROP_PROXSENSORGUITRIGGEREDCMD)
     {
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CProxSensor *it2 = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[i]);
+                CProxSensor* it2 = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[i]);
                 if (it2 != nullptr)
                 {
                     if (it->getObjectHandle() != it2->getObjectHandle())
@@ -1506,7 +1506,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_DETECTIONPARAMS_PROXSENSORGUITRIGGEREDCMD)
     {
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->setFrontFaceDetection(cmd.boolParams[0]);
@@ -1528,8 +1528,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_OFFSET_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setOffset(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1537,8 +1537,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_RADIUS_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setRadius(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1546,8 +1546,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_RADIUSFAR_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setRadiusFar(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1555,8 +1555,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_RANGE_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setRange(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1564,8 +1564,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_XSIZE_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setXSize(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1573,8 +1573,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_YSIZE_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setYSize(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1582,8 +1582,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_XSIZEFAR_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setXSizeFar(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1591,8 +1591,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_YSIZEFAR_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setYSizeFar(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1600,8 +1600,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_ANGLE_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setAngle(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1609,8 +1609,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_FACECOUNT_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setFaceNumber(cmd.intParams[1]);
         if (mill != nullptr)
@@ -1618,8 +1618,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_FACECOUNTFAR_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setFaceNumberFar(cmd.intParams[1]);
         if (mill != nullptr)
@@ -1627,8 +1627,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_SUBDIVISIONS_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setSubdivisions(cmd.intParams[1]);
         if (mill != nullptr)
@@ -1636,8 +1636,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_SUBDIVISIONSFAR_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setSubdivisionsFar(cmd.intParams[1]);
         if (mill != nullptr)
@@ -1645,8 +1645,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_INSIDEGAP_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
             prox->convexVolume->setInsideAngleThing(cmd.doubleParams[0]);
         if (mill != nullptr)
@@ -1654,13 +1654,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_DETECTIONVOLUMEGUITRIGGEREDCMD)
     {
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
-        CMill *mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[0]);
+        CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (prox != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[i]);
+                CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(cmd.intParams[i]);
                 if ((it != nullptr) && (it->getSensorType() == prox->getSensorType()))
                 {
                     double w = it->convexVolume->getSmallestDistanceAllowed();
@@ -1693,7 +1693,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CMill *it = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[i]);
+                CMill* it = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     it->convexVolume->disableVolumeComputation(true);
@@ -1725,56 +1725,56 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_EXPLICITHANDLING_MILLGUITRIGGEREDCMD)
     {
-        CMill *it = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CMill* it = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExplicitHandling(!it->getExplicitHandling());
     }
     if (cmd.cmdId == SET_SIZE_MILLGUITRIGGEREDCMD)
     {
-        CMill *it = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CMill* it = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_ENTITYTOCUT_MILLGUITRIGGEREDCMD)
     {
-        CMill *it = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
+        CMill* it = App::currentWorld->sceneObjects->getMillFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setMillableObject(cmd.intParams[1]);
     }
 
     if (cmd.cmdId == TOGGLE_ENABLED_LIGHTGUITRIGGEREDCMD)
     {
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setLightActive(!it->getLightActive());
     }
     if (cmd.cmdId == TOGGLE_LIGHTISLOCAL_LIGHTGUITRIGGEREDCMD)
     {
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setLightIsLocal(!it->getLightIsLocal());
     }
     if (cmd.cmdId == SET_SIZE_LIGHTGUITRIGGEREDCMD)
     {
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setLightSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_SPOTCUTOFF_LIGHTGUITRIGGEREDCMD)
     {
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setSpotCutoffAngle(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_SPOTEXPONENT_LIGHTGUITRIGGEREDCMD)
     {
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setSpotExponent(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_CONSTATTENUATION_LIGHTGUITRIGGEREDCMD)
     {
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double arr[3];
@@ -1785,7 +1785,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_LINATTENUATION_LIGHTGUITRIGGEREDCMD)
     {
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double arr[3];
@@ -1796,7 +1796,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_QUADATTENUATION_LIGHTGUITRIGGEREDCMD)
     {
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double arr[3];
@@ -1808,18 +1808,18 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_SIZE_SCRIPTGUITRIGGEREDCMD)
     {
-        CScript *it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
+        CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setScriptSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == APPLY_VISUALPROP_SCRIPTGUITRIGGEREDCMD)
     {
-        CScript *it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
+        CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CScript *it2 = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[i]);
+                CScript* it2 = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[i]);
                 if (it2 != nullptr)
                 {
                     it->getScriptColor()->copyYourselfInto(it2->getScriptColor());
@@ -1829,22 +1829,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
     }
 
-
-
     if (cmd.cmdId == SET_SIZE_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setDummySize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == APPLY_VISUALPROP_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CDummy *it2 = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[i]);
+                CDummy* it2 = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[i]);
                 if (it2 != nullptr)
                 {
                     it->getDummyColor()->copyYourselfInto(it2->getDummyColor());
@@ -1856,10 +1854,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_LINKEDDUMMY_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CDummy *it2 = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[1]);
+            CDummy* it2 = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[1]);
             if (it2 != nullptr)
             {
                 bool n = (it->getLinkedDummyHandle() == -1);
@@ -1875,80 +1873,80 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_LINKTYPE_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setDummyType(cmd.intParams[1], true);
     }
     if (cmd.cmdId == TOGGLE_FOLLOWORIENTATION_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setAssignedToParentPathOrientation(!it->getAssignedToParentPathOrientation());
     }
     if (cmd.cmdId == TOGGLE_FOLLOWPOSITION_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setAssignedToParentPath(!it->getAssignedToParentPath());
     }
     if (cmd.cmdId == SET_FREEORFIXEDONPATH_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setFreeOnPathTrajectory(cmd.intParams[1] != 0);
     }
     if (cmd.cmdId == SET_OFFSET_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setVirtualDistanceOffsetOnPath(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_COPYINCREMENT_DUMMYGUITRIGGEREDCMD)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setVirtualDistanceOffsetOnPath_variationWhenCopy(cmd.doubleParams[0]);
     }
 
     if (cmd.cmdId == TOGGLE_ENABLED_MIRRORGUITRIGGEREDCMD)
     {
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setActive(!it->getActive());
     }
     if (cmd.cmdId == SET_WIDTH_MIRRORGUITRIGGEREDCMD)
     {
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setMirrorWidth(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_HEIGHT_MIRRORGUITRIGGEREDCMD)
     {
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setMirrorHeight(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_REFLECTANCE_MIRRORGUITRIGGEREDCMD)
     {
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setReflectance(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_MIRRORFUNC_MIRRORGUITRIGGEREDCMD)
     {
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setIsMirror(true);
     }
     if (cmd.cmdId == SET_CLIPPINGFUNC_MIRRORGUITRIGGEREDCMD)
     {
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setIsMirror(false);
     }
     if (cmd.cmdId == SET_CLIPPINGENTITY_MIRRORGUITRIGGEREDCMD)
     {
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setClippingObjectOrCollection(cmd.intParams[1]);
     }
@@ -2016,7 +2014,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_ITEMRGB_COLORGUITRIGGEREDCMD)
     {
-        float *col = GuiApp::getRGBPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
+        float* col = GuiApp::getRGBPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
                                                    cmd.intParams[3], nullptr);
         if (col != nullptr)
         {
@@ -2030,7 +2028,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
                               // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-        CColorObject *it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
+        CColorObject* it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
                                                                  nullptr, &allowedParts);
         if ((it != nullptr) && (allowedParts & 64))
             it->setShininess(tt::getLimitedInt(0, 128, cmd.intParams[3]));
@@ -2039,9 +2037,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
                               // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-        CColorObject *it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
+        CColorObject* it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
                                                                  nullptr, &allowedParts);
-        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[1]);
+        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[1]);
         if ((it != nullptr) && (allowedParts & 128) && (shape != nullptr))
         {
             it->setTranslucid(!it->getTranslucid());
@@ -2052,7 +2050,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
                               // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-        CColorObject *it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
+        CColorObject* it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
                                                                  nullptr, &allowedParts);
         if ((it != nullptr) && (allowedParts & 128))
             it->setOpacity(tt::getLimitedFloat(0.0, 1.0, cmd.doubleParams[0]));
@@ -2061,7 +2059,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
                               // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-        CColorObject *it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
+        CColorObject* it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
                                                                  nullptr, &allowedParts);
         if ((it != nullptr) && (allowedParts & 256))
         {
@@ -2073,7 +2071,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
                               // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-        CColorObject *it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
+        CColorObject* it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
                                                                  nullptr, &allowedParts);
         if ((it != nullptr) && (allowedParts & 512))
             it->setExtensionString(cmd.stringParams[0].c_str());
@@ -2082,7 +2080,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
                               // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-        CColorObject *it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
+        CColorObject* it = GuiApp::getVisualParamPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2],
                                                                  nullptr, &allowedParts);
         if ((it != nullptr) && (allowedParts & 32))
         {
@@ -2096,43 +2094,43 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_VOXELSIZE_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setCellSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == TOGGLE_SHOWSTRUCTURE_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShowOctree(!it->getShowOctree());
     }
     if (cmd.cmdId == TOGGLE_RANDOMCOLORS_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setUseRandomColors(!it->getUseRandomColors());
     }
     if (cmd.cmdId == TOGGLE_SHOWPOINTS_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setUsePointsInsteadOfCubes(!it->getUsePointsInsteadOfCubes());
     }
     if (cmd.cmdId == SET_POINTSIZE_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setPointSize(cmd.intParams[1]);
     }
     if (cmd.cmdId == CLEAR_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->clear();
     }
     if (cmd.cmdId == INSERT_SELECTEDVISIBLEOBJECTS_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getLastSelectionOctree();
+        COcTree* it = App::currentWorld->sceneObjects->getLastSelectionOctree();
         App::currentWorld->sceneObjects->popLastSelection();
         std::vector<int> sel;
         App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, -1, true, true);
@@ -2145,7 +2143,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SUBTRACT_SELECTEDVISIBLEOBJECTS_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getLastSelectionOctree();
+        COcTree* it = App::currentWorld->sceneObjects->getLastSelectionOctree();
         App::currentWorld->sceneObjects->popLastSelection();
         std::vector<int> sel;
         App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, -1, true, true);
@@ -2158,43 +2156,43 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_COLOREMISSIVE_OCTREEGUITRIGGEREDCMD)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setColorIsEmissive(!it->getColorIsEmissive());
     }
     if (cmd.cmdId == SET_MAXVOXELSIZE_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setCellSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == TOGGLE_SHOWOCTREE_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShowOctree(!it->getShowOctree());
     }
     if (cmd.cmdId == TOGGLE_RANDOMCOLORS_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setUseRandomColors(!it->getUseRandomColors());
     }
     if (cmd.cmdId == SET_PTSIZE_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setPointSize(cmd.intParams[1]);
     }
     if (cmd.cmdId == CLEAR_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->clear();
     }
     if (cmd.cmdId == INSERT_OBJECTS_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+        CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
         App::currentWorld->sceneObjects->popLastSelection();
         std::vector<int> sel;
         App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, -1, true, true);
@@ -2207,37 +2205,37 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_MAXPTCNT_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setMaxPointCountPerCell(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_BUILDRESOLUTION_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setBuildResolution(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == TOGGLE_USEOCTREE_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setDoNotUseCalculationStructure(!it->getDoNotUseCalculationStructure());
     }
     if (cmd.cmdId == TOGGLE_EMISSIVECOLOR_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setColorIsEmissive(!it->getColorIsEmissive());
     }
     if (cmd.cmdId == SET_DISPLAYRATIO_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setPointDisplayRatio(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SUBTRACT_OBJECTS_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+        CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
         App::currentWorld->sceneObjects->popLastSelection();
         std::vector<int> sel;
         App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, -1, true, true);
@@ -2250,31 +2248,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_SUBTRACTTOLERANCE_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setRemovalDistanceTolerance(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_INSERTTOLERANCE_PTCLOUDGUITRIGGEREDCMD)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setInsertionDistanceTolerance(cmd.doubleParams[0]);
     }
 
     if (cmd.cmdId == SET_SIZE_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setForceSensorSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == APPLY_VISUALPROP_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CForceSensor *it2 = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[i]);
+                CForceSensor* it2 = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[i]);
                 if (it2 != nullptr)
                 {
                     it->getColor(false)->copyYourselfInto(it2->getColor(false));
@@ -2286,30 +2284,30 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_SAMPLESIZE_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setFilterSampleSize(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_AVERAGEVALUE_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setFilterType(0);
     }
     if (cmd.cmdId == SET_MEDIANVALUE_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setFilterType(1);
     }
     if (cmd.cmdId == APPLY_FILER_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CForceSensor *it2 = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[i]);
+                CForceSensor* it2 = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[i]);
                 if (it2 != nullptr)
                 {
                     it2->setFilterSampleSize(it->getFilterSampleSize());
@@ -2320,42 +2318,42 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_FORCETHRESHOLDENABLE_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setEnableForceThreshold(!it->getEnableForceThreshold());
     }
     if (cmd.cmdId == TOGGLE_TORQUETHRESHOLDENABLE_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setEnableTorqueThreshold(!it->getEnableTorqueThreshold());
     }
     if (cmd.cmdId == SET_FORCETHRESHOLD_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setForceThreshold(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_TORQUETHRESHOLD_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setTorqueThreshold(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_CONSECTHRESHOLDVIOLATIONS_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setConsecutiveViolationsToTrigger(cmd.intParams[1]);
     }
     if (cmd.cmdId == APPLY_BREAKING_FORCESENSORGUITRIGGEREDCMD)
     {
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CForceSensor *it2 = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[i]);
+                CForceSensor* it2 = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[i]);
                 if (it2 != nullptr)
                 {
                     it2->setEnableForceThreshold(it->getEnableForceThreshold());
@@ -2370,42 +2368,42 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_BACKFACECULLING_SHAPEGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setCulling(!it->getCulling());
     }
     if (cmd.cmdId == TOGGLE_WIREFRAME_SHAPEGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShapeWireframe_OLD(!it->getShapeWireframe_OLD());
     }
     if (cmd.cmdId == INVERT_FACES_SHAPEGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->invertFrontBack();
     }
     if (cmd.cmdId == TOGGLE_SHOWEDGES_SHAPEGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setVisibleEdges(!it->getVisibleEdges());
     }
     if (cmd.cmdId == SET_SHADINGANGLE_SHAPEGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShadingAngle(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == APPLY_OTHERPROP_SHAPEGUITRIGGEREDCMD)
     {
-        CShape *last = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* last = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if ((last != nullptr) && (!last->isCompound()))
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
+                CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                 if ((it != nullptr) && (!it->isCompound()))
                 {
                     it->getSingleMesh()->setVisibleEdges(last->getSingleMesh()->getVisibleEdges());
@@ -2425,12 +2423,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_VISUALPROP_SHAPEGUITRIGGEREDCMD)
     {
-        CShape *last = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* last = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if ((last != nullptr) && (!last->isCompound()))
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
+                CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                 if ((it != nullptr) && (!it->isCompound()))
                 {
                     last->getSingleMesh()->color.copyYourselfInto(&it->getSingleMesh()->color);
@@ -2447,14 +2445,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         for (size_t i = 0; i < cmd.intParams.size(); i++)
         {
-            CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
+            CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
             if (shape != nullptr)
             {
-                std::vector<CMesh *> components;
+                std::vector<CMesh*> components;
                 shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, components);
                 for (size_t j = 0; j < components.size(); j++)
                 {
-                    CTextureProperty *tp = components[j]->getTextureProperty();
+                    CTextureProperty* tp = components[j]->getTextureProperty();
                     if (tp != nullptr)
                     {
                         App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
@@ -2476,18 +2474,18 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             n = 4;
 
         // 1. Remove existing textures:
-        std::vector<CShape *> shapeList;
+        std::vector<CShape*> shapeList;
         for (size_t i = 0; i < cmd.intParams.size() - 2; i++)
         {
-            CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
+            CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
             if (shape != nullptr)
             {
                 shapeList.push_back(shape);
-                std::vector<CMesh *> components;
+                std::vector<CMesh*> components;
                 shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, components);
                 for (size_t j = 0; j < components.size(); j++)
                 {
-                    CTextureProperty *tp = components[j]->getTextureProperty();
+                    CTextureProperty* tp = components[j]->getTextureProperty();
                     if (tp != nullptr)
                     {
                         App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
@@ -2501,17 +2499,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         // 2. Load and apply the texture:
         if (shapeList.size() != 0)
         {
-            CTextureObject *textureObj = new CTextureObject(resX, resY);
+            CTextureObject* textureObj = new CTextureObject(resX, resY);
             textureObj->setImage(rgba, false, false, &cmd.uint8Params[0]); // keep false,false
             textureObj->setObjectName(texName.c_str());
             for (size_t i = 0; i < shapeList.size(); i++)
             {
-                CShape *shape = shapeList[i];
-                std::vector<CMesh *> components;
+                CShape* shape = shapeList[i];
+                std::vector<CMesh*> components;
                 shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, components);
                 for (size_t j = 0; j < components.size(); j++)
                 {
-                    CMesh *geom = components[j];
+                    CMesh* geom = components[j];
                     textureObj->addDependentObject(shape->getObjectHandle(), geom->getUniqueID());
                 }
             }
@@ -2521,15 +2519,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
             for (size_t i = 0; i < shapeList.size(); i++)
             {
-                CShape *shape = shapeList[i];
+                CShape* shape = shapeList[i];
                 C3Vector bbhs(shape->getBBHSize());
                 double s = std::max<double>(std::max<double>(bbhs(0), bbhs(1)), bbhs(2)) * 2.0;
-                std::vector<CMesh *> components;
+                std::vector<CMesh*> components;
                 shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, components);
                 for (size_t j = 0; j < components.size(); j++)
                 {
-                    CMesh *geom = components[j];
-                    CTextureProperty *tp = new CTextureProperty(textureID);
+                    CMesh* geom = components[j];
+                    CTextureProperty* tp = new CTextureProperty(textureID);
                     tp->setRepeatU(true);
                     tp->setRepeatV(true);
                     tp->setTextureMapMode(sim_texturemap_cube);
@@ -2544,7 +2542,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == APPLY_SIZE_GEOMETRYGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             C3Vector bbhalfSizes(it->getBBHSize());
@@ -2564,7 +2562,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_SCALING_GEOMETRYGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->scaleObjectNonIsometrically(cmd.doubleParams[0], cmd.doubleParams[1], cmd.doubleParams[2]);
     }
@@ -2572,7 +2570,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         App::currentWorld->outsideCommandQueue_old->addCommand(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], cmd.intParams[3], cmd.intParams[4], nullptr, 0);
     if (cmd.cmdId == TOGGLE_BOOLPROP_TEXTUREGUITRIGGEREDCMD)
     {
-        CTextureProperty *it = GuiApp::getTexturePropertyPointerFromItem(
+        CTextureProperty* it = GuiApp::getTexturePropertyPointerFromItem(
             cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, nullptr, nullptr, nullptr);
         if (it != nullptr)
         {
@@ -2586,7 +2584,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_3DCONFIG_TEXTUREGUITRIGGEREDCMD)
     {
-        CTextureProperty *it = GuiApp::getTexturePropertyPointerFromItem(
+        CTextureProperty* it = GuiApp::getTexturePropertyPointerFromItem(
             cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, nullptr, nullptr, nullptr);
         if (it != nullptr)
         {
@@ -2607,7 +2605,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_SCALING_TEXTUREGUITRIGGEREDCMD)
     {
-        CTextureProperty *it = GuiApp::getTexturePropertyPointerFromItem(
+        CTextureProperty* it = GuiApp::getTexturePropertyPointerFromItem(
             cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, nullptr, nullptr, nullptr);
         if (it != nullptr)
         {
@@ -2626,7 +2624,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_MAPPINGMODE_TEXTUREGUITRIGGEREDCMD)
     {
-        CTextureProperty *it = GuiApp::getTexturePropertyPointerFromItem(
+        CTextureProperty* it = GuiApp::getTexturePropertyPointerFromItem(
             cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, nullptr, nullptr, nullptr);
         if (it != nullptr)
         {
@@ -2648,14 +2646,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_APPLYMODE_TEXTUREGUITRIGGEREDCMD)
     {
-        CTextureProperty *it = GuiApp::getTexturePropertyPointerFromItem(
+        CTextureProperty* it = GuiApp::getTexturePropertyPointerFromItem(
             cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, nullptr, nullptr, nullptr);
         if (it != nullptr)
             it->setApplyMode(cmd.intParams[3]);
     }
     if (cmd.cmdId == LOAD_ANDAPPLY_TEXTUREGUITRIGGEREDCMD)
     {
-        CMesh *geom = nullptr;
+        CMesh* geom = nullptr;
         bool valid = false;
         bool is3D = false;
         GuiApp::getTexturePropertyPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, &is3D,
@@ -2666,7 +2664,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             int resY = cmd.intParams[4];
             int n = cmd.intParams[5];
             bool rgba = (n == 4);
-            CTextureObject *textureObj = new CTextureObject(resX, resY);
+            CTextureObject* textureObj = new CTextureObject(resX, resY);
             textureObj->setImage(rgba, false, false, &cmd.uint8Params[0]); // keep false,false
             textureObj->setObjectName(cmd.stringParams[0].c_str());
             if (geom != nullptr)
@@ -2677,25 +2675,25 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     textureObj->addDependentObject(cmd.intParams[1], 0); // 0 is for background texture on 2DElement
                 if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BUTTON)
                 {
-                    CButtonBlock *block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
-                    CSoftButton *butt = block->getButtonWithID(cmd.intParams[2]);
+                    CButtonBlock* block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
+                    CSoftButton* butt = block->getButtonWithID(cmd.intParams[2]);
                     textureObj->addDependentObject(cmd.intParams[1], butt->getUniqueID()); // Unique ID starts exceptionnally at 1
                 }
             }
             int textureID = App::currentWorld->textureContainer->addObject(
                 textureObj, false); // might erase the textureObj and return a similar object already present!!
-            CTextureProperty *tp = new CTextureProperty(textureID);
+            CTextureProperty* tp = new CTextureProperty(textureID);
             if (geom != nullptr)
                 geom->setTextureProperty(tp);
             else
             {
                 tp->setApplyMode(1); // 13/1/2012
-                CButtonBlock *block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
+                CButtonBlock* block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
                 if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
                     block->setTextureProperty(tp);
                 if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BUTTON)
                 {
-                    CSoftButton *butt = block->getButtonWithID(cmd.intParams[2]);
+                    CSoftButton* butt = block->getButtonWithID(cmd.intParams[2]);
                     butt->setTextureProperty(tp);
                 }
             }
@@ -2703,11 +2701,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SELECT_REMOVE_TEXTUREGUITRIGGEREDCMD)
     {
-        CMesh *geom = nullptr;
+        CMesh* geom = nullptr;
         bool valid = false;
         bool is3D = false;
         int tObject = cmd.intParams[3];
-        CTextureProperty *tp = GuiApp::getTexturePropertyPointerFromItem(
+        CTextureProperty* tp = GuiApp::getTexturePropertyPointerFromItem(
             cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, &is3D, &valid, &geom);
         if (valid)
         {
@@ -2725,7 +2723,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         if (tObject > SIM_IDEND_SCENEOBJECT)
                         {
-                            CTextureObject *to = App::currentWorld->textureContainer->getObject(tObject);
+                            CTextureObject* to = App::currentWorld->textureContainer->getObject(tObject);
                             to->addDependentObject(cmd.intParams[1], geom->getUniqueID());
                             tp = new CTextureProperty(tObject);
                             geom->setTextureProperty(tp);
@@ -2736,7 +2734,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
             if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
             {
-                CButtonBlock *block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
+                CButtonBlock* block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
                 if (tp != nullptr)
                 { // remove the texture
                     App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], 0);
@@ -2749,7 +2747,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         if (tObject > SIM_IDEND_SCENEOBJECT)
                         {
-                            CTextureObject *to = App::currentWorld->textureContainer->getObject(tObject);
+                            CTextureObject* to = App::currentWorld->textureContainer->getObject(tObject);
                             to->addDependentObject(cmd.intParams[1], 0);
                         }
                         tp = new CTextureProperty(tObject);
@@ -2760,8 +2758,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
             if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BUTTON)
             { // texture is linked to a 2DElement button
-                CButtonBlock *block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
-                CSoftButton *button = block->getButtonWithID(cmd.intParams[2]);
+                CButtonBlock* block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
+                CSoftButton* button = block->getButtonWithID(cmd.intParams[2]);
                 if (tp != nullptr)
                 { // remove the texture
                     App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], cmd.intParams[2]);
@@ -2774,7 +2772,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         if (tObject > SIM_IDEND_SCENEOBJECT)
                         {
-                            CTextureObject *to = App::currentWorld->textureContainer->getObject(tObject);
+                            CTextureObject* to = App::currentWorld->textureContainer->getObject(tObject);
                             to->addDependentObject(cmd.intParams[1], cmd.intParams[2]);
                         }
                         tp = new CTextureProperty(tObject);
@@ -2788,45 +2786,45 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == TOGGLE_BACKFACECULLING_MULTISHAPEEDITIONGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            std::vector<CMesh *> geoms;
+            std::vector<CMesh*> geoms;
             it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, geoms);
             int index = cmd.intParams[1];
             if ((index >= 0) && (index < int(geoms.size())))
             {
-                CMesh *geom = geoms[index];
+                CMesh* geom = geoms[index];
                 geom->setCulling(!geom->getCulling());
             }
         }
     }
     if (cmd.cmdId == TOGGLE_SHOWEDGES_MULTISHAPEEDITIONGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            std::vector<CMesh *> geoms;
+            std::vector<CMesh*> geoms;
             it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, geoms);
             int index = cmd.intParams[1];
             if ((index >= 0) && (index < int(geoms.size())))
             {
-                CMesh *geom = geoms[index];
+                CMesh* geom = geoms[index];
                 geom->setVisibleEdges(!geom->getVisibleEdges());
             }
         }
     }
     if (cmd.cmdId == SET_SHADINGANGLE_MULTISHAPEEDITIONGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            std::vector<CMesh *> geoms;
+            std::vector<CMesh*> geoms;
             it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, geoms);
             int index = cmd.intParams[1];
             if ((index >= 0) && (index < int(geoms.size())))
             {
-                CMesh *geom = geoms[index];
+                CMesh* geom = geoms[index];
                 geom->setShadingAngle(cmd.doubleParams[0]);
             }
         }
@@ -2844,7 +2842,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_ROLLEDUPSIZES_ROLLEDUPGUITRIGGEREDCMD)
     {
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[0]);
+        CButtonBlock* it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[0]);
         if (it != nullptr)
         {
             VPoint s;
@@ -2859,7 +2857,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_OFFFSET_JOINTDEPENDENCYGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double off, mult;
@@ -2869,7 +2867,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double off, mult;
@@ -2879,26 +2877,26 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setDependencyMasterJointHandle(cmd.intParams[1]);
     }
 
     if (cmd.cmdId == TOGGLE_CYCLIC_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setIsCyclic(!it->getIsCyclic());
     }
     if (cmd.cmdId == SET_LEAD_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setScrewLead(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_MINPOS_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double minP, maxP;
@@ -2908,7 +2906,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_RANGE_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double minP, maxP;
@@ -2918,7 +2916,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_POS_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->setPosition(cmd.doubleParams[0]);
@@ -2927,12 +2925,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_CONFIGPARAMS_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
+                CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
                 if ((it != nullptr) && (last->getJointType() == it->getJointType()))
                 {
                     it->setIsCyclic(last->getIsCyclic());
@@ -2950,7 +2948,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_MODE_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if ((cmd.intParams[1] & sim_jointmode_hybrid_deprecated) != 0)
@@ -2967,12 +2965,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_MODEPARAMS_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
+                CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
                 if ((it != nullptr) && (last->getJointType() == it->getJointType()))
                 {
                     it->setJointMode(last->getJointMode());
@@ -2983,12 +2981,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_VISUALPARAMS_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
+                CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
                 if ((it != nullptr) && (last->getJointType() == it->getJointType()))
                 {
                     last->getColor(false)->copyYourselfInto(it->getColor(false));
@@ -3000,45 +2998,45 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_LENGTH_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setSize(cmd.doubleParams[0], 0.0);
     }
     if (cmd.cmdId == SET_DIAMETER_JOINTGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setSize(0.0, cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_TARGETVELOCITY_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setTargetVelocity(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_FORCE_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setTargetForce(cmd.doubleParams[0], true);
     }
     if (cmd.cmdId == SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setTargetForce(cmd.doubleParams[0], false);
     }
     if (cmd.cmdId == APPLY_PARAMS_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if ((last != nullptr) && ((last->getJointMode() == sim_jointmode_dynamic) || last->getHybridFunctionality_old()))
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
-                if ((it != nullptr) && (last->getJointType() == it->getJointType()) )
+                CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
+                if ((it != nullptr) && (last->getJointType() == it->getJointType()))
                 {
-                    if ( (it->getJointMode() == last->getJointMode()) || (last->getHybridFunctionality_old() && it->getHybridFunctionality_old()) )
+                    if ((it->getJointMode() == last->getJointMode()) || (last->getHybridFunctionality_old() && it->getHybridFunctionality_old()))
                     {
                         it->setDynCtrlMode(last->getDynCtrlMode());
                         it->setDynPosCtrlType(last->getDynPosCtrlType());
@@ -3060,7 +3058,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_MOTIONPROFILEVALS_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             double maxVelAccelJerk[3];
@@ -3071,25 +3069,25 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_TARGETPOSITION_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setTargetPosition(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setKc(cmd.doubleParams[0], cmd.doubleParams[1]);
     }
     if (cmd.cmdId == SET_JOINTCTRLMODE_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setDynCtrlMode(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_JOINTPOSCTRLMODETOGGLE_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (it->getDynPosCtrlType() == 0)
@@ -3100,7 +3098,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_JOINTVELCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (it->getDynVelCtrlType() == 0)
@@ -3112,18 +3110,18 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == TOGGLE_LOCKMOTOR_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setMotorLock(!it->getMotorLock());
     }
     if (cmd.cmdId == APPLY_ALLENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD)
     {
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CJoint *anotherJoint = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
+                CJoint* anotherJoint = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
                 if (anotherJoint != nullptr)
                     it->copyEnginePropertiesTo(anotherJoint);
             }
@@ -3132,31 +3130,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_ATTRIBUTES_PATH_OLD_GUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (it->pathContainer != nullptr))
             it->pathContainer->setAttributes(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_LINESIZE_PATH_OLD_GUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (it->pathContainer != nullptr))
             it->pathContainer->setLineSize(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_CTRLPTSIZE_PATH_OLD_GUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (it->pathContainer != nullptr))
             it->pathContainer->setSquareSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_DISTANCEUNIT_PATH_OLD_GUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (it->pathContainer != nullptr))
             it->pathContainer->setPathLengthCalculationMethod(cmd.intParams[1]);
     }
     if (cmd.cmdId == COPY_TO_CLIPBOARD_PATH_OLD_GUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (it->pathContainer != nullptr))
         {
             it->pathContainer->copyPointsToClipboard();
@@ -3165,7 +3163,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == CREATE_EQUIVALENT_PATH_OLD_GUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (it->pathContainer != nullptr))
         {
             it->pathContainer->createEquivalent(it->getObjectHandle());
@@ -3174,59 +3172,59 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_SHAPINGENABLED_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShapingEnabled(!it->getShapingEnabled());
     }
     if (cmd.cmdId == TOGGLE_FOLLOWORIENTATION_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShapingFollowFullOrientation(!it->getShapingFollowFullOrientation());
     }
     if (cmd.cmdId == TOGGLE_CONVEXHULLS_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShapingThroughConvexHull(!it->getShapingThroughConvexHull());
     }
     if (cmd.cmdId == TOGGLE_LASTCOORDLINKSTOFIRST_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShapingSectionClosed(!it->getShapingSectionClosed());
     }
     if (cmd.cmdId == GENERATE_SHAPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CShape *shape = it->getShape();
+            CShape* shape = it->getShape();
             if (shape != nullptr)
                 App::currentWorld->sceneObjects->addObjectToScene(shape, false, true);
         }
     }
     if (cmd.cmdId == SET_ELEMENTMAXLENGTH_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShapingElementMaxLength(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_TYPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShapingType(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_SCALINGFACTOR_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setShapingScaling(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_COORDINATES_PATH_OLD_SHAPINGGUITRIGGEREDCMD)
     {
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->shapingCoordinates.assign(cmd.doubleParams.begin(), cmd.doubleParams.end());
@@ -3236,37 +3234,37 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == TOGGLE_STATIC_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setStatic(!it->getStatic());
     }
     if (cmd.cmdId == TOGGLE_STARTINSLEEPMODE_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setStartInDynamicSleeping(!it->getStartInDynamicSleeping());
     }
     if (cmd.cmdId == TOGGLE_RESPONDABLE_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setRespondable(!it->getRespondable());
     }
     if (cmd.cmdId == SET_RESPONDABLEMASK_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setRespondableMask(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_MASS_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->getMesh()->setMass(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_INERTIAMATRIX_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             C3X3Matrix m(it->getMesh()->getInertia());
@@ -3278,19 +3276,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->getMesh()->setCOM(cmd.posParams[0]);
     }
     if (cmd.cmdId == APPLY_DYNPARAMS_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *last = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* last = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             bool lastIsHeightfield = (last->getMesh()->getPurePrimitiveType() == sim_primitiveshape_heightfield);
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
+                CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     bool itIsHeightfield = (it->getMesh()->getPurePrimitiveType() == sim_primitiveshape_heightfield);
@@ -3318,18 +3316,18 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_SETTODYNAMICIFGETSPARENT_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setSetAutomaticallyToNonStaticIfGetsParent(!it->getSetAutomaticallyToNonStaticIfGetsParent());
     }
     if (cmd.cmdId == APPLY_RESPONDABLEPARAMS_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CShape *last = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
+        CShape* last = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
+                CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[i]);
                 if (it != nullptr)
                 {
                     it->setRespondable(last->getRespondable());
@@ -3362,7 +3360,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
     {
         int scriptID = cmd.intParams[0];
-        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
+        CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
         if (script != nullptr)
         {
             if (GuiApp::mainWindow != nullptr)
@@ -3372,7 +3370,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_ENABLED_SCRIPTGUITRIGGEREDCMD)
     {
-        CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
+        CScriptObject* it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (it->getScriptType() == sim_scripttype_customization)
@@ -3382,8 +3380,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_RESETAFTERSIMERROR_SCRIPTGUITRIGGEREDCMD)
     {
-        CScript *it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
-        if ( (it != nullptr) && (it->scriptObject != nullptr) )
+        CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
+        if ((it != nullptr) && (it->scriptObject != nullptr))
         {
             if (it->scriptObject->getScriptType() == sim_scripttype_customization)
                 it->resetAfterSimError(!it->getResetAfterSimError());
@@ -3391,7 +3389,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == PARENTPROXY_OFF_SCRIPTGUITRIGGEREDCMD)
     {
-        CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
+        CScriptObject* it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->setParentIsProxy(false);
@@ -3435,13 +3433,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
     {
         int scriptID = cmd.intParams[0];
-        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
+        CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
         if ((it != nullptr) && it->getThreadedExecution_oldThreads())
             it->setExecuteJustOnce_oldThreads(!it->getExecuteJustOnce_oldThreads());
     }
     if (cmd.cmdId == SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (it->getObjectType() == sim_sceneobject_script)
@@ -3456,10 +3454,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == SET_ALL_SCRIPTSIMULPARAMETERGUITRIGGEREDCMD)
     {
         int objID = cmd.intParams[0];
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objID);
         if (it != nullptr)
         {
-            CUserParameters *sp = it->getUserScriptParameterObject();
+            CUserParameters* sp = it->getUserScriptParameterObject();
             sp->userParamEntries.clear();
             for (size_t i = 0; i < cmd.intParams.size() - 1; i++)
             {
@@ -3477,57 +3475,57 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == TOGGLE_EXPLICITHANDLING_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExplicitHandling(!it->getExplicitHandling());
     }
     if (cmd.cmdId == TOGGLE_BUFFERCYCLIC_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setCyclic(!it->getCyclic());
     }
     if (cmd.cmdId == TOGGLE_TIMEGRAPHVISIBLE_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if (grData != nullptr)
                 grData->setVisible(!grData->getVisible());
         }
     }
     if (cmd.cmdId == TOGGLE_TIMEGRAPHSHOWLABEL_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if (grData != nullptr)
                 grData->setLabel(!grData->getLabel());
         }
     }
     if (cmd.cmdId == TOGGLE_TIMEGRAPHLINKPOINTS_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if (grData != nullptr)
                 grData->setLinkPoints(!grData->getLinkPoints());
         }
     }
     if (cmd.cmdId == INSERT_DATASTREAM_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             int currentDataType = cmd.intParams[1];
             int index = cmd.intParams[2];
             int objID;
             CGraphingRoutines_old::loopThroughAllAndGetObjectsFromGraphCategory(index, currentDataType, objID);
-            CGraphData_old *newGraphDat = new CGraphData_old(currentDataType, objID, -1);
-            CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+            CGraphData_old* newGraphDat = new CGraphData_old(currentDataType, objID, -1);
+            CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
             int h = it->addNewGraphData(newGraphDat);
             // Now select the object in the UI. We need to post it so that it arrives after the dialog refresh!:
             SSimulationThreadCommand cmd2;
@@ -3540,17 +3538,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == REMOVE_DATASTREAM_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (cmd.intParams[1] != -1))
             it->removeGraphData(cmd.intParams[1]);
     }
     if (cmd.cmdId == RENAME_DATASTREAM_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             std::string newName(cmd.stringParams[0]);
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if ((grData != nullptr) && (newName != ""))
             {
                 if (grData->getName() != newName)
@@ -3564,74 +3562,74 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_OBJECTSIZE_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setGraphSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_BUFFERSIZE_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setBufferSize(cmd.intParams[1]);
     }
     if (cmd.cmdId == REMOVE_ALLSTATICCURVES_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->removeAllStatics();
     }
     if (cmd.cmdId == REMOVE_ALLCURVES_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->removeAllStreamsAndCurves();
     }
     if (cmd.cmdId == SET_VALUERAWSTATE_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if (grData != nullptr)
                 grData->setDerivativeIntegralAndCumulative(cmd.intParams[2]);
         }
     }
     if (cmd.cmdId == SET_VALUEMULTIPLIER_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if (grData != nullptr)
                 grData->setZoomFactor(cmd.doubleParams[0]);
         }
     }
     if (cmd.cmdId == SET_VALUEOFFSET_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if (grData != nullptr)
                 grData->setAddCoeff(cmd.doubleParams[0]);
         }
     }
     if (cmd.cmdId == SET_MOVINGAVERAGEPERIOD_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if (grData != nullptr)
                 grData->setMovingAverageCount(cmd.intParams[2]);
         }
     }
     if (cmd.cmdId == DUPLICATE_TOSTATIC_GRAPHGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(cmd.intParams[1]);
+            CGraphData_old* grData = it->getGraphData(cmd.intParams[1]);
             if ((grData != nullptr) && (grData->getDataLength() != 0))
             {
                 it->makeCurveStatic(cmd.intParams[1], 0);
@@ -3644,7 +3642,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == DELETE_CURVE_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             int objID = cmd.intParams[1];
@@ -3659,14 +3657,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == RENAME_CURVE_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             int objID = cmd.intParams[1];
             if (objID != -1)
             {
                 std::string newName(cmd.stringParams[0]);
-                CGraphDataComb_old *grData;
+                CGraphDataComb_old* grData;
                 if (cmd.boolParams[0])
                     grData = it->getGraphData2D(objID);
                 else
@@ -3693,10 +3691,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_VISIBLE_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (cmd.intParams[1] != -1))
         {
-            CGraphDataComb_old *grDataComb = nullptr;
+            CGraphDataComb_old* grDataComb = nullptr;
             if (cmd.boolParams[0])
                 grDataComb = it->getGraphData2D(cmd.intParams[1]);
             else
@@ -3707,10 +3705,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_LABEL_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (cmd.intParams[1] != -1))
         {
-            CGraphDataComb_old *grDataComb = nullptr;
+            CGraphDataComb_old* grDataComb = nullptr;
             if (cmd.boolParams[0])
                 grDataComb = it->getGraphData2D(cmd.intParams[1]);
             else
@@ -3721,10 +3719,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_LINKPTS_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (cmd.intParams[1] != -1))
         {
-            CGraphDataComb_old *grDataComb = nullptr;
+            CGraphDataComb_old* grDataComb = nullptr;
             if (cmd.boolParams[0])
                 grDataComb = it->getGraphData2D(cmd.intParams[1]);
             else
@@ -3735,10 +3733,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_ONTOP_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (cmd.intParams[1] != -1))
         {
-            CGraphDataComb_old *grDataComb = nullptr;
+            CGraphDataComb_old* grDataComb = nullptr;
             if (cmd.boolParams[0])
                 grDataComb = it->getGraphData2D(cmd.intParams[1]);
             else
@@ -3749,30 +3747,30 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_RELATIVETO_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (cmd.intParams[1] != -1))
         {
-            CGraphDataComb_old *grDataComb = it->getGraphData3D(cmd.intParams[1]);
+            CGraphDataComb_old* grDataComb = it->getGraphData3D(cmd.intParams[1]);
             if (grDataComb != nullptr)
                 grDataComb->setCurveRelativeToWorld(cmd.boolParams[0]);
         }
     }
     if (cmd.cmdId == SET_CURVEWIDTH_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (cmd.intParams[1] != -1))
         {
-            CGraphDataComb_old *grDataComb = it->getGraphData3D(cmd.intParams[1]);
+            CGraphDataComb_old* grDataComb = it->getGraphData3D(cmd.intParams[1]);
             if (grDataComb != nullptr)
                 grDataComb->set3DCurveWidth(double(cmd.intParams[2]));
         }
     }
     if (cmd.cmdId == DUPLICATE_TOSTATIC_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && (cmd.intParams[1] != -1))
         {
-            CGraphDataComb_old *grDataComb = nullptr;
+            CGraphDataComb_old* grDataComb = nullptr;
             int dim = 1;
             if (cmd.boolParams[0])
                 grDataComb = it->getGraphData2D(cmd.intParams[1]);
@@ -3792,10 +3790,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == ADD_NEWCURVE_GRAPHCURVEGUITRIGGEREDCMD)
     {
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CGraphDataComb_old *theNew = new CGraphDataComb_old();
+            CGraphDataComb_old* theNew = new CGraphDataComb_old();
             theNew->data[0] = cmd.intParams[1];
             theNew->data[1] = cmd.intParams[2];
             if (!cmd.boolParams[0])
@@ -3817,19 +3815,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectMovementRelativity(0, cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectMovementPreferredAxes(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             int a = it->getObjectMovementOptions();
@@ -3853,7 +3851,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             int a = it->getObjectMovementOptions();
@@ -3877,14 +3875,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectMovementRelativity(1, cmd.intParams[1]);
     }
 
     if (cmd.cmdId == SET_TRANSF_POSITIONTRANSLATIONGUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (cmd.intParams[1] == 0)
@@ -3899,7 +3897,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == APPLY_POS_POSITIONTRANSLATIONGUITRIGGEREDCMD)
     {
-        CSceneObject *last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             int coordMode = cmd.intParams[cmd.intParams.size() - 2];
@@ -3911,7 +3909,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 tr = last->getLocalTransformation();
             for (size_t i = 1; i < cmd.intParams.size() - 2; i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
                 C7Vector trIt;
                 if (coordMode == 0)
                     trIt = it->getCumulativeTransformation();
@@ -3948,21 +3946,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         // Prepare the object that will be translated/scaled, and all other objects in selection appropriately:
         // There is one master object that acts as the translation/scaling pivot. That object needs to be carefully
         // selected
-        std::vector<CSceneObject *> allSelObj;
+        std::vector<CSceneObject*> allSelObj;
         for (size_t i = 0; i < cmd.intParams.size() - 2; i++)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
             allSelObj.push_back(it);
         }
-        std::vector<CSceneObject *> allSelObjects;
-        std::map<CSceneObject *, bool> occ;
-        CSceneObject *masterObj = nullptr;
+        std::vector<CSceneObject*> allSelObjects;
+        std::map<CSceneObject*, bool> occ;
+        CSceneObject* masterObj = nullptr;
         for (int i = int(allSelObj.size()) - 1; i >= 0; i--)
         {
-            CSceneObject *it = allSelObj[i]->getLastParentInSelection(&allSelObj);
+            CSceneObject* it = allSelObj[i]->getLastParentInSelection(&allSelObj);
             if (it == nullptr)
                 it = allSelObj[i];
-            std::map<CSceneObject *, bool>::iterator it2 = occ.find(it);
+            std::map<CSceneObject*, bool>::iterator it2 = occ.find(it);
             if (it2 == occ.end())
             {
                 occ[it] = true;
@@ -4010,7 +4008,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             C7Vector shift(newTr * oldTr.getInverse());
             for (size_t i = 0; i < allSelObjects.size(); i++)
             {
-                CSceneObject *obj = allSelObjects[i];
+                CSceneObject* obj = allSelObjects[i];
                 C7Vector oldLTr = obj->getLocalTransformation();
                 C7Vector parentTr = obj->getFullParentCumulativeTransformation();
                 obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
@@ -4024,7 +4022,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == APPLY_OR_ORIENTATIONROTATIONGUITRIGGEREDCMD)
     {
-        CSceneObject *last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* last = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (last != nullptr)
         {
             int coordMode = cmd.intParams[cmd.intParams.size() - 1];
@@ -4035,7 +4033,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 tr = last->getLocalTransformation();
             for (size_t i = 1; i < cmd.intParams.size() - 1; i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
                 C7Vector trIt;
                 if (coordMode == 0)
                     trIt = it->getCumulativeTransformation();
@@ -4061,21 +4059,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         rotAngles[2] = cmd.doubleParams[2];
         // Prepare the object that will be rotated, and all other objects in selection appropriately:
         // There is one master object that acts as the rotation pivot. That object needs to be carefully selected
-        std::vector<CSceneObject *> allSelObj;
+        std::vector<CSceneObject*> allSelObj;
         for (size_t i = 0; i < cmd.intParams.size() - 1; i++)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
             allSelObj.push_back(it);
         }
-        std::vector<CSceneObject *> allSelObjects;
-        std::map<CSceneObject *, bool> occ;
-        CSceneObject *masterObj = nullptr;
+        std::vector<CSceneObject*> allSelObjects;
+        std::map<CSceneObject*, bool> occ;
+        CSceneObject* masterObj = nullptr;
         for (int i = int(allSelObj.size()) - 1; i >= 0; i--)
         {
-            CSceneObject *it = allSelObj[i]->getLastParentInSelection(&allSelObj);
+            CSceneObject* it = allSelObj[i]->getLastParentInSelection(&allSelObj);
             if (it == nullptr)
                 it = allSelObj[i];
-            std::map<CSceneObject *, bool>::iterator it2 = occ.find(it);
+            std::map<CSceneObject*, bool>::iterator it2 = occ.find(it);
             if (it2 == occ.end())
             {
                 occ[it] = true;
@@ -4113,7 +4111,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             C7Vector shift(newTr * oldTr.getInverse());
             for (size_t i = 0; i < allSelObjects.size(); i++)
             {
-                CSceneObject *obj = allSelObjects[i];
+                CSceneObject* obj = allSelObjects[i];
                 C7Vector oldLTr = obj->getLocalTransformation();
                 C7Vector parentTr = obj->getFullParentCumulativeTransformation();
                 obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
@@ -4127,23 +4125,23 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == REMOVE_ELEMENT_IKELEMENTGUITRIGGEREDCMD)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (ikGroup != nullptr)
         {
-            CIkElement_old *it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+            CIkElement_old* it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
             if (it != nullptr)
                 ikGroup->removeIkElement(cmd.intParams[1]);
         }
     }
     if (cmd.cmdId == ADD_ELEMENT_IKELEMENTGUITRIGGEREDCMD)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (ikGroup != nullptr)
         {
-            CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[1]);
+            CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[1]);
             if (it != nullptr)
             {
-                CIkElement_old *newIkEl = new CIkElement_old(it->getObjectHandle());
+                CIkElement_old* newIkEl = new CIkElement_old(it->getObjectHandle());
                 if (!ikGroup->addIkElement(newIkEl))
                     delete newIkEl;
                 else
@@ -4161,30 +4159,30 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_ACTIVE_IKELEMENTGUITRIGGEREDCMD)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (ikGroup != nullptr)
         {
-            CIkElement_old *it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+            CIkElement_old* it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
             if (it != nullptr)
                 it->setEnabled(!it->getEnabled());
         }
     }
     if (cmd.cmdId == SET_BASE_IKELEMENTGUITRIGGEREDCMD)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (ikGroup != nullptr)
         {
-            CIkElement_old *it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+            CIkElement_old* it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
             if (it != nullptr)
                 it->setBase(cmd.intParams[2]);
         }
     }
     if (cmd.cmdId == TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (ikGroup != nullptr)
         {
-            CIkElement_old *it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+            CIkElement_old* it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
             if (it != nullptr)
             {
                 int c = cmd.intParams[2];
@@ -4204,20 +4202,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_REFERENCEFRAME_IKELEMENTGUITRIGGEREDCMD)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (ikGroup != nullptr)
         {
-            CIkElement_old *it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+            CIkElement_old* it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
             if (it != nullptr)
                 it->setAlternativeBaseForConstraints(cmd.intParams[2]);
         }
     }
     if (cmd.cmdId == SET_PRECISION_IKELEMENTGUITRIGGEREDCMD)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (ikGroup != nullptr)
         {
-            CIkElement_old *it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+            CIkElement_old* it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
             if (it != nullptr)
             {
                 if (cmd.intParams[2] == 0)
@@ -4229,10 +4227,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_WEIGHT_IKELEMENTGUITRIGGEREDCMD)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (ikGroup != nullptr)
         {
-            CIkElement_old *it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
+            CIkElement_old* it = ikGroup->getIkElementFromHandle(cmd.intParams[1]);
             if (it != nullptr)
             {
                 if (cmd.intParams[2] == 0)
@@ -4249,13 +4247,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == REMOVE_IKGROUP_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             App::currentWorld->ikGroups_old->removeIkGroup(it->getObjectHandle());
     }
     if (cmd.cmdId == ADD_IKGROUP_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *newGroup = new CIkGroup_old();
+        CIkGroup_old* newGroup = new CIkGroup_old();
         newGroup->setObjectName("IK_Group", false);
         App::currentWorld->ikGroups_old->addIkGroup(newGroup, false);
         // Now select the object in the UI. We need to post it so that it arrives after the dialog refresh!:
@@ -4270,13 +4268,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == RENAME_IKGROUP_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setObjectName(cmd.stringParams[0].c_str(), true);
     }
     if (cmd.cmdId == SHIFT_IKGROUP_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         bool up = cmd.intParams[1] != 0;
         if (it != nullptr)
         {
@@ -4291,46 +4289,46 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_EXPLICITHANDLING_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setExplicitHandling(!it->getExplicitHandling());
     }
     if (cmd.cmdId == TOGGLE_ACTIVE_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setEnabled(!it->getEnabled());
     }
     if (cmd.cmdId == TOGGLE_IGNOREMAXSTEPSIZES_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setIgnoreMaxStepSizes(!it->getIgnoreMaxStepSizes());
     }
     if (cmd.cmdId == SET_CALCMETHOD_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setCalculationMethod(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_DAMPING_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setDampingFactor(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_ITERATIONS_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setMaxIterations(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_CONDITIONALPARAMS_IKGROUPGUITRIGGEREDCMD)
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CIkGroup_old *it2 = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[1]);
+            CIkGroup_old* it2 = App::currentWorld->ikGroups_old->getObjectFromHandle(cmd.intParams[1]);
             int id = -1;
             if (it2 != nullptr)
                 id = it2->getObjectHandle();
@@ -4400,7 +4398,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD)
     {
-        CDummy *newDummy = new CDummy();
+        CDummy* newDummy = new CDummy();
         newDummy->setObjectAlias_direct(cmd.stringParams[0].c_str());
         newDummy->setObjectName_direct_old(cmd.stringParams[0].c_str());
         newDummy->setObjectAltName_direct_old(
@@ -4413,7 +4411,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         App::logMsg(sim_verbosity_msgs, IDSNS_GENERATING_SHAPE);
         int toid = cmd.intParams[0];
-        CShape *newShape;
+        CShape* newShape;
         if (toid != -1)
             newShape = new CShape(C7Vector::identityTransformation, cmd.doubleVectorParams[0], cmd.intVectorParams[0],
                                   nullptr, &cmd.floatVectorParams[0], 0);
@@ -4430,7 +4428,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         App::currentWorld->sceneObjects->addObjectToScene(newShape, false, true);
         if (toid != -1)
         {
-            CTextureObject *to = App::currentWorld->textureContainer->getObject(toid);
+            CTextureObject* to = App::currentWorld->textureContainer->getObject(toid);
             if ((to != nullptr) && (newShape->getSingleMesh()->getTextureProperty() != nullptr))
             {
                 to->addDependentObject(newShape->getObjectHandle(), newShape->getSingleMesh()->getUniqueID());
@@ -4442,14 +4440,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
     {
-        CShape *newShape = new CShape(C7Vector::identityTransformation, cmd.doubleVectorParams[0],
+        CShape* newShape = new CShape(C7Vector::identityTransformation, cmd.doubleVectorParams[0],
                                       cmd.intVectorParams[0], nullptr, nullptr, 0);
         newShape->alignBB("mesh");
         C3Vector size;
         C7Vector conf(newShape->getLocalTransformation() * newShape->getBB(&size));
         size *= 2.0;
         delete newShape;
-        CShape *shape = nullptr;
+        CShape* shape = nullptr;
 
         if (cmd.intParams[0] == 0)
         { // Cuboid
@@ -4542,13 +4540,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SELECT_VIEW_GUITRIGGEREDCMD)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CSPage *view = App::currentWorld->pageContainer->getPage(cmd.intParams[1]);
+            CSPage* view = App::currentWorld->pageContainer->getPage(cmd.intParams[1]);
             if (view != nullptr)
             {
-                CSView *subView = view->getView(size_t(cmd.intParams[2]));
+                CSView* subView = view->getView(size_t(cmd.intParams[2]));
                 if (subView != nullptr)
                 {
                     subView->setLinkedObjectID(it->getObjectHandle(), false);
@@ -4574,7 +4572,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == SET_THUMBNAIL_GUITRIGGEREDCMD)
     {
         App::currentWorld->environment->modelThumbnail_notSerializedHere.setUncompressedThumbnailImage(
-            (char *)&cmd.uint8Params[0], true, false);
+            (char*)&cmd.uint8Params[0], true, false);
     }
     if (cmd.cmdId == SET_OBJECT_SELECTION_GUITRIGGEREDCMD)
     {
@@ -4693,7 +4691,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
     bool mouseDown = cmd.boolParams[0];
     int cameraHandle = cmd.intParams[0];
 
-    CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cameraHandle);
+    CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cameraHandle);
     if (cam != nullptr)
     {
         std::vector<int> currentSelectionState(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
@@ -4710,8 +4708,8 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         }
 
         int intParams[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-        double floatParams[15] = {nearClipp, 999999.9, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0,
-                                  0.0,       0.0,      0.0, 0.0, 0.01, 0.0, 0.0};
+        double floatParams[15] = {nearClipp, 999999.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0};
         int psh = simCreateProximitySensor_internal(
             sim_proximitysensor_ray, sim_objectspecialproperty_detectable, 0, intParams, floatParams, nullptr);
         simSetObjectPosition_internal(psh, cameraHandle, transf.X.data);
@@ -4719,12 +4717,12 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         int displayAttrib = sim_displayattribute_renderpass;
         if (App::currentWorld->simulation->getDynamicContentVisualizationOnly())
             displayAttrib |= sim_displayattribute_dynamiccontentonly;
-        CProxSensor *prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(psh);
+        CProxSensor* prox = App::currentWorld->sceneObjects->getProximitySensorFromHandle(psh);
         double dist = DBL_MAX;
         bool ptValid = false;
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
         {
-            CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+            CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromIndex(i);
             if (object->getShouldObjectBeDisplayed(cameraHandle, displayAttrib) && object->isPotentiallyMeasurable())
             {
                 int theObj;

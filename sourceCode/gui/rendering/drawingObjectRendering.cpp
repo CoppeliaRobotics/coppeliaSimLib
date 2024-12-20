@@ -33,37 +33,59 @@ const double SPHEREVERTICES[24 * 3] = {
 
     -1.0000, -0.4142, +0.4142, -1.0000, +0.4142, +0.4142, -1.0000, +0.4142, -0.4142, -1.0000, -0.4142, -0.4142};
 
-const int SPHEREQUADINDICES[18 * 4] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
+const int SPHEREQUADINDICES[18 * 4] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                                        16, 17, 18, 19, 20, 21, 22, 23,
 
-                                       0,  4,  7,  1,  1,  16, 19, 2,  3,  2,  12, 15, 0,  3,  20, 23,
+                                       0, 4, 7, 1, 1, 16, 19, 2, 3, 2, 12, 15, 0, 3, 20, 23,
 
-                                       6,  5,  9,  8,  18, 17, 8,  11, 14, 13, 11, 10, 10, 9,  22, 21,
+                                       6, 5, 9, 8, 18, 17, 8, 11, 14, 13, 11, 10, 10, 9, 22, 21,
 
-                                       7,  6,  17, 16, 19, 18, 13, 12, 15, 14, 21, 20, 23, 22, 5,  4};
+                                       7, 6, 17, 16, 19, 18, 13, 12, 15, 14, 21, 20, 23, 22, 5, 4};
 
 const double SPHEREQUADNORMALS[18 * 3] = {
-    +0.0,    -1.0,    +0.0,    +0.0,    +0.0,    -1.0,    +0.0,    +1.0,    +0.0,    +0.0,    +0.0,    +1.0,
-    +1.0,    +0.0,    +0.0,    -1.0,    +0.0,    +0.0,
+    +0.0, -1.0, +0.0, +0.0, +0.0, -1.0, +0.0, +1.0, +0.0, +0.0, +0.0, +1.0,
+    +1.0, +0.0, +0.0, -1.0, +0.0, +0.0,
 
-    +0.0,    -0.7071, -0.7071, +0.7071, -0.7071, +0.0,    +0.0,    -0.7071, +0.7071, -0.7071, -0.7071, +0.0,
+    +0.0, -0.7071, -0.7071, +0.7071, -0.7071, +0.0, +0.0, -0.7071, +0.7071, -0.7071, -0.7071, +0.0,
 
-    +0.0,    +0.7071, -0.7071, +0.7071, +0.7071, +0.0,    +0.0,    +0.7071, +0.7071, -0.7071, +0.7071, +0.0,
+    +0.0, +0.7071, -0.7071, +0.7071, +0.7071, +0.0, +0.0, +0.7071, +0.7071, -0.7071, +0.7071, +0.0,
 
-    +0.7071, 0.0,     -0.7071, +0.7071, 0.0,     +0.7071, -0.7071, 0.0,     +0.7071, -0.7071, 0.0,     -0.7071};
+    +0.7071, 0.0, -0.7071, +0.7071, 0.0, +0.7071, -0.7071, 0.0, +0.7071, -0.7071, 0.0, -0.7071};
 
-const int SPHERETRIANGLEINDICES[8 * 3] = {1,  7, 16, 2,  19, 12, 3,  15, 20, 0,  23, 4,
+const int SPHERETRIANGLEINDICES[8 * 3] = {1, 7, 16, 2, 19, 12, 3, 15, 20, 0, 23, 4,
 
-                                          17, 6, 8,  18, 11, 13, 14, 10, 21, 22, 9,  5};
+                                          17, 6, 8, 18, 11, 13, 14, 10, 21, 22, 9, 5};
 
 const double SPHERETRIANGLENORMALS[8 * 3] = {
-    +0.5773, -0.5773, -0.5773, +0.5773, -0.5773, +0.5773, -0.5773, -0.5773, +0.5773, -0.5773, -0.5773, -0.5773,
+    +0.5773,
+    -0.5773,
+    -0.5773,
+    +0.5773,
+    -0.5773,
+    +0.5773,
+    -0.5773,
+    -0.5773,
+    +0.5773,
+    -0.5773,
+    -0.5773,
+    -0.5773,
 
-    +0.5773, +0.5773, -0.5773, +0.5773, +0.5773, +0.5773, -0.5773, +0.5773, +0.5773, -0.5773, +0.5773, -0.5773,
+    +0.5773,
+    +0.5773,
+    -0.5773,
+    +0.5773,
+    +0.5773,
+    +0.5773,
+    -0.5773,
+    +0.5773,
+    +0.5773,
+    -0.5773,
+    +0.5773,
+    -0.5773,
 };
 
-void displayDrawingObject(CDrawingObject *drawingObject, C7Vector &tr, bool overlay, bool transparentObject,
-                          int displayAttrib, const C4X4Matrix &cameraCTM)
+void displayDrawingObject(CDrawingObject* drawingObject, C7Vector& tr, bool overlay, bool transparentObject,
+                          int displayAttrib, const C4X4Matrix& cameraCTM)
 {
     int _objectType = drawingObject->getObjectType();
     C3Vector normalVectorForLinesAndPoints(tr.Q.getInverse() * C3Vector::unitZVector);
@@ -137,7 +159,7 @@ void displayDrawingObject(CDrawingObject *drawingObject, C7Vector &tr, bool over
         ogl::setBlending(false);
 }
 
-void _drawPoints(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matrix &cameraRTM,
+void _drawPoints(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matrix& cameraRTM,
                  const double normalVectorForLinesAndPoints[3])
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
@@ -146,7 +168,7 @@ void _drawPoints(CDrawingObject *drawingObject, int displayAttrib, const C4X4Mat
     double _size = drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -275,14 +297,14 @@ void _drawPoints(CDrawingObject *drawingObject, int displayAttrib, const C4X4Mat
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawTrianglePoints(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matrix &cameraRTM)
+void _drawTrianglePoints(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matrix& cameraRTM)
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
     int _objectType = drawingObject->getObjectType();
     double _size = drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -354,14 +376,14 @@ void _drawTrianglePoints(CDrawingObject *drawingObject, int displayAttrib, const
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawQuadPoints(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matrix &cameraRTM)
+void _drawQuadPoints(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matrix& cameraRTM)
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
     int _objectType = drawingObject->getObjectType();
     double _size = drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -432,14 +454,14 @@ void _drawQuadPoints(CDrawingObject *drawingObject, int displayAttrib, const C4X
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawDiscPoints(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matrix &cameraRTM)
+void _drawDiscPoints(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matrix& cameraRTM)
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
     int _objectType = drawingObject->getObjectType();
     double _size = drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -515,14 +537,14 @@ void _drawDiscPoints(CDrawingObject *drawingObject, int displayAttrib, const C4X
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawCubePoints(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matrix &cameraRTM)
+void _drawCubePoints(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matrix& cameraRTM)
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
     int _objectType = drawingObject->getObjectType();
     double _size = drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -627,14 +649,14 @@ void _drawCubePoints(CDrawingObject *drawingObject, int displayAttrib, const C4X
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawSpherePoints(CDrawingObject *drawingObject, int displayAttrib)
+void _drawSpherePoints(CDrawingObject* drawingObject, int displayAttrib)
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
     int _objectType = drawingObject->getObjectType();
     double _size = drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -712,7 +734,7 @@ void _drawSpherePoints(CDrawingObject *drawingObject, int displayAttrib)
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawLines(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matrix &cameraRTM,
+void _drawLines(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matrix& cameraRTM,
                 const double normalVectorForLinesAndPoints[3])
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
@@ -720,7 +742,7 @@ void _drawLines(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matr
     double _size = drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -854,7 +876,7 @@ void _drawLines(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matr
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawLineStrip(CDrawingObject *drawingObject, int displayAttrib, const C4X4Matrix &cameraRTM,
+void _drawLineStrip(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matrix& cameraRTM,
                     const double normalVectorForLinesAndPoints[3])
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
@@ -862,7 +884,7 @@ void _drawLineStrip(CDrawingObject *drawingObject, int displayAttrib, const C4X4
     double _size = drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -904,14 +926,14 @@ void _drawLineStrip(CDrawingObject *drawingObject, int displayAttrib, const C4X4
         ogl::setBlending(false); // make sure we turn blending off!
 }
 
-void _drawTriangles(CDrawingObject *drawingObject, int displayAttrib)
+void _drawTriangles(CDrawingObject* drawingObject, int displayAttrib)
 {
     bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
     int _objectType = drawingObject->getObjectType();
     // double _size=drawingObject->getSize();
     int _maxItemCount = drawingObject->getMaxItemCount();
     int _startItem = drawingObject->getStartItem();
-    std::vector<double> &_data = drawingObject->getDataPtr()[0];
+    std::vector<double>& _data = drawingObject->getDataPtr()[0];
     // Following 2 new since introduction of sim_drawing_itemtransparency:
     if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
@@ -940,8 +962,8 @@ void _drawTriangles(CDrawingObject *drawingObject, int displayAttrib)
         }
         if (_objectType & (sim_drawing_itemcolors | sim_drawing_vertexcolors))
             off += 3;
-        float *vertex2Col = nullptr;
-        float *vertex3Col = nullptr;
+        float* vertex2Col = nullptr;
+        float* vertex3Col = nullptr;
         float vertex2Col_[3];
         float vertex3Col_[3];
         if (_objectType & sim_drawing_vertexcolors)

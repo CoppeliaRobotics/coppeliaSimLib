@@ -9,18 +9,18 @@ CPluginCallbackContainer::~CPluginCallbackContainer()
     clear();
 }
 
-SPluginCallback *CPluginCallbackContainer::getCallbackFromName(const char *name)
+SPluginCallback* CPluginCallbackContainer::getCallbackFromName(const char* name)
 {
-    SPluginCallback *retVal = nullptr;
+    SPluginCallback* retVal = nullptr;
     auto it = _allCallbacks_map.find(name);
     if (it != _allCallbacks_map.end())
         retVal = &_allCallbacks_vect[it->second];
     return (retVal);
 }
 
-SPluginCallback *CPluginCallbackContainer::getCallbackFromIndex(size_t ind)
+SPluginCallback* CPluginCallbackContainer::getCallbackFromIndex(size_t ind)
 {
-    SPluginCallback *retVal = nullptr;
+    SPluginCallback* retVal = nullptr;
     if (ind < _allCallbacks_vect.size())
         retVal = &_allCallbacks_vect[ind];
     return (retVal);
@@ -32,10 +32,10 @@ void CPluginCallbackContainer::clear()
     _allCallbacks_map.clear();
 }
 
-bool CPluginCallbackContainer::addCallback(const char *funcName, void (*callback)(struct SScriptCallBack *cb))
+bool CPluginCallbackContainer::addCallback(const char* funcName, void (*callback)(struct SScriptCallBack* cb))
 {
     bool retVal = false;
-    SPluginCallback *it = getCallbackFromName(funcName);
+    SPluginCallback* it = getCallbackFromName(funcName);
     if (it == nullptr)
     {
         retVal = true;

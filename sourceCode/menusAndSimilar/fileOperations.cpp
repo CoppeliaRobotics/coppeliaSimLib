@@ -66,9 +66,9 @@ void CFileOperations::closeScene()
 #endif
 }
 
-bool CFileOperations::loadScene(const char *pathAndFilename, bool setCurrentDir,
-                                std::vector<char> *loadBuffer /*=nullptr*/, std::string *infoStr /*=nullptr*/,
-                                std::string *errorStr /*=nullptr*/)
+bool CFileOperations::loadScene(const char* pathAndFilename, bool setCurrentDir,
+                                std::vector<char>* loadBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/,
+                                std::string* errorStr /*=nullptr*/)
 { // empty pathAndFilename to create the default scene
     bool retVal = false;
     TRACE_INTERNAL;
@@ -89,14 +89,14 @@ bool CFileOperations::loadScene(const char *pathAndFilename, bool setCurrentDir,
 
             if (pathAndFilename != nullptr)
             { // loading from file...
-                CSer *serObj;
+                CSer* serObj;
                 if ((CSer::getFileTypeFromName(pathAndFilename) == CSer::filetype_csim_xml_simplescene_file))
                 {
                     serObj = new CSer(pathAndFilename, CSer::getFileTypeFromName(pathAndFilename));
                     result = serObj->readOpenXml(0, false, infoStr, errorStr);
                     if (serObj->getFileType() ==
-                        CSer::filetype_csim_xml_simplescene_file) // final file type is set in readOpenXml (whether
-                                                                  // exhaustive or simple scene)
+                        CSer::filetype_csim_xml_simplescene_file)                // final file type is set in readOpenXml (whether
+                                                                                 // exhaustive or simple scene)
                         App::currentWorld->environment->setScenePathAndName(""); // since lossy format
                 }
                 else
@@ -156,9 +156,9 @@ bool CFileOperations::loadScene(const char *pathAndFilename, bool setCurrentDir,
     return retVal;
 }
 
-bool CFileOperations::loadModel(const char *pathAndFilename, bool setCurrentDir, bool doUndoThingInHere,
-                                std::vector<char> *loadBuffer, bool onlyThumbnail, bool forceModelAsCopy,
-                                std::string *infoStr /*=nullptr*/, std::string *errorStr /*=nullptr*/)
+bool CFileOperations::loadModel(const char* pathAndFilename, bool setCurrentDir, bool doUndoThingInHere,
+                                std::vector<char>* loadBuffer, bool onlyThumbnail, bool forceModelAsCopy,
+                                std::string* infoStr /*=nullptr*/, std::string* errorStr /*=nullptr*/)
 {
     TRACE_INTERNAL;
     int result = -3;
@@ -171,7 +171,7 @@ bool CFileOperations::loadModel(const char *pathAndFilename, bool setCurrentDir,
 
         if (pathAndFilename != nullptr)
         { // loading from file...
-            CSer *serObj;
+            CSer* serObj;
 
             if (CSer::getFileTypeFromName(pathAndFilename) == CSer::filetype_csim_xml_simplemodel_file)
             {
@@ -190,7 +190,7 @@ bool CFileOperations::loadModel(const char *pathAndFilename, bool setCurrentDir,
                 serObj->readClose();
                 if ((!onlyThumbnail) && (infoStr != nullptr))
                 {
-                    std::vector<CSceneObject *> loadedObjects;
+                    std::vector<CSceneObject*> loadedObjects;
                     App::currentWorld->sceneObjects->getSelectedObjects(loadedObjects);
                     for (size_t obba = 0; obba < loadedObjects.size(); obba++)
                     {
@@ -234,9 +234,9 @@ bool CFileOperations::loadModel(const char *pathAndFilename, bool setCurrentDir,
     return (result == 1);
 }
 
-bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir, bool changeSceneUniqueId,
-                                std::vector<char> *saveBuffer /*=nullptr*/, std::string *infoStr /*=nullptr*/,
-                                std::string *errorStr /*=nullptr*/)
+bool CFileOperations::saveScene(const char* pathAndFilename, bool setCurrentDir, bool changeSceneUniqueId,
+                                std::vector<char>* saveBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/,
+                                std::string* errorStr /*=nullptr*/)
 {
     bool retVal = false;
     if (CSimFlavor::getBoolVal(16))
@@ -253,7 +253,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
             bool simpleXml = (simpleXmlPos != std::string::npos);
             if (simpleXml)
                 _pathAndFilename.erase(_pathAndFilename.begin() + simpleXmlPos, _pathAndFilename.end());
-            CSer *serObj;
+            CSer* serObj;
             if ((CSer::getFileTypeFromName(_pathAndFilename.c_str()) == CSer::filetype_csim_xml_simplescene_file))
             {
                 VFile::eraseFilesWithPrefix(VVarious::splitPath_path(_pathAndFilename.c_str()).c_str(),
@@ -279,7 +279,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
 
             if (retVal)
             {
-                if ( (!simpleXml)&& setCurrentDir ) // because lossy
+                if ((!simpleXml) && setCurrentDir) // because lossy
                     App::currentWorld->environment->setScenePathAndName(_pathAndFilename.c_str());
 
                 App::currentWorld->sceneObjects->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
@@ -320,9 +320,9 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
     return (retVal);
 }
 
-bool CFileOperations::saveModel(int modelBaseDummyID, const char *pathAndFilename, bool setCurrentDir,
-                                std::vector<char> *saveBuffer /*=nullptr*/, std::string *infoStr /*=nullptr*/,
-                                std::string *errorStr /*=nullptr*/)
+bool CFileOperations::saveModel(int modelBaseDummyID, const char* pathAndFilename, bool setCurrentDir,
+                                std::vector<char>* saveBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/,
+                                std::string* errorStr /*=nullptr*/)
 {
     bool retVal = false;
     if (CSimFlavor::getBoolVal(16) || (saveBuffer != nullptr))
@@ -331,7 +331,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID, const char *pathAndFilenam
         std::vector<int> sel;
         sel.push_back(modelBaseDummyID);
 
-        CSceneObject *modelBaseObject = App::currentWorld->sceneObjects->getObjectFromHandle(modelBaseDummyID);
+        CSceneObject* modelBaseObject = App::currentWorld->sceneObjects->getObjectFromHandle(modelBaseDummyID);
         C3Vector minV(C3Vector::inf);
         C3Vector maxV(C3Vector::ninf);
         C7Vector modelTr(modelBaseObject->getCumulativeTransformation() * modelBaseObject->getBB(nullptr));
@@ -375,7 +375,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID, const char *pathAndFilenam
                 infoStr[0] += boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION) + ".";
             }
 
-            CSer *serObj;
+            CSer* serObj;
             if (CSer::getFileTypeFromName(pathAndFilename) == CSer::filetype_csim_xml_simplemodel_file)
             {
                 VFile::eraseFilesWithPrefix(VVarious::splitPath_path(pathAndFilename).c_str(),
@@ -414,7 +414,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID, const char *pathAndFilenam
 }
 
 int CFileOperations::createHeightfield(int xSize, double pointSpacing,
-                                       const std::vector<std::vector<double> *> &readData, double shadingAngle,
+                                       const std::vector<std::vector<double>*>& readData, double shadingAngle,
                                        int options)
 { // options bits:
     // 0 set --> backfaces are culled
@@ -436,7 +436,7 @@ int CFileOperations::createHeightfield(int xSize, double pointSpacing,
                 minHeight = readData[i]->at(j);
         }
     }
-    CShape *shape = new CShape(allHeights, xSize, ySize, pointSpacing, minHeight, maxHeight);
+    CShape* shape = new CShape(allHeights, xSize, ySize, pointSpacing, minHeight, maxHeight);
 
     if (options & 4)
         shape->getSingleMesh()->setPurePrimitiveType(sim_primitiveshape_none, 1.0, 1.0, 1.0);
@@ -540,7 +540,7 @@ void CFileOperations::keyPress(int key)
 {
     if (key == CTRL_S_KEY)
     {
-        bool r = ( CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1) );
+        bool r = (CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1));
         processCommand(r ? FILE_OPERATION_SAVE_SCENE_FOCMD : FILE_OPERATION_KY);
     }
     if (key == CTRL_O_KEY)
@@ -553,7 +553,7 @@ void CFileOperations::keyPress(int key)
         processCommand(FILE_OPERATION_NEW_SCENE_FOCMD);
 }
 
-void CFileOperations::addMenu(VMenu *menu)
+void CFileOperations::addMenu(VMenu* menu)
 {
     bool fileOpOk =
         (App::currentWorld->simulation->isSimulationStopped()) && (GuiApp::getEditModeType() == NO_EDIT_MODE);
@@ -564,7 +564,7 @@ void CFileOperations::addMenu(VMenu *menu)
     bool justModelSelected = false;
     if (selItems == 1)
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
             App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
         justModelSelected = (obj != nullptr) && (obj->getModelBase());
     }
@@ -590,7 +590,7 @@ void CFileOperations::addMenu(VMenu *menu)
         if (recentScenes[i].length() > 3)
             recentScenesCnt++;
     }
-    VMenu *recentSceneMenu = new VMenu();
+    VMenu* recentSceneMenu = new VMenu();
     for (int i = 0; i < 10; i++)
     {
         if (recentScenes[i].length() > 3)
@@ -609,15 +609,15 @@ void CFileOperations::addMenu(VMenu *menu)
     if (CSimFlavor::getIntVal(2) != 0)
     {
         menu->appendMenuSeparator();
-        bool r = ( CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1) );
+        bool r = (CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1));
         menu->appendMenuItem(fileOpOk, false,
                              r ? FILE_OPERATION_SAVE_SCENE_FOCMD : FILE_OPERATION_KY,
                              IDS_SAVE_SCENE_MENU_ITEM);
-        VMenu *saveSceneMenu = new VMenu();
+        VMenu* saveSceneMenu = new VMenu();
         saveSceneMenu->appendMenuItem(fileOpOk, false,
                                       r ? FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD : FILE_OPERATION_KY,
                                       IDS_SCENE_AS_CSIM___MENU_ITEM);
-        VMenu *saveSceneAsXmlMenu = new VMenu();
+        VMenu* saveSceneAsXmlMenu = new VMenu();
         saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false,
                                            r ? FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD : FILE_OPERATION_KY,
                                            IDS_SCENE_AS_XML___MENU_ITEM);
@@ -627,7 +627,7 @@ void CFileOperations::addMenu(VMenu *menu)
         saveSceneMenu->appendMenuAndDetach(saveSceneAsXmlMenu, fileOpOk, IDS_SAVE_SCENE_AS_XML_MENU_ITEM);
         menu->appendMenuAndDetach(saveSceneMenu, fileOpOk, IDS_SAVE_SCENE_AS_MENU_ITEM);
 
-        VMenu *saveModelMenu = new VMenu();
+        VMenu* saveModelMenu = new VMenu();
         saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false,
                                       r ? FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD : FILE_OPERATION_KY,
                                       IDS_MODEL_AS_CSIM___MENU_ITEM);
@@ -640,13 +640,13 @@ void CFileOperations::addMenu(VMenu *menu)
     if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 1) || (CSimFlavor::getIntVal(2) == 2))
     {
         menu->appendMenuSeparator();
-        VMenu *impMenu = new VMenu();
+        VMenu* impMenu = new VMenu();
         impMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_IMPORT_MESH_FOCMD, IDS_IMPORT_MESH___MENU_ITEM);
         impMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD,
                                 (std::string(IDSN_IMPORT_HEIGHTFIELD) + "...").c_str());
         menu->appendMenuAndDetach(impMenu, true, IDSN_IMPORT_MENU_ITEM);
 
-        VMenu *expMenu = new VMenu();
+        VMenu* expMenu = new VMenu();
         expMenu->appendMenuItem(simStoppedOrPausedNoEditMode && (shapeNumber > 0), false,
                                 FILE_OPERATION_EXPORT_SHAPE_FOCMD, IDS_EXPORT_SELECTION_SHAPES_MENU_ITEM);
         expMenu->appendMenuItem(fileOpOk && (graphNumber != 0), false, FILE_OPERATION_EXPORT_GRAPHS_FOCMD,
@@ -854,12 +854,12 @@ bool CFileOperations::processCommand(int commandID)
 { // Return value is true if the command belonged to file menu and was executed
     if ((commandID > FILE_OPERATION_START_FOCMD) && (commandID < FILE_OPERATION_END_FOCMD))
     {
-        if ( (commandID == FILE_OPERATION_SAVE_SCENE_FOCMD) ||
-           (commandID == FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD) ||
-           (commandID == FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD) ||
-           (commandID == FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD) ||
-           (commandID == FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD) ||
-           (commandID == FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD) )
+        if ((commandID == FILE_OPERATION_SAVE_SCENE_FOCMD) ||
+            (commandID == FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD) ||
+            (commandID == FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD) ||
+            (commandID == FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD) ||
+            (commandID == FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD) ||
+            (commandID == FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD))
         {
             CSimFlavor::run(14);
         }
@@ -872,7 +872,7 @@ bool CFileOperations::processCommand(int commandID)
     return (false);
 }
 
-bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
+bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 {
     //-----------
     if (cmd.cmdId == FILE_OPERATION_NEW_SCENE_FOCMD)
@@ -1364,7 +1364,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                                 App::folders->getPathFromFull(filenamesAndPaths[i].c_str()).c_str());
                         files += filenamesAndPaths[i];
                     }
-                    CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+                    CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
                     stack->pushTextOntoStack(files.c_str());
                     App::worldContainer->sandboxScript->executeScriptString("simAssimp=require('simAssimp')", nullptr);
                     App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.importShapesDlg", stack);
@@ -1438,13 +1438,13 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                         App::folders->setImportExportPath(
                             App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
 
-                        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+                        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
                         stack->pushTextOntoStack(filenameAndPath.c_str());
                         stack->pushTableOntoStack();
                         int cnt = 1;
                         for (size_t i = 0; i < sel.size(); i++)
                         {
-                            CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
+                            CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
                             if (shape != nullptr)
                             {
                                 stack->pushInt32OntoStack(cnt++); // key or index
@@ -1494,7 +1494,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                     App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                     for (size_t i = 0; i < sel.size(); i++)
                     {
-                        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(sel[i]);
+                        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(sel[i]);
                         if (it != nullptr)
                             it->exportGraphData(ar);
                     }
@@ -1731,13 +1731,13 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
     return (false);
 }
 
-bool CFileOperations::_heightfieldImportRoutine(const char *pathName)
+bool CFileOperations::_heightfieldImportRoutine(const char* pathName)
 {
     if (VFile::doesFileExist(pathName))
     {
         try
         {
-            std::vector<std::vector<double> *> readData;
+            std::vector<std::vector<double>*> readData;
             // We read each line at a time, which gives rows:
             int minRow = -1;
 
@@ -1745,7 +1745,7 @@ bool CFileOperations::_heightfieldImportRoutine(const char *pathName)
             if ((ext.compare("csv") != 0) && (ext.compare("txt") != 0))
             { // from image file
                 int resX, resY, n;
-                unsigned char *data = CImageLoaderSaver::load(pathName, &resX, &resY, &n, 3);
+                unsigned char* data = CImageLoaderSaver::load(pathName, &resX, &resY, &n, 3);
                 if (data != nullptr)
                 {
                     if ((resX > 1) && (resY > 1))
@@ -1759,7 +1759,7 @@ bool CFileOperations::_heightfieldImportRoutine(const char *pathName)
                         {
                             for (int i = 0; i < resY; i++)
                             {
-                                std::vector<double> *lineVect = new std::vector<double>;
+                                std::vector<double>* lineVect = new std::vector<double>;
                                 for (int j = 0; j < resX; j++)
                                     lineVect->push_back(double(data[bytesPerPixel * (i * resX + j) + 0] +
                                                                data[bytesPerPixel * (i * resX + j) + 1] +
@@ -1786,7 +1786,7 @@ bool CFileOperations::_heightfieldImportRoutine(const char *pathName)
                 while (archive.readSingleLine(currentPos, line, false))
                 {
                     std::string word;
-                    std::vector<double> *lineVect = new std::vector<double>;
+                    std::vector<double>* lineVect = new std::vector<double>;
                     while (tt::extractCommaSeparatedWord(line, word))
                     {
                         tt::removeSpacesAtBeginningAndEnd(word);

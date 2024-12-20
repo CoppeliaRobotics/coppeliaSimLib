@@ -1,7 +1,7 @@
 #include <scriptCustomVariable.h>
 #include <app.h>
 
-CScriptCustomVariable::CScriptCustomVariable(const char *theFullVariableName, const char *theVariableValue,
+CScriptCustomVariable::CScriptCustomVariable(const char* theFullVariableName, const char* theVariableValue,
                                              int theVariableStackValue)
 {
     _variableName = _getVariableNameFromFull(theFullVariableName);
@@ -33,13 +33,13 @@ bool CScriptCustomVariable::getHasAutoCompletion() const
     return (_hasAutocompletion);
 }
 
-bool CScriptCustomVariable::isVariableNameSame(const char *fullName) const
+bool CScriptCustomVariable::isVariableNameSame(const char* fullName) const
 {
     std::string varName(_getVariableNameFromFull(fullName));
     return (_variableName.compare(varName) == 0);
 }
 
-bool CScriptCustomVariable::isPluginNameSame(const char *plugName) const
+bool CScriptCustomVariable::isPluginNameSame(const char* plugName) const
 {
     return (_pluginName.compare(plugName) == 0);
 }
@@ -49,7 +49,7 @@ bool CScriptCustomVariable::isDeprecated() const
     return (_isDeprecated);
 }
 
-bool CScriptCustomVariable::shouldBeDestroyed(const char *pluginName) const
+bool CScriptCustomVariable::shouldBeDestroyed(const char* pluginName) const
 {
     return (_pluginName.compare(pluginName) == 0);
 }
@@ -69,7 +69,7 @@ int CScriptCustomVariable::getVariableStackId() const
     return (_variableStackId);
 }
 
-std::string CScriptCustomVariable::_getVariableNameFromFull(const char *fullName) const
+std::string CScriptCustomVariable::_getVariableNameFromFull(const char* fullName) const
 {
     std::string f(fullName);
     size_t p = f.find('@');
@@ -79,7 +79,7 @@ std::string CScriptCustomVariable::_getVariableNameFromFull(const char *fullName
     return (subF);
 }
 
-std::string CScriptCustomVariable::_getPluginNameFromFull(const char *fullName) const
+std::string CScriptCustomVariable::_getPluginNameFromFull(const char* fullName) const
 {
     std::string f(fullName);
     size_t p = f.find('@');

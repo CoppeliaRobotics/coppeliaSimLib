@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <dummyRendering.h>
 #include <guiApp.h>
 
-void displayDummy(CDummy *dummy, CViewableBase *renderingObject, int displayAttrib)
+void displayDummy(CDummy* dummy, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(dummy, renderingObject);
@@ -53,7 +53,7 @@ void displayDummy(CDummy *dummy, CViewableBase *renderingObject, int displayAttr
             ogl::setMaterialColor(0.0f, 0.6f, 0.6f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f);
         else
             dummy->getDummyColor()->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
-        CDummy *linkedDummy = nullptr;
+        CDummy* linkedDummy = nullptr;
         if (dummy->getLinkedDummyHandle() != -1)
             linkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(dummy->getLinkedDummyHandle());
         ogl::drawSphere(dummy->getDummySize() / 2.0, 12, 6, false);

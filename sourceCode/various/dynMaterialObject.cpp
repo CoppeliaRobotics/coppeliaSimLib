@@ -53,7 +53,7 @@ void CDynMaterialObject::_setDefaultParameters()
     // ODE parameters:
     // ----------------------------------------------------
     _odeFloatParams.push_back(
-        0.71); // simi_ode_body_friction (box on 26.8deg inclined plane slightly slides (same mat. for box and plane)
+        0.71);                      // simi_ode_body_friction (box on 26.8deg inclined plane slightly slides (same mat. for box and plane)
     _odeFloatParams.push_back(0.2); // simi_ode_body_softerp
     _odeFloatParams.push_back(0.0); // simi_ode_body_softcfm
     _odeFloatParams.push_back(0.0); // simi_ode_body_lineardamping
@@ -161,14 +161,14 @@ void CDynMaterialObject::_setDefaultParameters()
     _mujocoFloatParams.push_back(1.0);    // simi_mujoco_body_adhesiongain
     _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_adhesionctrl
     _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_adhesionctrlrange1
-    _mujocoFloatParams.push_back(1000.0);    // simi_mujoco_body_adhesionctrlrange2
+    _mujocoFloatParams.push_back(1000.0); // simi_mujoco_body_adhesionctrlrange2
     _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_adhesionforcerange1
-    _mujocoFloatParams.push_back(1000.0);    // simi_mujoco_body_adhesionforcerange2
+    _mujocoFloatParams.push_back(1000.0); // simi_mujoco_body_adhesionforcerange2
     _mujocoFloatParams.push_back(0.0);    // simi_mujoco_body_gravcomp
 
     _mujocoIntParams.push_back(3); // simi_mujoco_body_condim
     _mujocoIntParams.push_back(0); // simi_mujoco_body_priority
-    int mujocoBitCoded = 0;  // bit0: simi_mujoco_body_adhesion
+    int mujocoBitCoded = 0;        // bit0: simi_mujoco_body_adhesion
     _mujocoIntParams.push_back(mujocoBitCoded);
     _mujocoIntParams.push_back(-1); // simi_mujoco_body_adhesionforcelimited to auto
     // ----------------------------------------------------
@@ -188,7 +188,7 @@ int CDynMaterialObject::getObjectID()
     return (_objectID);
 }
 
-void CDynMaterialObject::setObjectName(const char *newName)
+void CDynMaterialObject::setObjectName(const char* newName)
 {
     _objectName = newName;
 }
@@ -208,7 +208,7 @@ std::string CDynMaterialObject::getIndividualName()
     return ("<individual (i.e. not shared)>");
 }
 
-double CDynMaterialObject::getEngineFloatParam_old(int what, bool *ok)
+double CDynMaterialObject::getEngineFloatParam_old(int what, bool* ok)
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -239,7 +239,7 @@ double CDynMaterialObject::getEngineFloatParam_old(int what, bool *ok)
     return 0.0;
 }
 
-int CDynMaterialObject::getEngineIntParam_old(int what, bool *ok)
+int CDynMaterialObject::getEngineIntParam_old(int what, bool* ok)
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -256,7 +256,7 @@ int CDynMaterialObject::getEngineIntParam_old(int what, bool *ok)
     return 0;
 }
 
-bool CDynMaterialObject::getEngineBoolParam_old(int what, bool *ok)
+bool CDynMaterialObject::getEngineBoolParam_old(int what, bool* ok)
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -331,23 +331,23 @@ bool CDynMaterialObject::setEngineBoolParam_old(int what, bool v)
     return false;
 }
 
-void CDynMaterialObject::getVortexFloatParams(std::vector<double> &p)
+void CDynMaterialObject::getVortexFloatParams(std::vector<double>& p)
 {
     p.assign(_vortexFloatParams.begin(), _vortexFloatParams.end());
 }
 
-void CDynMaterialObject::getVortexIntParams(std::vector<int> &p)
+void CDynMaterialObject::getVortexIntParams(std::vector<int>& p)
 {
     _vortexIntParams[7] = _uniqueID;
     p.assign(_vortexIntParams.begin(), _vortexIntParams.end());
 }
 
-void CDynMaterialObject::getNewtonFloatParams(std::vector<double> &p)
+void CDynMaterialObject::getNewtonFloatParams(std::vector<double>& p)
 {
     p.assign(_newtonFloatParams.begin(), _newtonFloatParams.end());
 }
 
-void CDynMaterialObject::getNewtonIntParams(std::vector<int> &p)
+void CDynMaterialObject::getNewtonIntParams(std::vector<int>& p)
 {
     p.assign(_newtonIntParams.begin(), _newtonIntParams.end());
 }
@@ -488,9 +488,9 @@ void CDynMaterialObject::generateDefaultMaterial(int defMatId)
     }
 }
 
-CDynMaterialObject *CDynMaterialObject::copyYourself()
+CDynMaterialObject* CDynMaterialObject::copyYourself()
 {
-    CDynMaterialObject *newObj = new CDynMaterialObject();
+    CDynMaterialObject* newObj = new CDynMaterialObject();
     newObj->_objectID = _objectID;
     newObj->_objectName = _objectName;
 
@@ -513,7 +513,7 @@ CDynMaterialObject *CDynMaterialObject::copyYourself()
     return (newObj);
 }
 
-void CDynMaterialObject::serialize(CSer &ar)
+void CDynMaterialObject::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -1554,11 +1554,11 @@ std::string CDynMaterialObject::_enumToProperty(int oldEnum, int type, int& inde
             {
                 if (type == allProps_material[i].type)
                 {
-                    if ( (j > 0) || (allProps_material[i].oldEnums[j + 1] != -1) )
+                    if ((j > 0) || (allProps_material[i].oldEnums[j + 1] != -1))
                         indexWithArrays = int(j);
                     else
                         indexWithArrays = -1;
-                    retVal =  allProps_material[i].name;
+                    retVal = allProps_material[i].name;
                 }
                 break;
             }
@@ -1569,20 +1569,19 @@ std::string CDynMaterialObject::_enumToProperty(int oldEnum, int type, int& inde
     return retVal;
 }
 
-int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* eev/* = nullptr*/)
+int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex)
-    {
+    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex) {
         if ((pName == nullptr) || (propertyName == pName))
         {
             retVal = 1;
             int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
-            if ( (nv != arr[simiIndexBitCoded]) ||(pName == nullptr) )
+            if ((nv != arr[simiIndexBitCoded]) || (pName == nullptr))
             {
                 if (pName != nullptr)
                     arr[simiIndexBitCoded] = nv;
@@ -1614,7 +1613,7 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
     handleProp(propMaterial_newtonFastMoving.name, _newtonIntParams, simi_newton_body_bitcoded, simi_newton_body_fastmoving);
     handleProp(propMaterial_mujocoAdhesion.name, _mujocoIntParams, simi_mujoco_body_bitcoded, simi_mujoco_body_adhesion);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
+    if ((ev != nullptr) && (eev == nullptr))
         App::worldContainer->pushEvent();
     return retVal;
 }
@@ -1702,15 +1701,14 @@ int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState) const
     return retVal;
 }
 
-int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev/* = nullptr*/)
+int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex)
-    {
+    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex) {
         if ((pName == nullptr) || (propertyName == pName))
         {
             retVal = 1;
@@ -1742,7 +1740,7 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
     handleProp(propMaterial_mujocoPriority.name, _mujocoIntParams, simi_mujoco_body_priority);
     handleProp(propMaterial_mujocoAdhesionForcelimited.name, _mujocoIntParams, simi_mujoco_body_adhesionforcelimited);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
+    if ((ev != nullptr) && (eev == nullptr))
         App::worldContainer->pushEvent();
     return retVal;
 }
@@ -1810,15 +1808,14 @@ int CDynMaterialObject::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
-int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor* eev/* = nullptr*/)
+int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex)
-    {
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex) {
         if ((pName == nullptr) || (propertyName == pName))
         {
             retVal = 1;
@@ -1895,7 +1892,7 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
     handleProp(propMaterial_mujocoAdhesionCtrl.name, _mujocoFloatParams, simi_mujoco_body_adhesionctrl);
     handleProp(propMaterial_mujocoGravcomp.name, _mujocoFloatParams, simi_mujoco_body_gravcomp);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
+    if ((ev != nullptr) && (eev == nullptr))
         App::worldContainer->pushEvent();
     return retVal;
 }
@@ -2190,7 +2187,7 @@ int CDynMaterialObject::getFloatProperty(const char* pName, double& pState) cons
 
 void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
 {
-    if ( (_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled() )
+    if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
     {
         CCbor* ev = nullptr;
         if (eev != nullptr)
@@ -2200,7 +2197,7 @@ void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
         if (ev == nullptr)
             ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propMaterial_engineProperties.name, true);
         ev->appendKeyText(propMaterial_engineProperties.name, current.c_str());
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
     }
 }
@@ -2236,7 +2233,7 @@ int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState
     return retVal;
 }
 
-int CDynMaterialObject::setVector2Property(const char* pName, const double* pState, CCbor* eev/* = nullptr*/)
+int CDynMaterialObject::setVector2Property(const char* pName, const double* pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     std::string N;
@@ -2244,8 +2241,7 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
     if (eev != nullptr)
         ev = eev;
 
-    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
-    {
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
         if ((pName == nullptr) || (propertyName == pName))
         {
             retVal = 1;
@@ -2255,7 +2251,7 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
                 for (size_t i = 0; i < 2; i++)
                     pa = pa || (arr[simiIndex1 + i] != pState[i]);
             }
-            if ( (pName == nullptr) || pa )
+            if ((pName == nullptr) || pa)
             {
                 if (pName != nullptr)
                 {
@@ -2274,7 +2270,7 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
         }
     };
 
-    if ( (ev != nullptr) && (eev == nullptr) )
+    if ((ev != nullptr) && (eev == nullptr))
         App::worldContainer->pushEvent();
     return retVal;
 }
@@ -2286,7 +2282,7 @@ int CDynMaterialObject::getVector2Property(const char* pName, double* pState) co
     return retVal;
 }
 
-int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev/* = nullptr*/)
+int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     std::string N;
@@ -2294,8 +2290,7 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
     if (eev != nullptr)
         ev = eev;
 
-    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
-    {
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
         if ((pName == nullptr) || (propertyName == pName))
         {
             retVal = 1;
@@ -2305,7 +2300,7 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
                 for (size_t i = 0; i < 3; i++)
                     pa = pa || (arr[simiIndex1 + i] != pState->data[i]);
             }
-            if ( (pName == nullptr) || pa )
+            if ((pName == nullptr) || pa)
             {
                 if (pName != nullptr)
                 {
@@ -2326,7 +2321,7 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
 
     handleProp(propMaterial_vortexPrimaryAxisVector.name, _vortexFloatParams, simi_vortex_body_primaxisvectorx);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
+    if ((ev != nullptr) && (eev == nullptr))
         App::worldContainer->pushEvent();
     return retVal;
 }
@@ -2344,22 +2339,21 @@ int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState) 
     return retVal;
 }
 
-int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n)
-    {
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n) {
         if ((pName == nullptr) || (propertyName == pName))
         {
             retVal = 1;
             bool pa = false;
             for (size_t i = 0; i < n; i++)
                 pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
-            if ( (pName == nullptr) || pa )
+            if ((pName == nullptr) || pa)
             {
                 if (pName != nullptr)
                 {
@@ -2387,7 +2381,7 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v
     handleProp(propMaterial_mujocoAdhesionCtrlrange.name, _mujocoFloatParams, simi_mujoco_body_adhesionctrlrange1, 2);
     handleProp(propMaterial_mujocoAdhesionForcerange.name, _mujocoFloatParams, simi_mujoco_body_adhesionforcerange1, 2);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
+    if ((ev != nullptr) && (eev == nullptr))
         App::worldContainer->pushEvent();
     return retVal;
 }
@@ -2397,8 +2391,7 @@ int CDynMaterialObject::getFloatArrayProperty(const char* pName, std::vector<dou
     int retVal = -1;
     pState.clear();
 
-    auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n)
-    {
+    auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n) {
         retVal = 1;
         for (size_t i = 0; i < n; i++)
             pState.push_back(arr[simiIndex1 + i]);
@@ -2428,7 +2421,7 @@ int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_material.size(); i++)
     {
-        if ( (pName.size() == 0) || utils::startsWith(allProps_material[i].name, pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith(allProps_material[i].name, pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -2456,7 +2449,7 @@ int CDynMaterialObject::getPropertyInfo_static(const char* pName, int& info, std
         {
             retVal = allProps_material[i].type;
             info = allProps_material[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_material[i].infoTxt, "") != 0) )
+            if ((infoTxt == "") && (strcmp(allProps_material[i].infoTxt, "") != 0))
                 infoTxt = allProps_material[i].infoTxt;
             else
                 infoTxt = allProps_material[i].shortInfoTxt;

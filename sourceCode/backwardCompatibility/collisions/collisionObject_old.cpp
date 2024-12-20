@@ -63,8 +63,8 @@ void CCollisionObject_old::simulationAboutToStart()
 }
 
 void CCollisionObject_old::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
         setExplicitHandling(_initialExplicitHandling);
     _initialValuesInitialized = false;
@@ -85,7 +85,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
     theName = theName.append(" (");
     if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity1Handle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity1Handle);
         int t = it->getObjectType();
         if (t == sim_sceneobject_shape)
             theName += IDSN_SHAPE;
@@ -100,7 +100,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
     }
     else
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(_entity1Handle);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(_entity1Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -111,7 +111,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
     theName = theName.append(" - ");
     if (_entity2Handle > SIM_IDEND_SCENEOBJECT)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromHandle(_entity2Handle);
+        CCollection* it = App::currentWorld->collections->getObjectFromHandle(_entity2Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -123,7 +123,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
     {
         if (_entity2Handle != -1)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity2Handle);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity2Handle);
             int t = it->getObjectType();
             if (t == sim_sceneobject_shape)
                 theName += IDSN_SHAPE;
@@ -155,7 +155,7 @@ int CCollisionObject_old::getCollisionColor(int entityHandle) const
     // Here we need to check for the special case where object2ID==-1 (which means all other objects)
     if ((_entity2Handle == -1) && _collideeChangesColor && (entityHandle <= SIM_IDEND_SCENEOBJECT))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(entityHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entityHandle);
         if ((it != nullptr) && (it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_collidable))
         {
             if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
@@ -165,7 +165,7 @@ int CCollisionObject_old::getCollisionColor(int entityHandle) const
             }
             else
             {
-                std::vector<CSceneObject *> group1;
+                std::vector<CSceneObject*> group1;
                 App::currentWorld->collections->getCollidableObjectsFromCollection(_entity1Handle, group1);
                 bool isContained = false;
                 for (size_t i = 0; i < group1.size(); i++)
@@ -229,10 +229,10 @@ void CCollisionObject_old::clearCollisionResult()
     _clearCollisionResult();
 }
 
-bool CCollisionObject_old::setObjectName(const char *newName, bool check)
+bool CCollisionObject_old::setObjectName(const char* newName, bool check)
 { // Overridden from _CCollisionObject_
     std::string nnn;
-    CCollisionObject_old *it = nullptr;
+    CCollisionObject_old* it = nullptr;
     if (check)
         it = App::currentWorld->collisions_old->getObjectFromHandle(_objectHandle);
     if (it != this)
@@ -298,7 +298,7 @@ int CCollisionObject_old::readCollision(int collObjHandles[2]) const
     return (0); // was -1 until 16/6/2015
 }
 
-void CCollisionObject_old::performObjectLoadingMapping(const std::map<int, int> *map)
+void CCollisionObject_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
         _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);
@@ -306,7 +306,7 @@ void CCollisionObject_old::performObjectLoadingMapping(const std::map<int, int> 
         _entity2Handle = CWorld::getLoadingMapping(map, _entity2Handle);
 }
 
-void CCollisionObject_old::performCollectionLoadingMapping(const std::map<int, int> *map)
+void CCollisionObject_old::performCollectionLoadingMapping(const std::map<int, int>* map)
 {
     if (_entity1Handle > SIM_IDEND_SCENEOBJECT)
         _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);
@@ -314,9 +314,9 @@ void CCollisionObject_old::performCollectionLoadingMapping(const std::map<int, i
         _entity2Handle = CWorld::getLoadingMapping(map, _entity2Handle);
 }
 
-CCollisionObject_old *CCollisionObject_old::copyYourself()
+CCollisionObject_old* CCollisionObject_old::copyYourself()
 {
-    CCollisionObject_old *newCollObj = new CCollisionObject_old();
+    CCollisionObject_old* newCollObj = new CCollisionObject_old();
     newCollObj->_objectHandle = _objectHandle; // important for copy operations connections
     newCollObj->_entity1Handle = _entity1Handle;
     newCollObj->_entity2Handle = _entity2Handle;
@@ -334,7 +334,7 @@ CCollisionObject_old *CCollisionObject_old::copyYourself()
     return (newCollObj);
 }
 
-void CCollisionObject_old::serialize(CSer &ar)
+void CCollisionObject_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -453,7 +453,7 @@ void CCollisionObject_old::serialize(CSer &ar)
             ar.xmlPopNode();
 
             std::string str(
-                base64_encode((unsigned char *)_uniquePersistentIdString.c_str(), _uniquePersistentIdString.size()));
+                base64_encode((unsigned char*)_uniquePersistentIdString.c_str(), _uniquePersistentIdString.size()));
             ar.xmlAddNode_string("uniquePersistentIdString_base64Coded", str.c_str());
         }
         else
@@ -504,7 +504,7 @@ void CCollisionObject_old::_clearCollisionResult()
 }
 
 void CCollisionObject_old::_setCollisionResult(bool result, int calcTime, int obj1Handle, int obj2Handle,
-                                               const std::vector<double> &intersect)
+                                               const std::vector<double>& intersect)
 {
     _collisionResult = result;
     _collisionResultValid = true;
@@ -574,12 +574,12 @@ int CCollisionObject_old::getContourWidth() const
     return (_countourWidth);
 }
 
-const std::vector<double> *CCollisionObject_old::getIntersections() const
+const std::vector<double>* CCollisionObject_old::getIntersections() const
 {
     return (&_intersections);
 }
 
-CColorObject *CCollisionObject_old::getContourColor()
+CColorObject* CCollisionObject_old::getContourColor()
 {
     return (&_contourColor);
 }
@@ -633,7 +633,7 @@ bool CCollisionObject_old::setContourWidth(int w)
     return (diff);
 }
 
-bool CCollisionObject_old::setIntersections(const std::vector<double> *intersections)
+bool CCollisionObject_old::setIntersections(const std::vector<double>* intersections)
 {
     bool diff = false;
     if (intersections == nullptr)

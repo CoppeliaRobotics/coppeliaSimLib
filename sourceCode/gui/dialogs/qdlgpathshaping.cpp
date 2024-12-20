@@ -9,7 +9,8 @@
 
 bool CQDlgPathShaping::showWindow = false;
 
-CQDlgPathShaping::CQDlgPathShaping(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgPathShaping)
+CQDlgPathShaping::CQDlgPathShaping(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgPathShaping)
 {
     _dlgType = PATH_SHAPING_DLG;
     ui->setupUi(this);
@@ -36,7 +37,7 @@ void CQDlgPathShaping::refresh()
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
     int sectionType = 0;
-    CPath_old *it = App::currentWorld->sceneObjects->getLastSelectionPath();
+    CPath_old* it = App::currentWorld->sceneObjects->getLastSelectionPath();
     bool en = false;
     if (it != nullptr)
     {
@@ -253,7 +254,7 @@ void CQDlgPathShaping::on_qqCoordinates_textChanged()
     }
 }
 
-bool CQDlgPathShaping::_extractOneFloat(std::string &txt, double &val)
+bool CQDlgPathShaping::_extractOneFloat(std::string& txt, double& val)
 {
     if (txt == "")
         return (false);

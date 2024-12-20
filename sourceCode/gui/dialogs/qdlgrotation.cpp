@@ -16,7 +16,8 @@ int CQDlgRotation::manipulationRotationRelativeTo;
 double CQDlgRotation::manipulationRotationStepSize;
 bool CQDlgRotation::objectRotationSettingsLocked;
 
-CQDlgRotation::CQDlgRotation(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgRotation)
+CQDlgRotation::CQDlgRotation(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgRotation)
 {
     ui->setupUi(this);
     lastLastSelectionID = -1;
@@ -35,7 +36,7 @@ void CQDlgRotation::cancelEvent()
 
 void CQDlgRotation::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     int editMode = GuiApp::getEditModeType();
     int lastSelID = App::currentWorld->sceneObjects->getLastSelectionHandle();
     lastLastSelectionID = lastSelID;
@@ -48,7 +49,7 @@ void CQDlgRotation::refresh()
         bool bigSel = (App::currentWorld->sceneObjects->getSelectionCount() > 1);
         _enableCoordinatePart(sel, bigSel, true);
         _enableTransformationPart(sel, sel, true);
-        CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (sel && (object != nullptr))
         {
             // Coordinate part:
@@ -172,7 +173,7 @@ void CQDlgRotation::refresh()
                 ui->qqTransfWorld->setEnabled(sel);
                 ui->qqTransfParent->setEnabled(sel);
                 ui->qqTransfOwn->setEnabled(false);
-                CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+                CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 if (sel && (shape != nullptr))
                 {
                     // Coordinate part:
@@ -197,9 +198,9 @@ void CQDlgRotation::refresh()
                 _enableTransformationPart(sel, sel, true);
                 if (sel)
                 {
-                    CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+                    CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
                     int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
-                    CSimplePathPoint_old *pp =
+                    CSimplePathPoint_old* pp =
                         GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPoint(ind);
                     if (sel && (path != nullptr) && (pp != nullptr))
                     {
@@ -302,7 +303,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
 {
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+    CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr))
     {
         C7Vector tr;
@@ -323,10 +324,10 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
     if ((editMode & PATH_EDIT_MODE_OLD) && (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0) &&
         (GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old() != nullptr))
     {
-        CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
         int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
-        CSimplePathPoint_old *pp = pathCont->getSimplePathPoint(ind);
-        CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+        CSimplePathPoint_old* pp = pathCont->getSimplePathPoint(ind);
+        CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ((pp != nullptr) && (path != nullptr))
         {
             C7Vector tr(pp->getTransformation());
@@ -346,7 +347,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
     {
         int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
         C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
             C7Vector tr;
@@ -364,7 +365,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
     return (retVal);
 }
 
-C7Vector CQDlgRotation::_getNewTransf(const C7Vector &transf, double newValueInUserUnit, int index)
+C7Vector CQDlgRotation::_getNewTransf(const C7Vector& transf, double newValueInUserUnit, int index)
 {
     C7Vector retVal(transf);
     C3Vector euler(retVal.Q.getEulerAngles());
@@ -377,7 +378,7 @@ bool CQDlgRotation::_applyCoord()
 {
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+    CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
     size_t objSelSize = App::currentWorld->sceneObjects->getSelectionCount();
     int editObjSelSize = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr) && (objSelSize > 1))
@@ -395,10 +396,10 @@ bool CQDlgRotation::_applyCoord()
     if ((editMode & PATH_EDIT_MODE_OLD) && (editObjSelSize > 1) &&
         (GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old() != nullptr))
     {
-        CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
         int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
-        CSimplePathPoint_old *pp = pathCont->getSimplePathPoint(ind);
-        CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+        CSimplePathPoint_old* pp = pathCont->getSimplePathPoint(ind);
+        CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ((pp != nullptr) && (path != nullptr))
         {
             C7Vector tr(pp->getTransformation());
@@ -406,7 +407,7 @@ bool CQDlgRotation::_applyCoord()
                 tr = path->getCumulativeTransformation() * tr;
             for (int i = 0; i < editObjSelSize - 1; i++)
             {
-                CSimplePathPoint_old *ppIt =
+                CSimplePathPoint_old* ppIt =
                     GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
                 if (ppIt != nullptr)
                 {
@@ -427,7 +428,7 @@ bool CQDlgRotation::_applyCoord()
     {
         int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
         C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
             C7Vector tr;
@@ -486,11 +487,11 @@ bool CQDlgRotation::_applyTransformation(int axis)
     if ((editMode & PATH_EDIT_MODE_OLD) && (editObjSelSize > 0) &&
         (GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old() != nullptr))
     {
-        CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
-        CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+        CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         for (int i = 0; i < editObjSelSize; i++)
         {
-            CSimplePathPoint_old *pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
+            CSimplePathPoint_old* pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
             if ((pp != nullptr) && (path != nullptr))
             {
                 C7Vector tr(pp->getTransformation());
@@ -507,7 +508,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
     }
     if ((editMode & VERTEX_EDIT_MODE) && (editObjSelSize > 0))
     {
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
             for (int i = 0; i < editObjSelSize; i++)
@@ -529,7 +530,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
     return (retVal);
 }
 
-void CQDlgRotation::_transform(C7Vector &tr, bool self, int axis)
+void CQDlgRotation::_transform(C7Vector& tr, bool self, int axis)
 { // axis: 0-2, or -1 for all axes
     double TX[3] = {0.0, 0.0, 0.0};
     if (axis == -1)
@@ -777,7 +778,7 @@ void CQDlgRotation::on_qqOrA_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -794,7 +795,7 @@ void CQDlgRotation::on_qqOrB_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -811,7 +812,7 @@ void CQDlgRotation::on_qqOrG_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -836,12 +837,12 @@ void CQDlgRotation::on_qqOrCombo_activated(int index)
     }
 }
 
-void CQDlgRotation::_selectItemOfCombobox(QComboBox *theBox, int itemData)
+void CQDlgRotation::_selectItemOfCombobox(QComboBox* theBox, int itemData)
 {
     theBox->setCurrentIndex(_getIndexOfComboboxItemWithData(theBox, itemData));
 }
 
-int CQDlgRotation::_getIndexOfComboboxItemWithData(QComboBox *theBox, int itemData)
+int CQDlgRotation::_getIndexOfComboboxItemWithData(QComboBox* theBox, int itemData)
 {
     for (int i = 0; i < theBox->count(); i++)
     {

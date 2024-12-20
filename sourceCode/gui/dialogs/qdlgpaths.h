@@ -15,7 +15,7 @@ class CQDlgPaths : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgPaths(QWidget *parent = 0);
+    explicit CQDlgPaths(QWidget* parent = 0);
     ~CQDlgPaths();
 
     void refresh();
@@ -24,8 +24,8 @@ class CQDlgPaths : public CDlgEx
 
     bool inMainRefreshRoutine;
 
-    CPathCont_old *getPathCont();
-    CPath_old *getPath();
+    CPathCont_old* getPathCont();
+    CPath_old* getPath();
 
   private slots:
     void on_qqShowOrientation_clicked();
@@ -49,7 +49,7 @@ class CQDlgPaths : public CDlgEx
     void on_qqCreateEquivalentObject_clicked();
 
   private:
-    Ui::CQDlgPaths *ui;
+    Ui::CQDlgPaths* ui;
 };
 
 #endif // QDLGPATHS_H

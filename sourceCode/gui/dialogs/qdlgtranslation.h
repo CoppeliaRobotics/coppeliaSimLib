@@ -17,7 +17,7 @@ class CQDlgTranslation : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgTranslation(QWidget *parent = 0);
+    explicit CQDlgTranslation(QWidget* parent = 0);
     ~CQDlgTranslation();
 
     void refresh();
@@ -37,15 +37,15 @@ class CQDlgTranslation : public CDlgEx
 
     // Coord part
     bool _setCoord_userUnit(double newValueInUserUnit, int index);
-    C7Vector _getNewTransf(const C7Vector &transf, double newValueInUserUnit, int index);
+    C7Vector _getNewTransf(const C7Vector& transf, double newValueInUserUnit, int index);
     bool _applyCoord(int mask);
-    void _copyTransf(const C7Vector &tr, C7Vector &trIt, int mask);
+    void _copyTransf(const C7Vector& tr, C7Vector& trIt, int mask);
 
     // Transf part
     bool _applyTranslation(int axis);
     bool _applyScaling(int axis);
-    void _transformTranslation(C7Vector &tr, bool self, int axis);
-    void _transformScaling(C7Vector &tr, int axis);
+    void _transformTranslation(C7Vector& tr, bool self, int axis);
+    void _transformScaling(C7Vector& tr, int axis);
 
     static int coordMode; // 0=abs,1=rel to parent
     static double translationValues[3];
@@ -131,10 +131,10 @@ class CQDlgTranslation : public CDlgEx
     void on_qqPosCombo_activated(int index);
 
   private:
-    Ui::CQDlgTranslation *ui;
+    Ui::CQDlgTranslation* ui;
 
-    void _selectItemOfCombobox(QComboBox *theBox, int itemData);
-    int _getIndexOfComboboxItemWithData(QComboBox *theBox, int itemData);
+    void _selectItemOfCombobox(QComboBox* theBox, int itemData);
+    int _getIndexOfComboboxItemWithData(QComboBox* theBox, int itemData);
 };
 
 #endif // QDLGTRANSLATION_H

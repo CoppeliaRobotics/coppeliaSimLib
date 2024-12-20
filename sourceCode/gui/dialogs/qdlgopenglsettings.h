@@ -14,7 +14,7 @@ class CQDlgOpenGlSettings : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgOpenGlSettings(QWidget *parent = 0);
+    explicit CQDlgOpenGlSettings(QWidget* parent = 0);
     ~CQDlgOpenGlSettings();
 
     void cancelEvent();
@@ -75,7 +75,7 @@ class CQDlgOpenGlSettings : public VDialog
     void on_qqVboEnabled_clicked();
 
   private:
-    Ui::CQDlgOpenGlSettings *ui;
+    Ui::CQDlgOpenGlSettings* ui;
 };
 
 #endif // QDLGOPENGLSETTINGS_H

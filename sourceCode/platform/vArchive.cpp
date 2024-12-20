@@ -3,7 +3,7 @@
 unsigned short VArchive::LOAD = 0;
 unsigned short VArchive::STORE = 1;
 
-VArchive::VArchive(VFile *file, unsigned short flag)
+VArchive::VArchive(VFile* file, unsigned short flag)
 {
     _theFile = file;
     _loading = ((flag & 1) == 0);
@@ -18,20 +18,20 @@ VArchive::~VArchive()
     delete _theArchive;
 }
 
-void VArchive::writeString(const std::string &str)
+void VArchive::writeString(const std::string& str)
 {
     for (size_t i = 0; i < str.length(); i++)
         (*this) << str[i];
 }
 
-void VArchive::writeLine(const std::string &line)
+void VArchive::writeLine(const std::string& line)
 {
     writeString(line);
     (*this) << char(13);
     (*this) << char(10);
 }
 
-bool VArchive::readSingleLine(unsigned int &actualPosition, std::string &line, bool doNotReplaceTabsWithOneSpace)
+bool VArchive::readSingleLine(unsigned int& actualPosition, std::string& line, bool doNotReplaceTabsWithOneSpace)
 {
     unsigned int archiveLength = (unsigned int)_theFile->getLength();
     unsigned char oneByte;
@@ -53,8 +53,8 @@ bool VArchive::readSingleLine(unsigned int &actualPosition, std::string &line, b
     return (line.length() != 0);
 }
 
-bool VArchive::readMultiLine(unsigned int &actualPosition, std::string &line, bool doNotReplaceTabsWithOneSpace,
-                             const char *multilineSeparator)
+bool VArchive::readMultiLine(unsigned int& actualPosition, std::string& line, bool doNotReplaceTabsWithOneSpace,
+                             const char* multilineSeparator)
 {
     line = "";
     while (true)
@@ -78,7 +78,7 @@ bool VArchive::readMultiLine(unsigned int &actualPosition, std::string &line, bo
     }
 }
 
-VFile *VArchive::getFile()
+VFile* VArchive::getFile()
 {
     return (_theFile);
 }

@@ -15,11 +15,11 @@ class CQDlgOldScripts : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgOldScripts(QWidget *parent = 0);
+    explicit CQDlgOldScripts(QWidget* parent = 0);
     ~CQDlgOldScripts();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
     void updateObjectsInList();
     int getSelectedObjectID();
@@ -35,7 +35,7 @@ class CQDlgOldScripts : public CDlgEx
 
     void on_qqScriptList_itemSelectionChanged();
 
-    void on_qqScriptList_itemDoubleClicked(QListWidgetItem *item);
+    void on_qqScriptList_itemDoubleClicked(QListWidgetItem* item);
 
     void on_qqDisabled_clicked();
 
@@ -46,7 +46,7 @@ class CQDlgOldScripts : public CDlgEx
     void on_qqCombo_currentIndexChanged(int index);
 
   private:
-    Ui::CQDlgOldScripts *ui;
+    Ui::CQDlgOldScripts* ui;
 };
 
 #endif // QDLGOLDSCRIPTS_H

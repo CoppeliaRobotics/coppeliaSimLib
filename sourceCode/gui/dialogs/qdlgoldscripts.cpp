@@ -10,16 +10,17 @@
 
 int CQDlgOldScripts::scriptViewMode = 0;
 
-CQDlgOldScripts::CQDlgOldScripts(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgOldScripts)
+CQDlgOldScripts::CQDlgOldScripts(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgOldScripts)
 {
     _dlgType = OLD_LUA_SCRIPT_DLG;
     ui->setupUi(this);
     inSelectionRoutine = false;
     rebuildingRoutine = false;
     inMainRefreshRoutine = false;
-    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+    QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    QShortcut *shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
+    QShortcut* shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(shortcut2, SIGNAL(activated()), this, SLOT(onDeletePressed()));
 }
 
@@ -28,7 +29,7 @@ CQDlgOldScripts::~CQDlgOldScripts()
     delete ui;
 }
 
-void CQDlgOldScripts::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CQDlgOldScripts::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     if ((cmdIn != nullptr) && (cmdIn->intParams[0] == _dlgType))
     {
@@ -58,8 +59,8 @@ void CQDlgOldScripts::refresh()
 
     ui->qqExecutionOrder->clear();
 
-    CScriptObject *theScript = App::worldContainer->getScriptObjectFromHandle(getSelectedObjectID());
-    CSceneObject *associatedObject = nullptr;
+    CScriptObject* theScript = App::worldContainer->getScriptObjectFromHandle(getSelectedObjectID());
+    CSceneObject* associatedObject = nullptr;
     if (theScript != nullptr)
         associatedObject = App::currentWorld->sceneObjects->getObjectFromHandle(
             App::currentWorld->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(theScript->getScriptHandle()));
@@ -101,12 +102,12 @@ void CQDlgOldScripts::updateObjectsInList()
 
     if (scriptViewMode == 0)
     { // Main and simulation scripts
-        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
         {
             std::string tmp = it->getDescriptiveName();
             int id = it->getScriptHandle();
-            QListWidgetItem *itm = new QListWidgetItem(tmp.c_str());
+            QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
             itm->setData(Qt::UserRole, QVariant(id));
             itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
             itm->setForeground(QColor(255, 128, 128)); // RED
@@ -120,7 +121,7 @@ void CQDlgOldScripts::updateObjectsInList()
             {
                 std::string tmp = it->getDescriptiveName();
                 int id = it->getScriptHandle();
-                QListWidgetItem *itm = new QListWidgetItem(tmp.c_str());
+                QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole, QVariant(id));
                 itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
                 if (it->getThreadedExecution_oldThreads())
@@ -136,13 +137,13 @@ void CQDlgOldScripts::updateObjectsInList()
     { // Customization scripts
         for (int i = 0; i < int(App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts.size()); i++)
         {
-            CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i];
+            CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i];
             int t = it->getScriptType();
             if (t == sim_scripttype_customization)
             {
                 std::string tmp = it->getDescriptiveName();
                 int id = it->getScriptHandle();
-                QListWidgetItem *itm = new QListWidgetItem(tmp.c_str());
+                QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole, QVariant(id));
                 itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
                 itm->setForeground(QColor(128, 128, 128)); // GREY
@@ -156,7 +157,7 @@ void CQDlgOldScripts::updateObjectsInList()
 
 int CQDlgOldScripts::getSelectedObjectID()
 {
-    QList<QListWidgetItem *> sel = ui->qqScriptList->selectedItems();
+    QList<QListWidgetItem*> sel = ui->qqScriptList->selectedItems();
     if (sel.size() > 0)
         return (sel.at(0)->data(Qt::UserRole).toInt());
     return (-1);
@@ -166,7 +167,7 @@ void CQDlgOldScripts::selectObjectInList(int objectID)
 {
     for (int i = 0; i < ui->qqScriptList->count(); i++)
     {
-        QListWidgetItem *it = ui->qqScriptList->item(i);
+        QListWidgetItem* it = ui->qqScriptList->item(i);
         if (it != nullptr)
         {
             if (it->data(Qt::UserRole).toInt() == objectID)
@@ -203,13 +204,13 @@ void CQDlgOldScripts::on_qqScriptList_itemSelectionChanged()
     }
 }
 
-void CQDlgOldScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
+void CQDlgOldScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem* item)
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         if ((item != nullptr) && App::currentWorld->simulation->isSimulationStopped())
         {
-            CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(item->data(Qt::UserRole).toInt());
+            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(item->data(Qt::UserRole).toInt());
             if (it != nullptr)
             {
                 // Process the command via the simulation thread (delayed):

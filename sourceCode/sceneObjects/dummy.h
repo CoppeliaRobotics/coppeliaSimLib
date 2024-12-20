@@ -5,7 +5,8 @@
 #include <simMath/7Vector.h>
 #include <sceneObject.h>
 
-struct SDummyProperty {
+struct SDummyProperty
+{
     const char* name;
     int type;
     int flags;
@@ -16,27 +17,27 @@ struct SDummyProperty {
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propDummy_size,                    "dummySize",                                sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Size", "Dummy size") \
-    FUNCX(propDummy_linkedDummyHandle,       "linkedDummyHandle",                        sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Linked dummy", "Handle of the linked dummy") \
-    FUNCX(propDummy_dummyType,               "dummyType",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Type", "Dummy type") \
-    FUNCX(propDummy_assemblyTag,             "assemblyTag",                              sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Assembly tag", "") \
-    FUNCX(propDummy_engineProperties,        "engineProperties",                         sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text") \
-    FUNCX(propDummy_mujocoLimitsEnabled,     "mujoco.limitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoLimitsRange,       "mujoco.limitsRange",                        sim_propertytype_floatarray,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoLimitsSolref,      "mujoco.limitsSolref",                       sim_propertytype_floatarray,    0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoLimitsSolimp,      "mujoco.limitsSolimp",                       sim_propertytype_floatarray,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5, "", "") \
-    FUNCX(propDummy_mujocoMargin,            "mujoco.margin",                             sim_propertytype_float,     0, sim_mujoco_dummy_margin, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoSpringStiffness,   "mujoco.springStiffness",                    sim_propertytype_float,     0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoSpringDamping,     "mujoco.springDamping",                      sim_propertytype_float,     0, sim_mujoco_dummy_damping, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoSpringLength,      "mujoco.springLength",                       sim_propertytype_float,     0, sim_mujoco_dummy_springlength, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoJointProxyHandle,  "mujoco.jointProxyHandle",                   sim_propertytype_int,       0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "Joint proxy", "Handle of the joint proxy (MuJoCo only)") \
+#define DEFINE_PROPERTIES                                                                                                                                                                                                                                         \
+    FUNCX(propDummy_size, "dummySize", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "Size", "Dummy size")                                                                                                                                                       \
+    FUNCX(propDummy_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, 0, -1, -1, -1, -1, -1, "Linked dummy", "Handle of the linked dummy")                                                                                                            \
+    FUNCX(propDummy_dummyType, "dummyType", sim_propertytype_int, 0, -1, -1, -1, -1, -1, "Type", "Dummy type")                                                                                                                                                    \
+    FUNCX(propDummy_assemblyTag, "assemblyTag", sim_propertytype_string, 0, -1, -1, -1, -1, -1, "Assembly tag", "")                                                                                                                                               \
+    FUNCX(propDummy_engineProperties, "engineProperties", sim_propertytype_string, 0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text")                                                                                                  \
+    FUNCX(propDummy_mujocoLimitsEnabled, "mujoco.limitsEnabled", sim_propertytype_bool, 0, sim_mujoco_dummy_limited, -1, -1, -1, -1, "", "")                                                                                                                      \
+    FUNCX(propDummy_mujocoLimitsRange, "mujoco.limitsRange", sim_propertytype_floatarray, 0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1, "", "")                                                                                                \
+    FUNCX(propDummy_mujocoLimitsSolref, "mujoco.limitsSolref", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1, "", "")                                                                                  \
+    FUNCX(propDummy_mujocoLimitsSolimp, "mujoco.limitsSolimp", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5, "", "") \
+    FUNCX(propDummy_mujocoMargin, "mujoco.margin", sim_propertytype_float, 0, sim_mujoco_dummy_margin, -1, -1, -1, -1, "", "")                                                                                                                                    \
+    FUNCX(propDummy_mujocoSpringStiffness, "mujoco.springStiffness", sim_propertytype_float, 0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1, "", "")                                                                                                               \
+    FUNCX(propDummy_mujocoSpringDamping, "mujoco.springDamping", sim_propertytype_float, 0, sim_mujoco_dummy_damping, -1, -1, -1, -1, "", "")                                                                                                                     \
+    FUNCX(propDummy_mujocoSpringLength, "mujoco.springLength", sim_propertytype_float, 0, sim_mujoco_dummy_springlength, -1, -1, -1, -1, "", "")                                                                                                                  \
+    FUNCX(propDummy_mujocoJointProxyHandle, "mujoco.jointProxyHandle", sim_propertytype_int, 0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "Joint proxy", "Handle of the joint proxy (MuJoCo only)")
 
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
-const std::vector<SDummyProperty> allProps_dummy = { DEFINE_PROPERTIES };
+const std::vector<SDummyProperty> allProps_dummy = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -79,20 +80,20 @@ class CDummy : public CSceneObject
     void connect_oldIk();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer &ar);
+    void serialize(CSer& ar);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -102,9 +103,9 @@ class CDummy : public CSceneObject
     bool isPotentiallyCollidable() const;
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
     void setIsInScene(bool s);
 
     int setBoolProperty(const char* pName, bool pState, CCbor* eev = nullptr);
@@ -142,27 +143,27 @@ class CDummy : public CSceneObject
     int getDummyType() const;
     std::string getAssemblyTag() const;
 
-    CColorObject *getDummyColor();
-    void loadUnknownObjectType(CSer &ar);
+    CColorObject* getDummyColor();
+    void loadUnknownObjectType(CSer& ar);
 
     bool setAssignedToParentPath(bool assigned);
     bool setAssignedToParentPathOrientation(bool assigned);
     void setLinkedDummyHandle(int handle, bool check);
     bool setDummyType(int lt, bool check);
     void setDummySize(double s);
-    void setAssemblyTag(const char *tag);
+    void setAssemblyTag(const char* tag);
     void setFreeOnPathTrajectory(bool isFree);
     void setVirtualDistanceOffsetOnPath(double off);
     void setVirtualDistanceOffsetOnPath_variationWhenCopy(double off);
 
-    double getEngineFloatParam_old(int what, bool *ok) const;
-    int getEngineIntParam_old(int what, bool *ok) const;
-    bool getEngineBoolParam_old(int what, bool *ok) const;
+    double getEngineFloatParam_old(int what, bool* ok) const;
+    int getEngineIntParam_old(int what, bool* ok) const;
+    bool getEngineBoolParam_old(int what, bool* ok) const;
     bool setEngineFloatParam_old(int what, double v);
     bool setEngineIntParam_old(int what, int v);
     bool setEngineBoolParam_old(int what, bool v);
 
-    void copyEnginePropertiesTo(CDummy *target);
+    void copyEnginePropertiesTo(CDummy* target);
 
   protected:
     void _sendEngineString(CCbor* eev = nullptr);
@@ -191,6 +192,6 @@ class CDummy : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib);
 #endif
 };

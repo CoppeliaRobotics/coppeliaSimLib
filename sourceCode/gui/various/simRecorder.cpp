@@ -13,7 +13,7 @@
 #include <guiApp.h>
 #endif
 
-CSimRecorder::CSimRecorder(const char *initialPath)
+CSimRecorder::CSimRecorder(const char* initialPath)
 {
     _isRecording = false;
     _recorderEnabled = false;
@@ -111,7 +111,7 @@ void CSimRecorder::setRecordingSizeChanged(int newXsize, int newYsize)
     _resolutionInfo[1] = newYsize;
 }
 
-void CSimRecorder::getRecordingSize(int &x, int &y)
+void CSimRecorder::getRecordingSize(int& x, int& y)
 {
     x = _resolutionInfo[0];
     y = _resolutionInfo[1];
@@ -155,7 +155,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX, int resY, int posX, int posY)
 
                     if (_recordDesktopInstead)
                     {
-                        QList<QScreen *> screens = QGuiApplication::screens();
+                        QList<QScreen*> screens = QGuiApplication::screens();
                         int screenIndex = 0;
                         if ((App::userSettings->desktopRecordingIndex >= 0) &&
                             (App::userSettings->desktopRecordingIndex < screens.size()))
@@ -229,7 +229,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX, int resY, int posX, int posY)
                 { // Ok to record:
                     if (_recordDesktopInstead)
                     {
-                        QList<QScreen *> screens = QGuiApplication::screens();
+                        QList<QScreen*> screens = QGuiApplication::screens();
                         int screenIndex = 0;
                         if ((App::userSettings->desktopRecordingIndex >= 0) &&
                             (App::userSettings->desktopRecordingIndex < screens.size()))
@@ -416,18 +416,18 @@ bool CSimRecorder::getDesktopRecording() const
     return (_recordDesktopInstead);
 }
 
-void CSimRecorder::setPath(const char *path)
+void CSimRecorder::setPath(const char* path)
 {
     _path = std::string(path);
     _pathAndFilename = "";
 }
 
-void CSimRecorder::setPathAndFilename(const char *pathAndF)
+void CSimRecorder::setPathAndFilename(const char* pathAndF)
 { // when set via API
     _pathAndFilename = std::string(pathAndF);
 }
 
-std::string CSimRecorder::getPath(char *userSet)
+std::string CSimRecorder::getPath(char* userSet)
 {
     if (_pathAndFilename.length() > 0)
     {

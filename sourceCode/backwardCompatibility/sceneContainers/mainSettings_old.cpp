@@ -37,7 +37,7 @@ void CMainSettings::setUpDefaultValues()
     forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers = false;
 }
 
-void CMainSettings::serialize(CSer &ar)
+void CMainSettings::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -74,7 +74,7 @@ void CMainSettings::serialize(CSer &ar)
             ar.flush();
 
             ar.storeDataName("Al2"); // Kept for backward compatibility
-            ar << (unsigned short) App::currentWorld->environment->getActiveLayers();
+            ar << (unsigned short)App::currentWorld->environment->getActiveLayers();
             ar.flush();
 
             ar.storeDataName("Iwc");

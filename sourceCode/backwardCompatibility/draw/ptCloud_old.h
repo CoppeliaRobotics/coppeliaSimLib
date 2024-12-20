@@ -7,8 +7,8 @@ class CPtCloud_old
 {
   public:
     CPtCloud_old(int pageMask, int layerMask, int parentHandle, int options, double pointSize, int ptCnt,
-                 const double *vertices, const unsigned char *colors, const double *normals,
-                 const unsigned char *defaultColors);
+                 const double* vertices, const unsigned char* colors, const double* normals,
+                 const unsigned char* defaultColors);
     virtual ~CPtCloud_old();
 
     bool isPersistent() const;

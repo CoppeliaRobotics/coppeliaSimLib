@@ -21,4 +21,4 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void displayThumbnail(CThumbnail *thumbnail, int posX, int posY, const char *name, int sc);
+void displayThumbnail(CThumbnail* thumbnail, int posX, int posY, const char* name, int sc);

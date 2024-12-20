@@ -6,7 +6,7 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgEntityVsEntitySelection::CQDlgEntityVsEntitySelection(QWidget *parent)
+CQDlgEntityVsEntitySelection::CQDlgEntityVsEntitySelection(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgEntityVsEntitySelection)
 {
     ui->setupUi(this);
@@ -65,7 +65,7 @@ void CQDlgEntityVsEntitySelection::on_qqOkCancel_rejected()
     }
 }
 
-void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *combo, bool insertAllAtBeginning)
+void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* combo, bool insertAllAtBeginning)
 {
     combo->clear();
     if (insertAllAtBeginning)
@@ -77,7 +77,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     // Now collections:
     for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromIndex(i);
+        CCollection* it = App::currentWorld->collections->getObjectFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_COLLECTION, "] "));
         name += it->getCollectionName();
         names.push_back(name);
@@ -93,7 +93,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     // Now shapes:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_SHAPE, "] "));
         name += it->getObjectAlias_printPath();
         names.push_back(name);
@@ -109,7 +109,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     // Now Octrees:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_octree); i++)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromIndex(i);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_OCTREE, "] "));
         name += it->getObjectAlias_printPath();
         names.push_back(name);
@@ -125,7 +125,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     // Now Point clouds:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_pointcloud); i++)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_POINTCLOUD, "] "));
         name += it->getObjectAlias_printPath();
         names.push_back(name);
@@ -141,7 +141,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     // Now dummies:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_DUMMY, "] "));
         name += it->getObjectAlias_printPath();
         names.push_back(name);
@@ -155,7 +155,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 }
 
-void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *combo, bool insertAllAtBeginning)
+void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* combo, bool insertAllAtBeginning)
 {
     combo->clear();
     if (insertAllAtBeginning)
@@ -167,7 +167,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     // Now collections:
     for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
     {
-        CCollection *it = App::currentWorld->collections->getObjectFromIndex(i);
+        CCollection* it = App::currentWorld->collections->getObjectFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_COLLECTION, "] "));
         name += it->getCollectionName();
         names.push_back(name);
@@ -183,7 +183,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     // Now shapes:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_SHAPE, "] "));
         name += it->getObjectAlias_printPath();
         names.push_back(name);
@@ -199,7 +199,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     // Now Octrees:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_octree); i++)
     {
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromIndex(i);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_OCTREE, "] "));
         name += it->getObjectAlias_printPath();
         names.push_back(name);
@@ -215,7 +215,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     // Now Point clouds:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_pointcloud); i++)
     {
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_POINTCLOUD, "] "));
         name += it->getObjectAlias_printPath();
         names.push_back(name);
@@ -231,7 +231,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     // Now dummies:
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_DUMMY, "] "));
         name += it->getObjectAlias_printPath();
         names.push_back(name);
@@ -306,14 +306,14 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         bool displayWarning = false;
         if ((entity1 <= SIM_IDEND_SCENEOBJECT) && (entity1 >= SIM_IDSTART_SCENEOBJECT))
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(entity1);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entity1);
             if (it != nullptr)
                 displayWarning |=
                     ((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_collidable) == 0);
         }
         if ((entity2 <= SIM_IDEND_SCENEOBJECT) && (entity2 >= SIM_IDSTART_SCENEOBJECT))
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(entity2);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entity2);
             if (it != nullptr)
                 displayWarning |=
                     ((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_collidable) == 0);
@@ -368,14 +368,14 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         bool displayWarning = false;
         if ((entity1 <= SIM_IDEND_SCENEOBJECT) && (entity1 >= SIM_IDSTART_SCENEOBJECT))
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(entity1);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entity1);
             if (it != nullptr)
                 displayWarning |=
                     ((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_measurable) == 0);
         }
         if ((entity2 <= SIM_IDEND_SCENEOBJECT) && (entity2 >= SIM_IDSTART_SCENEOBJECT))
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(entity2);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entity2);
             if (it != nullptr)
                 displayWarning |=
                     ((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_measurable) == 0);

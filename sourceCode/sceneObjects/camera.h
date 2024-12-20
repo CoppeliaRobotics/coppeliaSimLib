@@ -8,18 +8,18 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propCamera_size,                    "cameraSize",                               sim_propertytype_float,     0, "Size", "Camera size") \
-    FUNCX(propCamera_parentAsManipProxy,      "parentAsManipulationProxy",                sim_propertytype_bool,      0, "Parent as proxy", "Use parent as manipulation proxy") \
-    FUNCX(propCamera_translationEnabled,      "translationEnabled",                       sim_propertytype_bool,      0, "Translation enabled", "") \
-    FUNCX(propCamera_rotationEnabled,         "rotationEnabled",                          sim_propertytype_bool,      0, "Rotation enabled", "") \
-    FUNCX(propCamera_trackedObjectHandle,     "trackedObjectHandle",                      sim_propertytype_int,       0, "Tracked object", "Tracked scene object handle") \
+#define DEFINE_PROPERTIES                                                                                                                              \
+    FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0, "Size", "Camera size")                                                             \
+    FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0, "Parent as proxy", "Use parent as manipulation proxy") \
+    FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0, "Translation enabled", "")                                    \
+    FUNCX(propCamera_rotationEnabled, "rotationEnabled", sim_propertytype_bool, 0, "Rotation enabled", "")                                             \
+    FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, 0, "Tracked object", "Tracked scene object handle")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_camera = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_camera = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -42,23 +42,23 @@ class CCamera : public CViewableBase
     virtual ~CCamera();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer &ar);
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void serialize(CSer& ar);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -118,13 +118,13 @@ class CCamera : public CViewableBase
     std::string getTrackedObjectLoadAlias() const;
     std::string getTrackedObjectLoadName_old() const;
 
-    void shiftCameraInCameraManipulationMode(const C3Vector &newLocalPos);
-    void rotateCameraInCameraManipulationMode(const C7Vector &newLocalConf);
+    void shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos);
+    void rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf);
 
     void frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPerspectiveProjection,
-                                     std::vector<int> *selectedObjects, bool useSystemSelection,
-                                     bool includeModelObjects, double scalingFactor, CSView *optionalView);
-    CColorObject *getColor(bool secondPart);
+                                     std::vector<int>* selectedObjects, bool useSystemSelection,
+                                     bool includeModelObjects, double scalingFactor, CSView* optionalView);
+    CColorObject* getColor(bool secondPart);
 
   protected:
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
@@ -154,32 +154,32 @@ class CCamera : public CViewableBase
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
-    void lookIn(int windowSize[2], CSView *subView, bool drawText = false, bool passiveSubView = true);
+    void display(CViewableBase* renderingObject, int displayAttrib);
+    void lookIn(int windowSize[2], CSView* subView, bool drawText = false, bool passiveSubView = true);
     void setAttributesForRendering(int attr);
     int getAttributesForRendering() const;
     void setRenderMode(int mode, bool duringSimulation, bool duringRecording);
-    int getRenderMode(bool *duringSimulation, bool *duringRecording) const;
+    int getRenderMode(bool* duringSimulation, bool* duringRecording) const;
     bool getInternalRendering() const;
 
   protected:
-    void _drawObjects(int renderingMode, int pass, int currentWinSize[2], CSView *subView, bool mirrored);
-    void _drawOverlay(bool passiveView, bool drawText, bool displ_ref, int windowSize[2], CSView *subView);
+    void _drawObjects(int renderingMode, int pass, int currentWinSize[2], CSView* subView, bool mirrored);
+    void _drawOverlay(bool passiveView, bool drawText, bool displ_ref, int windowSize[2], CSView* subView);
 
-    int getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthBuffer, int &hitThatIgnoresTheSelectableFlag);
-    int getSeveralHits(int hits, unsigned int selectBuff[], std::vector<int> &hitList);
+    int getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthBuffer, int& hitThatIgnoresTheSelectableFlag);
+    int getSeveralHits(int hits, unsigned int selectBuff[], std::vector<int>& hitList);
     int handleHits(int hits, unsigned int selectBuff[]);
     void handleMouseUpHit(int hitId);
 
-    void performDepthPerception(CSView *subView, bool isPerspective);
+    void performDepthPerception(CSView* subView, bool isPerspective);
     void _handleBannerClick(int bannerID);
-    CSceneObject *_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject *> &toRender);
+    CSceneObject* _getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject*>& toRender);
 
     void _handleMirrors(int renderingMode, bool noSelection, int pass, int navigationMode, int currentWinSize[2],
-                        CSView *subView);
+                        CSView* subView);
 
     bool _extRenderer_prepareView(int extRendererIndex, int resolution[2], bool perspective);
     void _extRenderer_prepareLights();
-    void _extRenderer_retrieveImage(char *rgbBuffer);
+    void _extRenderer_retrieveImage(char* rgbBuffer);
 #endif
 };

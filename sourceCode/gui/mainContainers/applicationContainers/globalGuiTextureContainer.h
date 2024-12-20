@@ -10,12 +10,12 @@ class CGlobalGuiTextureContainer
     virtual ~CGlobalGuiTextureContainer();
 
     void addObject(int pictureIndex, int sizeX, int sizeY, bool rgba, bool horizFlip, bool vertFlip,
-                   unsigned char *data);
+                   unsigned char* data);
     void startTextureDisplay(int pictureIndex);
     void endTextureDisplay();
     void eraseAllObjects();
 
   private:
-    std::vector<CTextureObject *> _allTextureObjects;
+    std::vector<CTextureObject*> _allTextureObjects;
     std::vector<int> _allPictureIndices;
 };

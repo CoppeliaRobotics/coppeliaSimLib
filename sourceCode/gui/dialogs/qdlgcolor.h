@@ -14,7 +14,7 @@ class CQDlgColor : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgColor(QWidget *parent = 0);
+    explicit CQDlgColor(QWidget* parent = 0);
     ~CQDlgColor();
 
     void refresh();
@@ -28,10 +28,10 @@ class CQDlgColor : public CDlgEx
     void computeRGBValues();
     void computeHSLValues();
 
-    static void displayDlg(int objType, int objID1, int objID2, int colComponent, QWidget *theParentWindow,
+    static void displayDlg(int objType, int objID1, int objID2, int colComponent, QWidget* theParentWindow,
                            bool doNotCloseMaterialDlg = false, bool doNotCloseLightMaterialDlg = false,
                            bool appendColorComponentInName = false);
-    static void displayDlgModal(int objType, int objID1, int objID2, int colComponent, QWidget *theParentWindow,
+    static void displayDlgModal(int objType, int objID1, int objID2, int colComponent, QWidget* theParentWindow,
                                 bool doNotCloseMaterialDlg = false, bool doNotCloseLightMaterialDlg = false,
                                 bool appendColorComponentInName = false);
     void initializeDlg(int objType, int objID1, int objID2, int colComponent, bool appendColorComponentInName);
@@ -91,7 +91,7 @@ class CQDlgColor : public CDlgEx
     void _getRGBFromItem();
     void _setRGBToItem();
 
-    Ui::CQDlgColor *ui;
+    Ui::CQDlgColor* ui;
 };
 
 #endif // QDLGCOLOR_H

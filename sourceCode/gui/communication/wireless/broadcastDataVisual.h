@@ -6,9 +6,9 @@
 class CBroadcastDataVisual
 {
   public:
-    CBroadcastDataVisual(double timeOutSimulationTime, double actionRadius, const C7Vector &emitterConf,
+    CBroadcastDataVisual(double timeOutSimulationTime, double actionRadius, const C7Vector& emitterConf,
                          double emissionAngle1, double emissionAngle2);
-    CBroadcastDataVisual(const C3Vector &emitterPos, const C3Vector &receiverPos);
+    CBroadcastDataVisual(const C3Vector& emitterPos, const C3Vector& receiverPos);
     virtual ~CBroadcastDataVisual();
 
     bool doesRequireDestruction(double simulationTime);

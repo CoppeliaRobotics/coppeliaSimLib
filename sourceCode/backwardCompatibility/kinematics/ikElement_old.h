@@ -16,10 +16,10 @@ class CIkElement_old
 
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationEnded();
-    CIkElement_old *copyYourself() const;
-    void serialize(CSer &ar);
+    CIkElement_old* copyYourself() const;
+    void serialize(CSer& ar);
     bool announceObjectWillBeErased(int objID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map);
 
     int getTargetHandle() const;
     int getIkPluginCounterpartHandle() const;

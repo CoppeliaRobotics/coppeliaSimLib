@@ -6,7 +6,7 @@
 class CSimAndUiThreadSync
 {
   public:
-    CSimAndUiThreadSync(const char *functionName);
+    CSimAndUiThreadSync(const char* functionName);
     virtual ~CSimAndUiThreadSync();
 
     bool uiThread_tryToLockForUiEventRead(int mode);
@@ -23,8 +23,8 @@ class CSimAndUiThreadSync
     static bool simThread_forbidUiThreadToWrite(bool blocking);
     static void simThread_allowUiThreadToWrite();
 
-    static void outputDebugMessage(const char *callLocation, const char *msg);
-    static void outputNakedDebugMessage(const char *msg);
+    static void outputDebugMessage(const char* callLocation, const char* msg);
+    static void outputNakedDebugMessage(const char* msg);
 
     static bool getShowActivityInConsole();
     static void setShowActivityInConsole(bool show);
@@ -35,7 +35,7 @@ class CSimAndUiThreadSync
     static bool hasUiLockedResourcesForReadOrWrite();
 
   private:
-    static std::string _getLevelsString(const char *abr);
+    static std::string _getLevelsString(const char* abr);
 
     int _lockFunctionResult; // -1=not yet tried to lock, 0=tried to lock but failed, 1=tried to lock and succeeded
     std::string _functionName;

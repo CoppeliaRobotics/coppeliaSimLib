@@ -25,7 +25,7 @@ CAddOperations::~CAddOperations()
 {
 }
 
-CShape *CAddOperations::addPrimitiveShape(int type, const C3Vector &psizes, int options, const int subdiv[3],
+CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int options, const int subdiv[3],
                                           int faceSubdiv, int sides, int discSubdiv, bool dynamic, int pure,
                                           double density)
 { // pure=0: create non-pure, pure=1: create pure if possible, pure=2: force pure creation
@@ -37,7 +37,7 @@ CShape *CAddOperations::addPrimitiveShape(int type, const C3Vector &psizes, int 
         sdiv[2] = subdiv[2];
     }
     C3Vector sizes = psizes;
-    CShape *shape = nullptr;
+    CShape* shape = nullptr;
     if (type == sim_primitiveshape_plane)
     {
         sizes(2) = 0.0001;
@@ -74,7 +74,7 @@ CShape *CAddOperations::addPrimitiveShape(int type, const C3Vector &psizes, int 
         shape = new CShape(C7Vector::identityTransformation, vertices, indices, nullptr, nullptr, 0);
         shape->setObjectAlias_direct(IDSOGL_PLANE);
         shape->setObjectName_direct_old(IDSOGL_PLANE);
-        shape->setLocalTransformation(C3Vector(0.0, 0.0, 0.002)); // we shift the plane so that it is above the floor
+        shape->setLocalTransformation(C3Vector(0.0, 0.0, 0.002));         // we shift the plane so that it is above the floor
         shape->getMesh()->setMass(sizes(0) * sizes(1) * density * 0.001); // we assume 1mm thickness
         shape->getMesh()->setPMI(C3Vector(sizes(1) * sizes(1) / 12.0, sizes(0) * sizes(0) / 12.0,
                                           (sizes(0) * sizes(0) + sizes(1) * sizes(1)) / 12.0));
@@ -190,8 +190,8 @@ CShape *CAddOperations::addPrimitiveShape(int type, const C3Vector &psizes, int 
     }
 
     if (type == sim_primitiveshape_capsule)
-    { // sizes(2) is the total length of the capsule. maxs=sizes(2)-max(sizes(0),sizes(1)) is the length of the cyl.
-      // part
+    {   // sizes(2) is the total length of the capsule. maxs=sizes(2)-max(sizes(0),sizes(1)) is the length of the cyl.
+        // part
         if (sizes(0) > sizes(2) - 0.0001)
             sizes(0) = sizes(2) - 0.0001;
         if (sizes(1) > sizes(2) - 0.0001)
@@ -349,7 +349,7 @@ CShape *CAddOperations::addPrimitiveShape(int type, const C3Vector &psizes, int 
 }
 
 #ifdef SIM_WITH_GUI
-void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int pointedObjectHandle)
+void CAddOperations::addMenu(VMenu* menu, CSView* subView, bool onlyCamera, int pointedObjectHandle)
 { // subView can be null
     pointedObject = pointedObjectHandle;
     bool linkedObjIsInexistentOrNotGraphNorRenderingSens = true;
@@ -366,7 +366,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
         {
             if (linkedObjIsInexistentOrNotGraphNorRenderingSens)
             {
-                VMenu *camera = new VMenu();
+                VMenu* camera = new VMenu();
                 camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens, false,
                                        ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD, "Perspective type");
                 camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens, false,
@@ -377,7 +377,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
                 menu->appendMenuItem(false, false, 0, "Camera");
         }
     }
-    CSceneObject *associatedViewable = nullptr;
+    CSceneObject* associatedViewable = nullptr;
     if (subView != nullptr)
         associatedViewable = App::currentWorld->sceneObjects->getObjectFromHandle(subView->getLinkedObjectID());
     if ((subView == nullptr) ||
@@ -387,7 +387,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
         {
             if (itemsPresent)
                 menu->appendMenuSeparator();
-            VMenu *prim = new VMenu();
+            VMenu* prim = new VMenu();
             prim->appendMenuItem(true, false, ADD_COMMANDS_ADD_PRIMITIVE_PLANE_ACCMD, IDS_PLANE_MENU_ITEM);
             prim->appendMenuItem(true, false, ADD_COMMANDS_ADD_PRIMITIVE_DISC_ACCMD, IDS_DISC_MENU_ITEM);
             prim->appendMenuItem(true, false, ADD_COMMANDS_ADD_PRIMITIVE_RECTANGLE_ACCMD, IDS_RECTANGLE_MENU_ITEM);
@@ -400,7 +400,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
 
             if (CSimFlavor::getBoolVal(7))
             {
-                VMenu *joint = new VMenu();
+                VMenu* joint = new VMenu();
                 joint->appendMenuItem(true, false, ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD, IDS_REVOLUTE_MENU_ITEM);
                 joint->appendMenuItem(true, false, ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD, IDS_PRISMATIC_MENU_ITEM);
                 joint->appendMenuItem(true, false, ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD, IDS_SPHERICAL_MENU_ITEM);
@@ -416,7 +416,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
 
         if (linkedObjIsInexistentOrNotGraphNorRenderingSens)
         {
-            VMenu *camera = new VMenu();
+            VMenu* camera = new VMenu();
             camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens, false,
                                    ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD, "Perspective type");
             camera->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens, false,
@@ -433,7 +433,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
 
         if (CSimFlavor::getBoolVal(7) && (!onlyCamera))
         {
-            VMenu *light = new VMenu();
+            VMenu* light = new VMenu();
             light->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens, false,
                                   ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD, IDS_OMNIDIRECTIONAL_MENU_ITEM);
             light->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens, false,
@@ -454,7 +454,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
 
             menu->appendMenuItem(true, false, ADD_COMMANDS_ADD_GRAPH_ACCMD, IDS_GRAPH_MENU_ITEM);
 
-            VMenu *sens = new VMenu();
+            VMenu* sens = new VMenu();
             sens->appendMenuItem(true, false, ADD_COMMANDS_ADD_RAY_PROXSENSOR_ACCMD, IDS_RAY_TYPE_MENU_ITEM);
             sens->appendMenuItem(true, false, ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD,
                                  IDS_RANDOMIZED_RAY_TYPE_MENU_ITEM);
@@ -465,37 +465,37 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
 
             menu->appendMenuAndDetach(sens, true, IDS_PROXSENSOR_MENU_ITEM);
 
-            VMenu *camera = new VMenu();
+            VMenu* camera = new VMenu();
             camera->appendMenuItem(true, false, ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD, "Perspective type");
             camera->appendMenuItem(true, false, ADD_COMMANDS_ADD_VISION_SENSOR_ORTHOGONAL_ACCMD, "Orthogonal type");
             menu->appendMenuAndDetach(camera, true, "Vision sensor");
 
             menu->appendMenuItem(true, false, ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD, IDSN_FORCE_SENSOR);
 
-            VMenu *pathM = new VMenu();
+            VMenu* pathM = new VMenu();
             pathM->appendMenuItem(true, false, ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD, IDS_SEGMENT_TYPE_MENU_ITEM);
             pathM->appendMenuItem(true, false, ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD, IDS_CIRCLE_TYPE_MENU_ITEM);
             menu->appendMenuAndDetach(pathM, true, IDSN_PATH);
 
-            VMenu *script = new VMenu();
+            VMenu* script = new VMenu();
 
-            VMenu *childScript = new VMenu();
-            VMenu *childScriptNonThreaded = new VMenu();
+            VMenu* childScript = new VMenu();
+            VMenu* childScriptNonThreaded = new VMenu();
             childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD, "Lua");
             childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD, "Python");
             childScript->appendMenuAndDetach(childScriptNonThreaded, true, "Non threaded");
-            VMenu *childScriptThreaded = new VMenu();
+            VMenu* childScriptThreaded = new VMenu();
             childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD, "Lua");
             childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD, "Python");
             childScript->appendMenuAndDetach(childScriptThreaded, true, "Threaded");
             script->appendMenuAndDetach(childScript, true, "simulation script");
 
-            VMenu *customizationScript = new VMenu();
-            VMenu *customizationScriptNonThreaded = new VMenu();
+            VMenu* customizationScript = new VMenu();
+            VMenu* customizationScriptNonThreaded = new VMenu();
             customizationScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD, "Lua");
             customizationScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
             customizationScript->appendMenuAndDetach(customizationScriptNonThreaded, true, "Non threaded");
-            VMenu *customizationScriptThreaded = new VMenu();
+            VMenu* customizationScriptThreaded = new VMenu();
             customizationScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD, "Lua");
             customizationScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
             customizationScript->appendMenuAndDetach(customizationScriptThreaded, true, "Threaded");
@@ -505,9 +505,9 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
     }
 }
 
-CShape *CAddOperations::addPrimitive_withDialog(int command, const C3Vector *optSizes)
+CShape* CAddOperations::addPrimitive_withDialog(int command, const C3Vector* optSizes)
 { // if optSizes is not nullptr, then sizes are locked in the dialog
-    CShape *retVal = nullptr;
+    CShape* retVal = nullptr;
     int pType = -1;
     if (command == ADD_COMMANDS_ADD_PRIMITIVE_PLANE_ACCMD)
         pType = sim_primitiveshape_plane;
@@ -548,7 +548,7 @@ CShape *CAddOperations::addPrimitive_withDialog(int command, const C3Vector *opt
     return (retVal);
 }
 
-bool CAddOperations::processCommand(int commandID, CSView *subView)
+bool CAddOperations::processCommand(int commandID, CSView* subView)
 { // Return value is true if the command belonged to Add menu and was executed
     if ((commandID == ADD_COMMANDS_ADD_PRIMITIVE_PLANE_ACCMD) || (commandID == ADD_COMMANDS_ADD_PRIMITIVE_DISC_ACCMD) ||
         (commandID == ADD_COMMANDS_ADD_PRIMITIVE_RECTANGLE_ACCMD) ||
@@ -561,7 +561,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_PRIMITIVE_SHAPE);
 
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CShape *newShape = addPrimitive_withDialog(commandID, nullptr);
+            CShape* newShape = addPrimitive_withDialog(commandID, nullptr);
             int shapeHandle = -1;
             if (newShape != nullptr)
                 shapeHandle = newShape->getObjectHandle();
@@ -615,7 +615,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_JOINT);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CJoint *newObject = nullptr;
+            CJoint* newObject = nullptr;
             if (commandID == ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)
                 newObject = new CJoint(sim_joint_revolute);
             if (commandID == ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD)
@@ -649,13 +649,13 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             int lo = -1;
             if (subView != nullptr)
                 lo = subView->getLinkedObjectID();
-            CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(lo);
-            CGraph *graph = App::currentWorld->sceneObjects->getGraphFromHandle(lo);
+            CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(lo);
+            CGraph* graph = App::currentWorld->sceneObjects->getGraphFromHandle(lo);
             if (graph != nullptr)
                 return (true);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CCamera *myNewCamera = nullptr;
-            CLight *myNewLight = nullptr;
+            CCamera* myNewCamera = nullptr;
+            CLight* myNewLight = nullptr;
             if ((commandID == ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD) ||
                 (commandID == ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD))
             {
@@ -679,7 +679,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 App::currentWorld->sceneObjects->addObjectToScene(myNewLight, false, true);
                 App::logMsg(sim_verbosity_msgs, "done.");
             }
-            CSceneObject *addedObject = myNewCamera;
+            CSceneObject* addedObject = myNewCamera;
             if (addedObject == nullptr)
                 addedObject = myNewLight;
             addedObject->setLocalTransformation(C3Vector(0.0, 0.0, 1.0));
@@ -737,7 +737,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_MIRROR);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CMirror *newObject = new CMirror();
+            CMirror* newObject = new CMirror();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),
                                                                           C3Vector(piValD2, 0.0, 0.0));
@@ -767,7 +767,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_DUMMY);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CDummy *newObject = new CDummy();
+            CDummy* newObject = new CDummy();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             if (sel != nullptr)
             {
@@ -792,7 +792,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_AN_OCTREE);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            COcTree *newObject = new COcTree();
+            COcTree* newObject = new COcTree();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             if (sel != nullptr)
             {
@@ -817,7 +817,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_POINTCLOUD);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CPointCloud *newObject = new CPointCloud();
+            CPointCloud* newObject = new CPointCloud();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             if (sel != nullptr)
             {
@@ -845,7 +845,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD) || (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
             int scriptHandle = App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_simulation, isThreaded, isLua);
-            if ( (sel != nullptr) && (scriptHandle != -1) )
+            if ((sel != nullptr) && (scriptHandle != -1))
             {
                 CSceneObject* script = App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
                 App::currentWorld->sceneObjects->setObjectParent(script, sel, false);
@@ -874,7 +874,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD) || (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
             int scriptHandle = App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_customization, isThreaded, isLua);
-            if ( (sel != nullptr) && (scriptHandle != -1) )
+            if ((sel != nullptr) && (scriptHandle != -1))
             {
                 CSceneObject* script = App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
                 App::currentWorld->sceneObjects->setObjectParent(script, sel, false);
@@ -927,7 +927,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 opt += 2;
             txt += std::to_string(opt) + ",100)\nsim.setObjectSel({path})";
             App::worldContainer->sandboxScript->executeScriptString(txt.c_str(), nullptr);
-            if ( (sel != nullptr) && (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1) )
+            if ((sel != nullptr) && (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1))
             {
                 CSceneObject* path = App::currentWorld->sceneObjects->getLastSelectionObject();
                 App::currentWorld->sceneObjects->setObjectParent(path, sel, true);
@@ -950,10 +950,10 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_GRAPH);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CGraph *newObject = new CGraph();
+            CGraph* newObject = new CGraph();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
 
-            CScript *script = new CScript(sim_scripttype_customization, "graph = require('models.graph_customization-2')", 0, "lua");
+            CScript* script = new CScript(sim_scripttype_customization, "graph = require('models.graph_customization-2')", 0, "lua");
             script->setScriptExecPriority_raw(sim_scriptexecorder_last);
             App::currentWorld->sceneObjects->addObjectToScene(script, false, true);
             App::currentWorld->sceneObjects->setObjectParent(script, newObject, true);
@@ -984,7 +984,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_VISION_SENSOR);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CVisionSensor *newObject = new CVisionSensor();
+            CVisionSensor* newObject = new CVisionSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             newObject->setPerspective(commandID == ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD);
             if (sel != nullptr)
@@ -1000,8 +1000,8 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 {
                     C7Vector m;
                     int lo = subView->getLinkedObjectID();
-                    CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(lo);
-                    CVisionSensor *sens = App::currentWorld->sceneObjects->getVisionSensorFromHandle(lo);
+                    CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(lo);
+                    CVisionSensor* sens = App::currentWorld->sceneObjects->getVisionSensorFromHandle(lo);
                     isSet = ((camera != nullptr) || (sens != nullptr));
                     if (isSet)
                     {
@@ -1051,7 +1051,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_FORCE_SENSOR);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CForceSensor *newObject = new CForceSensor();
+            CForceSensor* newObject = new CForceSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             if (sel != nullptr)
             {
@@ -1081,7 +1081,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_PROXIMITY_SENSOR);
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
-            CProxSensor *newObject = nullptr;
+            CProxSensor* newObject = nullptr;
             if (commandID == ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD)
             {
                 newObject = new CProxSensor(sim_proximitysensor_ray);

@@ -8,8 +8,8 @@
 #include <map>
 #include <utils.h>
 
-CModelFolderWidget::CModelFolderWidget(CModelListWidget *modelListWidget, const char *folderName,
-                                       const char *folderPath, const char *nameOfSelectedFolder)
+CModelFolderWidget::CModelFolderWidget(CModelListWidget* modelListWidget, const char* folderName,
+                                       const char* folderPath, const char* nameOfSelectedFolder)
     : QTreeWidget()
 {
     _hasError = false;
@@ -47,7 +47,7 @@ CModelFolderWidget::CModelFolderWidget(CModelListWidget *modelListWidget, const 
         tmp = App::folders->getUserSettingsPath() + "/overlays";
         if (VFile::doesFolderExist(tmp.c_str()))
         {
-            for (const auto &entry : fs::directory_iterator(tmp))
+            for (const auto& entry : fs::directory_iterator(tmp))
             {
                 if (entry.is_directory())
                 {
@@ -76,10 +76,10 @@ CModelFolderWidget::~CModelFolderWidget()
 
 void CModelFolderWidget::onItemSelectionChanged()
 {
-    const QList<QTreeWidgetItem *> sel = selectedItems();
+    const QList<QTreeWidgetItem*> sel = selectedItems();
     if (sel.size() != 0)
     {
-        QTreeWidgetItem *item = sel[0];
+        QTreeWidgetItem* item = sel[0];
         QVariant path(item->data(0, Qt::UserRole));
         _modelListWidget->setFolder(path.toString().toStdString().c_str());
     }
@@ -90,13 +90,13 @@ bool CModelFolderWidget::hasError() const
     return (_hasError);
 }
 
-void CModelFolderWidget::selectFolder(const char *folderPath)
+void CModelFolderWidget::selectFolder(const char* folderPath)
 {
     clearSelection();
-    const QList<QTreeWidgetItem *> items = findItems("*", Qt::MatchRecursive | Qt::MatchWildcard);
+    const QList<QTreeWidgetItem*> items = findItems("*", Qt::MatchRecursive | Qt::MatchWildcard);
     for (int i = 0; i < items.size(); i++)
     {
-        QTreeWidgetItem *item = items[i];
+        QTreeWidgetItem* item = items[i];
         QVariant path(item->data(0, Qt::UserRole));
         if (path.toString().compare(folderPath) == 0)
         {
@@ -114,13 +114,13 @@ void CModelFolderWidget::selectFolder(const char *folderPath)
     }
 }
 
-bool CModelFolderWidget::_processDirectory(QTreeWidgetItem *parentTreeWidget, const fs::path &path,
-                                           const std::string &rootPath, folderItem *parentItem,
-                                           std::map<std::string, folderItem *> &rootPathMap,
-                                           const char *nameOfSelectedFolder)
+bool CModelFolderWidget::_processDirectory(QTreeWidgetItem* parentTreeWidget, const fs::path& path,
+                                           const std::string& rootPath, folderItem* parentItem,
+                                           std::map<std::string, folderItem*>& rootPathMap,
+                                           const char* nameOfSelectedFolder)
 {
     bool retVal = false;
-    for (const auto &entry : fs::directory_iterator(path))
+    for (const auto& entry : fs::directory_iterator(path))
     {
         if (entry.is_directory())
         {
@@ -128,7 +128,7 @@ bool CModelFolderWidget::_processDirectory(QTreeWidgetItem *parentTreeWidget, co
             std::string relativePath = fs::relative(entry.path(), rootPath).parent_path().string() + "/" + fileName;
             std::string absPath = entry.path().string();
             utils::replaceSubstring(absPath, "\\", "/");
-            folderItem *folderItm;
+            folderItem* folderItm;
             if (rootPathMap.find(relativePath) == rootPathMap.end())
             {
                 folderItm =
@@ -166,7 +166,7 @@ bool CModelFolderWidget::_processDirectory(QTreeWidgetItem *parentTreeWidget, co
     }
 
     std::sort(parentItem->subfolders.begin(), parentItem->subfolders.end(),
-              [](const folderItem *a, const folderItem *b) { return a->name < b->name; });
+              [](const folderItem* a, const folderItem* b) { return a->name < b->name; });
 
     if (retVal)
         parentTreeWidget->setExpanded(true);
@@ -174,39 +174,39 @@ bool CModelFolderWidget::_processDirectory(QTreeWidgetItem *parentTreeWidget, co
     return retVal;
 }
 
-std::vector<folderItem *> CModelFolderWidget::_exploreAndMergePaths(const std::vector<std::string> &rootPaths,
-                                                                    const char *nameOfSelectedFolder)
+std::vector<folderItem*> CModelFolderWidget::_exploreAndMergePaths(const std::vector<std::string>& rootPaths,
+                                                                   const char* nameOfSelectedFolder)
 {
     std::vector<std::string> subfolders;
-    for (const auto &rootPath : rootPaths)
+    for (const auto& rootPath : rootPaths)
     {
         try
         {
-            for (const auto &entry : fs::directory_iterator(rootPath))
+            for (const auto& entry : fs::directory_iterator(rootPath))
             {
                 std::string nm = entry.path().stem().string();
                 if ((entry.is_directory()) && (nm[0] != '.')) // avoid e.g. ".git" and other hidden files
                     subfolders.push_back(entry.path().string());
             }
         }
-        catch (const fs::filesystem_error &e)
+        catch (const fs::filesystem_error& e)
         {
             std::cerr << "Error: " << e.what() << '\n';
         }
     }
 
-    std::vector<folderItem *> rootItems;
-    std::map<std::string, folderItem *> rootPathMap;
+    std::vector<folderItem*> rootItems;
+    std::map<std::string, folderItem*> rootPathMap;
 
-    for (const auto &rootPath : subfolders)
+    for (const auto& rootPath : subfolders)
     {
         fs::path rootParent(rootPath);
         std::string folderName = rootParent.stem().string();
-        folderItem *rootItem;
+        folderItem* rootItem;
         if (rootPathMap.find(folderName) == rootPathMap.end())
         {
             rootItem = new folderItem(rootPath, fs::path(rootPath).filename().string(), rootPath);
-            rootItem->widgetItem = new QTreeWidgetItem((QTreeWidget *)0, QStringList(QString(rootItem->name.c_str())));
+            rootItem->widgetItem = new QTreeWidgetItem((QTreeWidget*)0, QStringList(QString(rootItem->name.c_str())));
             rootItem->widgetItem->setIcon(0, *(new QIcon(":/variousImageFiles/folder.png")));
             rootItem->widgetItem->setData(0, Qt::UserRole, QVariant(rootPath.c_str()));
             insertTopLevelItem(0, rootItem->widgetItem);

@@ -4,7 +4,8 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgLightMaterial::CQDlgLightMaterial(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgLightMaterial)
+CQDlgLightMaterial::CQDlgLightMaterial(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgLightMaterial)
 {
     _dlgType = LIGHTMATERIAL_DLG;
     ui->setupUi(this);
@@ -49,7 +50,7 @@ bool CQDlgLightMaterial::isLinkedDataValid()
     return (GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr) != nullptr);
 }
 
-void CQDlgLightMaterial::displayMaterialDlg(int objType, int objID1, int objID2, QWidget *theParentWindow)
+void CQDlgLightMaterial::displayMaterialDlg(int objType, int objID1, int objID2, QWidget* theParentWindow)
 {
     if (GuiApp::mainWindow == nullptr)
         return;
@@ -58,7 +59,7 @@ void CQDlgLightMaterial::displayMaterialDlg(int objType, int objID1, int objID2,
     GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(LIGHTMATERIAL_DLG))
     {
-        CQDlgLightMaterial *mat = (CQDlgLightMaterial *)GuiApp::mainWindow->dlgCont->getDialog(LIGHTMATERIAL_DLG);
+        CQDlgLightMaterial* mat = (CQDlgLightMaterial*)GuiApp::mainWindow->dlgCont->getDialog(LIGHTMATERIAL_DLG);
         if (mat != nullptr)
             mat->_initializeDlg(objType, objID1, objID2);
     }
@@ -81,8 +82,8 @@ void CQDlgLightMaterial::_adjustCol(int colComponent)
 }
 
 void CQDlgLightMaterial::cancelEvent()
-{                                     // We just hide the dialog and destroy it at next rendering pass
-    if (((QDialog *)this)->isModal()) // this condition and next line on 31/3/2013: on Linux the dlg couldn't be closed!
+{                                    // We just hide the dialog and destroy it at next rendering pass
+    if (((QDialog*)this)->isModal()) // this condition and next line on 31/3/2013: on Linux the dlg couldn't be closed!
         defaultModalDialogEndRoutine(false);
     else
         CDlgEx::cancelEvent();

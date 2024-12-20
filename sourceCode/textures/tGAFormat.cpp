@@ -8,10 +8,10 @@
 #include <fstream>
 #include <app.h>
 
-unsigned char *CTGAFormat::getRGBA(std::istream *inputStream, int size)
+unsigned char* CTGAFormat::getRGBA(std::istream* inputStream, int size)
 {
-    unsigned char *rgba = new unsigned char[size * 4];
-    inputStream->read((char *)rgba, size * 4);
+    unsigned char* rgba = new unsigned char[size * 4];
+    inputStream->read((char*)rgba, size * 4);
     for (int i = 0; i < size * 4; i += 4)
     {
         unsigned char tmp = rgba[i];
@@ -21,10 +21,10 @@ unsigned char *CTGAFormat::getRGBA(std::istream *inputStream, int size)
     return (rgba);
 }
 
-unsigned char *CTGAFormat::getRGB(std::istream *inputStream, int size, bool &isRgba, unsigned char invisibleColor[3])
+unsigned char* CTGAFormat::getRGB(std::istream* inputStream, int size, bool& isRgba, unsigned char invisibleColor[3])
 {
-    unsigned char *rgb = new unsigned char[size * 3];
-    inputStream->read((char *)rgb, size * 3);
+    unsigned char* rgb = new unsigned char[size * 3];
+    inputStream->read((char*)rgb, size * 3);
     for (int i = 0; i < size * 3; i += 3)
     {
         unsigned char tmp = rgb[i];
@@ -39,7 +39,7 @@ unsigned char *CTGAFormat::getRGB(std::istream *inputStream, int size, bool &isR
     else
     {
         isRgba = true;
-        unsigned char *rgba = new unsigned char[size * 4];
+        unsigned char* rgba = new unsigned char[size * 4];
         for (int i = 0; i < size; i++)
         {
             rgba[4 * i + 0] = rgb[3 * i + 0];
@@ -56,32 +56,32 @@ unsigned char *CTGAFormat::getRGB(std::istream *inputStream, int size, bool &isR
     }
 }
 
-unsigned char *CTGAFormat::getImageData(std::string name, int &resX, int &resY, bool &isRgba,
+unsigned char* CTGAFormat::getImageData(std::string name, int& resX, int& resY, bool& isRgba,
                                         unsigned char invisibleColor[3], int bitsPerPixel[1])
 {
-    std::ifstream *fileStream = new std::ifstream(name.c_str(), std::ios::in | std::ios::binary);
+    std::ifstream* fileStream = new std::ifstream(name.c_str(), std::ios::in | std::ios::binary);
     if (fileStream->fail())
     {
         App::logMsg(sim_verbosity_errors, "texture could not be loaded! (getImageData#1).");
         delete fileStream;
         return (nullptr);
     }
-    unsigned char *retVal = getImageData(fileStream, resX, resY, isRgba, invisibleColor, bitsPerPixel);
+    unsigned char* retVal = getImageData(fileStream, resX, resY, isRgba, invisibleColor, bitsPerPixel);
     delete fileStream;
     return (retVal);
 }
 
-unsigned char *CTGAFormat::getImageData(std::istream *inputStream, int &resX, int &resY, bool &isRgba,
+unsigned char* CTGAFormat::getImageData(std::istream* inputStream, int& resX, int& resY, bool& isRgba,
                                         unsigned char invisibleColor[3], int bitsPerPixel[1])
 {
     unsigned char type[4];
     unsigned char info[7];
-    unsigned char *imageData = nullptr;
+    unsigned char* imageData = nullptr;
     int imageBits, size;
 
-    inputStream->read((char *)type, 3);
+    inputStream->read((char*)type, 3);
     inputStream->seekg(12, std::ios::beg);
-    inputStream->read((char *)info, 6);
+    inputStream->read((char*)info, 6);
 
     if (type[1] != 0 || type[2] != 2)
         return (nullptr);
@@ -105,11 +105,11 @@ unsigned char *CTGAFormat::getImageData(std::istream *inputStream, int &resX, in
     return (imageData);
 }
 
-unsigned char *CTGAFormat::getV_RGBA(VArchive &inputStream, int size)
+unsigned char* CTGAFormat::getV_RGBA(VArchive& inputStream, int size)
 {
-    unsigned char *rgba = new unsigned char[size * 4];
+    unsigned char* rgba = new unsigned char[size * 4];
     for (int j = 0; j < size * 4; j++)
-        inputStream >> ((char *)rgba)[j];
+        inputStream >> ((char*)rgba)[j];
     for (int i = 0; i < size * 4; i += 4)
     {
         unsigned char tmp = rgba[i];
@@ -119,12 +119,12 @@ unsigned char *CTGAFormat::getV_RGBA(VArchive &inputStream, int size)
     return (rgba);
 }
 
-unsigned char *CTGAFormat::getV_RGB(VArchive &inputStream, int size, bool &isRgba, unsigned char invisibleColor[3])
+unsigned char* CTGAFormat::getV_RGB(VArchive& inputStream, int size, bool& isRgba, unsigned char invisibleColor[3])
 {
-    unsigned char *rgb = new unsigned char[size * 3];
+    unsigned char* rgb = new unsigned char[size * 3];
 
     for (int j = 0; j < size * 3; j++)
-        inputStream >> ((char *)rgb)[j];
+        inputStream >> ((char*)rgb)[j];
 
     for (int i = 0; i < size * 3; i += 3)
     {
@@ -141,7 +141,7 @@ unsigned char *CTGAFormat::getV_RGB(VArchive &inputStream, int size, bool &isRgb
     else
     {
         isRgba = true;
-        unsigned char *rgba = new unsigned char[size * 4];
+        unsigned char* rgba = new unsigned char[size * 4];
         for (int i = 0; i < size; i++)
         {
             rgba[4 * i + 0] = rgb[3 * i + 0];
@@ -158,23 +158,23 @@ unsigned char *CTGAFormat::getV_RGB(VArchive &inputStream, int size, bool &isRgb
     }
 }
 
-unsigned char *CTGAFormat::getV_ImageData(VArchive &inputStream, int &resX, int &resY, bool &isRgba,
+unsigned char* CTGAFormat::getV_ImageData(VArchive& inputStream, int& resX, int& resY, bool& isRgba,
                                           unsigned char invisibleColor[3], int bitsPerPixel[1])
 {
     unsigned char type[4];
     unsigned char info[7];
-    unsigned char *imageData = nullptr;
+    unsigned char* imageData = nullptr;
     int imageBits, size;
 
     for (int i = 0; i < 3; i++)
-        inputStream >> ((char *)type)[i];
+        inputStream >> ((char*)type)[i];
 
     char dummy;
     for (int i = 0; i < 9; i++)
         inputStream >> dummy;
 
     for (int i = 0; i < 6; i++)
-        inputStream >> ((char *)info)[i];
+        inputStream >> ((char*)info)[i];
 
     if (type[1] != 0 || type[2] != 2)
         return (nullptr);
@@ -199,10 +199,10 @@ unsigned char *CTGAFormat::getV_ImageData(VArchive &inputStream, int &resX, int 
     return (imageData);
 }
 
-unsigned char *CTGAFormat::getQ_ImageData(const char *fileAndPathName, int &resX, int &resY, bool &isRgba,
+unsigned char* CTGAFormat::getQ_ImageData(const char* fileAndPathName, int& resX, int& resY, bool& isRgba,
                                           unsigned char invisibleColor[3], int bitsPerPixel[1])
 {
-    unsigned char *retVal = nullptr;
+    unsigned char* retVal = nullptr;
     try
     {
         VFile file(fileAndPathName, VFile::READ | VFile::SHARE_DENY_NONE);

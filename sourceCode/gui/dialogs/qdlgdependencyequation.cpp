@@ -6,7 +6,7 @@
 #include <guiApp.h>
 #include <simStrings.h>
 
-CQDlgDependencyEquation::CQDlgDependencyEquation(QWidget *parent)
+CQDlgDependencyEquation::CQDlgDependencyEquation(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgDependencyEquation)
 {
     ui->setupUi(this);
@@ -19,20 +19,20 @@ CQDlgDependencyEquation::~CQDlgDependencyEquation()
 }
 
 void CQDlgDependencyEquation::cancelEvent()
-{ // no cancel event allowed
-  // defaultModalDialogEndRoutine(false);
+{   // no cancel event allowed
+    // defaultModalDialogEndRoutine(false);
 }
 
 void CQDlgDependencyEquation::okEvent()
-{ // no ok event allowed
-  // defaultModalDialogEndRoutine(false);
+{   // no ok event allowed
+    // defaultModalDialogEndRoutine(false);
 }
 
 void CQDlgDependencyEquation::refresh()
 { // dlg is modal
     inMainRefreshRoutine = true;
     bool dependencyPartActive = false;
-    CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+    CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
     if (it != nullptr)
         dependencyPartActive = ((it->getJointMode() == sim_jointmode_dependent) ||
                                 (it->getJointMode() == sim_jointmode_reserved_previously_ikdependent));
@@ -57,7 +57,7 @@ void CQDlgDependencyEquation::refresh()
         // Joints:
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
         {
-            CJoint *it2 = App::currentWorld->sceneObjects->getJointFromIndex(i);
+            CJoint* it2 = App::currentWorld->sceneObjects->getJointFromIndex(i);
             if ((it2 != it) && (it2->getJointType() != sim_joint_spherical))
             {
                 std::string name(tt::decorateString("[", IDSN_JOINT, "] "));
@@ -89,7 +89,7 @@ void CQDlgDependencyEquation::refresh()
     inMainRefreshRoutine = false;
 }
 
-void CQDlgDependencyEquation::on_qqClose_clicked(QAbstractButton *button)
+void CQDlgDependencyEquation::on_qqClose_clicked(QAbstractButton* button)
 {
     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -102,7 +102,7 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqOffset->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -124,7 +124,7 @@ void CQDlgDependencyEquation::on_qqCoeff_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqCoeff->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -146,7 +146,7 @@ void CQDlgDependencyEquation::on_qqCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+            CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
             int objID = ui->qqCombo->itemData(ui->qqCombo->currentIndex()).toInt();
             if (it != nullptr)
             {

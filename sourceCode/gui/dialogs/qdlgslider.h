@@ -15,7 +15,7 @@ class CQDlgSlider : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgSlider(QWidget *parent = 0);
+    explicit CQDlgSlider(QWidget* parent = 0);
     ~CQDlgSlider();
 
     void cancelEvent();
@@ -35,7 +35,7 @@ class CQDlgSlider : public VDialog
 
   private:
     void _displayDecimationText();
-    Ui::CQDlgSlider *ui;
+    Ui::CQDlgSlider* ui;
 };
 
 #endif // QDLGSLIDER_H

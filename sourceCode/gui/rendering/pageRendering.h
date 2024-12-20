@@ -21,8 +21,8 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void _drawSeparationLines(int _pageType, const int *_pageSize);
-void displayContainerPage(CSPage *page, const int *position, const int *size);
-void displayContainerPageOverlay(const int *position, const int *size, int activePageIndex, int focusObject);
-void displayContainerPageWatermark(const int *position, const int *size, int tagId);
-void displayPage(CSPage *page, int auxViewResizingAction, int viewIndexOfResizingAction);
+void _drawSeparationLines(int _pageType, const int* _pageSize);
+void displayContainerPage(CSPage* page, const int* position, const int* size);
+void displayContainerPageOverlay(const int* position, const int* size, int activePageIndex, int focusObject);
+void displayContainerPageWatermark(const int* position, const int* size, int tagId);
+void displayPage(CSPage* page, int auxViewResizingAction, int viewIndexOfResizingAction);

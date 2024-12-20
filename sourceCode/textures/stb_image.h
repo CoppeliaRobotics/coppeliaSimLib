@@ -222,34 +222,34 @@ extern "C"
     // load image by filename, open file, or memory buffer
     //
 
-    extern stbi_uc *stbi_load_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp, int req_comp);
+    extern stbi_uc* stbi_load_from_memory(stbi_uc const* buffer, int len, int* x, int* y, int* comp, int req_comp);
 
 #ifndef STBI_NO_STDIO
-    extern stbi_uc *stbi_load(char const *filename, int *x, int *y, int *comp, int req_comp);
-    extern stbi_uc *stbi_load_from_file(FILE *f, int *x, int *y, int *comp, int req_comp);
+    extern stbi_uc* stbi_load(char const* filename, int* x, int* y, int* comp, int req_comp);
+    extern stbi_uc* stbi_load_from_file(FILE* f, int* x, int* y, int* comp, int req_comp);
 // for stbi_load_from_file, file pointer is left pointing immediately after image
 #endif
 
     typedef struct
     {
-        int (*read)(void *user, char *data,
+        int (*read)(void* user, char* data,
                     int size);                // fill 'data' with 'size' bytes.  return number of bytes actually read
-        void (*skip)(void *user, unsigned n); // skip the next 'n' bytes
-        int (*eof)(void *user);               // returns nonzero if we are at end of file/data
+        void (*skip)(void* user, unsigned n); // skip the next 'n' bytes
+        int (*eof)(void* user);               // returns nonzero if we are at end of file/data
     } stbi_io_callbacks;
 
-    extern stbi_uc *stbi_load_from_callbacks(stbi_io_callbacks const *clbk, void *user, int *x, int *y, int *comp,
+    extern stbi_uc* stbi_load_from_callbacks(stbi_io_callbacks const* clbk, void* user, int* x, int* y, int* comp,
                                              int req_comp);
 
 #ifndef STBI_NO_HDR
-    extern float *stbi_loadf_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp, int req_comp);
+    extern float* stbi_loadf_from_memory(stbi_uc const* buffer, int len, int* x, int* y, int* comp, int req_comp);
 
 #ifndef STBI_NO_STDIO
-    extern float *stbi_loadf(char const *filename, int *x, int *y, int *comp, int req_comp);
-    extern float *stbi_loadf_from_file(FILE *f, int *x, int *y, int *comp, int req_comp);
+    extern float* stbi_loadf(char const* filename, int* x, int* y, int* comp, int req_comp);
+    extern float* stbi_loadf_from_file(FILE* f, int* x, int* y, int* comp, int req_comp);
 #endif
 
-    extern float *stbi_loadf_from_callbacks(stbi_io_callbacks const *clbk, void *user, int *x, int *y, int *comp,
+    extern float* stbi_loadf_from_callbacks(stbi_io_callbacks const* clbk, void* user, int* x, int* y, int* comp,
                                             int req_comp);
 
     extern void stbi_hdr_to_ldr_gamma(float gamma);
@@ -260,27 +260,27 @@ extern "C"
 #endif // STBI_NO_HDR
 
     // stbi_is_hdr is always defined
-    extern int stbi_is_hdr_from_callbacks(stbi_io_callbacks const *clbk, void *user);
-    extern int stbi_is_hdr_from_memory(stbi_uc const *buffer, int len);
+    extern int stbi_is_hdr_from_callbacks(stbi_io_callbacks const* clbk, void* user);
+    extern int stbi_is_hdr_from_memory(stbi_uc const* buffer, int len);
 #ifndef STBI_NO_STDIO
-    extern int stbi_is_hdr(char const *filename);
-    extern int stbi_is_hdr_from_file(FILE *f);
+    extern int stbi_is_hdr(char const* filename);
+    extern int stbi_is_hdr_from_file(FILE* f);
 #endif // STBI_NO_STDIO
 
     // get a VERY brief reason for failure
     // NOT THREADSAFE
-    extern const char *stbi_failure_reason(void);
+    extern const char* stbi_failure_reason(void);
 
     // free the loaded image -- this is just free()
-    extern void stbi_image_free(void *retval_from_stbi_load);
+    extern void stbi_image_free(void* retval_from_stbi_load);
 
     // get image dimensions & components without fully decoding
-    extern int stbi_info_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp);
-    extern int stbi_info_from_callbacks(stbi_io_callbacks const *clbk, void *user, int *x, int *y, int *comp);
+    extern int stbi_info_from_memory(stbi_uc const* buffer, int len, int* x, int* y, int* comp);
+    extern int stbi_info_from_callbacks(stbi_io_callbacks const* clbk, void* user, int* x, int* y, int* comp);
 
 #ifndef STBI_NO_STDIO
-    extern int stbi_info(char const *filename, int *x, int *y, int *comp);
-    extern int stbi_info_from_file(FILE *f, int *x, int *y, int *comp);
+    extern int stbi_info(char const* filename, int* x, int* y, int* comp);
+    extern int stbi_info_from_file(FILE* f, int* x, int* y, int* comp);
 
 #endif
 
@@ -295,21 +295,21 @@ extern "C"
 
     // ZLIB client - used by PNG, available for other purposes
 
-    extern char *stbi_zlib_decode_malloc_guesssize(const char *buffer, int len, int initial_size, int *outlen);
-    extern char *stbi_zlib_decode_malloc(const char *buffer, int len, int *outlen);
-    extern int stbi_zlib_decode_buffer(char *obuffer, int olen, const char *ibuffer, int ilen);
+    extern char* stbi_zlib_decode_malloc_guesssize(const char* buffer, int len, int initial_size, int* outlen);
+    extern char* stbi_zlib_decode_malloc(const char* buffer, int len, int* outlen);
+    extern int stbi_zlib_decode_buffer(char* obuffer, int olen, const char* ibuffer, int ilen);
 
-    extern char *stbi_zlib_decode_noheader_malloc(const char *buffer, int len, int *outlen);
-    extern int stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const char *ibuffer, int ilen);
+    extern char* stbi_zlib_decode_noheader_malloc(const char* buffer, int len, int* outlen);
+    extern int stbi_zlib_decode_noheader_buffer(char* obuffer, int olen, const char* ibuffer, int ilen);
 
 // define faster low-level operations (typically SIMD support)
 #ifdef STBI_SIMD
-    typedef void (*stbi_idct_8x8)(stbi_uc *out, int out_stride, short data[64], unsigned short *dequantize);
+    typedef void (*stbi_idct_8x8)(stbi_uc* out, int out_stride, short data[64], unsigned short* dequantize);
     // compute an integer IDCT on "input"
     //     input[x] = data[x] * dequantize[x]
     //     write results to 'out': 64 samples, each run of 8 spaced by 'out_stride'
     //                             CLAMP results to 0..255
-    typedef void (*stbi_YCbCr_to_RGB_run)(stbi_uc *output, stbi_uc const *y, stbi_uc const *cb, stbi_uc const *cr,
+    typedef void (*stbi_YCbCr_to_RGB_run)(stbi_uc* output, stbi_uc const* y, stbi_uc const* cb, stbi_uc const* cr,
                                           int count, int step);
     // compute a conversion from YCbCr to RGB
     //     'count' pixels

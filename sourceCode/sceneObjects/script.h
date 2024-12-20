@@ -6,15 +6,15 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propScript_size,                      "scriptSize",                                     sim_propertytype_float,     0, "Size", "Size of the script's 3D representation") \
-    FUNCX(propScript_resetAfterSimError,        "resetAfterSimError",                             sim_propertytype_bool,      0, "Reset after simulation error", "") \
+#define DEFINE_PROPERTIES                                                                                             \
+    FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0, "Size", "Size of the script's 3D representation") \
+    FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0, "Reset after simulation error", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_script = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_script = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -28,20 +28,20 @@ class CScript : public CSceneObject
     virtual ~CScript();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer &ar);
+    void serialize(CSer& ar);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -52,9 +52,9 @@ class CScript : public CSceneObject
     bool isPotentiallyCollidable() const;
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
     void setObjectHandle(int newObjectHandle);
     bool canDestroyNow();
     int setBoolProperty(const char* pName, bool pState);
@@ -77,12 +77,11 @@ class CScript : public CSceneObject
     double getScriptSize() const;
     void reinitAfterSimulationIfNeeded();
 
-    CColorObject *getScriptColor();
+    CColorObject* getScriptColor();
 
     void setScriptSize(double s);
     void resetAfterSimError(bool r);
     bool getResetAfterSimError() const;
-
 
     CScriptObject* scriptObject;
 
@@ -95,6 +94,6 @@ class CScript : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib);
 #endif
 };

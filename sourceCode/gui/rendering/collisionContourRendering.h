@@ -21,4 +21,4 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void displayContour(CCollisionObject_old *coll, int countourWidth);
+void displayContour(CCollisionObject_old* coll, int countourWidth);

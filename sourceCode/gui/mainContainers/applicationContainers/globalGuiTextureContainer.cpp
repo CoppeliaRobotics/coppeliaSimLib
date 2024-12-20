@@ -10,7 +10,7 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
 {
     int xres, yres;
     bool rgba;
-    unsigned char *dat;
+    unsigned char* dat;
 
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/world.tga", xres, yres, rgba, nullptr);
     addObject(WORLD_TREE_PICTURE, xres, yres, rgba, false, true, dat);
@@ -230,9 +230,9 @@ CGlobalGuiTextureContainer::~CGlobalGuiTextureContainer()
 }
 
 void CGlobalGuiTextureContainer::addObject(int pictureIndex, int sizeX, int sizeY, bool rgba, bool horizFlip,
-                                           bool vertFlip, unsigned char *data)
+                                           bool vertFlip, unsigned char* data)
 {
-    CTextureObject *it = new CTextureObject(sizeX, sizeY);
+    CTextureObject* it = new CTextureObject(sizeX, sizeY);
     it->setImage(rgba, horizFlip, vertFlip, data);
     _allTextureObjects.push_back(it);
     _allPictureIndices.push_back(pictureIndex);

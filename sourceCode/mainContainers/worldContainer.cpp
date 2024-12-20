@@ -69,7 +69,7 @@ int CWorldContainer::getModificationFlags(bool clearTheFlagsAfter)
     std::vector<long long int> currentUniqueIdsOfSel;
     for (size_t i = 0; i < currentWorld->sceneObjects->getSelectionCount(); i++)
     {
-        CSceneObject *it = currentWorld->sceneObjects->getObjectFromHandle(
+        CSceneObject* it = currentWorld->sceneObjects->getObjectFromHandle(
             currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         if (it != nullptr)
             currentUniqueIdsOfSel.push_back(it->getObjectUid());
@@ -125,7 +125,7 @@ int CWorldContainer::createNewWorld()
         currentWorld->removeWorld_oldIk();
 
     // Create new world and switch to it:
-    CWorld *w = new CWorld();
+    CWorld* w = new CWorld();
     _currentWorldIndex = int(_worlds.size());
     static int nextWorldHandle = 0;
     w->setWorldHandle(nextWorldHandle++);
@@ -146,7 +146,7 @@ int CWorldContainer::createNewWorld()
     setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI
-                             // Inform UI about performed switch to new world:
+        // Inform UI about performed switch to new world:
     cmdIn.cmdId = INSTANCE_WAS_JUST_CREATED_UITHREADCMD;
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 #endif
@@ -185,7 +185,7 @@ int CWorldContainer::destroyCurrentWorld()
     }
 
     // Empty current scene:
-    CWorld *w = currentWorld;
+    CWorld* w = currentWorld;
     w->clearScene(true);
 
 #ifdef SIM_WITH_GUI
@@ -376,31 +376,31 @@ bool CWorldContainer::isWorldSwitchingLocked() const
     return (false);
 }
 
-void CWorldContainer::getAllSceneNames(std::vector<std::string> &l) const
+void CWorldContainer::getAllSceneNames(std::vector<std::string>& l) const
 {
     l.clear();
     for (size_t i = 0; i < _worlds.size(); i++)
         l.push_back(VVarious::splitPath_fileBase(_worlds[i]->environment->getScenePathAndName().c_str()));
 }
 
-CScriptObject *CWorldContainer::getScriptObjectFromHandle(int scriptHandle) const
+CScriptObject* CWorldContainer::getScriptObjectFromHandle(int scriptHandle) const
 {
-    CScriptObject *retVal = nullptr;
+    CScriptObject* retVal = nullptr;
     if (currentWorld != nullptr)
         retVal = currentWorld->getScriptObjectFromHandle(scriptHandle);
-    if ( (retVal == nullptr) && (addOnScriptContainer != nullptr) )
+    if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromHandle(scriptHandle);
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptHandle() == scriptHandle))
         retVal = sandboxScript;
     return (retVal);
 }
 
-CScriptObject *CWorldContainer::getScriptObjectFromUid(int uid) const
+CScriptObject* CWorldContainer::getScriptObjectFromUid(int uid) const
 {
-    CScriptObject *retVal = nullptr;
+    CScriptObject* retVal = nullptr;
     if (currentWorld != nullptr)
         retVal = currentWorld->getScriptObjectFromUid(uid);
-    if ( (retVal == nullptr) && (addOnScriptContainer != nullptr) )
+    if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromUid(uid);
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptUid() == uid))
         retVal = sandboxScript;
@@ -424,7 +424,7 @@ void CWorldContainer::getActiveScripts(std::vector<CScriptObject*>& scripts, boo
     TRACE_INTERNAL;
     if (reverse)
     {
-        if ( (sandboxScript != nullptr) && (sandboxScript->getScriptState() == CScriptObject::scriptState_initialized) )
+        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CScriptObject::scriptState_initialized))
             scripts.push_back(sandboxScript);
         addOnScriptContainer->getActiveScripts(scripts);
         if (currentWorld != nullptr)
@@ -435,12 +435,12 @@ void CWorldContainer::getActiveScripts(std::vector<CScriptObject*>& scripts, boo
         if (currentWorld != nullptr)
             currentWorld->getActiveScripts(scripts, reverse, alsoLegacyScripts);
         addOnScriptContainer->getActiveScripts(scripts);
-        if ( (sandboxScript != nullptr) && (sandboxScript->getScriptState() == CScriptObject::scriptState_initialized) )
+        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CScriptObject::scriptState_initialized))
             scripts.push_back(sandboxScript);
     }
 }
 
-void CWorldContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+void CWorldContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
     bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
@@ -478,7 +478,7 @@ void CWorldContainer::callScripts(int callType, CInterfaceStack *inStack, CInter
     }
 }
 
-void CWorldContainer::broadcastMsg(CInterfaceStack *inStack, int emittingScriptHandle, int options)
+void CWorldContainer::broadcastMsg(CInterfaceStack* inStack, int emittingScriptHandle, int options)
 {
     TRACE_INTERNAL;
     callScripts(sim_syscb_msg, inStack, nullptr, nullptr, emittingScriptHandle);
@@ -519,7 +519,7 @@ bool CWorldContainer::shouldTemporarilySuspendMainScript()
     return (retVal);
 }
 
-void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject *object)
+void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject* object)
 {
     if (getEventsEnabled())
     {
@@ -528,27 +528,27 @@ void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject *object)
     }
 }
 
-CCbor *CWorldContainer::createSceneObjectAddEvent(const CSceneObject *object)
+CCbor* CWorldContainer::createSceneObjectAddEvent(const CSceneObject* object)
 {
     return (_createGeneralEvent(EVENTTYPE_OBJECTADDED, object->getObjectHandle(), object->getObjectUid(), nullptr,
                                 nullptr, false));
 }
 
-CCbor *CWorldContainer::createSceneObjectChangedEvent(long long int sceneObjectHandle, bool isCommonObjectData, const char *fieldName, bool mergeable)
+CCbor* CWorldContainer::createSceneObjectChangedEvent(long long int sceneObjectHandle, bool isCommonObjectData, const char* fieldName, bool mergeable)
 {
-    CSceneObject *object = currentWorld->sceneObjects->getObjectFromHandle(sceneObjectHandle);
+    CSceneObject* object = currentWorld->sceneObjects->getObjectFromHandle(sceneObjectHandle);
     return (createSceneObjectChangedEvent(object, isCommonObjectData, fieldName, mergeable));
 }
 
-CCbor *CWorldContainer::createObjectChangedEvent(long long int objectHandle, const char *fieldName, bool mergeable)
+CCbor* CWorldContainer::createObjectChangedEvent(long long int objectHandle, const char* fieldName, bool mergeable)
 {
     return _createGeneralEvent(EVENTTYPE_OBJECTCHANGED, objectHandle, objectHandle, nullptr, fieldName, mergeable);
 }
 
-CCbor *CWorldContainer::createSceneObjectChangedEvent(const CSceneObject *object, bool isCommonObjectData,
-                                                      const char *fieldName, bool mergeable)
+CCbor* CWorldContainer::createSceneObjectChangedEvent(const CSceneObject* object, bool isCommonObjectData,
+                                                      const char* fieldName, bool mergeable)
 {
-    const char *ot = nullptr;
+    const char* ot = nullptr;
     std::string objType;
     if (!isCommonObjectData)
     {
@@ -602,12 +602,12 @@ CCbor *CWorldContainer::createSceneObjectChangedEvent(const CSceneObject *object
     return (_createGeneralEvent(EVENTTYPE_OBJECTCHANGED, object->getObjectHandle(), object->getObjectUid(), ot, fieldName, mergeable));
 }
 
-CCbor *CWorldContainer::createNakedEvent(const char *event, long long int handle, long long int uid, bool mergeable)
+CCbor* CWorldContainer::createNakedEvent(const char* event, long long int handle, long long int uid, bool mergeable)
 { // has no 'data' field
     return (_createGeneralEvent(event, handle, uid, nullptr, nullptr, mergeable, false));
 }
 
-CCbor *CWorldContainer::createEvent(const char *event, long long int handle, long long int uid, const char *fieldName, bool mergeable)
+CCbor* CWorldContainer::createEvent(const char* event, long long int handle, long long int uid, const char* fieldName, bool mergeable)
 {
     return (_createGeneralEvent(event, handle, uid, nullptr, fieldName, mergeable));
 }
@@ -618,9 +618,9 @@ void CWorldContainer::pushEvent()
     _eventMutex.unlock();
 }
 
-CCbor *CWorldContainer::_createGeneralEvent(const char *event, long long int objectHandle, long long int uid, const char *objType, const char *fieldName, bool mergeable, bool openDataField /*=true*/)
+CCbor* CWorldContainer::_createGeneralEvent(const char* event, long long int objectHandle, long long int uid, const char* objType, const char* fieldName, bool mergeable, bool openDataField /*=true*/)
 {
-    CCbor *retVal = nullptr;
+    CCbor* retVal = nullptr;
     if (getEventsEnabled())
     {
         _eventMutex.lock("CWorldContainer::_createGeneralEvent");
@@ -640,7 +640,7 @@ std::string CWorldContainer::getSessionId() const
     return _sessionId;
 }
 
-void CWorldContainer::getGenesisEvents(std::vector<unsigned char> *genesisEvents, CInterfaceStack *stack)
+void CWorldContainer::getGenesisEvents(std::vector<unsigned char>* genesisEvents, CInterfaceStack* stack)
 {
     _eventMutex.lock("CWorldContainer::getGenesisEvents");
     dispatchEvents(); // Dispatch events in the pipeline
@@ -660,7 +660,7 @@ void CWorldContainer::dispatchEvents()
         if (_events->getEventCnt() > 0)
         {
             _eventMutex.unlock();
-            CCbor *ev_ = _createGeneralEvent(EVENTTYPE_MSGDISPATCHTIME, -1, -1, nullptr, nullptr, false);
+            CCbor* ev_ = _createGeneralEvent(EVENTTYPE_MSGDISPATCHTIME, -1, -1, nullptr, nullptr, false);
             ev_->appendKeyInt("time", VDateTime::getUnixTimeInMs());
             pushEvent();
             _eventMutex.lock("CWorldContainer::dispatchEvents");
@@ -678,7 +678,7 @@ void CWorldContainer::dispatchEvents()
             pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_events, auxData, ev.data());
             if (getSysFuncAndHookCnt(sim_syscb_event) > 0)
             {
-                CInterfaceStack *fullEventsStack = nullptr;
+                CInterfaceStack* fullEventsStack = nullptr;
 
                 std::vector<CScriptObject*> scripts;
                 getActiveScripts(scripts, false, true);
@@ -692,8 +692,8 @@ void CWorldContainer::dispatchEvents()
                         { // events are filtered
                             if (ew.size() > 2)
                             { // make sure the event array is not empty
-                                CInterfaceStack *stack = interfaceStackContainer->createStack();
-                                stack->pushBufferOntoStack((char *)ew.data(), ew.size());
+                                CInterfaceStack* stack = interfaceStackContainer->createStack();
+                                stack->pushBufferOntoStack((char*)ew.data(), ew.size());
                                 script->systemCallScript(sim_syscb_event, stack, nullptr);
                                 interfaceStackContainer->destroyStack(stack);
                             }
@@ -703,7 +703,7 @@ void CWorldContainer::dispatchEvents()
                             if (fullEventsStack == nullptr)
                             {
                                 fullEventsStack = interfaceStackContainer->createStack();
-                                fullEventsStack->pushBufferOntoStack((char *)ev.data(), ev.size());
+                                fullEventsStack->pushBufferOntoStack((char*)ev.data(), ev.size());
                             }
                             script->systemCallScript(sim_syscb_event, fullEventsStack, nullptr);
                         }
@@ -720,7 +720,7 @@ void CWorldContainer::dispatchEvents()
 }
 
 #ifdef SIM_WITH_GUI
-void CWorldContainer::addMenu(VMenu *menu)
+void CWorldContainer::addMenu(VMenu* menu)
 { // GUI THREAD only
     TRACE_INTERNAL;
     bool enabled = (!isWorldSwitchingLocked()) && currentWorld->simulation->isSimulationStopped() &&
@@ -823,10 +823,10 @@ void CWorldContainer::simulationEnded(bool removeNewObjects)
     calcInfo->simulationEnded();
 }
 
-void CWorldContainer::announceObjectWillBeErased(const CSceneObject *object)
+void CWorldContainer::announceObjectWillBeErased(const CSceneObject* object)
 {
-//    announceScriptStateWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
-//    announceScriptWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
+    //    announceScriptStateWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
+    //    announceScriptWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
     currentWorld->announceObjectWillBeErased(object);
 }
 
@@ -849,4 +849,3 @@ void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle, long lon
         GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle, scriptUid);
 #endif
 }
-

@@ -14,7 +14,7 @@ class CQDlgJoints : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgJoints(QWidget *parent = 0);
+    explicit CQDlgJoints(QWidget* parent = 0);
     ~CQDlgJoints();
 
     void refresh();
@@ -55,7 +55,7 @@ class CQDlgJoints : public CDlgEx
     void on_qqApplyAppearance_clicked();
 
   private:
-    Ui::CQDlgJoints *ui;
+    Ui::CQDlgJoints* ui;
 };
 
 #endif // QDLGJOINTS_H

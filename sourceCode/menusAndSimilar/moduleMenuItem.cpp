@@ -1,6 +1,6 @@
 #include <moduleMenuItem.h>
 
-CModuleMenuItem::CModuleMenuItem(const char *path, int scriptHandle)
+CModuleMenuItem::CModuleMenuItem(const char* path, int scriptHandle)
 {
     std::string s(path);
     _label = path;
@@ -50,7 +50,7 @@ std::string CModuleMenuItem::getLabel() const
     return (_label);
 }
 
-void CModuleMenuItem::setLabel(const char *label)
+void CModuleMenuItem::setLabel(const char* label)
 {
     _label = label;
 }
@@ -61,7 +61,7 @@ std::string CModuleMenuItem::getPath() const
 }
 
 #ifdef SIM_WITH_GUI
-void CModuleMenuItem::addMenu(std::vector<VMenu *> &menus, std::vector<std::string> &labels)
+void CModuleMenuItem::addMenu(std::vector<VMenu*>& menus, std::vector<std::string>& labels)
 {
     size_t pos = 0;
     std::string token;
@@ -83,7 +83,7 @@ void CModuleMenuItem::addMenu(std::vector<VMenu *> &menus, std::vector<std::stri
         if (p + 1 >= labels.size())
         {
             labels.push_back(token);
-            VMenu *prim = new VMenu();
+            VMenu* prim = new VMenu();
             menus[menus.size() - 1]->appendMenuAndDetach(prim, true, token.c_str());
             menus.push_back(prim);
         }

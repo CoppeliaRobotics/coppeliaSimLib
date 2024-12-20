@@ -14,7 +14,7 @@ CSimulatorMessageQueue::~CSimulatorMessageQueue()
     _mutex.unlock();
 }
 
-void CSimulatorMessageQueue::addCommand(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, char *data,
+void CSimulatorMessageQueue::addCommand(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, char* data,
                                         int dataSize)
 {
     _mutex.lock("CSimulatorMessageQueue::addCommand()");
@@ -30,10 +30,10 @@ void CSimulatorMessageQueue::addCommand(int commandID, int auxVal1, int auxVal2,
     _mutex.unlock();
 }
 
-char *CSimulatorMessageQueue::extractOneCommand(int &commandID, int auxVals[4], int &dataSize)
+char* CSimulatorMessageQueue::extractOneCommand(int& commandID, int auxVals[4], int& dataSize)
 {
     _mutex.lock("CSimulatorMessageQueue::extractOneCommand()");
-    char *retVal = nullptr;
+    char* retVal = nullptr;
     commandID = -1;
     if (_messages.size() != 0)
     {

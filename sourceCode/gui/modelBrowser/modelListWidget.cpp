@@ -12,7 +12,8 @@
 #include <guiApp.h>
 #endif
 
-CModelListWidget::CModelListWidget() : CModelListWidgetBase()
+CModelListWidget::CModelListWidget()
+    : CModelListWidgetBase()
 {
     // setSortingEnabled(true);
     setViewMode(QListView::IconMode);
@@ -34,7 +35,7 @@ CModelListWidget::CModelListWidget() : CModelListWidgetBase()
 
     //    setStyleSheet(QString("QListWidget:item:selected:active { background: transparent;} "));
 
-    connect(this, SIGNAL(itemPressed(QListWidgetItem *)), this, SLOT(onItemClicked(QListWidgetItem *)));
+    connect(this, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(onItemClicked(QListWidgetItem*)));
 }
 
 CModelListWidget::~CModelListWidget()
@@ -50,10 +51,10 @@ void CModelListWidget::clearAll()
     clear();
 }
 
-void CModelListWidget::addThumbnail(CThumbnail *thumbN, const char *filepath, const char *suffix,
+void CModelListWidget::addThumbnail(CThumbnail* thumbN, const char* filepath, const char* suffix,
                                     unsigned int creationTime, unsigned char modelOrFolder, bool validFileformat,
-                                    C7Vector *optionalModelTr, C3Vector *optionalModelBoundingBoxSize,
-                                    double *optionalModelNonDefaultTranslationStepSize)
+                                    C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize,
+                                    double* optionalModelNonDefaultTranslationStepSize)
 {
     SModelThumbnailInfo info;
     info.thumbnail = thumbN;
@@ -96,10 +97,10 @@ void CModelListWidget::_addThumbnailItemToList(int index)
             cnt = 0;
         }
     }
-    QListWidgetItem *item = new QListWidgetItem(str.c_str());
+    QListWidgetItem* item = new QListWidgetItem(str.c_str());
     if (_allThumbnailsInfo[index].modelOrFolder == 1)
     {
-        const char *rgba = _allThumbnailsInfo[index].thumbnail->getPointerToUncompressedImage();
+        const char* rgba = _allThumbnailsInfo[index].thumbnail->getPointerToUncompressedImage();
         QImage img(128, 128, QImage::Format_ARGB32);
         QRgb value;
         for (int i = 0; i < 128; i++)
@@ -125,12 +126,12 @@ void CModelListWidget::_addThumbnailItemToList(int index)
     // sortItems();
 }
 
-CThumbnail *CModelListWidget::loadModelThumbnail(const char *pathAndFilename, int &result, C7Vector &modelTr,
-                                                 C3Vector &modelBoundingBoxSize,
-                                                 double &modelNonDefaultTranslationStepSize)
+CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename, int& result, C7Vector& modelTr,
+                                                 C3Vector& modelBoundingBoxSize,
+                                                 double& modelNonDefaultTranslationStepSize)
 { // result: -1=model not recognized, 0=model has no thumbnail, 1=model has thumbnail
     result = -1;
-    CThumbnail *retThumbnail = nullptr;
+    CThumbnail* retThumbnail = nullptr;
     if (VFile::doesFileExist(pathAndFilename))
     {
         CSer serObj(pathAndFilename, CSer::getFileTypeFromName(pathAndFilename));
@@ -140,7 +141,7 @@ CThumbnail *CModelListWidget::loadModelThumbnail(const char *pathAndFilename, in
         {
             result = 0;
 
-            CThumbnail *thumbO = App::currentWorld->environment->modelThumbnail_notSerializedHere.copyYourself();
+            CThumbnail* thumbO = App::currentWorld->environment->modelThumbnail_notSerializedHere.copyYourself();
             modelTr.setIdentity();
             modelBoundingBoxSize.clear();
             modelNonDefaultTranslationStepSize = 0.0;
@@ -157,7 +158,7 @@ CThumbnail *CModelListWidget::loadModelThumbnail(const char *pathAndFilename, in
     return (retThumbnail);
 }
 
-void CModelListWidget::setFolder(const char *folderPath)
+void CModelListWidget::setFolder(const char* folderPath)
 {
     clearAll();
     std::vector<int> initialSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
@@ -185,7 +186,7 @@ void CModelListWidget::setFolder(const char *folderPath)
             VFileFinder finder;
             finder.searchFolders(p.c_str());
             int index = 0;
-            SFileOrFolder *foundItem = finder.getFoundItem(index++);
+            SFileOrFolder* foundItem = finder.getFoundItem(index++);
             while (foundItem != nullptr)
             {
                 utils::replaceSubstring(foundItem->path, "\\", "/");
@@ -252,7 +253,7 @@ void CModelListWidget::setFolder(const char *folderPath)
         }
 
         std::sort(allItems.begin(), allItems.end(),
-                  [](const sost &a, const sost &b) { return a.name + a.suffix < b.name + b.suffix; });
+                  [](const sost& a, const sost& b) { return a.name + a.suffix < b.name + b.suffix; });
 
         // 2. Check if a thumbnail file exists:
         clearAll();
@@ -313,10 +314,10 @@ void CModelListWidget::setFolder(const char *folderPath)
                         { // we have a folder here!
                             int xres, yres;
                             bool rgba;
-                            unsigned char *thumbnail = CImageLoaderSaver::loadQTgaImageData(
+                            unsigned char* thumbnail = CImageLoaderSaver::loadQTgaImageData(
                                 ":/targaFiles/128x128folder.tga", xres, yres, rgba, nullptr);
-                            CThumbnail *foldThumb = new CThumbnail();
-                            foldThumb->setUncompressedThumbnailImage((char *)thumbnail, true, false);
+                            CThumbnail* foldThumb = new CThumbnail();
+                            foldThumb->setUncompressedThumbnailImage((char*)thumbnail, true, false);
                             delete[] thumbnail;
                             addThumbnail(foldThumb, allItems[i].path.c_str(), allItems[i].suffix.c_str(),
                                          allItems[i].creationTime, 0, true, nullptr, nullptr, nullptr);
@@ -327,7 +328,7 @@ void CModelListWidget::setFolder(const char *folderPath)
                             C7Vector modelTr;
                             C3Vector modelBBs;
                             double ndss;
-                            CThumbnail *thumbnail =
+                            CThumbnail* thumbnail =
                                 loadModelThumbnail(allItems[i].path.c_str(), result, modelTr, modelBBs, ndss);
                             if (thumbnail != nullptr)
                                 addThumbnail(thumbnail, allItems[i].path.c_str(), allItems[i].suffix.c_str(),
@@ -347,7 +348,7 @@ void CModelListWidget::setFolder(const char *folderPath)
     App::currentWorld->sceneObjects->setSelectedObjectHandles(initialSelection.data(), initialSelection.size());
 }
 
-std::string CModelListWidget::_getFirstDifferentDir(const char *pathA, const char *pathB)
+std::string CModelListWidget::_getFirstDifferentDir(const char* pathA, const char* pathB)
 {
     fs::path fsPathA(pathA);
     fs::path fsPathB(pathB);
@@ -355,9 +356,9 @@ std::string CModelListWidget::_getFirstDifferentDir(const char *pathA, const cha
     std::vector<std::string> dirsA;
     std::vector<std::string> dirsB;
 
-    for (const auto &part : fsPathA)
+    for (const auto& part : fsPathA)
         dirsA.push_back(part.string());
-    for (const auto &part : fsPathB)
+    for (const auto& part : fsPathB)
         dirsB.push_back(part.string());
 
     std::reverse(dirsA.begin(), dirsA.end());
@@ -376,7 +377,7 @@ std::string CModelListWidget::_getFirstDifferentDir(const char *pathA, const cha
     return "";
 }
 
-void CModelListWidget::serializePart1(CSer &ar)
+void CModelListWidget::serializePart1(CSer& ar)
 {
     if (ar.isStoring())
     { // Storing
@@ -447,7 +448,7 @@ void CModelListWidget::serializePart1(CSer &ar)
     }
 }
 
-void CModelListWidget::serializePart2(CSer &ar)
+void CModelListWidget::serializePart2(CSer& ar)
 {
     if (ar.isStoring())
     { // Storing
@@ -466,7 +467,7 @@ void CModelListWidget::serializePart2(CSer &ar)
     { // Loading
         int byteQuantity;
         std::string theName = "";
-        char *compressedImage = new char[128 * 64 * 3];
+        char* compressedImage = new char[128 * 64 * 3];
         int thumbIndex = 0;
         while (theName.compare(SER_END_OF_OBJECT) != 0)
         {
@@ -481,7 +482,7 @@ void CModelListWidget::serializePart2(CSer &ar)
                     unsigned char imagePresent;
                     ar >> imagePresent;
                     char dum;
-                    CThumbnail *it = new CThumbnail();
+                    CThumbnail* it = new CThumbnail();
                     if (imagePresent != 0)
                     {
                         for (int j = 0; j < 128 * 64 * 3; j++)
@@ -498,7 +499,7 @@ void CModelListWidget::serializePart2(CSer &ar)
                 {
                     noHit = false;
                     ar >> byteQuantity;
-                    CThumbnail *it = new CThumbnail();
+                    CThumbnail* it = new CThumbnail();
                     it->serialize(ar);
                     _allThumbnailsInfo[thumbIndex++].thumbnail = it;
                     _addThumbnailItemToList(thumbIndex - 1);
@@ -511,19 +512,19 @@ void CModelListWidget::serializePart2(CSer &ar)
     }
 }
 
-QMimeData *CModelListWidget::mimeData(const QList<QListWidgetItem *> items) const
+QMimeData* CModelListWidget::mimeData(const QList<QListWidgetItem*> items) const
 {
     if (items.size() != 1)
         return (nullptr);
-    QListWidgetItem *item = items[0];
+    QListWidgetItem* item = items[0];
     int index = item->data(Qt::UserRole).toInt();
-    QMimeData *data = new QMimeData();
-    SModelThumbnailInfo *info = (SModelThumbnailInfo *)&_allThumbnailsInfo[index];
+    QMimeData* data = new QMimeData();
+    SModelThumbnailInfo* info = (SModelThumbnailInfo*)&_allThumbnailsInfo[index];
     data->setText(info->name.c_str());
     return (data);
 }
 
-SModelThumbnailInfo *CModelListWidget::getThumbnailInfoFromModelName(const char *name, int *index)
+SModelThumbnailInfo* CModelListWidget::getThumbnailInfoFromModelName(const char* name, int* index)
 {
     for (size_t i = 0; i < _allThumbnailsInfo.size(); i++)
     {
@@ -539,7 +540,7 @@ SModelThumbnailInfo *CModelListWidget::getThumbnailInfoFromModelName(const char 
     return (nullptr);
 }
 
-void CModelListWidget::onItemClicked(QListWidgetItem *item)
+void CModelListWidget::onItemClicked(QListWidgetItem* item)
 {
     int index = item->data(Qt::UserRole).toInt();
     if (_allThumbnailsInfo[index].modelOrFolder == 0)

@@ -171,14 +171,14 @@ bool CUndoBufferCont::memorizeState()
 
     serObj.writeOpenBinary(false); // we don't wanna compression
     _undoPointSavingOrRestoringUnderWay = true;
-    CUndoBufferCameras *cameraBuffers = new CUndoBufferCameras();
+    CUndoBufferCameras* cameraBuffers = new CUndoBufferCameras();
     cameraBuffers->storeCameras();
     App::currentWorld->saveScene(serObj); // This takes the 90% of time of the whole routine
     cameraBuffers->releaseCameras();
     _undoPointSavingOrRestoringUnderWay = false;
     serObj.writeClose();
 
-    CUndoBuffer *it = new CUndoBuffer(newBuff, _nextBufferId++, cameraBuffers);
+    CUndoBuffer* it = new CUndoBuffer(newBuff, _nextBufferId++, cameraBuffers);
     if (_currentStateIndex == -1)
     { // first buffer, we just add it
         _buffers.push_back(it);
@@ -214,7 +214,7 @@ bool CUndoBufferCont::memorizeState()
         if (int(_buffers.size()) < 3)
             break; // at least 3 states!
         _getFullBuffer(1, fullBuff);
-        CUndoBuffer *it = _buffers[1];
+        CUndoBuffer* it = _buffers[1];
         it->updateWithFullBuffer(fullBuff);
         undoBufferArrays.removeDependenciesFromUndoBufferId(_buffers[0]->getBufferId());
         delete _buffers[0];
@@ -337,7 +337,7 @@ void CUndoBufferCont::undo()
     // 2. We go back:
     _currentStateIndex--;
     std::vector<char> theBuff;
-    CUndoBufferCameras *cameraBuffers = _getFullBuffer(_currentStateIndex, theBuff);
+    CUndoBufferCameras* cameraBuffers = _getFullBuffer(_currentStateIndex, theBuff);
     // 3. Load the buffer:
 
     App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo);
@@ -394,7 +394,7 @@ void CUndoBufferCont::redo()
     // 2. We go forward:
     _currentStateIndex++;
     std::vector<char> theBuff;
-    CUndoBufferCameras *cameraBuffers = _getFullBuffer(_currentStateIndex, theBuff);
+    CUndoBufferCameras* cameraBuffers = _getFullBuffer(_currentStateIndex, theBuff);
 
     // 3. Load the buffer:
 
@@ -432,7 +432,7 @@ void CUndoBufferCont::redo()
 #endif
 }
 
-CUndoBufferCameras *CUndoBufferCont::_getFullBuffer(int index, std::vector<char> &fullBuff)
+CUndoBufferCameras* CUndoBufferCont::_getFullBuffer(int index, std::vector<char>& fullBuff)
 {
     TRACE_INTERNAL;
     if ((index >= int(_buffers.size())) || (index < 0))
@@ -440,7 +440,7 @@ CUndoBufferCameras *CUndoBufferCont::_getFullBuffer(int index, std::vector<char>
         fullBuff.clear();
         return (nullptr);
     }
-    CUndoBufferCameras *retVal = nullptr;
+    CUndoBufferCameras* retVal = nullptr;
     if (index == 0)
     { // the first one
         retVal = _buffers[index]->getCameraBuffers();
@@ -469,7 +469,7 @@ void CUndoBufferCont::_rememberSelectionState()
 {
     TRACE_INTERNAL;
     _selectionState.clear();
-    std::vector<CSceneObject *> sel;
+    std::vector<CSceneObject*> sel;
     App::currentWorld->sceneObjects->getSelectedObjects(sel);
     for (size_t i = 0; i < sel.size(); i++)
         _selectionState.push_back(sel[i]->getObjectAlias_fullPath());
@@ -480,7 +480,7 @@ void CUndoBufferCont::_restoreSelectionState()
     TRACE_INTERNAL;
     for (size_t i = 0; i < _selectionState.size(); i++)
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, _selectionState[i].c_str(), -1);
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, _selectionState[i].c_str(), -1);
         if (obj != nullptr)
             App::currentWorld->sceneObjects->addObjectToSelection(obj->getObjectHandle());
     }

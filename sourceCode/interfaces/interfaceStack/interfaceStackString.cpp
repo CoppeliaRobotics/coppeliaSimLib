@@ -1,6 +1,6 @@
 #include <interfaceStackString.h>
 
-CInterfaceStackString::CInterfaceStackString(const char *str)
+CInterfaceStackString::CInterfaceStackString(const char* str)
 {
     _isBuffer = false;
     _isText = true;
@@ -10,7 +10,7 @@ CInterfaceStackString::CInterfaceStackString(const char *str)
         _value.assign(str);
 }
 
-CInterfaceStackString::CInterfaceStackString(const char *str, size_t strLength, bool isBuffer)
+CInterfaceStackString::CInterfaceStackString(const char* str, size_t strLength, bool isBuffer)
 {
     _isText = false;
     _isBuffer = isBuffer;
@@ -35,7 +35,7 @@ void CInterfaceStackString::setAuxData(unsigned char opt)
     _isText = (opt & 2);
 }
 
-const char *CInterfaceStackString::getValue(size_t *l) const
+const char* CInterfaceStackString::getValue(size_t* l) const
 {
     if (l != nullptr)
         l[0] = _value.size();
@@ -52,15 +52,15 @@ bool CInterfaceStackString::isText() const
     return _isText;
 }
 
-CInterfaceStackObject *CInterfaceStackString::copyYourself() const
+CInterfaceStackObject* CInterfaceStackString::copyYourself() const
 {
-    CInterfaceStackString *retVal = new CInterfaceStackString(_value.c_str(), _value.size(), _isBuffer);
+    CInterfaceStackString* retVal = new CInterfaceStackString(_value.c_str(), _value.size(), _isBuffer);
     retVal->_isText = _isText;
     retVal->_cborCoded = _cborCoded;
     return (retVal);
 }
 
-void CInterfaceStackString::printContent(int spaces, std::string &buffer) const
+void CInterfaceStackString::printContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
         buffer += " ";
@@ -86,7 +86,7 @@ void CInterfaceStackString::printContent(int spaces, std::string &buffer) const
     }
 }
 
-std::string CInterfaceStackString::getObjectData(std::string &auxInfos) const
+std::string CInterfaceStackString::getObjectData(std::string& auxInfos) const
 {
     std::string retVal;
     unsigned char bb = 0;
@@ -96,7 +96,7 @@ std::string CInterfaceStackString::getObjectData(std::string &auxInfos) const
         bb |= 2;
     auxInfos.push_back((char)bb);
     unsigned int l = (unsigned int)_value.size();
-    char *tmp = (char *)(&l);
+    char* tmp = (char*)(&l);
     for (size_t i = 0; i < sizeof(l); i++)
         retVal.push_back(tmp[i]);
     for (size_t i = 0; i < l; i++)
@@ -104,22 +104,22 @@ std::string CInterfaceStackString::getObjectData(std::string &auxInfos) const
     return (retVal);
 }
 
-void CInterfaceStackString::addCborObjectData(CCbor *cborObj) const
+void CInterfaceStackString::addCborObjectData(CCbor* cborObj) const
 {
     if (_cborCoded)
-        cborObj->appendRaw((const unsigned char *)_value.c_str(), _value.size());
+        cborObj->appendRaw((const unsigned char*)_value.c_str(), _value.size());
     else
         cborObj->appendLuaString(_value, _isBuffer, _isText);
 }
 
-unsigned int CInterfaceStackString::createFromData(const char *data, unsigned char /*version*/, std::vector<CInterfaceStackObject*> &allCreatedObjects)
+unsigned int CInterfaceStackString::createFromData(const char* data, unsigned char /*version*/, std::vector<CInterfaceStackObject*>& allCreatedObjects)
 {
     allCreatedObjects.push_back(this);
     size_t p = 0;
     _isBuffer = false;
     _isText = false;
     unsigned int l;
-    char *tmp = (char *)(&l);
+    char* tmp = (char*)(&l);
     for (size_t i = 0; i < sizeof(l); i++)
         tmp[i] = data[p + i];
     for (size_t i = 0; i < l; i++)
@@ -127,12 +127,12 @@ unsigned int CInterfaceStackString::createFromData(const char *data, unsigned ch
     return (sizeof(l) + l);
 }
 
-bool CInterfaceStackString::checkCreateFromData(const char *data, unsigned int &w, unsigned int l, unsigned char version)
+bool CInterfaceStackString::checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version)
 {
     unsigned int m;
     if (l < sizeof(m))
         return (false);
-    char *tmp = (char *)(&m);
+    char* tmp = (char*)(&m);
     for (size_t i = 0; i < sizeof(m); i++)
         tmp[i] = data[i];
     if (l < sizeof(m) + m)

@@ -4,72 +4,72 @@
 #include <nonHolonomicPathPlanning_old.h>
 #include <holonomicPathPlanning_old.h>
 
-void *CPathPlanningInterface::createNonHolonomicPathPlanningObject(
+void* CPathPlanningInterface::createNonHolonomicPathPlanningObject(
     int theStartDummyID, int theGoalDummyID, int theRobotCollectionID, int theObstacleCollectionID,
     double theAngularCoeff, double theSteeringAngleCoeff, double theMaxSteeringAngleVariation,
     double theMaxSteeringAngle, double theStepSize, const double theSearchMinVal[2], const double theSearchRange[2],
     const int theDirectionConstraints[2], const double clearanceAndMaxDistance[2])
 {
-    CNonHolonomicPathPlanning_old *p = new CNonHolonomicPathPlanning_old(
+    CNonHolonomicPathPlanning_old* p = new CNonHolonomicPathPlanning_old(
         theStartDummyID, theGoalDummyID, theRobotCollectionID, theObstacleCollectionID, -1, theAngularCoeff,
         theSteeringAngleCoeff, theMaxSteeringAngleVariation, theMaxSteeringAngle, theStepSize, theSearchMinVal,
         theSearchRange, theDirectionConstraints, clearanceAndMaxDistance);
-    return ((void *)p);
+    return ((void*)p);
 }
 
-void *CPathPlanningInterface::createHolonomicPathPlanningObject(
+void* CPathPlanningInterface::createHolonomicPathPlanningObject(
     int theStartDummyID, int theGoalDummyID, int theRobotCollectionID, int theObstacleCollectionID, int thePlanningType,
     double theAngularCoeff, double theStepSize, const double theSearchMinVal[4], const double theSearchRange[4],
     const int theDirectionConstraints[4], const double clearanceAndMaxDistance[2], const double gammaAxis[3])
 {
-    CHolonomicPathPlanning_old *p = new CHolonomicPathPlanning_old(
+    CHolonomicPathPlanning_old* p = new CHolonomicPathPlanning_old(
         theStartDummyID, theGoalDummyID, theRobotCollectionID, theObstacleCollectionID, -1, thePlanningType,
         theAngularCoeff, theStepSize, theSearchMinVal, theSearchRange, theDirectionConstraints, clearanceAndMaxDistance,
         C3Vector(gammaAxis));
-    return ((void *)p);
+    return ((void*)p);
 }
 
-void CPathPlanningInterface::destroyPathPlanningObject(void *obj)
+void CPathPlanningInterface::destroyPathPlanningObject(void* obj)
 {
-    delete (CPathPlanning_old *)obj;
+    delete (CPathPlanning_old*)obj;
 }
 
-int CPathPlanningInterface::searchPath(void *obj, int maxTimeInMsPerPass)
+int CPathPlanningInterface::searchPath(void* obj, int maxTimeInMsPerPass)
 {
-    return (((CPathPlanning_old *)obj)->searchPath(maxTimeInMsPerPass));
+    return (((CPathPlanning_old*)obj)->searchPath(maxTimeInMsPerPass));
 }
 
-int CPathPlanningInterface::getPathNodeCount(void *obj, char fromStart)
+int CPathPlanningInterface::getPathNodeCount(void* obj, char fromStart)
 {
-    if (((CPathPlanning_old *)obj)->isHolonomic)
+    if (((CPathPlanning_old*)obj)->isHolonomic)
     {
         if (fromStart != 0)
-            return (int(((CHolonomicPathPlanning_old *)obj)->fromStart.size()));
-        return (int(((CHolonomicPathPlanning_old *)obj)->fromGoal.size()));
+            return (int(((CHolonomicPathPlanning_old*)obj)->fromStart.size()));
+        return (int(((CHolonomicPathPlanning_old*)obj)->fromGoal.size()));
     }
     else
     {
         if (fromStart != 0)
-            return (int(((CNonHolonomicPathPlanning_old *)obj)->fromStart.size()));
-        return (int(((CNonHolonomicPathPlanning_old *)obj)->fromGoal.size()));
+            return (int(((CNonHolonomicPathPlanning_old*)obj)->fromStart.size()));
+        return (int(((CNonHolonomicPathPlanning_old*)obj)->fromGoal.size()));
     }
 }
 
-char CPathPlanningInterface::setPartialPath(void *obj)
+char CPathPlanningInterface::setPartialPath(void* obj)
 {
-    return (((CPathPlanning_old *)obj)->setPartialPath());
+    return (((CPathPlanning_old*)obj)->setPartialPath());
 }
 
-int CPathPlanningInterface::smoothFoundPath(void *obj, int steps, int maxTimePerPass)
+int CPathPlanningInterface::smoothFoundPath(void* obj, int steps, int maxTimePerPass)
 {
-    return (((CPathPlanning_old *)obj)->smoothFoundPath(steps, maxTimePerPass));
+    return (((CPathPlanning_old*)obj)->smoothFoundPath(steps, maxTimePerPass));
 }
 
-double *CPathPlanningInterface::getFoundPath(void *obj, int *nodeCount)
+double* CPathPlanningInterface::getFoundPath(void* obj, int* nodeCount)
 {
-    double *retVal = nullptr;
+    double* retVal = nullptr;
     std::vector<double> data;
-    ((CPathPlanning_old *)obj)->getPathData(data);
+    ((CPathPlanning_old*)obj)->getPathData(data);
     nodeCount[0] = (int)data.size() / 7;
     if (nodeCount[0] != 0)
     {
@@ -80,11 +80,11 @@ double *CPathPlanningInterface::getFoundPath(void *obj, int *nodeCount)
     return (retVal);
 }
 
-double *CPathPlanningInterface::getSearchTree(void *obj, int *segmentCount, char fromStart)
+double* CPathPlanningInterface::getSearchTree(void* obj, int* segmentCount, char fromStart)
 {
-    double *retVal = nullptr;
+    double* retVal = nullptr;
     std::vector<double> data;
-    ((CPathPlanning_old *)obj)->getSearchTreeData(data, fromStart != 0);
+    ((CPathPlanning_old*)obj)->getSearchTreeData(data, fromStart != 0);
     segmentCount[0] = (int)data.size() / 6;
     if (segmentCount[0] != 0)
     {
@@ -95,9 +95,9 @@ double *CPathPlanningInterface::getSearchTree(void *obj, int *segmentCount, char
     return (retVal);
 }
 
-void CPathPlanningInterface::releaseBuffer(void *buff)
+void CPathPlanningInterface::releaseBuffer(void* buff)
 {
-    delete[]((char *)buff);
+    delete[]((char*)buff);
 }
 
 double CPathPlanningInterface::getNormalizedAngle(double angle)

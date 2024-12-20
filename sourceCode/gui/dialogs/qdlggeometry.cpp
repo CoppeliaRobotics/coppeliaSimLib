@@ -8,7 +8,8 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgGeometry::CQDlgGeometry(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgGeometry)
+CQDlgGeometry::CQDlgGeometry(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgGeometry)
 {
     _dlgType = GEOMETRY_DLG;
     ui->setupUi(this);
@@ -24,7 +25,7 @@ CQDlgGeometry::~CQDlgGeometry()
 
 void CQDlgGeometry::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
@@ -33,7 +34,7 @@ void CQDlgGeometry::refresh()
     if (!insideRefreshTriggered)
         _setCurrentSizes();
     insideRefreshTriggered = false;
-    CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape == nullptr)
         return;
     bool g = !shape->getMesh()->isMesh();
@@ -129,7 +130,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
     isPureShape = true;
     isConvex = true;
     isGroup = false;
-    CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape != nullptr)
     {
         titleText = "Geometry associated with '";
@@ -150,7 +151,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
 
 void CQDlgGeometry::_setCurrentSizes()
 {
-    CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape != nullptr)
     {
         C3Vector bbSizes(shape->getBBHSize() * 2.0);
@@ -169,14 +170,14 @@ bool CQDlgGeometry::isLinkedDataValid()
     return (false);
 }
 
-void CQDlgGeometry::display(int shapeHandle, QWidget *theParentWindow)
+void CQDlgGeometry::display(int shapeHandle, QWidget* theParentWindow)
 {
     if (GuiApp::mainWindow == nullptr)
         return;
     GuiApp::mainWindow->dlgCont->close(GEOMETRY_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(GEOMETRY_DLG))
     {
-        CQDlgGeometry *geom = (CQDlgGeometry *)GuiApp::mainWindow->dlgCont->getDialog(GEOMETRY_DLG);
+        CQDlgGeometry* geom = (CQDlgGeometry*)GuiApp::mainWindow->dlgCont->getDialog(GEOMETRY_DLG);
         if (geom != nullptr)
             geom->_initialize(shapeHandle);
     }
@@ -195,10 +196,10 @@ bool CQDlgGeometry::doesInstanceSwitchRequireDestruction()
 
 void CQDlgGeometry::_readSize(int index)
 {
-    QLineEdit *ww[3] = {ui->qqSizeX, ui->qqSizeY, ui->qqSizeZ};
+    QLineEdit* ww[3] = {ui->qqSizeX, ui->qqSizeY, ui->qqSizeZ};
     if (!isLinkedDataValid())
         return;
-    CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape != nullptr)
     {
         bool ok;
@@ -266,10 +267,10 @@ void CQDlgGeometry::_readSize(int index)
 
 void CQDlgGeometry::_readScaling(int index)
 {
-    QLineEdit *ww[3] = {ui->qqScaleX, ui->qqScaleY, ui->qqScaleZ};
+    QLineEdit* ww[3] = {ui->qqScaleX, ui->qqScaleY, ui->qqScaleZ};
     if (!isLinkedDataValid())
         return;
-    CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape != nullptr)
     {
         bool ok;

@@ -5,7 +5,7 @@
 #include <guiApp.h>
 #include <app.h>
 
-CQDlgHeightfieldDimension::CQDlgHeightfieldDimension(QWidget *parent)
+CQDlgHeightfieldDimension::CQDlgHeightfieldDimension(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgHeightfieldDimension)
 {
     ui->setupUi(this);

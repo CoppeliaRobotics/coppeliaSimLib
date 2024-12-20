@@ -70,7 +70,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
 
 std::string CEngineProperties::getObjectProperties(int objectHandle, std::string* title /*= nullptr*/, bool stripComments /*= true*/) const
 {
-    CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+    CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
 
     QJsonObject jmain;
     CAnnJson annJson(&jmain);
@@ -136,7 +136,7 @@ std::string CEngineProperties::getObjectProperties(int objectHandle, std::string
 bool CEngineProperties::setObjectProperties(int objectHandle, const char* prop, std::string* errorString /*= nullptr*/, int* parseErrorLine /*= nullptr*/) const
 {
     bool retVal = false; // means parse error, no property at all set
-    CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+    CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
 
     QJsonObject jmain;
     CAnnJson annJson(&jmain);
@@ -185,9 +185,9 @@ bool CEngineProperties::setObjectProperties(int objectHandle, const char* prop, 
     return retVal;
 }
 
-void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJson) const
+void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson& annJson) const
 {
-    CJoint *joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+    CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
 
     if (engine == sim_physics_bullet)
     {
@@ -456,9 +456,9 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
     }
 }
 
-void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJson, std::string *allErrors) const
+void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson& annJson, std::string* allErrors) const
 {
-    CJoint *joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+    CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
     QJsonValue val;
 
     if (engine == sim_physics_bullet)
@@ -896,10 +896,10 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
     }
 }
 
-void CEngineProperties::_writeShape(int engine, int shapeHandle, CAnnJson &annJson) const
+void CEngineProperties::_writeShape(int engine, int shapeHandle, CAnnJson& annJson) const
 {
-    CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-    CDynMaterialObject *mat = shape->getDynMaterial();
+    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+    CDynMaterialObject* mat = shape->getDynMaterial();
     if (engine == sim_physics_bullet)
     {
         QJsonObject jbullet;
@@ -1099,10 +1099,10 @@ void CEngineProperties::_writeShape(int engine, int shapeHandle, CAnnJson &annJs
     }
 }
 
-void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJson, std::string *allErrors) const
+void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson& annJson, std::string* allErrors) const
 {
-    CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-    CDynMaterialObject *mat = shape->getDynMaterial();
+    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+    CDynMaterialObject* mat = shape->getDynMaterial();
     QJsonValue val;
 
     if (engine == sim_physics_bullet)
@@ -1361,7 +1361,7 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
     }
 }
 
-void CEngineProperties::_writeGlobal(int engine, CAnnJson &annJson) const
+void CEngineProperties::_writeGlobal(int engine, CAnnJson& annJson) const
 {
     std::string comment;
     double fv;
@@ -1574,7 +1574,7 @@ void CEngineProperties::_writeGlobal(int engine, CAnnJson &annJson) const
     }
 }
 
-void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *allErrors) const
+void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* allErrors) const
 {
     QJsonValue val;
 
@@ -1585,26 +1585,26 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
             QJsonObject bullet(val.toObject());
             if (annJson.getValue(bullet, "solver", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setIntProperty(propDyn_bulletSolver.name,
-                                                                        val.toInt());
+                                                                     val.toInt());
             if (annJson.getValue(bullet, "iterations", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setIntProperty(propDyn_bulletIterations.name,
-                                                                        val.toInt());
+                                                                     val.toInt());
             if (annJson.getValue(bullet, "computeInertias", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_bulletComputeInertias.name,
-                                                                         val.toBool());
+                                                                      val.toBool());
             if (annJson.getValue(bullet, "internalScaling", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "full", QJsonValue::Bool, val, allErrors))
                     App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_bulletInternalScalingFull.name,
-                                                                             val.toBool());
+                                                                          val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
                     App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_bulletInternalScalingScaling.name,
-                                                                              val.toDouble());
+                                                                           val.toDouble());
             }
             if (annJson.getValue(bullet, "collisionMarginScaling", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_bulletCollMarginScaling.name,
-                                                                          val.toDouble());
+                                                                       val.toDouble());
         }
     }
 
@@ -1628,10 +1628,10 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "full", QJsonValue::Bool, val, allErrors))
                     App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_odeInternalScalingFull.name,
-                                                                             val.toBool());
+                                                                          val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
                     App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeInternalScalingScaling.name,
-                                                                              val.toDouble());
+                                                                           val.toDouble());
             }
             if (annJson.getValue(ode, "globalErp", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeGlobalErp.name, val.toDouble());
@@ -1647,21 +1647,21 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
             QJsonObject newton(val.toObject());
             if (annJson.getValue(newton, "iterations", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setIntProperty(propDyn_newtonIterations.name,
-                                                                        val.toInt());
+                                                                     val.toInt());
             if (annJson.getValue(newton, "computeInertias", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_newtonComputeInertias.name,
-                                                                         val.toBool());
+                                                                      val.toBool());
             if (annJson.getValue(newton, "multithreading", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_newtonMultithreading.name,
-                                                                         val.toBool());
+                                                                      val.toBool());
             if (annJson.getValue(newton, "exactSolver", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_newtonExactSolver.name, val.toBool());
             if (annJson.getValue(newton, "highJointAccuracy", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_newtonHighJointAccuracy.name,
-                                                                         val.toBool());
+                                                                      val.toBool());
             if (annJson.getValue(newton, "contactMergeTolerance", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_newtonContactMergeTolerance.name,
-                                                                          val.toDouble());
+                                                                       val.toDouble());
         }
     }
 
@@ -1712,19 +1712,19 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
                     App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoKinematicBodiesOverrideFlags.name, val.toInt());
                 if (annJson.getValue(sub, "mass", QJsonValue::Double, val, allErrors))
                     App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoKinematicBodiesMass.name,
-                                                                              val.toDouble());
+                                                                           val.toDouble());
                 if (annJson.getValue(sub, "inertia", QJsonValue::Double, val, allErrors))
                     App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoKinematicBodiesInertia.name,
-                                                                              val.toDouble());
+                                                                           val.toDouble());
             }
             if (annJson.getValue(mujoco, "boundMass", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoBoundMass.name, val.toDouble());
             if (annJson.getValue(mujoco, "boundInertia", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoBoundInertia.name,
-                                                                          val.toDouble());
+                                                                       val.toDouble());
             if (annJson.getValue(mujoco, "balanceInertias", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoBalanceInertias.name,
-                                                                         val.toBool());
+                                                                      val.toBool());
             if (annJson.getValue(mujoco, "multithreaded", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoMultithreaded.name, val.toBool());
             if (annJson.getValue(mujoco, "multiccd", QJsonValue::Bool, val, allErrors))
@@ -1734,10 +1734,10 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "override", QJsonValue::Bool, val, allErrors))
                     App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoContactParamsOverride.name,
-                                                                             val.toBool());
+                                                                          val.toBool());
                 if (annJson.getValue(sub, "margin", QJsonValue::Double, val, allErrors))
                     App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoContactParamsMargin.name,
-                                                                              val.toDouble());
+                                                                           val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
                     App::currentWorld->dynamicsContainer->setVector2Property(propDyn_mujocoContactParamsSolref.name, w);
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
@@ -1798,15 +1798,15 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
             QJsonObject vortex(val.toObject());
             if (annJson.getValue(vortex, "computeInertias", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_vortexComputeInertias.name,
-                                                                         val.toBool());
+                                                                      val.toBool());
             if (annJson.getValue(vortex, "contactTolerance", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_vortexContactTolerance.name,
-                                                                          val.toDouble());
+                                                                       val.toDouble());
             if (annJson.getValue(vortex, "autoSleep", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_vortexAutoSleep.name, val.toBool());
             if (annJson.getValue(vortex, "multithreading", QJsonValue::Bool, val, allErrors))
                 App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_vortexMultithreading.name,
-                                                                         val.toBool());
+                                                                      val.toBool());
             if (annJson.getValue(vortex, "constraints", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
@@ -1827,8 +1827,8 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
     }
 }
 
-double CEngineProperties::_getGlobalFloatParam(const char* item, std::string &comment,
-                                               const char *additionalComment /*=nullptr*/) const
+double CEngineProperties::_getGlobalFloatParam(const char* item, std::string& comment,
+                                               const char* additionalComment /*=nullptr*/) const
 {
     double retVal = App::currentWorld->dynamicsContainer->getFloatPropertyValue(item, false);
     double def = App::currentWorld->dynamicsContainer->getFloatPropertyValue(item, true);
@@ -1857,8 +1857,8 @@ double CEngineProperties::_getGlobalFloatParam(const char* item, std::string &co
     return retVal;
 }
 
-int CEngineProperties::_getGlobalIntParam(const char* item, std::string &comment,
-                                          const char *additionalComment /*=nullptr*/) const
+int CEngineProperties::_getGlobalIntParam(const char* item, std::string& comment,
+                                          const char* additionalComment /*=nullptr*/) const
 {
     int retVal = App::currentWorld->dynamicsContainer->getIntPropertyValue(item, false);
     int def = App::currentWorld->dynamicsContainer->getIntPropertyValue(item, true);
@@ -1882,8 +1882,8 @@ int CEngineProperties::_getGlobalIntParam(const char* item, std::string &comment
     return retVal;
 }
 
-bool CEngineProperties::_getGlobalBoolParam(const char* item, std::string &comment,
-                                            const char *additionalComment /*=nullptr*/) const
+bool CEngineProperties::_getGlobalBoolParam(const char* item, std::string& comment,
+                                            const char* additionalComment /*=nullptr*/) const
 {
     bool retVal = App::currentWorld->dynamicsContainer->getBoolPropertyValue(item, false);
     bool def = App::currentWorld->dynamicsContainer->getBoolPropertyValue(item, true);
@@ -1910,7 +1910,7 @@ bool CEngineProperties::_getGlobalBoolParam(const char* item, std::string &comme
     return retVal;
 }
 
-void CEngineProperties::_getGlobalFloatParams(const char* item, double *w, std::string &comment, const char *additionalComment /*=nullptr*/) const
+void CEngineProperties::_getGlobalFloatParams(const char* item, double* w, std::string& comment, const char* additionalComment /*=nullptr*/) const
 {
     std::vector<double> p;
     std::vector<double> p0;
@@ -1981,9 +1981,9 @@ void CEngineProperties::_getGlobalFloatParams(const char* item, double *w, std::
     }
 }
 
-void CEngineProperties::_writeDummy(int engine, int dummyHandle, CAnnJson &annJson) const
+void CEngineProperties::_writeDummy(int engine, int dummyHandle, CAnnJson& annJson) const
 {
-    CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromHandle(dummyHandle);
+    CDummy* dummy = App::currentWorld->sceneObjects->getDummyFromHandle(dummyHandle);
 
     if (engine == sim_physics_bullet)
     {
@@ -2027,7 +2027,7 @@ void CEngineProperties::_writeDummy(int engine, int dummyHandle, CAnnJson &annJs
         std::string nameAndPath;
         if (h >= 0)
         {
-            CJoint *obj = App::currentWorld->sceneObjects->getJointFromHandle(h);
+            CJoint* obj = App::currentWorld->sceneObjects->getJointFromHandle(h);
             if (obj != nullptr)
                 nameAndPath = obj->getObjectAlias_shortPath();
         }
@@ -2043,9 +2043,9 @@ void CEngineProperties::_writeDummy(int engine, int dummyHandle, CAnnJson &annJs
     }
 }
 
-void CEngineProperties::_readDummy(int engine, int dummyHandle, CAnnJson &annJson, std::string *allErrors) const
+void CEngineProperties::_readDummy(int engine, int dummyHandle, CAnnJson& annJson, std::string* allErrors) const
 {
-    CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromHandle(dummyHandle);
+    CDummy* dummy = App::currentWorld->sceneObjects->getDummyFromHandle(dummyHandle);
     QJsonValue val;
 
     if (engine == sim_physics_bullet)
@@ -2108,7 +2108,7 @@ void CEngineProperties::_readDummy(int engine, int dummyHandle, CAnnJson &annJso
                     std::string str(val.toString().toStdString());
                     if (str.size() > 0)
                     {
-                        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, str.c_str(), 0);
+                        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, str.c_str(), 0);
                         if ((obj != nullptr) && (obj->getObjectType() == sim_sceneobject_joint))
                         {
                             h = obj->getObjectHandle();

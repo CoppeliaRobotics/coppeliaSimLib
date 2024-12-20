@@ -28,7 +28,8 @@ int POSIX_logicalToPhysical(int);
 #endif //_WIN32
 bool handleSignal(int signal);
 
-SignalHandler::SignalHandler(int mask) : _mask(mask), _restoremask(0)
+SignalHandler::SignalHandler(int mask)
+    : _mask(mask), _restoremask(0)
 {
 #ifdef _WIN32
     SetConsoleCtrlHandler(WIN32_handleFunc, TRUE);

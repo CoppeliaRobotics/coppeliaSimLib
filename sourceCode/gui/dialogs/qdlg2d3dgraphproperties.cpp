@@ -13,17 +13,17 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlg2D3DGraphProperties::CQDlg2D3DGraphProperties(QWidget *parent)
+CQDlg2D3DGraphProperties::CQDlg2D3DGraphProperties(QWidget* parent)
     : CDlgEx(parent), ui(new Ui::CQDlg2D3DGraphProperties)
 {
     _dlgType = GRAPH2DAND3DCURVES_DLG;
     ui->setupUi(this);
     _inListSelectionRoutine = false;
-    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+    QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    QShortcut *shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
+    QShortcut* shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(shortcut2, SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    CEditBoxDelegate *delegate = new CEditBoxDelegate();
+    CEditBoxDelegate* delegate = new CEditBoxDelegate();
     ui->qqList->setItemDelegate(delegate);
     _graphHandle = -1;
     if (GuiApp::canShowDialogs())
@@ -35,7 +35,7 @@ CQDlg2D3DGraphProperties::~CQDlg2D3DGraphProperties()
     delete ui;
 }
 
-void CQDlg2D3DGraphProperties::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CQDlg2D3DGraphProperties::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     if ((cmdIn != nullptr) && (cmdIn->intParams[0] == _dlgType))
     {
@@ -66,7 +66,7 @@ void CQDlg2D3DGraphProperties::_initialize(int graphHandle, bool xyGraph)
 {
     _graphHandle = graphHandle;
     _xyGraph = xyGraph;
-    CGraph *graph = App::currentWorld->sceneObjects->getGraphFromHandle(_graphHandle);
+    CGraph* graph = App::currentWorld->sceneObjects->getGraphFromHandle(_graphHandle);
     if (graph != nullptr)
     {
         std::string txt;
@@ -100,15 +100,15 @@ bool CQDlg2D3DGraphProperties::isLinkedDataValid()
     return (false);
 }
 
-void CQDlg2D3DGraphProperties::display(int graphHandle, bool xyGraph, QWidget *theParentWindow)
+void CQDlg2D3DGraphProperties::display(int graphHandle, bool xyGraph, QWidget* theParentWindow)
 {
     if (GuiApp::mainWindow == nullptr)
         return;
     GuiApp::mainWindow->dlgCont->close(GRAPH2DAND3DCURVES_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(GRAPH2DAND3DCURVES_DLG))
     {
-        CQDlg2D3DGraphProperties *dlg =
-            (CQDlg2D3DGraphProperties *)GuiApp::mainWindow->dlgCont->getDialog(GRAPH2DAND3DCURVES_DLG);
+        CQDlg2D3DGraphProperties* dlg =
+            (CQDlg2D3DGraphProperties*)GuiApp::mainWindow->dlgCont->getDialog(GRAPH2DAND3DCURVES_DLG);
         if (dlg != nullptr)
             dlg->_initialize(graphHandle, xyGraph);
     }
@@ -143,8 +143,8 @@ void CQDlg2D3DGraphProperties::refresh()
     ui->qqRelativeToWorld->setVisible(!_xyGraph);
     ui->qqAlwaysOnTop->setVisible(!_xyGraph);
 
-    CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
-    CGraphDataComb_old *graphData = nullptr;
+    CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+    CGraphDataComb_old* graphData = nullptr;
     int graphDataId = getSelectedObjectID();
     if (_xyGraph)
         graphData = it->getGraphData2D(graphDataId);
@@ -185,12 +185,12 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
     ui->qqList->clear();
     if (!App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_graph))
         return;
-    CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+    CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
     if (_xyGraph)
     {
         for (size_t i = 0; i < it->curves2d_old.size(); i++)
         {
-            CGraphDataComb_old *aa = it->curves2d_old[i];
+            CGraphDataComb_old* aa = it->curves2d_old[i];
             std::string tmp(aa->getName());
             tmp += " [";
             if (aa->data[0] == -1)
@@ -202,7 +202,7 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
             else
                 tmp += it->getGraphData(aa->data[1])->getName() + "]";
 
-            QListWidgetItem *itm = new QListWidgetItem(tmp.c_str());
+            QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
             itm->setData(Qt::UserRole, QVariant(aa->getIdentifier()));
             itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
             ui->qqList->addItem(itm);
@@ -212,7 +212,7 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
     {
         for (size_t i = 0; i < it->curves3d_old.size(); i++)
         {
-            CGraphDataComb_old *aa = it->curves3d_old[i];
+            CGraphDataComb_old* aa = it->curves3d_old[i];
 
             std::string tmp(aa->getName());
             tmp += " [";
@@ -229,7 +229,7 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
             else
                 tmp += it->getGraphData(aa->data[2])->getName() + "]";
 
-            QListWidgetItem *itm = new QListWidgetItem(tmp.c_str());
+            QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
             itm->setData(Qt::UserRole, QVariant(aa->getIdentifier()));
             itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
             ui->qqList->addItem(itm);
@@ -239,7 +239,7 @@ void CQDlg2D3DGraphProperties::updateObjectsInList()
 
 int CQDlg2D3DGraphProperties::getSelectedObjectID()
 {
-    QList<QListWidgetItem *> sel = ui->qqList->selectedItems();
+    QList<QListWidgetItem*> sel = ui->qqList->selectedItems();
     if (sel.size() > 0)
         return (sel.at(0)->data(Qt::UserRole).toInt());
     return (-1);
@@ -249,7 +249,7 @@ void CQDlg2D3DGraphProperties::selectObjectInList(int objectID)
 {
     for (int i = 0; i < ui->qqList->count(); i++)
     {
-        QListWidgetItem *it = ui->qqList->item(i);
+        QListWidgetItem* it = ui->qqList->item(i);
         if (it != nullptr)
         {
             if (it->data(Qt::UserRole).toInt() == objectID)
@@ -288,24 +288,24 @@ void CQDlg2D3DGraphProperties::on_qqList_itemSelectionChanged()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+        CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
         int objID = getSelectedObjectID();
-        CGraphDataComb_old *grData;
+        CGraphDataComb_old* grData;
         if (_xyGraph)
             grData = it->getGraphData2D(objID);
         else
             grData = it->getGraphData3D(objID);
         if (grData != nullptr)
-            ((CEditBoxDelegate *)ui->qqList->itemDelegate())->initialText = grData->getName();
+            ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText = grData->getName();
         else
-            ((CEditBoxDelegate *)ui->qqList->itemDelegate())->initialText = "";
+            ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText = "";
         _inListSelectionRoutine = true;
         refresh();
         _inListSelectionRoutine = false;
     }
 }
 
-void CQDlg2D3DGraphProperties::on_qqList_itemChanged(QListWidgetItem *item)
+void CQDlg2D3DGraphProperties::on_qqList_itemChanged(QListWidgetItem* item)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {

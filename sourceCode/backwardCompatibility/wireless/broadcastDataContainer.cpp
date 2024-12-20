@@ -44,12 +44,12 @@ void CBroadcastDataContainer::simulationEnded()
     eraseAllObjects();
 }
 
-void CBroadcastDataContainer::broadcastData(int emitterID, int targetID, int dataHeader, std::string &dataName,
+void CBroadcastDataContainer::broadcastData(int emitterID, int targetID, int dataHeader, std::string& dataName,
                                             double timeOutSimulationTime, double actionRadius, int antennaHandle,
-                                            double emissionAngle1, double emissionAngle2, const char *data,
+                                            double emissionAngle1, double emissionAngle2, const char* data,
                                             int dataLength)
 { // Called by the SIM or UI thread
-    CBroadcastData *it =
+    CBroadcastData* it =
         new CBroadcastData(emitterID, targetID, dataHeader, dataName, timeOutSimulationTime, actionRadius,
                            antennaHandle, emissionAngle1, emissionAngle2, data, dataLength);
     _allObjects.push_back(it);
@@ -60,7 +60,7 @@ void CBroadcastDataContainer::broadcastData(int emitterID, int targetID, int dat
         antennaConf.setIdentity();
         if (antennaHandle != sim_handle_default)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
             if (it != nullptr)
                 antennaConf = it->getCumulativeTransformation();
             else
@@ -69,7 +69,7 @@ void CBroadcastDataContainer::broadcastData(int emitterID, int targetID, int dat
 #ifdef SIM_WITH_GUI
         if (!err)
         {
-            CBroadcastDataVisual *itv = new CBroadcastDataVisual(timeOutSimulationTime, actionRadius, antennaConf,
+            CBroadcastDataVisual* itv = new CBroadcastDataVisual(timeOutSimulationTime, actionRadius, antennaConf,
                                                                  emissionAngle1, emissionAngle2);
             _allVisualObjects.push_back(itv);
         }
@@ -77,12 +77,12 @@ void CBroadcastDataContainer::broadcastData(int emitterID, int targetID, int dat
     }
 }
 
-char *CBroadcastDataContainer::receiveData(int receiverID, double simulationTime, int dataHeader, std::string &dataName,
-                                           int antennaHandle, int &dataLength, int index, int &senderID,
-                                           int &dataHeaderR, std::string &dataNameR)
+char* CBroadcastDataContainer::receiveData(int receiverID, double simulationTime, int dataHeader, std::string& dataName,
+                                           int antennaHandle, int& dataLength, int index, int& senderID,
+                                           int& dataHeaderR, std::string& dataNameR)
 {
     int originalIndex = index;
-    char *retVal = nullptr;
+    char* retVal = nullptr;
     for (size_t i = 0; i < _allObjects.size(); i++)
     {
         retVal = _allObjects[i]->receiveData(receiverID, simulationTime, dataHeader, dataName, antennaHandle,
@@ -98,7 +98,7 @@ char *CBroadcastDataContainer::receiveData(int receiverID, double simulationTime
                     antennaPos1.clear();
                     if (_allObjects[i]->getAntennaHandle() != sim_handle_default)
                     {
-                        CSceneObject *it =
+                        CSceneObject* it =
                             App::currentWorld->sceneObjects->getObjectFromHandle(_allObjects[i]->getAntennaHandle());
                         if (it != nullptr)
                             antennaPos1 = it->getCumulativeTransformation().X;
@@ -109,7 +109,7 @@ char *CBroadcastDataContainer::receiveData(int receiverID, double simulationTime
                     antennaPos2.clear();
                     if (antennaHandle != sim_handle_default)
                     {
-                        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+                        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
                         if (it != nullptr)
                             antennaPos2 = it->getCumulativeTransformation().X;
                         else
@@ -118,7 +118,7 @@ char *CBroadcastDataContainer::receiveData(int receiverID, double simulationTime
 #ifdef SIM_WITH_GUI
                     if (!err)
                     {
-                        CBroadcastDataVisual *itv = new CBroadcastDataVisual(antennaPos1, antennaPos2);
+                        CBroadcastDataVisual* itv = new CBroadcastDataVisual(antennaPos1, antennaPos2);
                         _allVisualObjects.push_back(itv);
                     }
 #endif

@@ -59,7 +59,7 @@ int CTextureObject::getObjectID() const
     return (_objectID);
 }
 
-void CTextureObject::setObjectName(const char *newName)
+void CTextureObject::setObjectName(const char* newName)
 {
     _objectName = newName;
 }
@@ -69,13 +69,13 @@ std::string CTextureObject::getObjectName() const
     return (_objectName);
 }
 
-void CTextureObject::getTextureSize(int &sizeX, int &sizeY) const
+void CTextureObject::getTextureSize(int& sizeX, int& sizeY) const
 {
     sizeX = _textureSize[0];
     sizeY = _textureSize[1];
 }
 
-void CTextureObject::setImage(bool rgba, bool horizFlip, bool vertFlip, const unsigned char *data)
+void CTextureObject::setImage(bool rgba, bool horizFlip, bool vertFlip, const unsigned char* data)
 {
     int dirX = 1;
     int dirY = 1;
@@ -147,7 +147,7 @@ bool CTextureObject::announceGeneralObjectWillBeErased(long long int objectID, l
     return (_dependentObjects.size() == 0);
 }
 
-void CTextureObject::transferDependenciesToThere(CTextureObject *receivingObject)
+void CTextureObject::transferDependenciesToThere(CTextureObject* receivingObject)
 {
     for (size_t i = 0; i < _dependentObjects.size(); i++)
         receivingObject->_dependentObjects.push_back(_dependentObjects[i]);
@@ -168,7 +168,7 @@ void CTextureObject::clearAllDependencies()
     _dependentSubObjects.clear();
 }
 
-bool CTextureObject::isSame(const CTextureObject *obj) const
+bool CTextureObject::isSame(const CTextureObject* obj) const
 {
     if ((obj->_textureSize[0] == _textureSize[0]) && (obj->_textureSize[1] == _textureSize[1]))
     {
@@ -184,19 +184,19 @@ bool CTextureObject::isSame(const CTextureObject *obj) const
     return (false);
 }
 
-void CTextureObject::setTextureBuffer(const std::vector<unsigned char> &tb)
+void CTextureObject::setTextureBuffer(const std::vector<unsigned char>& tb)
 {
     _textureBuffer.assign(tb.begin(), tb.end());
     _changedFlag = true;
     _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
-void CTextureObject::getTextureBuffer(std::vector<unsigned char> &tb) const
+void CTextureObject::getTextureBuffer(std::vector<unsigned char>& tb) const
 {
     tb.assign(_textureBuffer.begin(), _textureBuffer.end());
 }
 
-const unsigned char *CTextureObject::getTextureBufferPointer() const
+const unsigned char* CTextureObject::getTextureBufferPointer() const
 {
     return (&_textureBuffer[0]);
 }
@@ -255,9 +255,9 @@ void CTextureObject::setChangedFlag(bool c)
     _changedFlag = c;
 }
 
-CTextureObject *CTextureObject::copyYourself() const
+CTextureObject* CTextureObject::copyYourself() const
 {
-    CTextureObject *newObj = new CTextureObject();
+    CTextureObject* newObj = new CTextureObject();
     newObj->_objectID = _objectID;
     newObj->_objectName = _objectName;
 
@@ -275,12 +275,12 @@ CTextureObject *CTextureObject::copyYourself() const
     return (newObj);
 }
 
-unsigned char *CTextureObject::readPortionOfTexture(int posX, int posY, int sizeX, int sizeY) const
+unsigned char* CTextureObject::readPortionOfTexture(int posX, int posY, int sizeX, int sizeY) const
 {
     if ((posX < 0) || (posY < 0) || (sizeX < 1) || (sizeY < 1) || (posX + sizeX > _textureSize[0]) ||
         (posY + sizeY > _textureSize[1]))
         return (nullptr);
-    unsigned char *buff;
+    unsigned char* buff;
     buff = new unsigned char[sizeX * sizeY * 3];
     int p = 0;
     int resX = _textureSize[0];
@@ -297,7 +297,7 @@ unsigned char *CTextureObject::readPortionOfTexture(int posX, int posY, int size
     return (buff);
 }
 
-bool CTextureObject::writePortionOfTexture(const unsigned char *rgbData, int posX, int posY, int sizeX, int sizeY,
+bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData, int posX, int posY, int sizeX, int sizeY,
                                            bool circular, double interpol)
 {
     int p = 0;
@@ -423,7 +423,7 @@ bool CTextureObject::writePortionOfTexture(const unsigned char *rgbData, int pos
     return (true);
 }
 
-void CTextureObject::serialize(CSer &ar)
+void CTextureObject::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {

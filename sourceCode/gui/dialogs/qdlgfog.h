@@ -14,7 +14,7 @@ class CQDlgFog : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgFog(QWidget *parent = 0);
+    explicit CQDlgFog(QWidget* parent = 0);
     ~CQDlgFog();
 
     void refresh();
@@ -37,7 +37,7 @@ class CQDlgFog : public CDlgEx
     void on_qqAdjustColor_clicked();
 
   private:
-    Ui::CQDlgFog *ui;
+    Ui::CQDlgFog* ui;
 };
 
 #endif // QDLGFOG_H

@@ -14,7 +14,8 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgShapes::CQDlgShapes(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgShapes)
+CQDlgShapes::CQDlgShapes(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgShapes)
 {
     _dlgType = SHAPE_DLG;
     ui->setupUi(this);
@@ -33,7 +34,7 @@ void CQDlgShapes::cancelEvent()
 
 void CQDlgShapes::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeAndNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
@@ -42,7 +43,7 @@ void CQDlgShapes::refresh()
     int sc = (int)App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_shape);
     int ssc = (int)App::currentWorld->sceneObjects->getSimpleShapeCountInSelection();
     bool compoundShapeDisplay = (sel && (!ssel));
-    CShape *it = App::currentWorld->sceneObjects->getLastSelectionShape();
+    CShape* it = App::currentWorld->sceneObjects->getLastSelectionShape();
 
     ui->qqEditMultishape->setEnabled(compoundShapeDisplay && noEditModeAndNoSim);
     ui->qqEditMultishape->setVisible(compoundShapeDisplay);
@@ -231,7 +232,7 @@ void CQDlgShapes::on_qqDirtTexture_clicked()
             {
                 App::folders->setTexturesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                 int resX, resY, n;
-                unsigned char *data = CImageLoaderSaver::load(filenameAndPath.c_str(), &resX, &resY, &n, 0);
+                unsigned char* data = CImageLoaderSaver::load(filenameAndPath.c_str(), &resX, &resY, &n, 0);
                 bool rgba = (n == 4);
                 if (n < 3)
                 {

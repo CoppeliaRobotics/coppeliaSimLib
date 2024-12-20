@@ -2,7 +2,8 @@
 #include <vThread.h>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-VMutex::VMutex() : _recursiveMutex(QMutex::Recursive), _simpleMutex(QMutex::NonRecursive)
+VMutex::VMutex()
+    : _recursiveMutex(QMutex::Recursive), _simpleMutex(QMutex::NonRecursive)
 #else
 VMutex::VMutex()
 #endif
@@ -13,12 +14,12 @@ VMutex::~VMutex()
 {
 }
 
-void VMutex::setName(const char *name)
+void VMutex::setName(const char* name)
 {
     _name = name;
 }
 
-void VMutex::_msg(const char *location, const char *info) const
+void VMutex::_msg(const char* location, const char* info) const
 {
     std::string loc("unknown");
     if (location != nullptr)
@@ -30,7 +31,7 @@ void VMutex::_msg(const char *location, const char *info) const
 }
 
 // Recursive here:
-void VMutex::lock(const char *location /*=nullptr*/)
+void VMutex::lock(const char* location /*=nullptr*/)
 {
     if (_name.size() > 0)
     {
@@ -61,7 +62,7 @@ void VMutex::unlock()
 }
 
 // Non-recursive here:
-void VMutex::lock_simple(const char *location)
+void VMutex::lock_simple(const char* location)
 {
     _simpleMutex.lock();
 }

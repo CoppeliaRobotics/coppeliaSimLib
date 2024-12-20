@@ -14,7 +14,7 @@ class CQDlgDummies : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgDummies(QWidget *parent = 0);
+    explicit CQDlgDummies(QWidget* parent = 0);
     ~CQDlgDummies();
 
     void refresh();
@@ -49,7 +49,7 @@ class CQDlgDummies : public CDlgEx
     void on_qqEditEngine_clicked();
 
   private:
-    Ui::CQDlgDummies *ui;
+    Ui::CQDlgDummies* ui;
 };
 
 #endif // QDLGDUMMIES_H

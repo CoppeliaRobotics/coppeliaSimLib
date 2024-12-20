@@ -33,7 +33,7 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
     scriptObject = new CScriptObject(scriptType);
     scriptObject->_scriptText = text;
     scriptObject->_sceneObjectScript = true;
-    if ( (scriptType != sim_scripttype_simulation) && (scriptType != sim_scripttype_customization) )
+    if ((scriptType != sim_scripttype_simulation) && (scriptType != sim_scripttype_customization))
         options |= 1;
     scriptObject->setScriptIsDisabled(options & 1);
     scriptObject->setLang(lang);
@@ -143,7 +143,7 @@ void CScript::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CScript::addSpecializedObjectEventData(CCbor *ev)
+void CScript::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -165,9 +165,9 @@ void CScript::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-CSceneObject *CScript::copyYourself()
+CSceneObject* CScript::copyYourself()
 {
-    CScript *newScript = (CScript *)CSceneObject::copyYourself();
+    CScript* newScript = (CScript*)CSceneObject::copyYourself();
 
     _scriptColor.copyYourselfInto(&newScript->_scriptColor);
     newScript->_scriptSize = _scriptSize;
@@ -197,32 +197,32 @@ void CScript::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void CScript::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CScript::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
 
-void CScript::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CScript::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
 }
 
-void CScript::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CScript::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
 
-void CScript::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CScript::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
 
-void CScript::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CScript::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CScript::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CScript::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -241,8 +241,8 @@ void CScript::simulationAboutToStart()
 }
 
 void CScript::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
@@ -254,7 +254,7 @@ void CScript::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-void CScript::serialize(CSer &ar)
+void CScript::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -369,7 +369,7 @@ void CScript::serialize(CSer &ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object", rgb, 3, exhaustiveXml))
                         _scriptColor.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                             sim_colorcomponent_ambient_diffuse);
+                                              sim_colorcomponent_ambient_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -381,12 +381,12 @@ void CScript::serialize(CSer &ar)
     }
 }
 
-void CScript::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CScript::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
 }
 
-void CScript::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CScript::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
@@ -409,7 +409,7 @@ void CScript::reinitAfterSimulationIfNeeded()
     {
         if (scriptObject->getScriptType() == sim_scripttype_customization)
         {
-            if ( (scriptObject->getScriptState() & CScriptObject::scriptState_error) && _resetAfterSimError )
+            if ((scriptObject->getScriptState() & CScriptObject::scriptState_error) && _resetAfterSimError)
             {
                 scriptObject->resetScript();
                 scriptObject->initScript();
@@ -423,7 +423,7 @@ bool CScript::getResetAfterSimError() const
     return _resetAfterSimError;
 }
 
-CColorObject *CScript::getScriptColor()
+CColorObject* CScript::getScriptColor()
 {
     return (&_scriptColor);
 }
@@ -437,8 +437,8 @@ void CScript::setScriptSize(double s)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScript_size.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propScript_size.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _scriptSize);
             App::worldContainer->pushEvent();
         }
@@ -453,8 +453,8 @@ void CScript::resetAfterSimError(bool r)
         _resetAfterSimError = r;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScript_resetAfterSimError.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propScript_resetAfterSimError.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _resetAfterSimError);
             App::worldContainer->pushEvent();
         }
@@ -462,7 +462,7 @@ void CScript::resetAfterSimError(bool r)
 }
 
 #ifdef SIM_WITH_GUI
-void CScript::display(CViewableBase *renderingObject, int displayAttrib)
+void CScript::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayScript(this, renderingObject, displayAttrib);
 }
@@ -635,7 +635,6 @@ int CScript::setColorProperty(const char* ppName, const float* pState)
         retVal = _scriptColor.setColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -649,7 +648,6 @@ int CScript::getColorProperty(const char* ppName, float* pState) const
         retVal = _scriptColor.getColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -668,7 +666,7 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -697,7 +695,7 @@ int CScript::getPropertyName_static(int& index, std::string& pName, std::string&
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -729,7 +727,7 @@ int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
             {
                 retVal = allProps_script[i].type;
                 info = allProps_script[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_script[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_script[i].infoTxt, "") != 0))
                     infoTxt = allProps_script[i].infoTxt;
                 else
                     infoTxt = allProps_script[i].shortInfoTxt;
@@ -757,7 +755,7 @@ int CScript::getPropertyInfo_static(const char* ppName, int& info, std::string& 
             {
                 retVal = allProps_script[i].type;
                 info = allProps_script[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_script[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_script[i].infoTxt, "") != 0))
                     infoTxt = allProps_script[i].infoTxt;
                 else
                     infoTxt = allProps_script[i].shortInfoTxt;
@@ -767,4 +765,3 @@ int CScript::getPropertyInfo_static(const char* ppName, int& info, std::string& 
     }
     return retVal;
 }
-

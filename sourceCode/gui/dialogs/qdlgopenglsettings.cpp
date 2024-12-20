@@ -5,7 +5,7 @@
 #include <tt.h>
 #include <utils.h>
 
-CQDlgOpenGlSettings::CQDlgOpenGlSettings(QWidget *parent)
+CQDlgOpenGlSettings::CQDlgOpenGlSettings(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgOpenGlSettings)
 {
     ui->setupUi(this);

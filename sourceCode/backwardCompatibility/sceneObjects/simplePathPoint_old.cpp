@@ -32,7 +32,7 @@ void CSimplePathPoint_old::setBezierFactors(double fBefore, double fAfter)
     _bezierFactorAfter = fAfter;
 }
 
-void CSimplePathPoint_old::getBezierFactors(double &fBefore, double &fAfter)
+void CSimplePathPoint_old::getBezierFactors(double& fBefore, double& fAfter)
 {
     fBefore = _bezierFactorBefore;
     fAfter = _bezierFactorAfter;
@@ -63,9 +63,9 @@ void CSimplePathPoint_old::scaleYourselfNonIsometrically(double x, double y, dou
     _transformation.X(2) = _transformation.X(2) * z;
 }
 
-CSimplePathPoint_old *CSimplePathPoint_old::copyYourself()
+CSimplePathPoint_old* CSimplePathPoint_old::copyYourself()
 { // Everything is copied.
-    CSimplePathPoint_old *newPoint = new CSimplePathPoint_old();
+    CSimplePathPoint_old* newPoint = new CSimplePathPoint_old();
     newPoint->_transformation = _transformation;
     newPoint->_bezierFactorBefore = _bezierFactorBefore;
     newPoint->_bezierFactorAfter = _bezierFactorAfter;
@@ -78,7 +78,7 @@ CSimplePathPoint_old *CSimplePathPoint_old::copyYourself()
     return (newPoint);
 }
 
-void CSimplePathPoint_old::serialize(CSer &ar)
+void CSimplePathPoint_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {

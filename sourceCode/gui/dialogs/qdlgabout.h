@@ -13,7 +13,7 @@ class CQDlgAbout : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgAbout(QWidget *parent = 0);
+    explicit CQDlgAbout(QWidget* parent = 0);
     ~CQDlgAbout();
 
     void cancelEvent();
@@ -21,9 +21,9 @@ class CQDlgAbout : public VDialog
     void initializationEvent();
 
   private slots:
-    void on_qqClose_clicked(QAbstractButton *button);
+    void on_qqClose_clicked(QAbstractButton* button);
 
   private:
-    Ui::CQDlgAbout *ui;
+    Ui::CQDlgAbout* ui;
 };
 #endif // QDLGABOUT_H

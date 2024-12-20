@@ -14,7 +14,7 @@
 #include <guiApp.h>
 #endif
 
-CDlgCont::CDlgCont(QWidget *pWindow)
+CDlgCont::CDlgCont(QWidget* pWindow)
 {
     _destroyingContainerNow = false;
     initialize(pWindow);
@@ -25,7 +25,7 @@ CDlgCont::~CDlgCont()
     killAllDialogs();
 }
 
-void CDlgCont::initialize(QWidget *pWindow)
+void CDlgCont::initialize(QWidget* pWindow)
 {
     if (dialogs.size() != 0)
         return; // Already initialized!
@@ -85,7 +85,7 @@ void CDlgCont::refresh()
     }
 }
 
-void CDlgCont::callDialogFunction(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CDlgCont::callDialogFunction(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     if ((!_destroyingContainerNow) && (cmdIn != nullptr))
     {
@@ -142,7 +142,7 @@ bool CDlgCont::openOrBringToFront(int dlgID)
         { // Here we check if we can open the dialog: (check also "toggle" function!)
             if ((GuiApp::operationalUIParts & sim_gui_dialogs) == 0)
                 return (false);
-            CToolDlgWrapper *it = _getDialogWrapper(dlgID);
+            CToolDlgWrapper* it = _getDialogWrapper(dlgID);
             if (it != nullptr)
                 it->setVisible(true, parentWindow);
         }
@@ -162,7 +162,7 @@ void CDlgCont::close(int dlgID)
             GuiApp::setBrowserEnabled(false);
         else
         {
-            CToolDlgWrapper *it = _getDialogWrapper(dlgID);
+            CToolDlgWrapper* it = _getDialogWrapper(dlgID);
             if (it != nullptr)
                 it->setVisible(false, parentWindow);
         }
@@ -183,7 +183,7 @@ bool CDlgCont::toggle(int dlgID)
             // Here we check if we can open the dialog: (check also "openOrBringToFront" function!)
             if ((GuiApp::operationalUIParts & sim_gui_dialogs) == 0)
                 return (false);
-            CToolDlgWrapper *it = _getDialogWrapper(dlgID);
+            CToolDlgWrapper* it = _getDialogWrapper(dlgID);
             if (it != nullptr)
                 it->setVisible(!it->getVisible(), parentWindow);
         }
@@ -193,7 +193,7 @@ bool CDlgCont::toggle(int dlgID)
     return (false);
 }
 
-CToolDlgWrapper *CDlgCont::_getDialogWrapper(int dlgID)
+CToolDlgWrapper* CDlgCont::_getDialogWrapper(int dlgID)
 {
     if (!_destroyingContainerNow)
     {
@@ -206,7 +206,7 @@ CToolDlgWrapper *CDlgCont::_getDialogWrapper(int dlgID)
     return (nullptr);
 }
 
-VDialog *CDlgCont::getDialog(int dlgID)
+VDialog* CDlgCont::getDialog(int dlgID)
 {
     if (!_destroyingContainerNow)
     {
@@ -229,7 +229,7 @@ bool CDlgCont::isVisible(int dlgID)
             return (GuiApp::getBrowserEnabled());
         else
         {
-            CToolDlgWrapper *it = _getDialogWrapper(dlgID);
+            CToolDlgWrapper* it = _getDialogWrapper(dlgID);
             if (it != nullptr)
                 return (it->getVisible());
         }
@@ -245,7 +245,7 @@ void CDlgCont::killAllDialogs()
     dialogs.clear();
 }
 
-void CDlgCont::getWindowPos(int dlgID, int pos[2], bool &visible)
+void CDlgCont::getWindowPos(int dlgID, int pos[2], bool& visible)
 {
     if (!_destroyingContainerNow)
     {
@@ -260,7 +260,7 @@ void CDlgCont::getWindowPos(int dlgID, int pos[2], bool &visible)
         }
         else
         {
-            CToolDlgWrapper *it = _getDialogWrapper(dlgID);
+            CToolDlgWrapper* it = _getDialogWrapper(dlgID);
             if (it != nullptr)
             {
                 it->getPosition(pos);
@@ -284,7 +284,7 @@ void CDlgCont::setWindowPos(int dlgID, int pos[2], bool visible)
         }
         else
         {
-            CToolDlgWrapper *it = _getDialogWrapper(dlgID);
+            CToolDlgWrapper* it = _getDialogWrapper(dlgID);
             if (it != nullptr)
             {
                 it->setPosition(pos[0], pos[1]);
@@ -302,7 +302,7 @@ void CDlgCont::keyPress(int key)
         processCommand(OPEN_CALCULATION_DLG_CMD_OLD);
 }
 
-void CDlgCont::addMenu(VMenu *menu)
+void CDlgCont::addMenu(VMenu* menu)
 {
     bool noShapePathEditModeNoSelector = true;
     if ((GuiApp::getEditModeType() & SHAPE_EDIT_MODE) || (GuiApp::getEditModeType() == PATH_EDIT_MODE_OLD))
@@ -474,11 +474,11 @@ bool CDlgCont::processCommand(int commandID)
             if (GuiApp::getEditModeType() == NO_EDIT_MODE)
             {
                 openOrBringToFront(OBJECT_DLG);
-                VDialog *dlg = getDialog(OBJECT_DLG);
+                VDialog* dlg = getDialog(OBJECT_DLG);
                 if (dlg != nullptr)
                 {
-                    ((CQDlgObjectDialogContainer *)dlg)->desiredPage = 0;
-                    ((CQDlgObjectDialogContainer *)dlg)->refresh();
+                    ((CQDlgObjectDialogContainer*)dlg)->desiredPage = 0;
+                    ((CQDlgObjectDialogContainer*)dlg)->refresh();
                 }
             }
             return (true);
@@ -487,16 +487,16 @@ bool CDlgCont::processCommand(int commandID)
             (commandID == OPEN_SHAPE_EDIT_MODE_VERTEX_PART_CMD) || (commandID == OPEN_SHAPE_EDIT_MODE_EDGE_PART_CMD))
         {
             openOrBringToFront(SHAPE_EDITION_DLG);
-            VDialog *dlg = getDialog(SHAPE_EDITION_DLG);
+            VDialog* dlg = getDialog(SHAPE_EDITION_DLG);
             if (dlg != nullptr)
             {
                 if (commandID == OPEN_SHAPE_EDIT_MODE_TRIANGLE_PART_CMD)
-                    ((CQDlgShapeEditionContainer *)dlg)->desiredPage = 0;
+                    ((CQDlgShapeEditionContainer*)dlg)->desiredPage = 0;
                 if (commandID == OPEN_SHAPE_EDIT_MODE_VERTEX_PART_CMD)
-                    ((CQDlgShapeEditionContainer *)dlg)->desiredPage = 1;
+                    ((CQDlgShapeEditionContainer*)dlg)->desiredPage = 1;
                 if (commandID == OPEN_SHAPE_EDIT_MODE_EDGE_PART_CMD)
-                    ((CQDlgShapeEditionContainer *)dlg)->desiredPage = 2;
-                ((CQDlgShapeEditionContainer *)dlg)->refresh();
+                    ((CQDlgShapeEditionContainer*)dlg)->desiredPage = 2;
+                ((CQDlgShapeEditionContainer*)dlg)->refresh();
             }
             return (true);
         }

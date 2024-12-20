@@ -8,10 +8,10 @@ class COutsideCommandQueueForScript
     COutsideCommandQueueForScript();
     virtual ~COutsideCommandQueueForScript();
 
-    bool addCommand(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double *aux2Vals,
+    bool addCommand(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double* aux2Vals,
                     int aux2Count);
     //  int extractOneCommand(int auxVals[4]);
-    int extractOneCommand(int auxVals[4], double aux2Vals[8], int &aux2Count);
+    int extractOneCommand(int auxVals[4], double aux2Vals[8], int& aux2Count);
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationEnded();
 

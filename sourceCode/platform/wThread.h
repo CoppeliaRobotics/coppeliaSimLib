@@ -8,7 +8,7 @@ class Thread : public QThread
   public:
     Thread();
     virtual ~Thread();
-    static unsigned int (*startAddress)(void *);
+    static unsigned int (*startAddress)(void*);
     static volatile bool startAddressIsFree;
 
   private slots:

@@ -5,7 +5,8 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgColor::CQDlgColor(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgColor)
+CQDlgColor::CQDlgColor(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgColor)
 {
     _dlgType = COLOR_DLG;
     ui->setupUi(this);
@@ -70,7 +71,7 @@ void CQDlgColor::initializationEvent()
     refresh();
 }
 
-void CQDlgColor::displayDlg(int objType, int objID1, int objID2, int colComponent, QWidget *theParentWindow,
+void CQDlgColor::displayDlg(int objType, int objID1, int objID2, int colComponent, QWidget* theParentWindow,
                             bool doNotCloseMaterialDlg, bool doNotCloseLightMaterialDlg,
                             bool appendColorComponentInName)
 {
@@ -83,13 +84,13 @@ void CQDlgColor::displayDlg(int objType, int objID1, int objID2, int colComponen
     GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(COLOR_DLG))
     {
-        CQDlgColor *it = (CQDlgColor *)GuiApp::mainWindow->dlgCont->getDialog(COLOR_DLG);
+        CQDlgColor* it = (CQDlgColor*)GuiApp::mainWindow->dlgCont->getDialog(COLOR_DLG);
         if (it != nullptr)
             it->initializeDlg(objType, objID1, objID2, colComponent, appendColorComponentInName);
     }
 }
 
-void CQDlgColor::displayDlgModal(int objType, int objID1, int objID2, int colComponent, QWidget *theParentWindow,
+void CQDlgColor::displayDlgModal(int objType, int objID1, int objID2, int colComponent, QWidget* theParentWindow,
                                  bool doNotCloseMaterialDlg, bool doNotCloseLightMaterialDlg,
                                  bool appendColorComponentInName)
 {
@@ -163,7 +164,7 @@ void CQDlgColor::computeHSLValues()
 
 void CQDlgColor::_getRGBFromItem()
 {
-    const float *col = GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, _colComponent, nullptr);
+    const float* col = GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, _colComponent, nullptr);
     if (col != nullptr)
     {
         redState = col[0];
@@ -174,7 +175,7 @@ void CQDlgColor::_getRGBFromItem()
 
 void CQDlgColor::_setRGBToItem()
 {
-    float *col = GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, _colComponent, nullptr);
+    float* col = GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, _colComponent, nullptr);
     if (col != nullptr)
     {
         col[0] = redState;

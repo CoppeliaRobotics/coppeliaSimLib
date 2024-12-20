@@ -62,7 +62,7 @@ CDummy::~CDummy()
 {
 }
 
-void CDummy::copyEnginePropertiesTo(CDummy *target)
+void CDummy::copyEnginePropertiesTo(CDummy* target)
 {
     std::vector<double> fp;
     std::vector<int> ip;
@@ -72,7 +72,7 @@ void CDummy::copyEnginePropertiesTo(CDummy *target)
     target->_mujocoIntParams.assign(_mujocoIntParams.begin(), _mujocoIntParams.end());
 }
 
-double CDummy::getEngineFloatParam_old(int what, bool *ok) const
+double CDummy::getEngineFloatParam_old(int what, bool* ok) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -103,7 +103,7 @@ double CDummy::getEngineFloatParam_old(int what, bool *ok) const
     return 0.0;
 }
 
-int CDummy::getEngineIntParam_old(int what, bool *ok) const
+int CDummy::getEngineIntParam_old(int what, bool* ok) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -120,7 +120,7 @@ int CDummy::getEngineIntParam_old(int what, bool *ok) const
     return 0;
 }
 
-bool CDummy::getEngineBoolParam_old(int what, bool *ok) const
+bool CDummy::getEngineBoolParam_old(int what, bool* ok) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -200,7 +200,7 @@ void CDummy::_reflectPropToLinkedDummy() const
     if ((_linkedDummyHandle != -1) &&
         ((_linkType == sim_dummytype_dynloopclosure) || (_linkType == sim_dummytype_dyntendon)))
     {
-        CDummy *l = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+        CDummy* l = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
         l->_mujocoFloatParams.assign(_mujocoFloatParams.begin(), _mujocoFloatParams.end());
         l->_mujocoIntParams.assign(_mujocoIntParams.begin(), _mujocoIntParams.end());
     }
@@ -260,7 +260,7 @@ void CDummy::removeSceneDependencies()
     setLinkedDummyHandle(-1, false);
 }
 
-void CDummy::addSpecializedObjectEventData(CCbor *ev)
+void CDummy::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -292,9 +292,9 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-CSceneObject *CDummy::copyYourself()
+CSceneObject* CDummy::copyYourself()
 {
-    CDummy *newDummy = (CDummy *)CSceneObject::copyYourself();
+    CDummy* newDummy = (CDummy*)CSceneObject::copyYourself();
     newDummy->_linkedDummyHandle = _linkedDummyHandle; // important for copy operations connections
 
     _dummyColor.copyYourselfInto(&newDummy->_dummyColor);
@@ -382,32 +382,32 @@ void CDummy::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void CDummy::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CDummy::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
 
-void CDummy::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CDummy::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
 }
 
-void CDummy::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CDummy::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
 
-void CDummy::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CDummy::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
 
-void CDummy::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CDummy::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CDummy::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CDummy::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -424,8 +424,8 @@ void CDummy::simulationAboutToStart()
 }
 
 void CDummy::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
@@ -436,7 +436,7 @@ void CDummy::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-void CDummy::serialize(CSer &ar)
+void CDummy::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -676,7 +676,7 @@ void CDummy::serialize(CSer &ar)
             else
             {
                 std::string str;
-                CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+                CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(
@@ -839,7 +839,7 @@ void CDummy::serialize(CSer &ar)
 }
 
 // SPECIAL FUNCTION TO GUARANTEE FORWARD COMPATIBILITY WHEN LOADING OBJECT TYPES THAT DON'T EXIST YET!
-void CDummy::loadUnknownObjectType(CSer &ar)
+void CDummy::loadUnknownObjectType(CSer& ar)
 {
     CSceneObject::serialize(ar);
     // Now finish reading the object! (but we throw its content away!)
@@ -852,7 +852,7 @@ void CDummy::loadUnknownObjectType(CSer &ar)
     }
 }
 
-void CDummy::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CDummy::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
     _linkedDummyHandle = CWorld::getLoadingMapping(map, _linkedDummyHandle);
@@ -862,14 +862,14 @@ void CDummy::performObjectLoadingMapping(const std::map<int, int> *map, bool loa
 void CDummy::setLinkedDummyHandle(int handle, bool check)
 {
     int _linkedDummyHandleOld = _linkedDummyHandle;
-    CDummy *thisObject = nullptr;
+    CDummy* thisObject = nullptr;
     if (check)
         thisObject = App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
     if (thisObject != this)
         _linkedDummyHandle = handle;
     else
     {
-        CDummy *linkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+        CDummy* linkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
         if (handle == -1)
         { // we unlink this dummy and its partner:
             if (linkedDummy != nullptr)
@@ -878,7 +878,7 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
         }
         else if (_linkedDummyHandle != handle)
         { // We link this dummy to another dummy
-            CDummy *newLinkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(handle);
+            CDummy* newLinkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(handle);
             if (linkedDummy != nullptr)
                 linkedDummy->setLinkedDummyHandle(-1, false); // we first detach it from its old partner
             if (newLinkedDummy != nullptr)
@@ -905,8 +905,8 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
     {
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propDummy_linkedDummyHandle.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propDummy_linkedDummyHandle.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt(cmd, _linkedDummyHandle);
             App::worldContainer->pushEvent();
         }
@@ -927,8 +927,8 @@ bool CDummy::setDummyType(int lt, bool check)
         _linkType = lt;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propDummy_dummyType.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propDummy_dummyType.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt(cmd, _linkType);
             App::worldContainer->pushEvent();
         }
@@ -945,8 +945,8 @@ bool CDummy::setDummyType(int lt, bool check)
     }
     if ((_linkedDummyHandle != -1) && check)
     {
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
-        CDummy *thisObject = App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+        CDummy* thisObject = App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
         if ((thisObject == this) && (it != nullptr))
         { // dummy is in the scene
             if (lt == sim_dummy_linktype_gcs_tip)
@@ -967,7 +967,7 @@ bool CDummy::setDummyType(int lt, bool check)
     return (diff);
 }
 
-void CDummy::setAssemblyTag(const char *tag)
+void CDummy::setAssemblyTag(const char* tag)
 {
     bool diff = (_assemblyTag != tag);
     if (diff)
@@ -975,15 +975,15 @@ void CDummy::setAssemblyTag(const char *tag)
         _assemblyTag = tag;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propDummy_assemblyTag.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propDummy_assemblyTag.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyText(cmd, _assemblyTag.c_str());
             App::worldContainer->pushEvent();
         }
     }
 }
 
-void CDummy::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CDummy::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
@@ -1098,7 +1098,7 @@ int CDummy::getLinkedDummyHandle() const
     return (_linkedDummyHandle);
 }
 
-CColorObject *CDummy::getDummyColor()
+CColorObject* CDummy::getDummyColor()
 {
     return (&_dummyColor);
 }
@@ -1112,8 +1112,8 @@ void CDummy::setDummySize(double s)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propDummy_size.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propDummy_size.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _dummySize);
             App::worldContainer->pushEvent();
         }
@@ -1121,13 +1121,13 @@ void CDummy::setDummySize(double s)
 }
 
 #ifdef SIM_WITH_GUI
-void CDummy::display(CViewableBase *renderingObject, int displayAttrib)
+void CDummy::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayDummy(this, renderingObject, displayAttrib);
 }
 #endif
 
-int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev/* = nullptr*/)
+int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev /* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1142,7 +1142,7 @@ int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev/* = null
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
         retVal = CSceneObject::setBoolProperty(pName, pState);
         if (retVal == -1)
@@ -1154,13 +1154,12 @@ int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev/* = null
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
                 int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
-                if ( (nv != arr[simiIndexBitCoded]) ||(pName == nullptr) )
+                if ((nv != arr[simiIndexBitCoded]) || (pName == nullptr))
                 {
                     if (pName != nullptr)
                         arr[simiIndexBitCoded] = nv;
@@ -1178,7 +1177,7 @@ int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev/* = null
 
         handleProp(propDummy_mujocoLimitsEnabled.name, _mujocoIntParams, simi_mujoco_dummy_bitcoded, simi_mujoco_dummy_limited);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -1212,10 +1211,9 @@ int CDummy::getBoolProperty(const char* ppName, bool& pState) const
         // ------------------------
     }
     return retVal;
-
 }
 
-int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullptr*/)
+int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1230,20 +1228,20 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullpt
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
         retVal = CSceneObject::setIntProperty(pName, pState);
         if (retVal == -1)
         {
             if (_pName == propDummy_linkedDummyHandle.name)
             {
-                 setLinkedDummyHandle(pState, true);
-                 retVal = 1;
+                setLinkedDummyHandle(pState, true);
+                retVal = 1;
             }
             else if (_pName == propDummy_dummyType.name)
             {
-                 setDummyType(pState, true);
-                 retVal = 1;
+                setDummyType(pState, true);
+                retVal = 1;
             }
         }
     }
@@ -1252,8 +1250,7 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullpt
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
@@ -1275,7 +1272,7 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullpt
 
         handleProp(propDummy_mujocoJointProxyHandle.name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -1317,7 +1314,7 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev/* = nullptr*/)
+int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev /* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1332,7 +1329,7 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev/* = n
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
         retVal = CSceneObject::setFloatProperty(pName, pState);
         if (retVal == -1)
@@ -1351,8 +1348,7 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev/* = n
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
@@ -1377,7 +1373,7 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev/* = n
         handleProp(propDummy_mujocoSpringDamping.name, _mujocoFloatParams, simi_mujoco_dummy_damping);
         handleProp(propDummy_mujocoSpringLength.name, _mujocoFloatParams, simi_mujoco_dummy_springlength);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -1439,7 +1435,6 @@ int CDummy::setStringProperty(const char* ppName, const char* pState)
             retVal = 1;
             setAssemblyTag(pState);
         }
-
     }
     if (retVal == -1)
     {
@@ -1472,7 +1467,6 @@ int CDummy::getStringProperty(const char* ppName, std::string& pState) const
             retVal = 1;
             pState = _assemblyTag;
         }
-
     }
     if (retVal == -1)
     {
@@ -1496,7 +1490,6 @@ int CDummy::setColorProperty(const char* ppName, const float* pState)
         retVal = _dummyColor.setColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -1510,12 +1503,11 @@ int CDummy::getColorProperty(const char* ppName, float* pState) const
         retVal = _dummyColor.getColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
 
-int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* eev/* = nullptr*/)
+int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* eev /* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1530,7 +1522,7 @@ int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* 
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
         retVal = CSceneObject::setVector2Property(pName, pState);
         if (retVal == -1)
@@ -1542,8 +1534,7 @@ int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* 
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
@@ -1553,7 +1544,7 @@ int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* 
                     for (size_t i = 0; i < 2; i++)
                         pa = pa || (arr[simiIndex1 + i] != pState[i]);
                 }
-                if ( (pName == nullptr) || pa )
+                if ((pName == nullptr) || pa)
                 {
                     if (pName != nullptr)
                     {
@@ -1572,8 +1563,7 @@ int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* 
             }
         };
 
-
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -1587,15 +1577,14 @@ int CDummy::getVector2Property(const char* ppName, double* pState) const
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getVector2Property(pName, pState);
     if (retVal == -1)
-    {   // First non-engine properties:
+    { // First non-engine properties:
     }
 
     if (retVal == -1)
     {
         // Engine-only properties:
         // ------------------------
-        auto handleProp = [&](const std::vector<double>& arr, int simiIndex1)
-        {
+        auto handleProp = [&](const std::vector<double>& arr, int simiIndex1) {
             retVal = 1;
             for (size_t i = 0; i < 2; i++)
                 pState[i] = arr[simiIndex1 + i];
@@ -1607,7 +1596,7 @@ int CDummy::getVector2Property(const char* ppName, double* pState) const
     return retVal;
 }
 
-int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, CCbor* eev /* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1622,7 +1611,7 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
         retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
         if (retVal == -1)
@@ -1634,15 +1623,14 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
                 bool pa = false;
                 for (size_t i = 0; i < n; i++)
                     pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
-                if ( (pName == nullptr) || pa )
+                if ((pName == nullptr) || pa)
                 {
                     if (pName != nullptr)
                     {
@@ -1668,7 +1656,7 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
         handleProp(propDummy_mujocoLimitsSolref.name, _mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
         handleProp(propDummy_mujocoLimitsSolimp.name, _mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 5);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -1683,15 +1671,14 @@ int CDummy::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     pState.clear();
     int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
-    {   // First non-engine properties:
+    { // First non-engine properties:
     }
 
     if (retVal == -1)
     {
         // Engine-only properties:
         // ------------------------
-        auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n)
-        {
+        auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n) {
             retVal = 1;
             for (size_t i = 0; i < n; i++)
                 pState.push_back(arr[simiIndex1 + i]);
@@ -1721,7 +1708,7 @@ int CDummy::getPropertyName(int& index, std::string& pName, std::string& apparte
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -1749,7 +1736,7 @@ int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& 
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -1780,7 +1767,7 @@ int CDummy::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
             {
                 retVal = allProps_dummy[i].type;
                 info = allProps_dummy[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_dummy[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_dummy[i].infoTxt, "") != 0))
                     infoTxt = allProps_dummy[i].infoTxt;
                 else
                     infoTxt = allProps_dummy[i].shortInfoTxt;
@@ -1806,7 +1793,7 @@ int CDummy::getPropertyInfo_static(const char* ppName, int& info, std::string& i
             {
                 retVal = allProps_dummy[i].type;
                 info = allProps_dummy[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_dummy[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_dummy[i].infoTxt, "") != 0))
                     infoTxt = allProps_dummy[i].infoTxt;
                 else
                     infoTxt = allProps_dummy[i].shortInfoTxt;
@@ -1819,7 +1806,7 @@ int CDummy::getPropertyInfo_static(const char* ppName, int& info, std::string& i
 
 void CDummy::_sendEngineString(CCbor* eev /*= nullptr*/)
 {
-    if ( _isInScene && App::worldContainer->getEventsEnabled() )
+    if (_isInScene && App::worldContainer->getEventsEnabled())
     {
         CCbor* ev = nullptr;
         if (eev != nullptr)
@@ -1829,7 +1816,7 @@ void CDummy::_sendEngineString(CCbor* eev /*= nullptr*/)
         if (ev == nullptr)
             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propDummy_engineProperties.name, true);
         ev->appendKeyText(propDummy_engineProperties.name, current.c_str());
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
     }
 }
@@ -1848,11 +1835,11 @@ std::string CDummy::_enumToProperty(int oldEnum, int type, int& indexWithArrays)
             {
                 if (type == allProps_dummy[i].type)
                 {
-                    if ( (j > 0) || (allProps_dummy[i].oldEnums[j + 1] != -1) )
+                    if ((j > 0) || (allProps_dummy[i].oldEnums[j + 1] != -1))
                         indexWithArrays = int(j);
                     else
                         indexWithArrays = -1;
-                    retVal =  allProps_dummy[i].name;
+                    retVal = allProps_dummy[i].name;
                 }
                 break;
             }

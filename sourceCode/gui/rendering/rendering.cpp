@@ -25,7 +25,7 @@ See the GNU General Public License for more details.
 #include <oglExt.h>
 #include <guiApp.h>
 
-CGlBufferObjects *_glBufferObjects = nullptr;
+CGlBufferObjects* _glBufferObjects = nullptr;
 bool _glInitialized = false;
 
 void initializeRendering()
@@ -91,17 +91,17 @@ void initGl_ifNeeded()
     std::string glVer("OpenGL: ");
     std::string tmp = "(none given)";
     if (glGetString(GL_VENDOR) != nullptr)
-        tmp = (char *)glGetString(GL_VENDOR);
+        tmp = (char*)glGetString(GL_VENDOR);
     glVer += tmp.c_str();
     glVer += ", Renderer: ";
     tmp = "(none given)";
     if (glGetString(GL_RENDERER) != nullptr)
-        tmp = (char *)glGetString(GL_RENDERER);
+        tmp = (char*)glGetString(GL_RENDERER);
     glVer += tmp.c_str();
     glVer += ", Version: ";
     tmp = "(none given)";
     if (glGetString(GL_VERSION) != nullptr)
-        tmp = (char *)glGetString(GL_VERSION);
+        tmp = (char*)glGetString(GL_VERSION);
     glVer += tmp.c_str();
     App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, glVer.c_str());
 }
@@ -151,17 +151,17 @@ void initGl_openGLWidget()
     std::string glVer("OpenGL: ");
     std::string tmp = "(none given)";
     if (glGetString(GL_VENDOR) != nullptr)
-        tmp = (char *)glGetString(GL_VENDOR);
+        tmp = (char*)glGetString(GL_VENDOR);
     glVer += tmp.c_str();
     glVer += ", Renderer: ";
     tmp = "(none given)";
     if (glGetString(GL_RENDERER) != nullptr)
-        tmp = (char *)glGetString(GL_RENDERER);
+        tmp = (char*)glGetString(GL_RENDERER);
     glVer += tmp.c_str();
     glVer += ", Version: ";
     tmp = "(none given)";
     if (glGetString(GL_VERSION) != nullptr)
-        tmp = (char *)glGetString(GL_VERSION);
+        tmp = (char*)glGetString(GL_VERSION);
     glVer += tmp.c_str();
     App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, glVer.c_str());
 }
@@ -215,31 +215,31 @@ void decreaseTexCoordBufferRefCnt(int texCoordBufferId)
         _glBufferObjects->removeTexCoordBuffer(texCoordBufferId);
 }
 
-void _drawTriangles(const float *vertices, int verticesCnt, const int *indices, int indicesCnt, const float *normals,
-                    const float *textureCoords, int *vertexBufferId, int *normalBufferId, int *texCoordBufferId)
+void _drawTriangles(const float* vertices, int verticesCnt, const int* indices, int indicesCnt, const float* normals,
+                    const float* textureCoords, int* vertexBufferId, int* normalBufferId, int* texCoordBufferId)
 {
     if (_glBufferObjects != nullptr)
         _glBufferObjects->drawTriangles(vertices, verticesCnt, indices, indicesCnt, normals, textureCoords,
                                         vertexBufferId, normalBufferId, texCoordBufferId);
 }
 
-bool _drawEdges(const float *vertices, int verticesCnt, const int *indices, int indicesCnt, const unsigned char *edges,
-                int *edgeBufferId)
+bool _drawEdges(const float* vertices, int verticesCnt, const int* indices, int indicesCnt, const unsigned char* edges,
+                int* edgeBufferId)
 {
     if (_glBufferObjects != nullptr)
         return (_glBufferObjects->drawEdges(vertices, verticesCnt, indices, indicesCnt, edges, edgeBufferId));
     return (false);
 }
 
-void _drawColorCodedTriangles(const float *vertices, int verticesCnt, const int *indices, int indicesCnt,
-                              const float *normals, int *vertexBufferId, int *normalBufferId)
+void _drawColorCodedTriangles(const float* vertices, int verticesCnt, const int* indices, int indicesCnt,
+                              const float* normals, int* vertexBufferId, int* normalBufferId)
 {
     if (_glBufferObjects != nullptr)
         _glBufferObjects->drawColorCodedTriangles(vertices, verticesCnt, indices, indicesCnt, normals, vertexBufferId,
                                                   normalBufferId);
 }
 
-void makeColorCurrent(const CColorObject *visParam, bool forceNonTransparent, bool useAuxiliaryComponent)
+void makeColorCurrent(const CColorObject* visParam, bool forceNonTransparent, bool useAuxiliaryComponent)
 {
     if (useAuxiliaryComponent)
     { // temperature, etc. colors:
@@ -280,7 +280,7 @@ void makeColorCurrent(const CColorObject *visParam, bool forceNonTransparent, bo
                     visParam->getColorsPtr()[0] * l, visParam->getColorsPtr()[1] * l, visParam->getColorsPtr()[2] * l,
                     visParam->getColorsPtr()[3] * l, visParam->getColorsPtr()[4] * l, visParam->getColorsPtr()[5] * l,
                     visParam->getColorsPtr()[6] * l, visParam->getColorsPtr()[7] * l, visParam->getColorsPtr()[8] * l,
-                    visParam->getColorsPtr()[9],     visParam->getColorsPtr()[10],    visParam->getColorsPtr()[11]};
+                    visParam->getColorsPtr()[9], visParam->getColorsPtr()[10], visParam->getColorsPtr()[11]};
                 for (int i = 0; i < 12; i++)
                     col0[i] = col0[i] * (1.0 - t) + col1[i] * t;
                 ogl::setMaterialColor(col0, col0 + 6, col0 + 9);
@@ -308,7 +308,7 @@ void makeColorCurrent(const CColorObject *visParam, bool forceNonTransparent, bo
     }
 }
 
-void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
+void _activateNonAmbientLights(int lightHandle, CViewableBase* viewable)
 { // -2: none, -1: all, otherwise the handle of the light or the collection
     // First deactivate all:
     for (int i = 0; i < CLight::getMaxAvailableOglLights(); i++)
@@ -323,12 +323,12 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
         int activeLightCounter = 0;
         bool useLocalLights = viewable->getuseLocalLights();
 
-        std::vector<CLight *> lList;
+        std::vector<CLight*> lList;
         if (lightHandle == -1)
         {
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_light); i++)
             {
-                CLight *light = App::currentWorld->sceneObjects->getLightFromIndex(i);
+                CLight* light = App::currentWorld->sceneObjects->getLightFromIndex(i);
                 lList.push_back(light);
             }
         }
@@ -336,18 +336,18 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
         {
             if (lightHandle <= SIM_IDEND_SCENEOBJECT)
             {
-                CLight *light = App::currentWorld->sceneObjects->getLightFromHandle(lightHandle);
+                CLight* light = App::currentWorld->sceneObjects->getLightFromHandle(lightHandle);
                 if (light != nullptr)
                     lList.push_back(light);
             }
             else
             {
-                CCollection *gr = App::currentWorld->collections->getObjectFromHandle(lightHandle);
+                CCollection* gr = App::currentWorld->collections->getObjectFromHandle(lightHandle);
                 if (gr != nullptr)
                 {
                     for (size_t i = 0; i < gr->getSceneObjectCountInCollection(); i++)
                     {
-                        CLight *light =
+                        CLight* light =
                             App::currentWorld->sceneObjects->getLightFromHandle(gr->getSceneObjectHandleFromIndex(i));
                         if (light != nullptr)
                             lList.push_back(light);
@@ -358,7 +358,7 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
 
         for (size_t i = 0; i < lList.size(); i++)
         {
-            CLight *light = lList[i];
+            CLight* light = lList[i];
             bool LocalLight = light->getLightIsLocal();
             if (((!useLocalLights) && (!LocalLight)) || (useLocalLights && LocalLight && light->hasAncestor(viewable)))
             {
@@ -455,7 +455,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
     {
         if (cpi < 5)
         {
-            CMirror *it = App::currentWorld->sceneObjects->getMirrorFromIndex(i);
+            CMirror* it = App::currentWorld->sceneObjects->getMirrorFromIndex(i);
             if ((!it->getIsMirror()) && it->getActive())
             {
                 if (prepare)
@@ -472,7 +472,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
                     bool clipIt = false;
                     if (clipObj > SIM_IDEND_SCENEOBJECT)
                     { // collection
-                        CCollection *coll = App::currentWorld->collections->getObjectFromHandle(clipObj);
+                        CCollection* coll = App::currentWorld->collections->getObjectFromHandle(clipObj);
                         clipIt = coll->isObjectInCollection(objID);
                     }
                     else
@@ -492,7 +492,7 @@ void _disableAuxClippingPlanes()
         glDisable(GL_CLIP_PLANE1 + i);
 }
 
-void _selectLights(CSceneObject *object, CViewableBase *viewable)
+void _selectLights(CSceneObject* object, CViewableBase* viewable)
 {
     object->setRestoreToDefaultLights(false);
     if (App::currentWorld->environment->areNonAmbientLightsActive())
@@ -505,13 +505,13 @@ void _selectLights(CSceneObject *object, CViewableBase *viewable)
     }
 }
 
-void _restoreDefaultLights(CSceneObject *object, CViewableBase *viewable)
+void _restoreDefaultLights(CSceneObject* object, CViewableBase* viewable)
 {
     if (object->getRestoreToDefaultLights())
         _activateNonAmbientLights(-1, viewable);
 }
 
-void _displayFrame(const C7Vector &tr, double frameSize, int color /*=0*/)
+void _displayFrame(const C7Vector& tr, double frameSize, int color /*=0*/)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
@@ -525,7 +525,7 @@ void _displayFrame(const C7Vector &tr, double frameSize, int color /*=0*/)
     glPopMatrix();
 }
 
-void _displayBoundingBox(CSceneObject *object, CViewableBase *viewable, bool mainSelection)
+void _displayBoundingBox(CSceneObject* object, CViewableBase* viewable, bool mainSelection)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
@@ -548,8 +548,8 @@ void _displayBoundingBox(CSceneObject *object, CViewableBase *viewable, bool mai
     glPopMatrix();
 }
 
-void _displayBoundingBox(const C3Vector *objectFrame, const C7Vector &absBBFrame, const C3Vector &bbSize,
-                         CSceneObject *object, bool mainSelection)
+void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame, const C3Vector& bbSize,
+                         CSceneObject* object, bool mainSelection)
 {
     C3Vector bbMin(C3Vector::inf);
     C3Vector bbMax(C3Vector::ninf);
@@ -661,7 +661,7 @@ void _displayBoundingBox(const C3Vector *objectFrame, const C7Vector &absBBFrame
     glDisable(GL_LINE_STIPPLE);
 }
 
-void _commonStart(CSceneObject *object, CViewableBase *viewable)
+void _commonStart(CSceneObject* object, CViewableBase* viewable)
 {
     _selectLights(object, viewable);
     glPushMatrix();
@@ -673,7 +673,7 @@ void _commonStart(CSceneObject *object, CViewableBase *viewable)
     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
 }
 
-void _commonFinish(CSceneObject *object, CViewableBase *viewable)
+void _commonFinish(CSceneObject* object, CViewableBase* viewable)
 {
     glPopAttrib();
     glPopMatrix();
@@ -682,15 +682,15 @@ void _commonFinish(CSceneObject *object, CViewableBase *viewable)
     _restoreDefaultLights(object, viewable);
 }
 
-bool _start3DTextureDisplay(CTextureProperty *tp)
+bool _start3DTextureDisplay(CTextureProperty* tp)
 {
     int _textureOrVisionSensorObjectID = tp->getTextureObjectID();
     if (_textureOrVisionSensorObjectID == -1)
         return (false);
-    CTextureObject *it = nullptr;
+    CTextureObject* it = nullptr;
     if (_textureOrVisionSensorObjectID > SIM_IDEND_SCENEOBJECT)
         it = App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
-    CVisionSensor *rs = nullptr;
+    CVisionSensor* rs = nullptr;
     if ((_textureOrVisionSensorObjectID >= SIM_IDSTART_SCENEOBJECT) &&
         (_textureOrVisionSensorObjectID <= SIM_IDEND_SCENEOBJECT))
     {
@@ -707,22 +707,22 @@ bool _start3DTextureDisplay(CTextureProperty *tp)
     return (false);
 }
 
-void _end3DTextureDisplay(CTextureProperty *tp)
+void _end3DTextureDisplay(CTextureProperty* tp)
 {
     if (tp->getStartedTextureObject() != nullptr)
         _endTextureDisplay();
     tp->setStartedTextureObject(nullptr);
 }
 
-bool _start2DTextureDisplay(CTextureProperty *tp)
+bool _start2DTextureDisplay(CTextureProperty* tp)
 {
     int _textureOrVisionSensorObjectID = tp->getTextureObjectID();
     if (_textureOrVisionSensorObjectID == -1)
         return (false);
-    CTextureObject *it = nullptr;
+    CTextureObject* it = nullptr;
     if (_textureOrVisionSensorObjectID > SIM_IDEND_SCENEOBJECT)
         it = App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
-    CVisionSensor *rs = nullptr;
+    CVisionSensor* rs = nullptr;
     if ((_textureOrVisionSensorObjectID >= SIM_IDSTART_SCENEOBJECT) &&
         (_textureOrVisionSensorObjectID <= SIM_IDEND_SCENEOBJECT))
     {
@@ -744,7 +744,7 @@ bool _start2DTextureDisplay(CTextureProperty *tp)
     return (false);
 }
 
-void _end2DTextureDisplay(CTextureProperty *tp)
+void _end2DTextureDisplay(CTextureProperty* tp)
 {
     if (tp->getStartedTextureObject() != nullptr)
         _endTextureDisplay();
@@ -754,7 +754,7 @@ void _end2DTextureDisplay(CTextureProperty *tp)
     glDisable(GL_ALPHA_TEST);
 }
 
-void _startTextureDisplay(CTextureObject *to, bool interpolateColor, int applyMode, bool repeatX, bool repeatY)
+void _startTextureDisplay(CTextureObject* to, bool interpolateColor, int applyMode, bool repeatX, bool repeatY)
 { // applyMode: 0=modulate, 1=decal, 2=add (for now)
 
     int sx, sy;

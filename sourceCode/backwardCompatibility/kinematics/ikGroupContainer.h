@@ -16,10 +16,10 @@ class CIkGroupContainer : public _CIkGroupContainer_
     void simulationAboutToStart();
     void simulationEnded();
 
-    void addIkGroup(CIkGroup_old *anIkGroup, bool objectIsACopy);
-    void addIkGroupWithSuffixOffset(CIkGroup_old *anIkGroup, bool objectIsACopy, int suffixOffset);
+    void addIkGroup(CIkGroup_old* anIkGroup, bool objectIsACopy);
+    void addIkGroupWithSuffixOffset(CIkGroup_old* anIkGroup, bool objectIsACopy, int suffixOffset);
 
-    void getMinAndMaxNameSuffixes(int &minSuffix, int &maxSuffix) const;
+    void getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const;
     bool canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1, int suffix2);
 
@@ -36,6 +36,6 @@ class CIkGroupContainer : public _CIkGroupContainer_
 
   protected:
     // Overridden from _CIkGroupContainer_:
-    void _addIkGroup(CIkGroup_old *anIkGroup);
+    void _addIkGroup(CIkGroup_old* anIkGroup);
     void _removeIkGroup(int ikGroupHandle);
 };

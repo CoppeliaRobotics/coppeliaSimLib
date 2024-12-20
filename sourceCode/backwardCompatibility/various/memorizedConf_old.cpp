@@ -3,7 +3,7 @@
 #include <simInternal.h>
 #include <utils.h>
 
-CMemorizedConf_old::CMemorizedConf_old(CSceneObject *theObject)
+CMemorizedConf_old::CMemorizedConf_old(CSceneObject* theObject)
 {
     uniqueID = theObject->getObjectUid();
     parentUniqueID = -1;
@@ -13,13 +13,13 @@ CMemorizedConf_old::CMemorizedConf_old(CSceneObject *theObject)
     objectType = theObject->getObjectType();
     if (objectType == sim_sceneobject_joint)
     {
-        CJoint *act = (CJoint *)theObject;
+        CJoint* act = (CJoint*)theObject;
         position = act->getPosition();
         sphericalJointOrientation = act->getSphericalTransformation();
     }
     if (objectType == sim_sceneobject_path)
     {
-        CPath_old *path = (CPath_old *)theObject;
+        CPath_old* path = (CPath_old*)theObject;
         position = double(path->pathContainer->getPosition());
     }
 }
@@ -34,7 +34,7 @@ CMemorizedConf_old::~CMemorizedConf_old()
 
 int CMemorizedConf_old::getParentCount()
 {
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromUid(uniqueID);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromUid(uniqueID);
     if (it == nullptr)
         return (0);
     return (it->getParentCount());
@@ -42,7 +42,7 @@ int CMemorizedConf_old::getParentCount()
 
 void CMemorizedConf_old::restore()
 {
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromUid(uniqueID);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromUid(uniqueID);
     if (it == nullptr)
         return;
     it->setDynamicsResetFlag(true, false); // dynamically enabled objects have to be reset first!
@@ -53,13 +53,13 @@ void CMemorizedConf_old::restore()
         it->setLocalTransformation(configuration);
     if (objectType == sim_sceneobject_joint)
     {
-        CJoint *act = (CJoint *)it;
+        CJoint* act = (CJoint*)it;
         act->setPosition(position);
         act->setSphericalTransformation(sphericalJointOrientation);
     }
     if (objectType == sim_sceneobject_path)
     {
-        CPath_old *path = (CPath_old *)it;
+        CPath_old* path = (CPath_old*)it;
         path->pathContainer->setPosition(position);
     }
 }
@@ -69,7 +69,7 @@ bool CMemorizedConf_old::doesStillExist()
     return (App::currentWorld->sceneObjects->getObjectFromUid(uniqueID) != nullptr);
 }
 
-void CMemorizedConf_old::serializeToMemory(std::vector<char> &data)
+void CMemorizedConf_old::serializeToMemory(std::vector<char>& data)
 {
     if (objectType == sim_sceneobject_path)
         pushFloatToBuffer(position, data);
@@ -86,7 +86,7 @@ void CMemorizedConf_old::serializeToMemory(std::vector<char> &data)
     pushIntToBuffer(int(parentUniqueID), data);
 }
 
-void CMemorizedConf_old::serializeFromMemory(std::vector<char> &data)
+void CMemorizedConf_old::serializeFromMemory(std::vector<char>& data)
 {
     parentUniqueID = popIntFromBuffer(data);
     uniqueID = popIntFromBuffer(data);
@@ -103,35 +103,35 @@ void CMemorizedConf_old::serializeFromMemory(std::vector<char> &data)
         position = popFloatFromBuffer(data);
 }
 
-void CMemorizedConf_old::pushFloatToBuffer(double d, std::vector<char> &data)
+void CMemorizedConf_old::pushFloatToBuffer(double d, std::vector<char>& data)
 {
     for (size_t i = 0; i < sizeof(double); i++)
-        data.push_back(((char *)&d)[i]);
+        data.push_back(((char*)&d)[i]);
 }
 
-double CMemorizedConf_old::popFloatFromBuffer(std::vector<char> &data)
+double CMemorizedConf_old::popFloatFromBuffer(std::vector<char>& data)
 {
     double d;
     for (size_t i = 0; i < sizeof(double); i++)
     {
-        ((char *)&d)[sizeof(double) - 1 - i] = data[data.size() - 1];
+        ((char*)&d)[sizeof(double) - 1 - i] = data[data.size() - 1];
         data.pop_back();
     }
     return (d);
 }
 
-void CMemorizedConf_old::pushIntToBuffer(int d, std::vector<char> &data)
+void CMemorizedConf_old::pushIntToBuffer(int d, std::vector<char>& data)
 {
     for (size_t i = 0; i < sizeof(int); i++)
-        data.push_back(((char *)&d)[i]);
+        data.push_back(((char*)&d)[i]);
 }
 
-int CMemorizedConf_old::popIntFromBuffer(std::vector<char> &data)
+int CMemorizedConf_old::popIntFromBuffer(std::vector<char>& data)
 {
     int d;
     for (size_t i = 0; i < sizeof(int); i++)
     {
-        ((char *)&d)[sizeof(int) - 1 - i] = data[data.size() - 1];
+        ((char*)&d)[sizeof(int) - 1 - i] = data[data.size() - 1];
         data.pop_back();
     }
     return (d);

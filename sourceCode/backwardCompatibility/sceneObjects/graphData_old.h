@@ -35,12 +35,12 @@ class CGraphData_old
     void setDerivativeIntegralAndCumulative(int val);
     int getDerivativeIntegralAndCumulative() const;
 
-    void setValue(const C7Vector *graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
-                  const std::vector<double> &times);
+    void setValue(const C7Vector* graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
+                  const std::vector<double>& times);
     void setValueDirect(int absIndex, double theValue, bool firstValue, bool cyclic, double range,
-                        const std::vector<double> &times);
-    bool getValue(int absIndex, double &v) const;
-    bool getValueRaw(int absIndex, double &v) const;
+                        const std::vector<double>& times);
+    bool getValue(int absIndex, double& v) const;
+    bool getValueRaw(int absIndex, double& v) const;
 
     int getDataLength();
     void setUserData(double data);
@@ -49,12 +49,12 @@ class CGraphData_old
     void setMovingAverageCount(int c);
     int getMovingAverageCount() const;
 
-    void serialize(CSer &ar, void *it);
-    CGraphData_old *copyYourself();
-    void performObjectLoadingMapping(const std::map<int, int> *map);
-    void performCollisionLoadingMapping(const std::map<int, int> *map);
-    void performDistanceLoadingMapping(const std::map<int, int> *map);
-    void performIkLoadingMapping(const std::map<int, int> *map);
+    void serialize(CSer& ar, void* it);
+    CGraphData_old* copyYourself();
+    void performObjectLoadingMapping(const std::map<int, int>* map);
+    void performCollisionLoadingMapping(const std::map<int, int>* map);
+    void performDistanceLoadingMapping(const std::map<int, int>* map);
+    void performIkLoadingMapping(const std::map<int, int>* map);
     bool announceObjectWillBeErased(int objID, bool copyBuffer);
     bool announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     bool announceDistanceWillBeErased(int distanceID, bool copyBuffer);

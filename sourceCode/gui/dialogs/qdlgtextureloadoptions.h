@@ -14,7 +14,7 @@ class CQDlgTextureLoadOptions : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgTextureLoadOptions(QWidget *parent = 0);
+    explicit CQDlgTextureLoadOptions(QWidget* parent = 0);
     ~CQDlgTextureLoadOptions();
 
     void cancelEvent();
@@ -42,7 +42,7 @@ class CQDlgTextureLoadOptions : public VDialog
     void on_qq128_clicked();
 
   private:
-    Ui::CQDlgTextureLoadOptions *ui;
+    Ui::CQDlgTextureLoadOptions* ui;
 };
 
 #endif // QDLGTEXTURELOADOPTIONS_H

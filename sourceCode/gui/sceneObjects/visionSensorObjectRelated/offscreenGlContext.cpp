@@ -6,20 +6,20 @@
 #include <guiApp.h>
 #endif
 
-std::vector<QOpenGLContext *> COffscreenGlContext::_allQtContexts;
+std::vector<QOpenGLContext*> COffscreenGlContext::_allQtContexts;
 #ifdef USES_QGLWIDGET
-std::vector<QGLWidget *> COffscreenGlContext::_allQtWidgets;
+std::vector<QGLWidget*> COffscreenGlContext::_allQtWidgets;
 #else
-std::vector<QOpenGLWidget *> COffscreenGlContext::_allQtWidgets;
+std::vector<QOpenGLWidget*> COffscreenGlContext::_allQtWidgets;
 #endif
 
 #ifdef USES_QGLWIDGET
 COffscreenGlContext::COffscreenGlContext(int offscreenType, int resX, int resY,
-                                         QGLWidget *otherWidgetToShareResourcesWith)
+                                         QGLWidget* otherWidgetToShareResourcesWith)
     : QObject()
 #else
 COffscreenGlContext::COffscreenGlContext(int offscreenType, int resX, int resY,
-                                         QOpenGLWidget *otherWidgetToShareResourcesWith)
+                                         QOpenGLWidget* otherWidgetToShareResourcesWith)
     : QObject()
 #endif
 {

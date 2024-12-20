@@ -108,8 +108,8 @@ void CProxSensor::setShowVolume(bool s)
         _showVolume = s;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propProximitySensor_showVolume.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propProximitySensor_showVolume.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _showVolume);
             App::worldContainer->pushEvent();
         }
@@ -204,8 +204,8 @@ int CProxSensor::getSensableType() const
 void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*= nullptr*/, const C3Vector* detectedN /*= nullptr*/)
 {
     bool diff = (_detectedObjectHandle != h);
-    if ( (h >= 0) && (!diff) )
-        diff = ((_detectedPoint != detectedPt[0]) ||(_detectedNormalVector != detectedN[0]));
+    if ((h >= 0) && (!diff))
+        diff = ((_detectedPoint != detectedPt[0]) || (_detectedNormalVector != detectedN[0]));
     if (diff)
     {
         _detectedObjectHandle = h;
@@ -216,8 +216,8 @@ void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*
         }
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propProximitySensor_detectedObjectHandle.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propProximitySensor_detectedObjectHandle.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt(cmd, _detectedObjectHandle);
             ev->appendKeyDoubleArray(propProximitySensor_detectedPoint.name, _detectedPoint.data, 3);
             ev->appendKeyDoubleArray(propProximitySensor_detectedNormal.name, _detectedNormalVector.data, 3);
@@ -243,8 +243,8 @@ void CProxSensor::setExplicitHandling(bool setExplicit)
         _explicitHandling = setExplicit;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propProximitySensor_explicitHandling.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propProximitySensor_explicitHandling.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _explicitHandling);
             App::worldContainer->pushEvent();
         }
@@ -272,7 +272,7 @@ void CProxSensor::removeSceneDependencies()
     _sensableObject_deprecated = -1;
 }
 
-void CProxSensor::addSpecializedObjectEventData(CCbor *ev)
+void CProxSensor::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("proxSensor");
@@ -298,9 +298,9 @@ void CProxSensor::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-CSceneObject *CProxSensor::copyYourself()
+CSceneObject* CProxSensor::copyYourself()
 {
-    CProxSensor *newSensor = (CProxSensor *)CSceneObject::copyYourself();
+    CProxSensor* newSensor = (CProxSensor*)CSceneObject::copyYourself();
 
     newSensor->_sensableObject_deprecated = _sensableObject_deprecated;
     newSensor->_angleThreshold = _angleThreshold;
@@ -329,7 +329,7 @@ CSceneObject *CProxSensor::copyYourself()
     return (newSensor);
 }
 
-void CProxSensor::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CProxSensor::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
@@ -360,37 +360,37 @@ void CProxSensor::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CProxSensor::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CProxSensor::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
     if (_sensableObject_deprecated <= SIM_IDEND_SCENEOBJECT)
         _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
 }
-void CProxSensor::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CProxSensor::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
     if (_sensableObject_deprecated > SIM_IDEND_SCENEOBJECT)
         _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
 }
-void CProxSensor::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CProxSensor::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
-void CProxSensor::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CProxSensor::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
-void CProxSensor::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CProxSensor::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
 
-void CProxSensor::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CProxSensor::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CProxSensor::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CProxSensor::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -408,8 +408,8 @@ void CProxSensor::simulationAboutToStart()
 }
 
 void CProxSensor::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() && ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0))
@@ -418,7 +418,7 @@ void CProxSensor::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-void CProxSensor::serialize(CSer &ar)
+void CProxSensor::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -579,7 +579,7 @@ void CProxSensor::serialize(CSer &ar)
                         ar >> nothing;
                         _showVolume = SIM_IS_BIT_SET(nothing, 0);
                         _exactMode = SIM_IS_BIT_SET(nothing, 1);
-                        if ( (!SIM_IS_BIT_SET(nothing, 2)) && (!usingAl3) )
+                        if ((!SIM_IS_BIT_SET(nothing, 2)) && (!usingAl3))
                             _angleThreshold = 0.0;
                         _frontFaceDetection = !SIM_IS_BIT_SET(nothing, 4);
                         _backFaceDetection = !SIM_IS_BIT_SET(nothing, 5);
@@ -645,12 +645,12 @@ void CProxSensor::serialize(CSer &ar)
             else
             {
                 std::string str;
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sensableObject_deprecated);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sensableObject_deprecated);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 else
                 {
-                    CCollection *coll = App::currentWorld->collections->getObjectFromHandle(_sensableObject_deprecated);
+                    CCollection* coll = App::currentWorld->collections->getObjectFromHandle(_sensableObject_deprecated);
                     if (coll != nullptr)
                         str = "@collection@" + coll->getCollectionName();
                 }
@@ -746,7 +746,7 @@ void CProxSensor::serialize(CSer &ar)
                                sim_objectspecialproperty_detectable_inductive, "capacitive",
                                sim_objectspecialproperty_detectable_capacitive);
 
-            bool usingAllowedAngle =  ar.xmlGetNode_float("allowedAngle", _angleThreshold, exhaustiveXml);
+            bool usingAllowedAngle = ar.xmlGetNode_float("allowedAngle", _angleThreshold, exhaustiveXml);
             if (usingAllowedAngle)
                 _angleThreshold *= piValue / 180.0;
             else
@@ -850,12 +850,12 @@ void CProxSensor::serialize(CSer &ar)
     }
 }
 
-bool CProxSensor::getSensingVolumeBoundingBox(C3Vector &minV, C3Vector &maxV) const
+bool CProxSensor::getSensingVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) const
 {
     return (convexVolume->getVolumeBoundingBox(minV, maxV));
 }
 
-void CProxSensor::getSensingVolumeOBB(C7Vector &tr, C3Vector &halfSizes)
+void CProxSensor::getSensingVolumeOBB(C7Vector& tr, C3Vector& halfSizes)
 {
     C3Vector minV, maxV, center;
     convexVolume->getVolumeBoundingBox(minV, maxV);
@@ -899,8 +899,8 @@ void CProxSensor::calculateFreshRandomizedRays()
     {
         double rZ, sZ, cZ;
         if (angle > 1.1 * piValD2)
-        { // this means we have 360x180 degrees. We compute it as 2 half-spheres, in order to have a perfect direction
-          // distribution:
+        {   // this means we have 360x180 degrees. We compute it as 2 half-spheres, in order to have a perfect direction
+            // distribution:
             rZ = acos(1.0 - SIM_RAND_FLOAT);
             sZ = sin(rZ);
             cZ = cos(rZ);
@@ -922,12 +922,12 @@ void CProxSensor::calculateFreshRandomizedRays()
     }
 }
 
-const std::vector<C3Vector> *CProxSensor::getPointerToRandomizedRays() const
+const std::vector<C3Vector>* CProxSensor::getPointerToRandomizedRays() const
 {
     return (&_randomizedVectors);
 }
 
-std::vector<double> *CProxSensor::getPointerToRandomizedRayDetectionStates()
+std::vector<double>* CProxSensor::getPointerToRandomizedRayDetectionStates()
 {
     return (&_randomizedVectorDetectionStates);
 }
@@ -941,7 +941,7 @@ void CProxSensor::resetSensor(bool exceptExplicitHandling)
     }
 }
 
-bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectHandle, C3Vector &detectedNormalVector)
+bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectHandle, C3Vector& detectedNormalVector)
 {
     if (exceptExplicitHandling && getExplicitHandling())
         return (false); // We don't want to handle those
@@ -973,7 +973,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
 
         if (scripts.size() > 0)
         {
-            CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
 
             inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
@@ -987,7 +987,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
                 if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
                     bool hasTriggerWord = false;
-                    CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
+                    CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
                     script->systemCallScript(sim_syscb_trigger, inStack, outStack);
                     if (outStack->getStackSize() >= 1)
                     {
@@ -1012,7 +1012,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
     return (detectedObject >= 0);
 }
 
-int CProxSensor::readSensor(C3Vector &detectPt, int &detectedObjectHandle, C3Vector &detectedNormalVector)
+int CProxSensor::readSensor(C3Vector& detectPt, int& detectedObjectHandle, C3Vector& detectedNormalVector)
 {
     int retVal = 0;
     if (_detectedObjectHandle >= 0)
@@ -1047,8 +1047,8 @@ void CProxSensor::setFrontFaceDetection(bool faceOn)
         _frontFaceDetection = faceOn;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propProximitySensor_frontFaceDetection.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propProximitySensor_frontFaceDetection.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _frontFaceDetection);
             App::worldContainer->pushEvent();
         }
@@ -1064,8 +1064,8 @@ void CProxSensor::setBackFaceDetection(bool faceOn)
         _backFaceDetection = faceOn;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propProximitySensor_backFaceDetection.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propProximitySensor_backFaceDetection.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _backFaceDetection);
             App::worldContainer->pushEvent();
         }
@@ -1082,8 +1082,8 @@ void CProxSensor::setAllowedNormal(double al)
         _angleThreshold = al;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propProximitySensor_angleThreshold.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propProximitySensor_angleThreshold.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _angleThreshold);
             App::worldContainer->pushEvent();
         }
@@ -1102,8 +1102,8 @@ void CProxSensor::setExactMode(bool closestObjMode)
         _exactMode = closestObjMode;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propProximitySensor_exactMode.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propProximitySensor_exactMode.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _exactMode);
             App::worldContainer->pushEvent();
         }
@@ -1126,8 +1126,8 @@ void CProxSensor::setProxSensorSize(double newSize)
         _proxSensorSize = newSize;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propProximitySensor_size.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propProximitySensor_size.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _proxSensorSize);
             App::worldContainer->pushEvent();
         }
@@ -1140,7 +1140,7 @@ double CProxSensor::getProxSensorSize()
     return (_proxSensorSize);
 }
 
-bool CProxSensor::getSensedData(C3Vector &pt)
+bool CProxSensor::getSensedData(C3Vector& pt)
 {
     bool retVal = false;
     if (_detectedObjectHandle >= 0)
@@ -1179,7 +1179,7 @@ std::string CProxSensor::getSensableObjectLoadName_old() const
     return (_sensableObjectLoadName_old);
 }
 
-CColorObject *CProxSensor::getColor(int index)
+CColorObject* CProxSensor::getColor(int index)
 {
     if (index == 0)
         return (&volumeColor);
@@ -1194,7 +1194,7 @@ int CProxSensor::getSensorType() const
 }
 
 #ifdef SIM_WITH_GUI
-void CProxSensor::display(CViewableBase *renderingObject, int displayAttrib)
+void CProxSensor::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayProximitySensor(this, renderingObject, displayAttrib);
 }
@@ -1478,7 +1478,6 @@ int CProxSensor::setColorProperty(const char* ppName, const float* pState)
         retVal = detectionRayColor.setColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -1494,7 +1493,6 @@ int CProxSensor::getColorProperty(const char* ppName, float* pState) const
         retVal = detectionRayColor.getColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -1543,7 +1541,6 @@ int CProxSensor::setIntArrayProperty(const char* ppName, const int* v, int vL)
     {
     }
 
-
     return retVal;
 }
 
@@ -1578,7 +1575,7 @@ int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& ap
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_proximitySensor[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_proximitySensor[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -1609,7 +1606,7 @@ int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::str
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_proximitySensor[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_proximitySensor[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -1643,7 +1640,7 @@ int CProxSensor::getPropertyInfo(const char* ppName, int& info, std::string& inf
             {
                 retVal = allProps_proximitySensor[i].type;
                 info = allProps_proximitySensor[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_proximitySensor[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_proximitySensor[i].infoTxt, "") != 0))
                     infoTxt = allProps_proximitySensor[i].infoTxt;
                 else
                     infoTxt = allProps_proximitySensor[i].shortInfoTxt;
@@ -1673,7 +1670,7 @@ int CProxSensor::getPropertyInfo_static(const char* ppName, int& info, std::stri
             {
                 retVal = allProps_proximitySensor[i].type;
                 info = allProps_proximitySensor[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_proximitySensor[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_proximitySensor[i].infoTxt, "") != 0))
                     infoTxt = allProps_proximitySensor[i].infoTxt;
                 else
                     infoTxt = allProps_proximitySensor[i].shortInfoTxt;
@@ -1683,4 +1680,3 @@ int CProxSensor::getPropertyInfo_static(const char* ppName, int& info, std::stri
     }
     return retVal;
 }
-

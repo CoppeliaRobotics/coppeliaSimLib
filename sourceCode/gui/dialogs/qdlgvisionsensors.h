@@ -14,7 +14,7 @@ class CQDlgVisionSensors : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgVisionSensors(QWidget *parent = 0);
+    explicit CQDlgVisionSensors(QWidget* parent = 0);
     ~CQDlgVisionSensors();
 
     void refresh();
@@ -63,7 +63,7 @@ class CQDlgVisionSensors : public CDlgEx
     void on_qqRenderModeCombo_currentIndexChanged(int index);
 
   private:
-    Ui::CQDlgVisionSensors *ui;
+    Ui::CQDlgVisionSensors* ui;
 };
 
 #endif // QDLGRENDERINGSENSORS_H

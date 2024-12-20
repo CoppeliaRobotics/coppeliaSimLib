@@ -14,11 +14,11 @@ class CQDlgCollections : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgCollections(QWidget *parent = 0);
+    explicit CQDlgCollections(QWidget* parent = 0);
     ~CQDlgCollections();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
     void initializationEvent();
 
@@ -45,7 +45,7 @@ class CQDlgCollections : public CDlgEx
 
     void on_qqVisualizeCollection_clicked();
 
-    void on_qqCollectionList_itemChanged(QListWidgetItem *item);
+    void on_qqCollectionList_itemChanged(QListWidgetItem* item);
 
     void on_qqAllObjects_clicked();
 
@@ -64,7 +64,7 @@ class CQDlgCollections : public CDlgEx
     void on_qqSubtract_clicked();
 
   private:
-    Ui::CQDlgCollections *ui;
+    Ui::CQDlgCollections* ui;
 };
 
 #endif // QDLGCOLLECTIONS_H

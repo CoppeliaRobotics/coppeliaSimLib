@@ -8,7 +8,8 @@
 #include <simStrings.h>
 #include <guiApp.h>
 
-CQDlgPaths::CQDlgPaths(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgPaths)
+CQDlgPaths::CQDlgPaths(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgPaths)
 {
     _dlgType = PATH_DLG;
     ui->setupUi(this);
@@ -29,13 +30,13 @@ void CQDlgPaths::cancelEvent()
 void CQDlgPaths::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_path);
 
-    CPath_old *path = App::currentWorld->sceneObjects->getLastSelectionPath();
-    CPathCont_old *pathCont = nullptr;
+    CPath_old* path = App::currentWorld->sceneObjects->getLastSelectionPath();
+    CPathCont_old* pathCont = nullptr;
     if (path != nullptr)
         pathCont = path->pathContainer;
 
@@ -97,15 +98,15 @@ void CQDlgPaths::refresh()
     inMainRefreshRoutine = false;
 }
 
-CPathCont_old *CQDlgPaths::getPathCont()
+CPathCont_old* CQDlgPaths::getPathCont()
 {
-    CPath_old *path = App::currentWorld->sceneObjects->getLastSelectionPath();
+    CPath_old* path = App::currentWorld->sceneObjects->getLastSelectionPath();
     if (path != nullptr)
         return (path->pathContainer);
     return (nullptr);
 }
 
-CPath_old *CQDlgPaths::getPath()
+CPath_old* CQDlgPaths::getPath()
 {
     return (App::currentWorld->sceneObjects->getLastSelectionPath());
 }
@@ -114,7 +115,7 @@ void CQDlgPaths::on_qqShowOrientation_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
         {
             int attr = pathCont->getAttributes() ^ sim_pathproperty_show_orientation;
@@ -131,7 +132,7 @@ void CQDlgPaths::on_qqShowPathLine_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
         {
             int attr = pathCont->getAttributes() ^ sim_pathproperty_show_line;
@@ -148,7 +149,7 @@ void CQDlgPaths::on_qqShowPosition_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
         {
             int attr = pathCont->getAttributes() ^ sim_pathproperty_show_position;
@@ -176,7 +177,7 @@ void CQDlgPaths::on_qqLineSize_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         bool ok;
         int newVal = (int)GuiApp::getEvalInt(ui->qqLineSize->text().toStdString().c_str(), &ok);
         if (ok && (pathCont != nullptr))
@@ -195,7 +196,7 @@ void CQDlgPaths::on_qqControlPointSize_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqControlPointSize->text().toStdString().c_str(), &ok);
         if (ok && (pathCont != nullptr))
@@ -237,7 +238,7 @@ void CQDlgPaths::on_qqCopyToClipboard_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
             App::appendSimulationThreadCommand(COPY_TO_CLIPBOARD_PATH_OLD_GUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle());
@@ -248,7 +249,7 @@ void CQDlgPaths::on_qqCreateEquivalentObject_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPathCont_old *pathCont = getPathCont();
+        CPathCont_old* pathCont = getPathCont();
         if (pathCont != nullptr)
             App::appendSimulationThreadCommand(CREATE_EQUIVALENT_PATH_OLD_GUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle());

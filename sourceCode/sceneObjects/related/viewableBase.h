@@ -5,21 +5,21 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propViewable_viewAngle,               "viewAngle",                                sim_propertytype_float,     0, "View angle", "View angle (in perspective projection mode)") \
-    FUNCX(propViewable_viewSize,                "viewSize",                                 sim_propertytype_float,     0, "View size", "View size (in orthogonal projection mode)") \
-    FUNCX(propViewable_clippingPlanes,          "clippingPlanes",                           sim_propertytype_floatarray,0, "Clipping planes", "Near and far clipping planes") \
-    FUNCX(propViewable_perspective,             "perspective",                              sim_propertytype_bool,      sim_propertyinfo_notwritable, "Perspective", "Perspective projection mode, otherwise orthogonal projection mode") \
-    FUNCX(propViewable_showFrustum,             "showFrustum",                              sim_propertytype_bool,      0, "Show view frustum", "") \
-    FUNCX(propViewable_frustumCornerNear,       "frustumCornerNear",                        sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Near corner of View frustum", "") \
-    FUNCX(propViewable_frustumCornerFar,        "frustumCornerFar",                         sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Far corner of view frustum", "") \
-    FUNCX(propViewable_resolution,              "resolution",                               sim_propertytype_intarray2,0, "Resolution", "Resolution (relevant only with vision sensors)") \
+#define DEFINE_PROPERTIES                                                                                                                                                                   \
+    FUNCX(propViewable_viewAngle, "viewAngle", sim_propertytype_float, 0, "View angle", "View angle (in perspective projection mode)")                                                      \
+    FUNCX(propViewable_viewSize, "viewSize", sim_propertytype_float, 0, "View size", "View size (in orthogonal projection mode)")                                                           \
+    FUNCX(propViewable_clippingPlanes, "clippingPlanes", sim_propertytype_floatarray, 0, "Clipping planes", "Near and far clipping planes")                                                 \
+    FUNCX(propViewable_perspective, "perspective", sim_propertytype_bool, sim_propertyinfo_notwritable, "Perspective", "Perspective projection mode, otherwise orthogonal projection mode") \
+    FUNCX(propViewable_showFrustum, "showFrustum", sim_propertytype_bool, 0, "Show view frustum", "")                                                                                       \
+    FUNCX(propViewable_frustumCornerNear, "frustumCornerNear", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Near corner of View frustum", "")                                   \
+    FUNCX(propViewable_frustumCornerFar, "frustumCornerFar", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Far corner of view frustum", "")                                      \
+    FUNCX(propViewable_resolution, "resolution", sim_propertytype_intarray2, 0, "Resolution", "Resolution (relevant only with vision sensors)")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_viewable = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_viewable = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -31,19 +31,19 @@ class CViewableBase : public CSceneObject
     virtual ~CViewableBase();
 
     // Following functions need to be implemented in each class derived from CViewableBase
-    virtual void addSpecializedObjectEventData(CCbor *ev);
-    virtual CSceneObject *copyYourself();
-    virtual void display(CViewableBase *renderingObject, int displayAttrib);
+    virtual void addSpecializedObjectEventData(CCbor* ev);
+    virtual CSceneObject* copyYourself();
+    virtual void display(CViewableBase* renderingObject, int displayAttrib);
     virtual void scaleObject(double scalingFactor);
-    virtual void serialize(CSer &ar);
-    virtual void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    virtual void serialize(CSer& ar);
+    virtual void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     virtual void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     virtual void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     virtual void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
-    virtual void performObjectLoadingMapping(const std::map<int, int> *map);
-    virtual void performCollectionLoadingMapping(const std::map<int, int> *map);
-    virtual void performCollisionLoadingMapping(const std::map<int, int> *map);
-    virtual void performDistanceLoadingMapping(const std::map<int, int> *map);
+    virtual void performObjectLoadingMapping(const std::map<int, int>* map);
+    virtual void performCollectionLoadingMapping(const std::map<int, int>* map);
+    virtual void performCollisionLoadingMapping(const std::map<int, int>* map);
+    virtual void performDistanceLoadingMapping(const std::map<int, int>* map);
     virtual void simulationAboutToStart();
     virtual void simulationEnded();
 
@@ -81,7 +81,7 @@ class CViewableBase : public CSceneObject
     void setShowFogIfAvailable(bool showFog);
     bool getShowFogIfAvailable() const;
 
-    bool isObjectInsideView(const C7Vector &objectM, const C3Vector &maxBB);
+    bool isObjectInsideView(const C7Vector& objectM, const C3Vector& maxBB);
     void computeViewFrustumIfNeeded();
 
     void setFrustumCullingTemporarilyDisabled(bool d);
@@ -103,7 +103,7 @@ class CViewableBase : public CSceneObject
     void setShowVolume(bool s);
     bool getShowVolume() const;
     void computeVolumeVectors();
-    void getVolumeVectors(C3Vector &n, C3Vector &f) const;
+    void getVolumeVectors(C3Vector& n, C3Vector& f) const;
 
     static bool getFrustumCullingEnabled();
     static void setFrustumCullingEnabled(bool e);
@@ -114,7 +114,7 @@ class CViewableBase : public CSceneObject
 
   protected:
     // View frustum culling:
-    bool _isBoxOutsideVolumeApprox(const C4X4Matrix &tr, const C3Vector &s, std::vector<double> *planes);
+    bool _isBoxOutsideVolumeApprox(const C4X4Matrix& tr, const C3Vector& s, std::vector<double>* planes);
 
     double _nearClippingPlane;
     double _farClippingPlane;

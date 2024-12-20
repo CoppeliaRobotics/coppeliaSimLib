@@ -10,7 +10,7 @@
 
 #define THUMBNAIL_THING_VIEW_ANGLE 45.0
 
-CQDlgModelThumbnail::CQDlgModelThumbnail(QWidget *parent)
+CQDlgModelThumbnail::CQDlgModelThumbnail(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgModelThumbnail)
 {
     ui->setupUi(this);
@@ -71,16 +71,16 @@ void CQDlgModelThumbnail::actualizeBitmap()
     C3Vector maxC(-999.0, -999.0, -999.0);
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
         bool display = true;
         if (it->getObjectType() == sim_sceneobject_proximitysensor)
         {
-            if (!((CProxSensor *)it)->getShowVolume())
+            if (!((CProxSensor*)it)->getShowVolume())
                 display = false;
         }
         if (it->getObjectType() == sim_sceneobject_visionsensor)
         {
-            if (!((CVisionSensor *)it)->getShowVolume())
+            if (!((CVisionSensor*)it)->getShowVolume())
                 display = false;
         }
         if ((!it->isObjectPartOfInvisibleModel()) &&
@@ -161,10 +161,10 @@ void CQDlgModelThumbnail::actualizeBitmap()
     // We render the image 2 times, so we can figure out the transparent areas:
     float backgroundCol[3] = {1.0, 1.0, 1.0};
     rs->setDefaultBufferValues(backgroundCol);
-    float *buff = rs->checkSensorEx(modelBaseDummyID, true, true, hideEdges, false);
+    float* buff = rs->checkSensorEx(modelBaseDummyID, true, true, hideEdges, false);
     float backgroundCol2[3] = {0.0, 0.0, 0.0};
     rs->setDefaultBufferValues(backgroundCol2);
-    float *buff2 = rs->checkSensorEx(modelBaseDummyID, true, true, hideEdges, false);
+    float* buff2 = rs->checkSensorEx(modelBaseDummyID, true, true, hideEdges, false);
     App::userSettings->antiAliasing = antialiasingSaved;
     for (int i = 0; i < 256; i++)
     {
@@ -184,7 +184,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
         }
     }
     // Prepare the thumbnail:
-    float *buff3 = new float[128 * 128 * 4];
+    float* buff3 = new float[128 * 128 * 4];
 
     const float diagWeight = 0.05472f;   // 1.0f;
     const float horizWeight = 0.11098f;  // 2.0f;
@@ -309,7 +309,7 @@ void CQDlgModelThumbnail::on_qqFromFile_clicked()
             App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD, DIRECTORY_ID_TEXTURE, -1, 0.0, 0.0,
                                                App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
             int resX, resY, n;
-            unsigned char *data = CImageLoaderSaver::load(filenameAndPath.c_str(), &resX, &resY, &n, 0);
+            unsigned char* data = CImageLoaderSaver::load(filenameAndPath.c_str(), &resX, &resY, &n, 0);
             if (n < 3)
             {
                 delete[] data;
@@ -328,7 +328,7 @@ void CQDlgModelThumbnail::on_qqFromFile_clicked()
                                                           VMESSAGEBOX_REPLY_OK);
                 else
                 {
-                    thumbnail.setUncompressedThumbnailImage((char *)data, n > 3, true);
+                    thumbnail.setUncompressedThumbnailImage((char*)data, n > 3, true);
 
                     delete[] data;
                     thumbnailIsFromFile = true;

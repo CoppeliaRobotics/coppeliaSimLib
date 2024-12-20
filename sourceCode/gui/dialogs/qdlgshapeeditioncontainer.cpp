@@ -9,7 +9,7 @@
 
 #define TOP_BORDER_WIDTH 30
 
-CQDlgShapeEditionContainer::CQDlgShapeEditionContainer(QWidget *parent)
+CQDlgShapeEditionContainer::CQDlgShapeEditionContainer(QWidget* parent)
     : CDlgEx(parent), ui(new Ui::CQDlgShapeEditionContainer)
 {
     _dlgType = SHAPE_EDITION_DLG;

@@ -13,7 +13,7 @@ class CQDlgProximitySensors : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgProximitySensors(QWidget *parent = 0);
+    explicit CQDlgProximitySensors(QWidget* parent = 0);
     ~CQDlgProximitySensors();
 
     void refresh();
@@ -44,7 +44,7 @@ class CQDlgProximitySensors : public CDlgEx
     void on_qqApplyColors_clicked();
 
   private:
-    Ui::CQDlgProximitySensors *ui;
+    Ui::CQDlgProximitySensors* ui;
 };
 
 #endif // QDLGPROXIMITYSENSORS_H

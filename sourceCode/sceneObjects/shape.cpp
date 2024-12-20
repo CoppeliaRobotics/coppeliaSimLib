@@ -19,7 +19,7 @@ CShape::CShape()
     commonInit();
 }
 
-CShape::CShape(const std::vector<double> &allHeights, int xSize, int ySize, double dx, double minH, double maxH)
+CShape::CShape(const std::vector<double>& allHeights, int xSize, int ySize, double dx, double minH, double maxH)
 { // heightfields
     commonInit();
 
@@ -53,7 +53,7 @@ CShape::CShape(const std::vector<double> &allHeights, int xSize, int ySize, doub
         }
     }
 
-    CMesh *newMesh = new CMesh(_localTransformation, vertices, indices, nullptr, nullptr, 0);
+    CMesh* newMesh = new CMesh(_localTransformation, vertices, indices, nullptr, nullptr, 0);
     replaceMesh(newMesh, false);
     newMesh->setPurePrimitiveType(sim_primitiveshape_heightfield, double(xSize - 1) * dx, double(ySize - 1) * dx, maxH - minH);
     std::vector<double> heightsInCorrectOrder;
@@ -68,14 +68,14 @@ CShape::CShape(const std::vector<double> &allHeights, int xSize, int ySize, doub
     newMesh->setHeightfieldData(heightsInCorrectOrder, xSize, ySize);
 }
 
-CMeshWrapper *CShape::detachMesh()
+CMeshWrapper* CShape::detachMesh()
 {
-    CMeshWrapper *retVal = _mesh;
+    CMeshWrapper* retVal = _mesh;
     _mesh = nullptr;
     return (retVal);
 }
 
-void CShape::replaceMesh(CMeshWrapper *newMesh, bool keepMeshAttributes)
+void CShape::replaceMesh(CMeshWrapper* newMesh, bool keepMeshAttributes)
 {
     removeMeshCalculationStructure();
     if (_mesh != nullptr)
@@ -94,12 +94,12 @@ void CShape::replaceMesh(CMeshWrapper *newMesh, bool keepMeshAttributes)
     pushObjectRefreshEvent();
 }
 
-CShape::CShape(const C7Vector &transformation, const std::vector<double> &vertices, const std::vector<int> &indices,
-               const std::vector<double> *optNormals, const std::vector<float> *optTexCoords, int options)
+CShape::CShape(const C7Vector& transformation, const std::vector<double>& vertices, const std::vector<int>& indices,
+               const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options)
 { // all types of meshes, except heightfields
     commonInit();
     _localTransformation = transformation;
-    CMesh *newMesh = new CMesh(_localTransformation, vertices, indices, optNormals, optTexCoords, options);
+    CMesh* newMesh = new CMesh(_localTransformation, vertices, indices, optNormals, optTexCoords, options);
     replaceMesh(newMesh, false);
 }
 
@@ -121,16 +121,16 @@ int CShape::getMeshModificationCounter()
     return (_meshModificationCounter);
 }
 
-CMeshWrapper *CShape::getMesh() const
+CMeshWrapper* CShape::getMesh() const
 {
     return (_mesh);
 }
 
-CMesh *CShape::getSingleMesh() const
+CMesh* CShape::getSingleMesh() const
 {
-    CMesh *retVal = nullptr;
+    CMesh* retVal = nullptr;
     if (_mesh->isMesh())
-        retVal = (CMesh *)_mesh;
+        retVal = (CMesh*)_mesh;
     return (retVal);
 }
 
@@ -139,12 +139,12 @@ CMesh* CShape::getMeshFromUid(long long int meshUid, const C7Vector& parentCumul
     return _mesh->getMeshFromUid(meshUid, parentCumulTr, shapeRelTr);
 }
 
-CDynMaterialObject *CShape::getDynMaterial()
+CDynMaterialObject* CShape::getDynMaterial()
 {
     return (_dynMaterial);
 }
 
-void CShape::setDynMaterial(CDynMaterialObject *mat)
+void CShape::setDynMaterial(CDynMaterialObject* mat)
 {
     delete _dynMaterial;
     _dynMaterial = mat;
@@ -159,7 +159,7 @@ C3Vector CShape::getInitialDynamicLinearVelocity()
     return (_initialDynamicLinearVelocity);
 }
 
-void CShape::setInitialDynamicLinearVelocity(const C3Vector &vel)
+void CShape::setInitialDynamicLinearVelocity(const C3Vector& vel)
 {
     bool diff = (_initialDynamicLinearVelocity != vel);
     if (diff)
@@ -167,8 +167,8 @@ void CShape::setInitialDynamicLinearVelocity(const C3Vector &vel)
         _initialDynamicLinearVelocity = vel;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_initLinearVelocity.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_initLinearVelocity.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, _initialDynamicLinearVelocity.data, 3);
             App::worldContainer->pushEvent();
         }
@@ -180,7 +180,7 @@ C3Vector CShape::getInitialDynamicAngularVelocity()
     return (_initialDynamicAngularVelocity);
 }
 
-void CShape::setInitialDynamicAngularVelocity(const C3Vector &vel)
+void CShape::setInitialDynamicAngularVelocity(const C3Vector& vel)
 {
     bool diff = (_initialDynamicAngularVelocity != vel);
     if (diff)
@@ -188,8 +188,8 @@ void CShape::setInitialDynamicAngularVelocity(const C3Vector &vel)
         _initialDynamicAngularVelocity = vel;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_initAngularVelocity.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_initAngularVelocity.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, _initialDynamicAngularVelocity.data, 3);
             App::worldContainer->pushEvent();
         }
@@ -229,8 +229,8 @@ void CShape::setRespondableMask(int m)
         _respondableMask = m;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_respondableMask.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_respondableMask.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt(cmd, _respondableMask);
             App::worldContainer->pushEvent();
         }
@@ -242,9 +242,9 @@ int CShape::getRespondableMask()
     return _respondableMask;
 }
 
-CSceneObject *CShape::getLastParentForLocalGlobalRespondable()
+CSceneObject* CShape::getLastParentForLocalGlobalRespondable()
 {
-    CSceneObject *retVal;
+    CSceneObject* retVal;
     if (_lastParentForLocalGlobalRespondable == nullptr)
     {
         retVal = this;
@@ -356,17 +356,17 @@ void CShape::commonInit()
     _dynMaterial = new CDynMaterialObject();
 }
 
-void CShape::setDynamicVelocity(const C3Vector &linearV, const C3Vector &angularV)
+void CShape::setDynamicVelocity(const C3Vector& linearV, const C3Vector& angularV)
 {
-    bool diff = ( (_dynamicLinearVelocity != linearV) || (_dynamicAngularVelocity != angularV) );
+    bool diff = ((_dynamicLinearVelocity != linearV) || (_dynamicAngularVelocity != angularV));
     if (diff)
     {
         _dynamicLinearVelocity = linearV;
         _dynamicAngularVelocity = angularV;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_dynLinearVelocity.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_dynLinearVelocity.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, _dynamicLinearVelocity.data, 3);
             ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
             App::worldContainer->pushEvent();
@@ -384,7 +384,7 @@ C3Vector CShape::getDynamicAngularVelocity()
     return (_dynamicAngularVelocity);
 }
 
-void CShape::addAdditionalForceAndTorque(const C3Vector &f, const C3Vector &t)
+void CShape::addAdditionalForceAndTorque(const C3Vector& f, const C3Vector& t)
 {
     _additionalForce += f;
     _additionalTorque += t;
@@ -424,8 +424,8 @@ void CShape::setRespondable(bool r)
         _shapeIsDynamicallyRespondable = r;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_respondable.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_respondable.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _shapeIsDynamicallyRespondable);
             App::worldContainer->pushEvent();
         }
@@ -450,8 +450,8 @@ void CShape::setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic)
         _setAutomaticallyToNonStaticIfGetsParent = autoNonStatic;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_setToDynamicWithParent.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_setToDynamicWithParent.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _setAutomaticallyToNonStaticIfGetsParent);
             App::worldContainer->pushEvent();
         }
@@ -471,8 +471,8 @@ void CShape::setStartInDynamicSleeping(bool sleeping)
         _startInDynamicSleeping = sleeping;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_startInDynSleepMode.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_startInDynSleepMode.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _startInDynamicSleeping);
             App::worldContainer->pushEvent();
         }
@@ -492,8 +492,8 @@ void CShape::setStatic(bool sta)
         _shapeIsDynamicallyStatic = sta;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_dynamic.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_dynamic.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, !_shapeIsDynamicallyStatic);
             App::worldContainer->pushEvent();
         }
@@ -522,8 +522,8 @@ void CShape::setDynKinematic(bool kin)
         _shapeIsDynamicallyKinematic = kin;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propShape_kinematic.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propShape_kinematic.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _shapeIsDynamicallyKinematic);
             App::worldContainer->pushEvent();
         }
@@ -561,7 +561,7 @@ void CShape::setEdgeWidth_DEPRECATED(int w)
         getSingleMesh()->setEdgeWidth_DEPRECATED(w);
 }
 
-void CShape::display_extRenderer(CViewableBase *renderingObject, int displayAttrib)
+void CShape::display_extRenderer(CViewableBase* renderingObject, int displayAttrib)
 {
     if (getShouldObjectBeDisplayed(renderingObject->getObjectHandle(), displayAttrib))
     {
@@ -651,7 +651,7 @@ bool CShape::scaleObjectNonIsometrically(double x, double y, double z)
     return (retVal);
 }
 
-void CShape::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CShape::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
@@ -680,35 +680,35 @@ void CShape::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CShape::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CShape::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
     getMesh()->performSceneObjectLoadingMapping(map);
 }
-void CShape::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CShape::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
 }
-void CShape::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CShape::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
-void CShape::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CShape::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
-void CShape::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CShape::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
 
-void CShape::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CShape::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
     getMesh()->performTextureObjectLoadingMapping(map);
 }
 
-void CShape::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CShape::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
     getMesh()->performDynMaterialObjectLoadingMapping(map);
@@ -736,8 +736,8 @@ void CShape::simulationAboutToStart()
 }
 
 void CShape::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
@@ -755,7 +755,7 @@ void CShape::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-void CShape::serialize(CSer &ar)
+void CShape::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -984,7 +984,7 @@ void CShape::serialize(CSer &ar)
     }
 }
 
-void CShape::_serializeMesh(CSer &ar)
+void CShape::_serializeMesh(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -1038,7 +1038,7 @@ void CShape::_serializeMesh(CSer &ar)
                         ar >> byteQuantity;
                         delete _mesh;
                         _mesh = new CMesh();
-                        ((CMesh *)_mesh)->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+                        ((CMesh*)_mesh)->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
                     }
                     if (theName.compare("Gsg") == 0)
                     { // geomWrap
@@ -1118,14 +1118,14 @@ void CShape::_serializeMesh(CSer &ar)
                 _mesh->getCumulativeMeshes(C7Vector::identityTransformation, wvert, &wind, nullptr);
                 _meshCalculationStructure =
                     App::worldContainer->pluginContainer->geomPlugin_getMeshFromSerializationData(
-                        (unsigned char *)str.c_str());
+                        (unsigned char*)str.c_str());
                 ar.xmlPopNode();
             }
             if (ar.xmlPushChildNode("mesh", false))
             {
                 delete _mesh;
                 _mesh = new CMesh();
-                ((CMesh *)_mesh)
+                ((CMesh*)_mesh)
                     ->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
                 ar.xmlPopNode();
             }
@@ -1179,7 +1179,7 @@ bool CShape::computeMassAndInertia(double density)
     return (retVal);
 }
 
-bool CShape::alignBB(const char *mode, const C7Vector *tr /*=nullptr*/)
+bool CShape::alignBB(const char* mode, const C7Vector* tr /*=nullptr*/)
 {
     bool retVal = false;
     if (std::string(mode) == "world")
@@ -1203,7 +1203,7 @@ bool CShape::alignBB(const char *mode, const C7Vector *tr /*=nullptr*/)
     return (retVal);
 }
 
-bool CShape::relocateFrame(const char *mode, const C7Vector *tr /*=nullptr*/)
+bool CShape::relocateFrame(const char* mode, const C7Vector* tr /*=nullptr*/)
 {
     bool retVal = false;
     if ((!_mesh->isMesh()) || (!_mesh->isPure()))
@@ -1223,7 +1223,7 @@ bool CShape::relocateFrame(const char *mode, const C7Vector *tr /*=nullptr*/)
             }
             for (size_t i = 0; i < getChildCount(); i++)
             {
-                CSceneObject *child = getChildFromIndex(i);
+                CSceneObject* child = getChildFromIndex(i);
                 child->setLocalTransformation(shapeCumulTr * child->getLocalTransformation());
             }
             setLocalTransformation(getFullParentCumulativeTransformation().getInverse());
@@ -1242,7 +1242,7 @@ bool CShape::relocateFrame(const char *mode, const C7Vector *tr /*=nullptr*/)
             }
             for (size_t i = 0; i < getChildCount(); i++)
             {
-                CSceneObject *child = getChildFromIndex(i);
+                CSceneObject* child = getChildFromIndex(i);
                 child->setLocalTransformation(localOld * child->getLocalTransformation());
             }
             setLocalTransformation(C7Vector::identityTransformation);
@@ -1261,7 +1261,7 @@ bool CShape::relocateFrame(const char *mode, const C7Vector *tr /*=nullptr*/)
             }
             for (size_t i = 0; i < getChildCount(); i++)
             {
-                CSceneObject *child = getChildFromIndex(i);
+                CSceneObject* child = getChildFromIndex(i);
                 child->setLocalTransformation(oldBBFrame.getInverse() * child->getLocalTransformation());
             }
             setLocalTransformation(_localTransformation * oldBBFrame);
@@ -1280,7 +1280,7 @@ bool CShape::relocateFrame(const char *mode, const C7Vector *tr /*=nullptr*/)
             }
             for (size_t i = 0; i < getChildCount(); i++)
             {
-                CSceneObject *child = getChildFromIndex(i);
+                CSceneObject* child = getChildFromIndex(i);
                 child->setLocalTransformation(x.getInverse() * child->getLocalTransformation());
             }
             setLocalTransformation(_localTransformation * x);
@@ -1344,8 +1344,8 @@ void CShape::setCulling(bool culState)
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
-        const char *cmd = "color";
-        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        const char* cmd = "color";
+        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->openKeyMap(cmd);
         ev->appendKeyBool("culling", culState);
         ev->appendKeyInt("index", 0);
@@ -1367,8 +1367,8 @@ void CShape::setVisibleEdges(bool v)
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
-        const char *cmd = "color";
-        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, false);
+        const char* cmd = "color";
+        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, false);
         ev->openKeyMap(cmd);
         ev->appendKeyBool("showEdges", v);
         ev->appendKeyInt("index", 0);
@@ -1424,12 +1424,12 @@ void CShape::setShapeWireframe_OLD(bool w)
         getSingleMesh()->setWireframe_OLD(w);
 }
 
-bool CShape::doesShapeCollideWithShape(CShape *collidee, std::vector<double> *intersections)
+bool CShape::doesShapeCollideWithShape(CShape* collidee, std::vector<double>* intersections)
 { // If intersections is different from nullptr, we check for all intersections and
     // intersection segments are appended to the vector
 
     std::vector<double> _intersect;
-    std::vector<double> *_intersectP = nullptr;
+    std::vector<double>* _intersectP = nullptr;
     if (intersections != nullptr)
         _intersectP = &_intersect;
     if (App::worldContainer->pluginContainer->geomPlugin_getMeshMeshCollision(
@@ -1443,7 +1443,7 @@ bool CShape::doesShapeCollideWithShape(CShape *collidee, std::vector<double> *in
     return (false);
 }
 
-bool CShape::getDistanceToDummy_IfSmaller(CDummy *dummy, double &dist, double ray[7], int &buffer)
+bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy, double& dist, double ray[7], int& buffer)
 { // Distance is measured from this to dummy
     // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
@@ -1463,13 +1463,13 @@ bool CShape::getDistanceToDummy_IfSmaller(CDummy *dummy, double &dist, double ra
     return (false);
 }
 
-bool CShape::getShapeShapeDistance_IfSmaller(CShape *it, double &dist, double ray[7], int buffer[2])
+bool CShape::getShapeShapeDistance_IfSmaller(CShape* it, double& dist, double ray[7], int buffer[2])
 { // this is shape number 1, 'it' is shape number 2 (for ordering (measured from 1 to 2))
     // If the distance is smaller than 'dist', 'dist' is replaced and the return value is true
     // If the distance is bigger, 'dist' doesn't change and the return value is false
 
-    CShape *shapeA = this;
-    CShape *shapeB = it;
+    CShape* shapeA = this;
+    CShape* shapeB = it;
     C7Vector shapeATr = shapeA->getCumulCenteredMeshFrame();
     C7Vector shapeBTr = shapeB->getCumulCenteredMeshFrame();
     shapeA->initializeMeshCalculationStructureIfNeeded();
@@ -1507,7 +1507,7 @@ void CShape::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CShape::addSpecializedObjectEventData(CCbor *ev)
+void CShape::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -1520,19 +1520,19 @@ void CShape::addSpecializedObjectEventData(CCbor *ev)
     _dynMaterial->setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->sendEngineString(ev);
     ev->openKeyArray(propShape_meshes.name);
-    std::vector<CMesh *> all;
+    std::vector<CMesh*> all;
     std::vector<C7Vector> allTr;
     getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
     for (size_t i = 0; i < all.size(); i++)
     {
-        CMesh *geom = all[i];
+        CMesh* geom = all[i];
 #if SIM_EVENT_PROTOCOL_VERSION == 2
         C7Vector tr(allTr[i]);
         ev->openMap();
 
-        const std::vector<float> *wvert = geom->getVerticesForDisplayAndDisk();
-        const std::vector<int> *wind = geom->getIndices();
-        const std::vector<float> *wnorm = geom->getNormalsForDisplayAndDisk();
+        const std::vector<float>* wvert = geom->getVerticesForDisplayAndDisk();
+        const std::vector<int>* wind = geom->getIndices();
+        const std::vector<float>* wnorm = geom->getNormalsForDisplayAndDisk();
         std::vector<float> vertices;
         vertices.resize(wvert->size());
         for (size_t j = 0; j < wvert->size() / 3; j++)
@@ -1580,9 +1580,9 @@ void CShape::addSpecializedObjectEventData(CCbor *ev)
             options |= 2;
         ev->appendKeyInt("options", options);
 
-        CTextureProperty *tp = geom->getTextureProperty();
-        CTextureObject *to = nullptr;
-        const std::vector<float> *tc = nullptr;
+        CTextureProperty* tp = geom->getTextureProperty();
+        CTextureObject* to = nullptr;
+        const std::vector<float>* tc = nullptr;
         if (tp != nullptr)
         {
             to = tp->getTextureObject();
@@ -1634,7 +1634,7 @@ void CShape::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-void CShape::copyAttributesTo(CShape *target)
+void CShape::copyAttributesTo(CShape* target)
 { // target should not yet be in the scene. Used when generating a shape from another
     delete target->_dynMaterial;
     target->_dynMaterial = _dynMaterial->copyYourself();
@@ -1648,9 +1648,9 @@ void CShape::copyAttributesTo(CShape *target)
     target->setVisibilityLayer(getVisibilityLayer()); // actually a CSceneObject property
 }
 
-CSceneObject *CShape::copyYourself()
+CSceneObject* CShape::copyYourself()
 {
-    CShape *newShape = (CShape *)CSceneObject::copyYourself();
+    CShape* newShape = (CShape*)CSceneObject::copyYourself();
 
     if (_mesh != nullptr)
         newShape->_mesh = _mesh->copyYourself();
@@ -1679,17 +1679,17 @@ CSceneObject *CShape::copyYourself()
     return (newShape);
 }
 
-void CShape::setColor(const char *colorName, int colorComponent, float r, float g, float b)
+void CShape::setColor(const char* colorName, int colorComponent, float r, float g, float b)
 {
     float rgb[3] = {r, g, b};
     setColor(colorName, colorComponent, rgb);
 }
 
-void CShape::setColor(const char *colorName, int colorComponent, const float *rgbData)
+void CShape::setColor(const char* colorName, int colorComponent, const float* rgbData)
 {
     int rgbDataOffset = 0;
     int cnt = 0;
-    const CShape *s = nullptr;
+    const CShape* s = nullptr;
     if (_isInScene)
         s = this;
     getMesh()->setColor(s, cnt, colorName, colorComponent, rgbData, rgbDataOffset);
@@ -1697,7 +1697,7 @@ void CShape::setColor(const char *colorName, int colorComponent, const float *rg
         actualizeContainsTransparentComponent();
 }
 
-bool CShape::getColor(const char *colorName, int colorComponent, float *rgbData)
+bool CShape::getColor(const char* colorName, int colorComponent, float* rgbData)
 {
     int rgbDataOffset = 0;
     return (getMesh()->getColor(colorName, colorComponent, rgbData, rgbDataOffset));
@@ -1708,7 +1708,7 @@ int CShape::getComponentCount() const
     return (getMesh()->getComponentCount());
 }
 
-bool CShape::setParent(CSceneObject *newParent)
+bool CShape::setParent(CSceneObject* newParent)
 { // Overridden from CSceneObject
     bool retVal = CSceneObject::setParent(newParent);
     if (retVal && getSetAutomaticallyToNonStaticIfGetsParent())
@@ -1717,7 +1717,7 @@ bool CShape::setParent(CSceneObject *newParent)
 }
 
 #ifdef SIM_WITH_GUI
-void CShape::displayInertia(CViewableBase *renderingObject, double size, bool persp)
+void CShape::displayInertia(CViewableBase* renderingObject, double size, bool persp)
 {
     if (persp)
     {
@@ -1729,12 +1729,12 @@ void CShape::displayInertia(CViewableBase *renderingObject, double size, bool pe
     _displayInertia(tr, diag, size * 0.008);
 }
 
-void CShape::display(CViewableBase *renderingObject, int displayAttrib)
+void CShape::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayShape(this, renderingObject, displayAttrib);
 }
 
-void CShape::displayFrames(CViewableBase *renderingObject, double size, bool persp)
+void CShape::displayFrames(CViewableBase* renderingObject, double size, bool persp)
 {
     CSceneObject::displayFrames(renderingObject, size, persp);
     if (persp)
@@ -1752,7 +1752,7 @@ void CShape::setIsInScene(bool s)
     CSceneObject::setIsInScene(s);
     if (getMesh() != nullptr)
     {
-        std::vector<CMesh *> all;
+        std::vector<CMesh*> all;
         getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
         for (size_t i = 0; i < all.size(); i++)
         {
@@ -1770,7 +1770,7 @@ void CShape::setIsInScene(bool s)
 
 int CShape::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setBoolProperty(pName, pState);
     if (retVal == -1)
@@ -1824,7 +1824,7 @@ int CShape::setBoolProperty(const char* ppName, bool pState)
 
 int CShape::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == -1)
@@ -1868,7 +1868,7 @@ int CShape::getBoolProperty(const char* ppName, bool& pState) const
 
 int CShape::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setIntProperty(pName, pState);
     if (retVal == -1)
@@ -1887,7 +1887,7 @@ int CShape::setIntProperty(const char* ppName, int pState)
 
 int CShape::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getIntProperty(pName, pState);
     if (retVal == -1)
@@ -1906,7 +1906,7 @@ int CShape::getIntProperty(const char* ppName, int& pState) const
 
 int CShape::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setFloatProperty(pName, pState);
     if (retVal == -1)
@@ -1927,7 +1927,7 @@ int CShape::setFloatProperty(const char* ppName, double pState)
 
 int CShape::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getFloatProperty(pName, pState);
     if (retVal == -1)
@@ -1940,7 +1940,7 @@ int CShape::getFloatProperty(const char* ppName, double& pState) const
 
 int CShape::setStringProperty(const char* ppName, const char* pState)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setStringProperty(pName, pState);
     if (retVal == -1)
@@ -1951,7 +1951,7 @@ int CShape::setStringProperty(const char* ppName, const char* pState)
 
 int CShape::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getStringProperty(pName, pState);
     if (retVal == -1)
@@ -1962,13 +1962,13 @@ int CShape::getStringProperty(const char* ppName, std::string& pState) const
 
 int CShape::setVector2Property(const char* ppName, const double* pState)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setVector2Property(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->setVector2Property(pName, pState);
-//    if (retVal == -1)
-//        retVal = _mesh->setVector2Property_wrapper(pName, pState);
+    //    if (retVal == -1)
+    //        retVal = _mesh->setVector2Property_wrapper(pName, pState);
     if (retVal == -1)
     {
     }
@@ -1978,13 +1978,13 @@ int CShape::setVector2Property(const char* ppName, const double* pState)
 
 int CShape::getVector2Property(const char* ppName, double* pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getVector2Property(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getVector2Property(pName, pState);
-//    if (retVal == -1)
-//        retVal = _mesh->getVector2Property_wrapper(pName, pState);
+    //    if (retVal == -1)
+    //        retVal = _mesh->getVector2Property_wrapper(pName, pState);
     if (retVal == -1)
     {
     }
@@ -1994,7 +1994,7 @@ int CShape::getVector2Property(const char* ppName, double* pState) const
 
 int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setVector3Property(pName, pState);
     if (retVal == -1)
@@ -2020,7 +2020,7 @@ int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
 
 int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getVector3Property(pName, pState);
     if (retVal == -1)
@@ -2056,11 +2056,11 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
 
 int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setQuaternionProperty(pName, pState);
-//    if (retVal == -1)
-//        retVal = _dynMaterial->setQuaternionProperty(pName, &pState);
+    //    if (retVal == -1)
+    //        retVal = _dynMaterial->setQuaternionProperty(pName, &pState);
     if (retVal == -1)
         retVal = _mesh->setQuaternionProperty_wrapper(pName, pState);
     if (retVal == -1)
@@ -2072,11 +2072,11 @@ int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 
 int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getQuaternionProperty(pName, pState);
- //   if (retVal == -1)
- //       retVal = _dynMaterial->getQuaternionProperty(pName, &pState);
+    //   if (retVal == -1)
+    //       retVal = _dynMaterial->getQuaternionProperty(pName, &pState);
     if (retVal == -1)
         retVal = _mesh->getQuaternionProperty_wrapper(pName, pState);
     if (retVal == -1)
@@ -2088,7 +2088,7 @@ int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 
 int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
@@ -2103,7 +2103,7 @@ int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 
 int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     pState.clear();
     int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
@@ -2117,7 +2117,7 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
 
 int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
@@ -2128,7 +2128,7 @@ int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
 
 int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
-    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     pState.clear();
     int retVal = CSceneObject::getIntArrayProperty(pName, pState);
@@ -2136,7 +2136,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
     {
         if (strcmp(pName, propShape_meshes.name) == 0)
         {
-            std::vector<CMesh *> all;
+            std::vector<CMesh*> all;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
             for (size_t i = 0; i < all.size(); i++)
                 pState.push_back(all[i]->getUniqueID());
@@ -2160,7 +2160,7 @@ int CShape::getPropertyName(int& index, std::string& pName, std::string& apparte
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
             {
-                if ( (pName.size() == 0) || utils::startsWith(allProps_shape[i].name, pName.c_str()) )
+                if ((pName.size() == 0) || utils::startsWith(allProps_shape[i].name, pName.c_str()))
                 {
                     index--;
                     if (index == -1)
@@ -2190,7 +2190,7 @@ int CShape::getPropertyName_static(int& index, std::string& pName, std::string& 
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
             {
-                if ( (pName.size() == 0) || utils::startsWith(allProps_shape[i].name, pName.c_str()) )
+                if ((pName.size() == 0) || utils::startsWith(allProps_shape[i].name, pName.c_str()))
                 {
                     index--;
                     if (index == -1)
@@ -2225,7 +2225,7 @@ int CShape::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
                 {
                     retVal = allProps_shape[i].type;
                     info = allProps_shape[i].flags;
-                    if ( (infoTxt == "") && (strcmp(allProps_shape[i].infoTxt, "") != 0) )
+                    if ((infoTxt == "") && (strcmp(allProps_shape[i].infoTxt, "") != 0))
                         infoTxt = allProps_shape[i].infoTxt;
                     else
                         infoTxt = allProps_shape[i].shortInfoTxt;
@@ -2255,7 +2255,7 @@ int CShape::getPropertyInfo_static(const char* ppName, int& info, std::string& i
                 {
                     retVal = allProps_shape[i].type;
                     info = allProps_shape[i].flags;
-                    if ( (infoTxt == "") && (strcmp(allProps_shape[i].infoTxt, "") != 0) )
+                    if ((infoTxt == "") && (strcmp(allProps_shape[i].infoTxt, "") != 0))
                         infoTxt = allProps_shape[i].infoTxt;
                     else
                         infoTxt = allProps_shape[i].shortInfoTxt;
@@ -2266,5 +2266,3 @@ int CShape::getPropertyInfo_static(const char* ppName, int& info, std::string& i
     }
     return retVal;
 }
-
-

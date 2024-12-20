@@ -6,7 +6,8 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgScaling::CQDlgScaling(QWidget *parent) : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgScaling)
+CQDlgScaling::CQDlgScaling(QWidget* parent)
+    : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgScaling)
 {
     ui->setupUi(this);
     inPlace = false;

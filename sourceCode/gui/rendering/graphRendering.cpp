@@ -22,7 +22,7 @@ See the GNU General Public License for more details.
 #include <graphingRoutines_old.h>
 #include <guiApp.h>
 
-void displayGraph(CGraph *graph, CViewableBase *renderingObject, int displayAttrib)
+void displayGraph(CGraph* graph, CViewableBase* renderingObject, int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!
     // At the beginning of every scene object display routine:
     _commonStart(graph, renderingObject);
@@ -95,9 +95,9 @@ void displayGraph(CGraph *graph, CViewableBase *renderingObject, int displayAttr
                 if ((graph->getJustDrawCurves() && graph->curves3d_old[i]->getVisibleOnTopOfEverything()) ||
                     ((!graph->getJustDrawCurves()) && (!graph->curves3d_old[i]->getVisibleOnTopOfEverything())))
                 {
-                    CGraphData_old *part0 = graph->getGraphData(graph->curves3d_old[i]->data[0]);
-                    CGraphData_old *part1 = graph->getGraphData(graph->curves3d_old[i]->data[1]);
-                    CGraphData_old *part2 = graph->getGraphData(graph->curves3d_old[i]->data[2]);
+                    CGraphData_old* part0 = graph->getGraphData(graph->curves3d_old[i]->data[0]);
+                    CGraphData_old* part1 = graph->getGraphData(graph->curves3d_old[i]->data[1]);
+                    CGraphData_old* part2 = graph->getGraphData(graph->curves3d_old[i]->data[2]);
                     int pos = 0;
                     int absIndex;
                     double point[3];
@@ -182,7 +182,7 @@ void displayGraph(CGraph *graph, CViewableBase *renderingObject, int displayAttr
             {
                 if (graph->staticStreamsAndCurves_old[i]->getCurveType() == 2)
                 {
-                    CStaticGraphCurve_old *it = graph->staticStreamsAndCurves_old[i];
+                    CStaticGraphCurve_old* it = graph->staticStreamsAndCurves_old[i];
                     glLineWidth((float)it->getCurveWidth());
                     glPointSize((float)it->getCurveWidth());
                     glLineStipple(1, 0xE187);

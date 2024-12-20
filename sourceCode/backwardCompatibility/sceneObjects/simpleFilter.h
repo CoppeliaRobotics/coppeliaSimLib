@@ -9,7 +9,7 @@ class CSimpleFilter
     CSimpleFilter();
     virtual ~CSimpleFilter();
 
-    void serialize(CSer &ar);
+    void serialize(CSer& ar);
 
     void setFilterType(int t);
     int getFilterType();

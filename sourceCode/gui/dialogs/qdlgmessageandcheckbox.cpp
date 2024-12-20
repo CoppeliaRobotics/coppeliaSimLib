@@ -3,7 +3,7 @@
 #include <ui_qdlgmessageandcheckbox.h>
 #include <app.h>
 
-CQDlgMessageAndCheckbox::CQDlgMessageAndCheckbox(QWidget *parent)
+CQDlgMessageAndCheckbox::CQDlgMessageAndCheckbox(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgMessageAndCheckbox)
 {
     ui->setupUi(this);

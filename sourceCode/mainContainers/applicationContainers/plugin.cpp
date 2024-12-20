@@ -12,7 +12,7 @@
 #include <guiApp.h>
 #endif
 
-CPlugin::CPlugin(const char *filename, const char *pluginnamespaceAndVersion, long long int loadOrigin)
+CPlugin::CPlugin(const char* filename, const char* pluginnamespaceAndVersion, long long int loadOrigin)
 {
     _initAddress = nullptr;
     _cleanupAddress = nullptr;
@@ -34,7 +34,7 @@ CPlugin::CPlugin(const char *filename, const char *pluginnamespaceAndVersion, lo
     }
     else
         _namespace.clear(); // old plugins
-    if (loadOrigin != -1) // plugins auto loaded by the system have no direct dependency: they simply can be loaded again on demand
+    if (loadOrigin != -1)   // plugins auto loaded by the system have no direct dependency: they simply can be loaded again on demand
         _dependencies.insert(loadOrigin);
     extendedVersionInt = -1;
     _consoleVerbosity = sim_verbosity_useglobal;
@@ -150,7 +150,7 @@ std::string CPlugin::getExtendedVersionString() const
     return (extendedVersionString);
 }
 
-void CPlugin::setExtendedVersionString(const char *str)
+void CPlugin::setExtendedVersionString(const char* str)
 {
     extendedVersionString = str;
 }
@@ -160,7 +160,7 @@ std::string CPlugin::getBuildDateString() const
     return (buildDateString);
 }
 
-void CPlugin::setBuildDateString(const char *str)
+void CPlugin::setBuildDateString(const char* str)
 {
     buildDateString = str;
 }
@@ -205,12 +205,12 @@ void CPlugin::popCurrentPlugin()
     App::worldContainer->pluginContainer->currentPluginStack.pop_back();
 }
 
-CPluginCallbackContainer *CPlugin::getPluginCallbackContainer()
+CPluginCallbackContainer* CPlugin::getPluginCallbackContainer()
 {
     return (&_pluginCallbackContainer);
 }
 
-CPluginVariableContainer *CPlugin::getPluginVariableContainer()
+CPluginVariableContainer* CPlugin::getPluginVariableContainer()
 {
     return (&_pluginVariableContainer);
 }
@@ -245,7 +245,7 @@ bool CPlugin::hasAnyDependency() const
     return (!_dependencies.empty());
 }
 
-int CPlugin::load(std::string *errStr)
+int CPlugin::load(std::string* errStr)
 {                    // retVal: -2 (could not open library), -1 (missing init entry point), 1=ok
     int retVal = -2; // could not open library
     WLibrary lib = VVarious::openLibrary(_filename.c_str(),
@@ -275,7 +275,7 @@ int CPlugin::load(std::string *errStr)
     return (retVal);
 }
 
-bool CPlugin::init(std::string *errStr)
+bool CPlugin::init(std::string* errStr)
 {
     bool retVal = false;
     if (_initAddress != nullptr)
@@ -343,8 +343,8 @@ bool CPlugin::init(std::string *errStr)
     return (retVal);
 }
 
-bool CPlugin::msg(int msgId, int *auxData /*=nullptr*/, void *auxPointer /*=nullptr*/,
-                  int *reserved_legacy /*=nullptr*/)
+bool CPlugin::msg(int msgId, int* auxData /*=nullptr*/, void* auxPointer /*=nullptr*/,
+                  int* reserved_legacy /*=nullptr*/)
 {
     bool retVal = false; // only used by legacy plugins
     pushCurrentPlugin();
@@ -370,10 +370,10 @@ bool CPlugin::msg(int msgId, int *auxData /*=nullptr*/, void *auxPointer /*=null
     { // legacy plugin
         if (_messageAddress_legacy != nullptr)
         {
-            void *returnData = _messageAddress_legacy(msgId, auxData, auxPointer, reserved_legacy);
+            void* returnData = _messageAddress_legacy(msgId, auxData, auxPointer, reserved_legacy);
             retVal = (returnData != nullptr);
             if (returnData != nullptr)
-                delete[](char *) returnData;
+                delete[](char*) returnData;
         }
     }
     popCurrentPlugin();
@@ -406,7 +406,7 @@ void CPlugin::cleanup_ui()
     }
 }
 
-void CPlugin::msg_ui(int msgId, int *auxData /*=nullptr*/, void *auxPointer /*=nullptr*/)
+void CPlugin::msg_ui(int msgId, int* auxData /*=nullptr*/, void* auxPointer /*=nullptr*/)
 {
     if ((_msgAddress_ui != nullptr) && (_stage == stage_uiinitdone))
     {
@@ -465,9 +465,9 @@ void CPlugin::cleanup()
     }
 }
 
-int CPlugin::loadAndInit_old(std::string *errStr)
-{ // retVal: -2 (could not open library), -1 (missing init entry point), 0 (could not properly initialize), otherwise
-  // plugin version
+int CPlugin::loadAndInit_old(std::string* errStr)
+{                    // retVal: -2 (could not open library), -1 (missing init entry point), 0 (could not properly initialize), otherwise
+                     // plugin version
     int retVal = -2; // could not open library
     QString curr(QDir::currentPath());
     QDir::setCurrent(App::getApplicationDir().c_str()); // needed for old plugins, also Linux and macOS!

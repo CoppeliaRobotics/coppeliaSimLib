@@ -17,7 +17,7 @@ struct SThreadAndMsg_old
 
 #define SIM_ERRROR_EDIT_MODE_ACTIVE "edit mode is active."
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_LAUNCH "cannot set/get parameter: simulator launch state is wrong."
-#define SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW                                                                          \
+#define SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW \
     "cannot set/get parameter: simulator window initialization state is wrong."
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_SIM "cannot set/get parameter: simulation run state is wrong."
 #define SIM_ERROR_OBJECT_INEXISTANT "object does not exist."
@@ -66,7 +66,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_BUTTON_NOT_SLIDER "button is not a slider."
 #define SIM_ERROR_SCENE_LOCKED "scene is locked."
 #define SIM_ERROR_OBJECT_NOT_MODEL_BASE "object is not tagged as model base."
-#define SIM_ERROR_THREADED_SCRIPT_DESTROYING_OBJECTS_WITH_ACTIVE_SCRIPTS                                               \
+#define SIM_ERROR_THREADED_SCRIPT_DESTROYING_OBJECTS_WITH_ACTIVE_SCRIPTS \
     "threaded scripts cannot destroy objects that are linked to initialized scripts other that the calling script."
 #define SIM_ERROR_TOO_MANY_TEMP_OBJECTS "too many temporary path search objects."
 #define SIM_ERROR_PATH_PLANNING_OBJECT_NOT_CONSISTENT "path planning object is not consistent."
@@ -128,20 +128,19 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_INVALID_PROPERTY_NAME "invalid property name."
 #define SIM_ERROR_PROPERTY_INVALID_SIZE "invalid size."
 
-
 #define SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS "the function requires more arguments."
 #define SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG "one of the function's argument type is not correct."
 #define SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG "incorrect table size."
 #define SIM_ERROR_INCORRECT_BUFFER_SIZE "incorrect buffer size."
 #define SIM_ERROR_NOT_MAIN_NOR_CHILD_SCRIPT "script is not a main script nor a simulation script."
-#define SIM_ERROR_NON_EXPLICIT_CHILD_SCRIPT_EXECUTIONS_WERE_DELEGATED                                                  \
+#define SIM_ERROR_NON_EXPLICIT_CHILD_SCRIPT_EXECUTIONS_WERE_DELEGATED \
     "non-explicit simulation script executions were delegated."
-#define SIM_ERROR_THREAD_LAUNCHING_SCRIPTS_WILL_NOT_BE_CALLED_FROM_SENSING_SECTION                                     \
+#define SIM_ERROR_THREAD_LAUNCHING_SCRIPTS_WILL_NOT_BE_CALLED_FROM_SENSING_SECTION \
     "scripts launching a thread will not be called when in a sensing section."
-#define SIM_ERROR_INVALID_CHILD_SCRIPT_HANDLE_OR_CHILD_SCRIPT_NOT_IN_CURRENT_HIERARCHY                                 \
+#define SIM_ERROR_INVALID_CHILD_SCRIPT_HANDLE_OR_CHILD_SCRIPT_NOT_IN_CURRENT_HIERARCHY \
     "invalid simulation script handle, or simulation script not in current hierarchy tree."
 #define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT "can only be called from the main script."
-#define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT                                                  \
+#define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT \
     "can only be called from the main script or a simulation script."
 #define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD "can only be called from a thread."
 #define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_THE_MAIN_THREAD "can only be called from the main thread."
@@ -159,9 +158,9 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_BLOCKING_OPERATION_ONLY_FROM_THREAD "blocking operation only available when called from a thread."
 #define SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ "could not lock resources for data read operation."
 #define SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE "could not lock resources for data write operation."
-#define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_NON_THREADED_CHILD_SCRIPTS                                                   \
+#define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_NON_THREADED_CHILD_SCRIPTS \
     "can only be called from non-threaded simulation scripts."
-#define SIM_ERROR_AUTOMATIC_CASCADING_CALLS_NOT_DISABLED                                                               \
+#define SIM_ERROR_AUTOMATIC_CASCADING_CALLS_NOT_DISABLED \
     "cannot be called when the automatic cascading calls are not disabled."
 #define SIM_ERROR_INVALID_RESOLUTION "invalid resolution."
 #define SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION "failed calling script function."
@@ -176,10 +175,10 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_INVALID_ASSEMBLY "invalid assembly."
 #define SIM_ERROR_INVALID_VARIABLE_NAME "invalid variable name."
 #define SIM_ERROR_FUNCTIONALITY_NOT_APPLICABLE_WITH_CURRENT_SCRIPT "functionality not applicable with current script."
-#define SIM_ERROR_FUNCTIONALITY_NOT_APPLICABLE_WITH_CURRENT_SCRIPT_STATE                                               \
+#define SIM_ERROR_FUNCTIONALITY_NOT_APPLICABLE_WITH_CURRENT_SCRIPT_STATE \
     "functionality not applicable with current script state."
 #define SIM_ERROR_CB_NOT_APPLICABLE_WITH_CURRENT_SCRIPT "callback not applicable with current script."
-#define SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT                                                          \
+#define SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT \
     "must be called from an add-on, or from the sandbox script."
 #define SIM_ERROR_BAD_TEXTURE_COORD_SIZE "bad texture coordinates size."
 #define SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE "shape cannot be a compound shape."
@@ -200,23 +199,23 @@ class CApiErrors
     CApiErrors();
     virtual ~CApiErrors();
 
-    static void setLastWarningOrError(const char *functionName, const char *errMsg);
+    static void setLastWarningOrError(const char* functionName, const char* errMsg);
     static std::string getAndClearLastWarningOrError();
 
     // Old:
     static void clearThreadBasedFirstCapiErrorAndWarning_old();
-    static void setThreadBasedFirstCapiWarning_old(const char *msg);
+    static void setThreadBasedFirstCapiWarning_old(const char* msg);
     static std::string getAndClearThreadBasedFirstCapiWarning_old();
-    static void setThreadBasedFirstCapiError_old(const char *msg);
+    static void setThreadBasedFirstCapiError_old(const char* msg);
     static std::string getAndClearThreadBasedFirstCapiError_old();
 
   private:
     static std::string _lastWarningOrError; // warnings start with "warning@"
 
     // Old:
-    static void _clearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old> &vect);
-    static void _setThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old> &vect, const char *msg);
-    static std::string _getAndClearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old> &vect);
+    static void _clearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect);
+    static void _setThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect, const char* msg);
+    static std::string _getAndClearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect);
     static std::vector<SThreadAndMsg_old> _threadBasedFirstCapiWarning_old;
     static std::vector<SThreadAndMsg_old> _threadBasedFirstCapiError_old;
 };

@@ -16,7 +16,7 @@ class CQDlgModelProperties : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgModelProperties(QWidget *parent = 0);
+    explicit CQDlgModelProperties(QWidget* parent = 0);
     ~CQDlgModelProperties();
 
     void cancelEvent();
@@ -24,7 +24,7 @@ class CQDlgModelProperties : public VDialog
 
     void refresh();
 
-    CSceneObject *modelBaseObject;
+    CSceneObject* modelBaseObject;
 
   private slots:
     void on_qqSelectThumbnail_clicked();
@@ -47,10 +47,10 @@ class CQDlgModelProperties : public VDialog
 
     void on_qqNotInsideModelBBox_clicked(bool checked);
 
-    void on_qqClose_clicked(QAbstractButton *button);
+    void on_qqClose_clicked(QAbstractButton* button);
 
   private:
-    Ui::CQDlgModelProperties *ui;
+    Ui::CQDlgModelProperties* ui;
 };
 
 #endif // QDLGMODELPROPERTIES_H

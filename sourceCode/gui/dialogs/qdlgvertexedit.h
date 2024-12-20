@@ -14,7 +14,7 @@ class CQDlgVertexEdit : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgVertexEdit(QWidget *parent = 0);
+    explicit CQDlgVertexEdit(QWidget* parent = 0);
     ~CQDlgVertexEdit();
 
     void refresh();
@@ -36,7 +36,7 @@ class CQDlgVertexEdit : public CDlgEx
     void on_qqInvertSelection_clicked();
 
   private:
-    Ui::CQDlgVertexEdit *ui;
+    Ui::CQDlgVertexEdit* ui;
 };
 
 #endif // QDLGVERTEXEDIT_H

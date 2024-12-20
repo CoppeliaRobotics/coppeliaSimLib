@@ -13,7 +13,8 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgGraphs::CQDlgGraphs(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgGraphs)
+CQDlgGraphs::CQDlgGraphs(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgGraphs)
 {
     _dlgType = GRAPH_DLG;
     ui->setupUi(this);
@@ -24,7 +25,7 @@ CQDlgGraphs::CQDlgGraphs(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgGrap
     connect(delKeyShortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
     backspaceKeyShortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(backspaceKeyShortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    CEditBoxDelegate *delegate = new CEditBoxDelegate();
+    CEditBoxDelegate* delegate = new CEditBoxDelegate();
     ui->qqRecordingList->setItemDelegate(delegate);
 }
 
@@ -39,7 +40,7 @@ void CQDlgGraphs::cancelEvent()
     GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
-void CQDlgGraphs::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CQDlgGraphs::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     if ((cmdIn != nullptr) && (cmdIn->intParams[0] == _dlgType))
     {
@@ -51,15 +52,15 @@ void CQDlgGraphs::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCom
 void CQDlgGraphs::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeAndNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_graph);
 
     int streamId = -1;
-    CGraph *it = nullptr;
-    CGraphData_old *graphData = nullptr;
+    CGraph* it = nullptr;
+    CGraphData_old* graphData = nullptr;
     if (sel)
     {
         it = App::currentWorld->sceneObjects->getLastSelectionGraph();
@@ -167,7 +168,7 @@ void CQDlgGraphs::updateObjectsInList()
     noListSelectionAllowed = false;
     if (!App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_graph))
         return;
-    CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+    CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
     noListSelectionAllowed = true;
     for (size_t i = 0; i < it->dataStreams_old.size(); i++)
     {
@@ -185,7 +186,7 @@ void CQDlgGraphs::updateObjectsInList()
         tmp += tmp2;
         tmp += ")";
         tmp = tmp.append("]");
-        QListWidgetItem *itm = new QListWidgetItem(tmp.c_str());
+        QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
         itm->setData(Qt::UserRole, QVariant(theID));
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
         ui->qqRecordingList->addItem(itm);
@@ -195,7 +196,7 @@ void CQDlgGraphs::updateObjectsInList()
 
 int CQDlgGraphs::getSelectedObjectID()
 {
-    QList<QListWidgetItem *> sel = ui->qqRecordingList->selectedItems();
+    QList<QListWidgetItem*> sel = ui->qqRecordingList->selectedItems();
     if (sel.size() > 0)
         return (sel.at(0)->data(Qt::UserRole).toInt());
     return (-1);
@@ -206,7 +207,7 @@ void CQDlgGraphs::selectObjectInList(int objectID)
     noListSelectionAllowed = true;
     for (int i = 0; i < ui->qqRecordingList->count(); i++)
     {
-        QListWidgetItem *it = ui->qqRecordingList->item(i);
+        QListWidgetItem* it = ui->qqRecordingList->item(i);
         if (it != nullptr)
         {
             if (it->data(Qt::UserRole).toInt() == objectID)
@@ -262,13 +263,13 @@ void CQDlgGraphs::on_qqRecordingList_itemSelectionChanged()
     {
         if (!App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_graph))
             return;
-        CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+        CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
         int objID = getSelectedObjectID();
-        CGraphData_old *grData = it->getGraphData(objID);
+        CGraphData_old* grData = it->getGraphData(objID);
         if (grData != nullptr)
-            ((CEditBoxDelegate *)ui->qqRecordingList->itemDelegate())->initialText = grData->getName();
+            ((CEditBoxDelegate*)ui->qqRecordingList->itemDelegate())->initialText = grData->getName();
         else
-            ((CEditBoxDelegate *)ui->qqRecordingList->itemDelegate())->initialText = "";
+            ((CEditBoxDelegate*)ui->qqRecordingList->itemDelegate())->initialText = "";
         if (!noListSelectionAllowed)
         {
             inListSelectionRoutine = true;
@@ -278,7 +279,7 @@ void CQDlgGraphs::on_qqRecordingList_itemSelectionChanged()
     }
 }
 
-void CQDlgGraphs::on_qqRecordingList_itemChanged(QListWidgetItem *item)
+void CQDlgGraphs::on_qqRecordingList_itemChanged(QListWidgetItem* item)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
@@ -493,10 +494,10 @@ void CQDlgGraphs::on_qqAdjustCurveColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+        CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(getSelectedObjectID());
+            CGraphData_old* grData = it->getGraphData(getSelectedObjectID());
             if (grData != nullptr)
                 CQDlgColor::displayDlg(COLOR_ID_GRAPH_TIMECURVE,
                                        App::currentWorld->sceneObjects->getLastSelectionHandle(),
@@ -521,7 +522,7 @@ void CQDlgGraphs::on_qqEditXYGraphs_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+        CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it != nullptr)
             CQDlg2D3DGraphProperties::display(it->getObjectHandle(), true, GuiApp::mainWindow);
     }
@@ -531,7 +532,7 @@ void CQDlgGraphs::on_qqEdit3DCurves_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+        CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it != nullptr)
             CQDlg2D3DGraphProperties::display(it->getObjectHandle(), false, GuiApp::mainWindow);
     }

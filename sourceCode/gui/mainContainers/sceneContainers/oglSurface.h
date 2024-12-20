@@ -14,20 +14,20 @@ class COglSurface
     void adjustBrowserAndHierarchySizesToDefault();
     void setSurfaceSizeAndPosition(int sizeX, int sizeY, int posX, int posY);
     bool leftMouseButtonDown(int x, int y, int selectionStatus);
-    bool getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int &objType, int &objID, int vSize[2],
-                                         bool &viewIsPerspective);
+    bool getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int& objType, int& objID, int vSize[2],
+                                         bool& viewIsPerspective);
     void leftMouseButtonUp(int x, int y);
     void mouseMove(int x, int y, bool passiveAndFocused);
-    int modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPosition);
+    int modelDragMoveEvent(int xPos, int yPos, C3Vector* desiredModelPosition);
     int getCursor(int x, int y);
     bool _hierarchyResizingMousePosition(int x, int y);
     void mouseWheel(int deltaZ, int x, int y);
     bool rightMouseButtonDown(int x, int y);
-    void rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow);
+    void rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow);
     bool middleMouseButtonDown(int x, int y);
     void middleMouseButtonUp(int x, int y);
     bool leftMouseButtonDoubleClick(int x, int y, int selectionStatus);
-    unsigned char *render(int currentCursor, int mouseButtonState, int mousePos[2], int *frameResol);
+    unsigned char* render(int currentCursor, int mouseButtonState, int mousePos[2], int* frameResol);
     void setViewSelectionActive(bool isActive);
     void setPageSelectionActive(bool isActive);
     void setHierarchySurfaceSizeAndPosition();
@@ -35,7 +35,7 @@ class COglSurface
     void actualizeAllSurfacesSizeAndPosition();
     void setUpDefaultValues();
     void startViewSelection(int objectType, int subViewIndex);
-    void keyPress(int key, QWidget *mainWindow);
+    void keyPress(int key, QWidget* mainWindow);
     int getHierarchyWidth();
     void setHierarchyWidth(int w);
     void setFocusObject(int obj);
@@ -46,10 +46,10 @@ class COglSurface
     bool isPageSelectionActive();
     bool isScenePageOrViewSelectionActive();
 
-    CViewSelector *viewSelector;
-    CPageSelector *pageSelector;
+    CViewSelector* viewSelector;
+    CPageSelector* pageSelector;
 
-    CHierarchy *hierarchy;
+    CHierarchy* hierarchy;
 
   private:
     bool viewSelectionActive;

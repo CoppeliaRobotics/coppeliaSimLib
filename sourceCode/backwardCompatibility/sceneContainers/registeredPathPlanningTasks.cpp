@@ -44,7 +44,7 @@ int CRegisteredPathPlanningTasks::getTemporaryPathSearchObjectCount()
     return ((int)_temporaryPathSearchObjects.size());
 }
 
-int CRegisteredPathPlanningTasks::addTemporaryPathSearchObject(CPathPlanningTask *obj)
+int CRegisteredPathPlanningTasks::addTemporaryPathSearchObject(CPathPlanningTask* obj)
 {
     int id = 0;
     while (getTemporaryPathSearchObject(id) != nullptr)
@@ -54,7 +54,7 @@ int CRegisteredPathPlanningTasks::addTemporaryPathSearchObject(CPathPlanningTask
     return (id);
 }
 
-CPathPlanningTask *CRegisteredPathPlanningTasks::getTemporaryPathSearchObject(int id)
+CPathPlanningTask* CRegisteredPathPlanningTasks::getTemporaryPathSearchObject(int id)
 {
     for (int i = 0; i < int(_temporaryPathSearchObjectIDs.size()); i++)
     {
@@ -64,7 +64,7 @@ CPathPlanningTask *CRegisteredPathPlanningTasks::getTemporaryPathSearchObject(in
     return (nullptr);
 }
 
-void CRegisteredPathPlanningTasks::removeTemporaryPathSearchObjectButDontDestroyIt(CPathPlanningTask *obj)
+void CRegisteredPathPlanningTasks::removeTemporaryPathSearchObjectButDontDestroyIt(CPathPlanningTask* obj)
 {
     for (int i = 0; i < int(_temporaryPathSearchObjects.size()); i++)
     {
@@ -115,7 +115,7 @@ void CRegisteredPathPlanningTasks::removeAllTasks()
     while (allObjects.size() != 0)
         removeObject(allObjects[0]->getObjectID());
 }
-CPathPlanningTask *CRegisteredPathPlanningTasks::getObject(int objID)
+CPathPlanningTask* CRegisteredPathPlanningTasks::getObject(int objID)
 {
     for (int i = 0; i < int(allObjects.size()); i++)
     {
@@ -124,7 +124,7 @@ CPathPlanningTask *CRegisteredPathPlanningTasks::getObject(int objID)
     }
     return (nullptr);
 }
-CPathPlanningTask *CRegisteredPathPlanningTasks::getObject(std::string objName)
+CPathPlanningTask* CRegisteredPathPlanningTasks::getObject(std::string objName)
 {
     for (int i = 0; i < int(allObjects.size()); i++)
     {
@@ -134,7 +134,7 @@ CPathPlanningTask *CRegisteredPathPlanningTasks::getObject(std::string objName)
     return (nullptr);
 }
 
-void CRegisteredPathPlanningTasks::getMinAndMaxNameSuffixes(int &minSuffix, int &maxSuffix) const
+void CRegisteredPathPlanningTasks::getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const
 {
     minSuffix = -1;
     maxSuffix = -1;
@@ -192,12 +192,12 @@ void CRegisteredPathPlanningTasks::setSuffix1ToSuffix2(int suffix1, int suffix2)
     }
 }
 
-void CRegisteredPathPlanningTasks::addObject(CPathPlanningTask *aTask, bool objectIsACopy)
+void CRegisteredPathPlanningTasks::addObject(CPathPlanningTask* aTask, bool objectIsACopy)
 {
     addObjectWithSuffixOffset(aTask, objectIsACopy, 1);
 }
 
-void CRegisteredPathPlanningTasks::addObjectWithSuffixOffset(CPathPlanningTask *aTask, bool objectIsACopy,
+void CRegisteredPathPlanningTasks::addObjectWithSuffixOffset(CPathPlanningTask* aTask, bool objectIsACopy,
                                                              int suffixOffset)
 {
     // Does that name already exist?

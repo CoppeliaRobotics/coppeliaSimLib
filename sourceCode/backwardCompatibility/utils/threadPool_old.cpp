@@ -12,7 +12,7 @@ VTHREAD_START_ADDRESS CThreadPool_old::_threadInterceptCallback = nullptr;
 int CThreadPool_old::_threadInterceptIndex = 0;
 int CThreadPool_old::_lockStage = 0;
 bool CThreadPool_old::_threadShouldNotSwitch_override = false;
-std::vector<CVThreadData *> CThreadPool_old::_allThreadData;
+std::vector<CVThreadData*> CThreadPool_old::_allThreadData;
 std::vector<VTHREAD_ID_TYPE> CThreadPool_old::_threadQueue;
 std::vector<int> CThreadPool_old::_threadStartTime;
 bool CThreadPool_old::_simulationStopRequest = false;
@@ -21,7 +21,7 @@ bool CThreadPool_old::_simulationEmergencyStopRequest = false;
 VTHREAD_START_ADDRESS CThreadPool_old::_threadStartAdd = nullptr;
 VMutex CThreadPool_old::_threadPoolMutex;
 
-void *CThreadPool_old::_tmpData = nullptr;
+void* CThreadPool_old::_tmpData = nullptr;
 int CThreadPool_old::_tmpRetData = 0;
 int CThreadPool_old::_inInterceptRoutine = 0;
 
@@ -49,7 +49,7 @@ VTHREAD_ID_TYPE CThreadPool_old::createNewThread(VTHREAD_START_ADDRESS threadSta
 
     if (_allThreadData.size() == 0)
     { // We first need to add the main thread! executiontime: -1 --> not yet executed
-        CVThreadData *dat = new CVThreadData(nullptr, VThread::getCurrentThreadId());
+        CVThreadData* dat = new CVThreadData(nullptr, VThread::getCurrentThreadId());
         _allThreadData.push_back(dat);
 
         _threadQueue.push_back(VThread::getCurrentThreadId());
@@ -110,7 +110,7 @@ bool CThreadPool_old::setThreadSwitchTiming(int timeInMs)
     return (retVal);
 }
 
-bool CThreadPool_old::getThreadSwitchTiming(int &timeInMs)
+bool CThreadPool_old::getThreadSwitchTiming(int& timeInMs)
 {
     if (_inInterceptRoutine > 0)
         return (false);
@@ -232,7 +232,7 @@ void CThreadPool_old::switchToThread(VTHREAD_ID_TYPE threadID)
             VTHREAD_ID_TYPE oldFiberID = _threadQueue[fql - 1];
             if ((fql > 1) && VThread::areThreadIdsSame(threadID, _threadQueue[fql - 2]))
             { // we switch back to a previous (calling) fiber
-                CVThreadData *it = nullptr;
+                CVThreadData* it = nullptr;
                 for (size_t j = 0; j < _allThreadData.size(); j++)
                 {
                     if (VThread::areThreadIdsSame(_allThreadData[j]->threadID, oldFiberID))
@@ -328,7 +328,7 @@ void CThreadPool_old::switchToThread(VTHREAD_ID_TYPE threadID)
 
                 _allThreadData[i]->threadWantsResumeFromYield = true; // We mark the next thread for resuming
                 // We do not need to idle this thread since it is already flagged as such
-                CVThreadData *it = nullptr;
+                CVThreadData* it = nullptr;
                 for (size_t j = 0; j < _allThreadData.size(); j++)
                 {
                     if (VThread::areThreadIdsSame(_allThreadData[j]->threadID, oldFiberID))
@@ -506,7 +506,7 @@ VTHREAD_RETURN_TYPE CThreadPool_old::_intermediateThreadStartPoint(VTHREAD_ARGUM
     srand((int)VDateTime::getTimeInMs() + (((unsigned long)(VThread::getCurrentThreadId())) &
                                            0xffffffff)); // Important: each thread starts with a same seed!!!
     VTHREAD_START_ADDRESS startAdd = _threadStartAdd;
-    CVThreadData *it = new CVThreadData(nullptr, VThread::getCurrentThreadId());
+    CVThreadData* it = new CVThreadData(nullptr, VThread::getCurrentThreadId());
     _allThreadData.push_back(it);
     _threadStartAdd = nullptr; // To indicate we could set the thread iD (in case of threads)
     it->threadWantsResumeFromYield = false;
@@ -542,7 +542,7 @@ void CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript()
         {
             _allThreadData[i]->threadExecutionTime = -1; // -1 --> not yet executed
             _allThreadData[i]->allowToExecuteAgainInThisSimulationStep =
-                false; // threads that are not relocated for resume can only run one time per simulation pass!
+                false;                                 // threads that are not relocated for resume can only run one time per simulation pass!
             _allThreadData[i]->usedMovementTime = 0.0; // we reset the used movement time at every simulation pass
                                                        // (better results than if we don't do it, tested!)
         }
@@ -605,14 +605,14 @@ int CThreadPool_old::handleThread_ifHasResumeLocation(VTHREAD_ID_TYPE theThread,
     return (retVal);
 }
 
-CVThreadData *CThreadPool_old::getCurrentThreadData()
+CVThreadData* CThreadPool_old::getCurrentThreadData()
 {
     return (getThreadData(VThread::getCurrentThreadId()));
 }
 
-CVThreadData *CThreadPool_old::getThreadData(VTHREAD_ID_TYPE threadId)
+CVThreadData* CThreadPool_old::getThreadData(VTHREAD_ID_TYPE threadId)
 {
-    CVThreadData *retVal = nullptr;
+    CVThreadData* retVal = nullptr;
     _lock(9);
     for (size_t i = 0; i < _allThreadData.size(); i++)
     {
@@ -786,8 +786,8 @@ bool CThreadPool_old::setThreadFreeMode(bool freeMode)
         if ((fql >= 2) && VThread::areThreadIdsSame(_threadQueue[fql - 1], thisThreadID))
         {
             VTHREAD_ID_TYPE nextThreadID = _threadQueue[fql - 2];
-            CVThreadData *thisThreadData = nullptr;
-            CVThreadData *nextThreadData = nullptr;
+            CVThreadData* thisThreadData = nullptr;
+            CVThreadData* nextThreadData = nullptr;
             for (size_t i = 0; i < _allThreadData.size(); i++)
             {
 
@@ -823,7 +823,7 @@ bool CThreadPool_old::setThreadFreeMode(bool freeMode)
         int fql = int(_threadQueue.size());
         if ((fql >= 1) && (!VThread::areThreadIdsSame(_threadQueue[fql - 1], thisThreadID)))
         {
-            CVThreadData *thisThreadData = nullptr;
+            CVThreadData* thisThreadData = nullptr;
             for (size_t i = 1; i < _allThreadData.size(); i++)
             {
                 if (VThread::areThreadIdsSame(_allThreadData[i]->threadID, thisThreadID))
@@ -889,35 +889,35 @@ bool CThreadPool_old::isThreadInFreeMode()
 
 VTHREAD_RETURN_TYPE CThreadPool_old::_tmpCallback(VTHREAD_ARGUMENT_TYPE lpData)
 { // This callback is used to execute some functions via a specific thread
-    void **valPtr = (void **)_tmpData;
-    int callType = ((int *)valPtr[0])[0];
+    void** valPtr = (void**)_tmpData;
+    int callType = ((int*)valPtr[0])[0];
     _tmpRetData = -1; // error
     if (callType == 0)
     { // we want to call "script->callScriptFunction_DEPRECATED"
-        CScriptObject *script = (CScriptObject *)valPtr[1];
-        char *funcName = (char *)valPtr[2];
-        SLuaCallBack *data = (SLuaCallBack *)valPtr[3];
+        CScriptObject* script = (CScriptObject*)valPtr[1];
+        char* funcName = (char*)valPtr[2];
+        SLuaCallBack* data = (SLuaCallBack*)valPtr[3];
         _tmpRetData = script->callScriptFunction_DEPRECATED(funcName, data);
     }
     if (callType == 1)
     { // we want to call "script->callScriptFunction"
-        CScriptObject *script = (CScriptObject *)valPtr[1];
-        char *funcName = (char *)valPtr[2];
-        CInterfaceStack *stack = (CInterfaceStack *)valPtr[3];
+        CScriptObject* script = (CScriptObject*)valPtr[1];
+        char* funcName = (char*)valPtr[2];
+        CInterfaceStack* stack = (CInterfaceStack*)valPtr[3];
         _tmpRetData = script->callCustomScriptFunction(funcName, stack);
     }
     if (callType == 2)
     { // we want to call "script->setScriptVariable"
-        CScriptObject *script = (CScriptObject *)valPtr[1];
-        char *varName = (char *)valPtr[2];
-        CInterfaceStack *stack = (CInterfaceStack *)valPtr[3];
+        CScriptObject* script = (CScriptObject*)valPtr[1];
+        char* varName = (char*)valPtr[2];
+        CInterfaceStack* stack = (CInterfaceStack*)valPtr[3];
         _tmpRetData = script->setScriptVariable_old(varName, stack);
     }
     if (callType == 3)
     { // we want to call "script->executeScriptString"
-        CScriptObject *script = (CScriptObject *)valPtr[1];
-        char *scriptString = (char *)valPtr[2];
-        CInterfaceStack *stack = (CInterfaceStack *)valPtr[3];
+        CScriptObject* script = (CScriptObject*)valPtr[1];
+        char* scriptString = (char*)valPtr[2];
+        CInterfaceStack* stack = (CInterfaceStack*)valPtr[3];
         _tmpRetData = script->executeScriptString(scriptString, stack);
     }
     return (VTHREAD_RETURN_VAL);
@@ -951,7 +951,7 @@ bool CThreadPool_old::_interceptThread(VTHREAD_ID_TYPE theThreadToIntercept, VTH
     return (retVal);
 }
 
-int CThreadPool_old::callRoutineViaSpecificThread(VTHREAD_ID_TYPE theThread, void *data)
+int CThreadPool_old::callRoutineViaSpecificThread(VTHREAD_ID_TYPE theThread, void* data)
 {
     _inInterceptRoutine++;
     _tmpData = data;

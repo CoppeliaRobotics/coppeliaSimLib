@@ -2,7 +2,7 @@
 #include <app.h>
 #include <algorithm>
 
-CUndoBuffer::CUndoBuffer(const std::vector<char> &fullBuffer, int bufferId, CUndoBufferCameras *camBuff)
+CUndoBuffer::CUndoBuffer(const std::vector<char>& fullBuffer, int bufferId, CUndoBufferCameras* camBuff)
 {
     TRACE_INTERNAL;
     buffer.insert(buffer.end(), fullBuffer.begin(), fullBuffer.end());
@@ -18,7 +18,7 @@ CUndoBuffer::~CUndoBuffer()
     delete _cameraBuffers;
 }
 
-CUndoBufferCameras *CUndoBuffer::getCameraBuffers()
+CUndoBufferCameras* CUndoBuffer::getCameraBuffers()
 {
     return (_cameraBuffers);
 }
@@ -28,7 +28,7 @@ int CUndoBuffer::getBufferId()
     return (_bufferId);
 }
 
-bool CUndoBuffer::finalize(const std::vector<char> &previousFullBuffer)
+bool CUndoBuffer::finalize(const std::vector<char>& previousFullBuffer)
 { // Return value false means: this buffer is exactly the same as "previousFullBuffer"
     TRACE_INTERNAL;
     _sameCountFromBeginning = 0;
@@ -84,7 +84,7 @@ bool CUndoBuffer::finalize(const std::vector<char> &previousFullBuffer)
     return (true);
 }
 
-void CUndoBuffer::getRestored(const std::vector<char> *previousFullBuffer, std::vector<char> &restoredBuffer)
+void CUndoBuffer::getRestored(const std::vector<char>* previousFullBuffer, std::vector<char>& restoredBuffer)
 { // previousFullBuffer can be nullptr. In that case _sameCountFromBeginning and _sameCountFromEnd should be 0
     TRACE_INTERNAL;
     restoredBuffer.clear();
@@ -97,7 +97,7 @@ void CUndoBuffer::getRestored(const std::vector<char> *previousFullBuffer, std::
                               previousFullBuffer->end());
 }
 
-void CUndoBuffer::updateWithFullBuffer(const std::vector<char> &fullBuffer)
+void CUndoBuffer::updateWithFullBuffer(const std::vector<char>& fullBuffer)
 {
     TRACE_INTERNAL;
     _sameCountFromBeginning = 0;

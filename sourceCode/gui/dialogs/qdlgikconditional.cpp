@@ -4,7 +4,7 @@
 #include <tt.h>
 #include <simStrings.h>
 
-CQDlgIkConditional::CQDlgIkConditional(QWidget *parent)
+CQDlgIkConditional::CQDlgIkConditional(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgIkConditional)
 {
     ui->setupUi(this);
@@ -40,7 +40,7 @@ void CQDlgIkConditional::refresh()
         ui->qqIkGroupCombo->addItem(IDSN_PERFORM_ALWAYS, QVariant(-1));
         for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
         {
-            CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
+            CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
             if (it->getObjectHandle() == ikGroup->getObjectHandle())
                 break; // If no ik group comes before, we can't do anything!
             names.push_back(it->getObjectName());
@@ -91,7 +91,7 @@ void CQDlgIkConditional::refresh()
     inMainRefreshRoutine = false;
 }
 
-void CQDlgIkConditional::on_qqClose_clicked(QAbstractButton *button)
+void CQDlgIkConditional::on_qqClose_clicked(QAbstractButton* button)
 {
     defaultModalDialogEndRoutine(true);
 }

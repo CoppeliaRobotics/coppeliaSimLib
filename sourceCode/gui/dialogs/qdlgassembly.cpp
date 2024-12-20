@@ -9,7 +9,8 @@
 #include <guiApp.h>
 #endif
 
-CQDlgAssembly::CQDlgAssembly(QWidget *parent) : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgAssembly)
+CQDlgAssembly::CQDlgAssembly(QWidget* parent)
+    : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgAssembly)
 {
     obj = nullptr;
     ui->setupUi(this);
@@ -69,7 +70,7 @@ void CQDlgAssembly::on_qqSetLocalMatrix_clicked()
     }
 }
 
-void CQDlgAssembly::on_qqClose_clicked(QAbstractButton *button)
+void CQDlgAssembly::on_qqClose_clicked(QAbstractButton* button)
 {
     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     defaultModalDialogEndRoutine(true);

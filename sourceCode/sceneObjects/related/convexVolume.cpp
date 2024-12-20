@@ -35,7 +35,7 @@ void CConvexVolume::disableVolumeComputation(bool disableIt)
     _volumeComputationTemporarilyDisabled = disableIt;
 }
 
-C4X4Matrix CConvexVolume::getTheMatrix(const C3Vector &pt0, const C3Vector &pt1, const C3Vector &pt2, bool tri)
+C4X4Matrix CConvexVolume::getTheMatrix(const C3Vector& pt0, const C3Vector& pt1, const C3Vector& pt2, bool tri)
 { // The returned matrix will have its z-axis normal to the specified plane.
     // X and Y-axis are arbitrary, but the axis-system is consistent
     // This function returns a matrix used to specify a plane (addAPlane)
@@ -56,7 +56,7 @@ C4X4Matrix CConvexVolume::getTheMatrix(const C3Vector &pt0, const C3Vector &pt1,
     return (retM);
 }
 
-void CConvexVolume::add3Values(std::vector<double> &vect, const C4X4Matrix &transf, double x, double y, double z)
+void CConvexVolume::add3Values(std::vector<double>& vect, const C4X4Matrix& transf, double x, double y, double z)
 {
     C3Vector v(x, y, z);
     v = transf * v;
@@ -65,9 +65,9 @@ void CConvexVolume::add3Values(std::vector<double> &vect, const C4X4Matrix &tran
     vect.push_back(v(2));
 }
 
-CConvexVolume *CConvexVolume::copyYourself()
+CConvexVolume* CConvexVolume::copyYourself()
 {
-    CConvexVolume *newConvexVolume = new CConvexVolume();
+    CConvexVolume* newConvexVolume = new CConvexVolume();
 
     newConvexVolume->_volumeType = _volumeType;
     newConvexVolume->offset = offset;
@@ -100,7 +100,7 @@ CConvexVolume *CConvexVolume::copyYourself()
     return (newConvexVolume);
 }
 
-void CConvexVolume::serialize(CSer &ar)
+void CConvexVolume::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -275,7 +275,7 @@ void CConvexVolume::serialize(CSer &ar)
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        if ( (!SIM_IS_BIT_SET(nothing, 0)) && (!usingAt2) )
+                        if ((!SIM_IS_BIT_SET(nothing, 0)) && (!usingAt2))
                             _smallestDistanceAllowed = 0.0;
                     }
                     // Following added on 2010/04/28 because recomputing those values takes long:
@@ -580,7 +580,7 @@ void CConvexVolume::serialize(CSer &ar)
     }
 }
 
-bool CConvexVolume::getVolumeBoundingBox(C3Vector &minV, C3Vector &maxV) const
+bool CConvexVolume::getVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) const
 {
     if (_volumeType == RAY_TYPE_CONVEX_VOLUME)
     {
@@ -702,7 +702,7 @@ void CConvexVolume::scaleVolume(double scalingFactor)
     computeVolumes();
 }
 
-void CConvexVolume::addAPlane(std::vector<double> *volume, std::vector<double> *normals, double nL, const C4X4Matrix &m,
+void CConvexVolume::addAPlane(std::vector<double>* volume, std::vector<double>* normals, double nL, const C4X4Matrix& m,
                               bool inside)
 { // normals can be nullptr.
     // Always z-axis:
@@ -1101,7 +1101,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor, dou
     }
 }
 
-void CConvexVolume::computeVolumeEdges(std::vector<double> &edges)
+void CConvexVolume::computeVolumeEdges(std::vector<double>& edges)
 {
     edges.clear();
     C4X4Matrix m;
@@ -1417,8 +1417,8 @@ void CConvexVolume::computeVolumes()
     normalsInside.clear();
     normalsOutside.clear();
 
-    std::vector<double> *nInside = nullptr;
-    std::vector<double> *nOutside = nullptr;
+    std::vector<double>* nInside = nullptr;
+    std::vector<double>* nOutside = nullptr;
 
     nonDetectingVolumeEdges.clear();
     volumeEdges.clear();
@@ -1761,8 +1761,8 @@ void CConvexVolume::computeVolumes()
     sendEventData(nullptr);
 }
 
-void CConvexVolume::getCloseAndFarVolumeEdges(std::vector<double> &allEdges, double distance,
-                                              std::vector<double> &closeEdges, std::vector<double> &farEdges)
+void CConvexVolume::getCloseAndFarVolumeEdges(std::vector<double>& allEdges, double distance,
+                                              std::vector<double>& closeEdges, std::vector<double>& farEdges)
 {
     if (_volumeType == RAY_TYPE_CONVEX_VOLUME)
     {
@@ -1873,7 +1873,7 @@ void CConvexVolume::getCloseAndFarVolumeEdges(std::vector<double> &allEdges, dou
     }
 }
 
-void CConvexVolume::removeEdgesNotInsideVolume(std::vector<double> &edges, std::vector<double> &planes,
+void CConvexVolume::removeEdgesNotInsideVolume(std::vector<double>& edges, std::vector<double>& planes,
                                                bool invertSides)
 {
     std::vector<double> theEdges(edges);
@@ -1961,7 +1961,7 @@ void CConvexVolume::removeEdgesNotInsideVolume(std::vector<double> &edges, std::
     }
 }
 
-void CConvexVolume::generateSphereEdges(std::vector<double> &edges, double radd)
+void CConvexVolume::generateSphereEdges(std::vector<double>& edges, double radd)
 {
     int subDivW = 12;
     int subDivV = 12;
@@ -2004,7 +2004,7 @@ void CConvexVolume::setParentObjHandleForEvents(int h)
     _parentObjHandleForEvents = h;
 }
 
-void CConvexVolume::sendEventData(CCbor *eev)
+void CConvexVolume::sendEventData(CCbor* eev)
 {
     CCbor* ev = eev;
     if (ev == nullptr)
@@ -2129,14 +2129,12 @@ int CConvexVolume::setVector2Property(const char* pName, const double* pState)
 {
     int retVal = -1;
 
-
     return retVal;
 }
 
 int CConvexVolume::getVector2Property(const char* pName, double* pState) const
 {
     int retVal = -1;
-
 
     return retVal;
 }
@@ -2273,7 +2271,6 @@ int CConvexVolume::setIntArrayProperty(const char* pName, const int* v, int vL)
             retVal = 0;
     }
 
-
     return retVal;
 }
 
@@ -2303,7 +2300,7 @@ int CConvexVolume::getPropertyName(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
     {
-        if ( (pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -2322,7 +2319,7 @@ int CConvexVolume::getPropertyName_static(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
     {
-        if ( (pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -2345,7 +2342,7 @@ int CConvexVolume::getPropertyInfo(const char* pName, int& info, std::string& in
         {
             retVal = allProps_volume[i].type;
             info = allProps_volume[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_volume[i].infoTxt, "") != 0) )
+            if ((infoTxt == "") && (strcmp(allProps_volume[i].infoTxt, "") != 0))
                 infoTxt = allProps_volume[i].infoTxt;
             else
                 infoTxt = allProps_volume[i].shortInfoTxt;
@@ -2364,7 +2361,7 @@ int CConvexVolume::getPropertyInfo_static(const char* pName, int& info, std::str
         {
             retVal = allProps_volume[i].type;
             info = allProps_volume[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_volume[i].infoTxt, "") != 0) )
+            if ((infoTxt == "") && (strcmp(allProps_volume[i].infoTxt, "") != 0))
                 infoTxt = allProps_volume[i].infoTxt;
             else
                 infoTxt = allProps_volume[i].shortInfoTxt;
@@ -2373,4 +2370,3 @@ int CConvexVolume::getPropertyInfo_static(const char* pName, int& info, std::str
     }
     return retVal;
 }
-

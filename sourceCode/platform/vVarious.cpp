@@ -20,7 +20,7 @@
 #include <QProcess>
 #include <QDebug>
 
-bool VVarious::executeExternalApplication(const char *file, const char *arguments, const char *switchToDirectory,
+bool VVarious::executeExternalApplication(const char* file, const char* arguments, const char* switchToDirectory,
                                           int showFlag)
 {
 #ifdef WIN_SIM
@@ -65,7 +65,7 @@ bool VVarious::executeExternalApplication(const char *file, const char *argument
 #endif
 }
 
-void VVarious::removePathFinalSlashOrBackslash(std::string &pathWithOrWithoutFinalThing)
+void VVarious::removePathFinalSlashOrBackslash(std::string& pathWithOrWithoutFinalThing)
 {
     size_t l = pathWithOrWithoutFinalThing.length();
     if (l > 0)
@@ -85,7 +85,7 @@ void VVarious::removePathFinalSlashOrBackslash(std::string &pathWithOrWithoutFin
     }
 }
 
-std::string VVarious::splitPath_path(const char *fullPathAndName)
+std::string VVarious::splitPath_path(const char* fullPathAndName)
 { // returns the absolute path, without a final / or backslash
     std::string retVal;
     QFileInfo pathInfo(QString::fromLocal8Bit(fullPathAndName));
@@ -109,7 +109,7 @@ std::string VVarious::splitPath_path(const char *fullPathAndName)
     return (retVal);
 }
 
-std::string VVarious::splitPath_fileBaseAndExtension(const char *fullPathAndName)
+std::string VVarious::splitPath_fileBaseAndExtension(const char* fullPathAndName)
 { // returns the filename including extension
     std::string retVal;
     QFileInfo pathInfo(QString::fromLocal8Bit(fullPathAndName));
@@ -117,7 +117,7 @@ std::string VVarious::splitPath_fileBaseAndExtension(const char *fullPathAndName
     return (retVal);
 }
 
-std::string VVarious::splitPath_fileBase(const char *fullPathAndName)
+std::string VVarious::splitPath_fileBase(const char* fullPathAndName)
 { // returns the base of a filename, without path or extension. for xxx/yyy/zzz.a.b.c will return zzz.a.b
     std::string retVal;
     QFileInfo pathInfo(QString::fromLocal8Bit(fullPathAndName));
@@ -125,7 +125,7 @@ std::string VVarious::splitPath_fileBase(const char *fullPathAndName)
     return (retVal);
 }
 
-std::string VVarious::splitPath_fileExtension(const char *fullPathAndName)
+std::string VVarious::splitPath_fileExtension(const char* fullPathAndName)
 { // returns the filename extension (without '.')
     std::string retVal;
     QFileInfo pathInfo(QString::fromLocal8Bit(fullPathAndName));
@@ -133,13 +133,13 @@ std::string VVarious::splitPath_fileExtension(const char *fullPathAndName)
     return (retVal);
 }
 
-bool VVarious::isAbsolutePath(const char *pathAndOptionalFilename)
+bool VVarious::isAbsolutePath(const char* pathAndOptionalFilename)
 {
     QFileInfo pathInfo(QString::fromLocal8Bit(pathAndOptionalFilename));
     return (pathInfo.isAbsolute());
 }
 
-WLibrary VVarious::openLibrary(const char *filename, std::string *errMsg)
+WLibrary VVarious::openLibrary(const char* filename, std::string* errMsg)
 { // here we have the extension in the filename (.dll, .so or .dylib)
     WLibrary lib = new QLibrary(filename);
     if (!lib->load())
@@ -152,7 +152,7 @@ WLibrary VVarious::openLibrary(const char *filename, std::string *errMsg)
     return (lib);
 }
 
-void VVarious::closeLibrary(WLibrary lib, std::string *errMsg)
+void VVarious::closeLibrary(WLibrary lib, std::string* errMsg)
 {
     if (lib != nullptr)
     {
@@ -165,32 +165,32 @@ void VVarious::closeLibrary(WLibrary lib, std::string *errMsg)
     }
 }
 
-WLibraryFunc VVarious::resolveLibraryFuncName(WLibrary lib, const char *funcName)
+WLibraryFunc VVarious::resolveLibraryFuncName(WLibrary lib, const char* funcName)
 {
     if (lib != nullptr)
-        return ((void *)lib->resolve(funcName));
+        return ((void*)lib->resolve(funcName));
     return (nullptr);
 }
 
 #ifdef SIM_WITH_GUI
-bool VVarious::copyTextToClipboard(const char *text)
+bool VVarious::copyTextToClipboard(const char* text)
 {
-    QClipboard *clipboard = QApplication::clipboard();
+    QClipboard* clipboard = QApplication::clipboard();
     clipboard->setText(text);
     return (true);
 }
 
-bool VVarious::openOfflineUrl(const char *url)
+bool VVarious::openOfflineUrl(const char* url)
 {
     return (QDesktopServices::openUrl(QUrl::fromLocalFile(url)));
 }
 
-bool VVarious::openOnlineUrl(const char *url)
+bool VVarious::openOnlineUrl(const char* url)
 {
     return (QDesktopServices::openUrl(QUrl(url)));
 }
 
-bool VVarious::openTextFile(const char *file)
+bool VVarious::openTextFile(const char* file)
 {
     return (QDesktopServices::openUrl(QUrl::fromLocalFile(file)));
 }

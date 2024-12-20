@@ -24,8 +24,8 @@ class CGraphDataComb_old
     void setName(std::string theName);
     void setLabel(bool l);
     bool getLabel();
-    void serialize(CSer &ar);
-    CGraphDataComb_old *copyYourself();
+    void serialize(CSer& ar);
+    CGraphDataComb_old* copyYourself();
 
     void setCurveRelativeToWorld(bool relToWorld);
     bool getCurveRelativeToWorld();

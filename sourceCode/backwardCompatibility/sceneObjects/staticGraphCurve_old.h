@@ -7,7 +7,7 @@ class CStaticGraphCurve_old
 {
   public:
     CStaticGraphCurve_old();
-    CStaticGraphCurve_old(int type, std::vector<double> *xVals, std::vector<double> *yVals, std::vector<double> *zVals);
+    CStaticGraphCurve_old(int type, std::vector<double>* xVals, std::vector<double>* yVals, std::vector<double>* zVals);
     virtual ~CStaticGraphCurve_old();
 
     // Various
@@ -23,8 +23,8 @@ class CStaticGraphCurve_old
     void setRelativeToWorld(bool r);
     bool getRelativeToWorld();
 
-    void serialize(CSer &ar);
-    CStaticGraphCurve_old *copyYourself();
+    void serialize(CSer& ar);
+    CStaticGraphCurve_old* copyYourself();
 
     // Variables which need to be serialized & copied
     std::vector<double> values;

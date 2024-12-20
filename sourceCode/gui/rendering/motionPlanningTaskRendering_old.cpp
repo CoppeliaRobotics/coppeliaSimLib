@@ -4,12 +4,12 @@
 #ifdef SIM_WITH_GUI
 #include "pathPlanningInterface.h"
 
-void displayMotionPlanningTask(CMotionPlanningTask *task)
+void displayMotionPlanningTask(CMotionPlanningTask* task)
 {
-    C3DObject *basef = task->getBaseObject();
+    C3DObject* basef = task->getBaseObject();
     if ((task->_data != nullptr) && (basef != nullptr))
     {
-        float *p;
+        float* p;
         int ind = 0;
         C7Vector tr(basef->getCumulativeTransformationPart1());
         glPushMatrix();
@@ -92,11 +92,11 @@ void displayMotionPlanningTask(CMotionPlanningTask *task)
     }
 }
 
-void _renderPhase2data(CMotionPlanningTask *task, unsigned int what)
+void _renderPhase2data(CMotionPlanningTask* task, unsigned int what)
 {
     int ind = 0;
-    float *p1;
-    float *p2;
+    float* p1;
+    float* p2;
     ogl::buffer.clear();
     while (CPathPlanningInterface::getMpPhase2NodesRenderData(task->_data, what, ind++, &p1, &p2) != -1)
     {
@@ -114,7 +114,7 @@ void _renderPhase2data(CMotionPlanningTask *task, unsigned int what)
 
 #else
 
-void displayMotionPlanningTask(CMotionPlanningTask *task)
+void displayMotionPlanningTask(CMotionPlanningTask* task)
 {
 }
 

@@ -18,18 +18,18 @@ unsigned int CMesh::_extRendererUniqueMeshID = 0;
 unsigned int CMesh::_extRendererUniqueTextureID = 0;
 
 // temp, for serialization purpose:
-std::vector<std::vector<float> *> CMesh::_tempVerticesForDisk;
-std::vector<std::vector<int> *> CMesh::_tempIndicesForDisk;
-std::vector<std::vector<float> *> CMesh::_tempNormalsForDisk;
-std::vector<std::vector<unsigned char> *> CMesh::_tempEdgesForDisk;
+std::vector<std::vector<float>*> CMesh::_tempVerticesForDisk;
+std::vector<std::vector<int>*> CMesh::_tempIndicesForDisk;
+std::vector<std::vector<float>*> CMesh::_tempNormalsForDisk;
+std::vector<std::vector<unsigned char>*> CMesh::_tempEdgesForDisk;
 
 CMesh::CMesh()
 {
     _commonInit();
 }
 
-CMesh::CMesh(const C7Vector &meshFrame, const std::vector<double> &vertices, const std::vector<int> &indices,
-             const std::vector<double> *optNormals, const std::vector<float> *optTexCoords, int options)
+CMesh::CMesh(const C7Vector& meshFrame, const std::vector<double>& vertices, const std::vector<int>& indices,
+             const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options)
 {
     _commonInit();
     _vertices.assign(vertices.begin(), vertices.end());
@@ -142,19 +142,19 @@ void CMesh::_commonInit()
     _extRendererTextureId = 0;
 }
 
-void CMesh::performSceneObjectLoadingMapping(const std::map<int, int> *map)
+void CMesh::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty != nullptr)
         _textureProperty->performObjectLoadingMapping(map);
 }
 
-void CMesh::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CMesh::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty != nullptr)
         _textureProperty->performTextureObjectLoadingMapping(map);
 }
 
-void CMesh::announceSceneObjectWillBeErased(const CSceneObject *object)
+void CMesh::announceSceneObjectWillBeErased(const CSceneObject* object)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty != nullptr)
     {
@@ -191,9 +191,9 @@ bool CMesh::getContainsTransparentComponents() const
     return (color.getTranslucid() || insideColor_DEPRECATED.getTranslucid());
 }
 
-CMesh *CMesh::copyYourself()
+CMesh* CMesh::copyYourself()
 { // function has virtual/non-virtual counterpart!
-    CMesh *newIt = new CMesh();
+    CMesh* newIt = new CMesh();
     copyWrapperData(newIt);
 
     color.copyYourselfInto(&newIt->color);
@@ -288,9 +288,9 @@ void CMesh::scale(double isoVal)
 }
 
 void CMesh::scale(double xVal, double yVal, double zVal)
-{ // We scale along _bbFrame, not _iFrame, since non-iso scaling of inertia is delicate
-  // So we leave inertia items untouched
-  // Only for non-compound shapes
+{   // We scale along _bbFrame, not _iFrame, since non-iso scaling of inertia is delicate
+    // So we leave inertia items untouched
+    // Only for non-compound shapes
     if (_purePrimitive == sim_primitiveshape_plane)
         zVal = 1.0;
     if (_purePrimitive == sim_primitiveshape_disc)
@@ -358,7 +358,7 @@ void CMesh::scale(double xVal, double yVal, double zVal)
 #endif
 }
 
-void CMesh::_transformMesh(const C7Vector &tr)
+void CMesh::_transformMesh(const C7Vector& tr)
 {
     if (_textureProperty != nullptr)
         _textureProperty->transformTexturePose(tr);
@@ -391,12 +391,12 @@ void CMesh::_transformMesh(const C7Vector &tr)
 #endif
 }
 
-void CMesh::setBBFrame(const C7Vector &bbFrame)
+void CMesh::setBBFrame(const C7Vector& bbFrame)
 { // function has virtual/non-virtual counterpart!
     CMeshWrapper::setBBFrame(bbFrame);
 }
 
-bool CMesh::reorientBB(const C4Vector *rot)
+bool CMesh::reorientBB(const C4Vector* rot)
 { // function has virtual/non-virtual counterpart!
     bool retVal = false;
     if (!isPure())
@@ -475,15 +475,15 @@ void CMesh::setConvex_raw(bool c)
         _convex = c;
         if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propMesh_convex.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            const char* cmd = propMesh_convex.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
             ev->appendKeyBool(cmd, _convex);
             App::worldContainer->pushEvent();
         }
     }
 }
 
-CMesh *CMesh::getFirstMesh()
+CMesh* CMesh::getFirstMesh()
 { // function has virtual/non-virtual counterpart!
     return this;
 }
@@ -546,8 +546,8 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
     ev->appendKeyBool(propMesh_culling.name, _culling);
     ev->appendKeyBool(propMesh_convex.name, _convex);
 
-    CTextureObject *to = nullptr;
-    const std::vector<float> *tc = nullptr;
+    CTextureObject* to = nullptr;
+    const std::vector<float>* tc = nullptr;
     if (_textureProperty != nullptr)
     {
         to = _textureProperty->getTextureObject();
@@ -576,8 +576,8 @@ int CMesh::countTriangles() const
     return (int(_indices.size() / 3));
 }
 
-void CMesh::getCumulativeMeshes(const C7Vector &parentCumulTr, std::vector<double> &vertices, std::vector<int> *indices,
-                                std::vector<double> *normals)
+void CMesh::getCumulativeMeshes(const C7Vector& parentCumulTr, std::vector<double>& vertices, std::vector<int>* indices,
+                                std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
     size_t offset = vertices.size() / 3;
     C7Vector tr(parentCumulTr * _iFrame * _bbFrame);
@@ -607,8 +607,8 @@ void CMesh::getCumulativeMeshes(const C7Vector &parentCumulTr, std::vector<doubl
     }
 }
 
-void CMesh::getCumulativeMeshes(const C7Vector &parentCumulTr, const CMeshWrapper *wrapper,
-                                std::vector<double> &vertices, std::vector<int> *indices, std::vector<double> *normals)
+void CMesh::getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper,
+                                std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
     if ((wrapper == this) || (wrapper == nullptr))
     {
@@ -646,8 +646,8 @@ void CMesh::setColor(const float* c, unsigned char colorMode)
     color.setColor(c, colorMode);
 }
 
-void CMesh::setColor(const CShape *shape, int &elementIndex, const char *colorName, int colorComponent,
-                     const float *rgbData, int &rgbDataOffset)
+void CMesh::setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent,
+                     const float* rgbData, int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
     if ((colorName == nullptr) || (color.getColorName().compare(colorName) == 0) ||
         (strcmp(colorName, "@compound") == 0))
@@ -805,7 +805,7 @@ void CMesh::setColor(const CShape *shape, int &elementIndex, const char *colorNa
     elementIndex++;
 }
 
-bool CMesh::getColor(const char *colorName, int colorComponent, float *rgbData, int &rgbDataOffset) const
+bool CMesh::getColor(const char* colorName, int colorComponent, float* rgbData, int& rgbDataOffset) const
 { // function has virtual/non-virtual counterpart!
     if ((colorName == nullptr) || (color.getColorName().compare(colorName) == 0) ||
         (strcmp(colorName, "@compound") == 0))
@@ -877,8 +877,8 @@ bool CMesh::getColor(const char *colorName, int colorComponent, float *rgbData, 
     return (false);
 }
 
-void CMesh::getAllMeshComponentsCumulative(const C7Vector &parentCumulTr, std::vector<CMesh *> &shapeComponentList,
-                                           std::vector<C7Vector> *OptParentCumulTrList /*=nullptr*/)
+void CMesh::getAllMeshComponentsCumulative(const C7Vector& parentCumulTr, std::vector<CMesh*>& shapeComponentList,
+                                           std::vector<C7Vector>* OptParentCumulTrList /*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     shapeComponentList.push_back(this);
@@ -886,10 +886,10 @@ void CMesh::getAllMeshComponentsCumulative(const C7Vector &parentCumulTr, std::v
         OptParentCumulTrList->push_back(parentCumulTr * _iFrame * _bbFrame);
 }
 
-CMesh *CMesh::getMeshComponentAtIndex(const C7Vector &parentCumulTr, int &index,
-                                      C7Vector *optParentCumulTrOut /*=nullptr*/)
+CMesh* CMesh::getMeshComponentAtIndex(const C7Vector& parentCumulTr, int& index,
+                                      C7Vector* optParentCumulTrOut /*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
-    CMesh *retVal = nullptr;
+    CMesh* retVal = nullptr;
     if (index >= 0)
     {
         if (index == 0)
@@ -914,7 +914,7 @@ long long int CMesh::getUniqueID() const
     return _uniqueID;
 }
 
-void CMesh::setHeightfieldData(const std::vector<double> &heights, int xCount, int yCount)
+void CMesh::setHeightfieldData(const std::vector<double>& heights, int xCount, int yCount)
 {
     _heightfieldHeights.clear();
     _heightfieldHeights.insert(_heightfieldHeights.end(), heights.begin(), heights.end());
@@ -922,7 +922,7 @@ void CMesh::setHeightfieldData(const std::vector<double> &heights, int xCount, i
     _heightfieldYCount = yCount;
 }
 
-double *CMesh::getHeightfieldData(int &xCount, int &yCount, double &minHeight, double &maxHeight)
+double* CMesh::getHeightfieldData(int& xCount, int& yCount, double& minHeight, double& maxHeight)
 {
     setHeightfieldDiamonds(App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr) == sim_physics_mujoco);
     if ((_purePrimitive != sim_primitiveshape_heightfield) || (_heightfieldHeights.size() == 0))
@@ -983,7 +983,7 @@ void CMesh::setHeightfieldDiamonds(bool d)
     }
 }
 
-void CMesh::getPurePrimitiveSizes(C3Vector &s) const
+void CMesh::getPurePrimitiveSizes(C3Vector& s) const
 {
     s(0) = _purePrimitiveXSizeOrDiameter;
     s(1) = _purePrimitiveYSize;
@@ -1000,12 +1000,12 @@ double CMesh::getPurePrimitiveInsideScaling_OLD() const
     return (_purePrimitiveInsideScaling);
 }
 
-CTextureProperty *CMesh::getTextureProperty()
+CTextureProperty* CMesh::getTextureProperty()
 {
     return (_textureProperty);
 }
 
-void CMesh::setTextureProperty(CTextureProperty *tp)
+void CMesh::setTextureProperty(CTextureProperty* tp)
 { // careful, this doesn't check if a _textureProperty already exists! Has to be done and destroyed outside!
     _textureProperty = tp;
 }
@@ -1033,8 +1033,8 @@ void CMesh::setVisibleEdges(bool v)
         _visibleEdges = v;
         if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propMesh_showEdges.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            const char* cmd = propMesh_showEdges.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
             ev->appendKeyBool(cmd, _visibleEdges);
             App::worldContainer->pushEvent();
         }
@@ -1079,8 +1079,8 @@ void CMesh::setCulling(bool c)
         _culling = c;
         if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propMesh_culling.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            const char* cmd = propMesh_culling.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
             ev->appendKeyBool(cmd, _culling);
             App::worldContainer->pushEvent();
         }
@@ -1097,7 +1097,7 @@ void CMesh::setDisplayInverted_DEPRECATED(bool di)
     _displayInverted_DEPRECATED = di;
 }
 
-void CMesh::takeVisualAttributesFrom(CMesh *origin)
+void CMesh::takeVisualAttributesFrom(CMesh* origin)
 {
     // origin->color.copyYourselfInto(&color);
     setColor(origin->color.getColorsPtr() + sim_colorcomponent_ambient_diffuse * 3, sim_colorcomponent_ambient_diffuse);
@@ -1131,7 +1131,7 @@ void CMesh::takeVisualAttributesFrom(CMesh *origin)
     }
 }
 
-void CMesh::copyVisualAttributesTo(CMeshWrapper *target)
+void CMesh::copyVisualAttributesTo(CMeshWrapper* target)
 {
     target->takeVisualAttributesFrom(this);
 }
@@ -1150,8 +1150,8 @@ void CMesh::setShadingAngle(double angle)
         _shadingAngle = angle;
         if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propMesh_shadingAngle.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            const char* cmd = propMesh_shadingAngle.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
             ev->appendKeyDouble(cmd, _shadingAngle);
             App::worldContainer->pushEvent();
         }
@@ -1186,32 +1186,32 @@ bool CMesh::getWireframe_OLD() const
     return (_wireframe_OLD);
 }
 
-std::vector<double> *CMesh::getVertices()
+std::vector<double>* CMesh::getVertices()
 {
     return (&_vertices);
 }
 
-std::vector<float> *CMesh::getVerticesForDisplayAndDisk()
+std::vector<float>* CMesh::getVerticesForDisplayAndDisk()
 {
     return (&_verticesForDisplayAndDisk);
 }
 
-std::vector<int> *CMesh::getIndices()
+std::vector<int>* CMesh::getIndices()
 {
     return (&_indices);
 }
 
-std::vector<double> *CMesh::getNormals()
+std::vector<double>* CMesh::getNormals()
 {
     return (&_normals);
 }
 
-std::vector<float> *CMesh::getNormalsForDisplayAndDisk()
+std::vector<float>* CMesh::getNormalsForDisplayAndDisk()
 {
     return (&_normalsForDisplayAndDisk);
 }
 
-std::vector<unsigned char> *CMesh::getEdges()
+std::vector<unsigned char>* CMesh::getEdges()
 {
     return (&_edges);
 }
@@ -1222,7 +1222,7 @@ void CMesh::removeAllTextures()
     _textureProperty = nullptr;
 }
 
-void CMesh::getColorStrings(std::string &colorStrings, bool onlyNamed) const
+void CMesh::getColorStrings(std::string& colorStrings, bool onlyNamed) const
 { // function has virtual/non-virtual counterpart!
     if (!onlyNamed)
     {
@@ -1331,10 +1331,10 @@ void CMesh::_recomputeNormals()
         _normals[9 * i + 8] = n(2);
     }
 
-    std::vector<std::vector<int> *> indexToNormals;
+    std::vector<std::vector<int>*> indexToNormals;
     for (size_t i = 0; i < _vertices.size() / 3; i++)
     {
-        std::vector<int> *sharingNormals = new std::vector<int>;
+        std::vector<int>* sharingNormals = new std::vector<int>;
         indexToNormals.push_back(sharingNormals);
     }
     for (size_t i = 0; i < _indices.size() / 3; i++)
@@ -1390,7 +1390,7 @@ void CMesh::_recomputeNormals()
         _normalsForDisplayAndDisk[i] = (float)_normals[i];
 }
 
-C3Vector CMesh::_computeBBSize(C3Vector *optBBCenter /*=nullptr*/)
+C3Vector CMesh::_computeBBSize(C3Vector* optBBCenter /*=nullptr*/)
 {
     C3Vector retBBSize;
     C3Vector mmin(DBL_MAX, DBL_MAX, DBL_MAX);
@@ -1432,12 +1432,12 @@ void CMesh::_computeVisibleEdges()
 }
 
 bool CMesh::checkIfConvex()
-{ // function has virtual/non-virtual counterpart!
+{                                                                                 // function has virtual/non-virtual counterpart!
     setConvex_raw(CMeshRoutines::getConvexType(_vertices, _indices, 0.015) == 0); // 1.5% tolerance of the average bounding box side length
     return _convex;
 }
 
-void CMesh::_loadPackedIntegers_OLD(CSer &ar, std::vector<int> &data)
+void CMesh::_loadPackedIntegers_OLD(CSer& ar, std::vector<int>& data)
 {
     int dataLength;
     ar >> dataLength;
@@ -1511,7 +1511,7 @@ void CMesh::prepareVerticesIndicesNormalsAndEdgesForSerialization()
         _tempEdgesIndexForSerialization = addEdgesToBufferAndReturnIndex(_edges);
 }
 
-void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
+void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
 {
     if (ar.isStoring())
     { // Storing
@@ -1520,8 +1520,8 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
             ar.storeDataName("Ver");
             if (_tempVerticesForDisk[c]->size() != 0)
             {
-                std::vector<unsigned char> *serBuffer = ar.getBufferPointer();
-                unsigned char *ptr = reinterpret_cast<unsigned char *>(&_tempVerticesForDisk[c]->at(0));
+                std::vector<unsigned char>* serBuffer = ar.getBufferPointer();
+                unsigned char* ptr = reinterpret_cast<unsigned char*>(&_tempVerticesForDisk[c]->at(0));
                 serBuffer->insert(serBuffer->end(), ptr, ptr + _tempVerticesForDisk[c]->size() * sizeof(float));
             }
             ar.flush();
@@ -1548,8 +1548,8 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
             ar.storeDataName("Ved"); // Recomputing edges at load takes too much time
             if (_tempEdgesForDisk[c]->size() != 0)
             {
-                std::vector<unsigned char> *serBuffer = ar.getBufferPointer();
-                unsigned char *ptr = &_tempEdgesForDisk[c]->at(0);
+                std::vector<unsigned char>* serBuffer = ar.getBufferPointer();
+                unsigned char* ptr = &_tempEdgesForDisk[c]->at(0);
                 serBuffer->insert(serBuffer->end(), ptr, ptr + _tempEdgesForDisk[c]->size());
             }
             ar.flush();
@@ -1571,7 +1571,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
                 {
                     noHit = false;
                     ar >> byteQuantity;
-                    std::vector<float> *arr = new std::vector<float>;
+                    std::vector<float>* arr = new std::vector<float>;
                     _tempVerticesForDisk.push_back(arr);
                     arr->resize(byteQuantity / sizeof(float), 0.0);
                     for (size_t i = 0; i < arr->size(); i++)
@@ -1581,7 +1581,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
                 {
                     noHit = false;
                     ar >> byteQuantity;
-                    std::vector<int> *arr = new std::vector<int>;
+                    std::vector<int>* arr = new std::vector<int>;
                     _tempIndicesForDisk.push_back(arr);
                     arr->resize(byteQuantity / sizeof(int), 0);
                     for (size_t i = 0; i < arr->size(); i++)
@@ -1591,7 +1591,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
                 { // deprecated in 2023
                     noHit = false;
                     ar >> byteQuantity;
-                    std::vector<int> *arr = new std::vector<int>;
+                    std::vector<int>* arr = new std::vector<int>;
                     _tempIndicesForDisk.push_back(arr);
                     _loadPackedIntegers_OLD(ar, *arr);
                 }
@@ -1599,7 +1599,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
                 {
                     noHit = false;
                     ar >> byteQuantity;
-                    std::vector<float> *arr = new std::vector<float>;
+                    std::vector<float>* arr = new std::vector<float>;
                     _tempNormalsForDisk.push_back(arr);
                     arr->resize(byteQuantity / sizeof(float), 0.0);
                     for (size_t i = 0; i < arr->size(); i++)
@@ -1609,7 +1609,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
                 { // approx. normals. For backward compatibility
                     noHit = false;
                     ar >> byteQuantity;
-                    std::vector<float> *arr = new std::vector<float>;
+                    std::vector<float>* arr = new std::vector<float>;
                     _tempNormalsForDisk.push_back(arr);
                     arr->resize(byteQuantity * 6 / sizeof(float), 0.0);
                     for (int i = 0; i < byteQuantity / 2; i++)
@@ -1630,7 +1630,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
                 {
                     noHit = false;
                     ar >> byteQuantity;
-                    std::vector<unsigned char> *arr = new std::vector<unsigned char>;
+                    std::vector<unsigned char>* arr = new std::vector<unsigned char>;
                     _tempEdgesForDisk.push_back(arr);
                     arr->resize(byteQuantity, 0);
                     for (int i = 0; i < byteQuantity; i++)
@@ -1641,7 +1641,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer &ar)
     }
 }
 
-int CMesh::getBufferIndexOfVertices(const std::vector<float> &vert)
+int CMesh::getBufferIndexOfVertices(const std::vector<float>& vert)
 {
     int vertl = (int)vert.size();
     for (int i = 0; i < int(_tempVerticesForDisk.size()); i++)
@@ -1665,20 +1665,20 @@ int CMesh::getBufferIndexOfVertices(const std::vector<float> &vert)
     return (-1); // not found
 }
 
-int CMesh::addVerticesToBufferAndReturnIndex(const std::vector<float> &vert)
+int CMesh::addVerticesToBufferAndReturnIndex(const std::vector<float>& vert)
 {
-    std::vector<float> *nvert = new std::vector<float>;
+    std::vector<float>* nvert = new std::vector<float>;
     nvert->assign(vert.begin(), vert.end());
     _tempVerticesForDisk.push_back(nvert);
     return ((int)_tempVerticesForDisk.size() - 1);
 }
 
-void CMesh::getVerticesFromBufferBasedOnIndex(int index, std::vector<float> &vert)
+void CMesh::getVerticesFromBufferBasedOnIndex(int index, std::vector<float>& vert)
 {
     vert.assign(_tempVerticesForDisk[index]->begin(), _tempVerticesForDisk[index]->end());
 }
 
-int CMesh::getBufferIndexOfIndices(const std::vector<int> &ind)
+int CMesh::getBufferIndexOfIndices(const std::vector<int>& ind)
 {
     int indl = (int)ind.size();
     for (int i = 0; i < int(_tempIndicesForDisk.size()); i++)
@@ -1702,20 +1702,20 @@ int CMesh::getBufferIndexOfIndices(const std::vector<int> &ind)
     return (-1); // not found
 }
 
-int CMesh::addIndicesToBufferAndReturnIndex(const std::vector<int> &ind)
+int CMesh::addIndicesToBufferAndReturnIndex(const std::vector<int>& ind)
 {
-    std::vector<int> *nind = new std::vector<int>;
+    std::vector<int>* nind = new std::vector<int>;
     nind->assign(ind.begin(), ind.end());
     _tempIndicesForDisk.push_back(nind);
     return ((int)_tempIndicesForDisk.size() - 1);
 }
 
-void CMesh::getIndicesFromBufferBasedOnIndex(int index, std::vector<int> &ind)
+void CMesh::getIndicesFromBufferBasedOnIndex(int index, std::vector<int>& ind)
 {
     ind.assign(_tempIndicesForDisk[index]->begin(), _tempIndicesForDisk[index]->end());
 }
 
-int CMesh::getBufferIndexOfNormals(const std::vector<float> &norm)
+int CMesh::getBufferIndexOfNormals(const std::vector<float>& norm)
 {
     int norml = (int)norm.size();
     for (int i = 0; i < int(_tempNormalsForDisk.size()); i++)
@@ -1739,20 +1739,20 @@ int CMesh::getBufferIndexOfNormals(const std::vector<float> &norm)
     return (-1); // not found
 }
 
-int CMesh::addNormalsToBufferAndReturnIndex(const std::vector<float> &norm)
+int CMesh::addNormalsToBufferAndReturnIndex(const std::vector<float>& norm)
 {
-    std::vector<float> *nnorm = new std::vector<float>;
+    std::vector<float>* nnorm = new std::vector<float>;
     nnorm->assign(norm.begin(), norm.end());
     _tempNormalsForDisk.push_back(nnorm);
     return ((int)_tempNormalsForDisk.size() - 1);
 }
 
-void CMesh::getNormalsFromBufferBasedOnIndex(int index, std::vector<float> &norm)
+void CMesh::getNormalsFromBufferBasedOnIndex(int index, std::vector<float>& norm)
 {
     norm.assign(_tempNormalsForDisk[index]->begin(), _tempNormalsForDisk[index]->end());
 }
 
-int CMesh::getBufferIndexOfEdges(const std::vector<unsigned char> &edges)
+int CMesh::getBufferIndexOfEdges(const std::vector<unsigned char>& edges)
 {
     int edgesl = (int)edges.size();
     for (int i = 0; i < int(_tempEdgesForDisk.size()); i++)
@@ -1776,20 +1776,20 @@ int CMesh::getBufferIndexOfEdges(const std::vector<unsigned char> &edges)
     return (-1); // not found
 }
 
-int CMesh::addEdgesToBufferAndReturnIndex(const std::vector<unsigned char> &edges)
+int CMesh::addEdgesToBufferAndReturnIndex(const std::vector<unsigned char>& edges)
 {
-    std::vector<unsigned char> *nedges = new std::vector<unsigned char>;
+    std::vector<unsigned char>* nedges = new std::vector<unsigned char>;
     nedges->assign(edges.begin(), edges.end());
     _tempEdgesForDisk.push_back(nedges);
     return ((int)_tempEdgesForDisk.size() - 1);
 }
 
-void CMesh::getEdgesFromBufferBasedOnIndex(int index, std::vector<unsigned char> &edges)
+void CMesh::getEdgesFromBufferBasedOnIndex(int index, std::vector<unsigned char>& edges)
 {
     edges.assign(_tempEdgesForDisk[index]->begin(), _tempEdgesForDisk[index]->end());
 }
 
-bool CMesh::serialize(CSer &ar, const char *shapeName, const C7Vector &parentCumulIFrame, bool rootLevel)
+bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCumulIFrame, bool rootLevel)
 { // function has virtual/non-virtual counterpart!
     bool hasNewBBFrameAndSize = CMeshWrapper::serialize(ar, shapeName, parentCumulIFrame, rootLevel);
     if (ar.isBinary())
@@ -2505,30 +2505,30 @@ void CMesh::_updateDisplayAndDiskValues()
 }
 
 #ifdef SIM_WITH_GUI
-void CMesh::display(const C7Vector &cumulIFrameTr, CShape *geomData, int displayAttrib, CColorObject *collisionColor,
+void CMesh::display(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, CColorObject* collisionColor,
                     int dynObjFlag_forVisualization, int transparencyHandling, bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
     displayGeometric(cumulIFrameTr * _iFrame, this, geomData, displayAttrib, collisionColor,
                      dynObjFlag_forVisualization, transparencyHandling, multishapeEditSelected);
 }
 
-void CMesh::display_colorCoded(const C7Vector &cumulIFrameTr, CShape *geomData, int objectId, int displayAttrib)
+void CMesh::display_colorCoded(const C7Vector& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib)
 { // function has virtual/non-virtual counterpart!
     displayGeometric_colorCoded(cumulIFrameTr * _iFrame, this, geomData, objectId, displayAttrib);
 }
 
-void CMesh::displayGhost(const C7Vector &cumulIFrameTr, CShape *geomData, int displayAttrib, bool originalColors,
-                         bool backfaceCulling, double transparency, const float *newColors)
+void CMesh::displayGhost(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors,
+                         bool backfaceCulling, double transparency, const float* newColors)
 { // function has virtual/non-virtual counterpart!
     displayGeometricGhost(cumulIFrameTr * _iFrame, this, geomData, displayAttrib, originalColors, backfaceCulling,
                           transparency, newColors);
 }
 
-bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float> &texCoords)
+bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
 {
     if (_textureProperty == nullptr)
         return (false);
-    std::vector<float> *tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
+    std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
     if (tc == nullptr)
         return (false);
     if (!_textureProperty->getFixedCoordinates())
@@ -2537,15 +2537,15 @@ bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float> &texCoords)
     return (true);
 }
 
-void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData, int displayAttrib, const C7Vector &tr,
-                                int shapeHandle, int &componentIndex)
+void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, const C7Vector& tr,
+                                int shapeHandle, int& componentIndex)
 { // function has virtual/non-virtual counterpart!
     if (!_wireframe_OLD)
     {
         // Mesh change:
-//        if (_extRendererMeshId == 0)
+        //        if (_extRendererMeshId == 0)
         if (true) // mesh scaling was not reflected
-        { // first time we render this item
+        {         // first time we render this item
             _extRendererUniqueMeshID++;
             _extRendererMeshId = _extRendererUniqueMeshID;
             _extRendererMesh_lastVertexBufferId = _vertexBufferId;
@@ -2566,7 +2566,7 @@ void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData,
             _extRendererTexture_lastTextureId = (unsigned int)-1;
             if (_textureProperty != nullptr)
             {
-                CTextureObject *to = _textureProperty->getTextureObject();
+                CTextureObject* to = _textureProperty->getTextureObject();
                 if (to != nullptr)
                     _extRendererTexture_lastTextureId = to->getCurrentTextureContentUniqueId();
             }
@@ -2578,7 +2578,7 @@ void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData,
             unsigned int tex = (unsigned int)-1;
             if (_textureProperty != nullptr)
             {
-                CTextureObject *to = _textureProperty->getTextureObject();
+                CTextureObject* to = _textureProperty->getTextureObject();
                 if (to != nullptr)
                     tex = to->getCurrentTextureContentUniqueId();
             }
@@ -2613,7 +2613,7 @@ void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData,
         C7Vector tr2(tr * cumulIFrameTr * _iFrame * _bbFrame);
         static int a = 0;
         a++;
-        void *data[40];
+        void* data[40];
         data[0] = &_verticesForDisplayAndDisk[0];
         int vs = (int)_verticesForDisplayAndDisk.size() / 3;
         data[1] = &vs;
@@ -2645,7 +2645,7 @@ void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData,
         data[27] = &visibleEdges;
         // FREE data[28]=edgeColor_DEPRECATED.colors;
         data[30] = &displayAttrib;
-        data[31] = (void *)color.getColorName().c_str();
+        data[31] = (void*)color.getColorName().c_str();
         data[32] = &shapeHandle;
         data[33] = &componentIndex;
 
@@ -2654,12 +2654,12 @@ void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData,
         int povMaterial = 0;
         data[29] = &povMaterial;
 
-        CTextureProperty *tp = _textureProperty;
+        CTextureProperty* tp = _textureProperty;
         if ((!App::currentWorld->environment->getShapeTexturesEnabled()) ||
             CEnvironment::getShapeTexturesTemporarilyDisabled())
             tp = nullptr;
         bool textured = false;
-        std::vector<float> *textureCoords = nullptr;
+        std::vector<float>* textureCoords = nullptr;
         if (tp != nullptr)
         {
             textured = true;
@@ -2670,10 +2670,10 @@ void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData,
             data[9] = &(textureCoords[0])[0];
             int texCoordSize = (int)textureCoords->size() / 2;
             data[10] = &texCoordSize;
-            CTextureObject *to = tp->getTextureObject();
+            CTextureObject* to = tp->getTextureObject();
             if (to == nullptr)
                 return; // should normally never happen
-            data[11] = (unsigned char *)to->getTextureBufferPointer();
+            data[11] = (unsigned char*)to->getTextureBufferPointer();
             int sx, sy;
             to->getTextureSize(sx, sy);
             data[12] = &sx;
@@ -2698,17 +2698,17 @@ void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData,
     componentIndex++;
 }
 
-int *CMesh::getVertexBufferIdPtr()
+int* CMesh::getVertexBufferIdPtr()
 {
     return (&_vertexBufferId);
 }
 
-int *CMesh::getNormalBufferIdPtr()
+int* CMesh::getNormalBufferIdPtr()
 {
     return (&_normalBufferId);
 }
 
-int *CMesh::getEdgeBufferIdPtr()
+int* CMesh::getEdgeBufferIdPtr()
 {
     return (&_edgeBufferId);
 }
@@ -2724,8 +2724,8 @@ void CMesh::setTextureRepeatU(bool r)
             _textureProperty->setRepeatU(r);
             if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
             {
-                const char *cmd = propMesh_textureRepeatU.name;
-                CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                const char* cmd = propMesh_textureRepeatU.name;
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
                 ev->appendKeyBool(cmd, r);
                 App::worldContainer->pushEvent();
             }
@@ -2751,8 +2751,8 @@ void CMesh::setTextureRepeatV(bool r)
             _textureProperty->setRepeatV(r);
             if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
             {
-                const char *cmd = propMesh_textureRepeatV.name;
-                CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                const char* cmd = propMesh_textureRepeatV.name;
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
                 ev->appendKeyBool(cmd, r);
                 App::worldContainer->pushEvent();
             }
@@ -2778,8 +2778,8 @@ void CMesh::setTextureInterpolate(bool r)
             _textureProperty->setInterpolateColors(r);
             if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
             {
-                const char *cmd = propMesh_textureInterpolate.name;
-                CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                const char* cmd = propMesh_textureInterpolate.name;
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
                 ev->appendKeyBool(cmd, r);
                 App::worldContainer->pushEvent();
             }
@@ -2805,8 +2805,8 @@ void CMesh::setTextureApplyMode(int m)
             _textureProperty->setApplyMode(m);
             if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
             {
-                const char *cmd = propMesh_textureApplyMode.name;
-                CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                const char* cmd = propMesh_textureApplyMode.name;
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
                 ev->appendKeyInt(cmd, m);
                 App::worldContainer->pushEvent();
             }
@@ -2838,17 +2838,17 @@ int CMesh::setBoolProperty(const char* ppName, bool pState, const C7Vector& shap
         retVal = 1;
         setCulling(pState);
     }
-    else if ( (strcmp(pName, propMesh_textureRepeatU.name) == 0) && (_textureProperty != nullptr) )
+    else if ((strcmp(pName, propMesh_textureRepeatU.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         setTextureRepeatU(pState);
     }
-    else if ( (strcmp(pName, propMesh_textureRepeatV.name) == 0) && (_textureProperty != nullptr) )
+    else if ((strcmp(pName, propMesh_textureRepeatV.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         setTextureRepeatV(pState);
     }
-    else if ( (strcmp(pName, propMesh_textureInterpolate.name) == 0) && (_textureProperty != nullptr) )
+    else if ((strcmp(pName, propMesh_textureInterpolate.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         setTextureInterpolate(pState);
@@ -2873,17 +2873,17 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
         retVal = 1;
         pState = _culling;
     }
-    else if ( (strcmp(pName, propMesh_textureRepeatU.name) == 0) && (_textureProperty != nullptr) )
+    else if ((strcmp(pName, propMesh_textureRepeatU.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         pState = getTextureRepeatU();
     }
-    else if ( (strcmp(pName, propMesh_textureRepeatV.name) == 0) && (_textureProperty != nullptr) )
+    else if ((strcmp(pName, propMesh_textureRepeatV.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         pState = getTextureRepeatV();
     }
-    else if ( (strcmp(pName, propMesh_textureInterpolate.name) == 0) && (_textureProperty != nullptr) )
+    else if ((strcmp(pName, propMesh_textureInterpolate.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         pState = getTextureInterpolate();
@@ -2903,7 +2903,7 @@ int CMesh::setIntProperty(const char* ppName, int pState, const C7Vector& shapeR
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    if ( (strcmp(pName, propMesh_textureApplyMode.name) == 0) && (_textureProperty != nullptr) )
+    if ((strcmp(pName, propMesh_textureApplyMode.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         setTextureApplyMode(pState);
@@ -2918,12 +2918,12 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    if ( (strcmp(pName, propMesh_textureID.name) == 0) && (_textureProperty != nullptr) )
+    if ((strcmp(pName, propMesh_textureID.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         pState = _textureProperty->getTextureObjectID();
     }
-    else if ( (strcmp(pName, propMesh_textureApplyMode.name) == 0) && (_textureProperty != nullptr) )
+    else if ((strcmp(pName, propMesh_textureApplyMode.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         pState = getTextureApplyMode();
@@ -3002,7 +3002,6 @@ int CMesh::getStringProperty(const char* ppName, std::string& pState, const C7Ve
         pState = color.getColorName();
     }
 
-
     return retVal;
 }
 
@@ -3023,7 +3022,7 @@ int CMesh::getBufferProperty(const char* ppName, std::string& pState, const C7Ve
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    if ( (strcmp(pName, propMesh_texture.name) == 0) && (_textureProperty != nullptr) )
+    if ((strcmp(pName, propMesh_texture.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         int ts[2];
@@ -3050,12 +3049,11 @@ int CMesh::getIntArray2Property(const char* ppName, int* pState, const C7Vector&
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    if ( (strcmp(pName, propMesh_textureResolution.name) == 0) && (_textureProperty != nullptr) )
+    if ((strcmp(pName, propMesh_textureResolution.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         _textureProperty->getTextureObject()->getTextureSize(pState[0], pState[1]);
     }
-
 
     return retVal;
 }
@@ -3139,7 +3137,6 @@ int CMesh::setColorProperty(const char* ppName, const float* pState, const C7Vec
     int retVal = color.setColorProperty(pName, pState);
     if (retVal == -1)
     {
-
     }
     return retVal;
 }
@@ -3151,7 +3148,6 @@ int CMesh::getColorProperty(const char* ppName, float* pState, const C7Vector& s
     int retVal = color.getColorProperty(pName, pState);
     if (retVal == -1)
     {
-
     }
     return retVal;
 }
@@ -3202,7 +3198,7 @@ int CMesh::getFloatArrayProperty(const char* ppName, std::vector<double>& pState
             pState[3 * j + 2] = n(2);
         }
     }
-    else if ( (strcmp(pName, propMesh_textureCoordinates.name) == 0) && (_textureProperty != nullptr) )
+    else if ((strcmp(pName, propMesh_textureCoordinates.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = 1;
         const std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
@@ -3261,9 +3257,9 @@ int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
     {
         for (size_t i = 0; i < allProps_mesh.size(); i++)
         {
-            if ( (targetObject == nullptr) || (targetObject->_textureProperty != nullptr) || (i > 7) )
+            if ((targetObject == nullptr) || (targetObject->_textureProperty != nullptr) || (i > 7))
             {
-                if ( (pName.size() == 0) || utils::startsWith(allProps_mesh[i].name, pName.c_str()) )
+                if ((pName.size() == 0) || utils::startsWith(allProps_mesh[i].name, pName.c_str()))
                 {
                     index--;
                     if (index == -1)
@@ -3296,22 +3292,22 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, 
             {
                 retVal = allProps_mesh[i].type;
                 info = allProps_mesh[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_mesh[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_mesh[i].infoTxt, "") != 0))
                     infoTxt = allProps_mesh[i].infoTxt;
                 else
                     infoTxt = allProps_mesh[i].shortInfoTxt;
                 break;
             }
         }
-        if ( (targetObject != nullptr) && (retVal != -1) )
+        if ((targetObject != nullptr) && (retVal != -1))
         {
-            if ( (_pName == propMesh_textureCoordinates.name) && (targetObject->_textureProperty != nullptr) )
+            if ((_pName == propMesh_textureCoordinates.name) && (targetObject->_textureProperty != nullptr))
             {
                 const std::vector<float>* tc = targetObject->_textureProperty->getTextureCoordinates(-1, targetObject->_verticesForDisplayAndDisk, targetObject->_indices);
                 if (tc->size() > LARGE_PROPERTY_SIZE)
                     info = info | 0x100;
             }
-            else if ( (_pName == propMesh_texture.name) && (targetObject->_textureProperty != nullptr) )
+            else if ((_pName == propMesh_texture.name) && (targetObject->_textureProperty != nullptr))
             {
                 int ts[2];
                 targetObject->_textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
@@ -3337,4 +3333,3 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, 
     }
     return retVal;
 }
-

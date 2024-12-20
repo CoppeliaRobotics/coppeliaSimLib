@@ -183,7 +183,7 @@ void CPageSelector::render()
                 glClear(GL_COLOR_BUFFER_BIT);
                 if (mouseOn != l + viewSelectionSize[0] * k)
                 {
-                    CSPage *p = App::currentWorld->pageContainer->getPage(pIndex);
+                    CSPage* p = App::currentWorld->pageContainer->getPage(pIndex);
                     if (p != nullptr)
                     {
                         int psx, psy, ppx, ppy;
@@ -335,7 +335,7 @@ bool CPageSelector::rightMouseButtonDown(int x, int y)
     _caughtElements &= 0xffff - sim_right_button;
     return (false); // Not processed yet!
 }
-void CPageSelector::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow)
+void CPageSelector::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow)
 {
 }
 bool CPageSelector::leftMouseButtonDoubleClick(int x, int y, int selectionStatus)

@@ -123,7 +123,7 @@ void CDynamicsContainer::handleDynamics(double dt)
 }
 
 bool CDynamicsContainer::getContactForce(int dynamicPass, int objectHandle, int index, int objectHandles[2],
-                                         double *contactInfo) const
+                                         double* contactInfo) const
 {
     if (getDynamicsEnabled())
         return (App::worldContainer->pluginContainer->dyn_getContactForce(dynamicPass, objectHandle, index,
@@ -278,7 +278,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
         {
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
             {
-                CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
+                CDummy* it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
                 if ((it->getLinkedDummyHandle() != -1) && (it->getDummyType() == sim_dummytype_dyntendon))
                 {
                     App::logMsg(sim_verbosity_warnings, "Detected tendon constraints, which are only supported with the MuJoCo engine");
@@ -299,7 +299,7 @@ void CDynamicsContainer::setDynamicEngineType(int t, int version)
         _dynamicEngineVersionToUse = version;
         if (App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsEngine.name, true);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsEngine.name, true);
             int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
             ev->appendKeyIntArray(propDyn_dynamicsEngine.name, ar, 2);
             App::worldContainer->pushEvent();
@@ -311,7 +311,7 @@ void CDynamicsContainer::setDynamicEngineType(int t, int version)
     }
 }
 
-int CDynamicsContainer::getDynamicEngineType(int *version) const
+int CDynamicsContainer::getDynamicEngineType(int* version) const
 {
     if (version != nullptr)
         version[0] = _dynamicEngineVersionToUse;
@@ -326,7 +326,7 @@ void CDynamicsContainer::setDisplayContactPoints(bool d)
         _displayContactPoints = d;
         if (App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_showContactPoints.name, true);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_showContactPoints.name, true);
             ev->appendKeyBool(propDyn_showContactPoints.name, _displayContactPoints);
             App::worldContainer->pushEvent();
         }
@@ -356,7 +356,7 @@ bool CDynamicsContainer::setDesiredStepSize(double s)
             _mujocoFloatParams[simi_mujoco_global_stepsize] = s;
             if (App::worldContainer->getEventsEnabled())
             {
-                CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsStepSize.name, true);
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsStepSize.name, true);
                 ev->appendKeyDouble(propDyn_dynamicsStepSize.name, _stepSize);
                 App::worldContainer->pushEvent();
             }
@@ -432,7 +432,7 @@ int CDynamicsContainer::getIterationCount() const
     return (0);
 }
 
-double CDynamicsContainer::getEngineFloatParam_old(int what, bool *ok, bool getDefault /*=false*/) const
+double CDynamicsContainer::getEngineFloatParam_old(int what, bool* ok, bool getDefault /*=false*/) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -458,7 +458,7 @@ double CDynamicsContainer::getEngineFloatParam_old(int what, bool *ok, bool getD
         if (getVector3Property(prop.c_str(), v) > 0)
             return v(indexWithArrays);
     }
-    if ( (what == sim_bullet_global_stepsize) || (what == sim_ode_global_stepsize) || (what == sim_vortex_global_stepsize) || (what == sim_newton_global_stepsize) || (what == sim_mujoco_global_stepsize) )
+    if ((what == sim_bullet_global_stepsize) || (what == sim_ode_global_stepsize) || (what == sim_vortex_global_stepsize) || (what == sim_newton_global_stepsize) || (what == sim_mujoco_global_stepsize))
         return (_stepSize);
 
     if (ok != nullptr)
@@ -466,7 +466,7 @@ double CDynamicsContainer::getEngineFloatParam_old(int what, bool *ok, bool getD
     return 0.0;
 }
 
-int CDynamicsContainer::getEngineIntParam_old(int what, bool *ok, bool getDefault /*=false*/) const
+int CDynamicsContainer::getEngineIntParam_old(int what, bool* ok, bool getDefault /*=false*/) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -483,7 +483,7 @@ int CDynamicsContainer::getEngineIntParam_old(int what, bool *ok, bool getDefaul
     return 0;
 }
 
-bool CDynamicsContainer::getEngineBoolParam_old(int what, bool *ok, bool getDefault /*=false*/) const
+bool CDynamicsContainer::getEngineBoolParam_old(int what, bool* ok, bool getDefault /*=false*/) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -541,7 +541,7 @@ bool CDynamicsContainer::setEngineFloatParam_old(int what, double v)
     }
     if (!retVal)
     { // for backw. compatibility
-        if ( (what == sim_bullet_global_stepsize) || (what == sim_ode_global_stepsize) || (what == sim_vortex_global_stepsize) || (what == sim_newton_global_stepsize) || (what == sim_mujoco_global_stepsize) )
+        if ((what == sim_bullet_global_stepsize) || (what == sim_ode_global_stepsize) || (what == sim_vortex_global_stepsize) || (what == sim_newton_global_stepsize) || (what == sim_mujoco_global_stepsize))
         {
             _stepSize = v;
             retVal = true;
@@ -578,7 +578,7 @@ bool CDynamicsContainer::setEngineBoolParam_old(int what, bool v)
     return (retVal);
 }
 
-void CDynamicsContainer::getVortexFloatParams(std::vector<double> &p, bool getDefault /*=false*/) const
+void CDynamicsContainer::getVortexFloatParams(std::vector<double>& p, bool getDefault /*=false*/) const
 {
     if (getDefault)
         getVortexDefaultFloatParams(p);
@@ -586,7 +586,7 @@ void CDynamicsContainer::getVortexFloatParams(std::vector<double> &p, bool getDe
         p.assign(_vortexFloatParams.begin(), _vortexFloatParams.end());
 }
 
-void CDynamicsContainer::getVortexIntParams(std::vector<int> &p, bool getDefault /*=false*/) const
+void CDynamicsContainer::getVortexIntParams(std::vector<int>& p, bool getDefault /*=false*/) const
 {
     if (getDefault)
         getVortexDefaultIntParams(p);
@@ -594,7 +594,7 @@ void CDynamicsContainer::getVortexIntParams(std::vector<int> &p, bool getDefault
         p.assign(_vortexIntParams.begin(), _vortexIntParams.end());
 }
 
-void CDynamicsContainer::getNewtonFloatParams(std::vector<double> &p, bool getDefault /*=false*/) const
+void CDynamicsContainer::getNewtonFloatParams(std::vector<double>& p, bool getDefault /*=false*/) const
 {
     if (getDefault)
         getNewtonDefaultFloatParams(p);
@@ -602,7 +602,7 @@ void CDynamicsContainer::getNewtonFloatParams(std::vector<double> &p, bool getDe
         p.assign(_newtonFloatParams.begin(), _newtonFloatParams.end());
 }
 
-void CDynamicsContainer::getNewtonIntParams(std::vector<int> &p, bool getDefault /*=false*/) const
+void CDynamicsContainer::getNewtonIntParams(std::vector<int>& p, bool getDefault /*=false*/) const
 {
     if (getDefault)
         getNewtonDefaultIntParams(p);
@@ -706,7 +706,7 @@ void CDynamicsContainer::setDynamicsEnabled(bool e)
         _dynamicsEnabled = e;
         if (App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsEnabled.name, true);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsEnabled.name, true);
             ev->appendKeyBool(propDyn_dynamicsEnabled.name, _dynamicsEnabled);
             App::worldContainer->pushEvent();
         }
@@ -736,7 +736,7 @@ void CDynamicsContainer::setGravity(C3Vector gr)
         _gravity = gr;
         if (App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_gravity.name, true);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_gravity.name, true);
             ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
             App::worldContainer->pushEvent();
         }
@@ -748,7 +748,7 @@ C3Vector CDynamicsContainer::getGravity() const
     return (_gravity);
 }
 
-bool CDynamicsContainer::_engineFloatsAreSimilar(const std::vector<double> &arr1, const std::vector<double> &arr2) const
+bool CDynamicsContainer::_engineFloatsAreSimilar(const std::vector<double>& arr1, const std::vector<double>& arr2) const
 { // allow for a 1% deviation max
     if (arr1.size() != arr2.size())
         return (false);
@@ -877,7 +877,7 @@ void CDynamicsContainer::checkIfEngineSettingsAreDefault()
     }
 }
 
-void CDynamicsContainer::serialize(CSer &ar)
+void CDynamicsContainer::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -1113,8 +1113,8 @@ void CDynamicsContainer::serialize(CSer &ar)
                             ar >> vi;
                         }
                         if (ar.getCoppeliaSimVersionThatWroteThisFile() < 30400)
-                        { // In Vortex Studio we have some crashes and instability due to multithreading. At the same
-                          // time, if multithreading is off, it is faster for CoppeliaSim scenes
+                        {   // In Vortex Studio we have some crashes and instability due to multithreading. At the same
+                            // time, if multithreading is off, it is faster for CoppeliaSim scenes
                             _vortexIntParams[0] |= simi_vortex_global_multithreading;
                             _vortexIntParams[0] -= simi_vortex_global_multithreading;
                         }
@@ -1153,8 +1153,8 @@ void CDynamicsContainer::serialize(CSer &ar)
                             ar >> vi;
                         }
                         if (ar.getCoppeliaSimVersionThatWroteThisFile() < 30400)
-                        { // In Vortex Studio we have some crashes and instability due to multithreading. At the same
-                          // time, if multithreading is off, it is faster for CoppeliaSim scenes
+                        {   // In Vortex Studio we have some crashes and instability due to multithreading. At the same
+                            // time, if multithreading is off, it is faster for CoppeliaSim scenes
                             _vortexIntParams[0] |= simi_vortex_global_multithreading;
                             _vortexIntParams[0] -= simi_vortex_global_multithreading;
                         }
@@ -1481,8 +1481,8 @@ void CDynamicsContainer::serialize(CSer &ar)
             if (!hasStepSizeTag)
             {
                 if (oldDynamicsSettingsMode < 5)
-                { // for backward compatibility. Previously this was one of the default settings (precise, balanced,
-                  // fast, etc.)
+                {   // for backward compatibility. Previously this was one of the default settings (precise, balanced,
+                    // fast, etc.)
                     getBulletDefaultFloatParams(_bulletFloatParams, oldDynamicsSettingsMode);
                     getBulletDefaultIntParams(_bulletIntParams, oldDynamicsSettingsMode);
                     getOdeDefaultFloatParams(_odeFloatParams, oldDynamicsSettingsMode);
@@ -2006,8 +2006,8 @@ void CDynamicsContainer::serialize(CSer &ar)
             if (!hasStepSizeTag)
             {
                 if (oldDynamicsSettingsMode < 5)
-                { // for backward compatibility. Previously this was one of the default settings (precise, balanced,
-                  // fast, etc.)
+                {   // for backward compatibility. Previously this was one of the default settings (precise, balanced,
+                    // fast, etc.)
                     getBulletDefaultFloatParams(_bulletFloatParams, oldDynamicsSettingsMode);
                     getBulletDefaultIntParams(_bulletIntParams, oldDynamicsSettingsMode);
                     getOdeDefaultFloatParams(_odeFloatParams, oldDynamicsSettingsMode);
@@ -2039,7 +2039,7 @@ void CDynamicsContainer::_fixVortexInfVals()
     }
 }
 
-void CDynamicsContainer::getBulletDefaultFloatParams(std::vector<double> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getBulletDefaultFloatParams(std::vector<double>& p, int defType /*=-1*/) const
 {
     p.clear();
     p.push_back(0.005); // simi_bullet_global_stepsize
@@ -2049,7 +2049,7 @@ void CDynamicsContainer::getBulletDefaultFloatParams(std::vector<double> &p, int
     p.push_back(0.0);   // free
 }
 
-void CDynamicsContainer::getBulletDefaultIntParams(std::vector<int> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getBulletDefaultIntParams(std::vector<int>& p, int defType /*=-1*/) const
 {
     p.clear();
     if (defType == -1)
@@ -2066,7 +2066,7 @@ void CDynamicsContainer::getBulletDefaultIntParams(std::vector<int> &p, int defT
     p.push_back(sim_bullet_constraintsolvertype_sequentialimpulse); // simi_bullet_global_constraintsolvertype
 }
 
-void CDynamicsContainer::getOdeDefaultFloatParams(std::vector<double> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getOdeDefaultFloatParams(std::vector<double>& p, int defType /*=-1*/) const
 {
     p.clear();
     p.push_back(0.005);   // simi_bullet_global_stepsize
@@ -2076,7 +2076,7 @@ void CDynamicsContainer::getOdeDefaultFloatParams(std::vector<double> &p, int de
     p.push_back(0.0);     // free
 }
 
-void CDynamicsContainer::getOdeDefaultIntParams(std::vector<int> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getOdeDefaultIntParams(std::vector<int>& p, int defType /*=-1*/) const
 {
     p.clear();
     if (defType == -1)
@@ -2094,7 +2094,7 @@ void CDynamicsContainer::getOdeDefaultIntParams(std::vector<int> &p, int defType
     p.push_back(-1); // simi_ode_global_randomseed
 }
 
-void CDynamicsContainer::getVortexDefaultFloatParams(std::vector<double> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getVortexDefaultFloatParams(std::vector<double>& p, int defType /*=-1*/) const
 {
     p.clear();
     if (defType == -1)
@@ -2115,7 +2115,7 @@ void CDynamicsContainer::getVortexDefaultFloatParams(std::vector<double> &p, int
     p.push_back(0.01);    // RESERVED. used to be auto angular damping tension ratio, not used anymore
 }
 
-void CDynamicsContainer::getVortexDefaultIntParams(std::vector<int> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getVortexDefaultIntParams(std::vector<int>& p, int defType /*=-1*/) const
 {
     p.clear();
     int v = 0;
@@ -2127,14 +2127,14 @@ void CDynamicsContainer::getVortexDefaultIntParams(std::vector<int> &p, int defT
     p.push_back(v); // simi_vortex_global_bitcoded
 }
 
-void CDynamicsContainer::getNewtonDefaultFloatParams(std::vector<double> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getNewtonDefaultFloatParams(std::vector<double>& p, int defType /*=-1*/) const
 {
     p.clear();
     p.push_back(0.005); // simi_newton_global_stepsize
     p.push_back(0.01);  // simi_newton_global_contactmergetolerance
 }
 
-void CDynamicsContainer::getNewtonDefaultIntParams(std::vector<int> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getNewtonDefaultIntParams(std::vector<int>& p, int defType /*=-1*/) const
 {
     p.clear();
     if (defType == -1)
@@ -2152,7 +2152,7 @@ void CDynamicsContainer::getNewtonDefaultIntParams(std::vector<int> &p, int defT
     p.push_back(options); // simi_newton_global_bitcoded
 }
 
-void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<double> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<double>& p, int defType /*=-1*/) const
 {
     p.clear();
     p.push_back(0.005);    // simi_mujoco_global_stepsize
@@ -2174,13 +2174,13 @@ void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<double> &p, int
     p.push_back(2.0);      // simi_mujoco_global_overridesolimp5
     p.push_back(1000.0);   // simi_mujoco_global_kinmass
     p.push_back(1.0);      // simi_mujoco_global_kininertia
-    p.push_back(1e-8);      // simi_mujoco_global_tolerance
-    p.push_back(0.01);      // simi_mujoco_global_ls_tolerance
-    p.push_back(1e-8);      // simi_mujoco_global_noslip_tolerance
-    p.push_back(1e-6);      // simi_mujoco_global_ccd_tolerance
+    p.push_back(1e-8);     // simi_mujoco_global_tolerance
+    p.push_back(0.01);     // simi_mujoco_global_ls_tolerance
+    p.push_back(1e-8);     // simi_mujoco_global_noslip_tolerance
+    p.push_back(1e-6);     // simi_mujoco_global_ccd_tolerance
 }
 
-void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int> &p, int defType /*=-1*/) const
+void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int>& p, int defType /*=-1*/) const
 {
     p.clear();
     int options = 0;
@@ -2199,13 +2199,13 @@ void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int> &p, int defT
     p.push_back(0);                       // simi_mujoco_global_overridekin, do not override
     p.push_back(-1);                      // simi_mujoco_global_nstack (deprecated and not used anymore)
     p.push_back(1 + 2 + 4 + 8 + 16 + 32); // simi_mujoco_global_rebuildtrigger
-    p.push_back(-1); // simi_mujoco_global_mbmemory
-    p.push_back(-1); // simi_mujoco_global_jacobian (auto)
-    p.push_back(50); // simi_mujoco_global_ls_iterations
-    p.push_back(5); // simi_mujoco_global_noslip_iterations
-    p.push_back(50); // simi_mujoco_global_ccd_iterations
-    p.push_back(10); // simi_mujoco_global_sdf_iterations
-    p.push_back(40); // simi_mujoco_global_sdf_initpoints
+    p.push_back(-1);                      // simi_mujoco_global_mbmemory
+    p.push_back(-1);                      // simi_mujoco_global_jacobian (auto)
+    p.push_back(50);                      // simi_mujoco_global_ls_iterations
+    p.push_back(5);                       // simi_mujoco_global_noslip_iterations
+    p.push_back(50);                      // simi_mujoco_global_ccd_iterations
+    p.push_back(10);                      // simi_mujoco_global_sdf_iterations
+    p.push_back(40);                      // simi_mujoco_global_sdf_initpoints
     options = 0;
     options |= simi_mujoco_global_equality | simi_mujoco_global_frictionloss | simi_mujoco_global_limit | simi_mujoco_global_contact;
     options |= simi_mujoco_global_passive | simi_mujoco_global_gravity | simi_mujoco_global_warmstart | simi_mujoco_global_actuation;
@@ -2215,18 +2215,18 @@ void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int> &p, int defT
 }
 
 #ifdef SIM_WITH_GUI
-void CDynamicsContainer::renderYour3DStuff(CViewableBase *renderingObject, int displayAttrib)
+void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject, int displayAttrib)
 { // Has to be displayed as overlay!
     if (isWorldThere())
     {
         if ((displayAttrib & sim_displayattribute_noparticles) == 0)
         {
             int index = 0;
-            float *cols;
+            float* cols;
             int objectType;
             int particlesCount;
             C4X4Matrix m(renderingObject->getFullCumulativeTransformation().getMatrix());
-            void **particlesPointer =
+            void** particlesPointer =
                 App::worldContainer->pluginContainer->dyn_getParticles(index++, &particlesCount, &objectType, &cols);
             while (particlesCount != -1)
             {
@@ -2244,7 +2244,7 @@ void CDynamicsContainer::renderYour3DStuff(CViewableBase *renderingObject, int d
     }
 }
 
-void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase *renderingObject, int displayAttrib)
+void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject, int displayAttrib)
 { // Has to be displayed as overlay!
     if (isWorldThere())
     {
@@ -2256,7 +2256,7 @@ void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase *renderingObjec
                 if (getDisplayContactPoints())
                 {
                     int cnt = 0;
-                    double *pts = App::worldContainer->pluginContainer->dyn_getContactPoints(&cnt);
+                    double* pts = App::worldContainer->pluginContainer->dyn_getContactPoints(&cnt);
 
                     displayContactPoints(displayAttrib, contactPointColor, pts, cnt);
                 }
@@ -2266,7 +2266,7 @@ void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase *renderingObjec
 }
 #endif
 
-void CDynamicsContainer::appendGenesisData(CCbor *ev)
+void CDynamicsContainer::appendGenesisData(CCbor* ev)
 {
     ev->appendKeyBool(propDyn_dynamicsEnabled.name, _dynamicsEnabled);
     ev->appendKeyBool(propDyn_showContactPoints.name, _displayContactPoints);
@@ -2286,14 +2286,14 @@ void CDynamicsContainer::appendGenesisData(CCbor *ev)
     _sendEngineString(ev);
 }
 
-int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
         if (strcmp(pName, propDyn_dynamicsEnabled.name) == 0)
         {
@@ -2311,13 +2311,12 @@ int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* e
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
                 int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
-                if ( (nv != arr[simiIndexBitCoded]) || (pName == nullptr) )
+                if ((nv != arr[simiIndexBitCoded]) || (pName == nullptr))
                 {
                     if (pName != nullptr)
                         arr[simiIndexBitCoded] = nv;
@@ -2368,7 +2367,7 @@ int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* e
         handleProp(propDyn_mujocoNativeccdEnable.name, _mujocoIntParams, simi_mujoco_global_bitcoded2, simi_mujoco_global_nativeccd);
         handleProp(propDyn_mujocoAlignfree.name, _mujocoIntParams, simi_mujoco_global_bitcoded2, simi_mujoco_global_alignfree);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -2597,14 +2596,14 @@ int CDynamicsContainer::getBoolProperty(const char* pName, bool& pState, bool ge
     return retVal;
 }
 
-int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
     }
 
@@ -2612,8 +2611,7 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
@@ -2641,9 +2639,9 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
         handleProp(propDyn_mujocoSolver.name, _mujocoIntParams, simi_mujoco_global_solver);
         handleProp(propDyn_mujocoIterations.name, _mujocoIntParams, simi_mujoco_global_iterations);
         handleProp(propDyn_mujocoRebuildTrigger.name, _mujocoIntParams, simi_mujoco_global_rebuildtrigger);
-        handleProp(propDyn_mujocoNjMax.name, _mujocoIntParams, simi_mujoco_global_njmax); // deprecated
+        handleProp(propDyn_mujocoNjMax.name, _mujocoIntParams, simi_mujoco_global_njmax);     // deprecated
         handleProp(propDyn_mujocoNconMax.name, _mujocoIntParams, simi_mujoco_global_nconmax); // deprecated
-        handleProp(propDyn_mujocoNstack.name, _mujocoIntParams, simi_mujoco_global_nstack); // deprecated
+        handleProp(propDyn_mujocoNstack.name, _mujocoIntParams, simi_mujoco_global_nstack);   // deprecated
         handleProp(propDyn_mujocoCone.name, _mujocoIntParams, simi_mujoco_global_cone);
         handleProp(propDyn_mujocoKinematicBodiesOverrideFlags.name, _mujocoIntParams, simi_mujoco_global_overridekin);
         handleProp(propDyn_mujocoMbMemory.name, _mujocoIntParams, simi_mujoco_global_mbmemory);
@@ -2654,7 +2652,7 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
         handleProp(propDyn_mujocoSdf_iterations.name, _mujocoIntParams, simi_mujoco_global_sdf_iterations);
         handleProp(propDyn_mujocoSdf_initpoints.name, _mujocoIntParams, simi_mujoco_global_sdf_initpoints);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -2810,14 +2808,14 @@ int CDynamicsContainer::getIntProperty(const char* pName, int& pState, bool getD
     return retVal;
 }
 
-int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
         if (strcmp(pName, propDyn_dynamicsStepSize.name) == 0)
         {
@@ -2830,8 +2828,7 @@ int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
@@ -2877,7 +2874,7 @@ int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor
         handleProp(propDyn_mujocoNoslip_tolerance.name, _mujocoFloatParams, simi_mujoco_global_noslip_tolerance);
         handleProp(propDyn_mujocoCcd_tolerance.name, _mujocoFloatParams, simi_mujoco_global_ccd_tolerance);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -3093,14 +3090,14 @@ int CDynamicsContainer::getStringProperty(const char* pName, std::string& pState
     return retVal;
 }
 
-int CDynamicsContainer::setIntArray2Property(const char* pName, const int* pState, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setIntArray2Property(const char* pName, const int* pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
     }
 
@@ -3129,14 +3126,14 @@ int CDynamicsContainer::getIntArray2Property(const char* pName, int* pState, boo
     return retVal;
 }
 
-int CDynamicsContainer::setVector2Property(const char* pName, const double* pState, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setVector2Property(const char* pName, const double* pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
     }
 
@@ -3144,8 +3141,7 @@ int CDynamicsContainer::setVector2Property(const char* pName, const double* pSta
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
@@ -3155,7 +3151,7 @@ int CDynamicsContainer::setVector2Property(const char* pName, const double* pSta
                     for (size_t i = 0; i < 2; i++)
                         pa = pa || ((pState != nullptr) && (arr[simiIndex1 + i] != pState[i]));
                 }
-                if ( (pName == nullptr) || pa )
+                if ((pName == nullptr) || pa)
                 {
                     if (pName != nullptr)
                     {
@@ -3174,9 +3170,9 @@ int CDynamicsContainer::setVector2Property(const char* pName, const double* pSta
             }
         };
 
-//        handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1);
+        //        handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -3219,29 +3215,28 @@ int CDynamicsContainer::getVector2Property(const char* pName, double* pState, bo
             newtonFloatParams = __newtonFloatParams.data();
             mujocoFloatParams = __mujocoFloatParams.data();
         }
-        auto handleProp = [&](const double* arr, int simiIndex1)
-        {
+        auto handleProp = [&](const double* arr, int simiIndex1) {
             retVal = 1;
             for (size_t i = 0; i < 2; i++)
                 pState[i] = arr[simiIndex1 + i];
         };
 
-//        if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
-//            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1);
+        //        if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
+        //            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1);
     }
     // ------------------------
 
     return retVal;
 }
 
-int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
         if (strcmp(pName, propDyn_gravity.name) == 0)
         {
@@ -3254,15 +3249,14 @@ int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pS
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
                 bool pa = false;
                 for (size_t i = 0; i < 3; i++)
                     pa = pa || ((pState != nullptr) && (arr[simiIndex1 + i] != pState->data[i]));
-                if ( (pName == nullptr) || pa )
+                if ((pName == nullptr) || pa)
                 {
                     if (pName != nullptr)
                     {
@@ -3283,7 +3277,7 @@ int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pS
 
         handleProp(propDyn_mujocoWind.name, _mujocoFloatParams, simi_mujoco_global_wind1);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -3331,8 +3325,7 @@ int CDynamicsContainer::getVector3Property(const char* pName, C3Vector& pState, 
             newtonFloatParams = __newtonFloatParams.data();
             mujocoFloatParams = __mujocoFloatParams.data();
         }
-        auto handleProp = [&](const double* arr, int simiIndex1)
-        {
+        auto handleProp = [&](const double* arr, int simiIndex1) {
             retVal = 1;
             for (size_t i = 0; i < 3; i++)
                 pState(i) = arr[simiIndex1 + i];
@@ -3346,14 +3339,14 @@ int CDynamicsContainer::getVector3Property(const char* pName, C3Vector& pState, 
     return retVal;
 }
 
-int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev /* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ( (eev == nullptr) && (pName != nullptr) )
+    if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
     }
 
@@ -3361,15 +3354,14 @@ int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v
     {
         // Following only for engine properties:
         // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n)
-        {
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n) {
             if ((pName == nullptr) || (propertyName == pName))
             {
                 retVal = 1;
                 bool pa = false;
                 for (size_t i = 0; i < n; i++)
                     pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
-                if ( (pName == nullptr) || pa )
+                if ((pName == nullptr) || pa)
                 {
                     if (pName != nullptr)
                     {
@@ -3394,7 +3386,7 @@ int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v
         handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
         handleProp(propDyn_mujocoContactParamsSolimp.name, _mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
 
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
         // -------------------------------------
     }
@@ -3445,8 +3437,7 @@ int CDynamicsContainer::getFloatArrayProperty(const char* pName, std::vector<dou
             newtonFloatParams = __newtonFloatParams.data();
             mujocoFloatParams = __mujocoFloatParams.data();
         }
-        auto handleProp = [&](const double* arr, int simiIndex1, size_t n)
-        {
+        auto handleProp = [&](const double* arr, int simiIndex1, size_t n) {
             retVal = 1;
             for (size_t i = 0; i < n; i++)
                 pState.push_back(arr[simiIndex1 + i]);
@@ -3503,7 +3494,7 @@ int CDynamicsContainer::getPropertyName(int& index, std::string& pName) const
     int retVal = -1;
     for (size_t i = 0; i < allProps_dyn.size(); i++)
     {
-        if ( (pName.size() == 0) || utils::startsWith(allProps_dyn[i].name, pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith(allProps_dyn[i].name, pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -3526,7 +3517,7 @@ int CDynamicsContainer::getPropertyInfo(const char* pName, int& info, std::strin
         {
             retVal = allProps_dyn[i].type;
             info = allProps_dyn[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_dyn[i].infoTxt, "") != 0) )
+            if ((infoTxt == "") && (strcmp(allProps_dyn[i].infoTxt, "") != 0))
                 infoTxt = allProps_dyn[i].infoTxt;
             else
                 infoTxt = allProps_dyn[i].shortInfoTxt;
@@ -3548,7 +3539,7 @@ void CDynamicsContainer::_sendEngineString(CCbor* eev /*= nullptr*/)
         if (ev == nullptr)
             ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_engineProperties.name, true);
         ev->appendKeyText(propDyn_engineProperties.name, current.c_str());
-        if ( (ev != nullptr) && (eev == nullptr) )
+        if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
     }
 }
@@ -3567,11 +3558,11 @@ std::string CDynamicsContainer::_enumToProperty(int oldEnum, int type, int& inde
             {
                 if (type == allProps_dyn[i].type)
                 {
-                    if ( (j > 0) || (allProps_dyn[i].oldEnums[j + 1] != -1) )
+                    if ((j > 0) || (allProps_dyn[i].oldEnums[j + 1] != -1))
                         indexWithArrays = int(j);
                     else
                         indexWithArrays = -1;
-                    retVal =  allProps_dyn[i].name;
+                    retVal = allProps_dyn[i].name;
                 }
                 break;
             }

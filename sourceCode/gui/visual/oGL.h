@@ -66,9 +66,9 @@ class ogl
     static void disableLighting_useWithCare();
     static void enableLighting_useWithCare();
 
-    static void drawRandom3dLines(const double *pts, int ptsCnt, bool connected,
+    static void drawRandom3dLines(const double* pts, int ptsCnt, bool connected,
                                   const double normalVectorForDiffuseComp[3]);
-    static inline void drawSingle3dPoint(const double *pt, const double normalVectorForDiffuseComp[3])
+    static inline void drawSingle3dPoint(const double* pt, const double normalVectorForDiffuseComp[3])
     {
         glBegin(GL_POINTS);
         if (normalVectorForDiffuseComp != nullptr)
@@ -78,7 +78,7 @@ class ogl
         glVertex3dv(pt);
         glEnd();
     };
-    static inline void drawSingle3dLine(const double *pt1, const double *pt2,
+    static inline void drawSingle3dLine(const double* pt1, const double* pt2,
                                         const double normalVectorForDiffuseComp[3])
     {
         glBegin(GL_LINES);
@@ -111,19 +111,19 @@ class ogl
         glEnd();
     };
 
-    static void drawRandom3dPoints(const double *pts, int ptsCnt, const double normalVectorForDiffuseComp[3]);
-    static void drawRandom3dPointsEx(const double *pts, int ptsCnt, const double *normals, const float *cols,
-                                     const double *sizes, bool colsAreEmission,
+    static void drawRandom3dPoints(const double* pts, int ptsCnt, const double normalVectorForDiffuseComp[3]);
+    static void drawRandom3dPointsEx(const double* pts, int ptsCnt, const double* normals, const float* cols,
+                                     const double* sizes, bool colsAreEmission,
                                      const double normalVectorForDiffuseComp[3], int colComp = 4);
-    static void drawBitmapTextTo3dPosition(const double pos[3], const char *txt,
+    static void drawBitmapTextTo3dPosition(const double pos[3], const char* txt,
                                            const double normalVectorForDiffuseComp[3]);
-    static void drawBitmapTextTo3dPosition(double x, double y, double z, const char *txt,
+    static void drawBitmapTextTo3dPosition(double x, double y, double z, const char* txt,
                                            const double normalVectorForDiffuseComp[3]);
 
-    static void drawRandom2dLines(const double *pts, int ptsCnt, bool connected, double zCoord);
-    static void drawRandom2dLines_i(const int *pts, int ptsCnt, bool connected, int zCoord);
-    static void drawRandom2dPoints(const double *pts, int ptsCnt, double zCoord);
-    static void drawBitmapTextTo2dPosition(double posX, double posY, const char *txt);
+    static void drawRandom2dLines(const double* pts, int ptsCnt, bool connected, double zCoord);
+    static void drawRandom2dLines_i(const int* pts, int ptsCnt, bool connected, int zCoord);
+    static void drawRandom2dPoints(const double* pts, int ptsCnt, double zCoord);
+    static void drawBitmapTextTo2dPosition(double posX, double posY, const char* txt);
 
     static void drawPlane(double sizeX, double sizeY);
     static void drawBox(double x, double y, double z, bool solid, const double normalVectorForDiffuseComp[3]);
@@ -147,28 +147,28 @@ class ogl
     static void drawQuad(int posX, int posY, int sizeX, int sizeY, float col[3]);
     static void drawBorder(int posX, int posY, int sizeX, int sizeY, float col[3], int type, int borderSize = 3);
 
-    static void drawOutlineText(const char *txt, const C7Vector &trOrig, double textHeight,
-                                const C4X4Matrix *cameraAbsConfig, bool overlay, bool left, bool right, bool culling,
-                                const float *textColor, const float *backColor = nullptr, bool sizeInPixels = false,
+    static void drawOutlineText(const char* txt, const C7Vector& trOrig, double textHeight,
+                                const C4X4Matrix* cameraAbsConfig, bool overlay, bool left, bool right, bool culling,
+                                const float* textColor, const float* backColor = nullptr, bool sizeInPixels = false,
                                 int windowHeight = 0, double verticalViewSizeOrAngle = 0.0, bool perspective = true,
                                 bool fullyFacingCamera = true);
     static void drawText(int posX, int posY, int posZ, std::string txt, bool verticallyCentered = false);
     static void drawBitmapTextBackgroundIntoScene(double posX, double posY, double posZ, std::string txt);
-    static void drawBitmapTextIntoScene(double posX, double posY, double posZ, const char *txt);
+    static void drawBitmapTextIntoScene(double posX, double posY, double posZ, const char* txt);
     static void drawTexti(int posX, int posY, int posZ, std::string txt);
     //  static void drawCenteredText(int posX,int posY,int posZ,std::string txt,bool verticallyCentered=false);
-    static int getTextLengthInPixels(const char *txt);
-    static std::string getTextThatFitIntoPixelWidth(std::vector<std::string> &separateWords, std::vector<int> &widths,
-                                                    int spaceWidth, int pixelWidth, int &textCharCount_pixelWidth,
+    static int getTextLengthInPixels(const char* txt);
+    static std::string getTextThatFitIntoPixelWidth(std::vector<std::string>& separateWords, std::vector<int>& widths,
+                                                    int spaceWidth, int pixelWidth, int& textCharCount_pixelWidth,
                                                     bool allowWordCut);
-    static int getSeparateWords(const char *txt, std::vector<std::string> &separateWords);
-    static int getSeparateWordWidths(const std::vector<std::string> &separateWords, std::vector<int> &widths);
+    static int getSeparateWords(const char* txt, std::vector<std::string>& separateWords);
+    static int getSeparateWordWidths(const std::vector<std::string>& separateWords, std::vector<int>& widths);
     static int getFontHeight();
     static int getFontCharWidth(unsigned char c);
     static int getInterline();
 
-    static void loadBitmapFont(const unsigned char *fontData, int fontHeight, int theFontIndex);
-    static void loadOutlineFont(const int *fontData, const float *fontVertices);
+    static void loadBitmapFont(const unsigned char* fontData, int fontHeight, int theFontIndex);
+    static void loadOutlineFont(const int* fontData, const float* fontVertices);
 
     static void freeBitmapFonts();
     static void freeOutlineFont();
@@ -177,11 +177,11 @@ class ogl
     static void drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1[3], float _bckgrndColor2[3],
                            std::string text, int buttonTypeAndAttributes, bool editing, int editionPos,
                            double sliderPos, bool vertical, int timeInMs, float secondTextColor[3],
-                           CTextureProperty *backgroundTexture, VPoint *backgroundPos, VPoint *backgroundSize,
-                           CTextureProperty *foregroundTexture);
+                           CTextureProperty* backgroundTexture, VPoint* backgroundPos, VPoint* backgroundSize,
+                           CTextureProperty* foregroundTexture);
 
-    static int getRichTextInfo(std::string &text, std::vector<int> &iconsAndPos);
-    static void drawRichText(int posX, int posY, int size, std::string &text, std::vector<int> &iconsAndPos,
+    static int getRichTextInfo(std::string& text, std::vector<int>& iconsAndPos);
+    static void drawRichText(int posX, int posY, int size, std::string& text, std::vector<int>& iconsAndPos,
                              int alignement, float backgroundColor[3], float secondTextColor[3]);
     static void drawRichTextIcon(int centerPosX, int centerPosY, int size, int icon);
 

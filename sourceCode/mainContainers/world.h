@@ -46,10 +46,10 @@ class CWorld
     int getWorldHandle() const;
     void setWorldHandle(int handle);
 
-    bool loadScene(CSer &ar, bool forUndoRedoOperation);
-    void saveScene(CSer &ar);
-    bool loadModel(CSer &ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector *optionalModelTr,
-                   C3Vector *optionalModelBoundingBoxSize, double *optionalModelNonDefaultTranslationStepSize);
+    bool loadScene(CSer& ar, bool forUndoRedoOperation);
+    void saveScene(CSer& ar);
+    bool loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr,
+                   C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize);
 
     void simulationAboutToStart();
     void simulationPaused();
@@ -58,28 +58,28 @@ class CWorld
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
 
-    void addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject *> *loadedObjectList,
-                                                    std::vector<CCollection *> *loadedCollectionList,
-                                                    std::vector<CCollisionObject_old *> *loadedCollisionList,
-                                                    std::vector<CDistanceObject_old *> *loadedDistanceList,
-                                                    std::vector<CIkGroup_old *> *loadedIkGroupList,
-                                                    std::vector<CPathPlanningTask *> *loadedPathPlanningTaskList,
-                                                    std::vector<CButtonBlock *> *loadedButtonBlockList,
-                                                    std::vector<CScriptObject *> *loadedLuaScriptList,
-                                                    std::vector<CTextureObject *> &loadedTextureObjectList,
-                                                    std::vector<CDynMaterialObject *> &loadedDynMaterialObjectList,
+    void addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
+                                                    std::vector<CCollection*>* loadedCollectionList,
+                                                    std::vector<CCollisionObject_old*>* loadedCollisionList,
+                                                    std::vector<CDistanceObject_old*>* loadedDistanceList,
+                                                    std::vector<CIkGroup_old*>* loadedIkGroupList,
+                                                    std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
+                                                    std::vector<CButtonBlock*>* loadedButtonBlockList,
+                                                    std::vector<CScriptObject*>* loadedLuaScriptList,
+                                                    std::vector<CTextureObject*>& loadedTextureObjectList,
+                                                    std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
                                                     bool model, int fileSimVersion, bool forceModelAsCopy);
 
     void cleanupHashNames_allObjects(int suffix);
 
-    void announceObjectWillBeErased(const CSceneObject *object);
+    void announceObjectWillBeErased(const CSceneObject* object);
     void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
-    CScriptObject *getScriptObjectFromHandle(int scriptHandle) const;
-    CScriptObject *getScriptObjectFromUid(int uid) const;
+    CScriptObject* getScriptObjectFromHandle(int scriptHandle) const;
+    CScriptObject* getScriptObjectFromUid(int uid) const;
     void getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
-    void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
+    void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
 
     void pushGenesisEvents();
 
@@ -123,52 +123,52 @@ class CWorld
     void announce2DElementWillBeErased(int elementID);
     void announce2DElementButtonWillBeErased(int elementID, int buttonID);
 
-    static void appendLoadOperationIssue(int verbosity, const char *text, int objectId);
-    static int getLoadingMapping(const std::map<int, int> *map, int oldVal);
+    static void appendLoadOperationIssue(int verbosity, const char* text, int objectId);
+    static int getLoadingMapping(const std::map<int, int>* map, int oldVal);
 
-    CUndoBufferCont *undoBufferContainer;
-    CDynamicsContainer *dynamicsContainer;
-    CEnvironment *environment;
-    CPageContainer *pageContainer;
-    CTextureContainer *textureContainer;
-    CSimulation *simulation;
+    CUndoBufferCont* undoBufferContainer;
+    CDynamicsContainer* dynamicsContainer;
+    CEnvironment* environment;
+    CPageContainer* pageContainer;
+    CTextureContainer* textureContainer;
+    CSimulation* simulation;
     CCustomData customSceneData;
     CCustomData customSceneData_volatile; // same as above, but not serialized! (scene-level signals)
-    CCacheCont *cacheData;
-    CDrawingContainer *drawingCont;
-    CCollectionContainer *collections;
-    CSceneObjectContainer *sceneObjects;
+    CCacheCont* cacheData;
+    CDrawingContainer* drawingCont;
+    CCollectionContainer* collections;
+    CSceneObjectContainer* sceneObjects;
 
     // Old:
-    CMainSettings *mainSettings_old;
-    CCustomData_old *customSceneData_old;
-    CDistanceObjectContainer_old *distances_old;
-    CCollisionObjectContainer_old *collisions_old;
-    CIkGroupContainer *ikGroups_old;
-    CRegisteredPathPlanningTasks *pathPlanning_old;
-    CPointCloudContainer_old *pointCloudCont_old;
-    CGhostObjectContainer *ghostObjectCont_old;
-    CCommTubeContainer *commTubeContainer_old;
-    CBannerContainer *bannerCont_old;
-    COutsideCommandQueue *outsideCommandQueue_old;
-    CButtonBlockContainer *buttonBlockContainer_old;
+    CMainSettings* mainSettings_old;
+    CCustomData_old* customSceneData_old;
+    CDistanceObjectContainer_old* distances_old;
+    CCollisionObjectContainer_old* collisions_old;
+    CIkGroupContainer* ikGroups_old;
+    CRegisteredPathPlanningTasks* pathPlanning_old;
+    CPointCloudContainer_old* pointCloudCont_old;
+    CGhostObjectContainer* ghostObjectCont_old;
+    CCommTubeContainer* commTubeContainer_old;
+    CBannerContainer* bannerCont_old;
+    COutsideCommandQueue* outsideCommandQueue_old;
+    CButtonBlockContainer* buttonBlockContainer_old;
 
   private:
-    bool _loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy,
-                           C7Vector *optionalModelTr, C3Vector *optionalModelBoundingBoxSize,
-                           double *optionalModelNonDefaultTranslationStepSize);
-    bool _loadSimpleXmlSceneOrModel(CSer &ar);
-    bool _saveSimpleXmlScene(CSer &ar);
+    bool _loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy,
+                           C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize,
+                           double* optionalModelNonDefaultTranslationStepSize);
+    bool _loadSimpleXmlSceneOrModel(CSer& ar);
+    bool _saveSimpleXmlScene(CSer& ar);
 
-    void _getMinAndMaxNameSuffixes(int &smallestSuffix, int &biggestSuffix) const;
-    int _getSuffixOffsetForGeneralObjectToAdd(bool tempNames, std::vector<CSceneObject *> *loadedObjectList,
-                                              std::vector<CCollection *> *loadedCollectionList,
-                                              std::vector<CCollisionObject_old *> *loadedCollisionList,
-                                              std::vector<CDistanceObject_old *> *loadedDistanceList,
-                                              std::vector<CIkGroup_old *> *loadedIkGroupList,
-                                              std::vector<CPathPlanningTask *> *loadedPathPlanningTaskList,
-                                              std::vector<CButtonBlock *> *loadedButtonBlockList,
-                                              std::vector<CScriptObject *> *loadedLuaScriptList) const;
+    void _getMinAndMaxNameSuffixes(int& smallestSuffix, int& biggestSuffix) const;
+    int _getSuffixOffsetForGeneralObjectToAdd(bool tempNames, std::vector<CSceneObject*>* loadedObjectList,
+                                              std::vector<CCollection*>* loadedCollectionList,
+                                              std::vector<CCollisionObject_old*>* loadedCollisionList,
+                                              std::vector<CDistanceObject_old*>* loadedDistanceList,
+                                              std::vector<CIkGroup_old*>* loadedIkGroupList,
+                                              std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
+                                              std::vector<CButtonBlock*>* loadedButtonBlockList,
+                                              std::vector<CScriptObject*>* loadedLuaScriptList) const;
     bool _canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
     void _setSuffix1ToSuffix2(int suffix1, int suffix2);
 
@@ -180,13 +180,13 @@ class CWorld
 
 #ifdef SIM_WITH_GUI
   public:
-    void renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase *renderingObject, int displayAttrib,
+    void renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject, int displayAttrib,
                                                              int windowSize[2], double verticalViewSizeOrAngle,
                                                              bool perspective);
-    void renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase *renderingObject, int displayAttrib,
+    void renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject, int displayAttrib,
                                                             int windowSize[2], double verticalViewSizeOrAngle,
                                                             bool perspective);
-    void renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase *renderingObject, int displayAttrib,
+    void renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject, int displayAttrib,
                                                               int windowSize[2], double verticalViewSizeOrAngle,
                                                               bool perspective);
 #endif

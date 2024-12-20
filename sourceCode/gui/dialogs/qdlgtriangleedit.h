@@ -14,7 +14,7 @@ class CQDlgTriangleEdit : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgTriangleEdit(QWidget *parent = 0);
+    explicit CQDlgTriangleEdit(QWidget* parent = 0);
     ~CQDlgTriangleEdit();
 
     void refresh();
@@ -39,7 +39,7 @@ class CQDlgTriangleEdit : public CDlgEx
     void on_qqInvertSelection_clicked();
 
   private:
-    Ui::CQDlgTriangleEdit *ui;
+    Ui::CQDlgTriangleEdit* ui;
 };
 
 #endif // QDLGTRIANGLEEDIT_H

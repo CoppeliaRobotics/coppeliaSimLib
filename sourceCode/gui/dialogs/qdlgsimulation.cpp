@@ -8,7 +8,8 @@
 #include <guiApp.h>
 #endif
 
-CQDlgSimulation::CQDlgSimulation(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgSimulation)
+CQDlgSimulation::CQDlgSimulation(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgSimulation)
 {
     _dlgType = SIMULATION_DLG;
     ui->setupUi(this);
@@ -23,7 +24,7 @@ CQDlgSimulation::~CQDlgSimulation()
 void CQDlgSimulation::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
     bool noEditModeNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
 

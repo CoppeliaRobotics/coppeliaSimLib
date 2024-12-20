@@ -110,7 +110,7 @@ void CMill::removeSceneDependencies()
     _millableObject = -1;
 }
 
-void CMill::addSpecializedObjectEventData(CCbor *ev)
+void CMill::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -118,9 +118,9 @@ void CMill::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-CSceneObject *CMill::copyYourself()
+CSceneObject* CMill::copyYourself()
 {
-    CMill *newMill = (CMill *)CSceneObject::copyYourself();
+    CMill* newMill = (CMill*)CSceneObject::copyYourself();
 
     newMill->_millableObject = _millableObject;
     newMill->_milledSurface = _milledSurface;
@@ -144,7 +144,7 @@ CSceneObject *CMill::copyYourself()
     return (newMill);
 }
 
-void CMill::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CMill::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
@@ -175,37 +175,37 @@ void CMill::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CMill::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMill::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
     if (_millableObject <= SIM_IDEND_SCENEOBJECT)
         _millableObject = CWorld::getLoadingMapping(map, _millableObject);
 }
-void CMill::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMill::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
     if (_millableObject > SIM_IDEND_SCENEOBJECT)
         _millableObject = CWorld::getLoadingMapping(map, _millableObject);
 }
-void CMill::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMill::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
-void CMill::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMill::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
-void CMill::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMill::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
 
-void CMill::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CMill::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CMill::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CMill::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -223,8 +223,8 @@ void CMill::simulationAboutToStart()
 }
 
 void CMill::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
@@ -236,7 +236,7 @@ void CMill::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-void CMill::serialize(CSer &ar)
+void CMill::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -434,7 +434,7 @@ void CMill::serialize(CSer &ar)
     }
 }
 
-bool CMill::getMillingVolumeBoundingBox(C3Vector &minV, C3Vector &maxV) const
+bool CMill::getMillingVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) const
 {
     return (convexVolume->getVolumeBoundingBox(minV, maxV));
 }
@@ -462,7 +462,7 @@ void CMill::resetMill(bool exceptExplicitHandling)
     }
 }
 
-int CMill::handleMill(bool exceptExplicitHandling, double &milledSurface, double &milledVolume,
+int CMill::handleMill(bool exceptExplicitHandling, double& milledSurface, double& milledVolume,
                       bool justForInitialization)
 {
     if (exceptExplicitHandling && getExplicitHandling())
@@ -499,7 +499,7 @@ bool CMill::getMillDataIsValid() const
     return (_millDataValid);
 }
 
-CColorObject *CMill::getColor(bool getActiveColor)
+CColorObject* CMill::getColor(bool getActiveColor)
 {
     if (getActiveColor)
         return (&activeVolumeColor);
@@ -516,7 +516,7 @@ double CMill::getSize() const
     return (_size);
 }
 
-bool CMill::getMilledSurface(double &surf) const
+bool CMill::getMilledSurface(double& surf) const
 {
     if (!_millDataValid)
         return (false);
@@ -524,7 +524,7 @@ bool CMill::getMilledSurface(double &surf) const
     return (true);
 }
 
-bool CMill::getMilledVolume(double &vol) const
+bool CMill::getMilledVolume(double& vol) const
 {
     if (!_millDataValid)
         return (false);
@@ -532,7 +532,7 @@ bool CMill::getMilledVolume(double &vol) const
     return (true);
 }
 
-bool CMill::getMilledCount(int &milledCount) const
+bool CMill::getMilledCount(int& milledCount) const
 {
     if (!_millDataValid)
         return (false);
@@ -566,7 +566,7 @@ int CMill::getMillType() const
 }
 
 #ifdef SIM_WITH_GUI
-void CMill::display(CViewableBase *renderingObject, int displayAttrib)
+void CMill::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayMill(this, renderingObject, displayAttrib);
 }

@@ -70,7 +70,7 @@ void CViewSelector::render()
     // Compute grid size
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
         if ((it->getObjectType() == sim_sceneobject_camera) &&
             ((objectType == CAMERA_VIEW_SELECT_MODE) || (objectType == VIEWABLE_VIEW_SELECT_MODE)))
         {
@@ -133,7 +133,7 @@ void CViewSelector::render()
             if ((l + viewSelectionSize[0] * k) < int(viewSelectionBuffer.size()))
             {
                 glEnable(GL_SCISSOR_TEST);
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(
                     viewSelectionBuffer[l + viewSelectionSize[0] * k]);
 
                 if (mouseOver == l + viewSelectionSize[0] * k)
@@ -202,14 +202,14 @@ void CViewSelector::render()
                     bool savedGlobalRefState = App::userSettings->displayWorldReference;
                     App::userSettings->displayWorldReference = false;
                     if (it->getObjectType() == sim_sceneobject_camera)
-                        ((CCamera *)it)->lookIn(tns, nullptr);
+                        ((CCamera*)it)->lookIn(tns, nullptr);
                     //                    if (it->getObjectType()==sim_sceneobject_graph)
                     //                        ((CGraph*)it)->lookAt(tns,nullptr,timeGraph,false,true,false);
                     if (it->getObjectType() == sim_sceneobject_visionsensor)
                     {
                         int xxx[2] = {tnd[0] + l * (tns[0] + tnd[0]) + viewPosition[0],
                                       viewPosition[1] + viewSize[1] - (k + 1) * (tns[1] + tnd[1])};
-                        ((CVisionSensor *)it)->lookAt(nullptr, xxx, tns);
+                        ((CVisionSensor*)it)->lookAt(nullptr, xxx, tns);
                     }
                     App::userSettings->displayWorldReference = savedGlobalRefState;
                 }
@@ -333,7 +333,7 @@ void CViewSelector::leftMouseButtonUp(int x, int y)
     }
 }
 
-CSceneObject *CViewSelector::getViewableObject(int x, int y)
+CSceneObject* CViewSelector::getViewableObject(int x, int y)
 {
     int pos[2] = {x, y};
     int ind = getObjectIndexInViewSelection(pos);
@@ -363,7 +363,7 @@ bool CViewSelector::rightMouseButtonDown(int x, int y)
     return (false); // Not processed yet!
 }
 
-void CViewSelector::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow)
+void CViewSelector::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow)
 {
 }
 
@@ -382,11 +382,11 @@ bool CViewSelector::processCommand(int commandID, int subViewIndex)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CSPage *view =
+            CSPage* view =
                 App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
             if (view == nullptr)
                 return (true);
-            CSView *subView = view->getView(size_t(subViewIndex));
+            CSView* subView = view->getView(size_t(subViewIndex));
             if (subView == nullptr)
                 return (true);
             int cameraNb = (int)App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera);

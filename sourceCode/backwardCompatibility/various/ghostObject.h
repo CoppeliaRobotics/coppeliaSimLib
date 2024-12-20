@@ -11,7 +11,7 @@ class CGhostObject
     virtual ~CGhostObject();
 
     void modifyAttributes(int theOptions, int theOptionsMask);
-    CGhostObject *copyYourself();
+    CGhostObject* copyYourself();
 
     int groupId;
     int ghostId;

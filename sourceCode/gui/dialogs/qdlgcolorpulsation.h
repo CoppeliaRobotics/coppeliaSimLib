@@ -15,7 +15,7 @@ class CQDlgColorPulsation : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgColorPulsation(QWidget *parent = 0);
+    explicit CQDlgColorPulsation(QWidget* parent = 0);
     ~CQDlgColorPulsation();
 
     void cancelEvent();
@@ -47,7 +47,7 @@ class CQDlgColorPulsation : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    Ui::CQDlgColorPulsation *ui;
+    Ui::CQDlgColorPulsation* ui;
 };
 
 #endif // QDLGCOLORPULSATION_H

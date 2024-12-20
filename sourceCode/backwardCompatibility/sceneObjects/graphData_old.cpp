@@ -160,22 +160,22 @@ std::string CGraphData_old::getName() const
     return (name);
 }
 
-void CGraphData_old::performObjectLoadingMapping(const std::map<int, int> *map)
+void CGraphData_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     if ((dataType > GRAPH_SCENEOBJECT_START) && (dataType < GRAPH_SCENEOBJECT_END))
         dataObjectID = CWorld::getLoadingMapping(map, dataObjectID);
 }
-void CGraphData_old::performCollisionLoadingMapping(const std::map<int, int> *map)
+void CGraphData_old::performCollisionLoadingMapping(const std::map<int, int>* map)
 {
     if ((dataType > GRAPH_COLLISION_START) && (dataType < GRAPH_COLLISION_END))
         dataObjectID = CWorld::getLoadingMapping(map, dataObjectID);
 }
-void CGraphData_old::performDistanceLoadingMapping(const std::map<int, int> *map)
+void CGraphData_old::performDistanceLoadingMapping(const std::map<int, int>* map)
 {
     if ((dataType > GRAPH_DISTANCE_START) && (dataType < GRAPH_DISTANCE_END))
         dataObjectID = CWorld::getLoadingMapping(map, dataObjectID);
 }
-void CGraphData_old::performIkLoadingMapping(const std::map<int, int> *map)
+void CGraphData_old::performIkLoadingMapping(const std::map<int, int>* map)
 {
     if ((dataType > GRAPH_IK_START) && (dataType < GRAPH_IK_END))
         dataObjectID = CWorld::getLoadingMapping(map, dataObjectID);
@@ -228,7 +228,7 @@ bool CGraphData_old::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer
 }
 
 void CGraphData_old::setValueDirect(int absIndex, double theValue, bool firstValue, bool cyclic, double range,
-                                    const std::vector<double> &times)
+                                    const std::vector<double>& times)
 {
     _floatData[absIndex] = theValue;
     _floatDataValidFlags[absIndex / 8] |= (1 << (absIndex & 7)); // valid data
@@ -341,8 +341,8 @@ void CGraphData_old::setValueDirect(int absIndex, double theValue, bool firstVal
     }
 }
 
-void CGraphData_old::setValue(const C7Vector *graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
-                              const std::vector<double> &times)
+void CGraphData_old::setValue(const C7Vector* graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
+                              const std::vector<double>& times)
 {
     bool dataIsOkay = false;
     double theValue;
@@ -370,7 +370,7 @@ void CGraphData_old::setValue(const C7Vector *graphCTM, int absIndex, bool first
     }
 }
 
-bool CGraphData_old::getValue(int absIndex, double &v) const
+bool CGraphData_old::getValue(int absIndex, double& v) const
 {
     if (getValueRaw(absIndex, v))
     {
@@ -380,7 +380,7 @@ bool CGraphData_old::getValue(int absIndex, double &v) const
     return (false); // invalid data
 }
 
-bool CGraphData_old::getValueRaw(int absIndex, double &v) const
+bool CGraphData_old::getValueRaw(int absIndex, double& v) const
 { // isValid can be null;
     v = _transformedFloatData[absIndex];
     return ((_transformedFloatDataValidFlags[absIndex / 8] & (1 << (absIndex & 7))) != 0);
@@ -424,9 +424,9 @@ void CGraphData_old::resetData(int bufferSize)
     clearUserData();
 }
 
-CGraphData_old *CGraphData_old::copyYourself()
+CGraphData_old* CGraphData_old::copyYourself()
 { // We copy everything, even the name and the identifier
-    CGraphData_old *newObj = new CGraphData_old(dataType, dataObjectID, dataObjectAuxID);
+    CGraphData_old* newObj = new CGraphData_old(dataType, dataObjectID, dataObjectAuxID);
     newObj->zoomFactor = zoomFactor;
     newObj->addCoeff = addCoeff;
     newObj->_movingAverageCount = _movingAverageCount;
@@ -446,9 +446,9 @@ CGraphData_old *CGraphData_old::copyYourself()
     return (newObj);
 }
 
-void CGraphData_old::serialize(CSer &ar, void *it)
+void CGraphData_old::serialize(CSer& ar, void* it)
 {
-    CGraph *cg = (CGraph *)it;
+    CGraph* cg = (CGraph*)it;
     if (ar.isBinary())
     {
         if (ar.isStoring())

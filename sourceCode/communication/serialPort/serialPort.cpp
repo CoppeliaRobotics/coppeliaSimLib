@@ -34,7 +34,7 @@ bool CSerialPort::wasOpenedFromAScript()
     return (_wasOpenedFromAScript);
 }
 
-bool CSerialPort::open(const char *portString, int nBaud)
+bool CSerialPort::open(const char* portString, int nBaud)
 {
     _portHandle = serialOpen(portString, nBaud);
     return (_portHandle >= 0);
@@ -47,7 +47,7 @@ bool CSerialPort::close()
     return (false);
 }
 
-int CSerialPort::sendData(const char *buffer, int size)
+int CSerialPort::sendData(const char* buffer, int size)
 {
     if (_portHandle >= 0)
         return (serialWrite(_portHandle, buffer, size));
@@ -61,9 +61,9 @@ int CSerialPort::readDataWaiting(void)
     return (0);
 }
 
-int CSerialPort::readData(void *buffer, int limit)
+int CSerialPort::readData(void* buffer, int limit)
 {
     if (_portHandle >= 0)
-        return (serialRead(_portHandle, (char *)buffer, limit));
+        return (serialRead(_portHandle, (char*)buffer, limit));
     return (0);
 }

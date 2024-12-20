@@ -6,16 +6,16 @@
 #include <tt.h>
 #include <guiApp.h>
 
-CQDlgUserParameters::CQDlgUserParameters(QWidget *parent)
+CQDlgUserParameters::CQDlgUserParameters(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgUserParameters)
 {
     ui->setupUi(this);
     inSelectionRoutine = false;
-    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+    QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    QShortcut *shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
+    QShortcut* shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(shortcut2, SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    CEditBoxDelegate *delegate = new CEditBoxDelegate();
+    CEditBoxDelegate* delegate = new CEditBoxDelegate();
     ui->qqParameterList->setItemDelegate(delegate);
 }
 
@@ -54,7 +54,7 @@ void CQDlgUserParameters::refreshPart2()
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqAddNew->setEnabled(noEditModeAndNoSim);
-    CUserParameters *it = object->getUserScriptParameterObject();
+    CUserParameters* it = object->getUserScriptParameterObject();
     int selectedObjectID = getSelectedObjectID();
 
     bool sel = (selectedObjectID >= 0) && (selectedObjectID < int(it->userParamEntries.size()));
@@ -85,7 +85,7 @@ void CQDlgUserParameters::refreshPart2()
 
 void CQDlgUserParameters::on_qqAddNew_clicked()
 {
-    CUserParameters *p = object->getUserScriptParameterObject();
+    CUserParameters* p = object->getUserScriptParameterObject();
     std::string name("defaultVariableName");
     std::string dummy;
     while (p->getParameterValue(name.c_str(), dummy))
@@ -96,12 +96,12 @@ void CQDlgUserParameters::on_qqAddNew_clicked()
     refresh();
 }
 
-void CQDlgUserParameters::on_qqParameterList_itemChanged(QListWidgetItem *item)
+void CQDlgUserParameters::on_qqParameterList_itemChanged(QListWidgetItem* item)
 {
     if (item != nullptr)
     {
         std::string newName(item->text().toStdString());
-        CUserParameters *it = object->getUserScriptParameterObject();
+        CUserParameters* it = object->getUserScriptParameterObject();
         int ind = item->data(Qt::UserRole).toInt();
         if ((ind >= 0) && (ind < int(it->userParamEntries.size())))
         {
@@ -120,7 +120,7 @@ void CQDlgUserParameters::on_qqValue_editingFinished()
 {
     if (!ui->qqValue->isModified())
         return;
-    CUserParameters *it = object->getUserScriptParameterObject();
+    CUserParameters* it = object->getUserScriptParameterObject();
     int _itemIndex = getSelectedObjectID();
     if ((_itemIndex >= 0) && (_itemIndex < int(it->userParamEntries.size())))
         it->userParamEntries[_itemIndex].value = ui->qqValue->text().toStdString();
@@ -131,7 +131,7 @@ void CQDlgUserParameters::on_qqUnit_editingFinished()
 {
     if (!ui->qqUnit->isModified())
         return;
-    CUserParameters *it = object->getUserScriptParameterObject();
+    CUserParameters* it = object->getUserScriptParameterObject();
     int _itemIndex = getSelectedObjectID();
     if ((_itemIndex >= 0) && (_itemIndex < int(it->userParamEntries.size())))
         it->userParamEntries[_itemIndex].unit = ui->qqUnit->text().toStdString();
@@ -140,7 +140,7 @@ void CQDlgUserParameters::on_qqUnit_editingFinished()
 
 void CQDlgUserParameters::on_qqPrivate_clicked()
 {
-    CUserParameters *it = object->getUserScriptParameterObject();
+    CUserParameters* it = object->getUserScriptParameterObject();
     int _itemIndex = getSelectedObjectID();
     if ((_itemIndex >= 0) && (_itemIndex < int(it->userParamEntries.size())))
         it->userParamEntries[_itemIndex].properties ^= 1;
@@ -149,14 +149,14 @@ void CQDlgUserParameters::on_qqPrivate_clicked()
 
 void CQDlgUserParameters::on_qqPersistent_clicked()
 {
-    CUserParameters *it = object->getUserScriptParameterObject();
+    CUserParameters* it = object->getUserScriptParameterObject();
     int _itemIndex = getSelectedObjectID();
     if ((_itemIndex >= 0) && (_itemIndex < int(it->userParamEntries.size())))
         it->userParamEntries[_itemIndex].properties ^= 2;
     refreshPart2();
 }
 
-void CQDlgUserParameters::on_qqClose_clicked(QAbstractButton *button)
+void CQDlgUserParameters::on_qqClose_clicked(QAbstractButton* button)
 {
     defaultModalDialogEndRoutine(true);
 }
@@ -168,7 +168,7 @@ void CQDlgUserParameters::onDeletePressed()
         int dataID = getSelectedObjectID();
         if (dataID != -1)
         {
-            CUserParameters *p = object->getUserScriptParameterObject();
+            CUserParameters* p = object->getUserScriptParameterObject();
             p->removeParameterValue(dataID);
             refresh();
         }
@@ -179,12 +179,12 @@ void CQDlgUserParameters::onDeletePressed()
 void CQDlgUserParameters::updateObjectsInList()
 {
     ui->qqParameterList->clear();
-    CUserParameters *it = object->getUserScriptParameterObject();
+    CUserParameters* it = object->getUserScriptParameterObject();
     for (size_t i = 0; i < it->userParamEntries.size(); i++)
     {
         if (((it->userParamEntries[i].properties & 1) == 0) || App::currentWorld->simulation->isSimulationStopped())
         {
-            QListWidgetItem *itm = new QListWidgetItem(it->userParamEntries[i].name.c_str());
+            QListWidgetItem* itm = new QListWidgetItem(it->userParamEntries[i].name.c_str());
             itm->setData(Qt::UserRole, QVariant(int(i)));
             itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
             ui->qqParameterList->addItem(itm);
@@ -194,7 +194,7 @@ void CQDlgUserParameters::updateObjectsInList()
 
 int CQDlgUserParameters::getSelectedObjectID()
 {
-    QList<QListWidgetItem *> sel = ui->qqParameterList->selectedItems();
+    QList<QListWidgetItem*> sel = ui->qqParameterList->selectedItems();
     if (sel.size() > 0)
         return (sel.at(0)->data(Qt::UserRole).toInt());
     return (-1);
@@ -204,7 +204,7 @@ void CQDlgUserParameters::selectObjectInList(int objectID)
 {
     for (int i = 0; i < ui->qqParameterList->count(); i++)
     {
-        QListWidgetItem *it = ui->qqParameterList->item(i);
+        QListWidgetItem* it = ui->qqParameterList->item(i);
         if (it != nullptr)
         {
             if (it->data(Qt::UserRole).toInt() == objectID)
@@ -220,10 +220,10 @@ void CQDlgUserParameters::on_qqParameterList_itemSelectionChanged()
 {
     int objID = getSelectedObjectID();
     if ((objID >= 0) && (objID < int(object->getUserScriptParameterObject()->userParamEntries.size())))
-        ((CEditBoxDelegate *)ui->qqParameterList->itemDelegate())->initialText =
+        ((CEditBoxDelegate*)ui->qqParameterList->itemDelegate())->initialText =
             object->getUserScriptParameterObject()->userParamEntries[objID].name.c_str();
     else
-        ((CEditBoxDelegate *)ui->qqParameterList->itemDelegate())->initialText = "";
+        ((CEditBoxDelegate*)ui->qqParameterList->itemDelegate())->initialText = "";
     inSelectionRoutine = true;
     refresh();
     inSelectionRoutine = false;
@@ -231,7 +231,7 @@ void CQDlgUserParameters::on_qqParameterList_itemSelectionChanged()
 
 void CQDlgUserParameters::on_qqUp_clicked()
 {
-    CUserParameters *it = object->getUserScriptParameterObject();
+    CUserParameters* it = object->getUserScriptParameterObject();
     int _itemIndex = getSelectedObjectID();
     if ((_itemIndex > 0) && (_itemIndex < int(it->userParamEntries.size())))
     {
@@ -244,7 +244,7 @@ void CQDlgUserParameters::on_qqUp_clicked()
 
 void CQDlgUserParameters::on_qqDown_clicked()
 {
-    CUserParameters *it = object->getUserScriptParameterObject();
+    CUserParameters* it = object->getUserScriptParameterObject();
     int _itemIndex = getSelectedObjectID();
     if ((_itemIndex >= 0) && (_itemIndex < int(it->userParamEntries.size()) - 1))
     {

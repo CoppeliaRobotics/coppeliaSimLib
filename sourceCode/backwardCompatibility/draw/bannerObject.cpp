@@ -16,7 +16,7 @@ void CBannerObject::setCreatedFromScript(bool c)
     _createdFromScript = c;
 }
 
-CBannerObject::CBannerObject(const char *label, int options, int sceneObjID, const double relConfig[6],
+CBannerObject::CBannerObject(const char* label, int options, int sceneObjID, const double relConfig[6],
                              const float labelCol[12], const float backCol[12], double height)
 {
     _visible = true;
@@ -100,7 +100,7 @@ bool CBannerObject::announceObjectWillBeErased(int objID)
 }
 
 #ifdef SIM_WITH_GUI
-void CBannerObject::draw3DStuff(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix &cameraCTM,
+void CBannerObject::draw3DStuff(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix& cameraCTM,
                                 const int windowSize[2], double verticalViewSizeOrAngle, bool perspective)
 {
     if (_visible)
@@ -134,7 +134,7 @@ void CBannerObject::draw3DStuff(bool overlay, bool transparentObject, int displa
         tr.setIdentity();
         if (_sceneObjectID >= 0)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
             if (it == nullptr)
                 _sceneObjectID = -2; // should normally never happen
             else
@@ -154,7 +154,7 @@ void CBannerObject::draw3DStuff(bool overlay, bool transparentObject, int displa
             return;
 
         tr *= _relativeConfig;
-        float *bckColor = nullptr;
+        float* bckColor = nullptr;
         if ((_options & sim_banner_nobackground) == 0)
             bckColor = backColor.getColorsPtr();
 

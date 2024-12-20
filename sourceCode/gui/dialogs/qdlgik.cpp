@@ -9,7 +9,8 @@
 #include <simStrings.h>
 #include <guiApp.h>
 
-CQDlgIk::CQDlgIk(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgIk)
+CQDlgIk::CQDlgIk(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgIk)
 {
     _dlgType = IK_DLG;
     ui->setupUi(this);
@@ -20,7 +21,7 @@ CQDlgIk::CQDlgIk(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgIk)
     connect(delKeyShortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
     backspaceKeyShortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(backspaceKeyShortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    CEditBoxDelegate *delegate = new CEditBoxDelegate();
+    CEditBoxDelegate* delegate = new CEditBoxDelegate();
     ui->qqList->setItemDelegate(delegate);
 }
 
@@ -38,7 +39,7 @@ void CQDlgIk::cancelEvent()
     GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
 }
 
-void CQDlgIk::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CQDlgIk::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     if ((cmdIn != nullptr) && (cmdIn->intParams[0] == _dlgType))
     {
@@ -50,7 +51,7 @@ void CQDlgIk::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand
 void CQDlgIk::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
@@ -58,7 +59,7 @@ void CQDlgIk::refresh()
         noEditModeNoSim = false;
 
     int groupID = getSelectedObjectID();
-    CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(groupID);
+    CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(groupID);
 
     if (!inListSelectionRoutine)
     {
@@ -124,13 +125,13 @@ void CQDlgIk::updateObjectsInList()
 
     for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
     {
-        CIkGroup_old *ikg = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
+        CIkGroup_old* ikg = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
         std::string txt = ikg->getObjectName();
         txt += " [containing ";
         txt += utils::getIntString(false, int(ikg->getIkElementCount())).c_str();
         txt += " ik element(s)]";
         int objID = ikg->getObjectHandle();
-        QListWidgetItem *itm = new QListWidgetItem(txt.c_str());
+        QListWidgetItem* itm = new QListWidgetItem(txt.c_str());
         itm->setData(Qt::UserRole, QVariant(objID));
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
         ui->qqList->addItem(itm);
@@ -141,7 +142,7 @@ void CQDlgIk::updateObjectsInList()
 
 int CQDlgIk::getSelectedObjectID()
 {
-    QList<QListWidgetItem *> sel = ui->qqList->selectedItems();
+    QList<QListWidgetItem*> sel = ui->qqList->selectedItems();
     if (sel.size() > 0)
         return (sel.at(0)->data(Qt::UserRole).toInt());
     return (-1);
@@ -152,7 +153,7 @@ void CQDlgIk::selectObjectInList(int objectID)
     noListSelectionAllowed = true;
     for (int i = 0; i < ui->qqList->count(); i++)
     {
-        QListWidgetItem *it = ui->qqList->item(i);
+        QListWidgetItem* it = ui->qqList->item(i);
         if (it != nullptr)
         {
             if (it->data(Qt::UserRole).toInt() == objectID)
@@ -202,7 +203,7 @@ void CQDlgIk::on_qqAddNewGroup_clicked()
     }
 }
 
-void CQDlgIk::on_qqList_itemChanged(QListWidgetItem *item)
+void CQDlgIk::on_qqList_itemChanged(QListWidgetItem* item)
 {
     if (item != nullptr)
     {
@@ -227,11 +228,11 @@ void CQDlgIk::on_qqList_itemSelectionChanged()
             CQDlgIkElements::_invalid = true;
             GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
             int objID = getSelectedObjectID();
-            CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(objID);
+            CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(objID);
             if (it != nullptr)
-                ((CEditBoxDelegate *)ui->qqList->itemDelegate())->initialText = it->getObjectName();
+                ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText = it->getObjectName();
             else
-                ((CEditBoxDelegate *)ui->qqList->itemDelegate())->initialText = "";
+                ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText = "";
             inListSelectionRoutine = true;
             refresh();
             inListSelectionRoutine = false;
@@ -342,7 +343,7 @@ void CQDlgIk::on_qqEditConditional_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(getSelectedObjectID());
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
         {
             CQDlgIkConditional theDialog(this);
@@ -369,7 +370,7 @@ void CQDlgIk::on_qqEditIkElements_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(getSelectedObjectID());
+        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
             CQDlgIkElements::display(it->getObjectHandle(), GuiApp::mainWindow);
     }

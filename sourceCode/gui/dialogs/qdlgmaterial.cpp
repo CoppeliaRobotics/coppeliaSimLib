@@ -6,7 +6,8 @@
 #include <qdlgcolorpulsation.h>
 #include <guiApp.h>
 
-CQDlgMaterial::CQDlgMaterial(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgMaterial)
+CQDlgMaterial::CQDlgMaterial(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgMaterial)
 {
     _dlgType = MATERIAL_DLG;
     ui->setupUi(this);
@@ -30,7 +31,7 @@ void CQDlgMaterial::refresh()
     inMainRefreshRoutine = true;
     int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
                           // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-    CColorObject *vc = GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
+    CColorObject* vc = GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
     bool simStopped = App::currentWorld->simulation->isSimulationStopped();
     ui->qqAmbientAdjust->setEnabled(simStopped && (allowedParts & 1));
     ui->qqSpecularAdjust->setEnabled(simStopped && (allowedParts & 4));
@@ -92,7 +93,7 @@ bool CQDlgMaterial::isLinkedDataValid()
     return (GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr) != nullptr);
 }
 
-void CQDlgMaterial::displayMaterialDlg(int objType, int objID1, int objID2, QWidget *theParentWindow)
+void CQDlgMaterial::displayMaterialDlg(int objType, int objID1, int objID2, QWidget* theParentWindow)
 {
     if (GuiApp::mainWindow == nullptr)
         return;
@@ -100,13 +101,13 @@ void CQDlgMaterial::displayMaterialDlg(int objType, int objID1, int objID2, QWid
     GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(MATERIAL_DLG))
     {
-        CQDlgMaterial *mat = (CQDlgMaterial *)GuiApp::mainWindow->dlgCont->getDialog(MATERIAL_DLG);
+        CQDlgMaterial* mat = (CQDlgMaterial*)GuiApp::mainWindow->dlgCont->getDialog(MATERIAL_DLG);
         if (mat != nullptr)
             mat->_initializeDlg(objType, objID1, objID2);
     }
 }
 
-void CQDlgMaterial::displayMaterialDlgModal(int objType, int objID1, int objID2, QWidget *theParentWindow)
+void CQDlgMaterial::displayMaterialDlgModal(int objType, int objID1, int objID2, QWidget* theParentWindow)
 {
     if (GuiApp::mainWindow == nullptr)
         return;
@@ -136,7 +137,7 @@ void CQDlgMaterial::_adjustCol(int colComponent)
     else
     {
         CQDlgColor::displayDlgModal(_objType, _objID1, _objID2, colComponent, this, true, false, true);
-        float *col = GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, colComponent, nullptr);
+        float* col = GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, colComponent, nullptr);
         if (col != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -155,8 +156,8 @@ void CQDlgMaterial::_adjustCol(int colComponent)
 }
 
 void CQDlgMaterial::cancelEvent()
-{                                     // We just hide the dialog and destroy it at next rendering pass
-    if (((QDialog *)this)->isModal()) // this condition and next line on 31/3/2013: on Linux the dlg couldn't be closed!
+{                                    // We just hide the dialog and destroy it at next rendering pass
+    if (((QDialog*)this)->isModal()) // this condition and next line on 31/3/2013: on Linux the dlg couldn't be closed!
         defaultModalDialogEndRoutine(false);
     else
         CDlgEx::cancelEvent();
@@ -190,7 +191,7 @@ void CQDlgMaterial::on_qqPulsationAdjust_clicked()
         {
             int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux
                                   // channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            CColorObject *it =
+            CColorObject* it =
                 GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
             if (allowedParts & 32)
             {

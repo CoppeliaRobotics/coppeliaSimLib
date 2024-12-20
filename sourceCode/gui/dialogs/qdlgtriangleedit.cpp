@@ -5,7 +5,8 @@
 #include <boost/lexical_cast.hpp>
 #include <guiApp.h>
 
-CQDlgTriangleEdit::CQDlgTriangleEdit(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgTriangleEdit)
+CQDlgTriangleEdit::CQDlgTriangleEdit(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgTriangleEdit)
 {
     ui->setupUi(this);
 }

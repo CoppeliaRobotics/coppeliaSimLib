@@ -9,22 +9,22 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propScene_finalSaveRequest,       "finalSaveRequest",             sim_propertytype_bool,       0, "Final save", "Lock scene and models after next scene save operation") \
-    FUNCX(propScene_sceneIsLocked,          "sceneIsLocked",                sim_propertytype_bool,       sim_propertyinfo_notwritable, "Scene is locked", "") \
-    FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs",       sim_propertytype_bool,       0, "Save calculation structures", "Save operation also saves existing calculation structures") \
-    FUNCX(propScene_sceneUid,               "sceneUid",                     sim_propertytype_int,        sim_propertyinfo_notwritable, "Scene UID", "Scene unique identifier") \
-    FUNCX(propScene_visibilityLayers,       "visibilityLayers",             sim_propertytype_int,        0, "Visibility layers", "Currently active visibility layers") \
-    FUNCX(propScene_scenePath,              "scenePath",                    sim_propertytype_string,     0, "Scene path", "") \
-    FUNCX(propScene_acknowledgment,         "acknowledgment",               sim_propertytype_string,     0, "Acknowledgment", "Scene acknowledgment") \
-    FUNCX(propScene_sceneUidString,         "sceneUidString",               sim_propertytype_string,     sim_propertyinfo_notwritable, "Scene UID string", "Scene unique identifier string") \
-    FUNCX(propScene_ambientLight,           "ambientLight",                 sim_propertytype_color,      0, "Ambient light", "") \
+#define DEFINE_PROPERTIES                                                                                                                                                                   \
+    FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, 0, "Final save", "Lock scene and models after next scene save operation")                                  \
+    FUNCX(propScene_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_notwritable, "Scene is locked", "")                                                             \
+    FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs", sim_propertytype_bool, 0, "Save calculation structures", "Save operation also saves existing calculation structures") \
+    FUNCX(propScene_sceneUid, "sceneUid", sim_propertytype_int, sim_propertyinfo_notwritable, "Scene UID", "Scene unique identifier")                                                       \
+    FUNCX(propScene_visibilityLayers, "visibilityLayers", sim_propertytype_int, 0, "Visibility layers", "Currently active visibility layers")                                               \
+    FUNCX(propScene_scenePath, "scenePath", sim_propertytype_string, 0, "Scene path", "")                                                                                                   \
+    FUNCX(propScene_acknowledgment, "acknowledgment", sim_propertytype_string, 0, "Acknowledgment", "Scene acknowledgment")                                                                 \
+    FUNCX(propScene_sceneUidString, "sceneUidString", sim_propertytype_string, sim_propertyinfo_notwritable, "Scene UID string", "Scene unique identifier string")                          \
+    FUNCX(propScene_ambientLight, "ambientLight", sim_propertytype_color, 0, "Ambient light", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_scene = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_scene = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -40,8 +40,8 @@ class CEnvironment
 
     void setUpDefaultValues();
 
-    void serialize(CSer &ar);
-    void setAcknowledgement(const char *a);
+    void serialize(CSer& ar);
+    void setAcknowledgement(const char* a);
     std::string getAcknowledgement() const;
     void setVisualizeWirelessEmitters(bool v);
     bool getVisualizeWirelessEmitters() const;
@@ -50,7 +50,7 @@ class CEnvironment
     void setShapeTexturesEnabled(bool e);
     bool getShapeTexturesEnabled() const;
 
-    void appendGenesisData(CCbor *ev) const;
+    void appendGenesisData(CCbor* ev) const;
 
     static int getNextSceneUniqueId();
     static void setShapeTexturesTemporarilyDisabled(bool d);
@@ -82,7 +82,7 @@ class CEnvironment
     bool getSceneCanBeDiscardedWhenNewSceneOpened() const;
 
     std::string getExtensionString() const;
-    void setExtensionString(const char *str);
+    void setExtensionString(const char* str);
 
     int setBoolProperty(const char* pName, bool pState);
     int getBoolProperty(const char* pName, bool& pState) const;
@@ -111,7 +111,7 @@ class CEnvironment
     void setActiveLayers(int l);
     int getActiveLayers() const;
 
-    void setScenePathAndName(const char *pathAndName);
+    void setScenePathAndName(const char* pathAndName);
     std::string getScenePathAndName() const;
     std::string getScenePath() const;
     std::string getSceneName() const;
@@ -174,7 +174,7 @@ class CEnvironment
   public:
     void setBackgroundColor(int viewSize[2]);
     void activateAmbientLight(bool a);
-    void activateFogIfEnabled(CViewableBase *viewable, bool forDynamicContentOnly);
+    void activateFogIfEnabled(CViewableBase* viewable, bool forDynamicContentOnly);
     void deactivateFog();
     void temporarilyDeactivateFog();
     void reactivateFogThatWasTemporarilyDisabled();

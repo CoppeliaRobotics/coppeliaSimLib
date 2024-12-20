@@ -44,20 +44,20 @@ int CGhostObjectContainer::addGhost(int theGroupId, int theObjectHandle, int the
     if ((theOptions & 1) != 0)
         App::currentWorld->sceneObjects->addModelObjects(rootSel);
 
-    std::vector<CShape *> objsToAdd;
+    std::vector<CShape*> objsToAdd;
     for (size_t i = 0; i < rootSel.size(); i++)
     {
-        CShape *obj = App::currentWorld->sceneObjects->getShapeFromHandle(rootSel[i]);
+        CShape* obj = App::currentWorld->sceneObjects->getShapeFromHandle(rootSel[i]);
         if (obj != nullptr)
             objsToAdd.push_back(obj);
     }
 
     for (size_t i = 0; i < objsToAdd.size(); i++)
     {
-        CShape *obj = objsToAdd[i];
+        CShape* obj = objsToAdd[i];
         if (obj->getShouldObjectBeDisplayed(-1, 0) || (theOptions & 8))
         { // only visible objects... unless we force it with bit3 (8)
-            CGhostObject *ghost =
+            CGhostObject* ghost =
                 new CGhostObject(theGroupId, obj->getObjectHandle(), obj->getCumulativeTransformation(), theOptions,
                                  theStartTime, theEndTime, theColor);
             ghost->ghostId = nextGhostId;
@@ -69,7 +69,7 @@ int CGhostObjectContainer::addGhost(int theGroupId, int theObjectHandle, int the
 }
 
 int CGhostObjectContainer::modifyGhost(int groupId, int ghostId, int operation, double floatValue, int theOptions,
-                                       int theOptionsMask, const double *colorOrTransformation)
+                                       int theOptionsMask, const double* colorOrTransformation)
 {
     // operation:
     // 0: returns the number of the specified ghost occurences (if ghost(s) exist(s)), otherwise 0
@@ -196,13 +196,13 @@ void CGhostObjectContainer::announceObjectWillBeErased(int objID)
     }
 }
 
-void CGhostObjectContainer::performObjectLoadingMapping(const std::map<int, int> *map)
+void CGhostObjectContainer::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
         _allObjects[i]->objectHandle = CWorld::getLoadingMapping(map, _allObjects[i]->objectHandle);
 }
 
-void CGhostObjectContainer::serialize(CSer &ar)
+void CGhostObjectContainer::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -234,7 +234,7 @@ void CGhostObjectContainer::serialize(CSer &ar)
             removeGhost(-1, -1);
             int byteQuantity;
             std::string theName = "";
-            std::vector<CGhostObject *> ghosts;
+            std::vector<CGhostObject*> ghosts;
             while (theName.compare(SER_NEXT_STEP) != 0)
             {
                 theName = ar.readDataName();
@@ -249,7 +249,7 @@ void CGhostObjectContainer::serialize(CSer &ar)
                         ar >> ghostCnt;
                         for (int i = 0; i < ghostCnt; i++)
                         {
-                            CGhostObject *go = new CGhostObject();
+                            CGhostObject* go = new CGhostObject();
                             float bla, bli, blo, blu;
                             ar >> go->groupId;
                             ar >> go->ghostId;
@@ -288,7 +288,7 @@ void CGhostObjectContainer::serialize(CSer &ar)
                         ar >> ghostCnt;
                         for (int i = 0; i < ghostCnt; i++)
                         {
-                            CGhostObject *go = new CGhostObject();
+                            CGhostObject* go = new CGhostObject();
                             ar >> go->groupId;
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
@@ -328,7 +328,7 @@ void CGhostObjectContainer::serialize(CSer &ar)
                         ar >> ghostCnt;
                         for (int i = 0; i < ghostCnt; i++)
                         {
-                            CGhostObject *go = new CGhostObject();
+                            CGhostObject* go = new CGhostObject();
                             ar >> go->groupId;
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
@@ -390,7 +390,7 @@ void CGhostObjectContainer::serialize(CSer &ar)
             {
                 while (true)
                 {
-                    CGhostObject *go = new CGhostObject();
+                    CGhostObject* go = new CGhostObject();
 
                     ar.xmlGetNode_int("id", go->ghostId);
                     ar.xmlGetNode_int("groupId", go->groupId);
@@ -430,7 +430,7 @@ void CGhostObjectContainer::serialize(CSer &ar)
 }
 
 #ifdef SIM_WITH_GUI
-void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase *renderingObject, int displayAttrib)
+void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject, int displayAttrib)
 {
     if ((displayAttrib & sim_displayattribute_noghosts) == 0)
     {
@@ -446,7 +446,7 @@ void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase *rend
     }
 }
 
-void CGhostObjectContainer::renderYour3DStuff_transparent(CViewableBase *renderingObject, int displayAttrib)
+void CGhostObjectContainer::renderYour3DStuff_transparent(CViewableBase* renderingObject, int displayAttrib)
 {
     if ((displayAttrib & sim_displayattribute_noghosts) == 0)
     {
@@ -462,7 +462,7 @@ void CGhostObjectContainer::renderYour3DStuff_transparent(CViewableBase *renderi
     }
 }
 
-void CGhostObjectContainer::renderYour3DStuff_overlay(CViewableBase *renderingObject, int displayAttrib)
+void CGhostObjectContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject, int displayAttrib)
 {
     //  if ((displayAttrib&sim_displayattribute_noghosts)==0)
     //  {

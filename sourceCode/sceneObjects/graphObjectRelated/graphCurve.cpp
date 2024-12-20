@@ -7,8 +7,8 @@ CGraphCurve::CGraphCurve()
     _uid = App::getFreshUniqueId();
 }
 
-CGraphCurve::CGraphCurve(int dim, const int streamIds[3], const double defaultVals[3], const char *curveName,
-                         const char *unitStr, int options, const float *color, int curveWidth, int scriptHandle)
+CGraphCurve::CGraphCurve(int dim, const int streamIds[3], const double defaultVals[3], const char* curveName,
+                         const char* unitStr, int options, const float* color, int curveWidth, int scriptHandle)
 {
     _curveName = curveName;
     _isStatic = false;
@@ -20,8 +20,8 @@ CGraphCurve::~CGraphCurve()
 {
 }
 
-void CGraphCurve::setBasics(int dim, const int streamIds[3], const double defaultVals[3], const char *unitStr,
-                            int options, const float *color, int curveWidth, int scriptHandle)
+void CGraphCurve::setBasics(int dim, const int streamIds[3], const double defaultVals[3], const char* unitStr,
+                            int options, const float* color, int curveWidth, int scriptHandle)
 {
     _dim = dim;
     _scriptHandle = scriptHandle;
@@ -59,7 +59,7 @@ void CGraphCurve::setBasics(int dim, const int streamIds[3], const double defaul
     }
 }
 
-void CGraphCurve::updateStreamIds(const std::vector<int> &allStreamIds)
+void CGraphCurve::updateStreamIds(const std::vector<int>& allStreamIds)
 {
     for (size_t i = 0; i < 3; i++)
     {
@@ -81,7 +81,7 @@ void CGraphCurve::updateStreamIds(const std::vector<int> &allStreamIds)
     }
 }
 
-void CGraphCurve::makeStatic(CGraphDataStream *streams[3], int bufferSize, int startPt, int ptCnt)
+void CGraphCurve::makeStatic(CGraphDataStream* streams[3], int bufferSize, int startPt, int ptCnt)
 {
     if (!_isStatic)
     {
@@ -127,7 +127,7 @@ long long int CGraphCurve::getUid() const
     return _uid;
 }
 
-void CGraphCurve::setCurveName(const char *nm)
+void CGraphCurve::setCurveName(const char* nm)
 {
     _curveName = nm;
 }
@@ -159,7 +159,7 @@ bool CGraphCurve::getIsStatic() const
     return (_isStatic);
 }
 
-const int *CGraphCurve::getStreamIdsPtr() const
+const int* CGraphCurve::getStreamIdsPtr() const
 {
     return (_streamIds);
 }
@@ -169,7 +169,7 @@ int CGraphCurve::getCurveWidth() const
     return (_curveWidth);
 }
 
-const float *CGraphCurve::getColorPtr() const
+const float* CGraphCurve::getColorPtr() const
 {
     return (_color);
 }
@@ -179,7 +179,7 @@ int CGraphCurve::getDim() const
     return (_dim);
 }
 
-const double *CGraphCurve::getDefaultValsPtr() const
+const double* CGraphCurve::getDefaultValsPtr() const
 {
     return (_defaultVals);
 }
@@ -189,9 +189,9 @@ int CGraphCurve::getScriptHandle() const
     return (_scriptHandle);
 }
 
-bool CGraphCurve::getCurveData_xy(CGraphDataStream *streams[3], int *index, int bufferSize, int startPt, int ptCnt,
-                                  std::string *label, std::vector<double> &xVals, std::vector<double> &yVals,
-                                  int *curveType, float col[3], double minMax[6]) const
+bool CGraphCurve::getCurveData_xy(CGraphDataStream* streams[3], int* index, int bufferSize, int startPt, int ptCnt,
+                                  std::string* label, std::vector<double>& xVals, std::vector<double>& yVals,
+                                  int* curveType, float col[3], double minMax[6]) const
 {
     if ((((streams == nullptr) && (_isStatic)) || ((streams != nullptr) && (!_isStatic))) && (_dim == 2))
     {
@@ -308,9 +308,9 @@ bool CGraphCurve::getCurveData_xy(CGraphDataStream *streams[3], int *index, int 
     return (false);
 }
 
-bool CGraphCurve::getCurveData_xyz(CGraphDataStream *streams[3], int *index, int bufferSize, int startPt, int ptCnt,
-                                   std::string *label, std::vector<double> &xVals, int *curveType, float col[3],
-                                   double minMax[6], int *curveWidth) const
+bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3], int* index, int bufferSize, int startPt, int ptCnt,
+                                   std::string* label, std::vector<double>& xVals, int* curveType, float col[3],
+                                   double minMax[6], int* curveWidth) const
 {
     if ((((streams == nullptr) && (_isStatic)) || ((streams != nullptr) && (!_isStatic))) && (_dim == 3))
     {
@@ -453,7 +453,7 @@ bool CGraphCurve::getCurveData_xyz(CGraphDataStream *streams[3], int *index, int
     return (false);
 }
 
-void CGraphCurve::serialize(CSer &ar, int startPt, int ptCnt, int bufferSize)
+void CGraphCurve::serialize(CSer& ar, int startPt, int ptCnt, int bufferSize)
 {
     if (ar.isBinary())
     {
@@ -647,9 +647,9 @@ void CGraphCurve::serialize(CSer &ar, int startPt, int ptCnt, int bufferSize)
     }
 }
 
-CGraphCurve *CGraphCurve::copyYourself() const
+CGraphCurve* CGraphCurve::copyYourself() const
 {
-    CGraphCurve *newObj = new CGraphCurve();
+    CGraphCurve* newObj = new CGraphCurve();
     newObj->_curveName = _curveName;
     newObj->_unitStr = _unitStr;
     newObj->_relativeToGraph = _relativeToGraph;
@@ -675,7 +675,7 @@ bool CGraphCurve::announceScriptWillBeErased(int scriptHandle, bool simulationSc
     return ((scriptHandle == _scriptHandle) && (!sceneSwitchPersistentScript));
 }
 
-void CGraphCurve::performScriptLoadingMapping(const std::map<int, int> *map)
+void CGraphCurve::performScriptLoadingMapping(const std::map<int, int>* map)
 {
     _scriptHandle = CWorld::getLoadingMapping(map, _scriptHandle);
 }

@@ -5,7 +5,7 @@
 #include <guiApp.h>
 #include <app.h>
 
-CQDlgColorPulsation::CQDlgColorPulsation(QWidget *parent)
+CQDlgColorPulsation::CQDlgColorPulsation(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgColorPulsation)
 {
     ui->setupUi(this);

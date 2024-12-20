@@ -15,11 +15,11 @@ class CQDlgCollisions : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgCollisions(QWidget *parent = 0);
+    explicit CQDlgCollisions(QWidget* parent = 0);
     ~CQDlgCollisions();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
     void cancelEvent();
 
@@ -34,7 +34,7 @@ class CQDlgCollisions : public CDlgEx
 
     void on_qqCollisionList_itemSelectionChanged();
 
-    void on_qqCollisionList_itemChanged(QListWidgetItem *item);
+    void on_qqCollisionList_itemChanged(QListWidgetItem* item);
 
     void on_qqEnableAll_clicked();
 
@@ -53,7 +53,7 @@ class CQDlgCollisions : public CDlgEx
     void on_qqContourWidth_editingFinished();
 
   private:
-    Ui::CQDlgCollisions *ui;
+    Ui::CQDlgCollisions* ui;
 };
 
 #endif // QDLGCOLLISIONS_H

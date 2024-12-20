@@ -15,7 +15,7 @@ class CQDlgSlider2 : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgSlider2(QWidget *parent = 0);
+    explicit CQDlgSlider2(QWidget* parent = 0);
     ~CQDlgSlider2();
 
     void cancelEvent();
@@ -37,7 +37,7 @@ class CQDlgSlider2 : public VDialog
     int _resolutionLevel;
 
     void _displayMeshInsideExtractionTexts();
-    Ui::CQDlgSlider2 *ui;
+    Ui::CQDlgSlider2* ui;
 };
 
 #endif // QDLGSLIDER2_H

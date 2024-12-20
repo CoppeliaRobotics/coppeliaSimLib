@@ -5,7 +5,8 @@
 #include <guiApp.h>
 #include <app.h>
 
-CQDlgImageColor::CQDlgImageColor(QWidget *parent) : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgImageColor)
+CQDlgImageColor::CQDlgImageColor(QWidget* parent)
+    : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgImageColor)
 {
     ui->setupUi(this);
 }

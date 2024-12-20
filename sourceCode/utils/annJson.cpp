@@ -3,7 +3,7 @@
 #include <utils.h>
 #include <cmath>
 
-CAnnJson::CAnnJson(QJsonObject *mainObject)
+CAnnJson::CAnnJson(QJsonObject* mainObject)
 {
     _mainObject = mainObject;
     _cnt = 0;
@@ -13,7 +13,7 @@ CAnnJson::~CAnnJson()
 {
 }
 
-std::string CAnnJson::_nbKey(const char *key)
+std::string CAnnJson::_nbKey(const char* key)
 {
     std::string retVal("__key");
     retVal += utils::getIntString(false, _cnt++, 4);
@@ -22,7 +22,7 @@ std::string CAnnJson::_nbKey(const char *key)
     return (retVal);
 }
 
-void CAnnJson::_addAnnotation(const char *nbKey, const char *annotation)
+void CAnnJson::_addAnnotation(const char* nbKey, const char* annotation)
 {
     if (annotation != nullptr)
         _keysAndAnnotations[nbKey] = annotation;
@@ -30,37 +30,37 @@ void CAnnJson::_addAnnotation(const char *nbKey, const char *annotation)
         _keysAndAnnotations[nbKey] = "";
 }
 
-void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const QJsonObject &value,
-                       const char *annotation /*=nullptr*/)
+void CAnnJson::addJson(QJsonObject& jsonObj, const char* key, const QJsonObject& value,
+                       const char* annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
     jsonObj[l.c_str()] = value;
     _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const QJsonArray &value,
-                       const char *annotation /*=nullptr*/)
+void CAnnJson::addJson(QJsonObject& jsonObj, const char* key, const QJsonArray& value,
+                       const char* annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
     jsonObj[l.c_str()] = value;
     _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, bool value, const char *annotation /*=nullptr*/)
+void CAnnJson::addJson(QJsonObject& jsonObj, const char* key, bool value, const char* annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
     jsonObj[l.c_str()] = value;
     _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, int value, const char *annotation /*=nullptr*/)
+void CAnnJson::addJson(QJsonObject& jsonObj, const char* key, int value, const char* annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
     jsonObj[l.c_str()] = value;
     _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, double value, const char *annotation /*=nullptr*/)
+void CAnnJson::addJson(QJsonObject& jsonObj, const char* key, double value, const char* annotation /*=nullptr*/)
 {
     value = utils::getDoubleFromString(utils::getDoubleEString(false, value).c_str(), 1e308);
     std::string l(_nbKey(key));
@@ -68,8 +68,8 @@ void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, double value, cons
     _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const double *v, size_t cnt,
-                       const char *annotation /*=nullptr*/)
+void CAnnJson::addJson(QJsonObject& jsonObj, const char* key, const double* v, size_t cnt,
+                       const char* annotation /*=nullptr*/)
 {
     QJsonArray arr;
     for (size_t i = 0; i < cnt; i++)
@@ -79,24 +79,24 @@ void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const double *v, s
     _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const char *value, const char *annotation /*=nullptr*/)
+void CAnnJson::addJson(QJsonObject& jsonObj, const char* key, const char* value, const char* annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
     jsonObj[l.c_str()] = value;
     _addAnnotation(l.c_str(), annotation);
 }
 
-QJsonObject *CAnnJson::getMainObject()
+QJsonObject* CAnnJson::getMainObject()
 {
     return (_mainObject);
 }
 
-void CAnnJson::setMainObject(QJsonObject *obj)
+void CAnnJson::setMainObject(QJsonObject* obj)
 {
     _mainObject = obj;
 }
 
-std::string CAnnJson::stripComments(const char *jsonTxt)
+std::string CAnnJson::stripComments(const char* jsonTxt)
 {
     std::string input(jsonTxt);
     std::string retVal;
@@ -109,8 +109,8 @@ std::string CAnnJson::stripComments(const char *jsonTxt)
     return (retVal);
 }
 
-bool CAnnJson::getValue(QJsonObject &jsonObj, const char *key, QJsonValue::Type type, QJsonValue &value,
-                        std::string *errMsg /*=nullptr*/)
+bool CAnnJson::getValue(QJsonObject& jsonObj, const char* key, QJsonValue::Type type, QJsonValue& value,
+                        std::string* errMsg /*=nullptr*/)
 {
     bool retVal = false;
     std::string msg;
@@ -135,8 +135,8 @@ bool CAnnJson::getValue(QJsonObject &jsonObj, const char *key, QJsonValue::Type 
     return (retVal);
 }
 
-bool CAnnJson::getValue(QJsonObject &jsonObj, const char *key, double *vals, size_t cnt,
-                        std::string *errMsg /*=nullptr*/)
+bool CAnnJson::getValue(QJsonObject& jsonObj, const char* key, double* vals, size_t cnt,
+                        std::string* errMsg /*=nullptr*/)
 {
     bool retVal = false;
     std::string msg;

@@ -4,7 +4,7 @@
 #include <thumbnail.h>
 #include <app.h>
 
-CQDlgModelThumbnailVisu::CQDlgModelThumbnailVisu(QWidget *parent)
+CQDlgModelThumbnailVisu::CQDlgModelThumbnailVisu(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgModelThumbnailVisu)
 {
     ui->setupUi(this);
@@ -25,9 +25,9 @@ void CQDlgModelThumbnailVisu::okEvent()
     defaultModalDialogEndRoutine(true);
 }
 
-void CQDlgModelThumbnailVisu::applyThumbnail(const CThumbnail *thumbnail)
+void CQDlgModelThumbnailVisu::applyThumbnail(const CThumbnail* thumbnail)
 {
-    const char *rgba = ((CThumbnail *)thumbnail)->getPointerToUncompressedImage();
+    const char* rgba = ((CThumbnail*)thumbnail)->getPointerToUncompressedImage();
     QImage img(128, 128, QImage::Format_RGB32);
     QRgb value;
     for (int i = 0; i < 128; i++)

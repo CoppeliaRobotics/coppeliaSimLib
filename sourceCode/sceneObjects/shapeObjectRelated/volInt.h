@@ -38,7 +38,7 @@ typedef struct
     double norm[3];
     double w;
     int vertsInd[3];
-    struct polyhedron *poly;
+    struct polyhedron* poly;
 } FACE;
 
 typedef struct polyhedron
@@ -52,14 +52,14 @@ typedef struct polyhedron
 class CVolInt
 {
   public:
-    static double getMassCenterOfMassAndInertiaTensor(const double *vertices, int ptCnt, const int *indices, int triCnt,
-                                                      double density, C3Vector &centerOfMass,
-                                                      C3X3Matrix &inertiaTensor);
+    static double getMassCenterOfMassAndInertiaTensor(const double* vertices, int ptCnt, const int* indices, int triCnt,
+                                                      double density, C3Vector& centerOfMass,
+                                                      C3X3Matrix& inertiaTensor);
 
   private:
-    static void compProjectionIntegrals(FACE *f);
-    static void compFaceIntegrals(FACE *f);
-    static void compVolumeIntegrals(POLYHEDRON *p);
+    static void compProjectionIntegrals(FACE* f);
+    static void compFaceIntegrals(FACE* f);
+    static void compVolumeIntegrals(POLYHEDRON* p);
 
     static int A; // alpha
     static int B; // beta

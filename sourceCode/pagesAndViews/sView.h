@@ -18,7 +18,7 @@ class CSView
     void setDefaultValues();
     int getLinkedObjectID() const;
     void setLinkedObjectID(int theNewLinkedObjectID, bool noDefaultValues);
-    void setAlternativeViewName(const char *name);
+    void setAlternativeViewName(const char* name);
     std::string getAlternativeViewName() const;
     void setPerspectiveDisplay(bool perspective);
     bool getPerspectiveDisplay() const;
@@ -65,9 +65,9 @@ class CSView
     void getGraphPosition(double position[2]) const;
     void setGraphSize(double x, double y);
     void getGraphSize(double size[2]) const;
-    void serialize(CSer &ar);
+    void serialize(CSer& ar);
     bool announceObjectWillBeErased(int objectID);
-    void performObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map);
     void setViewSizeAndPosition(int sizeX, int sizeY, int posX, int posY);
     void getViewSize(int size[2]) const;
     void getViewPosition(int pos[2]) const;
@@ -81,7 +81,7 @@ class CSView
 
     int getUniqueID() const;
 
-    CSView *copyYourself(); // special! Only used when copy and pasting viewable objects in the copy buffer that are
+    CSView* copyYourself(); // special! Only used when copy and pasting viewable objects in the copy buffer that are
                             // associated with a floating view!
     // Following two lines are only used when copy and pasting viewable objects are associated with a floating view!
     double _relativeViewPosition[2];
@@ -154,7 +154,7 @@ class CSView
   public:
     void render(int mainWindowXPos, bool clipWithMainWindowXPos, bool drawText, bool passiveSubView);
     bool processCommand(int commandID, int subViewIndex);
-    void addMenu(VMenu *menu);
+    void addMenu(VMenu* menu);
     void getMouseDownRelativePosition(int p[2]) const;
     void getMouseRelativePosition(int p[2]) const;
     void getPreviousMouseRelativePosition(int p[2]) const;
@@ -164,16 +164,16 @@ class CSView
     bool didMouseJustGoUp() const;
     bool didMouseMoveWhileDown() const;
     bool leftMouseButtonDown(int x, int y, int selStatus);
-    bool getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int &objType, int &objID, int vSize[2],
-                                         bool &viewIsPerspective) const;
+    bool getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int& objType, int& objID, int vSize[2],
+                                         bool& viewIsPerspective) const;
     void leftMouseButtonUp(int x, int y);
     void mouseMove(int x, int y, bool passiveAndFocused);
-    int modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPosition);
+    int modelDragMoveEvent(int xPos, int yPos, C3Vector* desiredModelPosition);
     bool mouseWheel(int deltaZ, int x, int y);
     bool middleMouseButtonDown(int x, int y, bool _subViewIsPassive);
     void middleMouseButtonUp(int x, int y);
     bool rightMouseButtonDown(int x, int y, bool _subViewIsPassive);
-    bool rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow, int subViewIndex);
+    bool rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow, int subViewIndex);
     bool leftMouseButtonDoubleClick(int x, int y, int selStatus);
     void setMousePositionDepth(double depth);
     double getMousePositionDepth() const;

@@ -21,18 +21,18 @@ See the GNU General Public License for more details.
 #include <octreeRendering.h>
 #include <guiApp.h>
 
-const int _cubeIndices[] = {0,  1,  2,  0,  2,  3,  4,  5,  6,  4,  6,  7,  8,  9,  10, 8,  10, 11,
+const int _cubeIndices[] = {0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11,
                             12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
 
 const float _cubeNormals[] = {
-    -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,
-    0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0,
-    1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,
-    0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,
-    0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,  0.0,  -1.0, 0.0,
-    0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0};
+    -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+    0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
+    1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+    0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
+    0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0};
 
-void displayOctree(COcTree *octree, CViewableBase *renderingObject, int displayAttrib)
+void displayOctree(COcTree* octree, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(octree, renderingObject);
@@ -62,8 +62,8 @@ void displayOctree(COcTree *octree, CViewableBase *renderingObject, int displayA
 
         if (octree->getOctreeInfo() != nullptr)
         {
-            std::vector<double> &_voxelPositions = octree->getCubePositions()[0];
-            float *_cubeVertices = octree->getCubeVertices();
+            std::vector<double>& _voxelPositions = octree->getCubePositions()[0];
+            float* _cubeVertices = octree->getCubeVertices();
             octree->getColor()->makeCurrentColor(false);
 
             if (octree->getShowOctree() && ((displayAttrib & sim_displayattribute_forvisionsensor) == 0))
@@ -217,7 +217,7 @@ void displayOctree(COcTree *octree, CViewableBase *renderingObject, int displayA
                         glPushMatrix();
                         glTranslated(_voxelPositions[3 * i + 0], _voxelPositions[3 * i + 1],
                                      _voxelPositions[3 * i + 2]);
-                        const float *cc = octree->getColors();
+                        const float* cc = octree->getColors();
                         float c[4] = {cc[4 * i + 0], cc[4 * i + 1], cc[4 * i + 2], cc[4 * i + 3]};
                         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, c);
                         int _vertexBufferId = octree->getVertexBufferId();
@@ -238,7 +238,7 @@ void displayOctree(COcTree *octree, CViewableBase *renderingObject, int displayA
                         glTranslated(_voxelPositions[3 * i + 0], _voxelPositions[3 * i + 1],
                                      _voxelPositions[3 * i + 2]);
 
-                        const float *cc = octree->getColors();
+                        const float* cc = octree->getColors();
                         float c[4] = {cc[4 * i + 0], cc[4 * i + 1], cc[4 * i + 2], cc[4 * i + 3]};
                         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, c);
                         int _vertexBufferId = octree->getVertexBufferId();

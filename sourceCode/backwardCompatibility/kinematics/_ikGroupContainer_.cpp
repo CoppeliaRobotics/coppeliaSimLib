@@ -16,7 +16,7 @@ size_t _CIkGroupContainer_::getObjectCount() const
     return (_ikGroups.size());
 }
 
-CIkGroup_old *_CIkGroupContainer_::getObjectFromHandle(int ikGroupHandle) const
+CIkGroup_old* _CIkGroupContainer_::getObjectFromHandle(int ikGroupHandle) const
 {
     for (size_t i = 0; i < _ikGroups.size(); i++)
     {
@@ -26,15 +26,15 @@ CIkGroup_old *_CIkGroupContainer_::getObjectFromHandle(int ikGroupHandle) const
     return (nullptr);
 }
 
-CIkGroup_old *_CIkGroupContainer_::getObjectFromIndex(size_t index) const
+CIkGroup_old* _CIkGroupContainer_::getObjectFromIndex(size_t index) const
 {
-    CIkGroup_old *retVal = nullptr;
+    CIkGroup_old* retVal = nullptr;
     if (index < _ikGroups.size())
         retVal = _ikGroups[index];
     return (retVal);
 }
 
-CIkGroup_old *_CIkGroupContainer_::getObjectFromName(const char *ikGroupName) const
+CIkGroup_old* _CIkGroupContainer_::getObjectFromName(const char* ikGroupName) const
 {
     for (size_t i = 0; i < _ikGroups.size(); i++)
     {
@@ -44,7 +44,7 @@ CIkGroup_old *_CIkGroupContainer_::getObjectFromName(const char *ikGroupName) co
     return (nullptr);
 }
 
-void _CIkGroupContainer_::_addIkGroup(CIkGroup_old *anIkGroup)
+void _CIkGroupContainer_::_addIkGroup(CIkGroup_old* anIkGroup)
 {
     _ikGroups.push_back(anIkGroup);
 }
@@ -65,10 +65,10 @@ void _CIkGroupContainer_::_removeIkGroup(int ikGroupHandle)
 bool _CIkGroupContainer_::shiftIkGroup(int ikGroupHandle, bool shiftUp)
 {
     bool diff = false;
-    CIkGroup_old *it = getObjectFromHandle(ikGroupHandle);
+    CIkGroup_old* it = getObjectFromHandle(ikGroupHandle);
     for (size_t i = 0; i < _ikGroups.size(); i++)
     {
-        CIkGroup_old *ikg = _ikGroups[i];
+        CIkGroup_old* ikg = _ikGroups[i];
         if (shiftUp)
         {
             if ((ikg->getObjectHandle() == ikGroupHandle) && (i > 0))

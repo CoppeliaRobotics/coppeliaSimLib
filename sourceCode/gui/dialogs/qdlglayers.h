@@ -14,7 +14,7 @@ class CQDlgLayers : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgLayers(QWidget *parent = 0);
+    explicit CQDlgLayers(QWidget* parent = 0);
     ~CQDlgLayers();
 
     void refresh();
@@ -43,7 +43,7 @@ class CQDlgLayers : public CDlgEx
     void on_qqDynamicContentOnly_clicked();
 
   private:
-    Ui::CQDlgLayers *ui;
+    Ui::CQDlgLayers* ui;
 };
 
 #endif // QDLGLAYERS_H

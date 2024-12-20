@@ -6,9 +6,9 @@
 #ifdef WIN_SIM
 #include <vector>
 
-static std::vector<CSerialPortWin *> allOpenedSerialPorts;
+static std::vector<CSerialPortWin*> allOpenedSerialPorts;
 
-CSerialPortWin *_getOpenedPortFromHandle(int portHandle)
+CSerialPortWin* _getOpenedPortFromHandle(int portHandle)
 {
     for (size_t i = 0; i < allOpenedSerialPorts.size(); i++)
     {
@@ -18,9 +18,9 @@ CSerialPortWin *_getOpenedPortFromHandle(int portHandle)
     return (nullptr);
 }
 
-int serialOpen(const char *portName, int baudrate)
+int serialOpen(const char* portName, int baudrate)
 {
-    CSerialPortWin *p = new CSerialPortWin();
+    CSerialPortWin* p = new CSerialPortWin();
     if (p->Open(portName, baudrate) != 0)
     {
         allOpenedSerialPorts.push_back(p);
@@ -36,7 +36,7 @@ char serialClose(int portHandle)
     {
         if (allOpenedSerialPorts[i]->getPortHandle() == portHandle)
         {
-            CSerialPortWin *p = allOpenedSerialPorts[i];
+            CSerialPortWin* p = allOpenedSerialPorts[i];
             p->Close();
             delete p;
             allOpenedSerialPorts.erase(allOpenedSerialPorts.begin() + i);
@@ -46,9 +46,9 @@ char serialClose(int portHandle)
     return (1);
 }
 
-int serialWrite(int portHandle, const char *buffer, int size)
+int serialWrite(int portHandle, const char* buffer, int size)
 {
-    CSerialPortWin *p = _getOpenedPortFromHandle(portHandle);
+    CSerialPortWin* p = _getOpenedPortFromHandle(portHandle);
     if (p == nullptr)
         return (0);
     return (p->SendData(buffer, size));
@@ -56,15 +56,15 @@ int serialWrite(int portHandle, const char *buffer, int size)
 
 int serialCheck(int portHandle)
 {
-    CSerialPortWin *p = _getOpenedPortFromHandle(portHandle);
+    CSerialPortWin* p = _getOpenedPortFromHandle(portHandle);
     if (p == nullptr)
         return (0);
     return (p->ReadDataWaiting());
 }
 
-int serialRead(int portHandle, char *buffer, int maxSize)
+int serialRead(int portHandle, char* buffer, int maxSize)
 {
-    CSerialPortWin *p = _getOpenedPortFromHandle(portHandle);
+    CSerialPortWin* p = _getOpenedPortFromHandle(portHandle);
     if (p == nullptr)
         return (0);
     return (p->ReadData(buffer, maxSize));
@@ -115,7 +115,7 @@ typedef struct serial_struct_s
 
 /* --------------------------- Local routines ----------------------------- */
 
-static std::map<int, serial_struct_t *> serial_map;
+static std::map<int, serial_struct_t*> serial_map;
 static pthread_mutex_t serial_map_mutex;
 static int serial_counter = 1;
 
@@ -129,7 +129,8 @@ static int serial_counter = 1;
  *
  * @return T type value
  */
-template <typename T> T convert(serial_result_t res)
+template <typename T>
+T convert(serial_result_t res)
 {
     return (T)res;
 }
@@ -142,7 +143,7 @@ template <typename T> T convert(serial_result_t res)
  *
  * @result true if conversion succeed, false otherwise
  */
-bool convert(int baudrate, speed_t &speed)
+bool convert(int baudrate, speed_t& speed)
 {
     bool result = true;
     switch (baudrate)
@@ -215,7 +216,7 @@ static void cleanup(void)
 {
     while (serial_map.size() > 0)
     {
-        std::map<int, serial_struct_t *>::iterator it = serial_map.begin();
+        std::map<int, serial_struct_t*>::iterator it = serial_map.begin();
         close(it->second->fd);
         delete it->second;
         serial_map.erase(it);
@@ -247,11 +248,11 @@ void __attribute__((destructor)) serial_destructor(void)
  *
  * @return true if given name exists in main map, false otherwise
  */
-static bool in_map(const char *name)
+static bool in_map(const char* name)
 {
     bool result = false;
 
-    for (std::map<int, serial_struct_t *>::const_iterator it = serial_map.begin(); it != serial_map.end(); it++)
+    for (std::map<int, serial_struct_t*>::const_iterator it = serial_map.begin(); it != serial_map.end(); it++)
     {
         if (strcmp(it->second->name.c_str(), name) == 0)
         {
@@ -270,10 +271,10 @@ static bool in_map(const char *name)
  *
  * @result a pointer to serial_port structure or nullptr when invalid handle
  */
-static serial_struct_t *get_handle(int portHandle)
+static serial_struct_t* get_handle(int portHandle)
 {
-    std::map<int, serial_struct_t *>::const_iterator it = serial_map.find(portHandle);
-    return (it != serial_map.end() ? (serial_struct_t *)it->second : nullptr);
+    std::map<int, serial_struct_t*>::const_iterator it = serial_map.find(portHandle);
+    return (it != serial_map.end() ? (serial_struct_t*)it->second : nullptr);
 }
 
 /* --------------------------------- API ---------------------------------- */
@@ -286,7 +287,7 @@ static serial_struct_t *get_handle(int portHandle)
  *
  * @return serial port handle (posistive value) or error code (negative value)
  */
-int serialOpen(const char *portName, int baudrate)
+int serialOpen(const char* portName, int baudrate)
 {
     int result = convert<int>(SERIAL_RESULT_GENERAL_ERROR);
     pthread_mutex_lock(&serial_map_mutex);
@@ -298,7 +299,7 @@ int serialOpen(const char *portName, int baudrate)
     }
     else if (in_map(portName) == false)
     {
-        serial_struct_t *s_ptr = new serial_struct_t;
+        serial_struct_t* s_ptr = new serial_struct_t;
 
         if (s_ptr != nullptr)
         {
@@ -378,7 +379,7 @@ char serialClose(int portHandle)
     char result = convert<char>(SERIAL_RESULT_INVALID_HANDLE);
     pthread_mutex_lock(&serial_map_mutex);
 
-    std::map<int, serial_struct_t *>::iterator it = serial_map.find(portHandle);
+    std::map<int, serial_struct_t*>::iterator it = serial_map.find(portHandle);
 
     if (it != serial_map.end())
     {
@@ -404,10 +405,10 @@ char serialClose(int portHandle)
  *
  * @return number of successfully written bytes or error code (negative value)
  */
-int serialWrite(int portHandle, const char *buffer, int size)
+int serialWrite(int portHandle, const char* buffer, int size)
 {
     int result = convert<int>(SERIAL_RESULT_INVALID_HANDLE);
-    serial_struct_t *s_ptr = nullptr;
+    serial_struct_t* s_ptr = nullptr;
     pthread_mutex_lock(&serial_map_mutex);
 
     if ((buffer == nullptr) || (size == 0))
@@ -433,7 +434,7 @@ int serialWrite(int portHandle, const char *buffer, int size)
 int serialCheck(int portHandle)
 {
     int result = convert<int>(SERIAL_RESULT_INVALID_HANDLE);
-    serial_struct_t *s_ptr = nullptr;
+    serial_struct_t* s_ptr = nullptr;
     pthread_mutex_lock(&serial_map_mutex);
 
     if ((s_ptr = get_handle(portHandle)) != nullptr)
@@ -463,10 +464,10 @@ int serialCheck(int portHandle)
  *
  * @return a number of successfully read bytes or error code (negative value)
  */
-int serialRead(int portHandle, char *buffer, int maxSize)
+int serialRead(int portHandle, char* buffer, int maxSize)
 {
     int result = convert<int>(SERIAL_RESULT_INVALID_HANDLE);
-    serial_struct_t *s_ptr = nullptr;
+    serial_struct_t* s_ptr = nullptr;
     pthread_mutex_lock(&serial_map_mutex);
 
     if ((buffer == nullptr) || (maxSize == 0))

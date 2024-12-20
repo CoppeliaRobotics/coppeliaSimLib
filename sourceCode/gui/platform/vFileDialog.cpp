@@ -8,36 +8,36 @@ void VFileDialog::setFileDialogNative(int n)
     _fileDialogNative = n;
 }
 
-std::string VFileDialog::getOpenFileName(QWidget *parent, unsigned short option, const char *title,
-                                         const char *startPath, const char *initFilename, bool allowAnyFile,
-                                         const char *extensionName, const char *extension1, const char *extension2,
-                                         const char *extension3, const char *extension4, const char *extension5,
-                                         const char *extension6, const char *extension7, const char *extension8,
-                                         const char *extension9, const char *extension10)
+std::string VFileDialog::getOpenFileName(QWidget* parent, unsigned short option, const char* title,
+                                         const char* startPath, const char* initFilename, bool allowAnyFile,
+                                         const char* extensionName, const char* extension1, const char* extension2,
+                                         const char* extension3, const char* extension4, const char* extension5,
+                                         const char* extension6, const char* extension7, const char* extension8,
+                                         const char* extension9, const char* extension10)
 {
     return (_getOpenOrSaveFileName(true, parent, option, title, startPath, initFilename, allowAnyFile, extensionName,
                                    extension1, extension2, extension3, extension4, extension5, extension6, extension7,
                                    extension8, extension9, extension10));
 }
 
-std::string VFileDialog::getSaveFileName(QWidget *parent, unsigned short option, const char *title,
-                                         const char *startPath, const char *initFilename, bool allowAnyFile,
-                                         const char *extensionName, const char *extension1, const char *extension2,
-                                         const char *extension3, const char *extension4, const char *extension5,
-                                         const char *extension6, const char *extension7, const char *extension8,
-                                         const char *extension9, const char *extension10)
+std::string VFileDialog::getSaveFileName(QWidget* parent, unsigned short option, const char* title,
+                                         const char* startPath, const char* initFilename, bool allowAnyFile,
+                                         const char* extensionName, const char* extension1, const char* extension2,
+                                         const char* extension3, const char* extension4, const char* extension5,
+                                         const char* extension6, const char* extension7, const char* extension8,
+                                         const char* extension9, const char* extension10)
 {
     return (_getOpenOrSaveFileName(false, parent, option, title, startPath, initFilename, allowAnyFile, extensionName,
                                    extension1, extension2, extension3, extension4, extension5, extension6, extension7,
                                    extension8, extension9, extension10));
 }
 
-std::string VFileDialog::_getOpenOrSaveFileName(bool open, QWidget *parent, unsigned short option, const char *title,
-                                                const char *startPath, const char *initFilename, bool allowAnyFile,
-                                                const char *extensionName, const char *extension1,
-                                                const char *extension2, const char *extension3, const char *extension4,
-                                                const char *extension5, const char *extension6, const char *extension7,
-                                                const char *extension8, const char *extension9, const char *extension10)
+std::string VFileDialog::_getOpenOrSaveFileName(bool open, QWidget* parent, unsigned short option, const char* title,
+                                                const char* startPath, const char* initFilename, bool allowAnyFile,
+                                                const char* extensionName, const char* extension1,
+                                                const char* extension2, const char* extension3, const char* extension4,
+                                                const char* extension5, const char* extension6, const char* extension7,
+                                                const char* extension8, const char* extension9, const char* extension10)
 {
     QString retString;
     QString pathAndOptionalFilename(QString::fromLocal8Bit(startPath));
@@ -82,7 +82,7 @@ std::string VFileDialog::_getOpenOrSaveFileName(bool open, QWidget *parent, unsi
     }
 
     bool native = true;
-#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that,
+#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, \
                 // we don't use native dialogs
     native = false;
 #endif
@@ -170,12 +170,12 @@ std::string VFileDialog::_getOpenOrSaveFileName(bool open, QWidget *parent, unsi
     return (rs);
 }
 
-bool VFileDialog::getOpenFileNames(std::vector<std::string> &files, QWidget *parent, unsigned short option,
-                                   const char *title, const char *startPath, const char *initFilename,
-                                   bool allowAnyFile, const char *extensionName, const char *extension1,
-                                   const char *extension2, const char *extension3, const char *extension4,
-                                   const char *extension5, const char *extension6, const char *extension7,
-                                   const char *extension8, const char *extension9, const char *extension10)
+bool VFileDialog::getOpenFileNames(std::vector<std::string>& files, QWidget* parent, unsigned short option,
+                                   const char* title, const char* startPath, const char* initFilename,
+                                   bool allowAnyFile, const char* extensionName, const char* extension1,
+                                   const char* extension2, const char* extension3, const char* extension4,
+                                   const char* extension5, const char* extension6, const char* extension7,
+                                   const char* extension8, const char* extension9, const char* extension10)
 {
     files.clear();
     QString pathAndOptionalFilename(QString::fromLocal8Bit(startPath));
@@ -206,7 +206,7 @@ bool VFileDialog::getOpenFileNames(std::vector<std::string> &files, QWidget *par
         filter += ";;all (*.*)";
 
     bool native = true;
-#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that,
+#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, \
                 // we don't use native dialogs
     native = false;
 #endif
@@ -245,13 +245,13 @@ bool VFileDialog::getOpenFileNames(std::vector<std::string> &files, QWidget *par
     return (files.size() > 0);
 }
 
-std::string VFileDialog::getExistingFolder(QWidget *parent, const char *title, const char *startPath)
+std::string VFileDialog::getExistingFolder(QWidget* parent, const char* title, const char* startPath)
 {
     QString retString;
     QString path(QString::fromLocal8Bit(startPath));
 
     bool native = true;
-#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that,
+#ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, \
                 // we don't use native dialogs
     native = false;
 #endif

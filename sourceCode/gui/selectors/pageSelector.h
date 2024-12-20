@@ -23,7 +23,7 @@ class CPageSelector
     int getCursor(int x, int y);
     int getPageIndex(int x, int y);
     bool rightMouseButtonDown(int x, int y);
-    void rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow);
+    void rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainWindow);
     bool leftMouseButtonDoubleClick(int x, int y, int selectionStatus);
     void setViewSelectionInfo(int objType, int viewInd, int subViewInd);
     void keyPress(int key);

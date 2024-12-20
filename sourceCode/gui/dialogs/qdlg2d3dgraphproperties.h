@@ -16,13 +16,13 @@ class CQDlg2D3DGraphProperties : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlg2D3DGraphProperties(QWidget *parent = 0);
+    explicit CQDlg2D3DGraphProperties(QWidget* parent = 0);
     ~CQDlg2D3DGraphProperties();
 
     void cancelEvent();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
     void updateObjectsInList();
     int getSelectedObjectID();
@@ -33,7 +33,7 @@ class CQDlg2D3DGraphProperties : public CDlgEx
     bool doesInstanceSwitchRequireDestruction();
 
     void _initialize(int graphHandle, bool xyGraph);
-    static void display(int graphHandle, bool xyGraph, QWidget *theParentWindow);
+    static void display(int graphHandle, bool xyGraph, QWidget* theParentWindow);
 
   private slots:
     void onDeletePressed();
@@ -42,7 +42,7 @@ class CQDlg2D3DGraphProperties : public CDlgEx
 
     void on_qqList_itemSelectionChanged();
 
-    void on_qqList_itemChanged(QListWidgetItem *item);
+    void on_qqList_itemChanged(QListWidgetItem* item);
 
     void on_qqVisible_clicked();
 
@@ -67,7 +67,7 @@ class CQDlg2D3DGraphProperties : public CDlgEx
     bool _inListSelectionRoutine;
     bool _xyGraph;
 
-    Ui::CQDlg2D3DGraphProperties *ui;
+    Ui::CQDlg2D3DGraphProperties* ui;
 };
 
 #endif // QDLG2D3DGRAPHPROPERTIES_H

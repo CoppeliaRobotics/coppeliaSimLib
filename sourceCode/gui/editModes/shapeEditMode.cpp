@@ -12,8 +12,8 @@
 #include <utils.h>
 #include <meshRoutines.h>
 
-CShapeEditMode::CShapeEditMode(CShape *shape, int editModeType, CSceneObjectContainer *objCont,
-                               CTextureContainer *textureCont, CUiThread *uiThread)
+CShapeEditMode::CShapeEditMode(CShape* shape, int editModeType, CSceneObjectContainer* objCont,
+                               CTextureContainer* textureCont, CUiThread* uiThread)
 {
     _shape = shape;
     _editModeType = editModeType;
@@ -35,7 +35,7 @@ CShapeEditMode::CShapeEditMode(CShape *shape, int editModeType, CSceneObjectCont
     }
     if (_editionTextureProperty != nullptr)
     {
-        CTextureObject *to = _textureCont->getObject(_editionTextureProperty->getTextureObjectID());
+        CTextureObject* to = _textureCont->getObject(_editionTextureProperty->getTextureObjectID());
         if (to != nullptr)
         {
             to->getTextureBuffer(_editionTexture);
@@ -64,7 +64,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
         CMeshRoutines::removeNonReferencedVertices(_editionVertices, _editionIndices);
         if (_editionVertices.size() != 0)
         { // The shape is not empty
-            CMesh *newMesh;
+            CMesh* newMesh;
             bool hadImportedTextureCoords = false;
             if (_shape->getSingleMesh()->getTextureProperty() != nullptr)
                 hadImportedTextureCoords = _shape->getSingleMesh()->getTextureProperty()->getFixedCoordinates();
@@ -94,7 +94,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
 
     if (_editionTextureProperty != nullptr)
     { // reset to original texture
-        CTextureObject *to = _textureCont->getObject(_editionTextureProperty->getTextureObjectID());
+        CTextureObject* to = _textureCont->getObject(_editionTextureProperty->getTextureObjectID());
         if (to != nullptr)
             to->setTextureBuffer(_editionTexture);
     }
@@ -106,7 +106,7 @@ int CShapeEditMode::getEditModeType()
     return (_editModeType);
 }
 
-CShape *CShapeEditMode::getEditModeShape()
+CShape* CShapeEditMode::getEditModeShape()
 {
     return (_shape);
 }
@@ -186,7 +186,7 @@ C3Vector CShapeEditMode::getEditionVertex(int index)
     return (C3Vector(&_editionVertices[3 * index]));
 }
 
-void CShapeEditMode::setEditionVertex(int index, const C3Vector &v)
+void CShapeEditMode::setEditionVertex(int index, const C3Vector& v)
 {
     _editionVertices[3 * index + 0] = v(0);
     _editionVertices[3 * index + 1] = v(1);
@@ -211,7 +211,7 @@ int CShapeEditMode::getEditModeBufferValue(int index)
     return (editModeBuffer[index]);
 }
 
-std::vector<int> *CShapeEditMode::getEditModeBuffer()
+std::vector<int>* CShapeEditMode::getEditModeBuffer()
 {
     return (&editModeBuffer);
 }
@@ -544,7 +544,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
         glPushAttrib(GL_POLYGON_BIT);
 
         glPolygonOffset(
-            0.5f, 0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+            0.5f, 0.0f);                  // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL); //
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glLoadName(-1);
@@ -639,7 +639,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
     {
         glPushAttrib(GL_POLYGON_BIT);
         glPolygonOffset(
-            0.5, 0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
+            0.5, 0.0);                    // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL); //
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDisable(GL_DITHER);
@@ -825,7 +825,7 @@ double CShapeEditMode::getEdgeAngle(int edgeID) // all edit mode routines should
 }
 
 void CShapeEditMode::getNextEdges(int rearVertex, int frontVertex,
-                                  std::vector<int> &edgeList) // all edit mode routines should go somewhere else!!!
+                                  std::vector<int>& edgeList) // all edit mode routines should go somewhere else!!!
 {
     edgeList.clear();
     std::vector<bool> alreadyTaken(_edgeCont.allEdges.size() / 2, false);
@@ -874,7 +874,7 @@ void CShapeEditMode::getNextEdges(int rearVertex, int frontVertex,
     }
 }
 
-void CShapeEditMode::selectionFromTriangleToVertexEditMode(std::vector<int> *newVertexSel)
+void CShapeEditMode::selectionFromTriangleToVertexEditMode(std::vector<int>* newVertexSel)
 {
     // newVertexSel is nullptr by default. In that case, the change is made in the editModeBuffer
     bool inPlace = false;
@@ -909,7 +909,7 @@ void CShapeEditMode::selectionFromTriangleToVertexEditMode(std::vector<int> *new
     }
 }
 
-void CShapeEditMode::selectionFromTriangleToEdgeEditMode(std::vector<int> *newEdgeSel)
+void CShapeEditMode::selectionFromTriangleToEdgeEditMode(std::vector<int>* newEdgeSel)
 {
     // newVertexSel is nullptr by default. In that case, the change is made in the editModeBuffer
     bool inPlace = false;
@@ -942,7 +942,7 @@ void CShapeEditMode::selectionFromTriangleToEdgeEditMode(std::vector<int> *newEd
     }
 }
 
-void CShapeEditMode::selectionFromEdgeToVertexEditMode(std::vector<int> *newVertexSel)
+void CShapeEditMode::selectionFromEdgeToVertexEditMode(std::vector<int>* newVertexSel)
 {
     // newVertexSel is nullptr by default. In that case, the change is made in the editModeBuffer
     bool inPlace = false;
@@ -976,7 +976,7 @@ void CShapeEditMode::selectionFromEdgeToVertexEditMode(std::vector<int> *newVert
     }
 }
 
-void CShapeEditMode::selectionFromVertexToTriangleEditMode(std::vector<int> *newTriangleSel)
+void CShapeEditMode::selectionFromVertexToTriangleEditMode(std::vector<int>* newTriangleSel)
 {
     // newTriangleSel is nullptr by default. In that case, the change is made in the editModeBuffer
     std::vector<bool> used(_editionVertices.size(), false);
@@ -1004,7 +1004,7 @@ void CShapeEditMode::selectionFromVertexToTriangleEditMode(std::vector<int> *new
     }
 }
 
-void CShapeEditMode::selectionFromVertexToEdgeEditMode(std::vector<int> *newEdgeSel)
+void CShapeEditMode::selectionFromVertexToEdgeEditMode(std::vector<int>* newEdgeSel)
 {
     // newEdgeSel is nullptr by default. In that case, the change is made in the editModeBuffer
     std::vector<bool> used(_editionVertices.size(), false);
@@ -1032,7 +1032,7 @@ void CShapeEditMode::selectionFromVertexToEdgeEditMode(std::vector<int> *newEdge
     }
 }
 
-void CShapeEditMode::selectionFromEdgeToTriangleEditMode(std::vector<int> *newTriangleSel)
+void CShapeEditMode::selectionFromEdgeToTriangleEditMode(std::vector<int>* newTriangleSel)
 {
     // newTriangleSel is nullptr by default. In that case, the change is made in the editModeBuffer
     std::vector<bool> used(_edgeCont.allEdges.size(), false);
@@ -1162,7 +1162,7 @@ bool CShapeEditMode::alreadyInEditModeBuffer(int item)
     return (false);
 }
 
-void CShapeEditMode::copySelection(std::vector<int> *selection)
+void CShapeEditMode::copySelection(std::vector<int>* selection)
 {
     if (_editModeType & TRIANGLE_EDIT_MODE)
     { // We have to copy the selected triangles with their vertices
@@ -1248,13 +1248,13 @@ void CShapeEditMode::paste()
     }
 }
 
-void CShapeEditMode::cutSelection(std::vector<int> *selection)
+void CShapeEditMode::cutSelection(std::vector<int>* selection)
 {
     copySelection(selection);
     deleteSelection(selection);
 }
 
-void CShapeEditMode::deleteSelection(std::vector<int> *selection)
+void CShapeEditMode::deleteSelection(std::vector<int>* selection)
 {
     if (_editModeType & TRIANGLE_EDIT_MODE)
     {
@@ -1354,8 +1354,8 @@ void CShapeEditMode::deleteSelection(std::vector<int> *selection)
     }
 }
 
-void CShapeEditMode::copySelectedFaces(std::vector<int> *sel, std::vector<double> *vert, std::vector<int> *ind,
-                                       std::vector<double> *norm, std::vector<float> *tex)
+void CShapeEditMode::copySelectedFaces(std::vector<int>* sel, std::vector<double>* vert, std::vector<int>* ind,
+                                       std::vector<double>* norm, std::vector<float>* tex)
 { // norm or tex can be nullptr
     if (_editModeType & TRIANGLE_EDIT_MODE)
     {
@@ -1435,7 +1435,7 @@ void CShapeEditMode::copySelectedFaces(std::vector<int> *sel, std::vector<double
     }
 }
 
-void CShapeEditMode::addMenu(VMenu *menu)
+void CShapeEditMode::addMenu(VMenu* menu)
 {
     int selSize = getEditModeBufferSize();
     int buffSize = (int)editBufferVerticesCopy.size();
@@ -1715,7 +1715,7 @@ void CShapeEditMode::makeShape()
     if (nVertices.size() != 0)
     { // Now we have to transform all vertices with the cumulative transform
         // matrix of the shape beeing edited:
-        CShape *it = _shape;
+        CShape* it = _shape;
         C7Vector m(it->getFullCumulativeTransformation());
         C3Vector v;
         for (int i = 0; i < int(nVertices.size()) / 3; i++)
@@ -1755,7 +1755,7 @@ void CShapeEditMode::makePrimitive(int what)
     if (nVertices.size() != 0)
     { // Now we have to transform all vertices with the cumulative transform
         // matrix of the shape beeing edited:
-        CShape *it = _shape;
+        CShape* it = _shape;
         C7Vector m(it->getFullCumulativeTransformation());
         C3Vector v;
         for (int i = 0; i < int(nVertices.size()) / 3; i++)
@@ -1835,7 +1835,7 @@ void CShapeEditMode::makeDummies()
     //        proceed=(VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_VERTICES,IDS_LARGE_QUANTITY_OF_OBJECT_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
     //    if (proceed)
     //    {
-    CShape *it = _shape;
+    CShape* it = _shape;
     C7Vector tr(it->getFullCumulativeTransformation());
     std::vector<double> relPathPts;
     for (int i = 0; i < getEditModeBufferSize(); i++)
@@ -1899,7 +1899,7 @@ void CShapeEditMode::makePath()
     std::vector<int> sel;
     for (int i = 0; i < getEditModeBufferSize(); i++)
         sel.push_back(editModeBuffer[i]);
-    CShape *shape = _shape;
+    CShape* shape = _shape;
 
     std::vector<double> relPathPts;
 

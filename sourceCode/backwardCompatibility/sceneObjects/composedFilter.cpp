@@ -19,7 +19,7 @@ void CComposedFilter::removeAllSimpleFilters()
     _allSimpleFilters.clear();
 }
 
-void CComposedFilter::serialize(CSer &ar)
+void CComposedFilter::serialize(CSer& ar)
 {
     if (!ar.isStoring())
     { // Loading
@@ -35,7 +35,7 @@ void CComposedFilter::serialize(CSer &ar)
                 {
                     noHit = false;
                     ar >> byteQuantity;
-                    CSimpleFilter *it = new CSimpleFilter();
+                    CSimpleFilter* it = new CSimpleFilter();
                     it->serialize(ar);
                     _allSimpleFilters.push_back(it);
                 }
@@ -57,7 +57,7 @@ void CComposedFilter::_prepareScriptEquivalent()
             "retVal={}\n    retVal.trigger=false\n    retVal.packedPackets={}\n";
         for (size_t i = 0; i < _allSimpleFilters.size(); i++)
         {
-            CSimpleFilter *it = _allSimpleFilters[i];
+            CSimpleFilter* it = _allSimpleFilters[i];
             scriptEquivalent += "    ";
             scriptEquivalent += it->getCodeEquivalent();
             scriptEquivalent += "\n";

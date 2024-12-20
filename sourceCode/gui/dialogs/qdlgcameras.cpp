@@ -7,7 +7,8 @@
 #include <simStrings.h>
 #include <guiApp.h>
 
-CQDlgCameras::CQDlgCameras(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgCameras)
+CQDlgCameras::CQDlgCameras(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgCameras)
 {
     _dlgType = CAMERA_DLG;
     ui->setupUi(this);
@@ -28,11 +29,11 @@ void CQDlgCameras::cancelEvent()
 void CQDlgCameras::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
 
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
-    CCamera *it = App::currentWorld->sceneObjects->getLastSelectionCamera();
+    CCamera* it = App::currentWorld->sceneObjects->getLastSelectionCamera();
 
     ui->qqAllowRotation->setEnabled((it != nullptr) && noEditModeNoSim);
     ui->qqColorA->setEnabled((it != nullptr) && noEditModeNoSim);
@@ -83,7 +84,7 @@ void CQDlgCameras::refresh()
         std::vector<int> ids;
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
         {
-            CSceneObject *it2 = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+            CSceneObject* it2 = App::currentWorld->sceneObjects->getObjectFromIndex(i);
             if (it2 != it)
             {
                 names.push_back(it2->getObjectAlias_printPath());

@@ -11,7 +11,7 @@ enum
     VMESSAGEBOX_CRITICAL_TYPE = 128,
 };
 
-unsigned short VMessageBox::informationSystemModal(QWidget *parent, const char *title, const char *message,
+unsigned short VMessageBox::informationSystemModal(QWidget* parent, const char* title, const char* message,
                                                    unsigned short flags, unsigned short defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
     unsigned short retVal = defaultAnswer;
@@ -29,7 +29,7 @@ unsigned short VMessageBox::informationSystemModal(QWidget *parent, const char *
     return (retVal);
 }
 
-unsigned short VMessageBox::information(QWidget *parent, const char *title, const char *message, unsigned short flags,
+unsigned short VMessageBox::information(QWidget* parent, const char* title, const char* message, unsigned short flags,
                                         unsigned short defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
     unsigned short retVal = defaultAnswer;
@@ -47,7 +47,7 @@ unsigned short VMessageBox::information(QWidget *parent, const char *title, cons
     return (retVal);
 }
 
-unsigned short VMessageBox::question(QWidget *parent, const char *title, const char *message, unsigned short flags,
+unsigned short VMessageBox::question(QWidget* parent, const char* title, const char* message, unsigned short flags,
                                      unsigned short defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
     unsigned short retVal = defaultAnswer;
@@ -65,7 +65,7 @@ unsigned short VMessageBox::question(QWidget *parent, const char *title, const c
     return (retVal);
 }
 
-unsigned short VMessageBox::warning(QWidget *parent, const char *title, const char *message, unsigned short flags,
+unsigned short VMessageBox::warning(QWidget* parent, const char* title, const char* message, unsigned short flags,
                                     unsigned short defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
     unsigned short retVal = defaultAnswer;
@@ -83,7 +83,7 @@ unsigned short VMessageBox::warning(QWidget *parent, const char *title, const ch
     return (retVal);
 }
 
-unsigned short VMessageBox::critical(QWidget *parent, const char *title, const char *message, unsigned short flags,
+unsigned short VMessageBox::critical(QWidget* parent, const char* title, const char* message, unsigned short flags,
                                      unsigned short defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
     unsigned short retVal = defaultAnswer;
@@ -101,7 +101,7 @@ unsigned short VMessageBox::critical(QWidget *parent, const char *title, const c
     return (retVal);
 }
 
-unsigned short VMessageBox::_displayBox(QWidget *parent, const char *title, const char *message, unsigned short flags)
+unsigned short VMessageBox::_displayBox(QWidget* parent, const char* title, const char* message, unsigned short flags)
 { // Don't forget: parent can be nullptr at application start-up!
     unsigned short lower = (flags & 7);
     unsigned short upper = flags - lower;

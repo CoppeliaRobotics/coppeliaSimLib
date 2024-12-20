@@ -30,16 +30,16 @@
 #endif
 
 #ifndef SIM_WITH_GUI
-CSimQApp *App::qtApp = nullptr;
+CSimQApp* App::qtApp = nullptr;
 int App::_qApp_argc = 1;
 char App::_qApp_arg0[] = {"CoppeliaSim"};
-char *App::_qApp_argv[1] = {_qApp_arg0};
+char* App::_qApp_argv[1] = {_qApp_arg0};
 #endif
-CSimThread *App::simThread = nullptr;
-CUserSettings *App::userSettings = nullptr;
-CFolderSystem *App::folders = nullptr;
-CWorldContainer *App::worldContainer = nullptr;
-CWorld *App::currentWorld = nullptr;
+CSimThread* App::simThread = nullptr;
+CUserSettings* App::userSettings = nullptr;
+CFolderSystem* App::folders = nullptr;
+CWorldContainer* App::worldContainer = nullptr;
+CWorld* App::currentWorld = nullptr;
 int App::_consoleVerbosity = sim_verbosity_default;
 int App::_statusbarVerbosity = sim_verbosity_msgs;
 int App::_dlgVerbosity = sim_verbosity_infos;
@@ -59,22 +59,21 @@ std::string App::_additionalAddOnScript1;
 std::string App::_additionalAddOnScript2;
 bool App::_consoleMsgsToFile = false;
 std::string App::_consoleMsgsFilename = "debugLog.txt";
-VFile *App::_consoleMsgsFile = nullptr;
-VArchive *App::_consoleMsgsArchive = nullptr;
-SignalHandler *App::_sigHandler = nullptr;
-CGm *App::gm = nullptr;
+VFile* App::_consoleMsgsFile = nullptr;
+VArchive* App::_consoleMsgsArchive = nullptr;
+SignalHandler* App::_sigHandler = nullptr;
+CGm* App::gm = nullptr;
 std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
-
 
 #ifdef WIN_SIM
 LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
 {
-    void *stack[62];
+    void* stack[62];
     HANDLE process = GetCurrentProcess();
     SymInitialize(process, 0, TRUE);
     unsigned short fr = CaptureStackBackTrace(0, 62, stack, nullptr);
-    SYMBOL_INFO *symb = (SYMBOL_INFO *)calloc(sizeof(SYMBOL_INFO) + 1024 * sizeof(char), 1);
+    SYMBOL_INFO* symb = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 1024 * sizeof(char), 1);
     symb->MaxNameLen = 1023;
     symb->SizeOfStruct = sizeof(SYMBOL_INFO);
     for (size_t i = 0; i < fr; i++)
@@ -89,35 +88,39 @@ LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
 #define BACKTRACE_SIZE 50
 void _segHandler(int sig)
 {
-    void *callstack[BACKTRACE_SIZE];
+    void* callstack[BACKTRACE_SIZE];
     size_t frames = backtrace(callstack, BACKTRACE_SIZE);
     fprintf(stderr, "\n\nError: signal %d:\n\n", sig);
 #ifndef DONT_DEMANGLE_BACKTRACE
-    char **strs = backtrace_symbols(callstack, frames);
-    for (int i = 0; i < frames; ++i) {
+    char** strs = backtrace_symbols(callstack, frames);
+    for (int i = 0; i < frames; ++i)
+    {
         std::string line(strs[i]);
         size_t mangledStart = line.find(
 #ifdef MAC_SIM
-                " "
+            " "
 #else
-                "("
+            "("
 #endif
-                "_Z");
-        if (mangledStart != std::string::npos) {
+            "_Z");
+        if (mangledStart != std::string::npos)
+        {
             mangledStart++;
             size_t mangledEnd = mangledStart;
-            while(mangledEnd < line.length() &&
+            while (mangledEnd < line.length() &&
 #ifdef MAC_SIM
-                    line.at(mangledEnd) != ' '
+                   line.at(mangledEnd) != ' '
 #else
-                    line.at(mangledEnd) != '+' &&
-                    line.at(mangledEnd) != ')'
+                   line.at(mangledEnd) != '+' &&
+                   line.at(mangledEnd) != ')'
 #endif
-                    ) mangledEnd++;
+            )
+                mangledEnd++;
             std::string mangled = line.substr(mangledStart, mangledEnd - mangledStart);
             int status;
-            char *demangled = abi::__cxa_demangle(mangled.c_str(), nullptr, nullptr, &status);
-            if (status == 0) {
+            char* demangled = abi::__cxa_demangle(mangled.c_str(), nullptr, nullptr, &status);
+            if (status == 0)
+            {
                 std::cout << line.substr(0, mangledStart) << demangled << line.substr(mangledEnd) << std::endl;
                 free(demangled);
                 continue;
@@ -144,7 +147,7 @@ void App::setAppStage(int s)
     _appStage = s;
 }
 
-void App::init(const char *appDir, int)
+void App::init(const char* appDir, int)
 {
     instancesList = new InstancesList();
     CSimFlavor::run(13);
@@ -262,7 +265,7 @@ void App::init(const char *appDir, int)
 
     if (_startupScriptString.size() > 0)
     {
-        int r=worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(), nullptr);
+        int r = worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(), nullptr);
         _startupScriptString.clear();
     }
 
@@ -377,7 +380,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     App::currentWorld->sceneObjects->handleDataCallbacks();
     if (currentWorld->sceneObjects->hasSelectionChanged())
     {
-        CInterfaceStack *stack = worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->pushTextOntoStack("sel");
         std::vector<int> sel;
@@ -389,7 +392,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     }
     if (currentWorld->simulation->isSimulationPaused())
     {
-        CScriptObject *mainScript = currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CScriptObject* mainScript = currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
         {
             worldContainer->dispatchEvents();
@@ -404,7 +407,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     int dataSize;
     while (messageID != -1)
     {
-        char *data = simGetSimulatorMessage_internal(&messageID, auxValues, &dataSize);
+        char* data = simGetSimulatorMessage_internal(&messageID, auxValues, &dataSize);
         if (messageID != -1)
         {
             if (messageID == sim_message_simulation_start_resume_request)
@@ -427,7 +430,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
             if ((!worldContainer->shouldTemporarilySuspendMainScript()) ||
                 App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart())
             {
-                CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+                CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
                 if (it != nullptr)
                 {
                     worldContainer->calcInfo->simulationPassStart();
@@ -516,7 +519,7 @@ void App::setApplicationArgument(int index, std::string arg)
         _applicationArguments[index] = arg;
 }
 
-void App::setAdditionalAddOnScript1(const char *script)
+void App::setAdditionalAddOnScript1(const char* script)
 {
     _additionalAddOnScript1 = script;
 }
@@ -526,7 +529,7 @@ std::string App::getAdditionalAddOnScript1()
     return (_additionalAddOnScript1);
 }
 
-void App::setAdditionalAddOnScript2(const char *script)
+void App::setAdditionalAddOnScript2(const char* script)
 {
     _additionalAddOnScript2 = script;
 }
@@ -536,7 +539,7 @@ std::string App::getAdditionalAddOnScript2()
     return (_additionalAddOnScript2);
 }
 
-bool App::getAppNamedParam(const char *paramName, std::string& param)
+bool App::getAppNamedParam(const char* paramName, std::string& param)
 {
     bool retVal = false;
     std::map<std::string, std::string>::iterator it = _applicationNamedParams.find(paramName);
@@ -548,7 +551,7 @@ bool App::getAppNamedParam(const char *paramName, std::string& param)
     return retVal;
 }
 
-void App::setAppNamedParam(const char *paramName, const char *param, int paramLength)
+void App::setAppNamedParam(const char* paramName, const char* param, int paramLength)
 {
     bool diff = false;
     if (paramLength == 0)
@@ -566,14 +569,14 @@ void App::setAppNamedParam(const char *paramName, const char *param, int paramLe
         {
             std::string cmd(NAMEDPARAMPREFIX);
             cmd += paramName;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyText(cmd.c_str(), param);
             App::worldContainer->pushEvent();
         }
     }
 }
 
-bool App::removeAppNamedParam(const char *paramName)
+bool App::removeAppNamedParam(const char* paramName)
 {
     bool retVal = false;
     std::map<std::string, std::string>::iterator it = _applicationNamedParams.find(paramName);
@@ -585,7 +588,7 @@ bool App::removeAppNamedParam(const char *paramName)
         {
             std::string cmd(NAMEDPARAMPREFIX);
             cmd += paramName;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyNull(cmd.c_str());
             App::worldContainer->pushEvent();
         }
@@ -593,22 +596,21 @@ bool App::removeAppNamedParam(const char *paramName)
     return retVal;
 }
 
-
 std::string App::getConsoleLogFilter()
 {
     return (_consoleLogFilterStr);
 }
 
-void App::setConsoleLogFilter(const char *filter)
+void App::setConsoleLogFilter(const char* filter)
 {
     _consoleLogFilterStr = filter;
 }
 
-bool App::logPluginMsg(const char *pluginName, int verbosityLevel, const char *logMsg)
+bool App::logPluginMsg(const char* pluginName, int verbosityLevel, const char* logMsg)
 {
     bool retVal = false;
 
-    CPlugin *it = nullptr;
+    CPlugin* it = nullptr;
 
     if (worldContainer != nullptr)
     {
@@ -658,14 +660,14 @@ bool App::logPluginMsg(const char *pluginName, int verbosityLevel, const char *l
     return (retVal);
 }
 
-void App::logMsg(int verbosityLevel, const char *msg, int int1, int int2 /*=0*/, int int3 /*=0*/)
+void App::logMsg(int verbosityLevel, const char* msg, int int1, int int2 /*=0*/, int int3 /*=0*/)
 {
     int realVerbosityLevel = verbosityLevel & 0x0fff;
     if ((_consoleVerbosity >= realVerbosityLevel) || (_statusbarVerbosity >= realVerbosityLevel))
         _logMsg(nullptr, verbosityLevel, msg, int1, int2, int3);
 }
 
-void App::logScriptMsg(const CScriptObject *script, int verbosityLevel, const char *msg)
+void App::logScriptMsg(const CScriptObject* script, int verbosityLevel, const char* msg)
 {
     int realVerbosityLevel = verbosityLevel & 0x0fff;
     if ((_consoleVerbosity >= realVerbosityLevel) || (_statusbarVerbosity >= realVerbosityLevel))
@@ -677,7 +679,7 @@ void App::logScriptMsg(const CScriptObject *script, int verbosityLevel, const ch
     }
 }
 
-int App::getVerbosityLevelFromString(const char *verbosityStr)
+int App::getVerbosityLevelFromString(const char* verbosityStr)
 {
     int retVal = -1;
     if (strcmp(verbosityStr, "none") == 0)
@@ -724,31 +726,31 @@ std::string App::getConsoleMsgFile()
     return (_consoleMsgsFilename);
 }
 
-void App::setConsoleMsgFile(const char *f)
+void App::setConsoleMsgFile(const char* f)
 {
     _consoleMsgsFilename = f;
 }
 
-void App::logMsg(int verbosityLevel, const char *msg, const char *subStr1, const char *subStr2 /*=nullptr*/,
-                 const char *subStr3 /*=nullptr*/)
+void App::logMsg(int verbosityLevel, const char* msg, const char* subStr1, const char* subStr2 /*=nullptr*/,
+                 const char* subStr3 /*=nullptr*/)
 {
     int realVerbosityLevel = verbosityLevel & 0x0fff;
     if ((_consoleVerbosity >= realVerbosityLevel) || (_statusbarVerbosity >= realVerbosityLevel))
         _logMsg(nullptr, verbosityLevel, msg, subStr1, subStr2, subStr3);
 }
 
-void App::logMsg(int verbosityLevel, const char *msg)
+void App::logMsg(int verbosityLevel, const char* msg)
 {
     int realVerbosityLevel = verbosityLevel & 0x0fff;
     if ((_consoleVerbosity >= realVerbosityLevel) || (_statusbarVerbosity >= realVerbosityLevel))
         __logMsg(nullptr, verbosityLevel, msg);
 }
 
-void App::_logMsg(const char *originName, int verbosityLevel, const char *msg, const char *subStr1,
-                  const char *subStr2 /*=nullptr*/, const char *subStr3 /*=nullptr*/)
+void App::_logMsg(const char* originName, int verbosityLevel, const char* msg, const char* subStr1,
+                  const char* subStr2 /*=nullptr*/, const char* subStr3 /*=nullptr*/)
 {
     size_t bs = strlen(msg) + 200;
-    char *buff = new char[bs];
+    char* buff = new char[bs];
     if (subStr2 != nullptr)
     {
         if (subStr3 != nullptr)
@@ -762,17 +764,17 @@ void App::_logMsg(const char *originName, int verbosityLevel, const char *msg, c
     delete[] buff;
 }
 
-void App::_logMsg(const char *originName, int verbosityLevel, const char *msg, int int1, int int2 /*=0*/,
+void App::_logMsg(const char* originName, int verbosityLevel, const char* msg, int int1, int int2 /*=0*/,
                   int int3 /*=0*/)
 {
     size_t bs = strlen(msg) + 200;
-    char *buff = new char[bs];
+    char* buff = new char[bs];
     snprintf(buff, bs, msg, int1, int2, int3);
     __logMsg(originName, verbosityLevel, buff);
     delete[] buff;
 }
 
-std::string App::_getHtmlEscapedString(const char *str)
+std::string App::_getHtmlEscapedString(const char* str)
 {
     std::string s(str);
     utils::replaceSubstring(s, "<", "*+-%A%-+*");
@@ -793,7 +795,7 @@ std::string App::_getHtmlEscapedString(const char *str)
     return (s);
 }
 
-bool App::_consoleLogFilter(const char *msg)
+bool App::_consoleLogFilter(const char* msg)
 {
     bool triggered = true;
     if (_consoleLogFilterStr.size() > 0)
@@ -821,7 +823,7 @@ bool App::_consoleLogFilter(const char *msg)
     return (!triggered);
 }
 
-static std::string replaceVars(const std::string &format, const std::map<std::string, std::string> &vars)
+static std::string replaceVars(const std::string& format, const std::map<std::string, std::string>& vars)
 {
     std::string msg;
     size_t last = 0;
@@ -846,7 +848,7 @@ static std::string replaceVars(const std::string &format, const std::map<std::st
     return msg;
 }
 
-void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, int consoleVerbosity /*=-1*/, int statusbarVerbosity /*=-1*/)
+void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, int consoleVerbosity /*=-1*/, int statusbarVerbosity /*=-1*/)
 {
     static bool inside = false;
     static int64_t lastTime = 0;
@@ -856,8 +858,10 @@ void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, 
 
         if (verbosityLevel & sim_verbosity_once)
         {
-            if (_logOnceMessages[originName][realVerbosityLevel][msg]) return;
-            else _logOnceMessages[originName][realVerbosityLevel][msg] = true;
+            if (_logOnceMessages[originName][realVerbosityLevel][msg])
+                return;
+            else
+                _logOnceMessages[originName][realVerbosityLevel][msg] = true;
         }
 
         if ((worldContainer != nullptr) && VThread::isSimThread())
@@ -865,7 +869,7 @@ void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, 
             std::string orig("CoppeliaSim");
             if (originName != nullptr)
                 orig = originName;
-            CCbor *ev = worldContainer->createEvent("logMsg", -1, -1, nullptr, false);
+            CCbor* ev = worldContainer->createEvent("logMsg", -1, -1, nullptr, false);
             ev->appendKeyText("origin", orig.c_str());
             ev->appendKeyText("msg", msg);
             ev->appendKeyInt("verbosity", realVerbosityLevel);
@@ -1055,15 +1059,15 @@ void App::setDlgVerbosity(int v)
         _dlgVerbosity = v;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propApp_dialogVerbosity.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            const char* cmd = propApp_dialogVerbosity.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyInt(cmd, _dlgVerbosity);
             App::worldContainer->pushEvent();
         }
     }
 }
 
-void App::setStartupScriptString(const char *str)
+void App::setStartupScriptString(const char* str)
 {
     _startupScriptString = str;
 }
@@ -1078,7 +1082,7 @@ int App::getExitCode()
     return (_exitCode);
 }
 
-void App::undoRedo_sceneChanged(const char *txt)
+void App::undoRedo_sceneChanged(const char* txt)
 {
 #ifdef SIM_WITH_GUI
     if (VThread::isUiThread())
@@ -1093,7 +1097,7 @@ void App::undoRedo_sceneChanged(const char *txt)
         currentWorld->undoBufferContainer->announceChange();
 }
 
-void App::undoRedo_sceneChangedGradual(const char *txt)
+void App::undoRedo_sceneChangedGradual(const char* txt)
 {
 #ifdef SIM_WITH_GUI
     if (VThread::isUiThread())
@@ -1108,12 +1112,12 @@ void App::undoRedo_sceneChangedGradual(const char *txt)
 #endif
 }
 
-int App::getConsoleVerbosity(const char *pluginName /*=nullptr*/)
+int App::getConsoleVerbosity(const char* pluginName /*=nullptr*/)
 { // sim_verbosity_none, etc.
     int retVal = _consoleVerbosity;
     if (pluginName != nullptr)
     {
-        CPlugin *pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+        CPlugin* pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         if (pl != nullptr)
         {
             if (pl->getConsoleVerbosity() != sim_verbosity_useglobal)
@@ -1160,11 +1164,11 @@ void App::setStringVerbosity(int what, const char* str)
         App::setDlgVerbosity(v);
 }
 
-void App::setConsoleVerbosity(int v, const char *pluginName /*=nullptr*/)
+void App::setConsoleVerbosity(int v, const char* pluginName /*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName != nullptr)
     {
-        CPlugin *pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+        CPlugin* pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         if (pl != nullptr)
             pl->setConsoleVerbosity(v);
     }
@@ -1176,8 +1180,8 @@ void App::setConsoleVerbosity(int v, const char *pluginName /*=nullptr*/)
             _consoleVerbosity = v;
             if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
             {
-                const char *cmd = propApp_consoleVerbosity.name;
-                CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+                const char* cmd = propApp_consoleVerbosity.name;
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
                 ev->appendKeyInt(cmd, _consoleVerbosity);
                 App::worldContainer->pushEvent();
             }
@@ -1185,12 +1189,12 @@ void App::setConsoleVerbosity(int v, const char *pluginName /*=nullptr*/)
     }
 }
 
-int App::getStatusbarVerbosity(const char *pluginName /*=nullptr*/)
+int App::getStatusbarVerbosity(const char* pluginName /*=nullptr*/)
 { // sim_verbosity_none, etc.
     int retVal = _statusbarVerbosity;
     if (pluginName != nullptr)
     {
-        CPlugin *pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+        CPlugin* pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         if (pl != nullptr)
         {
             if (pl->getStatusbarVerbosity() != sim_verbosity_useglobal)
@@ -1200,11 +1204,11 @@ int App::getStatusbarVerbosity(const char *pluginName /*=nullptr*/)
     return (retVal);
 }
 
-void App::setStatusbarVerbosity(int v, const char *pluginName /*=nullptr*/)
+void App::setStatusbarVerbosity(int v, const char* pluginName /*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName != nullptr)
     {
-        CPlugin *pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+        CPlugin* pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         if (pl != nullptr)
             pl->setStatusbarVerbosity(v);
     }
@@ -1216,8 +1220,8 @@ void App::setStatusbarVerbosity(int v, const char *pluginName /*=nullptr*/)
             _statusbarVerbosity = v;
             if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
             {
-                const char *cmd = propApp_statusbarVerbosity.name;
-                CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+                const char* cmd = propApp_statusbarVerbosity.name;
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
                 ev->appendKeyInt(cmd, _statusbarVerbosity);
                 App::worldContainer->pushEvent();
             }
@@ -1246,7 +1250,7 @@ bool App::getExitRequest()
 }
 
 void App::appendSimulationThreadCommand(int cmdId, int intP1, int intP2, double floatP1, double floatP2,
-                                        const char *stringP1, const char *stringP2, double executionDelay)
+                                        const char* stringP1, const char* stringP2, double executionDelay)
 { // convenience function. All args have default values except for the first
     SSimulationThreadCommand cmd;
     cmd.cmdId = cmdId;
@@ -1290,17 +1294,17 @@ void App::appendSimulationThreadCommand(SSimulationThreadCommand cmd, double exe
 bool App::disassemble(int objectHandle, bool justTest, bool msgs /* = false*/)
 {
     bool retVal = false;
-    CSceneObject *it;
+    CSceneObject* it;
     it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-    CSceneObject *parent = it->getParent();
+    CSceneObject* parent = it->getParent();
     if (parent != nullptr)
     {
         for (size_t i = 0; i < parent->getChildCount(); i++)
         {
-            CSceneObject *child = parent->getChildFromIndex(i);
+            CSceneObject* child = parent->getChildFromIndex(i);
             if (child->getObjectType() == sim_sceneobject_dummy)
             {
-                CDummy *dummy = (CDummy *)child;
+                CDummy* dummy = (CDummy*)child;
                 std::string childTag(dummy->getAssemblyTag());
                 if (utils::checkAssemblyTagValidity(childTag.c_str(), nullptr))
                 { // the parent has at least one valid assembly item
@@ -1310,7 +1314,7 @@ bool App::disassemble(int objectHandle, bool justTest, bool msgs /* = false*/)
                         child = it->getChildFromIndex(j);
                         if (child->getObjectType() == sim_sceneobject_dummy)
                         {
-                            dummy = (CDummy *)child;
+                            dummy = (CDummy*)child;
                             std::string childTag(dummy->getAssemblyTag());
                             if (utils::checkAssemblyTagValidity(nullptr, childTag.c_str()))
                             { // the child has at least one valid assembly item
@@ -1345,17 +1349,17 @@ bool App::disassemble(int objectHandle, bool justTest, bool msgs /* = false*/)
 bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /* = false*/)
 { // e.g. robot (parent) <-- gripper (child)
     bool retVal = false;
-    CSceneObject *it1;  // robot dummy
-    CSceneObject *it2;  // gripper dummy (or object itself (special case))
-    CSceneObject *obj1; // robot part
-    CSceneObject *obj2; // gripper base
+    CSceneObject* it1;  // robot dummy
+    CSceneObject* it2;  // gripper dummy (or object itself (special case))
+    CSceneObject* obj1; // robot part
+    CSceneObject* obj2; // gripper base
     it1 = App::currentWorld->sceneObjects->getObjectFromHandle(parentHandle);
     it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
     obj1 = it1->getParent();
     obj2 = it2->getParent();
     if ((it1->getObjectType() == sim_sceneobject_dummy) && (obj1 != nullptr))
     { // possibly new method of assembly (via 2 dummies)
-        CDummy *dummy1 = (CDummy *)it1;
+        CDummy* dummy1 = (CDummy*)it1;
         std::string parentTag(dummy1->getAssemblyTag());
         if ((dummy1->getDummyType() == sim_dummytype_assembly) &&
             utils::checkAssemblyTagValidity(parentTag.c_str(), nullptr))
@@ -1366,15 +1370,15 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
                 it2 = nullptr;
                 for (size_t i = 0; i < obj2->getChildCount(); i++)
                 {
-                    CSceneObject *child = obj2->getChildFromIndex(i);
+                    CSceneObject* child = obj2->getChildFromIndex(i);
                     if (child->getObjectType() == sim_sceneobject_dummy)
                     {
-                        CDummy *dummy = (CDummy *)child;
+                        CDummy* dummy = (CDummy*)child;
                         std::string childTag(dummy->getAssemblyTag());
                         if ((dummy->getDummyType() == sim_dummytype_assembly) &&
                             utils::checkAssemblyTagValidity(parentTag.c_str(), childTag.c_str()))
-                        { // we have the correct dummy type for the child side (we take the first compatible dummy
-                          // found)
+                        {   // we have the correct dummy type for the child side (we take the first compatible dummy
+                            // found)
                             it2 = dummy;
                             break;
                         }
@@ -1383,7 +1387,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
             }
             if ((it2 != nullptr) && (obj2 != nullptr))
             {
-                CDummy *dummy = (CDummy *)it2;
+                CDummy* dummy = (CDummy*)it2;
                 std::string childTag(dummy->getAssemblyTag());
                 if (utils::checkAssemblyTagValidity(parentTag.c_str(), childTag.c_str()))
                 {
@@ -1396,8 +1400,8 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
     }
 
     if (!retVal)
-    { // old method of assembling 2 objects. We limit the scope to joint/fsensor as parent and shape as child, since we
-      // slowly want to get rid of that method
+    {   // old method of assembling 2 objects. We limit the scope to joint/fsensor as parent and shape as child, since we
+        // slowly want to get rid of that method
         it1 = App::currentWorld->sceneObjects->getObjectFromHandle(parentHandle);
         it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
         if ((it1->getParent() != it2) && (it2->getParent() != it1))
@@ -1406,7 +1410,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
                  (it1->getObjectType() == sim_sceneobject_forcesensor)) &&
                 (it2->getObjectType() == sim_sceneobject_shape))
             {
-                std::vector<CSceneObject *> potParents;
+                std::vector<CSceneObject*> potParents;
                 it1->getAllChildrenThatMayBecomeAssemblyParent(it2->getChildAssemblyMatchValuesPointer(), potParents);
                 bool directAssembly =
                     it1->doesParentAssemblingMatchValuesMatchWithChild(it2->getChildAssemblyMatchValuesPointer());
@@ -1433,7 +1437,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
         }
         else
         { // old method
-            std::vector<CSceneObject *> potParents;
+            std::vector<CSceneObject*> potParents;
             obj1->getAllChildrenThatMayBecomeAssemblyParent(obj2->getChildAssemblyMatchValuesPointer(), potParents);
             bool directAssembly =
                 obj1->doesParentAssemblingMatchValuesMatchWithChild(obj2->getChildAssemblyMatchValuesPointer());
@@ -1456,7 +1460,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
 
 int App::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1471,9 +1475,9 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
         }
         else if (strcmp(pName, propApp_browserEnabled.name) == 0)
         {
-    #ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_GUI
             GuiApp::setBrowserEnabled(pState);
-    #endif
+#endif
             retVal = 1;
         }
         else if (strcmp(pName, propApp_displayEnabled.name) == 0)
@@ -1489,7 +1493,7 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
 
 int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1504,11 +1508,11 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
         }
         else if (strcmp(pName, propApp_browserEnabled.name) == 0)
         {
-    #ifdef SIM_WITH_GUI
+#ifdef SIM_WITH_GUI
             pState = GuiApp::getBrowserEnabled();
-    #else
+#else
             pState = false;
-    #endif
+#endif
             retVal = 1;
         }
         else if (strcmp(pName, propApp_displayEnabled.name) == 0)
@@ -1549,7 +1553,7 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 
 int App::setIntProperty(long long int target, const char* ppName, int pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1586,7 +1590,7 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
 
 int App::getIntProperty(long long int target, const char* ppName, int& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1683,7 +1687,7 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
 
 int App::setLongProperty(long long int target, const char* ppName, long long int pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1699,7 +1703,7 @@ int App::setLongProperty(long long int target, const char* ppName, long long int
 
 int App::getLongProperty(long long int target, const char* ppName, long long int& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1715,7 +1719,7 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
 
 int App::setFloatProperty(long long int target, const char* ppName, double pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1743,7 +1747,7 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
 
 int App::getFloatProperty(long long int target, const char* ppName, double& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1780,7 +1784,7 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
 
 int App::setStringProperty(long long int target, const char* ppName, const char* pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -1886,7 +1890,7 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
 
 int App::getStringProperty(long long int target, const char* ppName, std::string& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2147,7 +2151,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
 
 int App::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2168,7 +2172,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
                 {
                     if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
                     {
-                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                         cont.appendEventData(pN.c_str(), ev);
                         App::worldContainer->pushEvent();
                     }
@@ -2185,7 +2189,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
                     bool diff = worldContainer->customAppData_volatile.setData(pN.c_str(), buffer, bufferL, true);
                     if (diff && worldContainer->getEventsEnabled())
                     {
-                        CCbor *ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        CCbor* ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                         worldContainer->customAppData_volatile.appendEventData(pN.c_str(), ev);
                         worldContainer->pushEvent();
                     }
@@ -2203,7 +2207,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
 
 int App::getBufferProperty(long long int target, const char* ppName, std::string& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2244,7 +2248,7 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
 
 int App::setIntArray2Property(long long int target, const char* ppName, const int* pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2260,7 +2264,7 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
 
 int App::getIntArray2Property(long long int target, const char* ppName, int* pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2276,7 +2280,7 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
 
 int App::setVector2Property(long long int target, const char* ppName, const double* pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2292,7 +2296,7 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
 
 int App::getVector2Property(long long int target, const char* ppName, double* pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2308,7 +2312,7 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
 
 int App::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2324,7 +2328,7 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
 
 int App::getVector3Property(long long int target, const char* ppName, C3Vector& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2340,7 +2344,7 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
 
 int App::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2356,7 +2360,7 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
 
 int App::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2377,7 +2381,7 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
 
 int App::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2393,7 +2397,7 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
 
 int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2409,7 +2413,7 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
 
 int App::setColorProperty(long long int target, const char* ppName, const float* pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2425,7 +2429,7 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
 
 int App::getColorProperty(long long int target, const char* ppName, float* pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2441,7 +2445,7 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
 
 int App::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2457,7 +2461,7 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
 
 int App::getFloatArrayProperty(long long int target, const char* ppName, std::vector<double>& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2474,7 +2478,7 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
 
 int App::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2490,7 +2494,7 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
 
 int App::getIntArrayProperty(long long int target, const char* ppName, std::vector<int>& pState)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2507,7 +2511,7 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
 
 int App::removeProperty(long long int target, const char* ppName)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2527,7 +2531,7 @@ int App::removeProperty(long long int target, const char* ppName)
                 {
                     if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
                     {
-                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                         cont.appendEventData(pN.c_str(), ev, true);
                         App::worldContainer->pushEvent();
                     }
@@ -2547,7 +2551,7 @@ int App::removeProperty(long long int target, const char* ppName)
                         bool diff = worldContainer->customAppData_volatile.clearData((propertyStrings[tp] + pN).c_str());
                         if (diff && worldContainer->getEventsEnabled())
                         {
-                            CCbor *ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                            CCbor* ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                             worldContainer->customAppData_volatile.appendEventData(pN.c_str(), ev, true);
                             worldContainer->pushEvent();
                         }
@@ -2574,7 +2578,7 @@ int App::removeProperty(long long int target, const char* ppName)
 
 int App::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
     int retVal = -1;
     appartenance = "app";
@@ -2582,7 +2586,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
     {
         for (size_t i = 0; i < allProps_app.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_app[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_app[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -2605,7 +2609,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                     retVal = 1;
                 }
             }
-            if ( (retVal == -1) && (worldContainer != nullptr) )
+            if ((retVal == -1) && (worldContainer != nullptr))
             {
                 if (worldContainer->customAppData_volatile.getPropertyName(index, pName))
                 {
@@ -2617,7 +2621,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             {
                 for (const auto& pair : _applicationNamedParams)
                 {
-                    if ( (pName.size() == 0) || utils::startsWith((NAMEDPARAMPREFIX + pair.first).c_str(), pName.c_str()) )
+                    if ((pName.size() == 0) || utils::startsWith((NAMEDPARAMPREFIX + pair.first).c_str(), pName.c_str()))
                     {
                         index--;
                         if (index == -1)
@@ -2643,7 +2647,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
 
 int App::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt, bool staticParsing)
 {
-    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
@@ -2657,7 +2661,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
             {
                 retVal = allProps_app[i].type;
                 info = allProps_app[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_app[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_app[i].infoTxt, "") != 0))
                     infoTxt = allProps_app[i].infoTxt;
                 else
                     infoTxt = allProps_app[i].shortInfoTxt;
@@ -2683,7 +2687,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     }
                 }
             }
-            if ( (retVal == -1) && (worldContainer != nullptr))
+            if ((retVal == -1) && (worldContainer != nullptr))
             {
                 std::string pN(_pName);
                 if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
@@ -2734,8 +2738,8 @@ void App::setHierarchyEnabled(bool v)
         _hierarchyEnabled = v;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propApp_hierarchyEnabled.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            const char* cmd = propApp_hierarchyEnabled.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _hierarchyEnabled);
             App::worldContainer->pushEvent();
         }
@@ -2764,8 +2768,8 @@ void App::setOpenGlDisplayEnabled(bool e)
         _openGlDisplayEnabled = e;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propApp_displayEnabled.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            const char* cmd = propApp_displayEnabled.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _openGlDisplayEnabled);
             App::worldContainer->pushEvent();
         }
@@ -2826,7 +2830,7 @@ void App::pushGenesisEvents()
     if ((worldContainer != nullptr) && worldContainer->getEventsEnabled())
     {
         CSimFlavor::getStringVal(22); // trigger calculations and print mids
-        CCbor *ev = worldContainer->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
+        CCbor* ev = worldContainer->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
         worldContainer->pushEvent();
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -2945,7 +2949,6 @@ void App::pushGenesisEvents()
         cont.appendEventData(nullptr, ev);
         worldContainer->pushEvent();
 
-
         if (worldContainer->sandboxScript != nullptr)
         {
             ev = worldContainer->createEvent(EVENTTYPE_OBJECTADDED, worldContainer->sandboxScript->getScriptHandle(), worldContainer->sandboxScript->getScriptUid(), nullptr, false);
@@ -2962,4 +2965,3 @@ void App::pushGenesisEvents()
         worldContainer->pushEvent();
     }
 }
-

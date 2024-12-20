@@ -20,8 +20,8 @@ See the GNU General Public License for more details.
 
 #include <environmentRendering.h>
 
-void displayBackground(const int *viewSize, bool fogEnabled, const float *fogBackgroundColor,
-                       const float *backGroundColorDown, const float *backGroundColor)
+void displayBackground(const int* viewSize, bool fogEnabled, const float* fogBackgroundColor,
+                       const float* backGroundColorDown, const float* backGroundColor)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -52,7 +52,7 @@ void displayBackground(const int *viewSize, bool fogEnabled, const float *fogBac
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void enableAmbientLight(bool on, const float *ambientLightColor)
+void enableAmbientLight(bool on, const float* ambientLightColor)
 {
     if (on)
     {
@@ -66,7 +66,7 @@ void enableAmbientLight(bool on, const float *ambientLightColor)
     }
 }
 
-void activateFog(const float *fogBackgroundColor, int fogType, double dd, double farClipp, double fogStart,
+void activateFog(const float* fogBackgroundColor, int fogType, double dd, double farClipp, double fogStart,
                  double fogEnd, double fogDensity)
 {
     float fog_color[4] = {fogBackgroundColor[0], fogBackgroundColor[1], fogBackgroundColor[2], 1.0};

@@ -33,43 +33,65 @@ const double SPHEREVERTICES[24 * 3] = {
 
     -1.0000, -0.4142, +0.4142, -1.0000, +0.4142, +0.4142, -1.0000, +0.4142, -0.4142, -1.0000, -0.4142, -0.4142};
 
-const int SPHEREQUADINDICES[18 * 4] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
+const int SPHEREQUADINDICES[18 * 4] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                                        16, 17, 18, 19, 20, 21, 22, 23,
 
-                                       0,  4,  7,  1,  1,  16, 19, 2,  3,  2,  12, 15, 0,  3,  20, 23,
+                                       0, 4, 7, 1, 1, 16, 19, 2, 3, 2, 12, 15, 0, 3, 20, 23,
 
-                                       6,  5,  9,  8,  18, 17, 8,  11, 14, 13, 11, 10, 10, 9,  22, 21,
+                                       6, 5, 9, 8, 18, 17, 8, 11, 14, 13, 11, 10, 10, 9, 22, 21,
 
-                                       7,  6,  17, 16, 19, 18, 13, 12, 15, 14, 21, 20, 23, 22, 5,  4};
+                                       7, 6, 17, 16, 19, 18, 13, 12, 15, 14, 21, 20, 23, 22, 5, 4};
 
 const double SPHEREQUADNORMALS[18 * 3] = {
-    +0.0,    -1.0,    +0.0,    +0.0,    +0.0,    -1.0,    +0.0,    +1.0,    +0.0,    +0.0,    +0.0,    +1.0,
-    +1.0,    +0.0,    +0.0,    -1.0,    +0.0,    +0.0,
+    +0.0, -1.0, +0.0, +0.0, +0.0, -1.0, +0.0, +1.0, +0.0, +0.0, +0.0, +1.0,
+    +1.0, +0.0, +0.0, -1.0, +0.0, +0.0,
 
-    +0.0,    -0.7071, -0.7071, +0.7071, -0.7071, +0.0,    +0.0,    -0.7071, +0.7071, -0.7071, -0.7071, +0.0,
+    +0.0, -0.7071, -0.7071, +0.7071, -0.7071, +0.0, +0.0, -0.7071, +0.7071, -0.7071, -0.7071, +0.0,
 
-    +0.0,    +0.7071, -0.7071, +0.7071, +0.7071, +0.0,    +0.0,    +0.7071, +0.7071, -0.7071, +0.7071, +0.0,
+    +0.0, +0.7071, -0.7071, +0.7071, +0.7071, +0.0, +0.0, +0.7071, +0.7071, -0.7071, +0.7071, +0.0,
 
-    +0.7071, 0.0,     -0.7071, +0.7071, 0.0,     +0.7071, -0.7071, 0.0,     +0.7071, -0.7071, 0.0,     -0.7071};
+    +0.7071, 0.0, -0.7071, +0.7071, 0.0, +0.7071, -0.7071, 0.0, +0.7071, -0.7071, 0.0, -0.7071};
 
-const int SPHERETRIANGLEINDICES[8 * 3] = {1,  7, 16, 2,  19, 12, 3,  15, 20, 0,  23, 4,
+const int SPHERETRIANGLEINDICES[8 * 3] = {1, 7, 16, 2, 19, 12, 3, 15, 20, 0, 23, 4,
 
-                                          17, 6, 8,  18, 11, 13, 14, 10, 21, 22, 9,  5};
+                                          17, 6, 8, 18, 11, 13, 14, 10, 21, 22, 9, 5};
 
 const double SPHERETRIANGLENORMALS[8 * 3] = {
-    +0.5773, -0.5773, -0.5773, +0.5773, -0.5773, +0.5773, -0.5773, -0.5773, +0.5773, -0.5773, -0.5773, -0.5773,
+    +0.5773,
+    -0.5773,
+    -0.5773,
+    +0.5773,
+    -0.5773,
+    +0.5773,
+    -0.5773,
+    -0.5773,
+    +0.5773,
+    -0.5773,
+    -0.5773,
+    -0.5773,
 
-    +0.5773, +0.5773, -0.5773, +0.5773, +0.5773, +0.5773, -0.5773, +0.5773, +0.5773, -0.5773, +0.5773, -0.5773,
+    +0.5773,
+    +0.5773,
+    -0.5773,
+    +0.5773,
+    +0.5773,
+    +0.5773,
+    -0.5773,
+    +0.5773,
+    +0.5773,
+    -0.5773,
+    +0.5773,
+    -0.5773,
 };
 
-void displayParticles(void **particlesPointer, int particlesCount, int displayAttrib, const C4X4Matrix &cameraCTM,
-                      const float *cols, int objectType)
+void displayParticles(void** particlesPointer, int particlesCount, int displayAttrib, const C4X4Matrix& cameraCTM,
+                      const float* cols, int objectType)
 {
     ogl::setMaterialColor(cols, cols + 6, cols + 9);
     C3Vector pos;
     double size;
     int particleType;
-    float *additionalColor;
+    float* additionalColor;
     for (int i = 0; i < particlesCount; i++)
     {
         if (particlesPointer[i] != nullptr)
@@ -107,7 +129,7 @@ void displayParticles(void **particlesPointer, int particlesCount, int displayAt
     }
 }
 
-void displayContactPoints(int displayAttrib, const CColorObject &contactPointColor, const double *pts, int cnt)
+void displayContactPoints(int displayAttrib, const CColorObject& contactPointColor, const double* pts, int cnt)
 {
     glDisable(GL_DEPTH_TEST);
     glLoadName(-1);
@@ -125,8 +147,8 @@ void displayContactPoints(int displayAttrib, const CColorObject &contactPointCol
     glEnable(GL_DEPTH_TEST);
 }
 
-void _drawPoints(int displayAttrib, const C4X4Matrix &cameraRTM, const C3Vector &_currentPosition, double _size,
-                 int _objectType, const float *_additionalColor)
+void _drawPoints(int displayAttrib, const C4X4Matrix& cameraRTM, const C3Vector& _currentPosition, double _size,
+                 int _objectType, const float* _additionalColor)
 {
     C3Vector n(cameraRTM.M.axis[2] * -1.0);
     int tmp = _objectType & 0x001f;
@@ -150,8 +172,8 @@ void _drawPoints(int displayAttrib, const C4X4Matrix &cameraRTM, const C3Vector 
     glPointSize(1.0);
 }
 
-void _drawRoughSphere(int displayAttrib, const C3Vector &_currentPosition, double _size, int _objectType,
-                      const float *_additionalColor)
+void _drawRoughSphere(int displayAttrib, const C3Vector& _currentPosition, double _size, int _objectType,
+                      const float* _additionalColor)
 {
     if (_objectType & sim_particle_itemcolors)
     {
@@ -195,8 +217,8 @@ void _drawRoughSphere(int displayAttrib, const C3Vector &_currentPosition, doubl
     glEnd();
 }
 
-void _drawSphere(int displayAttrib, const C3Vector &_currentPosition, double _size, int _objectType,
-                 const float *_additionalColor)
+void _drawSphere(int displayAttrib, const C3Vector& _currentPosition, double _size, int _objectType,
+                 const float* _additionalColor)
 {
     glPushMatrix();
     glTranslated(_currentPosition(0), _currentPosition(1), _currentPosition(2));

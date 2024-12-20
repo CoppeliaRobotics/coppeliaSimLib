@@ -10,22 +10,22 @@
 class CSceneObjectOperations
 {
   public:
-    static void scaleObjects(const std::vector<int> &selection, double scalingFactor, bool scalePositionsToo);
-    static int groupSelection(std::vector<int> *selection);
-    static void ungroupSelection(std::vector<int> *selection, bool fullUngroup = false);
-    static int mergeSelection(std::vector<int> *selection);
-    static void divideSelection(std::vector<int> *selection);
-    static int convexDecompose(int shapeHandle, int options, const int *intParams, const double *floatParams);
+    static void scaleObjects(const std::vector<int>& selection, double scalingFactor, bool scalePositionsToo);
+    static int groupSelection(std::vector<int>* selection);
+    static void ungroupSelection(std::vector<int>* selection, bool fullUngroup = false);
+    static int mergeSelection(std::vector<int>* selection);
+    static void divideSelection(std::vector<int>* selection);
+    static int convexDecompose(int shapeHandle, int options, const int* intParams, const double* floatParams);
 
   private:
-    static void _deleteObjects(std::vector<int> *selection);
-    static void _copyObjects(std::vector<int> *selection);
-    static CShape *_groupShapes(const std::vector<CShape *> &shapesToGroup);
-    static void _fullUngroupShape(CShape *it, std::vector<CShape *> &newShapes);
-    static void _ungroupShape(CShape *it, std::vector<CShape *> &newShapes);
-    static CShape *_mergeShapes(const std::vector<CShape *> &allShapesToMerge);
-    static bool _divideShape(CShape *it, std::vector<CShape *> &newShapes);
-    static CShape *_morphToConvexDecomposed(CShape *it, size_t nClusters, double maxConcavity, bool addExtraDistPoints,
+    static void _deleteObjects(std::vector<int>* selection);
+    static void _copyObjects(std::vector<int>* selection);
+    static CShape* _groupShapes(const std::vector<CShape*>& shapesToGroup);
+    static void _fullUngroupShape(CShape* it, std::vector<CShape*>& newShapes);
+    static void _ungroupShape(CShape* it, std::vector<CShape*>& newShapes);
+    static CShape* _mergeShapes(const std::vector<CShape*>& allShapesToMerge);
+    static bool _divideShape(CShape* it, std::vector<CShape*>& newShapes);
+    static CShape* _morphToConvexDecomposed(CShape* it, size_t nClusters, double maxConcavity, bool addExtraDistPoints,
                                             bool addFacesPoints, double maxConnectDist,
                                             size_t maxTrianglesInDecimatedMesh, size_t maxHullVertices,
                                             double smallClusterThreshold, bool useHACD, int resolution_VHACD,
@@ -38,6 +38,6 @@ class CSceneObjectOperations
   public:
     static void keyPress(int key);
     static bool processCommand(int commandID);
-    static void addMenu(VMenu *menu);
+    static void addMenu(VMenu* menu);
 #endif
 };

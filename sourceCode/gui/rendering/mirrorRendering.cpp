@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <mirrorRendering.h>
 #include <guiApp.h>
 
-void displayMirror(CMirror *mirror, CViewableBase *renderingObject, int displayAttrib)
+void displayMirror(CMirror* mirror, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(mirror, renderingObject);

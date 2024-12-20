@@ -33,7 +33,7 @@ void VThread::endThread()
 void VThread::launchQtThread(SIMPLE_VTHREAD_START_ADDRESS startAddress)
 {
     _lock.lock_simple("VThread::launchQtThread");
-    Thread *it = new Thread();
+    Thread* it = new Thread();
     Thread::startAddress = startAddress;
     Thread::startAddressIsFree = false;
     it->start(QThread::NormalPriority);

@@ -15,14 +15,14 @@ class CQDlgPathEdit : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgPathEdit(QWidget *parent = 0);
+    explicit CQDlgPathEdit(QWidget* parent = 0);
     ~CQDlgPathEdit();
 
     void refresh();
     void cancelEvent();
     void okEvent();
 
-    CPathCont_old *getPathCont();
+    CPathCont_old* getPathCont();
 
   private slots:
     void on_qqClosed_clicked();
@@ -60,7 +60,7 @@ class CQDlgPathEdit : public CDlgEx
     void on_qqMakeDummies_clicked();
 
   private:
-    Ui::CQDlgPathEdit *ui;
+    Ui::CQDlgPathEdit* ui;
 };
 
 #endif // QDLGPATHEDIT_H

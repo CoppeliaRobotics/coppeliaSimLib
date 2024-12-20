@@ -20,8 +20,8 @@ CAddOnScriptContainer::CAddOnScriptContainer()
 }
 
 void CAddOnScriptContainer::loadAllAddOns()
-{ // will load them. But not call any script function yet (including 'info', which is called on-demand when a callback
-  // is distributed)
+{   // will load them. But not call any script function yet (including 'info', which is called on-demand when a callback
+    // is distributed)
     _insertAddOns(ADDON_EXTENTION_LUA);
     _insertAddOns(ADDON_EXTENTION_PY);
     _insertAdditionalAddOns();
@@ -76,7 +76,7 @@ void CAddOnScriptContainer::simulationAboutToEnd()
         _addOns[i]->simulationAboutToEnd();
 }
 
-CScriptObject *CAddOnScriptContainer::getAddOnFromHandle(int scriptHandle) const
+CScriptObject* CAddOnScriptContainer::getAddOnFromHandle(int scriptHandle) const
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
@@ -86,7 +86,7 @@ CScriptObject *CAddOnScriptContainer::getAddOnFromHandle(int scriptHandle) const
     return (nullptr);
 }
 
-CScriptObject *CAddOnScriptContainer::getAddOnFromUid(int uid) const
+CScriptObject* CAddOnScriptContainer::getAddOnFromUid(int uid) const
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
@@ -96,7 +96,7 @@ CScriptObject *CAddOnScriptContainer::getAddOnFromUid(int uid) const
     return (nullptr);
 }
 
-CScriptObject *CAddOnScriptContainer::getAddOnFromName(const char *name) const
+CScriptObject* CAddOnScriptContainer::getAddOnFromName(const char* name) const
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
@@ -106,13 +106,13 @@ CScriptObject *CAddOnScriptContainer::getAddOnFromName(const char *name) const
     return (nullptr);
 }
 
-int CAddOnScriptContainer::_insertAddOn(CScriptObject *script)
+int CAddOnScriptContainer::_insertAddOn(CScriptObject* script)
 {
     _addOns.push_back(script);
     return (script->getScriptHandle());
 }
 
-void CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
+void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
 {
     std::string lang = "lua";
     if (std::string(addOnExt) == "py")
@@ -120,7 +120,7 @@ void CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
     VFileFinder finder;
     finder.searchFiles(App::folders->getAddOnPath().c_str(), addOnExt, nullptr);
     int cnt = 0;
-    SFileOrFolder *foundItem = finder.getFoundItem(cnt);
+    SFileOrFolder* foundItem = finder.getFoundItem(cnt);
     while (foundItem != nullptr)
     {
         bool oldAddOn = true;
@@ -135,16 +135,16 @@ void CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
             at = ADDON_SCRIPT_PREFIX2_NOAUTOSTART;
         if ((foundItem->name.find(ADDON_FUNCTION_PREFIX1) == 0) || (foundItem->name.find(ADDON_FUNCTION_PREFIX2) == 0))
             at = "X";
-        if ((at.size() == 0) )//&& (foundItem->name.find(ADDON_PREFIX) == 0))
+        if ((at.size() == 0)) //&& (foundItem->name.find(ADDON_PREFIX) == 0))
         {
-           // at = ADDON_PREFIX;
+            // at = ADDON_PREFIX;
             oldAddOn = false;
         }
         if (foundItem->name.find("simAddOnHibot Visualization") == std::string::npos) // temp, remove later
         {
             std::string fp(App::folders->getAddOnPath() + "/");
             fp += foundItem->name;
-            CScriptObject *defScript = new CScriptObject(sim_scripttype_addon);
+            CScriptObject* defScript = new CScriptObject(sim_scripttype_addon);
             defScript->setLang(lang.c_str());
             if (defScript->setScriptTextFromFile(fp.c_str()))
             {
@@ -201,11 +201,11 @@ void CAddOnScriptContainer::_insertAdditionalAddOns()
                 VFile file(fp.c_str(), VFile::READ | VFile::SHARE_DENY_NONE);
                 VArchive archive(&file, VArchive::LOAD);
                 unsigned int archiveLength = (unsigned int)file.getLength();
-                char *script = new char[archiveLength + 1];
+                char* script = new char[archiveLength + 1];
                 for (int i = 0; i < int(archiveLength); i++)
                     archive >> script[i];
                 script[archiveLength] = 0;
-                CScriptObject *defScript = new CScriptObject(sim_scripttype_addon);
+                CScriptObject* defScript = new CScriptObject(sim_scripttype_addon);
                 defScript->setLang(lang.c_str());
                 defScript->setAddOnPath(fp.c_str());
                 _insertAddOn(defScript);
@@ -237,7 +237,7 @@ int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
     VFileFinder finder;
     finder.searchFiles(App::folders->getAddOnPath().c_str(), ADDON_EXTENTION_LUA, nullptr);
     int cnt = 0;
-    SFileOrFolder *foundItem = finder.getFoundItem(cnt);
+    SFileOrFolder* foundItem = finder.getFoundItem(cnt);
     while (foundItem != nullptr)
     {
         std::string pref;
@@ -275,11 +275,11 @@ bool CAddOnScriptContainer::shouldTemporarilySuspendMainScript()
 
 void CAddOnScriptContainer::getActiveScripts(std::vector<CScriptObject*>& scripts) const
 {
-    std::vector<CScriptObject *> scripts_normal;
-    std::vector<CScriptObject *> scripts_last;
+    std::vector<CScriptObject*> scripts_normal;
+    std::vector<CScriptObject*> scripts_last;
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        CScriptObject *it = _addOns[i];
+        CScriptObject* it = _addOns[i];
         if (it->getScriptState() == CScriptObject::scriptState_initialized)
         {
             if (it->getScriptExecPriority() == sim_scriptexecorder_first)
@@ -294,16 +294,16 @@ void CAddOnScriptContainer::getActiveScripts(std::vector<CScriptObject*>& script
     scripts.insert(scripts.end(), scripts_last.begin(), scripts_last.end());
 }
 
-int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
+int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack,
                                        int scriptToExclude /*=-1*/)
 {
     int retVal = 0;
-    std::vector<CScriptObject *> scripts;
-    std::vector<CScriptObject *> scripts_normal;
-    std::vector<CScriptObject *> scripts_last;
+    std::vector<CScriptObject*> scripts;
+    std::vector<CScriptObject*> scripts_normal;
+    std::vector<CScriptObject*> scripts_last;
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        CScriptObject *it = _addOns[i];
+        CScriptObject* it = _addOns[i];
         if (it->getScriptExecPriority() == sim_scriptexecorder_first)
             scripts.push_back(it);
         if (it->getScriptExecPriority() == sim_scriptexecorder_normal)
@@ -316,7 +316,7 @@ int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack *inStack, C
     bool interruptible = CScriptObject::isSystemCallbackInterruptible(callType);
     for (size_t i = 0; i < scripts.size(); i++)
     {
-        CScriptObject *it = scripts[i];
+        CScriptObject* it = scripts[i];
         if (it->getScriptHandle() != scriptToExclude)
         {
             if (it->hasSystemFunctionOrHook(callType) || it->getOldCallMode())
@@ -338,7 +338,7 @@ bool CAddOnScriptContainer::_removeAddOn(int scriptID)
     {
         if (_addOns[i]->getScriptHandle() == scriptID)
         {
-            CScriptObject *it = _addOns[i];
+            CScriptObject* it = _addOns[i];
             it->resetScript(); // should not be done in the destructor!
             _addOns.erase(_addOns.begin() + i);
             CScriptObject::destroy(it, true);
@@ -355,7 +355,7 @@ void CAddOnScriptContainer::removeAllAddOns()
 {
     while (_addOns.size() > 0)
     {
-        CScriptObject *it = _addOns[0];
+        CScriptObject* it = _addOns[0];
         it->resetScript(); // should not be done in the destructor!
         _addOns.erase(_addOns.begin());
         CScriptObject::destroy(it, true);
@@ -366,8 +366,8 @@ void CAddOnScriptContainer::pushGenesisEvents() const
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        CScriptObject *it = _addOns[i];
-        CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptUid(), nullptr, false);
+        CScriptObject* it = _addOns[i];
+        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptUid(), nullptr, false);
         it->addSpecializedObjectEventData(ev);
         App::worldContainer->pushEvent();
     }
@@ -380,7 +380,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CScriptObject *it = nullptr;
+            CScriptObject* it = nullptr;
             for (size_t i = 0; i < _addOns.size(); i++)
             {
                 if (_addOns[i]->getAddOnUiMenuHandle() == commandID)
@@ -445,11 +445,11 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                             VFile file(fp.c_str(), VFile::READ | VFile::SHARE_DENY_NONE);
                             VArchive archive(&file, VArchive::LOAD);
                             unsigned int archiveLength = (unsigned int)file.getLength();
-                            char *script = new char[archiveLength + 1];
+                            char* script = new char[archiveLength + 1];
                             for (int i = 0; i < int(archiveLength); i++)
                                 archive >> script[i];
                             script[archiveLength] = 0;
-                            CScriptObject *defScript = new CScriptObject(sim_scripttype_addonfunction);
+                            CScriptObject* defScript = new CScriptObject(sim_scripttype_addonfunction);
                             defScript->setLang("lua");
                             int scriptID = _insertAddOn(defScript);
                             defScript->setScriptText(script);

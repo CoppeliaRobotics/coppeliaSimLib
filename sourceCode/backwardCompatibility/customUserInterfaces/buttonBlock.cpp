@@ -72,12 +72,12 @@ CButtonBlock::~CButtonBlock()
     positionFastIndex.clear();
 }
 
-CTextureProperty *CButtonBlock::getTextureProperty()
+CTextureProperty* CButtonBlock::getTextureProperty()
 {
     return (_textureProperty);
 }
 
-void CButtonBlock::setTextureProperty(CTextureProperty *tp)
+void CButtonBlock::setTextureProperty(CTextureProperty* tp)
 {
     _textureProperty = tp;
 }
@@ -114,19 +114,19 @@ void CButtonBlock::setDesiredBlockPosition(int x, int y)
     blockPosition.x = x;
     blockPosition.y = y;
 }
-void CButtonBlock::getDesiredBlockPosition(VPoint &pos)
+void CButtonBlock::getDesiredBlockPosition(VPoint& pos)
 {
     pos.x = desiredBlockPosition.x;
     pos.y = desiredBlockPosition.y;
 }
 
-void CButtonBlock::getBlockPositionRelative(VPoint &pos)
+void CButtonBlock::getBlockPositionRelative(VPoint& pos)
 {
     pos.x = blockPosition.x;
     pos.y = blockPosition.y;
 }
 
-void CButtonBlock::getBlockPositionAbsolute(VPoint &pos)
+void CButtonBlock::getBlockPositionAbsolute(VPoint& pos)
 {
     pos.x = blockPosition.x;
     pos.y = blockPosition.y;
@@ -142,9 +142,9 @@ void CButtonBlock::setButtonSizeOriginal(VPoint theSize)
     tt::limitValue(BUTTON_MIN_Y_SIZE, 10000, _buttonHeight);
 }
 
-CButtonBlock *CButtonBlock::copyYourself()
+CButtonBlock* CButtonBlock::copyYourself()
 {
-    CButtonBlock *newBlock =
+    CButtonBlock* newBlock =
         new CButtonBlock(blockWidth, blockHeight, getButtonWidthOriginal(), getButtonHeightOriginal(), viewToAppearOn);
     // We slightly shift the block's position so we can see the original:
 
@@ -167,7 +167,7 @@ CButtonBlock *CButtonBlock::copyYourself()
     newBlock->setBlockName(blockName);
     for (int i = 0; i < int(allButtons.size()); i++)
     {
-        CSoftButton *newButton = allButtons[i]->copyYourself();
+        CSoftButton* newButton = allButtons[i]->copyYourself();
         int buttonHandle = newButton->buttonID;
         newBlock->insertButton(newButton);
         newButton->buttonID = buttonHandle;
@@ -214,13 +214,13 @@ int CButtonBlock::getAttributes()
     return (_attributes);
 }
 
-void CButtonBlock::getButtonSizeOriginal(VPoint &theSize)
+void CButtonBlock::getButtonSizeOriginal(VPoint& theSize)
 {
     theSize.x = _buttonWidth;
     theSize.y = _buttonHeight;
 }
 
-void CButtonBlock::getButtonSizeRetina(VPoint &theSize)
+void CButtonBlock::getButtonSizeRetina(VPoint& theSize)
 {
 #ifdef SIM_WITH_GUI
     int s = GuiApp::sc;
@@ -261,7 +261,7 @@ int CButtonBlock::getButtonHeightRetina()
     return (_buttonHeight * s);
 }
 
-CSoftButton *CButtonBlock::getButtonWithID(int id)
+CSoftButton* CButtonBlock::getButtonWithID(int id)
 {
     for (int i = 0; i < int(allButtons.size()); i++)
     {
@@ -271,7 +271,7 @@ CSoftButton *CButtonBlock::getButtonWithID(int id)
     return (nullptr);
 }
 
-CSoftButton *CButtonBlock::getButtonWithUniqueID(int id)
+CSoftButton* CButtonBlock::getButtonWithUniqueID(int id)
 {
     for (int i = 0; i < int(allButtons.size()); i++)
     {
@@ -281,7 +281,7 @@ CSoftButton *CButtonBlock::getButtonWithUniqueID(int id)
     return (nullptr);
 }
 
-CSoftButton *CButtonBlock::getButtonAtPos(int x, int y)
+CSoftButton* CButtonBlock::getButtonAtPos(int x, int y)
 {
     if ((x < 0) || (y < 0) || (x >= blockWidth) || (y >= blockHeight))
         return (nullptr);
@@ -291,7 +291,7 @@ CSoftButton *CButtonBlock::getButtonAtPos(int x, int y)
     return (allButtons[pos]);
 }
 
-CSoftButton *CButtonBlock::getButtonAtPosDontUseFastIndex(int x, int y)
+CSoftButton* CButtonBlock::getButtonAtPosDontUseFastIndex(int x, int y)
 {
     for (int i = 0; i < int(allButtons.size()); i++)
     {
@@ -324,7 +324,7 @@ bool CButtonBlock::removeButtonFromPos(int x, int y, bool updateFastIndex)
     return (false);
 }
 
-bool CButtonBlock::insertButton(CSoftButton *theNewButton)
+bool CButtonBlock::insertButton(CSoftButton* theNewButton)
 {
     // If return value is false, there is already a button at that position.
     // The new button has to be destroyed outside if it could not have been added!!
@@ -358,7 +358,7 @@ int CButtonBlock::getFreeButtonHandle()
     return (-1);
 }
 
-bool CButtonBlock::insertButtonWithoutChecking(CSoftButton *theNewButton)
+bool CButtonBlock::insertButtonWithoutChecking(CSoftButton* theNewButton)
 { // Same as insert button, with the difference that we don't check if
     // the button handle or position are valid (has to be checked outside)
     // We check that the button lies inside of the block:
@@ -441,7 +441,7 @@ void CButtonBlock::recomputePositionFastIndex()
     }
 }
 
-void CButtonBlock::getBlockSize(VPoint &size)
+void CButtonBlock::getBlockSize(VPoint& size)
 {
     size.x = blockWidth;
     size.y = blockHeight;
@@ -489,11 +489,11 @@ void CButtonBlock::setRollupMax(VPoint rollupMaxVal)
         rollupMin.y = rollupMaxVal.y;
     rollupMax = rollupMaxVal;
 }
-void CButtonBlock::getRollupMin(VPoint &rollupMinVal)
+void CButtonBlock::getRollupMin(VPoint& rollupMinVal)
 {
     rollupMinVal = rollupMin;
 }
-void CButtonBlock::getRollupMax(VPoint &rollupMaxVal)
+void CButtonBlock::getRollupMax(VPoint& rollupMaxVal)
 {
     rollupMaxVal = rollupMax;
 }
@@ -518,8 +518,8 @@ void CButtonBlock::simulationAboutToStart()
 }
 
 void CButtonBlock::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (objectIDAttachedTo != -1)
     {
         for (int i = 0; i < int(allButtons.size()); i++)
@@ -569,7 +569,7 @@ void CButtonBlock::removeAllObjectAttachements()
     objectIDAttachedTo = -1;
 }
 
-void CButtonBlock::performSceneObjectLoadingMapping(const std::map<int, int> *map)
+void CButtonBlock::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (App::currentWorld->sceneObjects != nullptr)
     {
@@ -581,7 +581,7 @@ void CButtonBlock::performSceneObjectLoadingMapping(const std::map<int, int> *ma
         allButtons[i]->performSceneObjectLoadingMapping(map);
 }
 
-void CButtonBlock::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CButtonBlock::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (App::currentWorld->sceneObjects != nullptr)
     {
@@ -598,7 +598,7 @@ bool CButtonBlock::announceSceneObjectWillBeErased(int objectID, bool copyBuffer
         return (true);
     if (_textureProperty != nullptr)
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
         if ((obj != nullptr) && _textureProperty->announceObjectWillBeErased(obj))
         {
             delete _textureProperty;
@@ -627,9 +627,9 @@ std::string CButtonBlock::getBlockName()
     return (blockName);
 }
 
-VPoint CButtonBlock::_getBlockSizeAndOtherButtonSizeAndPos(VPoint &blockSize, VPoint &blockPos, VPoint &buttonSize,
-                                                           VPoint &buttonPos, VPoint &otherButtonSize,
-                                                           CSoftButton *button)
+VPoint CButtonBlock::_getBlockSizeAndOtherButtonSizeAndPos(VPoint& blockSize, VPoint& blockPos, VPoint& buttonSize,
+                                                           VPoint& buttonPos, VPoint& otherButtonSize,
+                                                           CSoftButton* button)
 {
     VPoint pos;
     blockSize.x = (getButtonWidthRetina() + 2) * blockWidth - 2;
@@ -649,19 +649,19 @@ VPoint CButtonBlock::_getBlockSizeAndOtherButtonSizeAndPos(VPoint &blockSize, VP
     return (pos);
 }
 
-void CButtonBlock::getAllAttachedTextureProperties(std::vector<CTextureProperty *> &textPropVect)
+void CButtonBlock::getAllAttachedTextureProperties(std::vector<CTextureProperty*>& textPropVect)
 {
     if (_textureProperty != nullptr)
         textPropVect.push_back(_textureProperty);
     for (int i = 0; i < int(allButtons.size()); i++)
     {
-        CTextureProperty *tp = allButtons[i]->getTextureProperty();
+        CTextureProperty* tp = allButtons[i]->getTextureProperty();
         if (tp != nullptr)
             textPropVect.push_back(tp);
     }
 }
 
-void CButtonBlock::serialize(CSer &ar)
+void CButtonBlock::serialize(CSer& ar)
 {
     if (ar.isStoring())
     { // Storing
@@ -800,7 +800,7 @@ void CButtonBlock::serialize(CSer &ar)
                 {
                     noHit = false;
                     ar >> byteQuantity;
-                    CSoftButton *newButton = new CSoftButton("", 0, 0, 1, 1);
+                    CSoftButton* newButton = new CSoftButton("", 0, 0, 1, 1);
                     newButton->serialize(ar);
                     int buttonHandle = newButton->buttonID;
                     insertButtonWithoutChecking(newButton);
@@ -984,7 +984,7 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
 
     for (int i = 0; i < int(allButtons.size()); i++)
     {
-        CSoftButton *it = allButtons[i];
+        CSoftButton* it = allButtons[i];
         if (isButtonInVisibleZone(it))
         {
             bool buttonDown = ((blockID == App::currentWorld->buttonBlockContainer_old->caughtBlock) &&
@@ -1049,7 +1049,7 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
                 int atr = it->getAttributes();
                 if (buttonDown)
                     atr |= sim_buttonproperty_isdown;
-                float *secondTextColor = nullptr; // For now (2009/07/24)
+                float* secondTextColor = nullptr; // For now (2009/07/24)
 
                 if (App::currentWorld->environment->get2DElementTexturesEnabled())
                     ogl::drawButton(pos, otherButtonSize, txtCol, it->backgroundColor, it->downBackgroundColor, txt,
@@ -1132,7 +1132,7 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
         ogl::selectBitmapFont(0);
 }
 
-int CButtonBlock::mouseDownCatch(int xCoord, int yCoord, bool &cursorCatch, bool test)
+int CButtonBlock::mouseDownCatch(int xCoord, int yCoord, bool& cursorCatch, bool test)
 {
     if (!test)
         _caughtElements &= 0xffff - sim_left_button;
@@ -1141,7 +1141,7 @@ int CButtonBlock::mouseDownCatch(int xCoord, int yCoord, bool &cursorCatch, bool
     VPoint buttonSize(getButtonWidthRetina(), getButtonHeightRetina());
     for (int i = (int)allButtons.size() - 1; i >= 0; i--)
     {
-        CSoftButton *itButton = allButtons[i];
+        CSoftButton* itButton = allButtons[i];
         if (isButtonInVisibleZone(itButton) &&
             (((itButton->getAttributes() & sim_buttonproperty_ignoremouse) == 0) ||
              (App::currentWorld->buttonBlockContainer_old->getButtonEditMode_editMode() &&
@@ -1256,7 +1256,7 @@ void CButtonBlock::mouseMoveCatch(int xCoord, int yCoord)
         (butt == App::currentWorld->buttonBlockContainer_old->caughtButton);
 }
 
-bool CButtonBlock::isButtonInVisibleZone(CSoftButton *it)
+bool CButtonBlock::isButtonInVisibleZone(CSoftButton* it)
 {
     if (((_attributes & sim_ui_property_rolledup) == 0) ||
         (App::currentWorld->buttonBlockContainer_old->editMode && ((_attributes & sim_ui_property_systemblock) == 0)))

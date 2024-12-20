@@ -16,7 +16,7 @@ class CQDlgAssembly : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgAssembly(QWidget *parent = 0);
+    explicit CQDlgAssembly(QWidget* parent = 0);
     ~CQDlgAssembly();
 
     void cancelEvent();
@@ -24,7 +24,7 @@ class CQDlgAssembly : public VDialog
 
     void refresh();
 
-    CSceneObject *obj;
+    CSceneObject* obj;
   private slots:
     void on_qqChildMatchValue_editingFinished();
 
@@ -32,12 +32,12 @@ class CQDlgAssembly : public VDialog
 
     void on_qqSetLocalMatrix_clicked();
 
-    void on_qqClose_clicked(QAbstractButton *button);
+    void on_qqClose_clicked(QAbstractButton* button);
 
     void on_qqHasMatrix_clicked();
 
   private:
-    Ui::CQDlgAssembly *ui;
+    Ui::CQDlgAssembly* ui;
 };
 
 #endif // QDLGASSEMBLY_H

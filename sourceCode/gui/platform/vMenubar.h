@@ -10,16 +10,16 @@ class VMenu
     VMenu();
     virtual ~VMenu();
 
-    void appendMenuAndDetach(VMenu *childMenu, bool enabled, const char *label);
-    void appendMenuItem(bool enabled, bool checkMark, int commandID, const char *label, bool showCheckmarkSpot = false);
+    void appendMenuAndDetach(VMenu* childMenu, bool enabled, const char* label);
+    void appendMenuItem(bool enabled, bool checkMark, int commandID, const char* label, bool showCheckmarkSpot = false);
     void appendMenuSeparator();
     int trackPopupMenu();
     void clear();
-    QMenu *getQMenu();
+    QMenu* getQMenu();
 
   protected:
-    QMenu *_qMenu;
-    std::vector<VMenu *> _children;
+    QMenu* _qMenu;
+    std::vector<VMenu*> _children;
 };
 
 class VMenubar
@@ -28,8 +28,8 @@ class VMenubar
     VMenubar();
     virtual ~VMenubar();
 
-    void appendMenuAndDetach(VMenu *childMenu, bool enabled, const char *label);
-    void appendMenuItem(bool enabled, bool checkMark, int commandID, const char *label, bool showCheckmarkSpot = false);
+    void appendMenuAndDetach(VMenu* childMenu, bool enabled, const char* label);
+    void appendMenuItem(bool enabled, bool checkMark, int commandID, const char* label, bool showCheckmarkSpot = false);
     void appendMenuSeparator();
     void clear();
     QMenuBar* getQMenubar();
@@ -38,6 +38,6 @@ class VMenubar
     static bool doNotExecuteCommandButMemorizeIt;
 
   protected:
-    QMenuBar *_qMenubar;
-    std::vector<VMenu *> _children;
+    QMenuBar* _qMenubar;
+    std::vector<VMenu*> _children;
 };

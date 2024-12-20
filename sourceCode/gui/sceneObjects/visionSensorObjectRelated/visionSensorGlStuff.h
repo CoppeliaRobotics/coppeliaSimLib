@@ -9,18 +9,18 @@ class CVisionSensorGlStuff : public QObject
     Q_OBJECT
   public:
 #ifdef USES_QGLWIDGET
-    CVisionSensorGlStuff(int resX, int resY, int offscreenType, bool qtFbo, QGLWidget *otherWidgetToShareResourcesWith,
+    CVisionSensorGlStuff(int resX, int resY, int offscreenType, bool qtFbo, QGLWidget* otherWidgetToShareResourcesWith,
                          bool useStencilBuffer, bool destroyOffscreenContext);
 #else
     CVisionSensorGlStuff(int resX, int resY, int offscreenType, bool qtFbo,
-                         QOpenGLWidget *otherWidgetToShareResourcesWith, bool useStencilBuffer,
+                         QOpenGLWidget* otherWidgetToShareResourcesWith, bool useStencilBuffer,
                          bool destroyOffscreenContext);
 #endif
     virtual ~CVisionSensorGlStuff();
 
-    COffscreenGlContext *offscreenContext;
-    CFrameBufferObject *frameBufferObject;
-    CTextureObject *textureObject;
+    COffscreenGlContext* offscreenContext;
+    CFrameBufferObject* frameBufferObject;
+    CTextureObject* textureObject;
 
   protected:
     bool _destroyOffscreenContext;

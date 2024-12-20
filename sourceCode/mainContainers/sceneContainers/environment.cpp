@@ -147,7 +147,7 @@ void CEnvironment::setUpDefaultValues()
     _saveExistingCalculationStructures = false;
 }
 
-void CEnvironment::appendGenesisData(CCbor *ev) const
+void CEnvironment::appendGenesisData(CCbor* ev) const
 {
     ev->appendKeyBool(propScene_finalSaveRequest.name, _requestFinalSave);
     ev->appendKeyBool(propScene_sceneIsLocked.name, _sceneIsLocked);
@@ -169,8 +169,8 @@ void CEnvironment::setAmbientLight(const float c[3])
             ambientLightColor[i] = c[i];
         if (App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScene_ambientLight.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            const char* cmd = propScene_ambientLight.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
             App::worldContainer->pushEvent();
         }
@@ -185,8 +185,8 @@ void CEnvironment::setActiveLayers(int l)
         _activeLayers = l;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScene_visibilityLayers.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            const char* cmd = propScene_visibilityLayers.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyInt(cmd, _activeLayers);
             App::worldContainer->pushEvent();
         }
@@ -225,8 +225,8 @@ void CEnvironment::setSaveExistingCalculationStructures(bool s)
         _saveExistingCalculationStructures = s;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScene_saveCalculationStructs.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            const char* cmd = propScene_saveCalculationStructs.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _saveExistingCalculationStructures);
             App::worldContainer->pushEvent();
         }
@@ -282,7 +282,7 @@ std::string CEnvironment::getExtensionString() const
     return (_extensionString);
 }
 
-void CEnvironment::setExtensionString(const char *str)
+void CEnvironment::setExtensionString(const char* str)
 {
     _extensionString = str;
 }
@@ -304,8 +304,8 @@ void CEnvironment::setRequestFinalSave(bool finalSaveActivated)
         _requestFinalSave = finalSaveActivated;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScene_finalSaveRequest.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            const char* cmd = propScene_finalSaveRequest.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _requestFinalSave);
             App::worldContainer->pushEvent();
         }
@@ -325,8 +325,8 @@ void CEnvironment::setSceneLocked()
         _sceneIsLocked = true;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScene_sceneIsLocked.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            const char* cmd = propScene_sceneIsLocked.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _sceneIsLocked);
             App::worldContainer->pushEvent();
         }
@@ -412,7 +412,7 @@ int CEnvironment::getFogType() const
     return (fogType);
 }
 
-void CEnvironment::setAcknowledgement(const char *a)
+void CEnvironment::setAcknowledgement(const char* a)
 {
     std::string ack(a);
     if (ack.length() > 3000)
@@ -423,8 +423,8 @@ void CEnvironment::setAcknowledgement(const char *a)
         _acknowledgement = ack;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScene_acknowledgment.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            const char* cmd = propScene_acknowledgment.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyText(cmd, _acknowledgement.c_str());
             App::worldContainer->pushEvent();
         }
@@ -436,7 +436,7 @@ std::string CEnvironment::getAcknowledgement() const
     return (_acknowledgement);
 }
 
-void CEnvironment::serialize(CSer &ar)
+void CEnvironment::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -447,7 +447,7 @@ void CEnvironment::serialize(CSer &ar)
             ar.flush();
 
             ar.storeDataName("Vil");
-            ar << (unsigned short) _activeLayers;
+            ar << (unsigned short)_activeLayers;
             ar.flush();
 
             ar.storeDataName("_d2");
@@ -849,7 +849,7 @@ void CEnvironment::serialize(CSer &ar)
 
             if (exhaustiveXml)
             {
-                std::string str(base64_encode((unsigned char *)_sceneUniquePersistentIdString.c_str(),
+                std::string str(base64_encode((unsigned char*)_sceneUniquePersistentIdString.c_str(),
                                               _sceneUniquePersistentIdString.size()));
                 ar.xmlAddNode_string("sceneUniquePersistentIdString_base64Coded", str.c_str());
             }
@@ -988,7 +988,7 @@ void CEnvironment::activateAmbientLight(bool a)
     enableAmbientLight(a, ambientLightColor);
 }
 
-void CEnvironment::activateFogIfEnabled(CViewableBase *viewable, bool forDynamicContentOnly)
+void CEnvironment::activateFogIfEnabled(CViewableBase* viewable, bool forDynamicContentOnly)
 {
     int editMode = NO_EDIT_MODE;
 #ifdef SIM_WITH_GUI
@@ -1024,7 +1024,7 @@ void CEnvironment::reactivateFogThatWasTemporarilyDisabled()
 }
 #endif
 
-void CEnvironment::setScenePathAndName(const char *pathAndName)
+void CEnvironment::setScenePathAndName(const char* pathAndName)
 {
     bool diff = (_scenePathAndName != pathAndName);
     if (diff)
@@ -1032,8 +1032,8 @@ void CEnvironment::setScenePathAndName(const char *pathAndName)
         _scenePathAndName = pathAndName;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propScene_scenePath.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            const char* cmd = propScene_scenePath.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyText(cmd, _scenePathAndName.c_str());
             App::worldContainer->pushEvent();
         }
@@ -1220,7 +1220,7 @@ int CEnvironment::getPropertyName(int& index, std::string& pName)
 
     for (size_t i = 0; i < allProps_scene.size(); i++)
     {
-        if ( (pName.size() == 0) || utils::startsWith(allProps_scene[i].name, pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith(allProps_scene[i].name, pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -1246,7 +1246,7 @@ int CEnvironment::getPropertyInfo(const char* pName, int& info, std::string& inf
         {
             retVal = allProps_scene[i].type;
             info = allProps_scene[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_scene[i].infoTxt, "") != 0) )
+            if ((infoTxt == "") && (strcmp(allProps_scene[i].infoTxt, "") != 0))
                 infoTxt = allProps_scene[i].infoTxt;
             else
                 infoTxt = allProps_scene[i].shortInfoTxt;
@@ -1256,4 +1256,3 @@ int CEnvironment::getPropertyInfo(const char* pName, int& info, std::string& inf
 
     return retVal;
 }
-

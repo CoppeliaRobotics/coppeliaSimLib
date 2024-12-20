@@ -6,17 +6,17 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propCol_colDiffuse,              "diffuse",                             sim_propertytype_color,     0, "Diffuse color", "") \
-    FUNCX(propCol_colSpecular,             "specular",                            sim_propertytype_color,     0, "Specular color", "") \
-    FUNCX(propCol_colEmission,             "emission",                            sim_propertytype_color,     0, "Emission color", "") \
-    FUNCX(propCol_transparency,            "transparency",                             sim_propertytype_float,     0, "Transparency", "") \
+#define DEFINE_PROPERTIES                                                                   \
+    FUNCX(propCol_colDiffuse, "diffuse", sim_propertytype_color, 0, "Diffuse color", "")    \
+    FUNCX(propCol_colSpecular, "specular", sim_propertytype_color, 0, "Specular color", "") \
+    FUNCX(propCol_colEmission, "emission", sim_propertytype_color, 0, "Emission color", "") \
+    FUNCX(propCol_transparency, "transparency", sim_propertytype_float, 0, "Transparency", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_col = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_col = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 
@@ -37,16 +37,16 @@ class CColorObject
     void pushShapeColorChangeEvent(int objectHandle, int colorIndex);
     static void pushColorChangeEvent(int objectHandle, float col1[9], float col2[9] = nullptr, float col3[9] = nullptr, float col4[9] = nullptr);
 #else
-    void addGenesisEventData(CCbor *ev) const;
+    void addGenesisEventData(CCbor* ev) const;
 #endif
     void getNewColors(float cols[9]) const;
-    void copyYourselfInto(CColorObject *it) const;
-    void serialize(CSer &ar, int objType); // 0=3d mesh, 1=3d lines, 2=3d points, 3=3d light, 4=2d thing
+    void copyYourselfInto(CColorObject* it) const;
+    void serialize(CSer& ar, int objType); // 0=3d mesh, 1=3d lines, 2=3d points, 3=3d light, 4=2d thing
 
     void getColor(float col[3], unsigned char colorMode) const;
     void getColors(float col[15]) const;
-    const float *getColorsPtr() const;
-    float *getColorsPtr();
+    const float* getColorsPtr() const;
+    float* getColorsPtr();
 
     float getTransparency() const;
     bool setTransparency(float t);
@@ -80,12 +80,12 @@ class CColorObject
     void setTranslucid(bool e);
     void setOpacity(float e);
     void setShininess(int e);
-    void setColorName(const char *nm);
-    void setExtensionString(const char *nm);
+    void setColorName(const char* nm);
+    void setExtensionString(const char* nm);
 
-//    void handleSceneObjectColorEvents(int objHandle);
+    //    void handleSceneObjectColorEvents(int objHandle);
   private:
-    bool _isSame(const CColorObject *it) const;
+    bool _isSame(const CColorObject* it) const;
     std::string _getPatternStringFromPatternId_backwardCompatibility_3_2_2016(int id);
 
     float _colors[15];

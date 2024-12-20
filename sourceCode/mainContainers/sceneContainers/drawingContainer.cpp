@@ -20,7 +20,7 @@ void CDrawingContainer::simulationEnded()
 {
 }
 
-CDrawingObject *CDrawingContainer::getObject(int objectId)
+CDrawingObject* CDrawingContainer::getObject(int objectId)
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
     {
@@ -30,7 +30,7 @@ CDrawingObject *CDrawingContainer::getObject(int objectId)
     return (nullptr);
 }
 
-int CDrawingContainer::addObject(CDrawingObject *it)
+int CDrawingContainer::addObject(CDrawingObject* it)
 {
     int newId = 0;
     newId++;
@@ -69,7 +69,7 @@ void CDrawingContainer::eraseAllObjects()
         removeObject(_allObjects[0]->getObjectId());
 }
 
-void CDrawingContainer::announceObjectWillBeErased(const CSceneObject *object)
+void CDrawingContainer::announceObjectWillBeErased(const CSceneObject* object)
 { // Never called from copy buffer!
     size_t i = 0;
     while (i < _allObjects.size())
@@ -108,29 +108,29 @@ void CDrawingContainer::pushAppendNewPointEvents()
 }
 
 #ifdef SIM_WITH_GUI
-void CDrawingContainer::renderYour3DStuff_nonTransparent(CViewableBase *renderingObject, int displayAttrib)
+void CDrawingContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject, int displayAttrib)
 {
     drawAll(false, false, displayAttrib, renderingObject->getFullCumulativeTransformation().getMatrix());
 }
 
-void CDrawingContainer::renderYour3DStuff_transparent(CViewableBase *renderingObject, int displayAttrib)
+void CDrawingContainer::renderYour3DStuff_transparent(CViewableBase* renderingObject, int displayAttrib)
 {
     drawAll(false, true, displayAttrib, renderingObject->getFullCumulativeTransformation().getMatrix());
 }
 
-void CDrawingContainer::renderYour3DStuff_overlay(CViewableBase *renderingObject, int displayAttrib)
+void CDrawingContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject, int displayAttrib)
 {
     drawAll(true, true, displayAttrib, renderingObject->getFullCumulativeTransformation().getMatrix());
 }
 
-void CDrawingContainer::drawAll(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix &cameraCTM)
+void CDrawingContainer::drawAll(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix& cameraCTM)
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
         _allObjects[i]->draw(overlay, transparentObject, displayAttrib, cameraCTM);
 }
 
 void CDrawingContainer::drawObjectsParentedWith(bool overlay, bool transparentObject, int parentObjectId,
-                                                int displayAttrib, const C4X4Matrix &cameraCTM)
+                                                int displayAttrib, const C4X4Matrix& cameraCTM)
 {
     if ((displayAttrib & sim_displayattribute_nodrawingobjects) == 0)
     {

@@ -100,7 +100,7 @@ bool CTextureProperty::getRepeatV()
 
 void CTextureProperty::addTextureDependencies(long long int objID, long long int objSubID)
 {
-    CTextureObject *it = App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
+    CTextureObject* it = App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     if (it != nullptr)
         it->addDependentObject(objID, objSubID);
 }
@@ -126,30 +126,30 @@ void CTextureProperty::scaleObject(double scalingFactor)
     }
 }
 
-void CTextureProperty::transformTexturePose(const C7Vector &mCorrection)
+void CTextureProperty::transformTexturePose(const C7Vector& mCorrection)
 {
     _textureRelativeConfig = mCorrection * _textureRelativeConfig;
 }
 
-void CTextureProperty::setStartedTextureObject(CTextureObject *it)
+void CTextureProperty::setStartedTextureObject(CTextureObject* it)
 {
     _startedTexture = it;
 }
 
-CTextureObject *CTextureProperty::getStartedTextureObject()
+CTextureObject* CTextureProperty::getStartedTextureObject()
 {
     return (_startedTexture);
 }
 
-std::vector<float> *CTextureProperty::getFixedTextureCoordinates()
+std::vector<float>* CTextureProperty::getFixedTextureCoordinates()
 {
     if (_fixedTextureCoordinates.size() != 0)
         return (&_fixedTextureCoordinates);
     return (nullptr);
 }
 
-std::vector<float> *CTextureProperty::getTextureCoordinates(int objectStateId, const std::vector<float> &vertices,
-                                                            const std::vector<int> &triangles)
+std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, const std::vector<float>& vertices,
+                                                            const std::vector<int>& triangles)
 { // can return nullptr if texture needs to be destroyed!
     if (_fixedTextureCoordinates.size() != 0)
     { // We have fixed coordinates!
@@ -175,13 +175,13 @@ std::vector<float> *CTextureProperty::getTextureCoordinates(int objectStateId, c
 
     _calculatedTextureCoordinates.clear();
     C7Vector tr(_textureRelativeConfig.getInverse());
-    CTextureObject *it = nullptr;
+    CTextureObject* it = nullptr;
     if (_textureOrVisionSensorObjectID > SIM_IDEND_SCENEOBJECT)
         it = App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     else
     {
 #ifdef SIM_WITH_GUI
-        CVisionSensor *rend =
+        CVisionSensor* rend =
             App::currentWorld->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rend != nullptr)
             it = rend->getTextureObject();
@@ -415,9 +415,9 @@ int CTextureProperty::getApplyMode()
     return (_applyMode);
 }
 
-CTextureProperty *CTextureProperty::copyYourself()
+CTextureProperty* CTextureProperty::copyYourself()
 {
-    CTextureProperty *newObj = new CTextureProperty();
+    CTextureProperty* newObj = new CTextureProperty();
     newObj->_interpolateColor = _interpolateColor;
     newObj->_applyMode = _applyMode;
     newObj->_repeatU = _repeatU;
@@ -442,7 +442,7 @@ void CTextureProperty::setTextureObjectID(int id)
     _textureOrVisionSensorObjectID = id;
 }
 
-CTextureObject *CTextureProperty::getTextureObject()
+CTextureObject* CTextureProperty::getTextureObject()
 {
     if (_textureOrVisionSensorObjectID > SIM_IDEND_SCENEOBJECT)
         return (App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID));
@@ -450,7 +450,7 @@ CTextureObject *CTextureProperty::getTextureObject()
     if ((_textureOrVisionSensorObjectID >= SIM_IDSTART_SCENEOBJECT) &&
         (_textureOrVisionSensorObjectID <= SIM_IDEND_SCENEOBJECT))
     {
-        CVisionSensor *rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
+        CVisionSensor* rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rs != nullptr)
             return (rs->getTextureObject());
     }
@@ -458,7 +458,7 @@ CTextureObject *CTextureProperty::getTextureObject()
     return (nullptr);
 }
 
-bool CTextureProperty::announceObjectWillBeErased(const CSceneObject *object)
+bool CTextureProperty::announceObjectWillBeErased(const CSceneObject* object)
 {
     if ((_textureOrVisionSensorObjectID >= SIM_IDSTART_SCENEOBJECT) &&
         (_textureOrVisionSensorObjectID <= SIM_IDEND_SCENEOBJECT))
@@ -466,14 +466,14 @@ bool CTextureProperty::announceObjectWillBeErased(const CSceneObject *object)
     return (false);
 }
 
-void CTextureProperty::performObjectLoadingMapping(const std::map<int, int> *map)
+void CTextureProperty::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (_textureOrVisionSensorObjectID <= SIM_IDEND_SCENEOBJECT)
         _textureOrVisionSensorObjectID =
             CWorld::getLoadingMapping(map, _textureOrVisionSensorObjectID); // texture is a vision sensor texture object
 }
 
-void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (_textureOrVisionSensorObjectID > SIM_IDEND_SCENEOBJECT)
         _textureOrVisionSensorObjectID =
@@ -485,7 +485,7 @@ C7Vector CTextureProperty::getTextureRelativeConfig()
     return (_textureRelativeConfig);
 }
 
-void CTextureProperty::setTextureRelativeConfig(const C7Vector &c)
+void CTextureProperty::setTextureRelativeConfig(const C7Vector& c)
 {
     _textureRelativeConfig = c;
     _objectStateId = -1; // Force a new calculation of texture coordinates
@@ -495,7 +495,7 @@ void CTextureProperty::setTextureRelativeConfig(const C7Vector &c)
 #endif
 }
 
-void CTextureProperty::setFixedCoordinates(const std::vector<float> *coords)
+void CTextureProperty::setFixedCoordinates(const std::vector<float>* coords)
 { // nullptr to remove them and have calculated coords
     _fixedTextureCoordinates.clear();
     if ((coords != nullptr) && (coords->size() != 0))
@@ -515,7 +515,7 @@ bool CTextureProperty::getFixedCoordinates()
     return (_fixedTextureCoordinates.size() != 0);
 }
 
-void CTextureProperty::getTextureScaling(double &x, double &y)
+void CTextureProperty::getTextureScaling(double& x, double& y)
 {
     x = _textureScalingX;
     y = _textureScalingY;
@@ -528,7 +528,7 @@ void CTextureProperty::setTextureScaling(double x, double y)
     _objectStateId = -1; // Force a new calculation of texture coordinates
 }
 
-void CTextureProperty::serialize(CSer &ar)
+void CTextureProperty::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -741,7 +741,7 @@ void CTextureProperty::serialize(CSer &ar)
 }
 
 #ifdef SIM_WITH_GUI
-int *CTextureProperty::getTexCoordBufferIdPointer()
+int* CTextureProperty::getTexCoordBufferIdPointer()
 {
     return (&_texCoordBufferId);
 }

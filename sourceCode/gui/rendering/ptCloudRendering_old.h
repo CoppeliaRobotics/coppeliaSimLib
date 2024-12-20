@@ -22,4 +22,4 @@ See the GNU General Public License for more details.
 #include <ptCloud_old.h>
 #include <rendering.h>
 
-void displayPtCloud_old(CPtCloud_old *ptCloud, CSceneObject *it);
+void displayPtCloud_old(CPtCloud_old* ptCloud, CSceneObject* it);

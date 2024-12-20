@@ -11,13 +11,13 @@
 #include <sstream>
 #include <QByteArray>
 
-void utils::lightBinaryEncode(char *data, int length)
+void utils::lightBinaryEncode(char* data, int length)
 { // Very simple!
     for (int i = 0; i < length; i++)
         data[i] = (((data[i] & 0xf0) >> 4) | ((data[i] & 0x0f) << 4)) ^ (i & 0xff);
 }
 
-void utils::lightBinaryDecode(char *data, int length)
+void utils::lightBinaryDecode(char* data, int length)
 { // very simple!
     for (int i = 0; i < length; i++)
     {
@@ -26,7 +26,7 @@ void utils::lightBinaryDecode(char *data, int length)
     }
 }
 
-unsigned short utils::getCRC(char *data, int length)
+unsigned short utils::getCRC(char* data, int length)
 {
     unsigned short crc = 0;
     int p = 0;
@@ -45,14 +45,14 @@ unsigned short utils::getCRC(char *data, int length)
     return (crc);
 }
 
-unsigned short utils::getCRC(const std::string &data)
+unsigned short utils::getCRC(const std::string& data)
 {
     if (data.length() == 0)
         return (0);
-    return (getCRC((char *)(&data[0]), int(data.length())));
+    return (getCRC((char*)(&data[0]), int(data.length())));
 }
 
-std::string utils::extractWord(std::string &str, const char* separationWord)
+std::string utils::extractWord(std::string& str, const char* separationWord)
 {
     std::string retVal;
     size_t p = str.find(separationWord);
@@ -69,21 +69,21 @@ std::string utils::extractWord(std::string &str, const char* separationWord)
     return retVal;
 }
 
-bool utils::extractCommaSeparatedWord(std::string &line, std::string &word)
+bool utils::extractCommaSeparatedWord(std::string& line, std::string& word)
 { // Returns true if a word could be extracted
     bool retVal = (line.size() > 0);
     word = extractWord(line, ",");
     return retVal;
 }
 
-bool utils::extractSpaceSeparatedWord(std::string &line, std::string &word)
+bool utils::extractSpaceSeparatedWord(std::string& line, std::string& word)
 { // Returns true if a word could be extracted
     bool retVal = (line.size() > 0);
     word = extractWord(line, " ");
     return retVal;
 }
 
-bool utils::extractLine(std::string &multiline, std::string &line)
+bool utils::extractLine(std::string& multiline, std::string& line)
 { // Returns true if a line could be extracted
     size_t n = multiline.find('\n');
     if (n != std::string::npos)
@@ -102,7 +102,7 @@ bool utils::extractLine(std::string &multiline, std::string &line)
     }
 }
 
-std::string utils::getLightEncodedString(const std::string &ss)
+std::string utils::getLightEncodedString(const std::string& ss)
 { // ss can contain any char
     std::string txt(ss);
     std::string s;
@@ -124,7 +124,7 @@ std::string utils::getLightEncodedString(const std::string &ss)
     return (s);
 }
 
-std::string utils::getLightDecodedString(const std::string &ss)
+std::string utils::getLightDecodedString(const std::string& ss)
 { // return string can contain any char
     std::string txt(ss);
     std::string s;
@@ -159,7 +159,7 @@ std::string utils::getWithoutPrefix(const char* input, const char* prefix)
     return retVal;
 }
 
-bool utils::removeSpacesAtBeginningAndEnd(std::string &line)
+bool utils::removeSpacesAtBeginningAndEnd(std::string& line)
 {
     while ((line.length() != 0) && (line[0] == ' '))
         line.erase(line.begin());
@@ -168,8 +168,8 @@ bool utils::removeSpacesAtBeginningAndEnd(std::string &line)
     return (line.length() != 0);
 }
 
-std::string utils::getFormattedString(const char *a, const char *b, const char *c, const char *d, const char *e,
-                                      const char *f, const char *g, const char *h)
+std::string utils::getFormattedString(const char* a, const char* b, const char* c, const char* d, const char* e,
+                                      const char* f, const char* g, const char* h)
 {
     std::string retVal("");
     if (a == nullptr)
@@ -199,7 +199,7 @@ std::string utils::getFormattedString(const char *a, const char *b, const char *
     return (retVal);
 }
 
-std::string utils::getLowerCaseString(const char *str)
+std::string utils::getLowerCaseString(const char* str)
 {
     std::string retValue(str);
     for (int i = 0; i < int(retValue.length()); i++)
@@ -210,17 +210,17 @@ std::string utils::getLowerCaseString(const char *str)
     return (retValue);
 }
 
-void utils::scaleLightDown_(float *rgb)
-{ // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other
-  // applications
+void utils::scaleLightDown_(float* rgb)
+{   // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other
+    // applications
     rgb[0] *= 0.675f;
     rgb[1] *= 0.675f;
     rgb[2] *= 0.675f;
 }
 
-void utils::scaleColorUp_(float *rgb)
-{ // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other
-  // applications
+void utils::scaleColorUp_(float* rgb)
+{   // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other
+    // applications
     float f = 1.5f;
     float m = std::max<float>(std::max<float>(rgb[0], rgb[1]), rgb[2]);
     float d = 1.0f / m;
@@ -231,14 +231,14 @@ void utils::scaleColorUp_(float *rgb)
     rgb[2] *= f;
 }
 
-std::string utils::decode64(const std::string &data)
+std::string utils::decode64(const std::string& data)
 {
     QByteArray arr(data.c_str(), int(data.size()));
     return (QByteArray::fromBase64(arr, QByteArray::Base64Encoding).toStdString());
     // return(base64_decode(data));
 }
 
-std::string utils::encode64(const std::string &data)
+std::string utils::encode64(const std::string& data)
 {
     QByteArray arr(data.c_str(), int(data.size()));
     return (arr.toBase64().toStdString());
@@ -360,12 +360,12 @@ std::string utils::generateUniqueAlphaNumericString()
     return (str);
 }
 
-bool utils::isAlphaNumeric(const std::string &str)
+bool utils::isAlphaNumeric(const std::string& str)
 {
     return std::all_of(str.begin(), str.end(), [](unsigned char ch) { return std::isalnum(ch); });
 }
 
-bool utils::checkAssemblyTagValidity(const char *parentSideTag, const char *childSideTag)
+bool utils::checkAssemblyTagValidity(const char* parentSideTag, const char* childSideTag)
 {
     bool retVal = false;
     if (childSideTag == nullptr)
@@ -408,7 +408,7 @@ bool utils::checkAssemblyTagValidity(const char *parentSideTag, const char *chil
     return retVal;
 }
 
-bool utils::replaceSubstring(std::string &str, const char *subStr, const char *replacementSubStr)
+bool utils::replaceSubstring(std::string& str, const char* subStr, const char* replacementSubStr)
 {
     bool retVal = false;
     size_t index = 0;
@@ -429,7 +429,7 @@ bool utils::replaceSubstring(std::string &str, const char *subStr, const char *r
     return retVal;
 }
 
-bool utils::replaceSubstringStart(std::string &str, const char *subStr, const char *replacementSubStr)
+bool utils::replaceSubstringStart(std::string& str, const char* subStr, const char* replacementSubStr)
 {
     bool retVal = false;
     size_t str1L = strlen(subStr);
@@ -445,7 +445,7 @@ bool utils::replaceSubstringStart(std::string &str, const char *subStr, const ch
     return retVal;
 }
 
-bool utils::replaceSubstringEnd(std::string &str, const char *subStr, const char *replacementSubStr)
+bool utils::replaceSubstringEnd(std::string& str, const char* subStr, const char* replacementSubStr)
 {
     bool retVal = false;
     size_t str1L = strlen(subStr);
@@ -468,12 +468,12 @@ bool utils::startsWith(const char* str, const char* prefix)
     return retVal;
 }
 
-void utils::regexReplace(std::string &str, const char *regexStr, const char *regexReplacementSubStr)
+void utils::regexReplace(std::string& str, const char* regexStr, const char* regexReplacementSubStr)
 {
     str = std::regex_replace(str, std::regex(regexStr), regexReplacementSubStr);
 }
 
-void utils::removeComments(std::string &line)
+void utils::removeComments(std::string& line)
 {
     replaceSubstring(line, "://", "doubleptslashslash");
     size_t p = line.find("//");
@@ -482,7 +482,7 @@ void utils::removeComments(std::string &line)
     replaceSubstring(line, "doubleptslashslash", "://");
 }
 
-int utils::lineCountAtOffset(const char *str, int offset)
+int utils::lineCountAtOffset(const char* str, int offset)
 {
     int retVal = 0;
     std::string all(str);
@@ -498,7 +498,7 @@ int utils::lineCountAtOffset(const char *str, int offset)
     return (retVal);
 }
 
-bool utils::doStringMatch_wildcard(const char *wildcardStr, const char *otherStr)
+bool utils::doStringMatch_wildcard(const char* wildcardStr, const char* otherStr)
 {
     if ((wildcardStr[0] == '\0') && (otherStr[0] == '\0'))
         return true;
@@ -676,7 +676,7 @@ std::string utils::getAngJerkString(bool sign, double num)
     return getDoubleString(sign, num * radToDeg, 2, 4, 0.001, 9999.0);
 }
 
-double utils::getDoubleFromString(const char *str, double minMaxValue /*=0.0*/)
+double utils::getDoubleFromString(const char* str, double minMaxValue /*=0.0*/)
 {
     double result;
     std::stringstream ss(str);

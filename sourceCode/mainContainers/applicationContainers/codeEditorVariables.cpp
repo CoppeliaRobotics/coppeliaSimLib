@@ -15,7 +15,7 @@ void CCodeEditorVariables::clear()
     _allVars.clear();
 }
 
-bool CCodeEditorVariables::set(const char *info)
+bool CCodeEditorVariables::set(const char* info)
 {
     bool retVal = true;
     clear();
@@ -52,7 +52,7 @@ void CCodeEditorVariables::print() const
         printf("%s\n", _allVars[i].c_str());
 }
 
-void CCodeEditorVariables::insertWhatStartsSame(const char *txt, std::set<std::string> &v) const
+void CCodeEditorVariables::insertWhatStartsSame(const char* txt, std::set<std::string>& v) const
 {
     std::string ttxt(txt);
     bool hasDot = (ttxt.find('.') != std::string::npos);

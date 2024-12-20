@@ -23,8 +23,8 @@ void COutsideCommandQueueForScript::initializeInitialValues(bool simulationAlrea
 }
 
 void COutsideCommandQueueForScript::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     commands.clear();
     auxValues.clear();
     aux2Values.clear();
@@ -32,7 +32,7 @@ void COutsideCommandQueueForScript::simulationEnded()
 }
 
 bool COutsideCommandQueueForScript::addCommand(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4,
-                                               const double *aux2Vals, int aux2Count)
+                                               const double* aux2Vals, int aux2Count)
 { // the queue can't be bigger than 64! (for now)
     // For the Lua-API:
     if (commandID < sim_message_for_c_api_only_start)
@@ -76,7 +76,7 @@ bool COutsideCommandQueueForScript::addCommand(int commandID, int auxVal1, int a
     return (true);
 }
 
-int COutsideCommandQueueForScript::extractOneCommand(int auxVals[4], double aux2Vals[8], int &aux2Count)
+int COutsideCommandQueueForScript::extractOneCommand(int auxVals[4], double aux2Vals[8], int& aux2Count)
 {
     if (flagToCompareSelections)
         _checkSelections();
@@ -107,7 +107,7 @@ void COutsideCommandQueueForScript::_checkSelections()
         if (previousObjectSelection.size() != 0)
         {
             l = previousObjectSelection[previousObjectSelection.size() - 1];
-            CSceneObject *it = App::currentWorld->sceneObjects->getLastSelectionObject();
+            CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
             if (it != nullptr)
                 t = it->getObjectType();
         }

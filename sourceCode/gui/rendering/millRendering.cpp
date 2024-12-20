@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <millRendering.h>
 #include <guiApp.h>
 
-void displayMill(CMill *mill, CViewableBase *renderingObject, int displayAttrib)
+void displayMill(CMill* mill, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(mill, renderingObject);

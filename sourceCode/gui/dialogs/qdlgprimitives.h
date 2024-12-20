@@ -15,7 +15,7 @@ class CQDlgPrimitives : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgPrimitives(QWidget *parent = 0);
+    explicit CQDlgPrimitives(QWidget* parent = 0);
     ~CQDlgPrimitives();
 
     void refresh();
@@ -23,7 +23,7 @@ class CQDlgPrimitives : public VDialog
     void cancelEvent();
     void okEvent();
 
-    void initialize(int type, const C3Vector *sizes);
+    void initialize(int type, const C3Vector* sizes);
     void _correctDependentValues();
 
     int primitiveType;
@@ -61,7 +61,7 @@ class CQDlgPrimitives : public VDialog
     void on_qqDynamic_clicked();
 
   private:
-    Ui::CQDlgPrimitives *ui;
+    Ui::CQDlgPrimitives* ui;
 };
 
 #endif // QDLGPRIMITIVES_H

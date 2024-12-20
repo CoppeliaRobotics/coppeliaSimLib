@@ -15,13 +15,13 @@ class CQDlgModelThumbnailVisu : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgModelThumbnailVisu(QWidget *parent = 0);
+    explicit CQDlgModelThumbnailVisu(QWidget* parent = 0);
     ~CQDlgModelThumbnailVisu();
 
     void cancelEvent();
     void okEvent();
 
-    void applyThumbnail(const CThumbnail *thumbnail);
+    void applyThumbnail(const CThumbnail* thumbnail);
 
   private slots:
     void on_qqYesNo_accepted();
@@ -29,7 +29,7 @@ class CQDlgModelThumbnailVisu : public VDialog
     void on_qqYesNo_rejected();
 
   private:
-    Ui::CQDlgModelThumbnailVisu *ui;
+    Ui::CQDlgModelThumbnailVisu* ui;
 };
 
 #endif // QDLGMODELTHUMBNAILVISU_H

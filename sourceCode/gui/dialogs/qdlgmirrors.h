@@ -14,7 +14,7 @@ class CQDlgMirrors : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgMirrors(QWidget *parent = 0);
+    explicit CQDlgMirrors(QWidget* parent = 0);
     ~CQDlgMirrors();
 
     void refresh();
@@ -40,7 +40,7 @@ class CQDlgMirrors : public CDlgEx
     void on_qqDisableAllClippingPlanes_clicked();
 
   private:
-    Ui::CQDlgMirrors *ui;
+    Ui::CQDlgMirrors* ui;
 };
 
 #endif // QDLGMIRRORS_H

@@ -6,7 +6,8 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgScripts::CQDlgScripts(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgScripts)
+CQDlgScripts::CQDlgScripts(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgScripts)
 {
     _dlgType = SCRIPT_DLG;
     ui->setupUi(this);
@@ -27,12 +28,12 @@ void CQDlgScripts::cancelEvent()
 void CQDlgScripts::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim = (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_script);
     bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_dummy) > 1);
-    CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
+    CScript* it = App::currentWorld->sceneObjects->getLastSelectionScript();
 
     ui->qqSize->setEnabled(sel && noEditModeNoSim);
     ui->qqColor->setEnabled(sel && noEditModeNoSim);
@@ -41,14 +42,14 @@ void CQDlgScripts::refresh()
     ui->qqExecutionOrder->clear();
     ui->qqExecutionOrder->setEnabled(sel && noEditModeNoSim);
     ui->qqEnabled->setEnabled(sel && noEditModeNoSim);
-    ui->qqResetAfterSimError->setEnabled(sel && noEditModeNoSim && (it->scriptObject->getScriptType() == sim_scripttype_customization) );
+    ui->qqResetAfterSimError->setEnabled(sel && noEditModeNoSim && (it->scriptObject->getScriptType() == sim_scripttype_customization));
     ui->qqParentProxy->setVisible(sel && it->scriptObject->getParentIsProxy());
     ui->qqParentProxy->setEnabled(sel && noEditModeNoSim);
 
     if (sel)
     {
         std::string lang(it->scriptObject->getLang());
-        if ( ( (lang != "lua") && (lang != "python") ) || (it->scriptObject->getScriptType() == sim_scripttype_passive) )
+        if (((lang != "lua") && (lang != "python")) || (it->scriptObject->getScriptType() == sim_scripttype_passive))
         {
             ui->qqEnabled->setEnabled(false);
             ui->qqExecutionOrder->setEnabled(false);
@@ -108,7 +109,7 @@ void CQDlgScripts::on_qqApplyMainProperties_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
+        CScript* it = App::currentWorld->sceneObjects->getLastSelectionScript();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -127,7 +128,7 @@ void CQDlgScripts::on_qqEnabled_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
+        CScript* it = App::currentWorld->sceneObjects->getLastSelectionScript();
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_ENABLED_SCRIPTGUITRIGGEREDCMD, it->getObjectHandle());
@@ -142,7 +143,7 @@ void CQDlgScripts::on_qqParentProxy_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
+        CScript* it = App::currentWorld->sceneObjects->getLastSelectionScript();
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(PARENTPROXY_OFF_SCRIPTGUITRIGGEREDCMD, it->getObjectHandle());
@@ -159,7 +160,7 @@ void CQDlgScripts::on_qqExecutionOrder_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
+            CScript* it = App::currentWorld->sceneObjects->getLastSelectionScript();
             if (it != nullptr)
             {
                 int executionOrder = ui->qqExecutionOrder->itemData(ui->qqExecutionOrder->currentIndex()).toInt();
@@ -171,12 +172,11 @@ void CQDlgScripts::on_qqExecutionOrder_currentIndexChanged(int index)
     }
 }
 
-
 void CQDlgScripts::on_qqResetAfterSimError_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
+        CScript* it = App::currentWorld->sceneObjects->getLastSelectionScript();
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_RESETAFTERSIMERROR_SCRIPTGUITRIGGEREDCMD, it->getObjectHandle());

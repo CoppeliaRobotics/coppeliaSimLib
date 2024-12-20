@@ -23,12 +23,12 @@ class CDistanceObject_old
     void clearDistanceResult();
     double handleDistance();
 
-    void serialize(CSer &ar);
-    void performObjectLoadingMapping(const std::map<int, int> *map);
-    void performCollectionLoadingMapping(const std::map<int, int> *map);
+    void serialize(CSer& ar);
+    void performObjectLoadingMapping(const std::map<int, int>* map);
+    void performCollectionLoadingMapping(const std::map<int, int>* map);
     bool announceObjectWillBeErased(int objectHandle, bool copyBuffer);
     bool announceCollectionWillBeErased(int collectionHandle, bool copyBuffer);
-    CDistanceObject_old *copyYourself();
+    CDistanceObject_old* copyYourself();
 
     int getObjectHandle() const;
     int getEntity1Handle() const;
@@ -40,13 +40,13 @@ class CDistanceObject_old
     bool getExplicitHandling() const;
     int getSegmentWidth() const;
 
-    CColorObject *getSegmentColor();
+    CColorObject* getSegmentColor();
 
     bool setObjectHandle(int newHandle);
     bool setThresholdEnabled(bool enabled);
     bool setDisplaySegment(bool display);
     bool setExplicitHandling(bool explicitHandl);
-    bool setObjectName(const char *newName, bool check);
+    bool setObjectName(const char* newName, bool check);
     bool setThreshold(double tr);
     bool setSegmentWidth(int w);
 

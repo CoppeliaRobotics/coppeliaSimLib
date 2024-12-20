@@ -39,8 +39,8 @@ void CIkGroup_old::simulationAboutToStart()
 }
 
 void CIkGroup_old::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     for (size_t i = 0; i < getIkElementCount(); i++)
         getIkElementFromIndex(i)->simulationEnded();
     if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
@@ -50,9 +50,9 @@ void CIkGroup_old::simulationEnded()
     _initialValuesInitialized = false;
 }
 
-CIkGroup_old *CIkGroup_old::copyYourself() const
+CIkGroup_old* CIkGroup_old::copyYourself() const
 {
-    CIkGroup_old *newGroup = new CIkGroup_old();
+    CIkGroup_old* newGroup = new CIkGroup_old();
     newGroup->_objectHandle = _objectHandle;               // important for copy operations connections
     newGroup->_doOnFailOrSuccessOf = _doOnFailOrSuccessOf; // important for copy operations connections
     newGroup->_ignoreMaxStepSizes = _ignoreMaxStepSizes;
@@ -77,7 +77,7 @@ CIkGroup_old *CIkGroup_old::copyYourself() const
     return (newGroup);
 }
 
-void CIkGroup_old::serialize(CSer &ar)
+void CIkGroup_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -216,7 +216,7 @@ void CIkGroup_old::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        CIkElement_old *it = new CIkElement_old();
+                        CIkElement_old* it = new CIkElement_old();
                         it->serialize(ar);
                         _CIkGroup_old::_addIkElement(it);
                     }
@@ -268,7 +268,7 @@ void CIkGroup_old::serialize(CSer &ar)
 
             if (exhaustiveXml)
             {
-                std::string str(base64_encode((unsigned char *)_uniquePersistentIdString.c_str(),
+                std::string str(base64_encode((unsigned char*)_uniquePersistentIdString.c_str(),
                                               _uniquePersistentIdString.size()));
                 ar.xmlAddNode_string("uniquePersistentIdString_base64Coded", str.c_str());
             }
@@ -327,7 +327,7 @@ void CIkGroup_old::serialize(CSer &ar)
             {
                 while (true)
                 {
-                    CIkElement_old *it = new CIkElement_old();
+                    CIkElement_old* it = new CIkElement_old();
                     it->serialize(ar);
                     _CIkGroup_old::_addIkElement(it);
                     if (!ar.xmlPushSiblingNode("ikElement", false))
@@ -339,13 +339,13 @@ void CIkGroup_old::serialize(CSer &ar)
     }
 }
 
-void CIkGroup_old::performObjectLoadingMapping(const std::map<int, int> *map)
+void CIkGroup_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     for (size_t i = 0; i < getIkElementCount(); i++)
         getIkElementFromIndex(i)->performObjectLoadingMapping(map);
 }
 
-void CIkGroup_old::performIkGroupLoadingMapping(const std::map<int, int> *map)
+void CIkGroup_old::performIkGroupLoadingMapping(const std::map<int, int>* map)
 {
     _doOnFailOrSuccessOf = CWorld::getLoadingMapping(map, _doOnFailOrSuccessOf);
 }
@@ -376,10 +376,10 @@ int CIkGroup_old::getIkPluginCounterpartHandle() const
     return (_ikPluginCounterpartHandle);
 }
 
-bool CIkGroup_old::setObjectName(const char *newName, bool check)
+bool CIkGroup_old::setObjectName(const char* newName, bool check)
 { // Overridden from _CIkGroup_old
     bool diff = false;
-    CIkGroup_old *it = nullptr;
+    CIkGroup_old* it = nullptr;
     if (check)
         it = App::currentWorld->ikGroups_old->getObjectFromHandle(_objectHandle);
     if (it != this)
@@ -404,7 +404,7 @@ bool CIkGroup_old::setObjectName(const char *newName, bool check)
 bool CIkGroup_old::setDoOnFailOrSuccessOf(int groupID, bool check)
 { // Overridden from _CIkGroup_old
     bool diff = false;
-    CIkGroup_old *it = nullptr;
+    CIkGroup_old* it = nullptr;
     if (check)
         it = App::currentWorld->ikGroups_old->getObjectFromHandle(_objectHandle);
     if (it != this)
@@ -413,7 +413,7 @@ bool CIkGroup_old::setDoOnFailOrSuccessOf(int groupID, bool check)
     { // object is in world
         for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
         {
-            CIkGroup_old *prev = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
+            CIkGroup_old* prev = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
             if (prev->getObjectHandle() == groupID)
             {
                 diff = _CIkGroup_old::setDoOnFailOrSuccessOf(groupID, false);
@@ -447,7 +447,7 @@ bool CIkGroup_old::setDampingFactor(double theFactor)
     return (_CIkGroup_old::setDampingFactor(theFactor));
 }
 
-bool CIkGroup_old::addIkElement(CIkElement_old *anElement)
+bool CIkGroup_old::addIkElement(CIkElement_old* anElement)
 { // If return value if false, the calling function has to destroy anElement (invalid)
     // We check if anElement is valid:
     if (App::currentWorld->sceneObjects->getDummyFromHandle(anElement->getTipHandle()) == nullptr)
@@ -463,7 +463,7 @@ bool CIkGroup_old::addIkElement(CIkElement_old *anElement)
     return (true);
 }
 
-void CIkGroup_old::_addIkElement(CIkElement_old *anElement)
+void CIkGroup_old::_addIkElement(CIkElement_old* anElement)
 { // Overridden from _CIkGroup_old
     _CIkGroup_old::_addIkElement(anElement);
 
@@ -472,7 +472,7 @@ void CIkGroup_old::_addIkElement(CIkElement_old *anElement)
 
 void CIkGroup_old::_removeIkElement(int ikElementHandle)
 { // Overridden from _CIkGroup_old
-    CIkElement_old *el = getIkElementFromHandle(ikElementHandle);
+    CIkElement_old* el = getIkElementFromHandle(ikElementHandle);
     if (el != nullptr)
         el->remove_oldIk();
     _CIkGroup_old::_removeIkElement(ikElementHandle);
@@ -507,7 +507,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
         {
             if (_doOnFailOrSuccessOf != -1)
             { // Conditional execution part:
-                CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(_doOnFailOrSuccessOf);
+                CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(_doOnFailOrSuccessOf);
                 if (it != nullptr)
                 {
                     if (_doOnPerformed)
@@ -540,7 +540,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
             // do not check for success to apply values. Always apply them (the IK lib decides for that)
             for (size_t i = 0; i < getIkElementCount(); i++)
             {
-                CIkElement_old *element = getIkElementFromIndex(i);
+                CIkElement_old* element = getIkElementFromIndex(i);
                 element->setAllInvolvedJointsToIkPluginPositions();
             }
             if (!independentComputation)
@@ -560,9 +560,9 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
     return (retVal);
 }
 
-const double *CIkGroup_old::getLastJacobianData(int matrixSize[2])
+const double* CIkGroup_old::getLastJacobianData(int matrixSize[2])
 {
-    const CMatrix *m = getLastJacobian();
+    const CMatrix* m = getLastJacobian();
     if ((m == nullptr) || (m->data.size() == 0))
         return (nullptr);
     matrixSize[0] = int(m->cols);
@@ -570,10 +570,10 @@ const double *CIkGroup_old::getLastJacobianData(int matrixSize[2])
     return (m->data.data());
 }
 
-double *CIkGroup_old::getLastManipulabilityValue(int matrixSize[2])
+double* CIkGroup_old::getLastManipulabilityValue(int matrixSize[2])
 {
     static double v;
-    const CMatrix *m = getLastJacobian();
+    const CMatrix* m = getLastJacobian();
     if (m == nullptr)
         return (nullptr);
     matrixSize[0] = 1;
@@ -589,8 +589,8 @@ double *CIkGroup_old::getLastManipulabilityValue(int matrixSize[2])
     return (&v);
 }
 
-double CIkGroup_old::_getDeterminant(const CMatrix &m, const std::vector<int> *activeRows,
-                                     const std::vector<int> *activeColumns) const
+double CIkGroup_old::_getDeterminant(const CMatrix& m, const std::vector<int>* activeRows,
+                                     const std::vector<int>* activeColumns) const
 { // activeRows and activeColumns are nullptr by default (--> all rows and columns are active)
     // Routine is recursive! (i.e. Laplace expansion, which is not efficient for large matrices!)
     if (activeRows == nullptr)
@@ -786,12 +786,12 @@ int CIkGroup_old::getCalculationResult() const
     return (_calculationResult);
 }
 
-const CMatrix *CIkGroup_old::getLastJacobian() const
+const CMatrix* CIkGroup_old::getLastJacobian() const
 {
     return (_lastJacobian);
 }
 
-void CIkGroup_old::_setLastJacobian(CMatrix *j)
+void CIkGroup_old::_setLastJacobian(CMatrix* j)
 {
     if (_lastJacobian != nullptr)
         delete _lastJacobian;
@@ -811,7 +811,7 @@ void CIkGroup_old::buildOrUpdate_oldIk()
     // Prepare the IK elements for building their plugin counterparts:
     for (size_t i = 0; i < getIkElementCount(); i++)
     {
-        CIkElement_old *it = getIkElementFromIndex(i);
+        CIkElement_old* it = getIkElementFromIndex(i);
         it->setIkGroupPluginCounterpartHandle(_ikPluginCounterpartHandle);
     }
 
@@ -832,7 +832,7 @@ void CIkGroup_old::buildOrUpdate_oldIk()
     // Populate remote IK group with remote IK elements:
     for (size_t i = 0; i < getIkElementCount(); i++)
     {
-        CIkElement_old *it = getIkElementFromIndex(i);
+        CIkElement_old* it = getIkElementFromIndex(i);
         it->buildOrUpdate_oldIk();
     }
 }
@@ -849,10 +849,10 @@ void CIkGroup_old::remove_oldIk()
     _ikPluginCounterpartHandle = -1;
 }
 
-int CIkGroup_old::getConfigForTipPose(int jointCnt, const int *jointHandles, double thresholdDist, int maxTimeInMs,
-                                      double *retConfig, const double *metric, int collisionPairCnt,
-                                      const int *collisionPairs, const int *jointOptions, const double *lowLimits,
-                                      const double *ranges, std::string &errorMsg)
+int CIkGroup_old::getConfigForTipPose(int jointCnt, const int* jointHandles, double thresholdDist, int maxTimeInMs,
+                                      double* retConfig, const double* metric, int collisionPairCnt,
+                                      const int* collisionPairs, const int* jointOptions, const double* lowLimits,
+                                      const double* ranges, std::string& errorMsg)
 { // ret: -1: error, 0: nothing found, 1: solution found
     int retVal = -1;
     retVal = App::worldContainer->pluginContainer->oldIkPlugin_getConfigForTipPose(
@@ -861,7 +861,7 @@ int CIkGroup_old::getConfigForTipPose(int jointCnt, const int *jointHandles, dou
     return (retVal);
 }
 
-int CIkGroup_old::checkIkGroup(int jointCnt, const int *jointHandles, double *jointValues, const int *jointOptions)
+int CIkGroup_old::checkIkGroup(int jointCnt, const int* jointHandles, double* jointValues, const int* jointOptions)
 { // ret: -1: object not tagger for explicit handling, -2: invalid handles, otherwise an Ik calculation result
     int retVal = sim_ikresult_not_performed;
     if (!getExplicitHandling())
@@ -880,12 +880,12 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int *jointHandles, double *jo
     if (retVal >= sim_ikresult_not_performed)
     {
         // Save joint positions/modes (all of them, just in case)
-        std::vector<CJoint *> sceneJoints;
+        std::vector<CJoint*> sceneJoints;
         std::vector<double> initSceneJointValues;
         std::vector<int> initSceneJointModes;
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
         {
-            CJoint *aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
+            CJoint* aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
             sceneJoints.push_back(aj);
             initSceneJointValues.push_back(aj->getPosition());
             initSceneJointModes.push_back(aj->getJointMode());
@@ -901,7 +901,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int *jointHandles, double *jo
         // Set the correct mode for the joints involved:
         for (int i = 0; i < jointCnt; i++)
         {
-            CJoint *joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+            CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
             if ((jointOptions == nullptr) || ((jointOptions[i] & 1) == 0))
                 joint->setJointMode_noDynMotorTargetPosCorrection(sim_jointmode_ik_deprecated);
             else
@@ -914,7 +914,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int *jointHandles, double *jo
         // Prepare the return array with the computed joint values:
         for (int i = 0; i < jointCnt; i++)
         {
-            CJoint *joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+            CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
             jointValues[i] = joint->getPosition();
         }
 
@@ -934,23 +934,23 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int *jointHandles, double *jo
     return (retVal);
 }
 
-int CIkGroup_old::generateIkPath(int jointCnt, const int *jointHandles, int ptCnt, int collisionPairCnt,
-                                 const int *collisionPairs, const int *jointOptions, std::vector<double> &path)
-{ // ret: -1: invalidHandles, -2: ik Element inexistent, -3: invalid arg, -4: ik tip not linked to target, -5: invalid
-  // coll pairs, 0: failed, 1: succeeded
+int CIkGroup_old::generateIkPath(int jointCnt, const int* jointHandles, int ptCnt, int collisionPairCnt,
+                                 const int* collisionPairs, const int* jointOptions, std::vector<double>& path)
+{   // ret: -1: invalidHandles, -2: ik Element inexistent, -3: invalid arg, -4: ik tip not linked to target, -5: invalid
+    // coll pairs, 0: failed, 1: succeeded
     int retVal = 0;
 
-    std::vector<CJoint *> joints;
+    std::vector<CJoint*> joints;
     for (int i = 0; i < jointCnt; i++)
     {
-        CJoint *aJoint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+        CJoint* aJoint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
         if (aJoint == nullptr)
             retVal = -1;
         else
             joints.push_back(aJoint);
     }
-    std::vector<CDummy *> tips;
-    std::vector<CDummy *> targets;
+    std::vector<CDummy*> tips;
+    std::vector<CDummy*> targets;
     std::vector<C7Vector> startTrs;
     std::vector<C7Vector> goalTrs;
     if (retVal == 0)
@@ -959,9 +959,9 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int *jointHandles, int ptCn
         {
             for (size_t i = 0; i < getIkElementCount(); i++)
             {
-                CIkElement_old *ikElement = getIkElementFromIndex(i);
-                CDummy *tip = App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTipHandle());
-                CDummy *target = App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTargetHandle());
+                CIkElement_old* ikElement = getIkElementFromIndex(i);
+                CDummy* tip = App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTipHandle());
+                CDummy* target = App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTargetHandle());
                 if ((tip == nullptr) || (target == nullptr))
                     retVal = -4;
                 tips.push_back(tip);
@@ -1000,12 +1000,12 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int *jointHandles, int ptCn
     if (retVal == 0)
     {
         // Save joint positions/modes (all of them, just in case)
-        std::vector<CJoint *> sceneJoints;
+        std::vector<CJoint*> sceneJoints;
         std::vector<double> initSceneJointValues;
         std::vector<int> initSceneJointModes;
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
         {
-            CJoint *aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
+            CJoint* aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
             sceneJoints.push_back(aj);
             initSceneJointValues.push_back(aj->getPosition());
             initSceneJointModes.push_back(aj->getJointMode());
@@ -1022,7 +1022,7 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int *jointHandles, int ptCn
         std::vector<bool> enabledElements;
         for (size_t i = 0; i < getIkElementCount(); i++)
         {
-            CIkElement_old *ikElement = getIkElementFromIndex(i);
+            CIkElement_old* ikElement = getIkElementFromIndex(i);
             enabledElements.push_back(ikElement->getEnabled());
         }
 
@@ -1092,7 +1092,7 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int *jointHandles, int ptCn
         // Restore the IK element activation state:
         for (size_t i = 0; i < getIkElementCount(); i++)
         {
-            CIkElement_old *ikElement = getIkElementFromIndex(i);
+            CIkElement_old* ikElement = getIkElementFromIndex(i);
             ikElement->setEnabled(enabledElements[i]);
         }
 

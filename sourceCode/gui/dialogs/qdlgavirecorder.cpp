@@ -10,7 +10,8 @@
 #include <guiApp.h>
 #endif
 
-CQDlgAviRecorder::CQDlgAviRecorder(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgAviRecorder)
+CQDlgAviRecorder::CQDlgAviRecorder(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgAviRecorder)
 {
     _dlgType = AVI_RECORDER_DLG;
     ui->setupUi(this);
@@ -25,7 +26,7 @@ CQDlgAviRecorder::~CQDlgAviRecorder()
 void CQDlgAviRecorder::refresh()
 {
     inRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
 
     bool noEditMode = (GuiApp::getEditModeType() == NO_EDIT_MODE);
     bool noEditModeNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();

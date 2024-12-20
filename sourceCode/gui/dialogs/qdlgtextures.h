@@ -14,7 +14,7 @@ class CQDlgTextures : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgTextures(QWidget *parent = 0);
+    explicit CQDlgTextures(QWidget* parent = 0);
     ~CQDlgTextures();
 
     void refresh();
@@ -32,7 +32,7 @@ class CQDlgTextures : public CDlgEx
     void _setTextureScaling(int index);
     void _setTextureBooleanProperty(int index);
 
-    static void displayDlg(int objType, int objID1, int objID2, QWidget *theParentWindow);
+    static void displayDlg(int objType, int objID1, int objID2, QWidget* theParentWindow);
     void _initializeDlg(int objType, int objID1, int objID2);
 
   private slots:
@@ -67,7 +67,7 @@ class CQDlgTextures : public CDlgEx
     void on_qqApplyMode_currentIndexChanged(int index);
 
   private:
-    Ui::CQDlgTextures *ui;
+    Ui::CQDlgTextures* ui;
 
     bool inMainRefreshRoutine;
 };

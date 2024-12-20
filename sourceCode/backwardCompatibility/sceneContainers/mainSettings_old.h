@@ -6,7 +6,7 @@ class CMainSettings
   public:
     CMainSettings();
     virtual ~CMainSettings();
-    void serialize(CSer &ar);
+    void serialize(CSer& ar);
     void setUpDefaultValues();
 
     int dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012;

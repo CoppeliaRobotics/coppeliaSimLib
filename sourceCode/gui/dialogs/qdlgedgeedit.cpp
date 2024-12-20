@@ -7,7 +7,8 @@
 #include <boost/lexical_cast.hpp>
 #include <guiApp.h>
 
-CQDlgEdgeEdit::CQDlgEdgeEdit(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgEdgeEdit)
+CQDlgEdgeEdit::CQDlgEdgeEdit(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgEdgeEdit)
 {
     ui->setupUi(this);
 }

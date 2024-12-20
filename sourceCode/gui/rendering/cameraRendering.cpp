@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <cameraRendering.h>
 #include <guiApp.h>
 
-void displayCamera(CCamera *camera, CViewableBase *renderingObject, int displayAttrib)
+void displayCamera(CCamera* camera, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(camera, renderingObject);

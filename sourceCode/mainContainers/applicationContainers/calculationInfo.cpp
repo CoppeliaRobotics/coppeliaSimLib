@@ -265,7 +265,7 @@ void CCalculationInfo::printInformation()
         std::string txt;
         if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getLastSelectionObject();
+            CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
             if (it != nullptr)
             {
 
@@ -274,7 +274,7 @@ void CCalculationInfo::printInformation()
                     tmp = boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getSelectionCount());
                 else
                 {
-                    CSceneObject *it2 = App::currentWorld->sceneObjects->getObjectFromHandle(
+                    CSceneObject* it2 = App::currentWorld->sceneObjects->getObjectFromHandle(
                         App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
                     C7Vector v0(it->getFullCumulativeTransformation());
                     C7Vector v1(it2->getFullCumulativeTransformation());
@@ -335,7 +335,7 @@ void CCalculationInfo::printInformation()
             }
             if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0)
             {
-                CSceneObject *it = GuiApp::mainWindow->editModeContainer->getEditModeObject();
+                CSceneObject* it = GuiApp::mainWindow->editModeContainer->getEditModeObject();
                 if (it != nullptr)
                 {
                     C7Vector m(it->getCumulativeTransformation());
@@ -386,8 +386,8 @@ void CCalculationInfo::printInformation()
 
         if (GuiApp::getEditModeType() & PATH_EDIT_MODE_OLD)
         { // OLD
-            CPathCont_old *pc = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
-            CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+            CPathCont_old* pc = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+            CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
             if ((pc != nullptr) && (path != nullptr))
             {
                 if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 2)
@@ -400,9 +400,9 @@ void CCalculationInfo::printInformation()
                 }
                 else
                 {
-                    CSimplePathPoint_old *pt1(
+                    CSimplePathPoint_old* pt1(
                         GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(0));
-                    CSimplePathPoint_old *pt2(
+                    CSimplePathPoint_old* pt2(
                         GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
                     double dist = (pt2->getTransformation().X - pt1->getTransformation().X).getLength();
                     App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected path points:";
@@ -411,7 +411,7 @@ void CCalculationInfo::printInformation()
                 }
                 if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0)
                 {
-                    CSimplePathPoint_old *pt(
+                    CSimplePathPoint_old* pt(
                         GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(
                             GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() - 1));
                     //                  CSimplePathPoint_old*

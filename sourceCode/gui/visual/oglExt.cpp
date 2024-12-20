@@ -24,7 +24,7 @@ GLenum oglExt::COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0_EXT;
 
 bool oglExt::_usingExt = false;
 
-void oglExt::GenFramebuffers(GLsizei a, GLuint *b)
+void oglExt::GenFramebuffers(GLsizei a, GLuint* b)
 {
 #ifndef MAC_SIM
     _glGenFramebuffers(a, b);
@@ -36,7 +36,7 @@ void oglExt::GenFramebuffers(GLsizei a, GLuint *b)
 #endif
 }
 
-void oglExt::DeleteFramebuffers(GLsizei a, const GLuint *b)
+void oglExt::DeleteFramebuffers(GLsizei a, const GLuint* b)
 {
 #ifndef MAC_SIM
     _glDeleteFramebuffers(a, b);
@@ -60,7 +60,7 @@ void oglExt::BindFramebuffer(GLenum a, GLuint b)
 #endif
 }
 
-void oglExt::GenRenderbuffers(GLsizei a, GLuint *b)
+void oglExt::GenRenderbuffers(GLsizei a, GLuint* b)
 {
 #ifndef MAC_SIM
     _glGenRenderbuffers(a, b);
@@ -72,7 +72,7 @@ void oglExt::GenRenderbuffers(GLsizei a, GLuint *b)
 #endif
 }
 
-void oglExt::DeleteRenderbuffers(GLsizei a, const GLuint *b)
+void oglExt::DeleteRenderbuffers(GLsizei a, const GLuint* b)
 {
 #ifndef MAC_SIM
     _glDeleteRenderbuffers(a, b);
@@ -132,7 +132,7 @@ void oglExt::CheckFramebufferStatus(GLenum a)
 #endif
 }
 
-void oglExt::GetRenderbufferParameteriv(GLenum a, GLenum b, GLint *c)
+void oglExt::GetRenderbufferParameteriv(GLenum a, GLenum b, GLint* c)
 {
 #ifndef MAC_SIM
     _glGetRenderbufferParameteriv(a, b, c);
@@ -192,37 +192,37 @@ void oglExt::prepareExtensionFunctions(bool forceFboToUseExt)
 #ifdef LIN_SIM
     if (_usingExt || forceFboToUseExt)
     {
-        _glGenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte *)"glGenFramebuffersEXT");
-        _glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte *)"glDeleteFramebuffersEXT");
-        _glBindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)glXGetProcAddress((GLubyte *)"glBindFramebufferEXT");
-        _glGenRenderbuffers = (PFNGLGENRENDERBUFFERSEXTPROC)glXGetProcAddress((GLubyte *)"glGenRenderbuffersEXT");
+        _glGenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glGenFramebuffersEXT");
+        _glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glDeleteFramebuffersEXT");
+        _glBindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)glXGetProcAddress((GLubyte*)"glBindFramebufferEXT");
+        _glGenRenderbuffers = (PFNGLGENRENDERBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glGenRenderbuffersEXT");
         _glDeleteRenderbuffers =
-            (PFNGLDELETERENDERBUFFERSEXTPROC)glXGetProcAddress((GLubyte *)"glDeleteRenderbuffersEXT");
-        _glBindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)glXGetProcAddress((GLubyte *)"glBindRenderbufferEXT");
+            (PFNGLDELETERENDERBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glDeleteRenderbuffersEXT");
+        _glBindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)glXGetProcAddress((GLubyte*)"glBindRenderbufferEXT");
         _glRenderbufferStorage =
-            (PFNGLRENDERBUFFERSTORAGEEXTPROC)glXGetProcAddress((GLubyte *)"glRenderbufferStorageEXT");
+            (PFNGLRENDERBUFFERSTORAGEEXTPROC)glXGetProcAddress((GLubyte*)"glRenderbufferStorageEXT");
         _glFramebufferRenderbuffer =
-            (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)glXGetProcAddress((GLubyte *)"glFramebufferRenderbufferEXT");
+            (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)glXGetProcAddress((GLubyte*)"glFramebufferRenderbufferEXT");
         _glCheckFramebufferStatus =
-            (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)glXGetProcAddress((GLubyte *)"glCheckFramebufferStatusEXT");
+            (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)glXGetProcAddress((GLubyte*)"glCheckFramebufferStatusEXT");
         _glGetRenderbufferParameteriv =
-            (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)glXGetProcAddress((GLubyte *)"glGetRenderbufferParameterivEXT");
+            (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)glXGetProcAddress((GLubyte*)"glGetRenderbufferParameterivEXT");
     }
     else
     {
-        _glGenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte *)"glGenFramebuffers");
-        _glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte *)"glDeleteFramebuffers");
-        _glBindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)glXGetProcAddress((GLubyte *)"glBindFramebuffer");
-        _glGenRenderbuffers = (PFNGLGENRENDERBUFFERSEXTPROC)glXGetProcAddress((GLubyte *)"glGenRenderbuffers");
-        _glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSEXTPROC)glXGetProcAddress((GLubyte *)"glDeleteRenderbuffers");
-        _glBindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)glXGetProcAddress((GLubyte *)"glBindRenderbuffer");
-        _glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEEXTPROC)glXGetProcAddress((GLubyte *)"glRenderbufferStorage");
+        _glGenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glGenFramebuffers");
+        _glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glDeleteFramebuffers");
+        _glBindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)glXGetProcAddress((GLubyte*)"glBindFramebuffer");
+        _glGenRenderbuffers = (PFNGLGENRENDERBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glGenRenderbuffers");
+        _glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSEXTPROC)glXGetProcAddress((GLubyte*)"glDeleteRenderbuffers");
+        _glBindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)glXGetProcAddress((GLubyte*)"glBindRenderbuffer");
+        _glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEEXTPROC)glXGetProcAddress((GLubyte*)"glRenderbufferStorage");
         _glFramebufferRenderbuffer =
-            (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)glXGetProcAddress((GLubyte *)"glFramebufferRenderbuffer");
+            (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)glXGetProcAddress((GLubyte*)"glFramebufferRenderbuffer");
         _glCheckFramebufferStatus =
-            (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)glXGetProcAddress((GLubyte *)"glCheckFramebufferStatus");
+            (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)glXGetProcAddress((GLubyte*)"glCheckFramebufferStatus");
         _glGetRenderbufferParameteriv =
-            (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)glXGetProcAddress((GLubyte *)"glGetRenderbufferParameteriv");
+            (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)glXGetProcAddress((GLubyte*)"glGetRenderbufferParameteriv");
 
         DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8;
         FRAMEBUFFER = GL_FRAMEBUFFER;
@@ -267,7 +267,7 @@ void oglExt::turnOffVSync(int vsync)
 #ifdef LIN_SIM
     typedef int(APIENTRY * AAAAGLSWAPINTERVALEXTPROC)(int);
     AAAAGLSWAPINTERVALEXTPROC wglSwapIntervalEXT =
-        (AAAAGLSWAPINTERVALEXTPROC)glXGetProcAddress((const GLubyte *)"glXSwapIntervalSGI");
+        (AAAAGLSWAPINTERVALEXTPROC)glXGetProcAddress((const GLubyte*)"glXSwapIntervalSGI");
     if (wglSwapIntervalEXT)
         wglSwapIntervalEXT(vsync);
 // Yes, WGL extensions are windows only, seems like they have put WGL_EXT_swap_control instead of GLX_SGI_swap_control
@@ -283,13 +283,13 @@ bool oglExt::isFboAvailable()
     return (_isFboAvailable(dummyViaExt));
 }
 
-bool oglExt::_isFboAvailable(bool &viaExt)
+bool oglExt::_isFboAvailable(bool& viaExt)
 { // prepareExtensionFunctions() should have been called previously!
 #ifndef MAC_SIM
-  //    printf("glGetString: %u\n",glGetString);
+    //    printf("glGetString: %u\n",glGetString);
     //    const char* vend=(const char*)(glGetString(GL_VENDOR));
     //    printf("vendor: %s\n",vend);
-    const char *gl_version = (const char *)(glGetString(GL_VERSION));
+    const char* gl_version = (const char*)(glGetString(GL_VERSION));
     if (gl_version == nullptr)
     {
         viaExt = false;
@@ -317,7 +317,7 @@ bool oglExt::_isFboAvailable(bool &viaExt)
     }
     else
     {
-        const char *gl_extensions = (const char *)(glGetString(GL_EXTENSIONS));
+        const char* gl_extensions = (const char*)(glGetString(GL_EXTENSIONS));
         if (gl_extensions == nullptr)
             return (false);
         if (strstr(gl_extensions, "ARB_framebuffer_object") != 0)
@@ -333,7 +333,7 @@ bool oglExt::_isFboAvailable(bool &viaExt)
     }
     return (false);
 #else
-    const char *gl_version((const char *)glGetString(GL_VERSION));
+    const char* gl_version((const char*)glGetString(GL_VERSION));
     if (atof(gl_version) >= 3.0)
     {
         viaExt = false;
@@ -341,7 +341,7 @@ bool oglExt::_isFboAvailable(bool &viaExt)
     }
     else
     {
-        const char *gl_extensions((const char *)glGetString(GL_EXTENSIONS));
+        const char* gl_extensions((const char*)glGetString(GL_EXTENSIONS));
         if ((strstr(gl_extensions, "GL_ARB_framebuffer_object") != 0) ||
             (strstr(gl_extensions, "ARB_framebuffer_object") != 0))
             viaExt = false;

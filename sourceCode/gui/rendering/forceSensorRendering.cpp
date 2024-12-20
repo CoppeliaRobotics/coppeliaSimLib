@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <forceSensorRendering.h>
 #include <guiApp.h>
 
-void displayForceSensor(CForceSensor *forceSensor, CViewableBase *renderingObject, int displayAttrib)
+void displayForceSensor(CForceSensor* forceSensor, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(forceSensor, renderingObject);
@@ -47,7 +47,7 @@ void displayForceSensor(CForceSensor *forceSensor, CViewableBase *renderingObjec
     _commonFinish(forceSensor, renderingObject);
 }
 
-void _displayForceSensor(CForceSensor *forceSensor, int displayAttrib, bool partOne, double sizeParam)
+void _displayForceSensor(CForceSensor* forceSensor, int displayAttrib, bool partOne, double sizeParam)
 {
     if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
     {

@@ -11,7 +11,8 @@
 #include <guiApp.h>
 #endif
 
-CQDlgSettings::CQDlgSettings(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgSettings)
+CQDlgSettings::CQDlgSettings(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgSettings)
 {
     _dlgType = SETTINGS_DLG;
     ui->setupUi(this);
@@ -158,12 +159,12 @@ void CQDlgSettings::on_qqAdjustOpenGl_clicked()
     }
 }
 
-void CQDlgSettings::_selectItemOfCombobox(QComboBox *theBox, int itemData)
+void CQDlgSettings::_selectItemOfCombobox(QComboBox* theBox, int itemData)
 {
     theBox->setCurrentIndex(_getIndexOfComboboxItemWithData(theBox, itemData));
 }
 
-int CQDlgSettings::_getIndexOfComboboxItemWithData(QComboBox *theBox, int itemData)
+int CQDlgSettings::_getIndexOfComboboxItemWithData(QComboBox* theBox, int itemData)
 {
     for (int i = 0; i < theBox->count(); i++)
     {

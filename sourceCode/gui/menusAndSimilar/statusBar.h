@@ -10,5 +10,5 @@ class CStatusBar : public QPlainTextEdit
     CStatusBar();
     virtual ~CStatusBar();
 
-    void resizeEvent(QResizeEvent *e);
+    void resizeEvent(QResizeEvent* e);
 };

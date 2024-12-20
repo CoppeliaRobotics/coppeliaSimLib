@@ -12,29 +12,29 @@
 class CShapeEditMode
 {
   public:
-    CShapeEditMode(CShape *shape, int editModeType, CSceneObjectContainer *objCont, CTextureContainer *textureCont,
-                   CUiThread *uiThread);
+    CShapeEditMode(CShape* shape, int editModeType, CSceneObjectContainer* objCont, CTextureContainer* textureCont,
+                   CUiThread* uiThread);
     virtual ~CShapeEditMode();
 
     bool endEditMode(bool cancelChanges);
     int getEditModeType();
-    CShape *getEditModeShape();
+    CShape* getEditModeShape();
     void swapShapeEditModeType(int theType);
 
-    void selectionFromTriangleToVertexEditMode(std::vector<int> *newVertexSel = nullptr);
-    void selectionFromVertexToTriangleEditMode(std::vector<int> *newTriangleSel = nullptr);
-    void selectionFromEdgeToTriangleEditMode(std::vector<int> *newTriangleSel = nullptr);
-    void selectionFromEdgeToVertexEditMode(std::vector<int> *newTriangleSel = nullptr);
-    void selectionFromTriangleToEdgeEditMode(std::vector<int> *newEdgeSel = nullptr);
-    void selectionFromVertexToEdgeEditMode(std::vector<int> *newEdgeSel = nullptr);
+    void selectionFromTriangleToVertexEditMode(std::vector<int>* newVertexSel = nullptr);
+    void selectionFromVertexToTriangleEditMode(std::vector<int>* newTriangleSel = nullptr);
+    void selectionFromEdgeToTriangleEditMode(std::vector<int>* newTriangleSel = nullptr);
+    void selectionFromEdgeToVertexEditMode(std::vector<int>* newTriangleSel = nullptr);
+    void selectionFromTriangleToEdgeEditMode(std::vector<int>* newEdgeSel = nullptr);
+    void selectionFromVertexToEdgeEditMode(std::vector<int>* newEdgeSel = nullptr);
 
     // Edit mode selection routines:
     int getEditModeBufferSize();
     int getLastEditModeBufferValue();
     int getEditModeBufferValue(int index);
-    std::vector<int> *getEditModeBuffer();
+    std::vector<int>* getEditModeBuffer();
     C3Vector getEditionVertex(int index);
-    void setEditionVertex(int index, const C3Vector &v);
+    void setEditionVertex(int index, const C3Vector& v);
     void getEditionTriangle(int index, int tri[3]);
     void getEditionEdge(int index, int edge[2]);
     void deselectEditModeBuffer();
@@ -47,7 +47,7 @@ class CShapeEditMode
     // Other edit mode routines:
     void actualizeEditModeEditionEdges();
     double getEdgeAngle(int edgeID);
-    void getNextEdges(int rearVertex, int frontVertex, std::vector<int> &edgeList);
+    void getNextEdges(int rearVertex, int frontVertex, std::vector<int>& edgeList);
 
     void displayVertices(int displayAttrib);
     void displayFaceOrientation(int displayAttrib);
@@ -55,14 +55,14 @@ class CShapeEditMode
     void flipTriangle(int index);
     void addTriangle(int ind1, int ind2, int ind3);
 
-    void copySelection(std::vector<int> *selection);
+    void copySelection(std::vector<int>* selection);
     void paste();
-    void cutSelection(std::vector<int> *selection);
-    void deleteSelection(std::vector<int> *selection);
-    void addMenu(VMenu *menu);
+    void cutSelection(std::vector<int>* selection);
+    void deleteSelection(std::vector<int>* selection);
+    void addMenu(VMenu* menu);
     bool processCommand(int commandID);
-    void copySelectedFaces(std::vector<int> *sel, std::vector<double> *vert, std::vector<int> *ind,
-                           std::vector<double> *norm, std::vector<float> *tex);
+    void copySelectedFaces(std::vector<int>* sel, std::vector<double>* vert, std::vector<int>* ind,
+                           std::vector<double>* norm, std::vector<float>* tex);
 
     bool getShowHiddenVerticeAndEdges();
     void setShowHiddenVerticeAndEdges(bool show);
@@ -89,11 +89,11 @@ class CShapeEditMode
     void makePath();
 
   private:
-    CShape *_shape;
+    CShape* _shape;
     int _editModeType;
-    CSceneObjectContainer *_objCont;
-    CTextureContainer *_textureCont;
-    CUiThread *_uiThread;
+    CSceneObjectContainer* _objCont;
+    CTextureContainer* _textureCont;
+    CUiThread* _uiThread;
 
     std::vector<int> editModeBuffer;
     std::vector<double> editBufferVerticesCopy;
@@ -105,7 +105,7 @@ class CShapeEditMode
     std::vector<int> _editionIndices;
     std::vector<double> _editionNormals;
     std::vector<float> _editionTextureCoords;
-    CTextureProperty *_editionTextureProperty;
+    CTextureProperty* _editionTextureProperty;
     std::vector<unsigned char> _editionTexture;
     CEdgeCont _edgeCont;
     std::vector<int> _editionIndicesToEdgesIndex;

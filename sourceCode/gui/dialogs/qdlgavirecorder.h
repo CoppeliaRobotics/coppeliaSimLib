@@ -14,7 +14,7 @@ class CQDlgAviRecorder : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgAviRecorder(QWidget *parent = 0);
+    explicit CQDlgAviRecorder(QWidget* parent = 0);
     ~CQDlgAviRecorder();
 
     void refresh();
@@ -45,7 +45,7 @@ class CQDlgAviRecorder : public CDlgEx
     void on_recordWindowInstead_clicked();
 
   private:
-    Ui::CQDlgAviRecorder *ui;
+    Ui::CQDlgAviRecorder* ui;
 };
 
 #endif // CQDLGAVIRECORDER_H

@@ -19,7 +19,7 @@ void CBannerContainer::simulationEnded()
     //  }
 }
 
-CBannerObject *CBannerContainer::getObject(int objectID)
+CBannerObject* CBannerContainer::getObject(int objectID)
 {
     for (int i = 0; i < int(_allObjects.size()); i++)
     {
@@ -29,7 +29,7 @@ CBannerObject *CBannerContainer::getObject(int objectID)
     return (nullptr);
 }
 
-int CBannerContainer::addObject(CBannerObject *it)
+int CBannerContainer::addObject(CBannerObject* it)
 {
     int newID = 0;
     newID++;
@@ -82,7 +82,7 @@ void CBannerContainer::announceObjectWillBeErased(int objID)
 }
 
 #ifdef SIM_WITH_GUI
-void CBannerContainer::renderYour3DStuff_nonTransparent(CViewableBase *renderingObject, int displayAttrib,
+void CBannerContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject, int displayAttrib,
                                                         int windowSize[2], double verticalViewSizeOrAngle,
                                                         bool perspective)
 {
@@ -90,7 +90,7 @@ void CBannerContainer::renderYour3DStuff_nonTransparent(CViewableBase *rendering
                    windowSize, verticalViewSizeOrAngle, perspective);
 }
 
-void CBannerContainer::renderYour3DStuff_transparent(CViewableBase *renderingObject, int displayAttrib,
+void CBannerContainer::renderYour3DStuff_transparent(CViewableBase* renderingObject, int displayAttrib,
                                                      int windowSize[2], double verticalViewSizeOrAngle,
                                                      bool perspective)
 {
@@ -98,7 +98,7 @@ void CBannerContainer::renderYour3DStuff_transparent(CViewableBase *renderingObj
                    windowSize, verticalViewSizeOrAngle, perspective);
 }
 
-void CBannerContainer::renderYour3DStuff_overlay(CViewableBase *renderingObject, int displayAttrib, int windowSize[2],
+void CBannerContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject, int displayAttrib, int windowSize[2],
                                                  double verticalViewSizeOrAngle, bool perspective)
 {
     drawAll3DStuff(true, true, displayAttrib, renderingObject->getFullCumulativeTransformation().getMatrix(),
@@ -106,7 +106,7 @@ void CBannerContainer::renderYour3DStuff_overlay(CViewableBase *renderingObject,
 }
 
 void CBannerContainer::drawAll3DStuff(bool overlay, bool transparentObject, int displayAttrib,
-                                      const C4X4Matrix &cameraCTM, int windowSize[2], double verticalViewSizeOrAngle,
+                                      const C4X4Matrix& cameraCTM, int windowSize[2], double verticalViewSizeOrAngle,
                                       bool perspective)
 {
     for (size_t i = 0; i < _allObjects.size(); i++)

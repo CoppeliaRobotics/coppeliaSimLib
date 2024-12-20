@@ -6,7 +6,8 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgFog::CQDlgFog(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgFog)
+CQDlgFog::CQDlgFog(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgFog)
 {
     _dlgType = FOG_DLG;
     ui->setupUi(this);
@@ -19,7 +20,7 @@ CQDlgFog::~CQDlgFog()
 
 void CQDlgFog::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 

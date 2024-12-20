@@ -94,7 +94,7 @@
 #define SERX_LUA_SCRIPT "script" // legacy scripts
 
 #define IK_DIVISION_FACTOR 100.0 // needed for better stability of resolutions!
-#define SELECTION_BUFFER_SIZE                                                                                          \
+#define SELECTION_BUFFER_SIZE \
     100000 // Specifies how many objects can be selected at the (from 10000 to 100000 on 14/6/2011)
 
 #define NON_OBJECT_PICKING_ID_BANNER_START SIM_IDSTART_COLLECTION
@@ -1134,7 +1134,6 @@ enum
     SET_SIZE_SCRIPTGUITRIGGEREDCMD,
     APPLY_VISUALPROP_SCRIPTGUITRIGGEREDCMD,
 
-
     TOGGLE_DISABLEALLMIRRORS_MIRRORGUITRIGGEREDCMD,
     TOGGLE_DISABLEALLCLIPPING_MIRRORGUITRIGGEREDCMD,
     TOGGLE_ENABLED_MIRRORGUITRIGGEREDCMD,
@@ -1520,7 +1519,7 @@ enum
                                    // if we remove float support anyways
     SIM_IDEND_TEXTURE = 2280009,   // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok
                                    // if we remove float support anyways
-    SIM_UIDSTART = 10000000,      // only for object related to a specific scene! (i.e. no app objects!)
+    SIM_UIDSTART = 10000000,       // only for object related to a specific scene! (i.e. no app objects!)
 };
 
 enum

@@ -17,7 +17,7 @@ void CPointCloudContainer_old::simulationEnded()
     eraseAllObjects(true);
 }
 
-CPtCloud_old *CPointCloudContainer_old::getObject(int objectID)
+CPtCloud_old* CPointCloudContainer_old::getObject(int objectID)
 {
     for (int i = 0; i < int(_allObjects.size()); i++)
     {
@@ -27,7 +27,7 @@ CPtCloud_old *CPointCloudContainer_old::getObject(int objectID)
     return (nullptr);
 }
 
-int CPointCloudContainer_old::addObject(CPtCloud_old *it)
+int CPointCloudContainer_old::addObject(CPtCloud_old* it)
 {
     int newID = 0;
     newID++;
@@ -92,17 +92,17 @@ void CPointCloudContainer_old::pushGenesisEvents()
 }
 
 #ifdef SIM_WITH_GUI
-void CPointCloudContainer_old::renderYour3DStuff_nonTransparent(CViewableBase *renderingObject, int displayAttrib)
+void CPointCloudContainer_old::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject, int displayAttrib)
 {
     if ((displayAttrib & sim_displayattribute_nopointclouds) == 0)
         drawAll(displayAttrib);
 }
 
-void CPointCloudContainer_old::renderYour3DStuff_transparent(CViewableBase *renderingObject, int displayAttrib)
+void CPointCloudContainer_old::renderYour3DStuff_transparent(CViewableBase* renderingObject, int displayAttrib)
 {
 }
 
-void CPointCloudContainer_old::renderYour3DStuff_overlay(CViewableBase *renderingObject, int displayAttrib)
+void CPointCloudContainer_old::renderYour3DStuff_overlay(CViewableBase* renderingObject, int displayAttrib)
 {
 }
 

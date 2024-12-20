@@ -8,7 +8,8 @@
 #include <simStrings.h>
 #include <guiApp.h>
 
-CQDlgMirrors::CQDlgMirrors(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgMirrors)
+CQDlgMirrors::CQDlgMirrors(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgMirrors)
 {
     _dlgType = MIRROR_DLG;
     ui->setupUi(this);
@@ -29,11 +30,11 @@ void CQDlgMirrors::cancelEvent()
 void CQDlgMirrors::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
     bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
 
-    CMirror *it = App::currentWorld->sceneObjects->getLastSelectionMirror();
+    CMirror* it = App::currentWorld->sceneObjects->getLastSelectionMirror();
 
     ui->qqDisableAllMirrors->setEnabled(noEditMode);
     ui->qqDisableAllClippingPlanes->setEnabled(noEditMode);
@@ -74,7 +75,7 @@ void CQDlgMirrors::refresh()
             // Now collections:
             for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
             {
-                CCollection *it = App::currentWorld->collections->getObjectFromIndex(i);
+                CCollection* it = App::currentWorld->collections->getObjectFromIndex(i);
                 std::string name(tt::decorateString("[", IDSN_COLLECTION, "] "));
                 name += it->getCollectionName();
                 names.push_back(name);
@@ -90,7 +91,7 @@ void CQDlgMirrors::refresh()
             // Now objects:
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
                 std::string name(tt::decorateString("[", IDS_OBJECT, "] "));
                 name += it->getObjectAlias_printPath();
                 names.push_back(name);
@@ -176,7 +177,7 @@ void CQDlgMirrors::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CMirror *it = App::currentWorld->sceneObjects->getLastSelectionMirror();
+        CMirror* it = App::currentWorld->sceneObjects->getLastSelectionMirror();
         if (it != nullptr)
         {
             if (it->getIsMirror())

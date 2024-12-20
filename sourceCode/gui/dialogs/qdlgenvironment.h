@@ -14,7 +14,7 @@ class CQDlgEnvironment : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgEnvironment(QWidget *parent = 0);
+    explicit CQDlgEnvironment(QWidget* parent = 0);
     ~CQDlgEnvironment();
 
     void refresh();
@@ -37,7 +37,7 @@ class CQDlgEnvironment : public CDlgEx
     void on_qqAcknowledgments_textChanged();
 
   private:
-    Ui::CQDlgEnvironment *ui;
+    Ui::CQDlgEnvironment* ui;
 };
 
 #endif // QDLGENVIRONMENT_H

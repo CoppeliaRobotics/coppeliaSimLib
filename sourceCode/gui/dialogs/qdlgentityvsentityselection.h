@@ -15,7 +15,7 @@ class CQDlgEntityVsEntitySelection : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgEntityVsEntitySelection(QWidget *parent = 0);
+    explicit CQDlgEntityVsEntitySelection(QWidget* parent = 0);
     ~CQDlgEntityVsEntitySelection();
 
     void cancelEvent();
@@ -33,10 +33,10 @@ class CQDlgEntityVsEntitySelection : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    void fillComboWithCollisionEntities(QComboBox *combo, bool insertAllAtBeginning);
-    void fillComboWithDistanceEntities(QComboBox *combo, bool insertAllAtBeginning);
+    void fillComboWithCollisionEntities(QComboBox* combo, bool insertAllAtBeginning);
+    void fillComboWithDistanceEntities(QComboBox* combo, bool insertAllAtBeginning);
     bool checkSelectionValidity();
-    Ui::CQDlgEntityVsEntitySelection *ui;
+    Ui::CQDlgEntityVsEntitySelection* ui;
 };
 
 #endif // QDLGENTITYVSENTITYSELECTION_H

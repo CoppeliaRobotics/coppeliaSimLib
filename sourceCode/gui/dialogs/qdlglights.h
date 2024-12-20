@@ -14,7 +14,7 @@ class CQDlgLights : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgLights(QWidget *parent = 0);
+    explicit CQDlgLights(QWidget* parent = 0);
     ~CQDlgLights();
 
     void refresh();
@@ -43,7 +43,7 @@ class CQDlgLights : public CDlgEx
     void on_qqSpotCutoff_editingFinished();
 
   private:
-    Ui::CQDlgLights *ui;
+    Ui::CQDlgLights* ui;
 };
 
 #endif // QDLGLIGHTS_H

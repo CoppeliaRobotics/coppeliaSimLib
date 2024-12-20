@@ -14,7 +14,7 @@ class CQDlgSimulation : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgSimulation(QWidget *parent = 0);
+    explicit CQDlgSimulation(QWidget* parent = 0);
     ~CQDlgSimulation();
 
     void refresh();
@@ -42,7 +42,7 @@ class CQDlgSimulation : public CDlgEx
     void on_qqDynTimeStep_editingFinished();
 
   private:
-    Ui::CQDlgSimulation *ui;
+    Ui::CQDlgSimulation* ui;
 };
 
 #endif // QDLGSIMULATION_H

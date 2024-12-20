@@ -323,7 +323,6 @@ CUserSettings::CUserSettings()
     floatingLicensePort = 20249;
     keepDongleOpen = false;
 
-
     loadUserSettings();
 }
 
@@ -434,8 +433,8 @@ void CUserSettings::setIdleFps_session(int fps)
         _idleFps_session = fps;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propApp_idleFps.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            const char* cmd = propApp_idleFps.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyInt(cmd, _idleFps_session);
             App::worldContainer->pushEvent();
         }
@@ -634,7 +633,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addInteger(_USR_SCRIPTCONVERSION, scriptConversion, "-1: convert to old scripts, 1: convert to new script objects");
         c.addInteger(_USR_NOTIFY_DEPRECATED, notifyDeprecated, "0: no notification, 1: simple notification, 2: exhaustive notification");
 
-
         c.addRandomLine("");
         c.addRandomLine("");
 
@@ -653,7 +651,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addFloat(_USR_IDENTICAL_VERTICES_TOLERANCE, identicalVertexTolerance, "");
         c.addBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS, runCustomizationScripts, "");
         c.addBoolean(_USR_RUN_ADDONS, runAddOns, "");
-
 
         // c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
         // c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
@@ -906,7 +903,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_SCRIPTCONVERSION, scriptConversion);
     c.getInteger(_USR_NOTIFY_DEPRECATED, notifyDeprecated);
 
-
     // Various section:
     // *****************************
     c.getString(_USR_PREFERRED_SANDBOX_LANG, preferredSandboxLang);
@@ -924,7 +920,6 @@ void CUserSettings::loadUserSettings()
     c.getFloat(_USR_IDENTICAL_VERTICES_TOLERANCE, identicalVertexTolerance);
     c.getBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS, runCustomizationScripts);
     c.getBoolean(_USR_RUN_ADDONS, runAddOns);
-
 
     c.getBoolean(_USR_TEST1, test1);
     c.getInteger(_USR_MAC_CHILD_DIALOG_TYPE, macChildDialogType);
@@ -966,7 +961,6 @@ void CUserSettings::loadUserSettings()
     // Other section:
     // *****************************
     c.getString(_USR_MEM, mem);
-
 
     std::string tmp("user settings file is ");
     tmp += file;

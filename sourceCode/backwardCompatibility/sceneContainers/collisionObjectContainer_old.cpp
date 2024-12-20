@@ -29,7 +29,7 @@ void CCollisionObjectContainer_old::simulationEnded()
         getObjectFromIndex(i)->simulationEnded();
 }
 
-void CCollisionObjectContainer_old::getMinAndMaxNameSuffixes(int &minSuffix, int &maxSuffix) const
+void CCollisionObjectContainer_old::getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const
 {
     minSuffix = -1;
     maxSuffix = -1;
@@ -88,12 +88,12 @@ void CCollisionObjectContainer_old::setSuffix1ToSuffix2(int suffix1, int suffix2
     }
 }
 
-void CCollisionObjectContainer_old::addObject(CCollisionObject_old *newCollObj, bool objectIsACopy)
+void CCollisionObjectContainer_old::addObject(CCollisionObject_old* newCollObj, bool objectIsACopy)
 {
     addObjectWithSuffixOffset(newCollObj, objectIsACopy, 1);
 }
 
-void CCollisionObjectContainer_old::addObjectWithSuffixOffset(CCollisionObject_old *newCollObj, bool objectIsACopy,
+void CCollisionObjectContainer_old::addObjectWithSuffixOffset(CCollisionObject_old* newCollObj, bool objectIsACopy,
                                                               int suffixOffset)
 { // Here we don't check whether such an object already exists or is valid.
     // This routine is mainly used for loading and copying operations
@@ -119,7 +119,7 @@ void CCollisionObjectContainer_old::addObjectWithSuffixOffset(CCollisionObject_o
 #endif
 }
 
-int CCollisionObjectContainer_old::addNewObject(int entity1Handle, int entity2Handle, const char *objName)
+int CCollisionObjectContainer_old::addNewObject(int entity1Handle, int entity2Handle, const char* objName)
 {
     // We check if the objects are valid:
     if (entity1Handle <= SIM_IDEND_SCENEOBJECT)
@@ -180,7 +180,7 @@ int CCollisionObjectContainer_old::addNewObject(int entity1Handle, int entity2Ha
     }
 
     // We create and insert the object
-    CCollisionObject_old *newCollObject = new CCollisionObject_old(entity1Handle, entity2Handle);
+    CCollisionObject_old* newCollObject = new CCollisionObject_old(entity1Handle, entity2Handle);
     newCollObject->setObjectName(objName, false);
     addObject(newCollObject, false);
     return (newCollObject->getObjectHandle());
@@ -269,15 +269,15 @@ size_t CCollisionObjectContainer_old::getObjectCount() const
     return (_collisionObjects.size());
 }
 
-CCollisionObject_old *CCollisionObjectContainer_old::getObjectFromIndex(size_t index) const
+CCollisionObject_old* CCollisionObjectContainer_old::getObjectFromIndex(size_t index) const
 {
-    CCollisionObject_old *retVal = nullptr;
+    CCollisionObject_old* retVal = nullptr;
     if (index < _collisionObjects.size())
         retVal = _collisionObjects[index];
     return (retVal);
 }
 
-CCollisionObject_old *CCollisionObjectContainer_old::getObjectFromHandle(int objectHandle) const
+CCollisionObject_old* CCollisionObjectContainer_old::getObjectFromHandle(int objectHandle) const
 {
     for (size_t i = 0; i < _collisionObjects.size(); i++)
     {
@@ -287,7 +287,7 @@ CCollisionObject_old *CCollisionObjectContainer_old::getObjectFromHandle(int obj
     return (nullptr);
 }
 
-CCollisionObject_old *CCollisionObjectContainer_old::getObjectFromName(const char *objName) const
+CCollisionObject_old* CCollisionObjectContainer_old::getObjectFromName(const char* objName) const
 {
     for (size_t i = 0; i < _collisionObjects.size(); i++)
     {
@@ -297,7 +297,7 @@ CCollisionObject_old *CCollisionObjectContainer_old::getObjectFromName(const cha
     return (nullptr);
 }
 
-void CCollisionObjectContainer_old::_addObject(CCollisionObject_old *newCollObj)
+void CCollisionObjectContainer_old::_addObject(CCollisionObject_old* newCollObj)
 {
     _collisionObjects.push_back(newCollObj);
 }
@@ -316,7 +316,7 @@ void CCollisionObjectContainer_old::_removeObject(int objectHandle)
 }
 
 #ifdef SIM_WITH_GUI
-void CCollisionObjectContainer_old::renderYour3DStuff(CViewableBase *renderingObject, int displayAttrib)
+void CCollisionObjectContainer_old::renderYour3DStuff(CViewableBase* renderingObject, int displayAttrib)
 {
     if (displayAttrib & sim_displayattribute_renderpass)
         displayCollisionContours();

@@ -53,11 +53,11 @@ void CViewableBase::setDisabledColorComponents(int c)
     _disabledColorComponents = c;
 }
 
-CSceneObject *CViewableBase::copyYourself()
+CSceneObject* CViewableBase::copyYourself()
 {
     return (nullptr);
 }
-void CViewableBase::display(CViewableBase *renderingObject, int displayAttrib)
+void CViewableBase::display(CViewableBase* renderingObject, int displayAttrib)
 {
 }
 void CViewableBase::scaleObject(double scalingFactor)
@@ -83,10 +83,10 @@ bool CViewableBase::getuseLocalLights()
     return (_useLocalLights);
 }
 
-void CViewableBase::serialize(CSer &ar)
+void CViewableBase::serialize(CSer& ar)
 {
 }
-void CViewableBase::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CViewableBase::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 {
 }
 void CViewableBase::announceCollectionWillBeErased(int groupID, bool copyBuffer)
@@ -98,16 +98,16 @@ void CViewableBase::announceCollisionWillBeErased(int collisionID, bool copyBuff
 void CViewableBase::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
 {
 }
-void CViewableBase::performObjectLoadingMapping(const std::map<int, int> *map)
+void CViewableBase::performObjectLoadingMapping(const std::map<int, int>* map)
 {
 }
-void CViewableBase::performCollectionLoadingMapping(const std::map<int, int> *map)
+void CViewableBase::performCollectionLoadingMapping(const std::map<int, int>* map)
 {
 }
-void CViewableBase::performCollisionLoadingMapping(const std::map<int, int> *map)
+void CViewableBase::performCollisionLoadingMapping(const std::map<int, int>* map)
 {
 }
-void CViewableBase::performDistanceLoadingMapping(const std::map<int, int> *map)
+void CViewableBase::performDistanceLoadingMapping(const std::map<int, int>* map)
 {
 }
 std::string CViewableBase::getObjectTypeInfo() const
@@ -143,7 +143,7 @@ void CViewableBase::setClippingPlanes(double nearPlane, double farPlane)
         farPlane = 100000.0;
     if (farPlane < nearPlane)
         farPlane = nearPlane;
-    bool diff = ( (_nearClippingPlane != nearPlane) || (_farClippingPlane != farPlane) );
+    bool diff = ((_nearClippingPlane != nearPlane) || (_farClippingPlane != farPlane));
     if (diff)
     {
         _nearClippingPlane = nearPlane;
@@ -151,13 +151,13 @@ void CViewableBase::setClippingPlanes(double nearPlane, double farPlane)
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-            const char *cmd = "nearClippingPlane";
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = "nearClippingPlane";
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _nearClippingPlane);
             ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
 #else
-            const char *cmd = propViewable_clippingPlanes.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propViewable_clippingPlanes.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             double arr[2] = {_nearClippingPlane, _farClippingPlane};
             ev->appendKeyDoubleArray(cmd, arr, 2);
 #endif
@@ -183,8 +183,8 @@ void CViewableBase::setViewAngle(double angle)
         computeVolumeVectors();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propViewable_viewAngle.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propViewable_viewAngle.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _viewAngle);
             App::worldContainer->pushEvent();
         }
@@ -206,11 +206,11 @@ void CViewableBase::setOrthoViewSize(double theSize)
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-            const char *cmd = "orthoSize";
+            const char* cmd = "orthoSize";
 #else
-            const char *cmd = propViewable_viewSize.name;
+            const char* cmd = propViewable_viewSize.name;
 #endif
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _orthoViewSize);
             App::worldContainer->pushEvent();
         }
@@ -397,7 +397,7 @@ void CViewableBase::computeViewFrustumIfNeeded()
     }
 }
 
-bool CViewableBase::isObjectInsideView(const C7Vector &objectM, const C3Vector &maxBB)
+bool CViewableBase::isObjectInsideView(const C7Vector& objectM, const C3Vector& maxBB)
 { // This is to optimize display speed:
     // objects which we can't see are not rendered
     // We have to make distinction between perspective mode and orthogonal mode
@@ -417,7 +417,7 @@ bool CViewableBase::isObjectInsideView(const C7Vector &objectM, const C3Vector &
     return (!_isBoxOutsideVolumeApprox(objectM.getMatrix(), size, &viewFrustum));
 }
 
-bool CViewableBase::_isBoxOutsideVolumeApprox(const C4X4Matrix &tr, const C3Vector &s, std::vector<double> *planes)
+bool CViewableBase::_isBoxOutsideVolumeApprox(const C4X4Matrix& tr, const C3Vector& s, std::vector<double>* planes)
 { // Planes contain a collection of plane definitions:
     // Each plane is defined by 4 values a, b, c & d (consecutive in the array):
     // ax+by+cz+d=0
@@ -480,11 +480,11 @@ void CViewableBase::setPerspective(bool p)
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-            const char *cmd = "perspectiveMode";
+            const char* cmd = "perspectiveMode";
 #else
-            const char *cmd = propViewable_perspective.name;
+            const char* cmd = propViewable_perspective.name;
 #endif
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _perspective);
             App::worldContainer->pushEvent();
         }
@@ -499,8 +499,8 @@ void CViewableBase::setResolution(const int r[2])
         _resolution[1] = r[1];
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propViewable_resolution.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propViewable_resolution.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyIntArray(cmd, _resolution, 2);
             App::worldContainer->pushEvent();
         }
@@ -560,21 +560,21 @@ void CViewableBase::computeVolumeVectors()
     }
     if ((nearV - _volumeVectorNear).getLength() + (farV - _volumeVectorFar).getLength() > 0.0001)
     {
-        if ( (_volumeVectorNear != nearV) || (_volumeVectorFar != farV) )
+        if ((_volumeVectorNear != nearV) || (_volumeVectorFar != farV))
         {
             _volumeVectorNear = nearV;
             _volumeVectorFar = farV;
             if (_isInScene && App::worldContainer->getEventsEnabled())
             {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-                const char *cmd = "frustumVectors";
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                const char* cmd = "frustumVectors";
+                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
                 ev->openKeyMap(cmd);
                 ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
                 ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
 #else
-                const char *cmd = propViewable_frustumCornerNear.name;
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                const char* cmd = propViewable_frustumCornerNear.name;
+                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
                 ev->appendKeyDoubleArray(cmd, _volumeVectorNear.data, 3);
                 ev->appendKeyDoubleArray(propViewable_frustumCornerFar.name, _volumeVectorFar.data, 3);
 #endif
@@ -592,8 +592,8 @@ void CViewableBase::setShowVolume(bool s)
         _showVolume = s;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propViewable_showFrustum.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propViewable_showFrustum.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _showVolume);
             App::worldContainer->pushEvent();
         }
@@ -605,13 +605,13 @@ bool CViewableBase::getShowVolume() const
     return _showVolume;
 }
 
-void CViewableBase::getVolumeVectors(C3Vector &n, C3Vector &f) const
+void CViewableBase::getVolumeVectors(C3Vector& n, C3Vector& f) const
 {
     n = _volumeVectorNear;
     f = _volumeVectorFar;
 }
 
-void CViewableBase::addSpecializedObjectEventData(CCbor *ev)
+void CViewableBase::addSpecializedObjectEventData(CCbor* ev)
 {
     ev->appendKeyDouble(propViewable_viewAngle.name, _viewAngle);
     ev->appendKeyDouble(propViewable_viewSize.name, _orthoViewSize);
@@ -828,7 +828,6 @@ int CViewableBase::setIntArrayProperty(const char* pName, const int* v, int vL)
     {
     }
 
-
     return retVal;
 }
 
@@ -848,7 +847,7 @@ int CViewableBase::getPropertyName_vstatic(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_viewable.size(); i++)
     {
-        if ( (pName.size() == 0) || utils::startsWith(allProps_viewable[i].name, pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith(allProps_viewable[i].name, pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -871,7 +870,7 @@ int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info, std::st
         {
             retVal = allProps_viewable[i].type;
             info = allProps_viewable[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_viewable[i].infoTxt, "") != 0) )
+            if ((infoTxt == "") && (strcmp(allProps_viewable[i].infoTxt, "") != 0))
                 infoTxt = allProps_viewable[i].infoTxt;
             else
                 infoTxt = allProps_viewable[i].shortInfoTxt;
@@ -883,4 +882,3 @@ int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info, std::st
     }
     return retVal;
 }
-

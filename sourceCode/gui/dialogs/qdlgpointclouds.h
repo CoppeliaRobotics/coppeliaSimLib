@@ -14,7 +14,7 @@ class CQDlgPointclouds : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgPointclouds(QWidget *parent = 0);
+    explicit CQDlgPointclouds(QWidget* parent = 0);
     ~CQDlgPointclouds();
 
     void refresh();
@@ -55,7 +55,7 @@ class CQDlgPointclouds : public CDlgEx
     void on_qqInsertionTolerance_editingFinished();
 
   private:
-    Ui::CQDlgPointclouds *ui;
+    Ui::CQDlgPointclouds* ui;
 };
 
 #endif // QDLGPOINTCLOUDS_H

@@ -5,7 +5,8 @@
 bool CQDlgStopScripts::stopScriptNow = false;
 bool CQDlgStopScripts::visible = false;
 
-CQDlgStopScripts::CQDlgStopScripts(QWidget *parent) : QDialog(parent, Qt::SplashScreen), ui(new Ui::CQDlgStopScripts)
+CQDlgStopScripts::CQDlgStopScripts(QWidget* parent)
+    : QDialog(parent, Qt::SplashScreen), ui(new Ui::CQDlgStopScripts)
 {
     ui->setupUi(this);
     setVisible(false);
@@ -18,7 +19,7 @@ CQDlgStopScripts::~CQDlgStopScripts()
     delete ui;
 }
 
-void CQDlgStopScripts::setScriptName(const char *name)
+void CQDlgStopScripts::setScriptName(const char* name)
 {
     std::string txt(CSimFlavor::getStringVal(0));
     if (txt.length() == 0)

@@ -28,12 +28,12 @@ void CIkGroupContainer::simulationEnded()
         getObjectFromIndex(i)->simulationEnded();
 }
 
-void CIkGroupContainer::addIkGroup(CIkGroup_old *anIkGroup, bool objectIsACopy)
+void CIkGroupContainer::addIkGroup(CIkGroup_old* anIkGroup, bool objectIsACopy)
 {
     addIkGroupWithSuffixOffset(anIkGroup, objectIsACopy, 1);
 }
 
-void CIkGroupContainer::addIkGroupWithSuffixOffset(CIkGroup_old *anIkGroup, bool objectIsACopy, int suffixOffset)
+void CIkGroupContainer::addIkGroupWithSuffixOffset(CIkGroup_old* anIkGroup, bool objectIsACopy, int suffixOffset)
 {
     std::string theName = anIkGroup->getObjectName();
     if (theName.length() == 0)
@@ -52,7 +52,7 @@ void CIkGroupContainer::addIkGroupWithSuffixOffset(CIkGroup_old *anIkGroup, bool
     _addIkGroup(anIkGroup);
 }
 
-void CIkGroupContainer::getMinAndMaxNameSuffixes(int &minSuffix, int &maxSuffix) const
+void CIkGroupContainer::getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const
 {
     minSuffix = -1;
     maxSuffix = -1;
@@ -133,7 +133,7 @@ bool CIkGroupContainer::shiftIkGroup(int ikGroupHandle, bool shiftUp)
     std::vector<int> seenIDs;
     for (size_t i = 0; i < getObjectCount(); i++)
     {
-        CIkGroup_old *theGroup = getObjectFromIndex(i);
+        CIkGroup_old* theGroup = getObjectFromIndex(i);
         int dep = theGroup->getDoOnFailOrSuccessOf();
         if (dep != -1)
         {
@@ -181,7 +181,7 @@ void CIkGroupContainer::announceIkGroupWillBeErased(int ikGroupHandle)
     while (i < getObjectCount())
     {
         if (getObjectFromIndex(i)->announceIkGroupWillBeErased(ikGroupHandle, false))
-        { // This ik group has to be erased (normally never happens)
+        {                                                            // This ik group has to be erased (normally never happens)
             removeIkGroup(getObjectFromIndex(i)->getObjectHandle()); // This will call announceIkGroupWillBeErased!
             i = 0;                                                   // ordering may have changed!
         }
@@ -211,7 +211,7 @@ int CIkGroupContainer::computeAllIkGroups(bool exceptExplicitHandling)
     return (performedCount);
 }
 
-void CIkGroupContainer::_addIkGroup(CIkGroup_old *anIkGroup)
+void CIkGroupContainer::_addIkGroup(CIkGroup_old* anIkGroup)
 { // Overridden from _CIkGroupContainer_
     _CIkGroupContainer_::_addIkGroup(anIkGroup);
     anIkGroup->buildOrUpdate_oldIk();
@@ -219,7 +219,7 @@ void CIkGroupContainer::_addIkGroup(CIkGroup_old *anIkGroup)
 
 void CIkGroupContainer::_removeIkGroup(int ikGroupHandle)
 { // Overridden from _CIkGroupContainer_
-    CIkGroup_old *ig = getObjectFromHandle(ikGroupHandle);
+    CIkGroup_old* ig = getObjectFromHandle(ikGroupHandle);
     if (ig != nullptr)
         ig->remove_oldIk();
 
@@ -230,7 +230,7 @@ void CIkGroupContainer::buildOrUpdate_oldIk()
 {
     for (size_t i = 0; i < getObjectCount(); i++)
     {
-        CIkGroup_old *it = getObjectFromIndex(i);
+        CIkGroup_old* it = getObjectFromIndex(i);
         it->buildOrUpdate_oldIk();
     }
 }
@@ -239,7 +239,7 @@ void CIkGroupContainer::connect_oldIk()
 {
     for (size_t i = 0; i < getObjectCount(); i++)
     {
-        CIkGroup_old *it = getObjectFromIndex(i);
+        CIkGroup_old* it = getObjectFromIndex(i);
         it->connect_oldIk();
     }
 }
@@ -248,7 +248,7 @@ void CIkGroupContainer::remove_oldIk()
 {
     for (size_t i = 0; i < getObjectCount(); i++)
     {
-        CIkGroup_old *it = getObjectFromIndex(i);
+        CIkGroup_old* it = getObjectFromIndex(i);
         it->remove_oldIk();
     }
 }

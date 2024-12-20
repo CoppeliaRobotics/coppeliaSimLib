@@ -14,7 +14,7 @@ class CQDlgAddGraphCurve : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgAddGraphCurve(QWidget *parent = 0);
+    explicit CQDlgAddGraphCurve(QWidget* parent = 0);
     ~CQDlgAddGraphCurve();
 
     void cancelEvent();
@@ -33,7 +33,7 @@ class CQDlgAddGraphCurve : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    Ui::CQDlgAddGraphCurve *ui;
+    Ui::CQDlgAddGraphCurve* ui;
 };
 
 #endif // QDLGADDGRAPHCURVE_H

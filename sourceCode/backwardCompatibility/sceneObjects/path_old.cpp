@@ -87,7 +87,7 @@ double CPath_old::getShapingScaling() const
     return (_shapingScaling);
 }
 
-CColorObject *CPath_old::getShapingColor()
+CColorObject* CPath_old::getShapingColor()
 {
     return (&shapingColor);
 }
@@ -211,7 +211,7 @@ void CPath_old::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPath_old::addSpecializedObjectEventData(CCbor *ev)
+void CPath_old::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -219,9 +219,9 @@ void CPath_old::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-CSceneObject *CPath_old::copyYourself()
+CSceneObject* CPath_old::copyYourself()
 {
-    CPath_old *newPath = (CPath_old *)CSceneObject::copyYourself();
+    CPath_old* newPath = (CPath_old*)CSceneObject::copyYourself();
 
     newPath->setExplicitHandling(_explicitHandling);
     newPath->_shapingEnabled = _shapingEnabled;
@@ -247,7 +247,7 @@ CSceneObject *CPath_old::copyYourself()
     return (newPath);
 }
 
-void CPath_old::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CPath_old::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
@@ -274,33 +274,33 @@ void CPath_old::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CPath_old::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPath_old::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
 }
-void CPath_old::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPath_old::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
 }
-void CPath_old::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPath_old::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
-void CPath_old::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPath_old::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
-void CPath_old::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPath_old::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
 
-void CPath_old::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CPath_old::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CPath_old::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CPath_old::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -352,8 +352,8 @@ void CPath_old::simulationAboutToStart()
 }
 
 void CPath_old::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
@@ -511,9 +511,9 @@ void CPath_old::_generatePathShape()
     CMeshManip::getNormals(&_pathShapeVertices, &_pathShapeIndices, &_pathShapeNormals);
 }
 
-CShape *CPath_old::getShape() const
+CShape* CPath_old::getShape() const
 {
-    CShape *retVal = nullptr;
+    CShape* retVal = nullptr;
     if (_shapingEnabled && (_pathShapeVertices.size() != 0))
     {
         std::vector<double> vert(_pathShapeVertices);
@@ -532,7 +532,7 @@ CShape *CPath_old::getShape() const
     return (retVal);
 }
 
-void CPath_old::serialize(CSer &ar)
+void CPath_old::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -766,18 +766,18 @@ void CPath_old::serialize(CSer &ar)
 }
 
 #ifdef SIM_WITH_GUI
-void CPath_old::display(CViewableBase *renderingObject, int displayAttrib)
+void CPath_old::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayPath(this, renderingObject, displayAttrib);
 }
 
-bool CPath_old::transformSelectedPathPoints(const C4X4Matrix &cameraAbsConf, const C3Vector &clicked3DPoint,
+bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf, const C3Vector& clicked3DPoint,
                                             double prevPos[2], double pos[2], double screenHalfSizes[2],
                                             double halfSizes[2], bool perspective, int eventID)
 {
     C3Vector pointCenter;
     pointCenter.clear();
-    CPathCont_old *pc;
+    CPathCont_old* pc;
     std::vector<int> selectedPathPoints;
     if (GuiApp::getEditModeType() & PATH_EDIT_MODE_OLD)
     {
@@ -797,7 +797,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix &cameraAbsConf, con
     }
     for (int i = 0; i < int(selectedPathPoints.size()); i++)
     {
-        CSimplePathPoint_old *aPt = pc->getSimplePathPoint(selectedPathPoints[i]);
+        CSimplePathPoint_old* aPt = pc->getSimplePathPoint(selectedPathPoints[i]);
         if (aPt != nullptr)
         {
             pointCenter += (getCumulativeTransformation() * aPt->getTransformation()).X;
@@ -939,7 +939,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix &cameraAbsConf, con
     v = objAbs.M * v;
     for (int i = 0; i < int(selectedPathPoints.size()); i++)
     {
-        CSimplePathPoint_old *aPt = pc->getSimplePathPoint(selectedPathPoints[i]);
+        CSimplePathPoint_old* aPt = pc->getSimplePathPoint(selectedPathPoints[i]);
         if (aPt != nullptr)
         {
             C4X4Matrix m(getCumulativeTransformation() * aPt->getTransformation());

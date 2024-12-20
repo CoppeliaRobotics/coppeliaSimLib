@@ -17,7 +17,7 @@ class CQDlgRotation : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgRotation(QWidget *parent = 0);
+    explicit CQDlgRotation(QWidget* parent = 0);
     ~CQDlgRotation();
 
     void refresh();
@@ -33,12 +33,12 @@ class CQDlgRotation : public CDlgEx
 
     // Coord part
     bool _setCoord_userUnit(double newValueInUserUnit, int index);
-    C7Vector _getNewTransf(const C7Vector &transf, double newValueInUserUnit, int index);
+    C7Vector _getNewTransf(const C7Vector& transf, double newValueInUserUnit, int index);
     bool _applyCoord();
 
     // Transf part
     bool _applyTransformation(int axis);
-    void _transform(C7Vector &tr, bool self, int axis);
+    void _transform(C7Vector& tr, bool self, int axis);
 
     static int coordMode; // 0=abs,1=rel to parent
     static double rotAngles[3];
@@ -97,10 +97,10 @@ class CQDlgRotation : public CDlgEx
     void on_qqOrCombo_activated(int index);
 
   private:
-    void _selectItemOfCombobox(QComboBox *theBox, int itemData);
-    int _getIndexOfComboboxItemWithData(QComboBox *theBox, int itemData);
+    void _selectItemOfCombobox(QComboBox* theBox, int itemData);
+    int _getIndexOfComboboxItemWithData(QComboBox* theBox, int itemData);
 
-    Ui::CQDlgRotation *ui;
+    Ui::CQDlgRotation* ui;
 };
 
 #endif // QDLGROTATION_H

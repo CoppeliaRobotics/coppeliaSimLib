@@ -22,7 +22,7 @@ bool CSimAndUiThreadSync::_showLockFailsInConsole = false;
 
 int CSimAndUiThreadSync::_nextHandleValue = 0;
 
-CSimAndUiThreadSync::CSimAndUiThreadSync(const char *functionName)
+CSimAndUiThreadSync::CSimAndUiThreadSync(const char* functionName)
 {
     _err = false;
     _lockFunctionResult = -1;
@@ -76,7 +76,7 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
 }
 
 bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int mode)
-{  // mode: 0=minimal wait, 1=wait
+{ // mode: 0=minimal wait, 1=wait
     int maxTime = 0;
     bool alwaysPass = false;
     if (mode == 1)
@@ -136,7 +136,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int mode)
 }
 
 bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int mode)
-{  // mode: 0=minimal wait, 1=wait
+{ // mode: 0=minimal wait, 1=wait
     int maxTime = 0;
     bool alwaysPass = false;
     if (mode == 1)
@@ -187,7 +187,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int mode)
 
     _ui_writeRequest = false; // reset the write request
 
-    return ( (_ui_writeLevel > 0) || alwaysPass);
+    return ((_ui_writeLevel > 0) || alwaysPass);
 }
 
 void CSimAndUiThreadSync::simThread_lockForSimThreadWrite()
@@ -316,7 +316,7 @@ bool CSimAndUiThreadSync::hasUiLockedResourcesForReadOrWrite()
     return (_ui_readLevel + _ui_writeLevel);
 }
 
-std::string CSimAndUiThreadSync::_getLevelsString(const char *abr)
+std::string CSimAndUiThreadSync::_getLevelsString(const char* abr)
 {
     std::string retString(abr);
     retString += utils::getIntString(false, _ui_readLevel);
@@ -329,11 +329,11 @@ std::string CSimAndUiThreadSync::_getLevelsString(const char *abr)
     return (retString);
 }
 
-void CSimAndUiThreadSync::outputDebugMessage(const char *callLocation, const char *msg)
+void CSimAndUiThreadSync::outputDebugMessage(const char* callLocation, const char* msg)
 { // function is static!
 }
 
-void CSimAndUiThreadSync::outputNakedDebugMessage(const char *msg)
+void CSimAndUiThreadSync::outputNakedDebugMessage(const char* msg)
 { // function is static!
 }
 

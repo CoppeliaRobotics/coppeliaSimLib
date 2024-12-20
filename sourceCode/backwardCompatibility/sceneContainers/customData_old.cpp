@@ -12,7 +12,7 @@ CCustomData_old::~CCustomData_old()
     removeAllData();
 }
 
-void CCustomData_old::serializeData(CSer &ar, const char *objectName, int scriptHandle)
+void CCustomData_old::serializeData(CSer& ar, const char* objectName, int scriptHandle)
 {
     if (ar.isBinary())
     {
@@ -48,7 +48,7 @@ void CCustomData_old::serializeData(CSer &ar, const char *objectName, int script
                         int l;
                         ar >> e;
                         ar >> l;
-                        char *dd = new char[l];
+                        char* dd = new char[l];
                         for (int i = 0; i < l; i++)
                             ar >> dd[i];
                         dat.push_back(dd);
@@ -77,7 +77,7 @@ void CCustomData_old::serializeData(CSer &ar, const char *objectName, int script
                     ar.xmlAddNode_int("length", len[i]);
                     if (len[i] > 0)
                     {
-                        std::string str(base64_encode((unsigned char *)&dat[i][0], len[i]));
+                        std::string str(base64_encode((unsigned char*)&dat[i][0], len[i]));
                         ar.xmlAddNode_string("data_base64Coded", str.c_str());
                     }
                     ar.xmlPopNode();
@@ -85,7 +85,7 @@ void CCustomData_old::serializeData(CSer &ar, const char *objectName, int script
             }
             else
             {
-                CSer *serObj = nullptr;
+                CSer* serObj = nullptr;
                 if (objectName != nullptr)
                     serObj = ar.xmlAddNode_binFile("file", (std::string("objectCustomData_") + objectName).c_str());
                 else
@@ -112,7 +112,7 @@ void CCustomData_old::serializeData(CSer &ar, const char *objectName, int script
         }
         else
         {
-            CSer *serObj = ar.xmlGetNode_binFile("file", false);
+            CSer* serObj = ar.xmlGetNode_binFile("file", false);
             if (serObj == nullptr)
             {
                 if (ar.xmlPushChildNode("data", false))
@@ -147,7 +147,7 @@ void CCustomData_old::serializeData(CSer &ar, const char *objectName, int script
                     int l;
                     serObj[0] >> e;
                     serObj[0] >> l;
-                    char *dd = new char[l];
+                    char* dd = new char[l];
                     for (int i = 0; i < l; i++)
                         serObj[0] >> dd[i];
                     dat.push_back(dd);
@@ -161,13 +161,13 @@ void CCustomData_old::serializeData(CSer &ar, const char *objectName, int script
     }
 }
 
-void CCustomData_old::initNewFormat(CCustomData &newObj, bool objectData) const
+void CCustomData_old::initNewFormat(CCustomData& newObj, bool objectData) const
 {
     for (size_t i = 0; i < head.size(); i++)
     {
         int h = head[i];
         int l = len[i];
-        char *c = dat[i];
+        char* c = dat[i];
         if (h == 356248756)
         {
             std::vector<char> buff(c, c + l);
@@ -195,12 +195,12 @@ void CCustomData_old::initNewFormat(CCustomData &newObj, bool objectData) const
     }
 }
 
-CCustomData_old *CCustomData_old::copyYourself()
+CCustomData_old* CCustomData_old::copyYourself()
 {
-    CCustomData_old *retVal = new CCustomData_old();
+    CCustomData_old* retVal = new CCustomData_old();
     for (unsigned int i = 0; i < dat.size(); i++)
     {
-        char *d = new char[len[i]];
+        char* d = new char[len[i]];
         retVal->dat.push_back(d);
         retVal->len.push_back(len[i]);
         retVal->head.push_back(head[i]);
@@ -210,12 +210,12 @@ CCustomData_old *CCustomData_old::copyYourself()
     return (retVal);
 }
 
-void CCustomData_old::setData(int header, const char *data, int datLen)
+void CCustomData_old::setData(int header, const char* data, int datLen)
 {
     removeData(header);
     if ((data == nullptr) || (datLen == 0)) // Following 2 lines since 2010/03/04
         return;
-    char *newData = new char[datLen];
+    char* newData = new char[datLen];
     for (int i = 0; i < datLen; i++)
         newData[i] = data[i];
     dat.push_back(newData);
@@ -241,13 +241,13 @@ int CCustomData_old::getDataLength(int header)
     return (0);
 }
 
-void CCustomData_old::getData(int header, char *data) const
+void CCustomData_old::getData(int header, char* data) const
 {
     if (header == -1)
     { // new since 19/09/2011
         // Here we want the arry that contains all the header numbers
         for (unsigned int i = 0; i < head.size(); i++)
-            ((int *)data)[i] = head[i];
+            ((int*)data)[i] = head[i];
     }
     else
     {
@@ -263,7 +263,7 @@ void CCustomData_old::getData(int header, char *data) const
     }
 }
 
-bool CCustomData_old::getHeader(int index, int &header) const
+bool CCustomData_old::getHeader(int index, int& header) const
 {
     if (index >= int(head.size()))
         return (false);
@@ -295,15 +295,15 @@ void CCustomData_old::removeAllData()
     head.clear();
 }
 
-void CCustomData_old::_extractCustomDataFromBuffer(std::vector<char> &buffer, const char *dataName,
-                                                   std::string &extractedData)
+void CCustomData_old::_extractCustomDataFromBuffer(std::vector<char>& buffer, const char* dataName,
+                                                   std::string& extractedData)
 {
     extractedData.clear();
     int off = 0;
     while (off + 8 < int(buffer.size()))
     {
-        int sizeIncr = ((int *)((&buffer[0]) + off))[0];
-        int nameLength = ((int *)((&buffer[0]) + off))[1];
+        int sizeIncr = ((int*)((&buffer[0]) + off))[0];
+        int nameLength = ((int*)((&buffer[0]) + off))[1];
         std::string datName(((&buffer[0]) + off) + 4 + 4);
         if (datName.compare(dataName) == 0)
         { // ok, we have the correct data here
@@ -319,12 +319,12 @@ void CCustomData_old::_extractCustomDataFromBuffer(std::vector<char> &buffer, co
     }
 }
 
-void CCustomData_old::_extractCustomDataTagsFromBuffer(std::vector<char> &buffer, std::vector<std::string> &tags)
+void CCustomData_old::_extractCustomDataTagsFromBuffer(std::vector<char>& buffer, std::vector<std::string>& tags)
 {
     int off = 0;
     while (off + 8 < int(buffer.size()))
     {
-        int sizeIncr = ((int *)((&buffer[0]) + off))[0];
+        int sizeIncr = ((int*)((&buffer[0]) + off))[0];
         // int nameLength=((int*)((&buffer[0])+off))[1];
         std::string datName(((&buffer[0]) + off) + 4 + 4);
         tags.push_back(datName);

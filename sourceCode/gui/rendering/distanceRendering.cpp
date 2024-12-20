@@ -22,7 +22,7 @@ See the GNU General Public License for more details.
 #include <tt.h>
 #include <utils.h>
 
-void displayDistance(CDistanceObject_old *dist, int segWidth, const double *distResult)
+void displayDistance(CDistanceObject_old* dist, int segWidth, const double* distResult)
 {
     dist->getSegmentColor()->makeCurrentColor(false);
     glLineWidth(float(segWidth));

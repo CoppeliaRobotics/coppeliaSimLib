@@ -142,8 +142,8 @@ void ogl::setTextColor(float r, float g, float b)
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, bl); // 13.07.2022
     glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
     //      if (App::userSettings->specificGpuTweak)
-    { // Following needed with some graphic card to see text when there is a background! This is probably a bug in the
-      // driver
+    {   // Following needed with some graphic card to see text when there is a background! This is probably a bug in the
+        // driver
         glBegin(GL_QUADS);
         glEnd();
         //        glColor4fv(buff);
@@ -168,8 +168,8 @@ void ogl::setMaterialColor(const float ambientCol[3], const float specularCol[3]
         _lastAmbientDiffuseAlpha[2] = ambientCol[2];
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, _lastAmbientDiffuseAlpha);
         if (App::userSettings->specificGpuTweak)
-        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
-          // the driver
+        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+            // the driver
             glBegin(GL_QUADS);
             glEnd();
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, _lastAmbientDiffuseAlpha);
@@ -182,8 +182,8 @@ void ogl::setMaterialColor(const float ambientCol[3], const float specularCol[3]
         buff[2] = specularCol[2];
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buff);
         if (App::userSettings->specificGpuTweak)
-        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
-          // the driver
+        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+            // the driver
             glBegin(GL_QUADS);
             glEnd();
             glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buff);
@@ -196,8 +196,8 @@ void ogl::setMaterialColor(const float ambientCol[3], const float specularCol[3]
         buff[2] = emissiveCol[2];
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
         if (App::userSettings->specificGpuTweak)
-        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
-          // the driver
+        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+            // the driver
             glBegin(GL_QUADS);
             glEnd();
             glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
@@ -232,8 +232,8 @@ void ogl::setMaterialColor(int colorMode, float r, float g, float b)
         _lastAmbientDiffuseAlpha[2] = b;
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, _lastAmbientDiffuseAlpha);
         if (App::userSettings->specificGpuTweak)
-        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
-          // the driver
+        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+            // the driver
             glBegin(GL_QUADS);
             glEnd();
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, _lastAmbientDiffuseAlpha);
@@ -244,8 +244,8 @@ void ogl::setMaterialColor(int colorMode, float r, float g, float b)
         float buff[4] = {r, g, b, 1.0};
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buff);
         if (App::userSettings->specificGpuTweak)
-        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
-          // the driver
+        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+            // the driver
             glBegin(GL_QUADS);
             glEnd();
             glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buff);
@@ -256,8 +256,8 @@ void ogl::setMaterialColor(int colorMode, float r, float g, float b)
         float buff[4] = {r, g, b, 1.0};
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
         if (App::userSettings->specificGpuTweak)
-        { // Following needed with some graphic card to see text when there is a background! This is probably a bug in
-          // the driver
+        {   // Following needed with some graphic card to see text when there is a background! This is probably a bug in
+            // the driver
             glBegin(GL_QUADS);
             glEnd();
             glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
@@ -312,7 +312,7 @@ void ogl::enableLighting_useWithCare()
     glEnable(GL_LIGHTING);
 }
 
-void ogl::drawRandom3dLines(const double *pts, int ptsCnt, bool connected, const double normalVectorForDiffuseComp[3])
+void ogl::drawRandom3dLines(const double* pts, int ptsCnt, bool connected, const double normalVectorForDiffuseComp[3])
 {
     if (connected)
         glBegin(GL_LINE_STRIP);
@@ -327,13 +327,13 @@ void ogl::drawRandom3dLines(const double *pts, int ptsCnt, bool connected, const
     glEnd();
 }
 
-void ogl::drawRandom3dPoints(const double *pts, int ptsCnt, const double normalVectorForDiffuseComp[3])
+void ogl::drawRandom3dPoints(const double* pts, int ptsCnt, const double normalVectorForDiffuseComp[3])
 {
     drawRandom3dPointsEx(pts, ptsCnt, nullptr, nullptr, nullptr, false, normalVectorForDiffuseComp);
 }
 
-void ogl::drawRandom3dPointsEx(const double *pts, int ptsCnt, const double *normals, const float *cols,
-                               const double *sizes, bool colsAreEmission, const double normalVectorForDiffuseComp[3],
+void ogl::drawRandom3dPointsEx(const double* pts, int ptsCnt, const double* normals, const float* cols,
+                               const double* sizes, bool colsAreEmission, const double normalVectorForDiffuseComp[3],
                                int colComp /*=4*/)
 {
     if (cols != nullptr)
@@ -471,7 +471,7 @@ void ogl::drawRandom3dPointsEx(const double *pts, int ptsCnt, const double *norm
         glDisable(GL_COLOR_MATERIAL);
 }
 
-void ogl::drawRandom2dLines(const double *pts, int ptsCnt, bool connected, double zCoord)
+void ogl::drawRandom2dLines(const double* pts, int ptsCnt, bool connected, double zCoord)
 {
     if (connected)
         glBegin(GL_LINE_STRIP);
@@ -482,7 +482,7 @@ void ogl::drawRandom2dLines(const double *pts, int ptsCnt, bool connected, doubl
     glEnd();
 }
 
-void ogl::drawRandom2dLines_i(const int *pts, int ptsCnt, bool connected, int zCoord)
+void ogl::drawRandom2dLines_i(const int* pts, int ptsCnt, bool connected, int zCoord)
 {
     if (connected)
         glBegin(GL_LINE_STRIP);
@@ -493,7 +493,7 @@ void ogl::drawRandom2dLines_i(const int *pts, int ptsCnt, bool connected, int zC
     glEnd();
 }
 
-void ogl::drawRandom2dPoints(const double *pts, int ptsCnt, double zCoord)
+void ogl::drawRandom2dPoints(const double* pts, int ptsCnt, double zCoord)
 {
     glBegin(GL_POINTS);
     for (int i = 0; i < ptsCnt; i++)
@@ -501,12 +501,12 @@ void ogl::drawRandom2dPoints(const double *pts, int ptsCnt, double zCoord)
     glEnd();
 }
 
-void ogl::drawBitmapTextTo3dPosition(const double pos[3], const char *txt, const double normalVectorForDiffuseComp[3])
+void ogl::drawBitmapTextTo3dPosition(const double pos[3], const char* txt, const double normalVectorForDiffuseComp[3])
 {
     drawBitmapTextTo3dPosition(pos[0], pos[1], pos[2], txt, normalVectorForDiffuseComp);
 }
 
-void ogl::drawBitmapTextTo3dPosition(double x, double y, double z, const char *txt,
+void ogl::drawBitmapTextTo3dPosition(double x, double y, double z, const char* txt,
                                      const double normalVectorForDiffuseComp[3])
 {
     if (oglFonts[fontIndex].fontBase == 0)
@@ -525,7 +525,7 @@ void ogl::drawBitmapTextTo3dPosition(double x, double y, double z, const char *t
     glPopAttrib();
 }
 
-void ogl::drawBitmapTextTo2dPosition(double posX, double posY, const char *txt)
+void ogl::drawBitmapTextTo2dPosition(double posX, double posY, const char* txt)
 {
     if (oglFonts[fontIndex].fontBase == 0)
         return;
@@ -971,11 +971,11 @@ void ogl::drawBitmapTextBackgroundIntoScene(double posX, double posY, double pos
     {
         glRasterPos3d(posX, posY, posZ);
         glBitmap(l, oglFonts[fontIndex].fontHeight, 0.0, float(oglFonts[fontIndex].fontHeight / 4), 0.0, 0.0,
-                 (GLubyte *)opacBitmap);
+                 (GLubyte*)opacBitmap);
     }
 }
 
-void ogl::drawBitmapTextIntoScene(double posX, double posY, double posZ, const char *txt)
+void ogl::drawBitmapTextIntoScene(double posX, double posY, double posZ, const char* txt)
 {
     if (oglFonts[fontIndex].fontBase == 0)
         return;
@@ -1002,7 +1002,7 @@ void ogl::drawTexti(int posX, int posY, int posZ, std::string txt)
     glPopAttrib();
 }
 
-int ogl::getTextLengthInPixels(const char *txt)
+int ogl::getTextLengthInPixels(const char* txt)
 {
     if (oglFonts[fontIndex].fontBase == 0)
         return (0);
@@ -1013,7 +1013,7 @@ int ogl::getTextLengthInPixels(const char *txt)
     return (width);
 }
 
-int ogl::getSeparateWords(const char *txt, std::vector<std::string> &separateWords)
+int ogl::getSeparateWords(const char* txt, std::vector<std::string>& separateWords)
 {
     std::string aWord;
     size_t l = strlen(txt);
@@ -1035,7 +1035,7 @@ int ogl::getSeparateWords(const char *txt, std::vector<std::string> &separateWor
     return (int(separateWords.size()));
 }
 
-int ogl::getSeparateWordWidths(const std::vector<std::string> &separateWords, std::vector<int> &widths)
+int ogl::getSeparateWordWidths(const std::vector<std::string>& separateWords, std::vector<int>& widths)
 {
     if (oglFonts[fontIndex].fontBase == 0)
         return (0);
@@ -1049,8 +1049,8 @@ int ogl::getSeparateWordWidths(const std::vector<std::string> &separateWords, st
     return (oglFonts[fontIndex].fontWidths[32]); // We return the width of the space!
 }
 
-std::string ogl::getTextThatFitIntoPixelWidth(std::vector<std::string> &separateWords, std::vector<int> &widths,
-                                              int spaceWidth, int pixelWidth, int &textCharCount_pixelWidth,
+std::string ogl::getTextThatFitIntoPixelWidth(std::vector<std::string>& separateWords, std::vector<int>& widths,
+                                              int spaceWidth, int pixelWidth, int& textCharCount_pixelWidth,
                                               bool allowWordCut)
 {
     if (separateWords.size() == 0)
@@ -1157,7 +1157,7 @@ std::string ogl::getTextThatFitIntoPixelWidth(std::vector<std::string> &separate
     return (retVal);
 }
 
-void ogl::loadBitmapFont(const unsigned char *fontData, int fontHeight, int theFontIndex)
+void ogl::loadBitmapFont(const unsigned char* fontData, int fontHeight, int theFontIndex)
 {
     oglFonts[theFontIndex].fontHeight = fontHeight;
     oglFonts[theFontIndex].fontBase = glGenLists(256);
@@ -1234,7 +1234,7 @@ int ogl::getInterline()
     return (oglFonts[fontIndex].fontHeight - 4);
 }
 
-void ogl::loadOutlineFont(const int *fontData, const float *fontVertices)
+void ogl::loadOutlineFont(const int* fontData, const float* fontVertices)
 {
     outlineFontBase = glGenLists(256); // Storage For 96 Characters
     for (int i = 0; i < 256; i++)
@@ -1266,16 +1266,16 @@ void ogl::freeOutlineFont()
     glDeleteLists(outlineFontBase + 32, 96);
 }
 
-void ogl::drawOutlineText(const char *txt, const C7Vector &trOrig, double textHeight, const C4X4Matrix *cameraAbsConfig,
-                          bool overlay, bool left, bool right, bool culling, const float *textColor,
-                          const float *backColor /*=nullptr*/, bool sizeInPixels /*=false*/, int windowHeight /*=0*/,
+void ogl::drawOutlineText(const char* txt, const C7Vector& trOrig, double textHeight, const C4X4Matrix* cameraAbsConfig,
+                          bool overlay, bool left, bool right, bool culling, const float* textColor,
+                          const float* backColor /*=nullptr*/, bool sizeInPixels /*=false*/, int windowHeight /*=0*/,
                           double verticalViewSizeOrAngle /*=0.0*/, bool perspective /*=true*/,
                           bool fullyFacingCamera /*=true*/)
 { // cameraAbsConfig can be nullptr. If not, the text is always facing the camera
     // If backColor is nullptr, there is no background
     double length = 0;
 
-    const char *text = txt;
+    const char* text = txt;
 
     int l = int(strlen(text));
     for (int loop = 0; loop < l; loop++)
@@ -1673,7 +1673,7 @@ void ogl::drawRichTextIcon(int centerPosX, int centerPosY, int size, int icon)
     }
 }
 
-void ogl::drawRichText(int posX, int posY, int size, std::string &text, std::vector<int> &iconsAndPos, int alignement,
+void ogl::drawRichText(int posX, int posY, int size, std::string& text, std::vector<int>& iconsAndPos, int alignement,
                        float backgroundColor[3], float secondTextColor[3])
 { // secondTextColor can be nullptr in which case the text is not displayed double!
     if (oglFonts[fontIndex].fontBase == 0)
@@ -1886,7 +1886,7 @@ void ogl::drawButtonEdit(VPoint p, VPoint s, bool selected, bool mainSel)
     glEnable(GL_DEPTH_TEST);
 }
 
-int ogl::getRichTextInfo(std::string &text, std::vector<int> &iconsAndPos)
+int ogl::getRichTextInfo(std::string& text, std::vector<int>& iconsAndPos)
 {
     iconsAndPos.clear();
     int iconCount = 0;
@@ -1994,8 +1994,8 @@ int ogl::getRichTextInfo(std::string &text, std::vector<int> &iconsAndPos)
 
 void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1[3], float _bckgrndColor2[3],
                      std::string text, int buttonTypeAndAttributes, bool editing, int editionPos, double sliderPos,
-                     bool vertical, int timeInMs, float secondTextColor[3], CTextureProperty *backgroundTexture,
-                     VPoint *backgroundPos, VPoint *backgroundSize, CTextureProperty *foregroundTexture)
+                     bool vertical, int timeInMs, float secondTextColor[3], CTextureProperty* backgroundTexture,
+                     VPoint* backgroundPos, VPoint* backgroundSize, CTextureProperty* foregroundTexture)
 { // If sliderPos is >2.0, there's no slider. Else, sliderPos should be between -1.0 and 1.0
     // Before calling this function, make sure that viewSize==viewportSize!!
     // Make sure also that viewportPos is set correctly!!!
@@ -2137,7 +2137,7 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
     if (((buttonTypeAndAttributes & 0x0007) == sim_buttonproperty_button) ||
         ((buttonTypeAndAttributes & 0x0007) == sim_buttonproperty_label))
     {
-        float *secondTextCol = nullptr;
+        float* secondTextCol = nullptr;
         float secondTextColRef[3] = {0.0, 0.0, 0.0};
         if (secondTextColor)
         {

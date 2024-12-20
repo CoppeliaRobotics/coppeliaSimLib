@@ -9,24 +9,24 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propVolume_closeThreshold,                    "closeThreshold",                       sim_propertytype_float,     0, "Close threshold", "Close threshold: if a detection occures below that threshold, it is not registered. 0.0 to disable") \
-    FUNCX(propVolume_offset,                            "volume_offset",                        sim_propertytype_float,     0, "Offset", "Offset of detection volume") \
-    FUNCX(propVolume_range,                             "volume_range",                         sim_propertytype_float,     0, "Range", "Range/depth of detection volume") \
-    FUNCX(propVolume_xSize,                             "volume_xSize",                         sim_propertytype_floatarray,   0, "X-sizes", "X-size (near and far) for pyramid-type volumes") \
-    FUNCX(propVolume_ySize,                             "volume_ySize",                         sim_propertytype_floatarray,   0, "Y-sizes", "Y-size (near and far) for pyramid-type volumes") \
-    FUNCX(propVolume_radius,                            "volume_radius",                        sim_propertytype_floatarray,   0, "Radius", "Radius for cylinder-, disk- and cone-type volumes") \
-    FUNCX(propVolume_angle,                             "volume_angle",                         sim_propertytype_floatarray,   0, "Angles", "Angle and inside gap for disk- and cone-type volumes") \
-    FUNCX(propVolume_faces,                             "volume_faces",                         sim_propertytype_intarray,     0, "Faces", "Number of faces (near and far) for cylinder-, disk- and pyramid-type volumes") \
-    FUNCX(propVolume_subdivisions,                      "volume_subdivisions",                  sim_propertytype_intarray,     0, "Subdivisions", "Number of subdivisions (near and far) for cone-type volumes") \
-    FUNCX(propVolume_edges,                             "volume_edges",                         sim_propertytype_floatarray,    sim_propertyinfo_notwritable, "Volume edges", "List of segments (defined by pairs of end-point coordinates) visualizing the volume") \
-    FUNCX(propVolume_closeEdges,                        "volume_closeEdges",                    sim_propertytype_floatarray,    sim_propertyinfo_notwritable, "Volume close edges", "List of segments (defined by pairs of end-point coordinates) visualizing the close threshold of the volume") \
+#define DEFINE_PROPERTIES                                                                                                                                                                                     \
+    FUNCX(propVolume_closeThreshold, "closeThreshold", sim_propertytype_float, 0, "Close threshold", "Close threshold: if a detection occures below that threshold, it is not registered. 0.0 to disable")    \
+    FUNCX(propVolume_offset, "volume_offset", sim_propertytype_float, 0, "Offset", "Offset of detection volume")                                                                                              \
+    FUNCX(propVolume_range, "volume_range", sim_propertytype_float, 0, "Range", "Range/depth of detection volume")                                                                                            \
+    FUNCX(propVolume_xSize, "volume_xSize", sim_propertytype_floatarray, 0, "X-sizes", "X-size (near and far) for pyramid-type volumes")                                                                      \
+    FUNCX(propVolume_ySize, "volume_ySize", sim_propertytype_floatarray, 0, "Y-sizes", "Y-size (near and far) for pyramid-type volumes")                                                                      \
+    FUNCX(propVolume_radius, "volume_radius", sim_propertytype_floatarray, 0, "Radius", "Radius for cylinder-, disk- and cone-type volumes")                                                                  \
+    FUNCX(propVolume_angle, "volume_angle", sim_propertytype_floatarray, 0, "Angles", "Angle and inside gap for disk- and cone-type volumes")                                                                 \
+    FUNCX(propVolume_faces, "volume_faces", sim_propertytype_intarray, 0, "Faces", "Number of faces (near and far) for cylinder-, disk- and pyramid-type volumes")                                            \
+    FUNCX(propVolume_subdivisions, "volume_subdivisions", sim_propertytype_intarray, 0, "Subdivisions", "Number of subdivisions (near and far) for cone-type volumes")                                        \
+    FUNCX(propVolume_edges, "volume_edges", sim_propertytype_floatarray, sim_propertyinfo_notwritable, "Volume edges", "List of segments (defined by pairs of end-point coordinates) visualizing the volume") \
+    FUNCX(propVolume_closeEdges, "volume_closeEdges", sim_propertytype_floatarray, sim_propertyinfo_notwritable, "Volume close edges", "List of segments (defined by pairs of end-point coordinates) visualizing the close threshold of the volume")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_volume = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_volume = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -46,22 +46,22 @@ class CConvexVolume
     CConvexVolume();
     virtual ~CConvexVolume();
 
-    CConvexVolume *copyYourself();
+    CConvexVolume* copyYourself();
     void scaleVolume(double scalingFactor);
-    void serialize(CSer &ar);
-    bool getVolumeBoundingBox(C3Vector &minV, C3Vector &maxV) const;
+    void serialize(CSer& ar);
+    bool getVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) const;
     void disableVolumeComputation(bool disableIt);
 
     void commonInit();
-    C4X4Matrix getTheMatrix(const C3Vector &pt0, const C3Vector &pt1, const C3Vector &pt2, bool tri);
-    void add3Values(std::vector<double> &vect, const C4X4Matrix &transf, double x, double y, double z);
-    void addAPlane(std::vector<double> *volume, std::vector<double> *normals, double nL, const C4X4Matrix &m,
+    C4X4Matrix getTheMatrix(const C3Vector& pt0, const C3Vector& pt1, const C3Vector& pt2, bool tri);
+    void add3Values(std::vector<double>& vect, const C4X4Matrix& transf, double x, double y, double z);
+    void addAPlane(std::vector<double>* volume, std::vector<double>* normals, double nL, const C4X4Matrix& m,
                    bool inside);
-    void computeVolumeEdges(std::vector<double> &edges);
-    void getCloseAndFarVolumeEdges(std::vector<double> &allEdges, double distance, std::vector<double> &closeEdges,
-                                   std::vector<double> &farEdges);
-    void removeEdgesNotInsideVolume(std::vector<double> &edges, std::vector<double> &planes, bool invertSides);
-    void generateSphereEdges(std::vector<double> &edges, double radius);
+    void computeVolumeEdges(std::vector<double>& edges);
+    void getCloseAndFarVolumeEdges(std::vector<double>& allEdges, double distance, std::vector<double>& closeEdges,
+                                   std::vector<double>& farEdges);
+    void removeEdgesNotInsideVolume(std::vector<double>& edges, std::vector<double>& planes, bool invertSides);
+    void generateSphereEdges(std::vector<double>& edges, double radius);
 
     int setBoolProperty(const char* pName, bool pState);
     int getBoolProperty(const char* pName, bool& pState) const;
@@ -85,7 +85,7 @@ class CConvexVolume
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     void computeVolumes();
-    void sendEventData(CCbor *eev);
+    void sendEventData(CCbor* eev);
     void setParentObjHandleForEvents(int h);
 
     void setVolumeType(int theType, int objectTypeTheVolumeIsFor, double pointSize);

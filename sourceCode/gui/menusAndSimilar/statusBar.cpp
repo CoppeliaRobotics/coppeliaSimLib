@@ -1,6 +1,7 @@
 #include <statusBar.h>
 
-CStatusBar::CStatusBar() : QPlainTextEdit()
+CStatusBar::CStatusBar()
+    : QPlainTextEdit()
 {
 }
 
@@ -8,7 +9,7 @@ CStatusBar::~CStatusBar()
 {
 }
 
-void CStatusBar::resizeEvent(QResizeEvent *e)
+void CStatusBar::resizeEvent(QResizeEvent* e)
 {
     QPlainTextEdit::resizeEvent(e);
     moveCursor(QTextCursor::End);

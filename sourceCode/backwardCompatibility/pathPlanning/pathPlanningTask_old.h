@@ -15,11 +15,11 @@ class CPathPlanningTask
     void simulationAboutToStart();
     void simulationEnded();
 
-    CPathPlanningTask *copyYourself();
+    CPathPlanningTask* copyYourself();
     void setDefaultValues();
-    void serialize(CSer &ar);
-    void performObjectLoadingMapping(const std::map<int, int> *map);
-    void performCollectionLoadingMapping(const std::map<int, int> *map);
+    void serialize(CSer& ar);
+    void performObjectLoadingMapping(const std::map<int, int>* map);
+    void performCollectionLoadingMapping(const std::map<int, int>* map);
     bool announceObjectWillBeErased(int objID, bool copyBuffer);
     bool announceCollectionWillBeErased(int groupID, bool copyBuffer);
     int getObjectID();
@@ -33,7 +33,7 @@ class CPathPlanningTask
 
     void setShowSearchTrees(bool s);
     bool getShowSearchTrees();
-    void getAndDisconnectSearchTrees(int &tree1Handle, int &tree2Handle);
+    void getAndDisconnectSearchTrees(int& tree1Handle, int& tree2Handle);
     void connectExternalSearchTrees(int tree1Handle, int tree2Handle);
 
     void setGoalDummyID(int theID);
@@ -76,22 +76,22 @@ class CPathPlanningTask
     int getPostProcessingPassCount();
     void setPartialPathIsOk(bool ok);
     bool getPartialPathIsOk();
-    void setGammaAxis(const C3Vector &axis);
+    void setGammaAxis(const C3Vector& axis);
     C3Vector getGammaAxis();
 
     void setVisualizeSearchArea(bool v);
     bool getVisualizeSearchArea();
 
-    void setOriginalTask(CPathPlanningTask *originalTask);
-    CPathPlanningTask *getOriginalTask();
+    void setOriginalTask(CPathPlanningTask* originalTask);
+    CPathPlanningTask* getOriginalTask();
 
   protected:
-    CPathPlanningTask *_originalTask_useWhenCopied;
+    CPathPlanningTask* _originalTask_useWhenCopied;
     int _steppedSearchTemp_maxTimeInMs;
     int _steppedSearchTemp_initTimeInMs;
     int _steppedSearchTemp_maxSubTimeInMs;
     bool _steppedSearchTemp_showProgressDlg;
-    void *_steppedSearchTemp_theTask;
+    void* _steppedSearchTemp_theTask;
     int _steppedSearchTemp_foundPathStatus; // 0=not yet, 1=partial, 2=full
     int _steppedSearchTemp_currentSmoothingPass;
 

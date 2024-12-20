@@ -21,4 +21,4 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void displayEmitterOrReceiver(CBroadcastDataVisual *it);
+void displayEmitterOrReceiver(CBroadcastDataVisual* it);

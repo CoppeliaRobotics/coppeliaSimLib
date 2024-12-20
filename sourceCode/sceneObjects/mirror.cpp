@@ -77,7 +77,7 @@ bool CMirror::getContainsTransparentComponent() const
     return (clipPlaneColor.getTranslucid());
 }
 
-CColorObject *CMirror::getClipPlaneColor()
+CColorObject* CMirror::getClipPlaneColor()
 {
     return (&clipPlaneColor);
 }
@@ -177,7 +177,7 @@ void CMirror::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CMirror::addSpecializedObjectEventData(CCbor *ev)
+void CMirror::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -187,9 +187,9 @@ void CMirror::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-CSceneObject *CMirror::copyYourself()
+CSceneObject* CMirror::copyYourself()
 {
-    CMirror *newMirror = (CMirror *)CSceneObject::copyYourself();
+    CMirror* newMirror = (CMirror*)CSceneObject::copyYourself();
 
     // Various
     newMirror->_mirrorHeight = _mirrorHeight;
@@ -210,7 +210,7 @@ CSceneObject *CMirror::copyYourself()
     return (newMirror);
 }
 
-void CMirror::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CMirror::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     if (_clippingObjectOrCollection == object->getObjectHandle())
@@ -249,37 +249,37 @@ void CMirror::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CMirror::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMirror::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
     if (_clippingObjectOrCollection <= SIM_IDEND_SCENEOBJECT)
         _clippingObjectOrCollection = CWorld::getLoadingMapping(map, _clippingObjectOrCollection);
 }
-void CMirror::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMirror::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
     if (_clippingObjectOrCollection > SIM_IDEND_SCENEOBJECT)
         _clippingObjectOrCollection = CWorld::getLoadingMapping(map, _clippingObjectOrCollection);
 }
-void CMirror::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMirror::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
-void CMirror::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMirror::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
-void CMirror::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CMirror::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
 
-void CMirror::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CMirror::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CMirror::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CMirror::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -297,8 +297,8 @@ void CMirror::simulationAboutToStart()
 }
 
 void CMirror::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
@@ -310,7 +310,7 @@ void CMirror::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-void CMirror::serialize(CSer &ar)
+void CMirror::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -462,7 +462,7 @@ void CMirror::serialize(CSer &ar)
 }
 
 #ifdef SIM_WITH_GUI
-void CMirror::display(CViewableBase *renderingObject, int displayAttrib)
+void CMirror::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayMirror(this, renderingObject, displayAttrib);
 }
@@ -477,7 +477,6 @@ int CMirror::setFloatProperty(const char* ppName, double pState)
         retVal = clipPlaneColor.setFloatProperty(pName, pState);
     if (retVal == -1)
     {
-
     }
 
     return retVal;
@@ -492,7 +491,6 @@ int CMirror::getFloatProperty(const char* ppName, double& pState) const
         retVal = clipPlaneColor.getFloatProperty(pName, pState);
     if (retVal == -1)
     {
-
     }
 
     return retVal;
@@ -507,7 +505,6 @@ int CMirror::setColorProperty(const char* ppName, const float* pState)
         retVal = clipPlaneColor.setColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -521,7 +518,6 @@ int CMirror::getColorProperty(const char* ppName, float* pState) const
         retVal = clipPlaneColor.getColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -538,7 +534,7 @@ int CMirror::getPropertyName(int& index, std::string& pName, std::string& appart
     {
         for (size_t i = 0; i < allProps_mirror.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -565,7 +561,7 @@ int CMirror::getPropertyName_static(int& index, std::string& pName, std::string&
     {
         for (size_t i = 0; i < allProps_mirror.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -595,7 +591,7 @@ int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
             {
                 retVal = allProps_mirror[i].type;
                 info = allProps_mirror[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_mirror[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_mirror[i].infoTxt, "") != 0))
                     infoTxt = allProps_mirror[i].infoTxt;
                 else
                     infoTxt = allProps_mirror[i].shortInfoTxt;
@@ -621,7 +617,7 @@ int CMirror::getPropertyInfo_static(const char* ppName, int& info, std::string& 
             {
                 retVal = allProps_mirror[i].type;
                 info = allProps_mirror[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_mirror[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_mirror[i].infoTxt, "") != 0))
                     infoTxt = allProps_mirror[i].infoTxt;
                 else
                     infoTxt = allProps_mirror[i].shortInfoTxt;
@@ -631,4 +627,3 @@ int CMirror::getPropertyInfo_static(const char* ppName, int& info, std::string& 
     }
     return retVal;
 }
-

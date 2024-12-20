@@ -2,7 +2,7 @@
 #include <app.h>
 #include <string.h>
 
-bool CCbor::isText(const char *v, size_t l)
+bool CCbor::isText(const char* v, size_t l)
 {
     for (size_t i = 0; i < l; i++)
     {
@@ -14,7 +14,7 @@ bool CCbor::isText(const char *v, size_t l)
     return true;
 }
 
-CCbor::CCbor(const std::string *initBuff /*=nullptr*/, int options /*=0*/)
+CCbor::CCbor(const std::string* initBuff /*=nullptr*/, int options /*=0*/)
 {
     clear();
     _options = options;
@@ -26,7 +26,7 @@ CCbor::~CCbor()
 {
 }
 
-void CCbor::swapWithEmptyBuffer(std::vector<unsigned char> *emptyBuff)
+void CCbor::swapWithEmptyBuffer(std::vector<unsigned char>* emptyBuff)
 {
     _buff.swap(emptyBuff[0]);
     clear();
@@ -46,7 +46,7 @@ void CCbor::appendInt(long long int v)
     _appendItemTypeAndLength(add, v);
 }
 
-void CCbor::appendUCharArray(const unsigned char *v, size_t cnt)
+void CCbor::appendUCharArray(const unsigned char* v, size_t cnt)
 {
     openArray(); // _handleDataField() called in there
 
@@ -64,18 +64,18 @@ void CCbor::appendUCharArray(const unsigned char *v, size_t cnt)
     closeArrayOrMap();
 }
 
-void CCbor::appendIntArray(const int *v, size_t cnt)
+void CCbor::appendIntArray(const int* v, size_t cnt)
 {
     openArray(); // _handleDataField() called in there
 
-    unsigned char *w = (unsigned char *)v;
+    unsigned char* w = (unsigned char*)v;
     for (size_t i = 0; i < cnt; i++)
     {
         if (v[i] < 0)
         {
             int x = -v[i] - 1;
             _buff.push_back(26 + 32);
-            unsigned char *y = (unsigned char *)&x;
+            unsigned char* y = (unsigned char*)&x;
             _buff.push_back(y[3]);
             _buff.push_back(y[2]);
             _buff.push_back(y[1]);
@@ -95,18 +95,18 @@ void CCbor::appendIntArray(const int *v, size_t cnt)
     closeArrayOrMap();
 }
 
-void CCbor::appendIntArray(const long long int *v, size_t cnt)
+void CCbor::appendIntArray(const long long int* v, size_t cnt)
 {
     openArray(); // _handleDataField() called in there
 
-    unsigned char *w = (unsigned char *)v;
+    unsigned char* w = (unsigned char*)v;
     for (size_t i = 0; i < cnt; i++)
     {
         if (v[i] < 0)
         {
             long long int x = -v[i] - 1;
             _buff.push_back(27 + 32);
-            unsigned char *y = (unsigned char *)&x;
+            unsigned char* y = (unsigned char*)&x;
             _buff.push_back(y[7]);
             _buff.push_back(y[6]);
             _buff.push_back(y[5]);
@@ -138,17 +138,17 @@ void CCbor::appendFloat(float v)
 {
     _handleDataField();
     _buff.push_back(128 + 64 + 32 + 26);
-    _buff.push_back(((unsigned char *)&v)[3]);
-    _buff.push_back(((unsigned char *)&v)[2]);
-    _buff.push_back(((unsigned char *)&v)[1]);
-    _buff.push_back(((unsigned char *)&v)[0]);
+    _buff.push_back(((unsigned char*)&v)[3]);
+    _buff.push_back(((unsigned char*)&v)[2]);
+    _buff.push_back(((unsigned char*)&v)[1]);
+    _buff.push_back(((unsigned char*)&v)[0]);
 }
 
-void CCbor::appendFloatArray(const float *v, size_t cnt)
+void CCbor::appendFloatArray(const float* v, size_t cnt)
 {
     openArray(); // _handleDataField() called in there
 
-    const unsigned char *w = (const unsigned char *)v;
+    const unsigned char* w = (const unsigned char*)v;
     for (size_t i = 0; i < cnt; i++)
     {
         _buff.push_back(128 + 64 + 32 + 26);
@@ -170,18 +170,18 @@ void CCbor::appendDouble(double v)
     {
         _handleDataField();
         _buff.push_back(128 + 64 + 32 + 27);
-        _buff.push_back(((unsigned char *)&v)[7]);
-        _buff.push_back(((unsigned char *)&v)[6]);
-        _buff.push_back(((unsigned char *)&v)[5]);
-        _buff.push_back(((unsigned char *)&v)[4]);
-        _buff.push_back(((unsigned char *)&v)[3]);
-        _buff.push_back(((unsigned char *)&v)[2]);
-        _buff.push_back(((unsigned char *)&v)[1]);
-        _buff.push_back(((unsigned char *)&v)[0]);
+        _buff.push_back(((unsigned char*)&v)[7]);
+        _buff.push_back(((unsigned char*)&v)[6]);
+        _buff.push_back(((unsigned char*)&v)[5]);
+        _buff.push_back(((unsigned char*)&v)[4]);
+        _buff.push_back(((unsigned char*)&v)[3]);
+        _buff.push_back(((unsigned char*)&v)[2]);
+        _buff.push_back(((unsigned char*)&v)[1]);
+        _buff.push_back(((unsigned char*)&v)[0]);
     }
 }
 
-void CCbor::appendDoubleArray(const double *v, size_t cnt)
+void CCbor::appendDoubleArray(const double* v, size_t cnt)
 {
     openArray(); // _handleDataField() called in there
 
@@ -190,7 +190,7 @@ void CCbor::appendDoubleArray(const double *v, size_t cnt)
         for (size_t i = 0; i < cnt; i++)
         {
             float ww = float(v[i]);
-            const unsigned char *w = (const unsigned char *)&ww;
+            const unsigned char* w = (const unsigned char*)&ww;
             _buff.push_back(128 + 64 + 32 + 26);
             _buff.push_back(w[3]);
             _buff.push_back(w[2]);
@@ -200,7 +200,7 @@ void CCbor::appendDoubleArray(const double *v, size_t cnt)
     }
     else
     {
-        const unsigned char *w = (const unsigned char *)v;
+        const unsigned char* w = (const unsigned char*)v;
         for (size_t i = 0; i < cnt; i++)
         {
             _buff.push_back(128 + 64 + 32 + 27);
@@ -246,32 +246,32 @@ void CCbor::_appendItemTypeAndLength(unsigned char t, long long int l)
     else if (l <= 0xffff)
     {
         _buff.push_back(t + 25);
-        _buff.push_back(((unsigned char *)&l)[1]);
-        _buff.push_back(((unsigned char *)&l)[0]);
+        _buff.push_back(((unsigned char*)&l)[1]);
+        _buff.push_back(((unsigned char*)&l)[0]);
     }
     else if (l <= 0xffffffff)
     {
         _buff.push_back(t + 26);
-        _buff.push_back(((unsigned char *)&l)[3]);
-        _buff.push_back(((unsigned char *)&l)[2]);
-        _buff.push_back(((unsigned char *)&l)[1]);
-        _buff.push_back(((unsigned char *)&l)[0]);
+        _buff.push_back(((unsigned char*)&l)[3]);
+        _buff.push_back(((unsigned char*)&l)[2]);
+        _buff.push_back(((unsigned char*)&l)[1]);
+        _buff.push_back(((unsigned char*)&l)[0]);
     }
     else
     {
         _buff.push_back(t + 27);
-        _buff.push_back(((unsigned char *)&l)[7]);
-        _buff.push_back(((unsigned char *)&l)[6]);
-        _buff.push_back(((unsigned char *)&l)[5]);
-        _buff.push_back(((unsigned char *)&l)[4]);
-        _buff.push_back(((unsigned char *)&l)[3]);
-        _buff.push_back(((unsigned char *)&l)[2]);
-        _buff.push_back(((unsigned char *)&l)[1]);
-        _buff.push_back(((unsigned char *)&l)[0]);
+        _buff.push_back(((unsigned char*)&l)[7]);
+        _buff.push_back(((unsigned char*)&l)[6]);
+        _buff.push_back(((unsigned char*)&l)[5]);
+        _buff.push_back(((unsigned char*)&l)[4]);
+        _buff.push_back(((unsigned char*)&l)[3]);
+        _buff.push_back(((unsigned char*)&l)[2]);
+        _buff.push_back(((unsigned char*)&l)[1]);
+        _buff.push_back(((unsigned char*)&l)[0]);
     }
 }
 
-void CCbor::appendBuff(const unsigned char *v, size_t l)
+void CCbor::appendBuff(const unsigned char* v, size_t l)
 {
     _handleDataField();
     _appendItemTypeAndLength(64, l);
@@ -279,7 +279,7 @@ void CCbor::appendBuff(const unsigned char *v, size_t l)
         _buff.push_back(v[i]);
 }
 
-void CCbor::appendText(const char *v, int l /*=-1*/)
+void CCbor::appendText(const char* v, int l /*=-1*/)
 {
     _handleDataField(v);
     if (l < 0)
@@ -289,13 +289,13 @@ void CCbor::appendText(const char *v, int l /*=-1*/)
         _buff.push_back(v[i]);
 }
 
-void CCbor::appendRaw(const unsigned char *v, size_t l)
+void CCbor::appendRaw(const unsigned char* v, size_t l)
 {
     _handleDataField();
     _buff.insert(_buff.end(), v, v + l);
 }
 
-void CCbor::appendLuaString(const std::string &v, bool isBuffer, bool isText)
+void CCbor::appendLuaString(const std::string& v, bool isBuffer, bool isText)
 {
     std::string suff;
     if (v.size() >= 6)
@@ -303,11 +303,11 @@ void CCbor::appendLuaString(const std::string &v, bool isBuffer, bool isText)
     if (suff == "@:txt:")
         appendText(v.c_str(), int(v.size()) - 6);
     else if (suff == "@:dat:")
-        appendBuff((unsigned char *)v.c_str(), v.size() - 6);
+        appendBuff((unsigned char*)v.c_str(), v.size() - 6);
     else
     { // following modified on 12.03.2024 (buffer/string/text differentiation)
         if (isBuffer)
-            appendBuff((unsigned char *)v.c_str(), v.size());
+            appendBuff((unsigned char*)v.c_str(), v.size());
         else
         {
             if (isText)
@@ -317,7 +317,7 @@ void CCbor::appendLuaString(const std::string &v, bool isBuffer, bool isText)
                 if (CCbor::isText(v.c_str(), int(v.size())))
                     appendText(v.c_str(), int(v.size()));
                 else
-                    appendBuff((unsigned char *)v.c_str(), v.size());
+                    appendBuff((unsigned char*)v.c_str(), v.size());
             }
         }
         /*
@@ -345,10 +345,10 @@ void CCbor::openMap()
 
 void CCbor::closeArrayOrMap()
 {
-    if ( (_eventDepth == 2) && _inDataField)
+    if ((_eventDepth == 2) && _inDataField)
     { // we close the data field
         _inDataField = false;
-        SEventInf* inf =  &_eventInfos[_eventInfos.size() - 1];
+        SEventInf* inf = &_eventInfos[_eventInfos.size() - 1];
         // for last key-value pair:
         if (inf->fieldPositions.size() > 0)
             inf->fieldSizes.push_back(_buff.size() - inf->fieldPositions[inf->fieldPositions.size() - 1]);
@@ -376,7 +376,7 @@ std::string CCbor::getBuff() const
     return (retVal);
 }
 
-const unsigned char *CCbor::getBuff(size_t &l) const
+const unsigned char* CCbor::getBuff(size_t& l) const
 {
     l = _buff.size();
     return (_buff.data());
@@ -387,7 +387,7 @@ size_t CCbor::getEventDepth() const
     return (_eventDepth);
 }
 
-void CCbor::createEvent(const char *event, const char *fieldName, const char *objType, long long int handle, long long int uid, bool mergeable, bool openDataField /*=true*/)
+void CCbor::createEvent(const char* event, const char* fieldName, const char* objType, long long int handle, long long int uid, bool mergeable, bool openDataField /*=true*/)
 {
     if (_eventOpen)
     {
@@ -443,14 +443,14 @@ void CCbor::pushEvent()
     {
         while (_eventDepth > 1)
             closeArrayOrMap(); // make sure to close the current event's arrays/maps, except for the one holding the event
-        _eventDepth = 0; // yes, we intentionally forget to close the last array/map, but we anyways reset the depth to zero
+        _eventDepth = 0;       // yes, we intentionally forget to close the last array/map, but we anyways reset the depth to zero
         _eventOpen = false;
         _nextIsKeyInData = true;
     }
     else
         App::logMsg(sim_verbosity_errors, "pushing an event unexisting event.");
 
-    SEventInf* inf =  &_eventInfos[_eventInfos.size() - 1];
+    SEventInf* inf = &_eventInfos[_eventInfos.size() - 1];
     inf->size = _buff.size() - inf->pos;
 }
 
@@ -501,90 +501,89 @@ size_t CCbor::getEventCnt() const
     return (_eventInfos.size());
 }
 
-void CCbor::appendKeyInt(const char *key, long long int v)
+void CCbor::appendKeyInt(const char* key, long long int v)
 {
     appendText(key);
     appendInt(v);
 }
 
-void CCbor::appendKeyUCharArray(const char *key, const unsigned char *v, size_t cnt)
+void CCbor::appendKeyUCharArray(const char* key, const unsigned char* v, size_t cnt)
 {
     appendText(key);
     appendUCharArray(v, cnt);
 }
 
-void CCbor::appendKeyIntArray(const char *key, const int *v, size_t cnt)
+void CCbor::appendKeyIntArray(const char* key, const int* v, size_t cnt)
 {
     appendText(key);
     appendIntArray(v, cnt);
 }
 
-void CCbor::appendKeyIntArray(const char *key, const long long int *v, size_t cnt)
+void CCbor::appendKeyIntArray(const char* key, const long long int* v, size_t cnt)
 {
     appendText(key);
     appendIntArray(v, cnt);
 }
 
-void CCbor::appendKeyFloat(const char *key, float v)
+void CCbor::appendKeyFloat(const char* key, float v)
 {
     appendText(key);
     appendFloat(v);
 }
 
-void CCbor::appendKeyFloatArray(const char *key, const float *v, size_t cnt)
+void CCbor::appendKeyFloatArray(const char* key, const float* v, size_t cnt)
 {
     appendText(key);
     appendFloatArray(v, cnt);
 }
 
-void CCbor::appendKeyDouble(const char *key, double v)
+void CCbor::appendKeyDouble(const char* key, double v)
 {
     appendText(key);
     appendDouble(v);
 }
 
-void CCbor::appendKeyDoubleArray(const char *key, const double *v, size_t cnt)
+void CCbor::appendKeyDoubleArray(const char* key, const double* v, size_t cnt)
 {
     appendText(key);
     appendDoubleArray(v, cnt);
 }
 
-void CCbor::appendKeyNull(const char *key)
+void CCbor::appendKeyNull(const char* key)
 {
     appendText(key);
     appendNull();
 }
 
-void CCbor::appendKeyBool(const char *key, bool v)
+void CCbor::appendKeyBool(const char* key, bool v)
 {
     appendText(key);
     appendBool(v);
 }
 
-void CCbor::appendKeyBuff(const char *key, const unsigned char *v, size_t l)
+void CCbor::appendKeyBuff(const char* key, const unsigned char* v, size_t l)
 {
     appendText(key);
     appendBuff(v, l);
 }
 
-void CCbor::appendKeyText(const char *key, const char *v, int l /*=-1*/)
+void CCbor::appendKeyText(const char* key, const char* v, int l /*=-1*/)
 {
     appendText(key);
     appendText(v, l);
 }
 
-void CCbor::openKeyArray(const char *key)
+void CCbor::openKeyArray(const char* key)
 {
     appendText(key);
     openArray();
 }
 
-void CCbor::openKeyMap(const char *key)
+void CCbor::openKeyMap(const char* key)
 {
     appendText(key);
     openMap();
 }
-
 
 void CCbor::_handleDataField(const char* key /*= nullptr*/)
 {
@@ -594,7 +593,7 @@ void CCbor::_handleDataField(const char* key /*= nullptr*/)
         {
             if (_eventInfos.size() > 0)
             {
-                SEventInf* inf =  &_eventInfos[_eventInfos.size() - 1];
+                SEventInf* inf = &_eventInfos[_eventInfos.size() - 1];
                 // for previous key-value pair:
                 if (inf->fieldPositions.size() > 0)
                     inf->fieldSizes.push_back(_buff.size() - inf->fieldPositions[inf->fieldPositions.size() - 1]);

@@ -16,11 +16,11 @@ class CQDlgGraphs : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgGraphs(QWidget *parent = 0);
+    explicit CQDlgGraphs(QWidget* parent = 0);
     ~CQDlgGraphs();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
     void cancelEvent();
 
@@ -32,8 +32,8 @@ class CQDlgGraphs : public CDlgEx
     bool inListSelectionRoutine;
     bool noListSelectionAllowed;
 
-    QShortcut *delKeyShortcut;
-    QShortcut *backspaceKeyShortcut;
+    QShortcut* delKeyShortcut;
+    QShortcut* backspaceKeyShortcut;
 
   private slots:
     void onDeletePressed();
@@ -41,7 +41,7 @@ class CQDlgGraphs : public CDlgEx
 
     void on_qqRecordingList_itemSelectionChanged();
 
-    void on_qqRecordingList_itemChanged(QListWidgetItem *item);
+    void on_qqRecordingList_itemChanged(QListWidgetItem* item);
 
     void on_qqExplicitHandling_clicked();
 
@@ -82,7 +82,7 @@ class CQDlgGraphs : public CDlgEx
     void on_qqRemoveAll_clicked();
 
   private:
-    Ui::CQDlgGraphs *ui;
+    Ui::CQDlgGraphs* ui;
 };
 
 #endif // QDLGGRAPHS_H

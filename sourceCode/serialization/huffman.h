@@ -41,8 +41,8 @@ extern "C"
      * Function prototypes
      *************************************************************************/
 
-    int Huffman_Compress(unsigned char *in, unsigned char *out, unsigned int insize);
-    void Huffman_Uncompress(unsigned char *in, unsigned char *out, unsigned int insize, unsigned int outsize);
+    int Huffman_Compress(unsigned char* in, unsigned char* out, unsigned int insize);
+    void Huffman_Uncompress(unsigned char* in, unsigned char* out, unsigned int insize, unsigned int outsize);
 
 #ifdef __cplusplus
 }

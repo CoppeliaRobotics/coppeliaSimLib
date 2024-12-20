@@ -9,7 +9,8 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgEnvironment::CQDlgEnvironment(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgEnvironment)
+CQDlgEnvironment::CQDlgEnvironment(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgEnvironment)
 {
     _dlgType = ENVIRONMENT_DLG;
     ui->setupUi(this);
@@ -22,7 +23,7 @@ CQDlgEnvironment::~CQDlgEnvironment()
 
 void CQDlgEnvironment::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 

@@ -2,7 +2,7 @@
 #include <multishapeEditMode.h>
 #include <mesh.h>
 
-CMultishapeEditMode::CMultishapeEditMode(CShape *shape)
+CMultishapeEditMode::CMultishapeEditMode(CShape* shape)
 {
     _shape = shape;
     _shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, _multishapeGeometricComponents);
@@ -18,7 +18,7 @@ bool CMultishapeEditMode::processCommand(int commandID)
     return (false);
 }
 
-CShape *CMultishapeEditMode::getEditModeMultishape()
+CShape* CMultishapeEditMode::getEditModeMultishape()
 {
     return (_shape);
 }
@@ -44,18 +44,18 @@ bool CMultishapeEditMode::isCurrentMultishapeGeometricComponentValid()
             (_multishapeGeometricComponentIndex < int(_multishapeGeometricComponents.size())));
 }
 
-CMesh *CMultishapeEditMode::getCurrentMultishapeGeometricComponent()
+CMesh* CMultishapeEditMode::getCurrentMultishapeGeometricComponent()
 {
     return (_multishapeGeometricComponents[_multishapeGeometricComponentIndex]);
 }
 
-CMesh *CMultishapeEditMode::getMultishapeGeometricComponentAtIndex(int index)
+CMesh* CMultishapeEditMode::getMultishapeGeometricComponentAtIndex(int index)
 {
     return (_multishapeGeometricComponents[index]);
 }
 
-void CMultishapeEditMode::displayAllGeometricComponents(CShape *geomData, int displayAttrib,
-                                                        CColorObject *collisionColor, int dynObjFlag_forVisualization,
+void CMultishapeEditMode::displayAllGeometricComponents(CShape* geomData, int displayAttrib,
+                                                        CColorObject* collisionColor, int dynObjFlag_forVisualization,
                                                         int transparencyHandling)
 {
     for (size_t i = 0; i < _multishapeGeometricComponents.size(); i++)

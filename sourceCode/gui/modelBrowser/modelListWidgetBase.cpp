@@ -1,7 +1,8 @@
 #include <modelListWidgetBase.h>
 #include <QScrollBar>
 
-CModelListWidgetBase::CModelListWidgetBase() : QListWidget()
+CModelListWidgetBase::CModelListWidgetBase()
+    : QListWidget()
 {
 }
 

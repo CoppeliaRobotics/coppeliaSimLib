@@ -19,16 +19,16 @@ bool CToolBarCommand::processCommand(int commandID)
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 int pageIndex = App::currentWorld->pageContainer->getActivePageIndex();
-                CSPage *page = App::currentWorld->pageContainer->getPage(pageIndex);
+                CSPage* page = App::currentWorld->pageContainer->getPage(pageIndex);
                 if (page != nullptr)
                 {
                     int ind = page->getLastMouseDownViewIndex();
                     if (ind == -1)
                         ind = 0;
-                    CSView *view = page->getView(size_t(ind));
+                    CSView* view = page->getView(size_t(ind));
                     if (view != nullptr)
                     {
-                        CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
+                        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
                         if ((cam != nullptr))
                         {
                             int viewSize[2];

@@ -14,7 +14,7 @@ class CQDlgImageColor : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgImageColor(QWidget *parent = 0);
+    explicit CQDlgImageColor(QWidget* parent = 0);
     ~CQDlgImageColor();
 
     void cancelEvent();
@@ -41,7 +41,7 @@ class CQDlgImageColor : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    Ui::CQDlgImageColor *ui;
+    Ui::CQDlgImageColor* ui;
 };
 
 #endif // QDLGIMAGECOLOR_H

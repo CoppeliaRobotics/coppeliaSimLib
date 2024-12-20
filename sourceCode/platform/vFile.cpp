@@ -13,7 +13,7 @@ unsigned short VFile::SHARE_EXCLUSIVE = 2;
 unsigned short VFile::READ = 4;
 unsigned short VFile::SHARE_DENY_NONE = 8;
 
-VFile::VFile(const char *filename, unsigned short flags, bool dontThrow)
+VFile::VFile(const char* filename, unsigned short flags, bool dontThrow)
 {
     _pathAndFilename = filename;
     _theFile = new QFile(QString::fromLocal8Bit(filename));
@@ -50,7 +50,7 @@ VFile::VFile(const char *filename, unsigned short flags, bool dontThrow)
     }
 }
 
-VFile::VFile(const char *filename)
+VFile::VFile(const char* filename)
 { // opens a Qt resource file
     _theFile = new QFile(QString::fromLocal8Bit(filename));
     std::exception dummyException;
@@ -70,7 +70,7 @@ void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
     App::logMsg(sim_verbosity_errors, "file exception error: %s", e.what());
 }
 
-void VFile::eraseFile(const char *filenameAndPath)
+void VFile::eraseFile(const char* filenameAndPath)
 {
     try
     {
@@ -82,17 +82,17 @@ void VFile::eraseFile(const char *filenameAndPath)
     }
 }
 
-bool VFile::doesFileExist(const char *filenameAndPath)
+bool VFile::doesFileExist(const char* filenameAndPath)
 {
     return (_doesFileOrFolderExist(filenameAndPath, false));
 }
 
-bool VFile::doesFolderExist(const char *foldernameAndPath)
+bool VFile::doesFolderExist(const char* foldernameAndPath)
 {
     return (_doesFileOrFolderExist(foldernameAndPath, true));
 }
 
-bool VFile::_doesFileOrFolderExist(const char *filenameOrFoldernameAndPath, bool checkForFolder)
+bool VFile::_doesFileOrFolderExist(const char* filenameOrFoldernameAndPath, bool checkForFolder)
 {
     QString dat(QString::fromLocal8Bit(filenameOrFoldernameAndPath));
     if (checkForFolder)
@@ -107,7 +107,7 @@ bool VFile::_doesFileOrFolderExist(const char *filenameOrFoldernameAndPath, bool
     }
 }
 
-bool VFile::createFolder(const char *pathAndName)
+bool VFile::createFolder(const char* pathAndName)
 {
     QDir qdir("");
     return (qdir.mkdir(QString::fromLocal8Bit(pathAndName)));
@@ -124,7 +124,7 @@ void VFile::close()
         _theFile->close();
 }
 
-WFile *VFile::getFile()
+WFile* VFile::getFile()
 {
     return (_theFile);
 }
@@ -139,13 +139,13 @@ bool VFile::flush()
     return (_theFile->flush());
 }
 
-int VFile::eraseFilesWithPrefix(const char *pathWithoutTerminalSlash, const char *prefix)
+int VFile::eraseFilesWithPrefix(const char* pathWithoutTerminalSlash, const char* prefix)
 {
     int cnt = 0;
     VFileFinder finder;
     finder.searchFilesOrFolders(pathWithoutTerminalSlash);
     int index = 0;
-    SFileOrFolder *foundItem = finder.getFoundItem(index++);
+    SFileOrFolder* foundItem = finder.getFoundItem(index++);
     while (foundItem != nullptr)
     {
         if (foundItem->isFile)

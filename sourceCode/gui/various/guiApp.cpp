@@ -21,19 +21,19 @@
 #endif
 #endif
 
-CSimQApp *GuiApp::qtApp = nullptr;
+CSimQApp* GuiApp::qtApp = nullptr;
 int GuiApp::_qApp_argc = 1;
 char GuiApp::_qApp_arg0[] = {"CoppeliaSim"};
-char *GuiApp::_qApp_argv[1] = {_qApp_arg0};
-CUiThread *GuiApp::uiThread = nullptr;
+char* GuiApp::_qApp_argv[1] = {_qApp_arg0};
+CUiThread* GuiApp::uiThread = nullptr;
 int GuiApp::operationalUIParts = 0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_toolbar1,sim_gui_toolbar2, etc.
 bool GuiApp::_browserEnabled = true;
 bool GuiApp::_online = false;
 bool GuiApp::_showInertias = false;
-luaWrap_lua_State *GuiApp::L = nullptr;
+luaWrap_lua_State* GuiApp::L = nullptr;
 int GuiApp::sc = 1;
 #ifdef SIM_WITH_GUI
-CMainWindow *GuiApp::mainWindow = nullptr;
+CMainWindow* GuiApp::mainWindow = nullptr;
 #endif
 
 GuiApp::GuiApp()
@@ -56,7 +56,7 @@ GuiApp::~GuiApp()
     luaWrap_lua_close(L);
 }
 
-long long int GuiApp::getEvalInt(const char *str, bool *ok /*= nullptr*/)
+long long int GuiApp::getEvalInt(const char* str, bool* ok /*= nullptr*/)
 {
     long long int retVal = 0.0;
     int top = luaWrap_lua_gettop(L);
@@ -81,13 +81,13 @@ long long int GuiApp::getEvalInt(const char *str, bool *ok /*= nullptr*/)
     return retVal;
 }
 
-double GuiApp::getEvalDouble(const char *str, bool *ok /*= nullptr*/)
+double GuiApp::getEvalDouble(const char* str, bool* ok /*= nullptr*/)
 {
     double retVal = 0.0;
     int top = luaWrap_lua_gettop(L);
     std::string s(str);
     utils::removeSpacesAtBeginningAndEnd(s);
-    if ( (s.size() >= 1) && (s[0] == '+') )
+    if ((s.size() >= 1) && (s[0] == '+'))
         s.erase(s.begin());
     if (s.find("=") == std::string::npos)
     {
@@ -134,7 +134,7 @@ void GuiApp::runGui(int options)
 #endif
 
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL, true);
-    QApplication *tempApp = new QApplication(_qApp_argc, _qApp_argv);
+    QApplication* tempApp = new QApplication(_qApp_argc, _qApp_argv);
     uiThread = new CUiThread();
     VThread::setUiThread();
     App::setAppStage(App::appstage_guiInit1Done);
@@ -163,17 +163,17 @@ void GuiApp::runGui(int options)
     int highResDisplayDefault = App::userSettings->highResDisplay;
     if (highResDisplayDefault == -1)
     {
-        QScreen *scr = tempApp->primaryScreen();
+        QScreen* scr = tempApp->primaryScreen();
         if (scr != nullptr)
         {
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal,
                         "primary screen physical dots per inch: %s",
                         std::to_string(int(scr->physicalDotsPerInch() + 0.5)).c_str());
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-            QDesktopWidget *dw = tempApp->desktop();
+            QDesktopWidget* dw = tempApp->desktop();
             if (dw != nullptr)
 #else
-            const QScreen *primaryScreen = tempApp->primaryScreen();
+            const QScreen* primaryScreen = tempApp->primaryScreen();
             if (primaryScreen != nullptr)
 #endif
             {
@@ -220,7 +220,7 @@ void GuiApp::runGui(int options)
 
     qtApp = new CSimQApp(_qApp_argc, _qApp_argv);
 
-    QHostInfo::lookupHost("www.coppeliarobotics.com", [=](const QHostInfo &info) {
+    QHostInfo::lookupHost("www.coppeliarobotics.com", [=](const QHostInfo& info) {
         if (info.error() == QHostInfo::NoError)
             _online = true;
     });
@@ -382,8 +382,8 @@ void GuiApp::setBrowserEnabled(bool e)
         _browserEnabled = e;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propApp_browserEnabled.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            const char* cmd = propApp_browserEnabled.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _browserEnabled);
             App::worldContainer->pushEvent();
         }
@@ -400,7 +400,7 @@ bool GuiApp::getBrowserEnabled()
     return (_browserEnabled);
 }
 
-bool GuiApp::executeUiThreadCommand(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+bool GuiApp::executeUiThreadCommand(SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     return (uiThread->executeCommandViaUiThread(cmdIn, cmdOut));
 }
@@ -672,7 +672,7 @@ void GuiApp::setShowInertias(bool show)
     _showInertias = show;
 }
 
-void GuiApp::logMsgToStatusbar(const char *msg, bool html)
+void GuiApp::logMsgToStatusbar(const char* msg, bool html)
 {
     if (!VThread::isUiThread())
     { // we are NOT in the UI thread. We execute the command in a delayed manner:
@@ -735,10 +735,10 @@ void GuiApp::clearStatusbar()
     }
 }
 
-float *GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int colComponent, std::string *auxDlgTitle)
+float* GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int colComponent, std::string* auxDlgTitle)
 { // auxDlgTitle can be nullptr
     std::string __auxDlgTitle;
-    std::string *_auxDlgTitle = &__auxDlgTitle;
+    std::string* _auxDlgTitle = &__auxDlgTitle;
     if (auxDlgTitle != nullptr)
         _auxDlgTitle = auxDlgTitle;
 
@@ -765,31 +765,31 @@ float *GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
     if (objType == COLOR_ID_MIRROR)
     {
         _auxDlgTitle->assign("Mirror");
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(objID1);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(objID1);
         if ((it != nullptr) && it->getIsMirror())
             return (it->mirrorColor);
     }
     if (objType == COLOR_ID_OCTREE)
     {
         _auxDlgTitle->assign("OC tree");
-        COcTree *it = App::currentWorld->sceneObjects->getOctreeFromHandle(objID1);
+        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor()->getColorsPtr());
     }
     if (objType == COLOR_ID_POINTCLOUD)
     {
         _auxDlgTitle->assign("Point cloud");
-        CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromHandle(objID1);
+        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor()->getColorsPtr());
     }
     if (objType == COLOR_ID_GRAPH_2DCURVE)
     {
         _auxDlgTitle->assign("Graph - 2D curve");
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it != nullptr)
         {
-            CGraphDataComb_old *grDataComb = it->getGraphData2D(objID2);
+            CGraphDataComb_old* grDataComb = it->getGraphData2D(objID2);
             if (grDataComb != nullptr)
                 return (grDataComb->curveColor.getColorsPtr());
         }
@@ -797,24 +797,24 @@ float *GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
     if (objType == COLOR_ID_GRAPH_BACKGROUND)
     {
         _auxDlgTitle->assign("Graph - background");
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it != nullptr)
             return (it->backgroundColor);
     }
     if (objType == COLOR_ID_GRAPH_GRID)
     {
         _auxDlgTitle->assign("Graph - grid");
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it != nullptr)
             return (it->foregroundColor);
     }
     if (objType == COLOR_ID_GRAPH_TIMECURVE)
     {
         _auxDlgTitle->assign("Graph - data stream");
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it != nullptr)
         {
-            CGraphData_old *grData = it->getGraphData(objID2);
+            CGraphData_old* grData = it->getGraphData(objID2);
             if (grData != nullptr)
                 return (grData->ambientColor);
         }
@@ -828,10 +828,10 @@ float *GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
             _auxDlgTitle->assign("Button - down");
         if (objType == COLOR_ID_OPENGLBUTTON_TEXT)
             _auxDlgTitle->assign("Button - text");
-        CButtonBlock *block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
+        CButtonBlock* block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
         if (block != nullptr)
         {
-            CSoftButton *itButton = block->getButtonWithID(objID2);
+            CSoftButton* itButton = block->getButtonWithID(objID2);
             if (itButton != nullptr)
             {
                 if (objType == COLOR_ID_OPENGLBUTTON_UP)
@@ -845,7 +845,7 @@ float *GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
     }
 
     int allowedParts = 0;
-    CColorObject *vp = getVisualParamPointerFromItem(objType, objID1, objID2, _auxDlgTitle, &allowedParts);
+    CColorObject* vp = getVisualParamPointerFromItem(objType, objID1, objID2, _auxDlgTitle, &allowedParts);
     if (vp != nullptr)
     {
         if ((colComponent == sim_colorcomponent_ambient_diffuse) && (allowedParts & 1))
@@ -863,14 +863,14 @@ float *GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
     return (nullptr);
 }
 
-CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int objID2, std::string *auxDlgTitle,
-                                                    int *allowedParts)
-{ // auxDlgTitle and allowedParts can be nullptr. Bit-coded: 1=ambient/diffuse, 2=diffuse(light only), 4=spec, 8=emiss.,
-  // 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+CColorObject* GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int objID2, std::string* auxDlgTitle,
+                                                    int* allowedParts)
+{   // auxDlgTitle and allowedParts can be nullptr. Bit-coded: 1=ambient/diffuse, 2=diffuse(light only), 4=spec, 8=emiss.,
+    // 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
     std::string __auxDlgTitle;
     int __allowedParts;
-    std::string *_auxDlgTitle = &__auxDlgTitle;
-    int *_allowedParts = &__allowedParts;
+    std::string* _auxDlgTitle = &__auxDlgTitle;
+    int* _allowedParts = &__allowedParts;
     if (auxDlgTitle != nullptr)
         _auxDlgTitle = auxDlgTitle;
     if (allowedParts != nullptr)
@@ -880,7 +880,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Camera");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CCamera *it = App::currentWorld->sceneObjects->getCameraFromHandle(objID1);
+        CCamera* it = App::currentWorld->sceneObjects->getCameraFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor(false));
     }
@@ -888,7 +888,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Force sensor");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(objID1);
+        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor(false));
     }
@@ -896,15 +896,15 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Joint");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(objID1);
+        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objID1);
         if (it != nullptr)
-            return ((CColorObject *)it->getColor(false));
+            return ((CColorObject*)it->getColor(false));
     }
     if (objType == COLOR_ID_PATH)
     {
         _auxDlgTitle->assign("Path");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(objID1);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(objID1);
         if ((it != nullptr) && (it->pathContainer != nullptr))
             return (&it->pathContainer->_lineColor);
     }
@@ -912,7 +912,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Path shaping");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CPath_old *it = App::currentWorld->sceneObjects->getPathFromHandle(objID1);
+        CPath_old* it = App::currentWorld->sceneObjects->getPathFromHandle(objID1);
         if (it != nullptr)
             return (it->getShapingColor());
     }
@@ -920,10 +920,10 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Graph - 3D curve");
         _allowedParts[0] = 1 + 8;
-        CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it != nullptr)
         {
-            CGraphDataComb_old *grDataComb = it->getGraphData3D(objID2);
+            CGraphDataComb_old* grDataComb = it->getGraphData3D(objID2);
             if (grDataComb != nullptr)
                 return (&grDataComb->curveColor);
         }
@@ -932,7 +932,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Collision contour");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(objID1);
+        CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(objID1);
         if (it != nullptr)
             return (it->getContourColor());
     }
@@ -940,7 +940,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Distance segment");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(objID1);
+        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(objID1);
         if (it != nullptr)
             return (it->getSegmentColor());
     }
@@ -948,7 +948,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Clipping plane");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64 + 128;
-        CMirror *it = App::currentWorld->sceneObjects->getMirrorFromHandle(objID1);
+        CMirror* it = App::currentWorld->sceneObjects->getMirrorFromHandle(objID1);
         if ((it != nullptr) && (!it->getIsMirror()))
             return (it->getClipPlaneColor());
     }
@@ -956,7 +956,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Light - casing");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 64;
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(objID1);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor(false));
     }
@@ -964,7 +964,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Light");
         _allowedParts[0] = 2 + 4;
-        CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(objID1);
+        CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor(true));
     }
@@ -972,23 +972,23 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Dummy");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CDummy *it = App::currentWorld->sceneObjects->getDummyFromHandle(objID1);
+        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(objID1);
         if (it != nullptr)
-            return ((CColorObject *)it->getDummyColor());
+            return ((CColorObject*)it->getDummyColor());
     }
     if (objType == COLOR_ID_SCRIPT)
     {
         _auxDlgTitle->assign("Script");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CScript *it = App::currentWorld->sceneObjects->getScriptFromHandle(objID1);
+        CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(objID1);
         if (it != nullptr)
-            return ((CColorObject *)it->getScriptColor());
+            return ((CColorObject*)it->getScriptColor());
     }
     if (objType == COLOR_ID_VISIONSENSOR)
     {
         _auxDlgTitle->assign("Vision sensor");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32;
-        CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(objID1);
+        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor());
     }
@@ -996,7 +996,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Proximity sensor");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32;
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor(0));
     }
@@ -1004,7 +1004,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Proximity sensor - ray");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32;
-        CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
+        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor(1));
     }
@@ -1012,7 +1012,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Mill - passive");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32;
-        CMill *it = App::currentWorld->sceneObjects->getMillFromHandle(objID1);
+        CMill* it = App::currentWorld->sceneObjects->getMillFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor(false));
     }
@@ -1020,7 +1020,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Mill - active");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32;
-        CMill *it = App::currentWorld->sceneObjects->getMillFromHandle(objID1);
+        CMill* it = App::currentWorld->sceneObjects->getMillFromHandle(objID1);
         if (it != nullptr)
             return (it->getColor(true));
     }
@@ -1028,7 +1028,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Shape");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512;
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
         if ((it != nullptr) && (!it->isCompound()))
             return (&it->getSingleMesh()->color);
     }
@@ -1040,10 +1040,10 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
         {
             _auxDlgTitle->assign("Shape component");
             _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512;
-            CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
+            CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
             if ((it != nullptr) && it->isCompound())
             {
-                std::vector<CMesh *> allGeometrics;
+                std::vector<CMesh*> allGeometrics;
                 it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, allGeometrics);
                 if ((objID2 >= 0) && (objID2 < int(allGeometrics.size())))
                     return (&allGeometrics[objID2]->color);
@@ -1056,18 +1056,18 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     return (nullptr);
 }
 
-CTextureProperty *GuiApp::getTexturePropertyPointerFromItem(int objType, int objID1, int objID2,
-                                                            std::string *auxDlgTitle, bool *is3D, bool *valid,
-                                                            CMesh **geom)
+CTextureProperty* GuiApp::getTexturePropertyPointerFromItem(int objType, int objID1, int objID2,
+                                                            std::string* auxDlgTitle, bool* is3D, bool* valid,
+                                                            CMesh** geom)
 { // auxDlgTitle, is3D, isValid and geom can be nullptr.
     std::string __auxDlgTitle;
     bool __is3D = false;
     bool __isValid = false;
-    CMesh *__geom = nullptr;
-    std::string *_auxDlgTitle = &__auxDlgTitle;
-    bool *_is3D = &__is3D;
-    bool *_isValid = &__isValid;
-    CMesh **_geom = &__geom;
+    CMesh* __geom = nullptr;
+    std::string* _auxDlgTitle = &__auxDlgTitle;
+    bool* _is3D = &__is3D;
+    bool* _isValid = &__isValid;
+    CMesh** _geom = &__geom;
     if (auxDlgTitle != nullptr)
         _auxDlgTitle = auxDlgTitle;
     if (is3D != nullptr)
@@ -1082,7 +1082,7 @@ CTextureProperty *GuiApp::getTexturePropertyPointerFromItem(int objType, int obj
     {
         _auxDlgTitle->assign("Shape");
         _is3D[0] = true;
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
         if ((it != nullptr) && (!it->isCompound()))
         {
             _isValid[0] = true;
@@ -1094,10 +1094,10 @@ CTextureProperty *GuiApp::getTexturePropertyPointerFromItem(int objType, int obj
     {
         _auxDlgTitle->assign("Shape component");
         _is3D[0] = true;
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
         if (it != nullptr)
         {
-            std::vector<CMesh *> allGeometrics;
+            std::vector<CMesh*> allGeometrics;
             it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, allGeometrics);
             if ((objID2 >= 0) && (objID2 < int(allGeometrics.size())))
             {
@@ -1111,7 +1111,7 @@ CTextureProperty *GuiApp::getTexturePropertyPointerFromItem(int objType, int obj
     {
         _auxDlgTitle->assign("OpenGl custom UI background");
         _is3D[0] = false;
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
+        CButtonBlock* it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
         if (it != nullptr)
         {
             _isValid[0] = true;
@@ -1122,10 +1122,10 @@ CTextureProperty *GuiApp::getTexturePropertyPointerFromItem(int objType, int obj
     {
         _auxDlgTitle->assign("OpenGl custom UI button");
         _is3D[0] = false;
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
+        CButtonBlock* it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
         if (it != nullptr)
         {
-            CSoftButton *butt = it->getButtonWithID(objID2);
+            CSoftButton* butt = it->getButtonWithID(objID2);
             if (butt != nullptr)
             {
                 _isValid[0] = true;

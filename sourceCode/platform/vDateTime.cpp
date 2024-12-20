@@ -68,7 +68,7 @@ unsigned long long int VDateTime::getUnixTimeInMs()
     return currentDateTime.toMSecsSinceEpoch();
 }
 
-void VDateTime::getYearMonthDayHourMinuteSecond(int *year, int *month, int *day, int *hour, int *minute, int *second)
+void VDateTime::getYearMonthDayHourMinuteSecond(int* year, int* month, int* day, int* hour, int* minute, int* second)
 {
     QDate now = QDate::currentDate();
     QTime nowTime = QTime::currentTime();
@@ -94,7 +94,7 @@ int VDateTime::getDaysTo(int year_before, int month_before, int day_before, int 
 }
 
 #ifdef WIN_SIM
-long long int VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool &success)
+long long int VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool& success)
 {
     static bool works = true;
     static bool first = true;

@@ -13,13 +13,13 @@ int CSimFlavor::ver()
     return (-1);
 }
 
-void CSimFlavor::getAboutStr(std::string &title, std::string &txt)
+void CSimFlavor::getAboutStr(std::string& title, std::string& txt)
 {
     title = IDS_ABOUT_SIM;
     txt = "Custom CoppeliaSim";
 }
 
-int CSimFlavor::handleReadOpenFile(int f, char *b)
+int CSimFlavor::handleReadOpenFile(int f, char* b)
 {
     if ((f <= CSer::filetype_csim_bin_thumbnails_file) || (f == CSer::filetype_csim_bin_scene_buff) ||
         (f == CSer::filetype_csim_bin_model_buff) || (f == CSer::filetype_csim_bin_ui_file))
@@ -49,7 +49,7 @@ int CSimFlavor::getIntVal_2int(int w, int v1, int v2)
     return (-1);
 }
 
-int CSimFlavor::getIntVal_str(int w, const char *n)
+int CSimFlavor::getIntVal_str(int w, const char* n)
 {
     if (w == 0)
     {
@@ -119,7 +119,7 @@ bool CSimFlavor::getBoolVal(int w)
     return (false);
 }
 
-bool CSimFlavor::getBoolVal_str(int w, const char *str)
+bool CSimFlavor::getBoolVal_str(int w, const char* str)
 {
     if (w == 0)
         return (boost::algorithm::ends_with(str, std::string(".") + SIM_MODEL_EXTENSION));

@@ -26,9 +26,9 @@ class CAddOnScriptContainer
     void simulationAboutToEnd();
     void loadAllAddOns();
     void removeAllAddOns();
-    CScriptObject *getAddOnFromHandle(int scriptHandle) const;
-    CScriptObject *getAddOnFromUid(int uid) const;
-    CScriptObject *getAddOnFromName(const char *name) const;
+    CScriptObject* getAddOnFromHandle(int scriptHandle) const;
+    CScriptObject* getAddOnFromUid(int uid) const;
+    CScriptObject* getAddOnFromName(const char* name) const;
 
     int getSysFuncAndHookCnt(int sysCall) const;
     void setSysFuncAndHookCnt(int sysCall, int cnt);
@@ -37,22 +37,22 @@ class CAddOnScriptContainer
 
     bool shouldTemporarilySuspendMainScript();
     void getActiveScripts(std::vector<CScriptObject*>& scripts) const;
-    int callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, int scriptToExclude = -1);
+    int callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, int scriptToExclude = -1);
 
 #ifdef SIM_WITH_GUI
     bool processCommand(int commandID);
 #endif
   private:
     bool _removeAddOn(int scriptID);
-    int _insertAddOn(CScriptObject *script);
-    void _insertAddOns(const char *addOnExt);
+    int _insertAddOn(CScriptObject* script);
+    void _insertAddOns(const char* addOnExt);
     void _insertAdditionalAddOns(); // -a, -b options
 
     int _sysFuncAndHookCnt_event;
     int _sysFuncAndHookCnt_dyn;
     int _sysFuncAndHookCnt_contact;
     int _sysFuncAndHookCnt_joint;
-    std::vector<CScriptObject *> _addOns;
+    std::vector<CScriptObject*> _addOns;
 
     // OLD:
     int _prepareAddOnFunctionNames_old();

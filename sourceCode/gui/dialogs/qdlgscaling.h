@@ -14,7 +14,7 @@ class CQDlgScaling : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgScaling(QWidget *parent = 0);
+    explicit CQDlgScaling(QWidget* parent = 0);
     ~CQDlgScaling();
 
     void cancelEvent();
@@ -37,7 +37,7 @@ class CQDlgScaling : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    Ui::CQDlgScaling *ui;
+    Ui::CQDlgScaling* ui;
 };
 
 #endif // QDLGSCALING_H

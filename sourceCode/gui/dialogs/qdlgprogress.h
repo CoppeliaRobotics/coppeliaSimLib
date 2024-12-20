@@ -14,13 +14,13 @@ class CQDlgProgress : public QDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgProgress(QWidget *parent = 0);
+    explicit CQDlgProgress(QWidget* parent = 0);
     ~CQDlgProgress();
 
-    void updateProgress(double p, const char *txt);
+    void updateProgress(double p, const char* txt);
 
   private:
-    Ui::CQDlgProgress *ui;
+    Ui::CQDlgProgress* ui;
 };
 
 #endif // QDLGPROGRESS_H

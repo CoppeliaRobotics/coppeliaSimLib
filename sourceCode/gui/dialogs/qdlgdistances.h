@@ -15,11 +15,11 @@ class CQDlgDistances : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgDistances(QWidget *parent = 0);
+    explicit CQDlgDistances(QWidget* parent = 0);
     ~CQDlgDistances();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
     void cancelEvent();
 
@@ -34,7 +34,7 @@ class CQDlgDistances : public CDlgEx
 
     void on_qqDistanceList_itemSelectionChanged();
 
-    void on_qqDistanceList_itemChanged(QListWidgetItem *item);
+    void on_qqDistanceList_itemChanged(QListWidgetItem* item);
 
     void on_qqEnableAll_clicked();
 
@@ -51,7 +51,7 @@ class CQDlgDistances : public CDlgEx
     void on_qqAdjustSegmentColor_clicked();
 
   private:
-    Ui::CQDlgDistances *ui;
+    Ui::CQDlgDistances* ui;
 };
 
 #endif // QDLGDISTANCES_H

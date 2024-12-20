@@ -14,7 +14,7 @@ class CQDlgTextureSelection : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgTextureSelection(QWidget *parent = 0);
+    explicit CQDlgTextureSelection(QWidget* parent = 0);
     ~CQDlgTextureSelection();
 
     void cancelEvent();
@@ -30,7 +30,7 @@ class CQDlgTextureSelection : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    Ui::CQDlgTextureSelection *ui;
+    Ui::CQDlgTextureSelection* ui;
 };
 
 #endif // QDLGTEXTURESELECTION_H

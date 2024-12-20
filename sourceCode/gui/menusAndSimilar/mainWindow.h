@@ -40,16 +40,16 @@ class CMainWindow : public QMainWindow
     CMainWindow(int operationalUiParts);
     virtual ~CMainWindow();
 
-    void executeCommand(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void executeCommand(SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
     void initializeWindow();
 
     void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid);
 
-    bool event(QEvent *event);
-    void dragEnterEvent(QDragEnterEvent *dEvent);
-    void dragLeaveEvent(QDragLeaveEvent *dEvent);
-    void dropEvent(QDropEvent *dEvent);
-    QMenu *createPopupMenu()
+    bool event(QEvent* event);
+    void dragEnterEvent(QDragEnterEvent* dEvent);
+    void dragLeaveEvent(QDragLeaveEvent* dEvent);
+    void dropEvent(QDropEvent* dEvent);
+    QMenu* createPopupMenu()
     {
         return nullptr;
     } // required to avoid having a popup when over the toolbar (and other situations). 4/12/2011
@@ -117,21 +117,21 @@ class CMainWindow : public QMainWindow
     //------------------------
     void renderScene();
     void refreshDialogs_uiThread();
-    void callDialogFunction(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void callDialogFunction(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
     //------------------------
 
-    QSignalMapper *getPopupSignalMapper();
-    COpenglWidget *openglWidget;
-    CStatusBar *statusBar;
-    CModelFolderWidget *modelFolderWidget;
-    CModelListWidget *modelListWidget;
-    QTabBar *tabBar;
+    QSignalMapper* getPopupSignalMapper();
+    COpenglWidget* openglWidget;
+    CStatusBar* statusBar;
+    CModelFolderWidget* modelFolderWidget;
+    CModelListWidget* modelListWidget;
+    QTabBar* tabBar;
 
-    CDlgCont *dlgCont;
-    CSimRecorder *simulationRecorder;
-    COglSurface *oglSurface;
-    CEditModeContainer *editModeContainer;
-    CCodeEditorContainer *codeEditorContainer;
+    CDlgCont* dlgCont;
+    CSimRecorder* simulationRecorder;
+    COglSurface* oglSurface;
+    CEditModeContainer* editModeContainer;
+    CCodeEditorContainer* codeEditorContainer;
 
     void onLeftMouseButtonDownTT(int xPos, int yPos);
     void onMiddleMouseButtonDownTT(int xPos, int yPos);
@@ -142,7 +142,7 @@ class CMainWindow : public QMainWindow
     void onRightMouseButtonUpTT(int xPos, int yPos);
     void onMouseMoveTT(int xPos, int yPos);
     void onWheelRotateTT(int delta, int xPos, int yPos);
-    int modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPosition);
+    int modelDragMoveEvent(int xPos, int yPos, C3Vector* desiredModelPosition);
 
     void onKeyPress(SMouseOrKeyboardOrResizeEvent e);
     void onKeyRelease(SMouseOrKeyboardOrResizeEvent e);
@@ -157,7 +157,7 @@ class CMainWindow : public QMainWindow
     void instanceAboutToBeDestroyed(int currentInstanceIndex);
     void instanceAboutToChange(int newInstanceIndex);
     void instanceHasChanged(int newInstanceIndex);
-    void newSceneNameWasSet(const char *name);
+    void newSceneNameWasSet(const char* name);
 
     void closeTemporarilyNonEditModeDialogs();
     void reopenTemporarilyClosedNonEditModeDialogs();
@@ -166,11 +166,11 @@ class CMainWindow : public QMainWindow
     void closeTemporarilyDialogsForPageSelector();
     void reopenTemporarilyClosedDialogsForPageSelector();
 
-    void setMouseRay(const C3Vector *orig, const C3Vector *dir);
-    bool getMouseRay(C3Vector &orig, C3Vector &dir);
+    void setMouseRay(const C3Vector* orig, const C3Vector* dir);
+    bool getMouseRay(C3Vector& orig, C3Vector& dir);
     void mouseClickAction(bool down);
     int getMouseClickActionCounter(bool down);
-    void getClientArea(int &x, int &y) const;
+    void getClientArea(int& x, int& y) const;
     void updateOpenGl();
 
   private:
@@ -178,62 +178,62 @@ class CMainWindow : public QMainWindow
     void _createDefaultToolBars();
     void _recomputeClientSizeAndPos();
     void _setClientArea(int x, int y);
-    void _closeDialogTemporarilyIfOpened(int dlgID, std::vector<int> &vect);
+    void _closeDialogTemporarilyIfOpened(int dlgID, std::vector<int>& vect);
 
-    QSignalMapper *_signalMapper;
-    QSignalMapper *_popupSignalMapper;
-    QSplitter *_statusbarSplitter;
-    QSplitter *_modelBrowserSplitter;
-    QSplitter *_sceneHierarchySplitter;
-    QSplitter *_modelBrowser;
+    QSignalMapper* _signalMapper;
+    QSignalMapper* _popupSignalMapper;
+    QSplitter* _statusbarSplitter;
+    QSplitter* _modelBrowserSplitter;
+    QSplitter* _sceneHierarchySplitter;
+    QSplitter* _modelBrowser;
 
-    VMenubar *_menubar;
-    VMenu *_fileSystemMenu;
-    VMenu *_editSystemMenu;
-    VMenu *_addSystemMenu;
-    VMenu *_simulationSystemMenu;
-    VMenu *_toolsSystemMenu;
-    VMenu *_helpSystemMenu;
-    VMenu *_instancesSystemMenu;
+    VMenubar* _menubar;
+    VMenu* _fileSystemMenu;
+    VMenu* _editSystemMenu;
+    VMenu* _addSystemMenu;
+    VMenu* _simulationSystemMenu;
+    VMenu* _toolsSystemMenu;
+    VMenu* _helpSystemMenu;
+    VMenu* _instancesSystemMenu;
 
-    QToolBar *_toolbar1;
-    QToolBar *_toolbar2;
-    QLabel *_toolbarLabel;
-    QAction *_toolbarActionCameraShift;
-    QAction *_toolbarActionCameraRotate;
-    QAction *_toolbarActionCameraZoom;
-    QAction *_toolbarActionCameraAngle;
-    QAction *_toolbarActionCameraSizeToScreen;
-    QAction *_toolbarActionObjectShift;
-    QAction *_toolbarActionObjectRotate;
+    QToolBar* _toolbar1;
+    QToolBar* _toolbar2;
+    QLabel* _toolbarLabel;
+    QAction* _toolbarActionCameraShift;
+    QAction* _toolbarActionCameraRotate;
+    QAction* _toolbarActionCameraZoom;
+    QAction* _toolbarActionCameraAngle;
+    QAction* _toolbarActionCameraSizeToScreen;
+    QAction* _toolbarActionObjectShift;
+    QAction* _toolbarActionObjectRotate;
 
-    QAction *_toolbarActionClickSelection;
-    QAction *_toolbarActionAssemble;
-    QAction *_toolbarActionTransferDna;
-    QAction *_toolbarActionUndo;
-    QAction *_toolbarActionRedo;
-    QAction *_toolbarActionDynamicContentVisualization;
-    QComboBox *_engineSelectCombo;
-    QAction *_toolbarActionStart;
-    QAction *_toolbarActionPause;
-    QAction *_toolbarActionStop;
-    QAction *_toolbarActionRealTime;
-    QAction *_toolbarActionReduceSpeed;
-    QAction *_toolbarActionIncreaseSpeed;
-    QAction *_toolbarActionToggleVisualization;
-    QAction *_toolbarActionPageSelector;
-    QAction *_toolbarActionSimulationSettings;
-    QAction *_toolbarActionObjectProperties;
-    QAction *_toolbarActionCalculationModules_OLD;
-    QAction *_toolbarActionCollections;
-    QAction *_toolbarActionScripts;
-    QAction *_toolbarActionShapeEdition;
-    QAction *_toolbarActionPathEdition;
-    QAction *_toolbarActionModelBrowser;
-    QAction *_toolbarActionSceneHierarchy;
-    QAction *_toolbarActionLayers;
-    QAction *_toolbarActionAviRecorder;
-    QAction *_toolbarActionUserSettings;
+    QAction* _toolbarActionClickSelection;
+    QAction* _toolbarActionAssemble;
+    QAction* _toolbarActionTransferDna;
+    QAction* _toolbarActionUndo;
+    QAction* _toolbarActionRedo;
+    QAction* _toolbarActionDynamicContentVisualization;
+    QComboBox* _engineSelectCombo;
+    QAction* _toolbarActionStart;
+    QAction* _toolbarActionPause;
+    QAction* _toolbarActionStop;
+    QAction* _toolbarActionRealTime;
+    QAction* _toolbarActionReduceSpeed;
+    QAction* _toolbarActionIncreaseSpeed;
+    QAction* _toolbarActionToggleVisualization;
+    QAction* _toolbarActionPageSelector;
+    QAction* _toolbarActionSimulationSettings;
+    QAction* _toolbarActionObjectProperties;
+    QAction* _toolbarActionCalculationModules_OLD;
+    QAction* _toolbarActionCollections;
+    QAction* _toolbarActionScripts;
+    QAction* _toolbarActionShapeEdition;
+    QAction* _toolbarActionPathEdition;
+    QAction* _toolbarActionModelBrowser;
+    QAction* _toolbarActionSceneHierarchy;
+    QAction* _toolbarActionLayers;
+    QAction* _toolbarActionAviRecorder;
+    QAction* _toolbarActionUserSettings;
 
     std::vector<int> _dialogsClosedTemporarily_editModes;
     std::vector<int> _dialogsClosedTemporarily_viewSelector;

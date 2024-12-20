@@ -20,15 +20,15 @@ class VMutex
     VMutex();
     virtual ~VMutex();
 
-    void setName(const char *name);
+    void setName(const char* name);
 
     // When using recursive mutexes:
-    void lock(const char *location = nullptr);
+    void lock(const char* location = nullptr);
     bool tryLock();
     void unlock();
 
     // When using non-recursive mutexes:
-    void lock_simple(const char *location);
+    void lock_simple(const char* location);
     bool tryLock_simple();
     void unlock_simple();
 
@@ -37,7 +37,7 @@ class VMutex
     void wakeAll_simple();
 
   private:
-    void _msg(const char *location, const char *info) const;
+    void _msg(const char* location, const char* info) const;
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     WMutex _recursiveMutex;

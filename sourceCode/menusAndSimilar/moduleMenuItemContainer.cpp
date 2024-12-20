@@ -18,9 +18,9 @@ CModuleMenuItemContainer::~CModuleMenuItemContainer()
         delete _allItems[i];
 }
 
-CModuleMenuItem *CModuleMenuItemContainer::getItemFromHandle(int h) const
+CModuleMenuItem* CModuleMenuItemContainer::getItemFromHandle(int h) const
 {
-    CModuleMenuItem *retVal = nullptr;
+    CModuleMenuItem* retVal = nullptr;
     for (size_t i = 0; i < _allItems.size(); i++)
     {
         if (_allItems[i]->getHandle() == h)
@@ -59,12 +59,12 @@ void CModuleMenuItemContainer::announceScriptStateWillBeErased(int scriptHandle)
     }
 }
 
-int CModuleMenuItemContainer::addMenuItem(const char *item, int scriptHandle)
+int CModuleMenuItemContainer::addMenuItem(const char* item, int scriptHandle)
 {
     int h = UI_MODULE_MENU_CMDS_START;
     while (getItemFromHandle(h) != nullptr)
         h++;
-    CModuleMenuItem *it = new CModuleMenuItem(item, scriptHandle);
+    CModuleMenuItem* it = new CModuleMenuItem(item, scriptHandle);
     it->setHandle(h);
     _allItems.push_back(it);
     return (h);
@@ -93,7 +93,7 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
 {
     for (size_t i = 0; i < _allItems.size(); i++)
     {
-        CModuleMenuItem *it = _allItems[i];
+        CModuleMenuItem* it = _allItems[i];
         if ((it->getHandle() == commandID) && (it->getScriptHandle() != -1))
         {
             SSimulationThreadCommand cmd;
@@ -111,7 +111,7 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
     {
         for (size_t i = 0; i < _allItems.size(); i++)
         {
-            CModuleMenuItem *it = _allItems[i];
+            CModuleMenuItem* it = _allItems[i];
             if (it->getHandle() == commandID)
             {
                 int data[4] = {commandID, it->getState(), 0, 0};
@@ -127,10 +127,10 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
     return (false);
 }
 
-bool CModuleMenuItemContainer::addMenus(VMenu *myMenu)
+bool CModuleMenuItemContainer::addMenus(VMenu* myMenu)
 {
     _orderItems();
-    std::vector<VMenu *> m;
+    std::vector<VMenu*> m;
     m.push_back(myMenu);
     std::vector<std::string> l;
     l.push_back("0");

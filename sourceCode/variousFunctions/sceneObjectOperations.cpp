@@ -36,8 +36,8 @@ void CSceneObjectOperations::keyPress(int key)
 }
 
 bool CSceneObjectOperations::processCommand(int commandID)
-{ // Return value is true if the command belonged to object edition menu and was executed
-  // Can be called by the UI and SIM thread!
+{   // Return value is true if the command belonged to object edition menu and was executed
+    // Can be called by the UI and SIM thread!
 
     if (commandID == SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD)
     {
@@ -75,16 +75,16 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             size_t selS = App::currentWorld->sceneObjects->getSelectionCount();
-            CSceneObject *it = App::currentWorld->sceneObjects->getLastSelectionObject();
+            CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
             if ((selS == 1) && it->getModelBase())
             {
-                std::vector<CSceneObject *> clones;
-                std::vector<CSceneObject *> toExplore;
+                std::vector<CSceneObject*> clones;
+                std::vector<CSceneObject*> toExplore;
                 for (size_t i = 0; i < App::currentWorld->sceneObjects->getOrphanCount(); i++)
                     toExplore.push_back(App::currentWorld->sceneObjects->getOrphanFromIndex(i));
                 while (toExplore.size() > 0)
                 {
-                    CSceneObject *obj = toExplore[0];
+                    CSceneObject* obj = toExplore[0];
                     toExplore.erase(toExplore.begin());
                     if (obj != it)
                     {
@@ -116,12 +116,12 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         objs.push_back(clones[i]->getObjectHandle());
                         App::currentWorld->sceneObjects->addModelObjects(objs);
                         C7Vector tr(clones[i]->getLocalTransformation());
-                        CSceneObject *parent(clones[i]->getParent());
+                        CSceneObject* parent(clones[i]->getParent());
                         int order = App::currentWorld->sceneObjects->getObjectSequence(clones[i]);
                         App::currentWorld->sceneObjects->eraseObjects(&objs, true);
                         App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),
                                                                      2);
-                        CSceneObject *newObj = App::currentWorld->sceneObjects->getLastSelectionObject();
+                        CSceneObject* newObj = App::currentWorld->sceneObjects->getLastSelectionObject();
                         App::currentWorld->sceneObjects->deselectObjects();
                         newSelection.push_back(newObj->getObjectHandle());
                         App::currentWorld->sceneObjects->setObjectParent(newObj, parent, true);
@@ -169,10 +169,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             if (sel.size() > 1)
             {
-                CSceneObject *last = App::currentWorld->sceneObjects->getObjectFromHandle(sel[sel.size() - 1]);
+                CSceneObject* last = App::currentWorld->sceneObjects->getObjectFromHandle(sel[sel.size() - 1]);
                 for (size_t i = 0; i < sel.size() - 1; i++)
                 {
-                    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
                     App::currentWorld->sceneObjects->setObjectParent(
                         it, last, commandID == SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD);
                 }
@@ -204,7 +204,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::logMsg(sim_verbosity_msgs, "Setting object(s) parent-less...");
             for (size_t i = 0; i < sel.size(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
                 App::currentWorld->sceneObjects->setObjectParent(it, nullptr, true);
             }
             App::undoRedo_sceneChanged("");
@@ -224,7 +224,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<CSceneObject *> sel;
+            std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, false);
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
@@ -238,7 +238,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 std::vector<int> toSelect;
                 for (size_t i = 0; i < sel.size(); i++)
                 {
-                    CShape *it = (CShape *)sel[i];
+                    CShape* it = (CShape*)sel[i];
                     if (!it->getStatic())
                     {
                         toSelect.push_back(it->getObjectHandle());
@@ -264,7 +264,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<CSceneObject *> sel;
+            std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, false);
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
@@ -277,7 +277,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 std::vector<int> toSelect;
                 for (size_t i = 0; i < sel.size(); i++)
                 {
-                    CShape *it = (CShape *)sel[i];
+                    CShape* it = (CShape*)sel[i];
                     if (!it->getStatic())
                     {
                         toSelect.push_back(it->getObjectHandle());
@@ -302,7 +302,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<CSceneObject *> sel;
+            std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, false);
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
@@ -315,7 +315,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 std::vector<int> toSelect;
                 for (size_t i = 0; i < sel.size(); i++)
                 {
-                    CShape *it = (CShape *)sel[i];
+                    CShape* it = (CShape*)sel[i];
                     if (!it->getStatic())
                     {
                         toSelect.push_back(it->getObjectHandle());
@@ -360,7 +360,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::currentWorld->sceneObjects->getLastSelectionHandle();
-            CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_simulation, id);
             if (script != nullptr)
             {
@@ -385,7 +385,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::currentWorld->sceneObjects->getLastSelectionHandle();
-            CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_customization, id);
             if (script != nullptr)
             {
@@ -438,7 +438,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             std::vector<int> sel;
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(
                     App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
                 if ((it->getObjectProperty() & sim_objectproperty_cannotdelete) == 0)
                 {
@@ -506,7 +506,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             std::vector<int> sel;
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(
                     App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
                 if ((it->getObjectProperty() & sim_objectproperty_cannotdelete) == 0)
                 {
@@ -540,7 +540,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<CSceneObject *> sel;
+            std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, true);
             if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
                 App::logMsg(sim_verbosity_msgs, "Relocating reference frame to world origin...");
@@ -552,7 +552,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             std::vector<int> toSelect;
             for (size_t i = 0; i < sel.size(); i++)
             {
-                CShape *theShape = (CShape *)sel[i];
+                CShape* theShape = (CShape*)sel[i];
                 bool r = false;
                 if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
                     r = theShape->relocateFrame("world");
@@ -585,7 +585,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<CSceneObject *> sel;
+            std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, true);
             if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
                 App::logMsg(sim_verbosity_msgs, "aligning bounding box with mesh...");
@@ -595,7 +595,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             std::vector<int> toSelect;
             for (size_t i = 0; i < sel.size(); i++)
             {
-                CShape *theShape = (CShape *)sel[i];
+                CShape* theShape = (CShape*)sel[i];
                 bool r = false;
                 if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
                     r = theShape->alignBB("mesh");
@@ -742,7 +742,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     return (false);
 }
 #endif
-void CSceneObjectOperations::_copyObjects(std::vector<int> *selection)
+void CSceneObjectOperations::_copyObjects(std::vector<int>* selection)
 {
     // We first copy the selection:
     std::vector<int> sel(*selection);
@@ -751,7 +751,7 @@ void CSceneObjectOperations::_copyObjects(std::vector<int> *selection)
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
 }
 
-void CSceneObjectOperations::_deleteObjects(std::vector<int> *selection)
+void CSceneObjectOperations::_deleteObjects(std::vector<int>* selection)
 { // There are a few other spots where objects get deleted (e.g. the C-interface)
     TRACE_INTERNAL;
     App::currentWorld->sceneObjects->addModelObjects(selection[0]);
@@ -759,36 +759,36 @@ void CSceneObjectOperations::_deleteObjects(std::vector<int> *selection)
     App::currentWorld->sceneObjects->deselectObjects();
 }
 
-int CSceneObjectOperations::groupSelection(std::vector<int> *selection)
+int CSceneObjectOperations::groupSelection(std::vector<int>* selection)
 {
     if (selection->size() < 2)
         return (-1);
 
-    std::vector<CShape *> shapesToGroup;
+    std::vector<CShape*> shapesToGroup;
     for (size_t i = 0; i < selection->size(); i++)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
         shapesToGroup.push_back(it);
     }
 
     App::currentWorld->sceneObjects->deselectObjects();
 
-    CShape *compoundShape = _groupShapes(shapesToGroup);
+    CShape* compoundShape = _groupShapes(shapesToGroup);
 
     App::currentWorld->sceneObjects->selectObject(compoundShape->getObjectHandle());
 
     return (compoundShape->getObjectHandle());
 }
 
-CShape *CSceneObjectOperations::_groupShapes(const std::vector<CShape *> &shapesToGroup)
-{ // returned shape is replacing the last shape in the selection. All involved shapes are destroyed
+CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesToGroup)
+{                         // returned shape is replacing the last shape in the selection. All involved shapes are destroyed
     size_t pureCount = 0; // except for heightfields
     for (size_t i = 0; i < shapesToGroup.size(); i++)
     {
-        CShape *it = shapesToGroup[i];
+        CShape* it = shapesToGroup[i];
         if (it->getMesh()->isPure())
         {
-            CMesh *m = it->getSingleMesh();
+            CMesh* m = it->getSingleMesh();
             if (m == nullptr)
                 pureCount++; // pure compound
             else
@@ -799,10 +799,10 @@ CShape *CSceneObjectOperations::_groupShapes(const std::vector<CShape *> &shapes
         }
     }
     bool allToNonPure = (pureCount < shapesToGroup.size());
-    std::vector<CMeshWrapper *> allMeshes;
+    std::vector<CMeshWrapper*> allMeshes;
     for (size_t i = 0; i < shapesToGroup.size(); i++)
     {
-        CShape *it = shapesToGroup[i];
+        CShape* it = shapesToGroup[i];
         if (allToNonPure)
             it->getMesh()->setPurePrimitiveType(sim_primitiveshape_none, 1.0, 1.0, 1.0); // this will be propagated to all geometrics!
         allMeshes.push_back(it->getMesh()->copyYourself());
@@ -811,10 +811,10 @@ CShape *CSceneObjectOperations::_groupShapes(const std::vector<CShape *> &shapes
     CShape* lastSel = shapesToGroup[shapesToGroup.size() - 1];
     CShape* newShape = (CShape*)lastSel->copyYourself();
 
-    CMeshWrapper *newWrapper = new CMeshWrapper();
+    CMeshWrapper* newWrapper = new CMeshWrapper();
     for (size_t i = 0; i < allMeshes.size(); i++)
     {
-        CMeshWrapper *mesh = allMeshes[i];
+        CMeshWrapper* mesh = allMeshes[i];
         mesh->setName(shapesToGroup[i]->getObjectAlias().c_str());
         mesh->setIFrame(lastSel->getCumulativeTransformation().getInverse() * shapesToGroup[i]->getCumulativeTransformation() * mesh->getIFrame());
         newWrapper->addItem(mesh);
@@ -834,16 +834,16 @@ CShape *CSceneObjectOperations::_groupShapes(const std::vector<CShape *> &shapes
     return (newShape);
 }
 
-void CSceneObjectOperations::ungroupSelection(std::vector<int> *selection, bool fullUngroup /*= false*/)
+void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection, bool fullUngroup /*= false*/)
 {
     App::currentWorld->sceneObjects->deselectObjects();
     std::vector<int> finalSel;
     for (size_t i = 0; i < selection->size(); i++)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
         if ((it != nullptr) && it->isCompound())
         {
-            std::vector<CShape *> newShapes;
+            std::vector<CShape*> newShapes;
             if (fullUngroup)
                 _fullUngroupShape(it, newShapes);
             else
@@ -861,7 +861,7 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int> *selection, bool 
     }
 }
 
-void CSceneObjectOperations::_fullUngroupShape(CShape *it, std::vector<CShape *> &newShapes)
+void CSceneObjectOperations::_fullUngroupShape(CShape* it, std::vector<CShape*>& newShapes)
 {
     if (it->isCompound())
     {
@@ -874,15 +874,15 @@ void CSceneObjectOperations::_fullUngroupShape(CShape *it, std::vector<CShape *>
         newShapes.push_back(it);
 }
 
-void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape *it, std::vector<CShape *> &newShapes)
+void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it, std::vector<CShape*>& newShapes)
 { // the input shape is destroyed!
     if (!it->getMesh()->isPure())
         it->getMesh()->setPurePrimitiveType(sim_primitiveshape_none, 1.0, 1.0, 1.0);
 
-    CMeshWrapper *wrapper = it->getMesh();
+    CMeshWrapper* wrapper = it->getMesh();
     C7Vector oldTransf(it->getCumulativeTransformation());
     C7Vector oldParentTransf(it->getFullParentCumulativeTransformation());
-    std::vector<CMeshWrapper *> meshes;
+    std::vector<CMeshWrapper*> meshes;
     for (size_t i = 0; i < wrapper->childList.size(); i++)
     {
         CMeshWrapper* mesh = wrapper->childList[i]->copyYourself();
@@ -916,31 +916,31 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape *it, s
     App::currentWorld->sceneObjects->eraseObject(it, true);
 }
 
-int CSceneObjectOperations::mergeSelection(std::vector<int> *selection)
+int CSceneObjectOperations::mergeSelection(std::vector<int>* selection)
 {
     int retVal = -1;
-    std::vector<CShape *> shapesToMerge;
+    std::vector<CShape*> shapesToMerge;
     for (size_t i = 0; i < selection->size(); i++)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
         if (it != nullptr)
             shapesToMerge.push_back(it);
     }
     App::currentWorld->sceneObjects->deselectObjects();
     if (shapesToMerge.size() >= 2)
     {
-        CShape *mergedShape = _mergeShapes(shapesToMerge);
+        CShape* mergedShape = _mergeShapes(shapesToMerge);
         retVal = mergedShape->getObjectHandle();
         App::currentWorld->sceneObjects->selectObject(retVal);
     }
     return (retVal);
 }
 
-CShape *CSceneObjectOperations::_mergeShapes(const std::vector<CShape *> &allShapes)
+CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShapes)
 { // returned shape is replacing the last shape in the selection. All involved shapes are destroyed
     for (size_t i = 0; i < allShapes.size(); i++)
     {
-        CShape *it = allShapes[i];
+        CShape* it = allShapes[i];
         if (it->getMesh()->getTextureCount() != 0)
         {
             App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(it->getObjectHandle(), -1);
@@ -952,7 +952,7 @@ CShape *CSceneObjectOperations::_mergeShapes(const std::vector<CShape *> &allSha
     CShape* newShape = (CShape*)lastSel->copyYourself();
     newShape->setLocalTransformation(lastSel->getCumulativeTransformation());
 
-    std::vector<CMeshWrapper *> allMeshes;
+    std::vector<CMeshWrapper*> allMeshes;
     for (size_t i = 0; i < allShapes.size(); i++)
         allMeshes.push_back(allShapes[i]->getMesh());
 
@@ -961,10 +961,10 @@ CShape *CSceneObjectOperations::_mergeShapes(const std::vector<CShape *> &allSha
     std::vector<double> normals;
     for (size_t i = 0; i < allMeshes.size(); i++)
     {
-        CMeshWrapper *mesh = allMeshes[i];
+        CMeshWrapper* mesh = allMeshes[i];
         mesh->getCumulativeMeshes(allShapes[i]->getCumulativeTransformation(), vertices, &indices, &normals);
     }
-    CMesh *newMesh = new CMesh(newShape->getLocalTransformation(), vertices, indices, &normals, nullptr, 0);
+    CMesh* newMesh = new CMesh(newShape->getLocalTransformation(), vertices, indices, &normals, nullptr, 0);
     newShape->replaceMesh(newMesh, true);
 
     std::vector<int> shapesToErase;
@@ -980,12 +980,12 @@ CShape *CSceneObjectOperations::_mergeShapes(const std::vector<CShape *> &allSha
     return newShape;
 }
 
-void CSceneObjectOperations::divideSelection(std::vector<int> *selection)
+void CSceneObjectOperations::divideSelection(std::vector<int>* selection)
 {
-    std::vector<CShape *> shapesToDivide;
+    std::vector<CShape*> shapesToDivide;
     for (size_t i = 0; i < selection->size(); i++)
     {
-        CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
+        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(selection->at(i));
         if ((it != nullptr) && (!it->getMesh()->isPure()))
             shapesToDivide.push_back(it);
     }
@@ -995,7 +995,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int> *selection)
 
     for (size_t i = 0; i < shapesToDivide.size(); i++)
     {
-        std::vector<CShape *> ns;
+        std::vector<CShape*> ns;
         if (_divideShape(shapesToDivide[i], ns))
         {
             for (size_t j = 0; j < ns.size(); j++)
@@ -1006,7 +1006,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int> *selection)
     App::currentWorld->sceneObjects->setSelectedObjectHandles(selection->data(), selection->size());
 }
 
-bool CSceneObjectOperations::_divideShape(CShape *it, std::vector<CShape *> &newShapes)
+bool CSceneObjectOperations::_divideShape(CShape* it, std::vector<CShape*>& newShapes)
 { // the input shape is destroyed!
     std::vector<double> vertices;
     std::vector<int> indices;
@@ -1020,12 +1020,12 @@ bool CSceneObjectOperations::_divideShape(CShape *it, std::vector<CShape *> &new
         if (CMeshManip::extractOneShape(&vertices, &indices, &subvert, &subind))
         { // Something was extracted
             extractedCount++;
-            CMesh *mesh = new CMesh(it->getFullCumulativeTransformation(), subvert, subind, nullptr, nullptr, 0);
+            CMesh* mesh = new CMesh(it->getFullCumulativeTransformation(), subvert, subind, nullptr, nullptr, 0);
             shape = new CShape();
             it->copyAttributesTo(shape);
             shape->replaceMesh(mesh, false);
             if (it->getMesh()->isMesh())
-                ((CMesh *)it->getMesh())->copyVisualAttributesTo(mesh);
+                ((CMesh*)it->getMesh())->copyVisualAttributesTo(mesh);
             shape->setLocalTransformation(it->getCumulativeTransformation());
             App::currentWorld->sceneObjects->addObjectToScene(shape, false, true);
             App::currentWorld->sceneObjects->setObjectParent(shape, it->getParent(), true);
@@ -1038,7 +1038,7 @@ bool CSceneObjectOperations::_divideShape(CShape *it, std::vector<CShape *> &new
                 break; // we couldn't extract anything!
             shape = (CShape*)it->copyYourself();
             shape->setLocalTransformation(it->getCumulativeTransformation());
-            CMesh *mesh = new CMesh(shape->getLocalTransformation(), vertices, indices, nullptr, nullptr, 0);
+            CMesh* mesh = new CMesh(shape->getLocalTransformation(), vertices, indices, nullptr, nullptr, 0);
             shape->replaceMesh(mesh, true);
             App::currentWorld->sceneObjects->addObjectToScene(shape, false, true);
             App::currentWorld->sceneObjects->setObjectParent(shape, it->getParent(), true);
@@ -1053,20 +1053,20 @@ bool CSceneObjectOperations::_divideShape(CShape *it, std::vector<CShape *> &new
     return (newShapes.size() > 0);
 }
 
-void CSceneObjectOperations::scaleObjects(const std::vector<int> &selection, double scalingFactor,
+void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection, double scalingFactor,
                                           bool scalePositionsToo)
 {
     std::vector<int> sel(selection);
     App::currentWorld->sceneObjects->addModelObjects(sel);
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
         if (scalePositionsToo)
             it->scalePosition(scalingFactor);
         else
-        { // If one parent is a root object (model base) and in this selection, then we also scale the position here!!
-          // (2009/06/10)
-            CSceneObject *itp = it->getParent();
+        {   // If one parent is a root object (model base) and in this selection, then we also scale the position here!!
+            // (2009/06/10)
+            CSceneObject* itp = it->getParent();
             while (itp != nullptr)
             {
                 if (itp->getModelBase())
@@ -1095,12 +1095,12 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int> &selection, dou
     // OLD IK:
     for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
     {
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
+        CIkGroup_old* ikGroup = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
         // Go through all ikElement lists:
         for (size_t j = 0; j < ikGroup->getIkElementCount(); j++)
         {
-            CIkElement_old *ikEl = ikGroup->getIkElementFromIndex(j);
-            CDummy *tip = App::currentWorld->sceneObjects->getDummyFromHandle(ikEl->getTipHandle());
+            CIkElement_old* ikEl = ikGroup->getIkElementFromIndex(j);
+            CDummy* tip = App::currentWorld->sceneObjects->getDummyFromHandle(ikEl->getTipHandle());
             bool scaleElement = false;
             if (tip != nullptr)
             { // was this tip scaled?
@@ -1124,14 +1124,14 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int> &selection, dou
     }
 }
 
-CShape *CSceneObjectOperations::_morphToConvexDecomposed(
-    CShape *it, size_t nClusters, double maxConcavity, bool addExtraDistPoints, bool addFacesPoints,
+CShape* CSceneObjectOperations::_morphToConvexDecomposed(
+    CShape* it, size_t nClusters, double maxConcavity, bool addExtraDistPoints, bool addFacesPoints,
     double maxConnectDist, size_t maxTrianglesInDecimatedMesh, size_t maxHullVertices, double smallClusterThreshold,
     bool useHACD, int resolution_VHACD, int depth_VHACD_old, double concavity_VHACD, int planeDownsampling_VHACD,
     int convexHullDownsampling_VHACD, double alpha_VHACD, double beta_VHACD, double gamma_VHACD_old, bool pca_VHACD,
     bool voxelBased_VHACD, int maxVerticesPerCH_VHACD, double minVolumePerCH_VHACD)
 {
-    CShape *morphedShape = nullptr;
+    CShape* morphedShape = nullptr;
     C7Vector obbTr(it->getCumulativeTransformation() * it->getBB(nullptr));
     if (it->isCompound())
     { // ungroup, then group again
@@ -1139,25 +1139,25 @@ CShape *CSceneObjectOperations::_morphToConvexDecomposed(
         double mass = it->getMesh()->getMass();
         C3Vector com(it->getMesh()->getCOM());
         C3X3Matrix inertia(it->getMesh()->getInertia());
-        std::vector<CShape *> newShapes;
+        std::vector<CShape*> newShapes;
         _fullUngroupShape(it, newShapes);
         newShapes.push_back(it);
-        std::vector<CShape *> newShapes2;
+        std::vector<CShape*> newShapes2;
         for (size_t j = 0; j < newShapes.size(); j++)
         {
-            CShape *it2 = newShapes[j];
+            CShape* it2 = newShapes[j];
             std::vector<double> vert;
             std::vector<int> ind;
             it2->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation, vert, &ind, nullptr);
-            std::vector<std::vector<double> *> outputVert;
-            std::vector<std::vector<int> *> outputInd;
+            std::vector<std::vector<double>*> outputVert;
+            std::vector<std::vector<int>*> outputInd;
             CMeshRoutines::convexDecompose(&vert[0], (int)vert.size(), &ind[0], (int)ind.size(), outputVert, outputInd,
                                            nClusters, maxConcavity, addExtraDistPoints, addFacesPoints, maxConnectDist,
                                            maxTrianglesInDecimatedMesh, maxHullVertices, smallClusterThreshold, useHACD,
                                            resolution_VHACD, depth_VHACD_old, concavity_VHACD, planeDownsampling_VHACD,
                                            convexHullDownsampling_VHACD, alpha_VHACD, beta_VHACD, gamma_VHACD_old,
                                            pca_VHACD, voxelBased_VHACD, maxVerticesPerCH_VHACD, minVolumePerCH_VHACD);
-            std::vector<CMesh *> allMeshes;
+            std::vector<CMesh*> allMeshes;
             for (size_t i = 0; i < outputVert.size(); i++)
             {
                 bool addMesh = true;
@@ -1165,7 +1165,7 @@ CShape *CSceneObjectOperations::_morphToConvexDecomposed(
                     addMesh = CMeshRoutines::getConvexHull(outputVert[i][0], outputVert[i][0], outputInd[i][0]);
                 if (addMesh)
                 {
-                    CMesh *mesh = new CMesh(C7Vector::identityTransformation, outputVert[i][0], outputInd[i][0],
+                    CMesh* mesh = new CMesh(C7Vector::identityTransformation, outputVert[i][0], outputInd[i][0],
                                             nullptr, nullptr, 0);
                     allMeshes.push_back(mesh);
                 }
@@ -1174,7 +1174,7 @@ CShape *CSceneObjectOperations::_morphToConvexDecomposed(
             }
             if (allMeshes.size() > 0)
             {
-                CMeshWrapper *wrap = new CMeshWrapper();
+                CMeshWrapper* wrap = new CMeshWrapper();
                 for (size_t i = 0; i < allMeshes.size(); i++)
                     wrap->addItem(allMeshes[i]);
                 it2->replaceMesh(wrap, true);
@@ -1199,15 +1199,15 @@ CShape *CSceneObjectOperations::_morphToConvexDecomposed(
         std::vector<double> vert;
         std::vector<int> ind;
         it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation, vert, &ind, nullptr);
-        std::vector<std::vector<double> *> outputVert;
-        std::vector<std::vector<int> *> outputInd;
+        std::vector<std::vector<double>*> outputVert;
+        std::vector<std::vector<int>*> outputInd;
         CMeshRoutines::convexDecompose(&vert[0], (int)vert.size(), &ind[0], (int)ind.size(), outputVert, outputInd,
                                        nClusters, maxConcavity, addExtraDistPoints, addFacesPoints, maxConnectDist,
                                        maxTrianglesInDecimatedMesh, maxHullVertices, smallClusterThreshold, useHACD,
                                        resolution_VHACD, depth_VHACD_old, concavity_VHACD, planeDownsampling_VHACD,
                                        convexHullDownsampling_VHACD, alpha_VHACD, beta_VHACD, gamma_VHACD_old,
                                        pca_VHACD, voxelBased_VHACD, maxVerticesPerCH_VHACD, minVolumePerCH_VHACD);
-        std::vector<CMesh *> allMeshes;
+        std::vector<CMesh*> allMeshes;
         for (size_t i = 0; i < outputVert.size(); i++)
         {
             bool addMesh = true;
@@ -1215,7 +1215,7 @@ CShape *CSceneObjectOperations::_morphToConvexDecomposed(
                 addMesh = CMeshRoutines::getConvexHull(outputVert[i][0], outputVert[i][0], outputInd[i][0]);
             if (addMesh)
             {
-                CMesh *mesh =
+                CMesh* mesh =
                     new CMesh(C7Vector::identityTransformation, outputVert[i][0], outputInd[i][0], nullptr, nullptr, 0);
                 allMeshes.push_back(mesh);
             }
@@ -1225,7 +1225,7 @@ CShape *CSceneObjectOperations::_morphToConvexDecomposed(
         if (allMeshes.size() > 0)
         {
             morphedShape = it;
-            CMeshWrapper *wrap = new CMeshWrapper();
+            CMeshWrapper* wrap = new CMeshWrapper();
             for (size_t i = 0; i < allMeshes.size(); i++)
                 wrap->addItem(allMeshes[i]);
             it->replaceMesh(wrap, true);
@@ -1236,8 +1236,8 @@ CShape *CSceneObjectOperations::_morphToConvexDecomposed(
     return (morphedShape);
 }
 
-int CSceneObjectOperations::convexDecompose(int shapeHandle, int options, const int *intParams,
-                                            const double *floatParams)
+int CSceneObjectOperations::convexDecompose(int shapeHandle, int options, const int* intParams,
+                                            const double* floatParams)
 {
     TRACE_INTERNAL;
     int retVal = -1;
@@ -1288,10 +1288,10 @@ int CSceneObjectOperations::convexDecompose(int shapeHandle, int options, const 
             minVolumePerCH = floatParams[9];
         }
     }
-    CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+    CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
     if ((options & 1) == 0)
     { // We want to create a new shape from it:
-        CShape *it2 = new CShape();
+        CShape* it2 = new CShape();
         it2->replaceMesh(it->getMesh()->copyYourself(), false);
         it2->setLocalTransformation(it->getCumulativeTransformation());
         App::currentWorld->sceneObjects->addObjectToScene(it2, false, true);
@@ -1307,9 +1307,9 @@ int CSceneObjectOperations::convexDecompose(int shapeHandle, int options, const 
 }
 
 #ifdef SIM_WITH_GUI
-void CSceneObjectOperations::addMenu(VMenu *menu)
+void CSceneObjectOperations::addMenu(VMenu* menu)
 {
-    std::vector<CSceneObject *> sel;
+    std::vector<CSceneObject*> sel;
     App::currentWorld->sceneObjects->getSelectedObjects(sel, -1, true, true);
     int shapeCnt = 0;
     int compoundCnt = 0;
@@ -1318,7 +1318,7 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
         int t = sel[i]->getObjectType();
         if (t == sim_sceneobject_shape)
         {
-            CShape *it = (CShape *)sel[i];
+            CShape* it = (CShape*)sel[i];
             shapeCnt++;
             if (it->getSingleMesh() == nullptr)
                 compoundCnt++;
@@ -1329,7 +1329,7 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
     App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, false);
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CShape *it = (CShape *)sel[i];
+        CShape* it = (CShape*)sel[i];
         if (!it->getStatic())
             dynShapeCnt++;
     }
@@ -1339,13 +1339,13 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
     size_t shapeNumber = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_shape);
     size_t pathNumber = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_path);
     size_t simpleShapeNumber = 0;
-    std::vector<CSceneObject *> objects;
+    std::vector<CSceneObject*> objects;
     App::currentWorld->sceneObjects->getSelectedObjects(objects);
     for (size_t i = 0; i < objects.size(); i++)
     {
         if (objects[i]->getObjectType() == sim_sceneobject_shape)
         {
-            CShape *it = (CShape *)objects[i];
+            CShape* it = (CShape*)objects[i];
             if (it->getMesh()->isMesh())
                 simpleShapeNumber++;
         }
@@ -1357,7 +1357,7 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
     bool lastSelIsNonGrouping = false;
     if (lastSelIsShape)
     {
-        CShape *sh = App::currentWorld->sceneObjects->getLastSelectionShape();
+        CShape* sh = App::currentWorld->sceneObjects->getLastSelectionShape();
         lastSelIsNonPureShape = !sh->getMesh()->isPure();
         lastSelIsNonGrouping = !sh->isCompound();
     }
@@ -1405,7 +1405,7 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
 
             if (hasChildScriptAttached || hasCustomizationScriptAttached)
             {
-                VMenu *removing = new VMenu();
+                VMenu* removing = new VMenu();
                 removing->appendMenuItem(hasChildScriptAttached && noSim, false,
                                          SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CHILD_SCRIPT_SOOCMD,
                                          "Associated simulation script");
@@ -1417,8 +1417,7 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
             }
             // ------------------------
 
-
-            VMenu *grouping = new VMenu();
+            VMenu* grouping = new VMenu();
             grouping->appendMenuItem((shapeCnt > 1) && noSim, false, SCENE_OBJECT_OPERATION_GROUP_SHAPES_SOOCMD,
                                      "group");
             grouping->appendMenuItem((compoundCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_UNGROUP_SHAPES_SOOCMD,
@@ -1430,7 +1429,7 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
                                      "divide");
             menu->appendMenuAndDetach(grouping, true, "Shape grouping / merging");
 
-            VMenu *relocate = new VMenu();
+            VMenu* relocate = new VMenu();
             relocate->appendMenuItem((shapeCnt > 0) && noSim, false,
                                      SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD,
                                      "relocate to world origin");
@@ -1441,14 +1440,14 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
                                      SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD, "relocate to mesh center");
             menu->appendMenuAndDetach(relocate, true, "Shape reference frame");
 
-            VMenu *align = new VMenu();
+            VMenu* align = new VMenu();
             align->appendMenuItem((shapeCnt > 0) && noSim, false,
                                   SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD, "align with world");
             align->appendMenuItem((shapeCnt > 0) && noSim, false,
                                   SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD, "align with mesh");
             menu->appendMenuAndDetach(align, true, "Shape bounding box");
 
-            VMenu *minertia = new VMenu();
+            VMenu* minertia = new VMenu();
             minertia->appendMenuItem((dynShapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD,
                                      "compute from uniform density...");
             minertia->appendMenuItem((dynShapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD,

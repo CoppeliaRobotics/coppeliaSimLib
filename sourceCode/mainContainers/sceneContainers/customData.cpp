@@ -18,7 +18,7 @@ void CCustomData::setItemsAreVolatile()
     _eventPrefix = SIGNALPREFIX;
 }
 
-bool CCustomData::setData(const char *tag, const char *data, size_t dataLen, bool allowEmptyData /*= true*/)
+bool CCustomData::setData(const char* tag, const char* data, size_t dataLen, bool allowEmptyData /*= true*/)
 { // non-property functions (e.g. sim.setCustomBufferData) do not allow empty data
     bool diff = false;
     if ((tag == nullptr) || (std::strlen(tag) == 0))
@@ -57,7 +57,7 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen, boo
                 break;
             }
         }
-        if ( (!allowEmptyData) && (dataLen == 0) )
+        if ((!allowEmptyData) && (dataLen == 0))
         { // clear (old, with non-property functions)
             if (f != -1)
             {
@@ -104,7 +104,7 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen, boo
     return (diff);
 }
 
-bool CCustomData::clearData(const char *tag)
+bool CCustomData::clearData(const char* tag)
 {
     bool diff = false;
     for (size_t i = 0; i < _data.size(); i++)
@@ -159,7 +159,7 @@ int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= 
     return retVal;
 }
 
-std::string CCustomData::getData(const char *tag) const
+std::string CCustomData::getData(const char* tag) const
 {
     std::string retVal;
     for (size_t i = 0; i < _data.size(); i++)
@@ -182,7 +182,7 @@ bool CCustomData::getPropertyName(int& index, std::string& pName) const
         size_t p = nnmm.find("&.");
         if (p != std::string::npos)
             nnmm.erase(0, p + 2);
-        if ( (pName.size() == 0) || utils::startsWith((CUSTOMDATAPREFIX + nnmm).c_str(), pName.c_str()) )
+        if ((pName.size() == 0) || utils::startsWith((CUSTOMDATAPREFIX + nnmm).c_str(), pName.c_str()))
         {
             index--;
             if (index == -1)
@@ -201,7 +201,7 @@ size_t CCustomData::getDataCount() const
     return (_data.size());
 }
 
-std::string CCustomData::getAllTags(size_t *cnt) const
+std::string CCustomData::getAllTags(size_t* cnt) const
 {
     if (cnt != nullptr)
         cnt[0] = _data.size();
@@ -214,7 +214,7 @@ std::string CCustomData::getAllTags(size_t *cnt) const
     return (retVal);
 }
 
-void CCustomData::copyYourselfInto(CCustomData &theCopy) const
+void CCustomData::copyYourselfInto(CCustomData& theCopy) const
 {
     theCopy._data.clear();
     for (size_t i = 0; i < _data.size(); i++)
@@ -222,7 +222,7 @@ void CCustomData::copyYourselfInto(CCustomData &theCopy) const
     theCopy._dataEvents = _dataEvents;
 }
 
-void CCustomData::serializeData(CSer &ar, const char *objectName)
+void CCustomData::serializeData(CSer& ar, const char* objectName)
 {
     if (ar.isBinary())
     {
@@ -281,14 +281,14 @@ void CCustomData::serializeData(CSer &ar, const char *objectName)
                 {
                     ar.xmlPushNewNode("data");
                     ar.xmlAddNode_string("tag", _data[i].tag.c_str());
-                    std::string str(base64_encode((unsigned char *)_data[i].data.c_str(), _data[i].data.size()));
+                    std::string str(base64_encode((unsigned char*)_data[i].data.c_str(), _data[i].data.size()));
                     ar.xmlAddNode_string("data_base64Coded", str.c_str());
                     ar.xmlPopNode();
                 }
             }
             else
             {
-                CSer *serObj = nullptr;
+                CSer* serObj = nullptr;
                 if (objectName != nullptr)
                     serObj = ar.xmlAddNode_binFile("file", (std::string("objectCustomData_") + objectName).c_str());
                 else
@@ -308,7 +308,7 @@ void CCustomData::serializeData(CSer &ar, const char *objectName)
         }
         else
         {
-            CSer *serObj = ar.xmlGetNode_binFile("file", false);
+            CSer* serObj = ar.xmlGetNode_binFile("file", false);
             if (serObj == nullptr)
             {
                 if (ar.xmlPushChildNode("data", false))
@@ -351,10 +351,9 @@ void CCustomData::serializeData(CSer &ar, const char *objectName)
     }
 }
 
-void CCustomData::appendEventData(const char* tag, CCbor *ev, bool remove /*= false*/) const
+void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= false*/) const
 {
-    auto appendKeyItem = [&](const std::string& ttag, const std::string& dat)
-    {
+    auto appendKeyItem = [&](const std::string& ttag, const std::string& dat) {
         std::string tg(ttag);
         size_t p = tg.find("&.");
         if (p != std::string::npos)
@@ -460,13 +459,13 @@ void CCustomData::appendEventData(const char* tag, CCbor *ev, bool remove /*= fa
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyBuff(tg.c_str(), (unsigned char *)dat.data(), dat.size());
+                ev->appendKeyBuff(tg.c_str(), (unsigned char*)dat.data(), dat.size());
             }
         }
         else
         {
             tg = _eventPrefix + tg;
-            ev->appendKeyBuff(tg.c_str(), (unsigned char *)dat.data(), dat.size());
+            ev->appendKeyBuff(tg.c_str(), (unsigned char*)dat.data(), dat.size());
         }
     };
 
@@ -483,15 +482,15 @@ void CCustomData::appendEventData(const char* tag, CCbor *ev, bool remove /*= fa
     {
         for (size_t i = 0; i < _data.size(); i++)
         {
-            if ( (tag == nullptr) || (_data[i].tag == tag) )
+            if ((tag == nullptr) || (_data[i].tag == tag))
                 appendKeyItem(_data[i].tag, _data[i].data);
         }
     }
 }
 
-void CCustomData::getDataEvents(std::map<std::string, bool> &dataEvents)
+void CCustomData::getDataEvents(std::map<std::string, bool>& dataEvents)
 {
-    for (const auto &it : _dataEvents)
+    for (const auto& it : _dataEvents)
         dataEvents[it.first] = it.second;
 }
 

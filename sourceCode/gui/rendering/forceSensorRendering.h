@@ -21,5 +21,5 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void _displayForceSensor(CForceSensor *forceSensor, int displayAttrib, bool partOne, double sizeParam);
-void displayForceSensor(CForceSensor *forceSensor, CViewableBase *renderingObject, int displayAttrib);
+void _displayForceSensor(CForceSensor* forceSensor, int displayAttrib, bool partOne, double sizeParam);
+void displayForceSensor(CForceSensor* forceSensor, CViewableBase* renderingObject, int displayAttrib);

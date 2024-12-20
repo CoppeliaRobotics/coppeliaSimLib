@@ -19,76 +19,76 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propApp_sessionId,                   "sessionId",                        sim_propertytype_string,    sim_propertyinfo_notwritable, "Session ID", "") \
-    FUNCX(propApp_protocolVersion,             "protocolVersion",                  sim_propertytype_int,       sim_propertyinfo_notwritable, "Protocol", "Protocol version") \
-    FUNCX(propApp_productVersion,              "productVersion",                   sim_propertytype_string,    sim_propertyinfo_notwritable, "Product string", "Product version (string)") \
-    FUNCX(propApp_productVersionNb,            "productVersionNb",                 sim_propertytype_int,    sim_propertyinfo_notwritable, "Product", "Product version (number)") \
-    FUNCX(propApp_platform,                    "platform",                         sim_propertytype_int,    sim_propertyinfo_notwritable, "Platform", "OS") \
-    FUNCX(propApp_flavor,                      "flavor",                           sim_propertytype_int,    sim_propertyinfo_notwritable, "Flavor", "") \
-    FUNCX(propApp_qtVersion,                   "qtVersion",                        sim_propertytype_int,    sim_propertyinfo_notwritable, "Qt", "Qt version") \
-    FUNCX(propApp_processId,                   "processId",                        sim_propertytype_int,    sim_propertyinfo_notwritable, "Process", "Process ID") \
-    FUNCX(propApp_processCnt,                  "processCnt",                       sim_propertytype_int,    sim_propertyinfo_notwritable, "Processes", "Overall processes") \
-    FUNCX(propApp_consoleVerbosity,            "consoleVerbosity",                 sim_propertytype_int,    0, "Console verbosity", "") \
-    FUNCX(propApp_statusbarVerbosity,          "statusbarVerbosity",               sim_propertytype_int,    0, "Statusbar verbosity", "") \
-    FUNCX(propApp_dialogVerbosity,             "dialogVerbosity",                  sim_propertytype_int,    0, "Dialog verbosity", "") \
-    FUNCX(propApp_consoleVerbosityStr,         "consoleVerbosityStr",              sim_propertytype_string,    sim_propertyinfo_notreadable, "Console verbosity string", "Console verbosity string, only for client app") \
-    FUNCX(propApp_statusbarVerbosityStr,       "statusbarVerbosityStr",            sim_propertytype_string,    sim_propertyinfo_notreadable, "Statusbar verbosity string", "Statusbar verbosity string, only for client app") \
-    FUNCX(propApp_dialogVerbosityStr,          "dialogVerbosityStr",               sim_propertytype_string,    sim_propertyinfo_notreadable, "Dialog verbosity string", "Dialog verbosity string, only for client app") \
-    FUNCX(propApp_defaultTranslationStepSize,  "defaultTranslationStepSize",       sim_propertytype_float,     0, "Translation step size", "Default translation step size") \
-    FUNCX(propApp_defaultRotationStepSize,     "defaultRotationStepSize",          sim_propertytype_float,     0, "Rotation step size", "Default rotation step size") \
-    FUNCX(propApp_hierarchyEnabled,            "hierarchyEnabled",                 sim_propertytype_bool,      0, "Hierarchy enabled", "") \
-    FUNCX(propApp_browserEnabled,              "browserEnabled",                   sim_propertytype_bool,      0, "Browser enabled", "") \
-    FUNCX(propApp_displayEnabled,              "displayEnabled",                   sim_propertytype_bool,      0, "Display enabled", "") \
-    FUNCX(propApp_appDir,                      "appPath",                          sim_propertytype_string,    sim_propertyinfo_notwritable, "Application path", "") \
-    FUNCX(propApp_machineId,                   "machineId",                        sim_propertytype_string,    sim_propertyinfo_notwritable, "Machine ID", "") \
-    FUNCX(propApp_legacyMachineId,             "legacyMachineId",                  sim_propertytype_string,    sim_propertyinfo_notwritable, "Legacy machine ID", "") \
-    FUNCX(propApp_tempDir,                     "tempPath",                         sim_propertytype_string,    sim_propertyinfo_notwritable, "Temporary path", "") \
-    FUNCX(propApp_sceneTempDir,                "sceneTempPath",                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Scene temporary path", "") \
-    FUNCX(propApp_settingsDir,                 "settingsPath",                     sim_propertytype_string,    sim_propertyinfo_notwritable, "Settings path", "") \
-    FUNCX(propApp_luaDir,                      "luaPath",                          sim_propertytype_string,    sim_propertyinfo_notwritable, "Lua path", "") \
-    FUNCX(propApp_pythonDir,                   "pythonPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "Python path", "") \
-    FUNCX(propApp_mujocoDir,                   "mujocoPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "MuJoCo path", "") \
-    FUNCX(propApp_systemDir,                   "systemPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "System path", "") \
-    FUNCX(propApp_resourceDir,                 "resourcePath",                     sim_propertytype_string,    sim_propertyinfo_notwritable, "Resource path", "") \
-    FUNCX(propApp_addOnDir,                    "addOnPath",                        sim_propertytype_string,    sim_propertyinfo_notwritable, "Add-on path", "") \
-    FUNCX(propApp_sceneDir,                    "scenePath",                        sim_propertytype_string,    0, "Scene path", "") \
-    FUNCX(propApp_modelDir,                    "modelPath",                        sim_propertytype_string,    0, "Model path", "") \
-    FUNCX(propApp_importExportDir,             "importExportPath",                 sim_propertytype_string,    0, "Import/export path", "") \
-    FUNCX(propApp_defaultPython,               "defaultPython",                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Default Python", "Default Python interpreter") \
-    FUNCX(propApp_sandboxLang,                 "sandboxLang",                      sim_propertytype_string,    sim_propertyinfo_notwritable, "Sandbox language", "Default sandbox language") \
-    FUNCX(propApp_headlessMode,                "headlessMode",                     sim_propertytype_int,       sim_propertyinfo_notwritable, "Headless mode", "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)") \
-    FUNCX(propApp_canSave,                     "canSave",                          sim_propertytype_bool,      sim_propertyinfo_notwritable, "Can save", "Whether save operation is allowed in given state") \
-    FUNCX(propApp_idleFps,                     "idleFps",                          sim_propertytype_int,       0, "Idle FPS", "Desired maximum rendering frames per second, when simulation is not running") \
-    FUNCX(propApp_appArg1,                     "appArg1",                          sim_propertytype_string,    0, "App arg. 1", "") \
-    FUNCX(propApp_appArg2,                     "appArg2",                          sim_propertytype_string,    0, "App arg. 2", "") \
-    FUNCX(propApp_appArg3,                     "appArg3",                          sim_propertytype_string,    0, "App arg. 3", "") \
-    FUNCX(propApp_appArg4,                     "appArg4",                          sim_propertytype_string,    0, "App arg. 4", "") \
-    FUNCX(propApp_appArg5,                     "appArg5",                          sim_propertytype_string,    0, "App arg. 5", "") \
-    FUNCX(propApp_appArg6,                     "appArg6",                          sim_propertytype_string,    0, "App arg. 6", "") \
-    FUNCX(propApp_appArg7,                     "appArg7",                          sim_propertytype_string,    0, "App arg. 7", "") \
-    FUNCX(propApp_appArg8,                     "appArg8",                          sim_propertytype_string,    0, "App arg. 8", "") \
-    FUNCX(propApp_appArg9,                     "appArg9",                          sim_propertytype_string,    0, "App arg. 9", "") \
-    FUNCX(propApp_randomQuaternion,            "randomQuaternion",                 sim_propertytype_quaternion, sim_propertyinfo_notwritable, "Random quaternion", "") \
-    FUNCX(propApp_randomFloat,                 "randomFloat",                      sim_propertytype_float,     sim_propertyinfo_notwritable, "Random number", "") \
-    FUNCX(propApp_notifyDeprecated,            "notifyDeprecated",                 sim_propertytype_int,       sim_propertyinfo_notwritable, "Notify deprecated", "Notify deprecated API (0: off, 1: light, 2: full)") \
-    FUNCX(propApp_execUnsafe,                  "execUnsafe",                       sim_propertytype_bool,      sim_propertyinfo_notwritable, "Execute unsafe", "") \
-    FUNCX(propApp_execUnsafeExt,               "execUnsafeExt",                    sim_propertytype_bool,      sim_propertyinfo_notwritable, "Execute unsafe extended", "Execute unsafe for code triggered externally") \
-    FUNCX(propApp_dongleSerial,                "dongleSerial",                     sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propApp_machineSerialND,             "machineSerialND",                  sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propApp_machineSerial,               "machineSerial",                    sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propApp_dongleID,                    "dongleID",                         sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propApp_machineIDX,                  "machineIDX",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propApp_machineID0,                  "machineID0",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propApp_machineID1,                  "machineID1",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propApp_machineID2,                  "machineID2",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propApp_machineID3,                  "machineID3",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "", "") \
+#define DEFINE_PROPERTIES                                                                                                                                                                                 \
+    FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_notwritable, "Session ID", "")                                                                                        \
+    FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, sim_propertyinfo_notwritable, "Protocol", "Protocol version")                                                                 \
+    FUNCX(propApp_productVersion, "productVersion", sim_propertytype_string, sim_propertyinfo_notwritable, "Product string", "Product version (string)")                                                  \
+    FUNCX(propApp_productVersionNb, "productVersionNb", sim_propertytype_int, sim_propertyinfo_notwritable, "Product", "Product version (number)")                                                        \
+    FUNCX(propApp_platform, "platform", sim_propertytype_int, sim_propertyinfo_notwritable, "Platform", "OS")                                                                                             \
+    FUNCX(propApp_flavor, "flavor", sim_propertytype_int, sim_propertyinfo_notwritable, "Flavor", "")                                                                                                     \
+    FUNCX(propApp_qtVersion, "qtVersion", sim_propertytype_int, sim_propertyinfo_notwritable, "Qt", "Qt version")                                                                                         \
+    FUNCX(propApp_processId, "processId", sim_propertytype_int, sim_propertyinfo_notwritable, "Process", "Process ID")                                                                                    \
+    FUNCX(propApp_processCnt, "processCnt", sim_propertytype_int, sim_propertyinfo_notwritable, "Processes", "Overall processes")                                                                         \
+    FUNCX(propApp_consoleVerbosity, "consoleVerbosity", sim_propertytype_int, 0, "Console verbosity", "")                                                                                                 \
+    FUNCX(propApp_statusbarVerbosity, "statusbarVerbosity", sim_propertytype_int, 0, "Statusbar verbosity", "")                                                                                           \
+    FUNCX(propApp_dialogVerbosity, "dialogVerbosity", sim_propertytype_int, 0, "Dialog verbosity", "")                                                                                                    \
+    FUNCX(propApp_consoleVerbosityStr, "consoleVerbosityStr", sim_propertytype_string, sim_propertyinfo_notreadable, "Console verbosity string", "Console verbosity string, only for client app")         \
+    FUNCX(propApp_statusbarVerbosityStr, "statusbarVerbosityStr", sim_propertytype_string, sim_propertyinfo_notreadable, "Statusbar verbosity string", "Statusbar verbosity string, only for client app") \
+    FUNCX(propApp_dialogVerbosityStr, "dialogVerbosityStr", sim_propertytype_string, sim_propertyinfo_notreadable, "Dialog verbosity string", "Dialog verbosity string, only for client app")             \
+    FUNCX(propApp_defaultTranslationStepSize, "defaultTranslationStepSize", sim_propertytype_float, 0, "Translation step size", "Default translation step size")                                          \
+    FUNCX(propApp_defaultRotationStepSize, "defaultRotationStepSize", sim_propertytype_float, 0, "Rotation step size", "Default rotation step size")                                                      \
+    FUNCX(propApp_hierarchyEnabled, "hierarchyEnabled", sim_propertytype_bool, 0, "Hierarchy enabled", "")                                                                                                \
+    FUNCX(propApp_browserEnabled, "browserEnabled", sim_propertytype_bool, 0, "Browser enabled", "")                                                                                                      \
+    FUNCX(propApp_displayEnabled, "displayEnabled", sim_propertytype_bool, 0, "Display enabled", "")                                                                                                      \
+    FUNCX(propApp_appDir, "appPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Application path", "")                                                                                       \
+    FUNCX(propApp_machineId, "machineId", sim_propertytype_string, sim_propertyinfo_notwritable, "Machine ID", "")                                                                                        \
+    FUNCX(propApp_legacyMachineId, "legacyMachineId", sim_propertytype_string, sim_propertyinfo_notwritable, "Legacy machine ID", "")                                                                     \
+    FUNCX(propApp_tempDir, "tempPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Temporary path", "")                                                                                       \
+    FUNCX(propApp_sceneTempDir, "sceneTempPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Scene temporary path", "")                                                                       \
+    FUNCX(propApp_settingsDir, "settingsPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Settings path", "")                                                                                \
+    FUNCX(propApp_luaDir, "luaPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Lua path", "")                                                                                               \
+    FUNCX(propApp_pythonDir, "pythonPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Python path", "")                                                                                      \
+    FUNCX(propApp_mujocoDir, "mujocoPath", sim_propertytype_string, sim_propertyinfo_notwritable, "MuJoCo path", "")                                                                                      \
+    FUNCX(propApp_systemDir, "systemPath", sim_propertytype_string, sim_propertyinfo_notwritable, "System path", "")                                                                                      \
+    FUNCX(propApp_resourceDir, "resourcePath", sim_propertytype_string, sim_propertyinfo_notwritable, "Resource path", "")                                                                                \
+    FUNCX(propApp_addOnDir, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Add-on path", "")                                                                                        \
+    FUNCX(propApp_sceneDir, "scenePath", sim_propertytype_string, 0, "Scene path", "")                                                                                                                    \
+    FUNCX(propApp_modelDir, "modelPath", sim_propertytype_string, 0, "Model path", "")                                                                                                                    \
+    FUNCX(propApp_importExportDir, "importExportPath", sim_propertytype_string, 0, "Import/export path", "")                                                                                              \
+    FUNCX(propApp_defaultPython, "defaultPython", sim_propertytype_string, sim_propertyinfo_notwritable, "Default Python", "Default Python interpreter")                                                  \
+    FUNCX(propApp_sandboxLang, "sandboxLang", sim_propertytype_string, sim_propertyinfo_notwritable, "Sandbox language", "Default sandbox language")                                                      \
+    FUNCX(propApp_headlessMode, "headlessMode", sim_propertytype_int, sim_propertyinfo_notwritable, "Headless mode", "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)")           \
+    FUNCX(propApp_canSave, "canSave", sim_propertytype_bool, sim_propertyinfo_notwritable, "Can save", "Whether save operation is allowed in given state")                                                \
+    FUNCX(propApp_idleFps, "idleFps", sim_propertytype_int, 0, "Idle FPS", "Desired maximum rendering frames per second, when simulation is not running")                                                 \
+    FUNCX(propApp_appArg1, "appArg1", sim_propertytype_string, 0, "App arg. 1", "")                                                                                                                       \
+    FUNCX(propApp_appArg2, "appArg2", sim_propertytype_string, 0, "App arg. 2", "")                                                                                                                       \
+    FUNCX(propApp_appArg3, "appArg3", sim_propertytype_string, 0, "App arg. 3", "")                                                                                                                       \
+    FUNCX(propApp_appArg4, "appArg4", sim_propertytype_string, 0, "App arg. 4", "")                                                                                                                       \
+    FUNCX(propApp_appArg5, "appArg5", sim_propertytype_string, 0, "App arg. 5", "")                                                                                                                       \
+    FUNCX(propApp_appArg6, "appArg6", sim_propertytype_string, 0, "App arg. 6", "")                                                                                                                       \
+    FUNCX(propApp_appArg7, "appArg7", sim_propertytype_string, 0, "App arg. 7", "")                                                                                                                       \
+    FUNCX(propApp_appArg8, "appArg8", sim_propertytype_string, 0, "App arg. 8", "")                                                                                                                       \
+    FUNCX(propApp_appArg9, "appArg9", sim_propertytype_string, 0, "App arg. 9", "")                                                                                                                       \
+    FUNCX(propApp_randomQuaternion, "randomQuaternion", sim_propertytype_quaternion, sim_propertyinfo_notwritable, "Random quaternion", "")                                                               \
+    FUNCX(propApp_randomFloat, "randomFloat", sim_propertytype_float, sim_propertyinfo_notwritable, "Random number", "")                                                                                  \
+    FUNCX(propApp_notifyDeprecated, "notifyDeprecated", sim_propertytype_int, sim_propertyinfo_notwritable, "Notify deprecated", "Notify deprecated API (0: off, 1: light, 2: full)")                     \
+    FUNCX(propApp_execUnsafe, "execUnsafe", sim_propertytype_bool, sim_propertyinfo_notwritable, "Execute unsafe", "")                                                                                    \
+    FUNCX(propApp_execUnsafeExt, "execUnsafeExt", sim_propertytype_bool, sim_propertyinfo_notwritable, "Execute unsafe extended", "Execute unsafe for code triggered externally")                         \
+    FUNCX(propApp_dongleSerial, "dongleSerial", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")                                                                                            \
+    FUNCX(propApp_machineSerialND, "machineSerialND", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")                                                                                      \
+    FUNCX(propApp_machineSerial, "machineSerial", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")                                                                                          \
+    FUNCX(propApp_dongleID, "dongleID", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")                                                                                                    \
+    FUNCX(propApp_machineIDX, "machineIDX", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")                                                                                                \
+    FUNCX(propApp_machineID0, "machineID0", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")                                                                                                \
+    FUNCX(propApp_machineID1, "machineID1", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")                                                                                                \
+    FUNCX(propApp_machineID2, "machineID2", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")                                                                                                \
+    FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_notwritable, "", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_app = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_app = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ class App
 
     static void beep(int frequ = 5000, int duration = 1000);
 
-    static void init(const char *appDir, int options);
+    static void init(const char* appDir, int options);
     static void cleanup();
     static void loop(void (*callback)(), bool stepIfRunning);
 
@@ -187,46 +187,46 @@ class App
     static bool getExitRequest();
 
     static void appendSimulationThreadCommand(int cmdId, int intP1 = -1, int intP2 = -1, double floatP1 = 0.0,
-                                              double floatP2 = 0.0, const char *stringP1 = nullptr,
-                                              const char *stringP2 = nullptr, double executionDelay = 0.0);
+                                              double floatP2 = 0.0, const char* stringP1 = nullptr,
+                                              const char* stringP2 = nullptr, double executionDelay = 0.0);
     static void appendSimulationThreadCommand(SSimulationThreadCommand cmd, double executionDelay = 0.0);
 
     static std::string getApplicationArgument(int index);
     static void setApplicationArgument(int index, std::string arg);
 
-    static bool getAppNamedParam(const char *paramName, std::string& param);
-    static void setAppNamedParam(const char *paramName, const char *param, int paramLength = 0);
-    static bool removeAppNamedParam(const char *paramName);
+    static bool getAppNamedParam(const char* paramName, std::string& param);
+    static void setAppNamedParam(const char* paramName, const char* param, int paramLength = 0);
+    static bool removeAppNamedParam(const char* paramName);
 
-    static void setAdditionalAddOnScript1(const char *script);
+    static void setAdditionalAddOnScript1(const char* script);
     static std::string getAdditionalAddOnScript1();
-    static void setAdditionalAddOnScript2(const char *script);
+    static void setAdditionalAddOnScript2(const char* script);
     static std::string getAdditionalAddOnScript2();
     static bool assemble(int parentHandle, int childHandle, bool justTest, bool msgs = false);
     static bool disassemble(int objectHandle, bool justTest, bool msgs = false);
 
     static std::string getConsoleLogFilter();
-    static void setConsoleLogFilter(const char *filter);
-    static bool logPluginMsg(const char *pluginName, int verbosityLevel, const char *logMsg);
-    static void logMsg(int verbosityLevel, const char *msg);
-    static void logMsg(int verbosityLevel, const char *msg, const char *subStr1, const char *subStr2 = nullptr,
-                       const char *subStr3 = nullptr);
-    static void logMsg(int verbosityLevel, const char *msg, int int1, int int2 = 0, int int3 = 0);
-    static void logScriptMsg(const CScriptObject *script, int verbosityLevel, const char *msg);
+    static void setConsoleLogFilter(const char* filter);
+    static bool logPluginMsg(const char* pluginName, int verbosityLevel, const char* logMsg);
+    static void logMsg(int verbosityLevel, const char* msg);
+    static void logMsg(int verbosityLevel, const char* msg, const char* subStr1, const char* subStr2 = nullptr,
+                       const char* subStr3 = nullptr);
+    static void logMsg(int verbosityLevel, const char* msg, int int1, int int2 = 0, int int3 = 0);
+    static void logScriptMsg(const CScriptObject* script, int verbosityLevel, const char* msg);
     static void setStringVerbosity(int what, const char* str);
-    static int getConsoleVerbosity(const char *pluginName = nullptr);
-    static void setConsoleVerbosity(int v, const char *pluginName = nullptr);
-    static int getStatusbarVerbosity(const char *pluginName = nullptr);
-    static void setStatusbarVerbosity(int v, const char *pluginName = nullptr);
+    static int getConsoleVerbosity(const char* pluginName = nullptr);
+    static void setConsoleVerbosity(int v, const char* pluginName = nullptr);
+    static int getStatusbarVerbosity(const char* pluginName = nullptr);
+    static void setStatusbarVerbosity(int v, const char* pluginName = nullptr);
     static bool getConsoleOrStatusbarVerbosityTriggered(int verbosityLevel);
-    static int getVerbosityLevelFromString(const char *verbosityStr);
+    static int getVerbosityLevelFromString(const char* verbosityStr);
     static bool getConsoleMsgToFile();
     static void setConsoleMsgToFile(bool f);
     static std::string getConsoleMsgFile();
-    static void setConsoleMsgFile(const char *f);
+    static void setConsoleMsgFile(const char* f);
     static int getDlgVerbosity();
     static void setDlgVerbosity(int v);
-    static void setStartupScriptString(const char *str);
+    static void setStartupScriptString(const char* str);
     static void setExitCode(int c);
     static int getExitCode();
     static int getAppStage();
@@ -266,8 +266,8 @@ class App
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, bool staticParsing);
 
-    static void undoRedo_sceneChanged(const char *txt);
-    static void undoRedo_sceneChangedGradual(const char *txt);
+    static void undoRedo_sceneChanged(const char* txt);
+    static void undoRedo_sceneChangedGradual(const char* txt);
 
     static void setHierarchyEnabled(bool v);
     static bool getHierarchyEnabled();
@@ -277,45 +277,42 @@ class App
     static int getHeadlessMode();
     static int getPlatform();
 
-
-
-    static CFolderSystem *folders;
-    static CUserSettings *userSettings;
-    static CSimThread *simThread;
-    static CWorldContainer *worldContainer;
-    static CWorld *currentWorld; // actually worldContainer->currentWorld
-    static CGm *gm;
+    static CFolderSystem* folders;
+    static CUserSettings* userSettings;
+    static CSimThread* simThread;
+    static CWorldContainer* worldContainer;
+    static CWorld* currentWorld; // actually worldContainer->currentWorld
+    static CGm* gm;
     static std::vector<void*> callbacks;
     static InstancesList* instancesList;
 
 #ifndef SIM_WITH_GUI
-    static CSimQApp *qtApp;
+    static CSimQApp* qtApp;
 #endif
 
   private:
     static void _simulatorLoop(bool stepIfRunning = true);
-    static void _logMsg(const char *originName, int verbosityLevel, const char *msg, const char *subStr1,
-                        const char *subStr2 = nullptr, const char *subStr3 = nullptr);
-    static void _logMsg(const char *originName, int verbosityLevel, const char *msg, int int1, int int2 = 0,
+    static void _logMsg(const char* originName, int verbosityLevel, const char* msg, const char* subStr1,
+                        const char* subStr2 = nullptr, const char* subStr3 = nullptr);
+    static void _logMsg(const char* originName, int verbosityLevel, const char* msg, int int1, int int2 = 0,
                         int int3 = 0);
-    static void __logMsg(const char *originName, int verbosityLevel, const char *msg, int consoleVerbosity = -1,
+    static void __logMsg(const char* originName, int verbosityLevel, const char* msg, int consoleVerbosity = -1,
                          int statusbarVerbosity = -1);
-    static bool _consoleLogFilter(const char *msg);
-    static std::string _getHtmlEscapedString(const char *str);
+    static bool _consoleLogFilter(const char* msg);
+    static std::string _getHtmlEscapedString(const char* str);
     static bool _consoleMsgsToFile;
     static std::string _consoleMsgsFilename;
-    static VFile *_consoleMsgsFile;
-    static VArchive *_consoleMsgsArchive;
+    static VFile* _consoleMsgsFile;
+    static VArchive* _consoleMsgsArchive;
     static bool _hierarchyEnabled;
     static bool _openGlDisplayEnabled;
 
-
     static long long int _nextUniqueId;
-    static SignalHandler *_sigHandler;
+    static SignalHandler* _sigHandler;
 
     static int _qApp_argc;
     static char _qApp_arg0[];
-    static char *_qApp_argv[1];
+    static char* _qApp_argv[1];
     static std::vector<std::string> _applicationArguments;
     static std::map<std::string, std::string> _applicationNamedParams;
     static std::string _additionalAddOnScript1;
@@ -336,7 +333,7 @@ class App
 class CFuncTrace
 {
   public:
-    CFuncTrace(const char *functionName, int traceVerbosity)
+    CFuncTrace(const char* functionName, int traceVerbosity)
     {
         if (App::getConsoleOrStatusbarVerbosityTriggered(traceVerbosity))
         {

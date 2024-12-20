@@ -28,7 +28,7 @@ int CSerialPortWin::getPortHandle()
     return (_portHandle);
 }
 
-int CSerialPortWin::Open(const char *portString, int nBaud)
+int CSerialPortWin::Open(const char* portString, int nBaud)
 {
     if (m_bOpened)
         return (TRUE);
@@ -113,7 +113,7 @@ int CSerialPortWin::WriteCommByte(unsigned char ucByte)
     return (TRUE);
 }
 
-int CSerialPortWin::SendData(const char *buffer, int size)
+int CSerialPortWin::SendData(const char* buffer, int size)
 {
     if (!m_bOpened || m_hIDComDev == nullptr)
         return (0);
@@ -149,7 +149,7 @@ int CSerialPortWin::ReadDataWaiting(void)
     return ((int)ComStat.cbInQue);
 }
 
-int CSerialPortWin::ReadData(char *buffer, int limit)
+int CSerialPortWin::ReadData(char* buffer, int limit)
 {
     if (!m_bOpened || m_hIDComDev == nullptr)
         return (0);

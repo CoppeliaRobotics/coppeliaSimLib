@@ -38,13 +38,13 @@ void CIkElement_old::initializeInitialValues(bool simulationAlreadyRunning)
 }
 
 void CIkElement_old::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
 }
 
-CIkElement_old *CIkElement_old::copyYourself() const
+CIkElement_old* CIkElement_old::copyYourself() const
 {
-    CIkElement_old *newEl = new CIkElement_old();
+    CIkElement_old* newEl = new CIkElement_old();
     newEl->_objectHandle = _objectHandle; // important for copy operations connections
     newEl->_constraintBaseHandle = _constraintBaseHandle;
     newEl->_tipHandle = _tipHandle;
@@ -58,7 +58,7 @@ CIkElement_old *CIkElement_old::copyYourself() const
     return (newEl);
 }
 
-void CIkElement_old::serialize(CSer &ar)
+void CIkElement_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -206,7 +206,7 @@ void CIkElement_old::serialize(CSer &ar)
             else
             {
                 std::string str;
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(" 'tip' tag: is required and has to be the name of an existing scene object ",
@@ -312,7 +312,7 @@ bool CIkElement_old::announceObjectWillBeErased(int objID, bool copyBuffer)
     return (false);
 }
 
-void CIkElement_old::performObjectLoadingMapping(const std::map<int, int> *map)
+void CIkElement_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     _tipHandle = CWorld::getLoadingMapping(map, _tipHandle);
     _baseHandle = CWorld::getLoadingMapping(map, _baseHandle);
@@ -321,7 +321,7 @@ void CIkElement_old::performObjectLoadingMapping(const std::map<int, int> *map)
 
 int CIkElement_old::getTargetHandle() const
 {
-    CDummy *tip = App::currentWorld->sceneObjects->getDummyFromHandle(_tipHandle);
+    CDummy* tip = App::currentWorld->sceneObjects->getDummyFromHandle(_tipHandle);
     if (tip == nullptr)
         return (-1);
     int linkedDummyHandle = tip->getLinkedDummyHandle();
@@ -384,8 +384,8 @@ void CIkElement_old::setAllInvolvedJointsToIkPluginPositions() const
 {
     if (_enabled)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getDummyFromHandle(_tipHandle);
-        CSceneObject *baseObj = App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
+        CSceneObject* it = App::currentWorld->sceneObjects->getDummyFromHandle(_tipHandle);
+        CSceneObject* baseObj = App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
         while ((it != baseObj) && (it != nullptr))
         {
             it = it->getParent();
@@ -393,7 +393,7 @@ void CIkElement_old::setAllInvolvedJointsToIkPluginPositions() const
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
                 {
-                    CJoint *joint = (CJoint *)it;
+                    CJoint* joint = (CJoint*)it;
                     if ((joint->getJointMode() == sim_jointmode_ik_deprecated) ||
                         (joint->getJointMode() == sim_jointmode_reserved_previously_ikdependent))
                     {
@@ -412,15 +412,15 @@ void CIkElement_old::setAllInvolvedJointsToIkPluginPositions() const
 
 void CIkElement_old::setAllInvolvedJointsToNewJointMode(int jointMode) const
 {
-    CSceneObject *iterat = App::currentWorld->sceneObjects->getDummyFromHandle(_tipHandle);
-    CSceneObject *baseObj = App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
+    CSceneObject* iterat = App::currentWorld->sceneObjects->getDummyFromHandle(_tipHandle);
+    CSceneObject* baseObj = App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
     while ((iterat != baseObj) && (iterat != nullptr))
     {
         iterat = iterat->getParent();
         if ((iterat != nullptr) && (iterat != baseObj))
         {
             if (iterat->getObjectType() == sim_sceneobject_joint)
-                ((CJoint *)iterat)->setJointMode_noDynMotorTargetPosCorrection(jointMode);
+                ((CJoint*)iterat)->setJointMode_noDynMotorTargetPosCorrection(jointMode);
         }
     }
 }
@@ -442,7 +442,7 @@ void CIkElement_old::_setBase_send(int h) const
     if (_ikElementPluginCounterpartHandle != -1)
     {
         int bh = -1;
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(h);
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(h);
         if (obj != nullptr)
             bh = obj->getIkPluginCounterpartHandle();
         int abh = -1;
@@ -459,7 +459,7 @@ void CIkElement_old::_setAlternativeBaseForConstraints_send(int h) const
     if (_ikElementPluginCounterpartHandle != -1)
     {
         int bh = -1;
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(_baseHandle);
         if (obj != nullptr)
             bh = obj->getIkPluginCounterpartHandle();
         int abh = -1;
@@ -535,7 +535,7 @@ void CIkElement_old::buildOrUpdate_oldIk()
 {
     // Build remote IK element in IK plugin:
     int counterpartHandle = -1;
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
     if (it != nullptr)
         counterpartHandle = it->getIkPluginCounterpartHandle();
     _ikElementPluginCounterpartHandle = App::worldContainer->pluginContainer->oldIkPlugin_addIkElement(

@@ -20,9 +20,9 @@ See the GNU General Public License for more details.
 
 #include <collisionContourRendering.h>
 
-void displayContour(CCollisionObject_old *coll, int countourWidth)
+void displayContour(CCollisionObject_old* coll, int countourWidth)
 {
-    const std::vector<double> *intersections = coll->getIntersections();
+    const std::vector<double>* intersections = coll->getIntersections();
 
     glDisable(GL_DEPTH_TEST);
     coll->getContourColor()->makeCurrentColor(false);

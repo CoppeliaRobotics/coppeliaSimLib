@@ -32,7 +32,7 @@ int CDrawingObject::getExpectedFloatsPerItem() const
     return (retVal);
 }
 
-std::vector<double> *CDrawingObject::getDataPtr()
+std::vector<double>* CDrawingObject::getDataPtr()
 {
     return (&_data);
 }
@@ -92,7 +92,7 @@ CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateT
 
     if (sceneObjId != -1)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sceneObjId);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sceneObjId);
         if (it != nullptr)
         {
             _sceneObjectId = sceneObjId;
@@ -135,20 +135,20 @@ void CDrawingObject::setObjectUniqueId()
     _objectUid = App::getFreshUniqueId();
 }
 
-void CDrawingObject::setItems(const double *itemData, size_t itemCnt)
+void CDrawingObject::setItems(const double* itemData, size_t itemCnt)
 {
     addItem(nullptr);
     addItems(itemData, itemCnt);
 }
 
-void CDrawingObject::addItems(const double *itemData, size_t itemCnt)
+void CDrawingObject::addItems(const double* itemData, size_t itemCnt)
 {
     size_t off = size_t(verticesPerItem * 3 + quaternionsPerItem * 4 + colorsPerItem * 3 + otherFloatsPerItem);
     for (size_t i = 0; i < itemCnt; i++)
         addItem(itemData + off * i);
 }
 
-bool CDrawingObject::addItem(const double *itemData)
+bool CDrawingObject::addItem(const double* itemData)
 {
     if (itemData == nullptr)
     {
@@ -158,7 +158,7 @@ bool CDrawingObject::addItem(const double *itemData)
 
         if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _objectUid, nullptr, false);
+            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _objectUid, nullptr, false);
             ev->appendKeyBool("clearPoints", true);
             App::worldContainer->pushEvent();
         }
@@ -183,7 +183,7 @@ bool CDrawingObject::addItem(const double *itemData)
     trInv.setIdentity();
     if ((_sceneObjectId >= 0) && ((_objectType & sim_drawing_local) == 0))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
         if (it == nullptr)
             _sceneObjectId = -2; // should normally never happen!
         else
@@ -345,7 +345,7 @@ void CDrawingObject::_setItemSizes()
     floatsPerItem = 3 * verticesPerItem + 4 * quaternionsPerItem + 3 * colorsPerItem + otherFloatsPerItem;
 }
 
-bool CDrawingObject::announceObjectWillBeErased(const CSceneObject *object)
+bool CDrawingObject::announceObjectWillBeErased(const CSceneObject* object)
 {
     return (_sceneObjectId == object->getObjectHandle());
 }
@@ -372,8 +372,8 @@ void CDrawingObject::_initBufferedEventData()
     _rebuildRemoteItems = true;
 }
 
-void CDrawingObject::_getEventData(std::vector<float> &vertices, std::vector<float> &quaternions,
-                                   std::vector<float> &colors) const
+void CDrawingObject::_getEventData(std::vector<float>& vertices, std::vector<float>& quaternions,
+                                   std::vector<float>& colors) const
 {
     size_t w = 0;
     if (_objectType & sim_drawing_itemcolors)
@@ -435,7 +435,7 @@ void CDrawingObject::_getEventData(std::vector<float> &vertices, std::vector<flo
             w = 2;
         if (t == sim_drawing_triangles)
             w = 3;
-        const float *c = color.getColorsPtr();
+        const float* c = color.getColorsPtr();
         for (size_t itemCnt = 0; itemCnt < _bufferedEventData.size() / size_t(floatsPerItem); itemCnt++)
         {
             for (size_t j = 0; j < w; j++)
@@ -452,7 +452,7 @@ void CDrawingObject::pushAddEvent()
 {
     if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
     {
-        CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, -1, _objectUid, nullptr, false);
+        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, -1, _objectUid, nullptr, false);
         std::string tp;
         switch (_objectType & 0x001f)
         {
@@ -506,7 +506,7 @@ void CDrawingObject::pushAppendNewPointEvent()
         std::vector<float> colors;
         _getEventData(points, quaternions, colors);
 
-        CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _objectUid, nullptr, false);
+        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _objectUid, nullptr, false);
         ev->appendKeyFloatArray("points", points.data(), points.size());
         ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
         ev->appendKeyFloatArray("colors", colors.data(), colors.size());
@@ -519,7 +519,7 @@ void CDrawingObject::pushAppendNewPointEvent()
 }
 
 #ifdef SIM_WITH_GUI
-void CDrawingObject::draw(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix &cameraCTM)
+void CDrawingObject::draw(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix& cameraCTM)
 {
     if (displayAttrib & sim_displayattribute_colorcoded)
         return;
@@ -555,7 +555,7 @@ void CDrawingObject::draw(bool overlay, bool transparentObject, int displayAttri
 
     if (_sceneObjectId >= 0)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
         if (it == nullptr)
             _sceneObjectId = -2; // should normally never happen
         else

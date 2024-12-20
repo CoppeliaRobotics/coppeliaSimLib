@@ -16,18 +16,18 @@ class CQDlgIkElements : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgIkElements(QWidget *parent = 0);
+    explicit CQDlgIkElements(QWidget* parent = 0);
     ~CQDlgIkElements();
 
     void cancelEvent();
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
     bool needsDestruction();
     bool isLinkedDataValid();
     bool doesInstanceSwitchRequireDestruction();
 
     void _initialize(int ikGroupHandle);
-    static void display(int ikGroupHandle, QWidget *theParentWindow);
+    static void display(int ikGroupHandle, QWidget* theParentWindow);
 
     void updateObjectsInList();
     int getSelectedObjectID();
@@ -72,7 +72,7 @@ class CQDlgIkElements : public CDlgEx
     void on_qqWeightAngular_editingFinished();
 
   private:
-    Ui::CQDlgIkElements *ui;
+    Ui::CQDlgIkElements* ui;
 };
 
 #endif // QDLGIKELEMENTS_H

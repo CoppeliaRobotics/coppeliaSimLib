@@ -5,25 +5,25 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propProximitySensor_size,                     "sensorPointSize",                          sim_propertytype_float,     0, "Sensor point size", "") \
-    FUNCX(propProximitySensor_frontFaceDetection,       "frontFaceDetection",                       sim_propertytype_bool,      0, "Front face detection", "") \
-    FUNCX(propProximitySensor_backFaceDetection,        "backFaceDetection",                        sim_propertytype_bool,      0, "Back face detection", "") \
-    FUNCX(propProximitySensor_exactMode,                "exactMode",                                sim_propertytype_bool,      0, "Exact mode", "") \
-    FUNCX(propProximitySensor_explicitHandling,         "explicitHandling",                         sim_propertytype_bool,      0, "Explicit handling", "") \
-    FUNCX(propProximitySensor_showVolume,               "showVolume",                               sim_propertytype_bool,      0, "Show volume", "") \
-    FUNCX(propProximitySensor_randomizedDetection,      "randomizedDetection",                      sim_propertytype_bool,      sim_propertyinfo_notwritable, "Randomized detection", "") \
-    FUNCX(propProximitySensor_sensorType,               "sensorType",                               sim_propertytype_int,       sim_propertyinfo_notwritable, "Type", "Sensor type") \
-    FUNCX(propProximitySensor_detectedObjectHandle,     "detectedObjectHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable, "Detected object", "Detected scene object handle") \
-    FUNCX(propProximitySensor_angleThreshold,           "angleThreshold",                           sim_propertytype_float,     0, "Angle threshold", "Angle threshold, 0.0 to disable") \
-    FUNCX(propProximitySensor_detectedPoint,            "detectedPoint",                            sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Detected point", "") \
-    FUNCX(propProximitySensor_detectedNormal,           "detectedNormal",                           sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Detected normal", "Detected normal vector") \
+#define DEFINE_PROPERTIES                                                                                                                                                          \
+    FUNCX(propProximitySensor_size, "sensorPointSize", sim_propertytype_float, 0, "Sensor point size", "")                                                                         \
+    FUNCX(propProximitySensor_frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0, "Front face detection", "")                                                      \
+    FUNCX(propProximitySensor_backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0, "Back face detection", "")                                                         \
+    FUNCX(propProximitySensor_exactMode, "exactMode", sim_propertytype_bool, 0, "Exact mode", "")                                                                                  \
+    FUNCX(propProximitySensor_explicitHandling, "explicitHandling", sim_propertytype_bool, 0, "Explicit handling", "")                                                             \
+    FUNCX(propProximitySensor_showVolume, "showVolume", sim_propertytype_bool, 0, "Show volume", "")                                                                               \
+    FUNCX(propProximitySensor_randomizedDetection, "randomizedDetection", sim_propertytype_bool, sim_propertyinfo_notwritable, "Randomized detection", "")                         \
+    FUNCX(propProximitySensor_sensorType, "sensorType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Sensor type")                                                 \
+    FUNCX(propProximitySensor_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, sim_propertyinfo_notwritable, "Detected object", "Detected scene object handle") \
+    FUNCX(propProximitySensor_angleThreshold, "angleThreshold", sim_propertytype_float, 0, "Angle threshold", "Angle threshold, 0.0 to disable")                                   \
+    FUNCX(propProximitySensor_detectedPoint, "detectedPoint", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Detected point", "")                                        \
+    FUNCX(propProximitySensor_detectedNormal, "detectedNormal", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Detected normal", "Detected normal vector")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_proximitySensor = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_proximitySensor = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -36,30 +36,30 @@ class CProxSensor : public CSceneObject
     virtual ~CProxSensor();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer &ar);
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void serialize(CSer& ar);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
     void setIsInScene(bool s);
-    bool getSensingVolumeBoundingBox(C3Vector &minV, C3Vector &maxV) const;
-    void getSensingVolumeOBB(C7Vector &tr, C3Vector &halfSizes);
+    bool getSensingVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) const;
+    void getSensingVolumeOBB(C7Vector& tr, C3Vector& halfSizes);
     bool isPotentiallyCollidable() const;
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
@@ -94,12 +94,12 @@ class CProxSensor : public CSceneObject
     void setSensableObject(int objectID);
     int getSensableObject();
 
-    bool handleSensor(bool exceptExplicitHandling, int &detectedObjectHandle, C3Vector &detectedNormalVector);
+    bool handleSensor(bool exceptExplicitHandling, int& detectedObjectHandle, C3Vector& detectedNormalVector);
     void resetSensor(bool exceptExplicitHandling);
-    int readSensor(C3Vector &detectPt, int &detectedObjectHandle, C3Vector &detectedNormalVector);
+    int readSensor(C3Vector& detectPt, int& detectedObjectHandle, C3Vector& detectedNormalVector);
 
     void commonInit();
-    bool getSensedData(C3Vector &pt);
+    bool getSensedData(C3Vector& pt);
     void setExactMode(bool closestObjMode);
     bool getExactMode();
     void setProxSensorSize(double newSize);
@@ -135,8 +135,8 @@ class CProxSensor : public CSceneObject
     int getRandomizedDetectionCountForDetection() const;
 
     void calculateFreshRandomizedRays();
-    const std::vector<C3Vector> *getPointerToRandomizedRays() const;
-    std::vector<double> *getPointerToRandomizedRayDetectionStates();
+    const std::vector<C3Vector>* getPointerToRandomizedRays() const;
+    std::vector<double>* getPointerToRandomizedRayDetectionStates();
 
     double getCalculationTime() const;
     C3Vector getDetectedPoint() const;
@@ -144,11 +144,11 @@ class CProxSensor : public CSceneObject
     std::string getSensableObjectLoadAlias() const;
     std::string getSensableObjectLoadName_old() const;
 
-    CColorObject *getColor(int index);
+    CColorObject* getColor(int index);
 
     std::vector<double> cutEdges; // Only used for sensor cutting debugging
 
-    CConvexVolume *convexVolume;
+    CConvexVolume* convexVolume;
 
   protected:
     void _setDetectedObjectAndInfo(int h, const C3Vector* detectedPt = nullptr, const C3Vector* detectedN = nullptr);
@@ -169,10 +169,10 @@ class CProxSensor : public CSceneObject
     int _calcTimeInMs;
 
     bool _randomizedDetection;
-    int _randomizedDetectionSampleCount_deprecated;         // 1
-    int _randomizedDetectionCountForDetection_deprecated;   // 1
-    int _sensableType_deprecated;   // sim_objectspecialproperty_detectable_ultrasonic
-    int _sensableObject_deprecated; // scene object handle or collection handle
+    int _randomizedDetectionSampleCount_deprecated;       // 1
+    int _randomizedDetectionCountForDetection_deprecated; // 1
+    int _sensableType_deprecated;                         // sim_objectspecialproperty_detectable_ultrasonic
+    int _sensableObject_deprecated;                       // scene object handle or collection handle
     bool _hideDetectionRay_deprecated;
 
     std::vector<C3Vector> _randomizedVectors;
@@ -185,6 +185,6 @@ class CProxSensor : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib);
 #endif
 };

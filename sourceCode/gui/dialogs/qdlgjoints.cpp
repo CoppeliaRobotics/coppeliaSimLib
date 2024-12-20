@@ -11,7 +11,8 @@
 
 bool CQDlgJoints::showDynamicWindow = false;
 
-CQDlgJoints::CQDlgJoints(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgJoints)
+CQDlgJoints::CQDlgJoints(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgJoints)
 {
     _dlgType = JOINT_DLG;
     ui->setupUi(this);
@@ -32,7 +33,7 @@ void CQDlgJoints::cancelEvent()
 void CQDlgJoints::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint);
@@ -42,7 +43,7 @@ void CQDlgJoints::refresh()
     bool prismatic = false;
     bool spherical = false;
     bool dynamic = false;
-    CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+    CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
     if (sel)
     {
         revolute = (it->getJointType() == sim_joint_revolute);
@@ -199,9 +200,9 @@ void CQDlgJoints::refresh()
         ui->qqDiameter->setText("");
     }
 
-    VDialog *dlg = GuiApp::mainWindow->dlgCont->getDialog(JOINT_DYN_DLG);
+    VDialog* dlg = GuiApp::mainWindow->dlgCont->getDialog(JOINT_DYN_DLG);
     if (dlg != nullptr)
-        ((CQDlgJointDyn *)dlg)->refresh();
+        ((CQDlgJointDyn*)dlg)->refresh();
 
     selectLineEdit(lineEditToSelect);
     inMainRefreshRoutine = false;
@@ -244,7 +245,7 @@ void CQDlgJoints::on_qqMinimum_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqMinimum->text().toStdString().c_str(), &ok);
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
             if (it->getJointType() != sim_joint_prismatic)
@@ -265,7 +266,7 @@ void CQDlgJoints::on_qqRange_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqRange->text().toStdString().c_str(), &ok);
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
             if (it->getJointType() != sim_joint_prismatic)
@@ -286,7 +287,7 @@ void CQDlgJoints::on_qqPosition_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPosition->text().toStdString().c_str(), &ok);
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
             if (it->getJointType() != sim_joint_prismatic)

@@ -2,7 +2,7 @@
 #include <pathPlanningInterface.h>
 #include <simInternal.h>
 
-CHolonomicPathNode_old::CHolonomicPathNode_old(const C4Vector &rotAxisRot, const C4Vector &rotAxisRotInv)
+CHolonomicPathNode_old::CHolonomicPathNode_old(const C4Vector& rotAxisRot, const C4Vector& rotAxisRotInv)
 {
     _rotAxisRot = rotAxisRot;
     _rotAxisRotInv = rotAxisRotInv;
@@ -11,8 +11,8 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(const C4Vector &rotAxisRot, const
     values = nullptr;
 }
 
-CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, const C7Vector &conf, const C4Vector &rotAxisRot,
-                                               const C4Vector &rotAxisRotInv)
+CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, const C7Vector& conf, const C4Vector& rotAxisRot,
+                                               const C4Vector& rotAxisRotInv)
 {
     _rotAxisRot = rotAxisRot;
     _rotAxisRotInv = rotAxisRotInv;
@@ -25,7 +25,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, const C7Vector &conf
 }
 
 CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, double searchMin[4], double searchRange[4],
-                                               const C4Vector &rotAxisRot, const C4Vector &rotAxisRotInv)
+                                               const C4Vector& rotAxisRot, const C4Vector& rotAxisRotInv)
 {
     _rotAxisRot = rotAxisRot;
     _rotAxisRotInv = rotAxisRotInv;
@@ -119,7 +119,7 @@ CHolonomicPathNode_old::~CHolonomicPathNode_old()
     delete[] values;
 }
 
-void CHolonomicPathNode_old::setAllValues(const C3Vector &pos, const C4Vector &orient)
+void CHolonomicPathNode_old::setAllValues(const C3Vector& pos, const C4Vector& orient)
 {
     if (_nodeType == sim_holonomicpathplanning_xy)
     {
@@ -189,7 +189,7 @@ void CHolonomicPathNode_old::setAllValues(const C3Vector &pos, const C4Vector &o
     }
 }
 
-void CHolonomicPathNode_old::getAllValues(C3Vector &pos, C4Vector &orient)
+void CHolonomicPathNode_old::getAllValues(C3Vector& pos, C4Vector& orient)
 {
     pos.clear();
     orient.setIdentity();
@@ -258,9 +258,9 @@ void CHolonomicPathNode_old::getAllValues(C3Vector &pos, C4Vector &orient)
     }
 }
 
-CHolonomicPathNode_old *CHolonomicPathNode_old::copyYourself()
+CHolonomicPathNode_old* CHolonomicPathNode_old::copyYourself()
 {
-    CHolonomicPathNode_old *newNode = new CHolonomicPathNode_old(_rotAxisRot, _rotAxisRotInv);
+    CHolonomicPathNode_old* newNode = new CHolonomicPathNode_old(_rotAxisRot, _rotAxisRotInv);
     newNode->_nodeType = _nodeType;
     int s = getSize();
     newNode->values = new double[s];
@@ -269,7 +269,7 @@ CHolonomicPathNode_old *CHolonomicPathNode_old::copyYourself()
     return (newNode);
 }
 
-void CHolonomicPathNode_old::setAllValues(double *v)
+void CHolonomicPathNode_old::setAllValues(double* v)
 {
     int s = getSize();
     for (int i = 0; i < s; i++)

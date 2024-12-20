@@ -2,7 +2,8 @@
 
 Qt::WindowFlags VDialog::dialogStyle;
 
-VDialog::VDialog(QWidget *pParent) : QDialog(pParent, dialogStyle)
+VDialog::VDialog(QWidget* pParent)
+    : QDialog(pParent, dialogStyle)
 {
 #ifdef MAC_SIM
     setAttribute(Qt::WA_ShowWithoutActivating);
@@ -12,7 +13,8 @@ VDialog::VDialog(QWidget *pParent) : QDialog(pParent, dialogStyle)
 #endif
 }
 
-VDialog::VDialog(QWidget *pParent, Qt::WindowFlags specialFlags) : QDialog(pParent, specialFlags)
+VDialog::VDialog(QWidget* pParent, Qt::WindowFlags specialFlags)
+    : QDialog(pParent, specialFlags)
 {
 #ifdef MAC_SIM
     setAttribute(Qt::WA_ShowWithoutActivating);

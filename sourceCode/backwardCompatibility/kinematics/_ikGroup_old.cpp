@@ -23,7 +23,7 @@ _CIkGroup_old::~_CIkGroup_old()
         _removeIkElement(_ikElements[0]->getObjectHandle());
 }
 
-CIkElement_old *_CIkGroup_old::getIkElementFromHandle(int ikElementHandle) const
+CIkElement_old* _CIkGroup_old::getIkElementFromHandle(int ikElementHandle) const
 {
     for (size_t i = 0; i < _ikElements.size(); i++)
     {
@@ -33,7 +33,7 @@ CIkElement_old *_CIkGroup_old::getIkElementFromHandle(int ikElementHandle) const
     return (nullptr);
 }
 
-CIkElement_old *_CIkGroup_old::getIkElementFromTipHandle(int tipHandle) const
+CIkElement_old* _CIkGroup_old::getIkElementFromTipHandle(int tipHandle) const
 {
     if (tipHandle != -1)
     {
@@ -46,9 +46,9 @@ CIkElement_old *_CIkGroup_old::getIkElementFromTipHandle(int tipHandle) const
     return (nullptr);
 }
 
-CIkElement_old *_CIkGroup_old::getIkElementFromIndex(size_t index) const
+CIkElement_old* _CIkGroup_old::getIkElementFromIndex(size_t index) const
 {
-    CIkElement_old *retVal = nullptr;
+    CIkElement_old* retVal = nullptr;
     if (index < _ikElements.size())
         retVal = _ikElements[index];
     return (retVal);
@@ -59,7 +59,7 @@ size_t _CIkGroup_old::getIkElementCount() const
     return (_ikElements.size());
 }
 
-void _CIkGroup_old::_addIkElement(CIkElement_old *anElement)
+void _CIkGroup_old::_addIkElement(CIkElement_old* anElement)
 {
     _ikElements.push_back(anElement);
 }
@@ -310,7 +310,7 @@ bool _CIkGroup_old::getDoOnPerformed() const
     return (_doOnPerformed);
 }
 
-bool _CIkGroup_old::setObjectName(const char *newName, bool check)
+bool _CIkGroup_old::setObjectName(const char* newName, bool check)
 {
     bool diff = (_objectName != newName);
     if (diff)
@@ -321,7 +321,7 @@ bool _CIkGroup_old::setObjectName(const char *newName, bool check)
     return (diff);
 }
 
-void _CIkGroup_old::_setObjectName_send(const char *nm) const
+void _CIkGroup_old::_setObjectName_send(const char* nm) const
 {
 }
 

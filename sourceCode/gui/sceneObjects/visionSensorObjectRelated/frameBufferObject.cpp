@@ -2,7 +2,8 @@
 #include <frameBufferObject.h>
 #include <oglExt.h>
 
-CFrameBufferObject::CFrameBufferObject(bool native, int resX, int resY, bool useStencilBuffer) : QObject()
+CFrameBufferObject::CFrameBufferObject(bool native, int resX, int resY, bool useStencilBuffer)
+    : QObject()
 {
     TRACE_INTERNAL;
 

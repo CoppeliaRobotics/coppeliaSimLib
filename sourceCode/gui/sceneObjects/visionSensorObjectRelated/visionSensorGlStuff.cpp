@@ -3,12 +3,12 @@
 
 #ifdef USES_QGLWIDGET
 CVisionSensorGlStuff::CVisionSensorGlStuff(int resX, int resY, int offscreenType, bool qtFbo,
-                                           QGLWidget *otherWidgetToShareResourcesWith, bool useStencilBuffer,
+                                           QGLWidget* otherWidgetToShareResourcesWith, bool useStencilBuffer,
                                            bool destroyOffscreenContext)
     : QObject()
 #else
 CVisionSensorGlStuff::CVisionSensorGlStuff(int resX, int resY, int offscreenType, bool qtFbo,
-                                           QOpenGLWidget *otherWidgetToShareResourcesWith, bool useStencilBuffer,
+                                           QOpenGLWidget* otherWidgetToShareResourcesWith, bool useStencilBuffer,
                                            bool destroyOffscreenContext)
     : QObject()
 #endif

@@ -5,7 +5,7 @@
 #include "app.h"
 #include "simStringTable.h"
 
-CQDlgWorkSpaceMetric::CQDlgWorkSpaceMetric(QWidget *parent)
+CQDlgWorkSpaceMetric::CQDlgWorkSpaceMetric(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgWorkSpaceMetric)
 {
     ui->setupUi(this);
@@ -34,7 +34,7 @@ void CQDlgWorkSpaceMetric::refresh()
     ui->qqAbg->setText(tt::getFString(false, data[3], 3).c_str());
 }
 
-void CQDlgWorkSpaceMetric::on_qqClose_clicked(QAbstractButton *button)
+void CQDlgWorkSpaceMetric::on_qqClose_clicked(QAbstractButton* button)
 {
     defaultModalDialogEndRoutine(true);
 }

@@ -46,18 +46,18 @@ class oglExt
     static void prepareExtensionFunctions(bool forceFboToUseExt);
     static void turnOffVSync(int vsync);
     static bool isFboAvailable();
-    static bool _isFboAvailable(bool &viaExt);
+    static bool _isFboAvailable(bool& viaExt);
 
-    static void GenFramebuffers(GLsizei a, GLuint *b);
-    static void DeleteFramebuffers(GLsizei a, const GLuint *b);
+    static void GenFramebuffers(GLsizei a, GLuint* b);
+    static void DeleteFramebuffers(GLsizei a, const GLuint* b);
     static void BindFramebuffer(GLenum a, GLuint b);
-    static void GenRenderbuffers(GLsizei a, GLuint *b);
-    static void DeleteRenderbuffers(GLsizei a, const GLuint *b);
+    static void GenRenderbuffers(GLsizei a, GLuint* b);
+    static void DeleteRenderbuffers(GLsizei a, const GLuint* b);
     static void BindRenderbuffer(GLenum a, GLuint b);
     static void RenderbufferStorage(GLenum a, GLenum b, GLsizei c, GLsizei d);
     static void FramebufferRenderbuffer(GLenum a, GLenum b, GLenum c, GLuint d);
     static void CheckFramebufferStatus(GLenum a);
-    static void GetRenderbufferParameteriv(GLenum a, GLenum b, GLint *c);
+    static void GetRenderbufferParameteriv(GLenum a, GLenum b, GLint* c);
 
 #ifndef MAC_SIM
     static PFNGLGENFRAMEBUFFERSEXTPROC _glGenFramebuffers;

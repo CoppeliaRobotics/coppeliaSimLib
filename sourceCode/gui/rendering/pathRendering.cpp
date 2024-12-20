@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <pathRendering.h>
 #include <guiApp.h>
 
-void displayPath(CPath_old *path, CViewableBase *renderingObject, int displayAttrib)
+void displayPath(CPath_old* path, CViewableBase* renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
     _commonStart(path, renderingObject);

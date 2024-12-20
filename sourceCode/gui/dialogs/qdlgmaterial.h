@@ -16,7 +16,7 @@ class CQDlgMaterial : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgMaterial(QWidget *parent = 0);
+    explicit CQDlgMaterial(QWidget* parent = 0);
     ~CQDlgMaterial();
 
     void refresh();
@@ -35,8 +35,8 @@ class CQDlgMaterial : public CDlgEx
     int _lastSelectedObjectID;
     size_t _objectSelectionSize;
 
-    static void displayMaterialDlg(int objType, int objID1, int objID2, QWidget *theParentWindow);
-    static void displayMaterialDlgModal(int objType, int objID1, int objID2, QWidget *theParentWindow);
+    static void displayMaterialDlg(int objType, int objID1, int objID2, QWidget* theParentWindow);
+    static void displayMaterialDlgModal(int objType, int objID1, int objID2, QWidget* theParentWindow);
     void _initializeDlg(int objType, int objID1, int objID2);
     void _adjustCol(int colComponent);
 
@@ -62,7 +62,7 @@ class CQDlgMaterial : public CDlgEx
     void on_qqExtensionString_editingFinished();
 
   private:
-    Ui::CQDlgMaterial *ui;
+    Ui::CQDlgMaterial* ui;
 };
 
 #endif // QDLGMATERIAL_H

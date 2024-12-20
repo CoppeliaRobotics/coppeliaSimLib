@@ -26,7 +26,7 @@ CHierarchyElement::~CHierarchyElement()
     children.clear();
 }
 
-void CHierarchyElement::setSceneName(const char *sn)
+void CHierarchyElement::setSceneName(const char* sn)
 {
     if (strlen(sn) == 0)
         _sceneName = "new scene";
@@ -34,11 +34,11 @@ void CHierarchyElement::setSceneName(const char *sn)
         _sceneName = sn;
 }
 
-CHierarchyElement *CHierarchyElement::getElementLinkedWithObject(int objID)
+CHierarchyElement* CHierarchyElement::getElementLinkedWithObject(int objID)
 {
     if (objectID == objID)
         return (this);
-    CHierarchyElement *retVal = nullptr;
+    CHierarchyElement* retVal = nullptr;
     for (int i = 0; i < int(children.size()); i++)
     {
         retVal = children[i]->getElementLinkedWithObject(objID);
@@ -56,21 +56,21 @@ void CHierarchyElement::addYourChildren()
         { // this is the world!
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getOrphanCount(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getOrphanFromIndex(i);
-                CHierarchyElement *aKid = new CHierarchyElement(it->getObjectHandle());
+                CSceneObject* it = App::currentWorld->sceneObjects->getOrphanFromIndex(i);
+                CHierarchyElement* aKid = new CHierarchyElement(it->getObjectHandle());
                 aKid->addYourChildren();
                 children.push_back(aKid);
             }
         }
         else
         { // this is a scene object!
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
             if (it != nullptr)
             {
                 for (size_t i = 0; i < it->getChildCount(); i++)
                 {
-                    CSceneObject *child = it->getChildFromIndex(i);
-                    CHierarchyElement *aKid = new CHierarchyElement(child->getObjectHandle());
+                    CSceneObject* child = it->getChildFromIndex(i);
+                    CHierarchyElement* aKid = new CHierarchyElement(child->getObjectHandle());
                     aKid->addYourChildren();
                     children.push_back(aKid);
                 }
@@ -84,14 +84,14 @@ int CHierarchyElement::getLinkedObjectID()
     return (objectID);
 }
 
-void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEditObjectID, bool &bright,
+void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEditObjectID, bool& bright,
                                                   bool dontDisplay, int renderingSize[2], int textPos[2], int indentNb,
-                                                  std::vector<int> *vertLines, int minRenderedPos[2],
+                                                  std::vector<int>* vertLines, int minRenderedPos[2],
                                                   int maxRenderedPos[2], bool forDragAndDrop /*=false*/,
                                                   int transparentForTreeObjects /*=-1*/, int dropID /*=-1*/,
                                                   int worldClick /*=-9999*/)
-{ // transparentForTreeObjects==-1: normal, transparentForTreeObjects==-2: transparent, otherwise transparent only for
-  // objID=transparentForTreeObjects
+{   // transparentForTreeObjects==-1: normal, transparentForTreeObjects==-2: transparent, otherwise transparent only for
+    // objID=transparentForTreeObjects
     const unsigned char horizontalShift = 13 * GuiApp::sc;
     double transparencyFactor = 0.0;
     if ((transparentForTreeObjects >= 0) && (transparentForTreeObjects == objectID))
@@ -118,7 +118,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
     }
 
     bool textInside = (textPos[1] < renderingSize[1] + HIERARCHY_INTER_LINE_SPACE * GuiApp::sc);
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
     std::string theText;
     if (it != nullptr)
     {
@@ -141,7 +141,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
 
     bool inSelection = false;
     float dummyCol[3] = {0.0, 0.0, 0.0};
-    float *bgCol = dummyCol;
+    float* bgCol = dummyCol;
     if (!forDragAndDrop)
     {
         bool hasAColor = false;
@@ -309,7 +309,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
 
     if (textInside && (!dontDisplay))
     {
-        float *tc;
+        float* tc;
         if (inSelection)
             tc = ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
         else
@@ -369,7 +369,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
     {
         bool hasScript = false;
         // Old simulation scripts:
-        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, it->getObjectHandle());
+        CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, it->getObjectHandle());
         if (script != nullptr)
         {
             hasScript = true;
@@ -412,7 +412,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
         }
 
         // Old Customization scripts:
-        CScriptObject *customizationScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CScriptObject* customizationScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customization, it->getObjectHandle());
         if (customizationScript != nullptr)
         {
@@ -469,7 +469,6 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
                             }
                         }
                     }
-
                 }
             }
             if (newScript != nullptr)
@@ -492,7 +491,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
             {
                 if (it->getObjectType() != sim_sceneobject_script)
                 {
-                    CUserParameters *params = it->getUserScriptParameterObject();
+                    CUserParameters* params = it->getUserScriptParameterObject();
                     if (((params != nullptr) && (params->userParamEntries.size() > 0)) ||
                         ((customizationScript != nullptr) &&
                          customizationScript->hasSystemFunctionOrHook(sim_syscb_userconfig)))
@@ -519,7 +518,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
     }
     else
     { // This is for the main script (pseudo object "world"):
-        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (script != nullptr)
         {
             if (!dontDisplay)
@@ -679,7 +678,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
     }
 }
 
-int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tPosY, CSceneObject *it, int pictureID,
+int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier, int tPosX, int tPosY, CSceneObject* it, int pictureID,
                                              bool drawIt, double transparencyFactor, bool forDragAndDrop)
 { // pictureID is -1 by default. It is then ignored. The size of the icon is 16x16
     int retVal = 0;
@@ -729,25 +728,25 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                 }
                 if (type == sim_sceneobject_shape)
                 {
-                    if (((CShape *)it)->isCompound())
+                    if (((CShape*)it)->isCompound())
                     {
-                        if (((CShape *)it)->getMesh()->isPure())
+                        if (((CShape*)it)->getMesh()->isPure())
                             objectOrWorldIconID = PURE_MULTISHAPE_TREE_PICTURE;
-                        else if (((CShape *)it)->getMesh()->isConvex())
+                        else if (((CShape*)it)->getMesh()->isConvex())
                             objectOrWorldIconID = CONVEX_MULTISHAPE_TREE_PICTURE;
                         else
                             objectOrWorldIconID = MULTI_SHAPE_TREE_PICTURE;
                     }
                     else
                     {
-                        if (((CShape *)it)->getMesh()->isPure())
+                        if (((CShape*)it)->getMesh()->isPure())
                         {
-                            if (((CShape *)it)->getMesh()->getPurePrimitiveType() == sim_primitiveshape_heightfield)
+                            if (((CShape*)it)->getMesh()->getPurePrimitiveType() == sim_primitiveshape_heightfield)
                                 objectOrWorldIconID = HEIGHTFIELD_SHAPE_TREE_PICTURE;
                             else
                                 objectOrWorldIconID = PURE_SHAPE_TREE_PICTURE;
                         }
-                        else if (((CShape *)it)->getMesh()->isConvex())
+                        else if (((CShape*)it)->getMesh()->isConvex())
                             objectOrWorldIconID = CONVEX_SHAPE_TREE_PICTURE;
                         else
                             objectOrWorldIconID = SIMPLE_SHAPE_TREE_PICTURE;
@@ -755,42 +754,42 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                 }
                 if (type == sim_sceneobject_joint)
                 {
-                    if (((CJoint *)it)->getJointType() == sim_joint_revolute)
+                    if (((CJoint*)it)->getJointType() == sim_joint_revolute)
                         objectOrWorldIconID = REVOLUTE_JOINT_TREE_PICTURE;
-                    if (((CJoint *)it)->getJointType() == sim_joint_prismatic)
+                    if (((CJoint*)it)->getJointType() == sim_joint_prismatic)
                         objectOrWorldIconID = PRISMATIC_JOINT_TREE_PICTURE;
-                    if (((CJoint *)it)->getJointType() == sim_joint_spherical)
+                    if (((CJoint*)it)->getJointType() == sim_joint_spherical)
                         objectOrWorldIconID = SPHERICAL_JOINT_TREE_PICTURE;
                 }
                 if (type == sim_sceneobject_camera)
                     objectOrWorldIconID = CAMERA_TREE_PICTURE;
                 if (type == sim_sceneobject_mirror)
                 {
-                    if (((CMirror *)it)->getIsMirror())
+                    if (((CMirror*)it)->getIsMirror())
                         objectOrWorldIconID = MIRROR_TREE_PICTURE;
                     else
                         objectOrWorldIconID = CLIPPLANE_TREE_PICTURE;
                 }
                 if (type == sim_sceneobject_light)
                 {
-                    int subType = ((CLight *)it)->getLightType();
+                    int subType = ((CLight*)it)->getLightType();
                     if (subType == sim_light_omnidirectional)
                     {
-                        if (((CLight *)it)->getLightActive())
+                        if (((CLight*)it)->getLightActive())
                             objectOrWorldIconID = OMNI_LIGHT_ON_TREE_PICTURE;
                         else
                             objectOrWorldIconID = OMNI_LIGHT_OFF_TREE_PICTURE;
                     }
                     if (subType == sim_light_spot)
                     {
-                        if (((CLight *)it)->getLightActive())
+                        if (((CLight*)it)->getLightActive())
                             objectOrWorldIconID = SPOT_LIGHT_ON_TREE_PICTURE;
                         else
                             objectOrWorldIconID = SPOT_LIGHT_OFF_TREE_PICTURE;
                     }
                     if (subType == sim_light_directional)
                     {
-                        if (((CLight *)it)->getLightActive())
+                        if (((CLight*)it)->getLightActive())
                             objectOrWorldIconID = DIR_LIGHT_ON_TREE_PICTURE;
                         else
                             objectOrWorldIconID = DIR_LIGHT_OFF_TREE_PICTURE;
@@ -802,7 +801,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                     objectOrWorldIconID = DUMMY_TREE_PICTURE;
                 if (type == sim_sceneobject_script)
                 {
-                    CScriptObject* script = ((CScript *)it)->scriptObject;
+                    CScriptObject* script = ((CScript*)it)->scriptObject;
                     if (script->getScriptType() == sim_scripttype_simulation)
                     {
                         if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
@@ -906,7 +905,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
     return (retVal);
 }
 
-void CHierarchyElement::renderElement_editModeList(CHierarchy *hier, int labelEditObjectID, bool &bright,
+void CHierarchyElement::renderElement_editModeList(CHierarchy* hier, int labelEditObjectID, bool& bright,
                                                    bool dontDisplay, int renderingSize[2], int textPos[2], int indentNb,
                                                    int minRenderedPos[2], int maxRenderedPos[2], int selectedState,
                                                    int editModeType)
@@ -1016,7 +1015,7 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy *hier, int labelEd
             (objectID <
              GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentsSize()))
         {
-            CMesh *geom =
+            CMesh* geom =
                 GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentAtIndex(
                     objectID);
             int pic = 0;
@@ -1058,7 +1057,7 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy *hier, int labelEd
     textPos[1] = textPos[1] - HIERARCHY_INTER_LINE_SPACE * GuiApp::sc;
 }
 
-int CHierarchyElement::_drawIcon_editModeList(CHierarchy *hier, int tPosX, int tPosY, int pictureID, bool drawIt)
+int CHierarchyElement::_drawIcon_editModeList(CHierarchy* hier, int tPosX, int tPosY, int pictureID, bool drawIt)
 { // The size of the icon is 16x16
     const int sizeX = 16 * GuiApp::sc;
     const int sizeY = 16 * GuiApp::sc;
@@ -1116,7 +1115,7 @@ void CHierarchyElement::_drawTexturedIcon(int tPosX, int tPosY, int sizeX, int s
     App::worldContainer->globalGuiTextureCont->endTextureDisplay();
 }
 
-bool CHierarchyElement::renderDummyElement(bool &bright, int renderingSize[2], int textPos[2])
+bool CHierarchyElement::renderDummyElement(bool& bright, int renderingSize[2], int textPos[2])
 { // Just renders the background and returns true when inside the visible zone
     bright = !bright;
     if (textPos[1] < -HIERARCHY_INTER_LINE_SPACE * GuiApp::sc)

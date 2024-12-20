@@ -8,7 +8,8 @@
 #include <sceneObjectOperations.h>
 #include <guiApp.h>
 
-CQDlgOctrees::CQDlgOctrees(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgOctrees)
+CQDlgOctrees::CQDlgOctrees(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgOctrees)
 {
     ui->setupUi(this);
 }
@@ -26,13 +27,13 @@ void CQDlgOctrees::cancelEvent()
 
 void CQDlgOctrees::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
     bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
 
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_octree);
     size_t objCnt = App::currentWorld->sceneObjects->getSelectionCount();
-    COcTree *it = App::currentWorld->sceneObjects->getLastSelectionOctree();
+    COcTree* it = App::currentWorld->sceneObjects->getLastSelectionOctree();
 
     ui->qqSize->setEnabled(sel && noEditModeAndNoSim);
     ui->qqColor->setEnabled(sel && noEditModeAndNoSim);
@@ -161,7 +162,7 @@ void CQDlgOctrees::on_qqInsert_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        COcTree *it = App::currentWorld->sceneObjects->getLastSelectionOctree();
+        COcTree* it = App::currentWorld->sceneObjects->getLastSelectionOctree();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -176,7 +177,7 @@ void CQDlgOctrees::on_qqSubtract_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        COcTree *it = App::currentWorld->sceneObjects->getLastSelectionOctree();
+        COcTree* it = App::currentWorld->sceneObjects->getLastSelectionOctree();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;

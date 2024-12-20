@@ -11,7 +11,7 @@ CPersistentDataContainer::CPersistentDataContainer()
     initializeWithDataFromFile();
 }
 
-CPersistentDataContainer::CPersistentDataContainer(const char *filename, const char *customFolder /*=nullptr*/)
+CPersistentDataContainer::CPersistentDataContainer(const char* filename, const char* customFolder /*=nullptr*/)
 { // with filename == "" or filename == nullptr,  we we do not read/write to disk
     _eventMutex.lock();
     if (filename != nullptr)
@@ -36,12 +36,12 @@ int CPersistentDataContainer::removeAllData()
     return (retVal);
 }
 
-bool CPersistentDataContainer::clearData(const char *dataName, bool toFile)
+bool CPersistentDataContainer::clearData(const char* dataName, bool toFile)
 {
     return writeData(dataName, "", toFile, false);
 }
 
-bool CPersistentDataContainer::writeData(const char *dataName, const std::string &value, bool toFile, bool allowEmptyString)
+bool CPersistentDataContainer::writeData(const char* dataName, const std::string& value, bool toFile, bool allowEmptyString)
 {
     bool diff = _writeData(dataName, value, allowEmptyString);
     if ((_filename.size() > 0) && toFile)
@@ -59,7 +59,7 @@ bool CPersistentDataContainer::writeData(const char *dataName, const std::string
     return diff;
 }
 
-bool CPersistentDataContainer::_writeData(const char *dataName, const std::string &value, bool allowEmptyString)
+bool CPersistentDataContainer::_writeData(const char* dataName, const std::string& value, bool allowEmptyString)
 {
     bool diff = false;
     if (dataName != nullptr)
@@ -88,7 +88,7 @@ bool CPersistentDataContainer::_writeData(const char *dataName, const std::strin
             }
         }
 
-        if ( (value.size() != 0) || allowEmptyString)
+        if ((value.size() != 0) || allowEmptyString)
         { // we have to add this data:
             _dataNames.push_back(dataName);
             _dataValues.push_back(value);
@@ -100,7 +100,7 @@ bool CPersistentDataContainer::_writeData(const char *dataName, const std::strin
     return diff;
 }
 
-bool CPersistentDataContainer::readData(const char *dataName, std::string &value)
+bool CPersistentDataContainer::readData(const char* dataName, std::string& value)
 {
     if ((dataName == nullptr) || (strlen(dataName) == 0))
         return (false);
@@ -159,7 +159,7 @@ bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName)
             size_t p = nnmm.find("&.");
             if (p != std::string::npos)
                 nnmm.erase(0, p + 2);
-            if ( (pName.size() == 0) || utils::startsWith((CUSTOMDATAPREFIX + nnmm).c_str(), pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith((CUSTOMDATAPREFIX + nnmm).c_str(), pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -174,13 +174,13 @@ bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName)
     return retVal;
 }
 
-int CPersistentDataContainer::getAllDataNames(std::vector<std::string> &names)
+int CPersistentDataContainer::getAllDataNames(std::vector<std::string>& names)
 {
     names.assign(_dataNames.begin(), _dataNames.end());
     return (int(names.size()));
 }
 
-int CPersistentDataContainer::_getDataIndex(const char *dataName)
+int CPersistentDataContainer::_getDataIndex(const char* dataName)
 {
     for (int i = 0; i < int(_dataNames.size()); i++)
     {
@@ -195,7 +195,7 @@ void CPersistentDataContainer::initializeWithDataFromFile()
     _readFromFile(_dataNames, _dataValues);
 }
 
-void CPersistentDataContainer::_readFromFile(std::vector<std::string> &dataNames, std::vector<std::string> &dataValues)
+void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames, std::vector<std::string>& dataValues)
 {
     dataNames.clear();
     dataValues.clear();
@@ -226,7 +226,7 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string> &dataNames
     }
 }
 
-void CPersistentDataContainer::_writeToFile(std::vector<std::string> &dataNames, std::vector<std::string> &dataValues)
+void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames, std::vector<std::string>& dataValues)
 {
     std::string filenameAndPath = CFolderSystem::getUserSettingsPath();
     if (_customFolder.size() > 0)
@@ -248,8 +248,8 @@ void CPersistentDataContainer::_writeToFile(std::vector<std::string> &dataNames,
     }
 }
 
-void CPersistentDataContainer::_serialize(VArchive &ar, std::vector<std::string> &dataNames,
-                                          std::vector<std::string> &dataValues)
+void CPersistentDataContainer::_serialize(VArchive& ar, std::vector<std::string>& dataNames,
+                                          std::vector<std::string>& dataValues)
 {
     if (ar.isStoring())
     { // Storing
@@ -307,10 +307,9 @@ void CPersistentDataContainer::_serialize(VArchive &ar, std::vector<std::string>
     }
 }
 
-void CPersistentDataContainer::appendEventData(const char* dataName, CCbor *ev, bool remove /*= false*/) const
+void CPersistentDataContainer::appendEventData(const char* dataName, CCbor* ev, bool remove /*= false*/) const
 {
-    auto appendKeyItem = [&](const std::string& ttag, const std::string& dat)
-    {
+    auto appendKeyItem = [&](const std::string& ttag, const std::string& dat) {
         std::string tg(ttag);
         size_t p = tg.find("&.");
         if (p != std::string::npos)
@@ -416,13 +415,13 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor *ev, 
             {
                 tg.erase(0, p + 2);
                 tg = CUSTOMDATAPREFIX + tg;
-                ev->appendKeyBuff(tg.c_str(), (unsigned char *)dat.data(), dat.size());
+                ev->appendKeyBuff(tg.c_str(), (unsigned char*)dat.data(), dat.size());
             }
         }
         else
         {
             tg = CUSTOMDATAPREFIX + tg;
-            ev->appendKeyBuff(tg.c_str(), (unsigned char *)dat.data(), dat.size());
+            ev->appendKeyBuff(tg.c_str(), (unsigned char*)dat.data(), dat.size());
         }
     };
 
@@ -442,7 +441,7 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor *ev, 
     {
         for (size_t i = 0; i < _dataNames.size(); i++)
         {
-            if ( (dataName == nullptr) || (_dataNames[i] == dataName) )
+            if ((dataName == nullptr) || (_dataNames[i] == dataName))
             {
                 std::string tg(_dataNames[i]);
                 if (utils::replaceSubstring(tg, "&customData", ""))

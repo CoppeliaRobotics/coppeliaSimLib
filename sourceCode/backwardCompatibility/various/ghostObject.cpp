@@ -52,9 +52,9 @@ void CGhostObject::modifyAttributes(int theOptions, int theOptionsMask)
     options = ((options | theOptionsMask) - theOptionsMask) | (theOptions & theOptionsMask);
 }
 
-CGhostObject *CGhostObject::copyYourself()
+CGhostObject* CGhostObject::copyYourself()
 {
-    CGhostObject *newGhost = new CGhostObject();
+    CGhostObject* newGhost = new CGhostObject();
     newGhost->groupId = groupId;
     newGhost->ghostId = ghostId;
     newGhost->objectHandle = objectHandle;
@@ -80,7 +80,7 @@ void CGhostObject::render(int displayAttributes, double simulationTime, double r
         doIt = (simulationTime >= startTime - 0.00005) && (simulationTime < endTime - 0.00005);
     if (doIt)
     {
-        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
+        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         if (shape != nullptr)
             displayGhost(shape, tr, displayAttributes, options, double(transparencyFactor) / 255.0, color);
     }

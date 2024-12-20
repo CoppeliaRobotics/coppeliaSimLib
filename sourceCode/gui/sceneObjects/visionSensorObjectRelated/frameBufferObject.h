@@ -18,7 +18,7 @@ class CFrameBufferObject : public QObject
 
   protected:
     bool _native;
-    QThread *_initialThread;
+    QThread* _initialThread;
 
     // Data for direct (i.e. native) handling of FBO's:
     unsigned int _fbo;
@@ -27,5 +27,5 @@ class CFrameBufferObject : public QObject
     bool _usingStencilBuffer;
 
     // Data for handling FBO's via Qt's QOpenGLFramebufferObject:
-    QOpenGLFramebufferObject *_frameBufferObject;
+    QOpenGLFramebufferObject* _frameBufferObject;
 };

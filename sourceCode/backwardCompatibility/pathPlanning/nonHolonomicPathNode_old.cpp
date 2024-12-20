@@ -7,7 +7,7 @@ CNonHolonomicPathNode_old::CNonHolonomicPathNode_old()
     parent = 0;
 }
 
-CNonHolonomicPathNode_old::CNonHolonomicPathNode_old(CNonHolonomicPathNode_old *aNode)
+CNonHolonomicPathNode_old::CNonHolonomicPathNode_old(CNonHolonomicPathNode_old* aNode)
 {
     parent = 0;
     values[0] = aNode->values[0];

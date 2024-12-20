@@ -4,8 +4,8 @@ CStaticGraphCurve_old::CStaticGraphCurve_old()
 {
 }
 
-CStaticGraphCurve_old::CStaticGraphCurve_old(int type, std::vector<double> *xVals, std::vector<double> *yVals,
-                                             std::vector<double> *zVals)
+CStaticGraphCurve_old::CStaticGraphCurve_old(int type, std::vector<double>* xVals, std::vector<double>* yVals,
+                                             std::vector<double>* zVals)
 {
     _curveType = type;
     _linkPoints = true;
@@ -84,9 +84,9 @@ std::string CStaticGraphCurve_old::getName()
     return (_name);
 }
 
-CStaticGraphCurve_old *CStaticGraphCurve_old::copyYourself()
+CStaticGraphCurve_old* CStaticGraphCurve_old::copyYourself()
 { // We copy everything
-    CStaticGraphCurve_old *newObj = new CStaticGraphCurve_old();
+    CStaticGraphCurve_old* newObj = new CStaticGraphCurve_old();
     newObj->_curveType = _curveType;
     newObj->ambientColor[0] = ambientColor[0];
     newObj->ambientColor[1] = ambientColor[1];
@@ -104,7 +104,7 @@ CStaticGraphCurve_old *CStaticGraphCurve_old::copyYourself()
     return (newObj);
 }
 
-void CStaticGraphCurve_old::serialize(CSer &ar)
+void CStaticGraphCurve_old::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {

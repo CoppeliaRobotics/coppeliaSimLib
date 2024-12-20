@@ -20,7 +20,7 @@ class CHierarchy
     bool leftMouseDown(int x, int y, int selectionStatus);
     void leftMouseUp(int x, int y);
     bool rightMouseDown(int x, int y);
-    void rightMouseUp(int x, int y, int absX, int absY, QWidget *mainWindow);
+    void rightMouseUp(int x, int y, int absX, int absY, QWidget* mainWindow);
     void mouseMove(int x, int y, bool passiveAndFocused);
     int modelDragMoveEvent(int x, int y);
     void endModelDrag();
@@ -32,7 +32,7 @@ class CHierarchy
     void setRefreshViewFlag();
     void setResetViewFlag();
 
-    void addMenu(VMenu *menu);
+    void addMenu(VMenu* menu);
     bool processCommand(int commandID);
     void looseFocus();
     void keyPress(int key);
@@ -52,7 +52,7 @@ class CHierarchy
     int getActionObjectID_icon(int mousePositionX, int mousePositionY, bool ignoreXPositionAndCheckLineInstead = false);
     int getActionModelID_icon(int mousePositionX, int mousePositionY);
     void getActionObjectIDs(int mouseDownPositionY, int mouseUpPositionY, int tolerance,
-                            std::vector<int> *toBeSelected);
+                            std::vector<int>* toBeSelected);
     void drawEditionLabel(int textPosX, int textPosY);
 
     int getCaughtElements();
@@ -77,7 +77,7 @@ class CHierarchy
     int _caughtElements;
     int renderingSize[2];
     int renderingPosition[2];
-    std::vector<CHierarchyElement *> rootElements;
+    std::vector<CHierarchyElement*> rootElements;
     int mouseDownRelativePosition[2];
     int mouseRelativePosition[2];
     int previousMouseRelativePosition[2];

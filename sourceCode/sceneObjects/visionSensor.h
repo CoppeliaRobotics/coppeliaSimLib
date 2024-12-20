@@ -22,30 +22,30 @@ struct SHandlingResult
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propVisionSensor_size,                    "sensorSize",                               sim_propertytype_float,   0, "Size", "Sensor size") \
-    FUNCX(propVisionSensor_backgroundCol,           "backgroundColor",                          sim_propertytype_color,   0, "Background color", "") \
-    FUNCX(propVisionSensor_renderMode,              "renderMode",                               sim_propertytype_int,     0, "Render mode", "") \
-    FUNCX(propVisionSensor_backgroundSameAsEnv,     "backgroundColorFromEnvironment",           sim_propertytype_bool,    0, "Background color from environment", "") \
-    FUNCX(propVisionSensor_explicitHandling,        "explicitHandling",                         sim_propertytype_bool,    0, "Explicit handling", "") \
-    FUNCX(propVisionSensor_useExtImage,             "useExtImage",                              sim_propertytype_bool,    0, "External input", "") \
-    FUNCX(propVisionSensor_ignoreRgbInfo,           "ignoreImageInfo",                          sim_propertytype_bool,    0, "Ignore RGB buffer", "Ignore RGB buffer (faster)") \
-    FUNCX(propVisionSensor_ignoreDepthInfo,         "ignoreDepthInfo",                          sim_propertytype_bool,    0, "Ignore Depth buffer", "Ignore Depth buffer (faster)") \
-    FUNCX(propVisionSensor_omitPacket1,             "omitPacket1",                              sim_propertytype_bool,    0, "Packet 1 is blank", "Omit packet 1 (faster)") \
-    FUNCX(propVisionSensor_emitImageChangedEvent,   "emitImageChangedEvent",                    sim_propertytype_bool,    0, "Emit image change event", "") \
-    FUNCX(propVisionSensor_emitDepthChangedEvent,   "emitDepthChangedEvent",                    sim_propertytype_bool,    0, "Emit depth change event", "") \
-    FUNCX(propVisionSensor_imageBuffer,             "imageBuffer",                              sim_propertytype_buffer,  0, "RGB buffer", "") \
-    FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_floatarray,  sim_propertyinfo_notwritable, "Depth buffer", "") \
-    FUNCX(propVisionSensor_povFocalBlur,            "povray.focalBlur",                         sim_propertytype_bool,    0, "POV-Ray: focal blur", "Focal blur (with the POV-Ray renderer plugin)") \
-    FUNCX(propVisionSensor_povBlurSamples,          "povray.blurSamples",                       sim_propertytype_int,     0, "POV-Ray: blur samples", "Focal blur samples (with the POV-Ray renderer plugin)") \
-    FUNCX(propVisionSensor_povBlurDistance,         "povray.blurDistance",                      sim_propertytype_float,   0, "POV-Ray: blur distance", "Focal blur distance (with the POV-Ray renderer plugin)") \
-    FUNCX(propVisionSensor_povAperture,             "povray.aperture",                          sim_propertytype_float,   0, "POV-Ray: aperture", "Aperture (with the POV-Ray renderer plugin)") \
+#define DEFINE_PROPERTIES                                                                                                                                                         \
+    FUNCX(propVisionSensor_size, "sensorSize", sim_propertytype_float, 0, "Size", "Sensor size")                                                                                  \
+    FUNCX(propVisionSensor_backgroundCol, "backgroundColor", sim_propertytype_color, 0, "Background color", "")                                                                   \
+    FUNCX(propVisionSensor_renderMode, "renderMode", sim_propertytype_int, 0, "Render mode", "")                                                                                  \
+    FUNCX(propVisionSensor_backgroundSameAsEnv, "backgroundColorFromEnvironment", sim_propertytype_bool, 0, "Background color from environment", "")                              \
+    FUNCX(propVisionSensor_explicitHandling, "explicitHandling", sim_propertytype_bool, 0, "Explicit handling", "")                                                               \
+    FUNCX(propVisionSensor_useExtImage, "useExtImage", sim_propertytype_bool, 0, "External input", "")                                                                            \
+    FUNCX(propVisionSensor_ignoreRgbInfo, "ignoreImageInfo", sim_propertytype_bool, 0, "Ignore RGB buffer", "Ignore RGB buffer (faster)")                                         \
+    FUNCX(propVisionSensor_ignoreDepthInfo, "ignoreDepthInfo", sim_propertytype_bool, 0, "Ignore Depth buffer", "Ignore Depth buffer (faster)")                                   \
+    FUNCX(propVisionSensor_omitPacket1, "omitPacket1", sim_propertytype_bool, 0, "Packet 1 is blank", "Omit packet 1 (faster)")                                                   \
+    FUNCX(propVisionSensor_emitImageChangedEvent, "emitImageChangedEvent", sim_propertytype_bool, 0, "Emit image change event", "")                                               \
+    FUNCX(propVisionSensor_emitDepthChangedEvent, "emitDepthChangedEvent", sim_propertytype_bool, 0, "Emit depth change event", "")                                               \
+    FUNCX(propVisionSensor_imageBuffer, "imageBuffer", sim_propertytype_buffer, 0, "RGB buffer", "")                                                                              \
+    FUNCX(propVisionSensor_depthBuffer, "depthBuffer", sim_propertytype_floatarray, sim_propertyinfo_notwritable, "Depth buffer", "")                                             \
+    FUNCX(propVisionSensor_povFocalBlur, "povray.focalBlur", sim_propertytype_bool, 0, "POV-Ray: focal blur", "Focal blur (with the POV-Ray renderer plugin)")                    \
+    FUNCX(propVisionSensor_povBlurSamples, "povray.blurSamples", sim_propertytype_int, 0, "POV-Ray: blur samples", "Focal blur samples (with the POV-Ray renderer plugin)")       \
+    FUNCX(propVisionSensor_povBlurDistance, "povray.blurDistance", sim_propertytype_float, 0, "POV-Ray: blur distance", "Focal blur distance (with the POV-Ray renderer plugin)") \
+    FUNCX(propVisionSensor_povAperture, "povray.aperture", sim_propertytype_float, 0, "POV-Ray: aperture", "Aperture (with the POV-Ray renderer plugin)")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_visionSensor = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_visionSensor = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -57,23 +57,23 @@ class CVisionSensor : public CViewableBase
     virtual ~CVisionSensor();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer &ar);
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void serialize(CSer& ar);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -121,10 +121,10 @@ class CVisionSensor : public CViewableBase
     void resetSensor();
     bool handleSensor();
     bool checkSensor(int entityID, bool overrideRenderableFlagsForNonCollections);
-    float *checkSensorEx(int entityID, bool imageBuffer,
+    float* checkSensorEx(int entityID, bool imageBuffer,
                          bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, bool hideEdgesIfModel,
                          bool overrideRenderableFlagsForNonCollections);
-    void setDepthBuffer(const float *img);
+    void setDepthBuffer(const float* img);
 
     void setIgnoreRGBInfo(bool ignore);
     bool getIgnoreRGBInfo() const;
@@ -143,8 +143,8 @@ class CVisionSensor : public CViewableBase
     void setComputeImageBasicStats(bool c);
     bool getComputeImageBasicStats() const;
 
-    unsigned char *getRgbBufferPointer();
-    float *getDepthBufferPointer() const;
+    unsigned char* getRgbBufferPointer();
+    float* getDepthBufferPointer() const;
 
     void setDetectableEntityHandle(int entityHandle);
     int getDetectableEntityHandle() const;
@@ -158,7 +158,7 @@ class CVisionSensor : public CViewableBase
                        bool hideEdgesIfModel, bool overrideRenderableFlagsForNonCollections);
     bool renderForDetection(int entityID, bool detectAll,
                             bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, bool hideEdgesIfModel,
-                            bool overrideRenderableFlagsForNonCollections, const std::vector<int> &activeMirrors);
+                            bool overrideRenderableFlagsForNonCollections, const std::vector<int>& activeMirrors);
     void setDefaultBufferValues(const float v[3]);
     void getDefaultBufferValues(float v[3]) const;
 
@@ -168,13 +168,13 @@ class CVisionSensor : public CViewableBase
     bool getApplyExternalRenderedImage() const;
 
     void setExtWindowSizeAndPos(int sizeX, int sizeY, int posX, int posY);
-    void getExtWindowSizeAndPos(int &sizeX, int &sizeY, int &posX, int &posY) const;
+    void getExtWindowSizeAndPos(int& sizeX, int& sizeY, int& posX, int& posY) const;
 
-    float *readPortionOfImage(int posX, int posY, int sizeX, int sizeY, int rgbGreyOrDepth) const;
-    void writeImage(const float *buff, int rgbGreyOrDepth);
-    unsigned char *readPortionOfCharImage(int posX, int posY, int sizeX, int sizeY, double cutoffRgba,
+    float* readPortionOfImage(int posX, int posY, int sizeX, int sizeY, int rgbGreyOrDepth) const;
+    void writeImage(const float* buff, int rgbGreyOrDepth);
+    unsigned char* readPortionOfCharImage(int posX, int posY, int sizeX, int sizeY, double cutoffRgba,
                                           int option) const;
-    bool writePortionOfCharImage(const unsigned char *img, int posX, int posY, int sizeX, int sizeY, int option);
+    bool writePortionOfCharImage(const unsigned char* img, int posX, int posY, int sizeX, int sizeY, int option);
 
     void setUseEnvironmentBackgroundColor(bool s);
     bool getUseEnvironmentBackgroundColor() const;
@@ -182,16 +182,16 @@ class CVisionSensor : public CViewableBase
     std::string getDetectableEntityLoadAlias() const;
     std::string getDetectableEntityLoadName_old() const;
 
-    CComposedFilter *getComposedFilter() const;
-    void setComposedFilter(CComposedFilter *newFilter);
-    CColorObject *getColor();
+    CComposedFilter* getComposedFilter() const;
+    void setComposedFilter(CComposedFilter* newFilter);
+    CColorObject* getColor();
 
     SHandlingResult sensorResult;
     std::vector<std::vector<double>>
         sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
 
-    bool setExternalImage_old(const float *img, bool imgIsGreyScale, bool noProcessing);
-    bool setExternalCharImage_old(const unsigned char *img, bool imgIsGreyScale, bool noProcessing);
+    bool setExternalImage_old(const float* img, bool imgIsGreyScale, bool noProcessing);
+    bool setExternalCharImage_old(const unsigned char* img, bool imgIsGreyScale, bool noProcessing);
 
   protected:
     void _emitImageChangedEvent() const;
@@ -201,28 +201,28 @@ class CVisionSensor : public CViewableBase
     int _getActiveMirrors(int entityID, bool detectAll,
                           bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
                           bool overrideRenderableFlagsForNonCollections, int rendAttrib,
-                          std::vector<int> &activeMirrors);
+                          std::vector<int>& activeMirrors);
 
     void _reserveBuffers();
     void _clearBuffers();
 
     bool _computeDefaultReturnValuesAndApplyFilters();
 
-    CSceneObject *_getInfoOfWhatNeedsToBeRendered(int entityID, bool detectAll, int rendAttrib,
+    CSceneObject* _getInfoOfWhatNeedsToBeRendered(int entityID, bool detectAll, int rendAttrib,
                                                   bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
                                                   bool overrideRenderableFlagsForNonCollections,
-                                                  std::vector<CSceneObject *> &toRender);
-    CSceneObject *_getInfoOfWhatNeedsToBeRendered_old(
+                                                  std::vector<CSceneObject*>& toRender);
+    CSceneObject* _getInfoOfWhatNeedsToBeRendered_old(
         int entityID, bool detectAll, int rendAttrib,
         bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
-        bool overrideRenderableFlagsForNonCollections, std::vector<CSceneObject *> &toRender);
+        bool overrideRenderableFlagsForNonCollections, std::vector<CSceneObject*>& toRender);
 
     bool _extRenderer_prepareView(int extRendererIndex);
     void _extRenderer_prepareLights();
     void _extRenderer_retrieveImage();
 
-    unsigned char *_rgbBuffer;
-    float *_depthBuffer;
+    unsigned char* _rgbBuffer;
+    float* _depthBuffer;
 
     unsigned int _rayTracingTextureName;
 
@@ -245,7 +245,7 @@ class CVisionSensor : public CViewableBase
     int _attributesForRendering;
     bool _inApplyFilterRoutine;
 
-    CComposedFilter *_composedFilter;
+    CComposedFilter* _composedFilter;
 
     // Other variables:
     bool _initialExplicitHandling;
@@ -256,19 +256,19 @@ class CVisionSensor : public CViewableBase
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
-    void lookAt(CSView *viewObject, int viewPos[2] = nullptr, int viewSize[2] = nullptr);
-    CTextureObject *getTextureObject();
+    void display(CViewableBase* renderingObject, int displayAttrib);
+    void lookAt(CSView* viewObject, int viewPos[2] = nullptr, int viewSize[2] = nullptr);
+    CTextureObject* getTextureObject();
 
     void createGlContextAndFboAndTextureObjectIfNeeded(bool useStencilBuffer);
     void createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(bool useStencilBuffer);
 
   protected:
     void _removeGlContextAndFboAndTextureObjectIfNeeded();
-    void _handleMirrors(const std::vector<int> &activeMirrors, int entityID, bool detectAll,
+    void _handleMirrors(const std::vector<int>& activeMirrors, int entityID, bool detectAll,
                         bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, bool hideEdgesIfModel,
                         bool overrideRenderableFlagsForNonCollections);
 
-    CVisionSensorGlStuff *_contextFboAndTexture;
+    CVisionSensorGlStuff* _contextFboAndTexture;
 #endif
 };

@@ -15,7 +15,7 @@ CTextureContainer::~CTextureContainer()
     eraseAllObjects();
 }
 
-CTextureObject *CTextureContainer::getObject(int objectID)
+CTextureObject* CTextureContainer::getObject(int objectID)
 {
     for (size_t i = 0; i < _allTextureObjects.size(); i++)
     {
@@ -25,7 +25,7 @@ CTextureObject *CTextureContainer::getObject(int objectID)
     return (nullptr);
 }
 
-CTextureObject *CTextureContainer::getObject(const char *objectName)
+CTextureObject* CTextureContainer::getObject(const char* objectName)
 {
     for (int i = 0; i < int(_allTextureObjects.size()); i++)
     {
@@ -35,14 +35,14 @@ CTextureObject *CTextureContainer::getObject(const char *objectName)
     return (nullptr);
 }
 
-CTextureObject *CTextureContainer::getObjectAtIndex(int index)
+CTextureObject* CTextureContainer::getObjectAtIndex(int index)
 {
     if ((index < 0) || (index >= int(_allTextureObjects.size())))
         return (nullptr);
     return (_allTextureObjects[index]);
 }
 
-void CTextureContainer::getMinAndMaxNameSuffixes(int &minSuffix, int &maxSuffix) const
+void CTextureContainer::getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const
 {
     minSuffix = -1;
     maxSuffix = -1;
@@ -101,14 +101,14 @@ void CTextureContainer::setSuffix1ToSuffix2(int suffix1, int suffix2)
     }
 }
 
-int CTextureContainer::addObject(CTextureObject *anObject, bool objectIsACopy)
+int CTextureContainer::addObject(CTextureObject* anObject, bool objectIsACopy)
 { // If object already exists (well, similar object), it is destroyed in here!
     return (addObjectWithSuffixOffset(anObject, objectIsACopy, 1));
 }
 
-int CTextureContainer::addObjectWithSuffixOffset(CTextureObject *anObject, bool objectIsACopy, int suffixOffset)
+int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject, bool objectIsACopy, int suffixOffset)
 { // If object already exists (well, similar object), it is destroyed in here!
-    CTextureObject *theOldData = _getEquivalentTextureObject(anObject);
+    CTextureObject* theOldData = _getEquivalentTextureObject(anObject);
     if (theOldData != nullptr)
     { // we already have a similar object!!
         // We transfer the dependencies (since 10/2/2012 (was forgotten before)):
@@ -133,7 +133,7 @@ int CTextureContainer::addObjectWithSuffixOffset(CTextureObject *anObject, bool 
     return (newID);
 }
 
-CTextureObject *CTextureContainer::_getEquivalentTextureObject(CTextureObject *theData)
+CTextureObject* CTextureContainer::_getEquivalentTextureObject(CTextureObject* theData)
 {
     for (size_t i = 0; i < _allTextureObjects.size(); i++)
     {
@@ -171,7 +171,7 @@ void CTextureContainer::updateAllDependencies()
     App::currentWorld->buttonBlockContainer_old->setTextureDependencies();
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
     {
-        CShape *sh = App::currentWorld->sceneObjects->getShapeFromIndex(i);
+        CShape* sh = App::currentWorld->sceneObjects->getShapeFromIndex(i);
         if (sh->getMesh() != nullptr)
             sh->getMesh()->setTextureDependencies(sh->getObjectHandle());
     }
@@ -192,7 +192,7 @@ void CTextureContainer::announceGeneralObjectWillBeErased(int generalObjectID, i
     }
 }
 
-int CTextureContainer::getSameObjectID(CTextureObject *anObject)
+int CTextureContainer::getSameObjectID(CTextureObject* anObject)
 {
     for (int i = 0; i < int(_allTextureObjects.size()); i++)
     {
@@ -209,7 +209,7 @@ void CTextureContainer::eraseAllObjects()
     _allTextureObjects.clear();
 }
 
-void CTextureContainer::storeTextureObject(CSer &ar, CTextureObject *it)
+void CTextureContainer::storeTextureObject(CSer& ar, CTextureObject* it)
 {
     if (ar.isBinary())
     {
@@ -223,7 +223,7 @@ void CTextureContainer::storeTextureObject(CSer &ar, CTextureObject *it)
         it->serialize(ar);
 }
 
-CTextureObject *CTextureContainer::loadTextureObject(CSer &ar, std::string theName, bool &noHit)
+CTextureObject* CTextureContainer::loadTextureObject(CSer& ar, std::string theName, bool& noHit)
 {
     if (ar.isBinary())
     {
@@ -232,14 +232,14 @@ CTextureObject *CTextureContainer::loadTextureObject(CSer &ar, std::string theNa
         {
             noHit = false;
             ar >> byteNumber;
-            CTextureObject *myNewObject = new CTextureObject();
+            CTextureObject* myNewObject = new CTextureObject();
             myNewObject->serialize(ar);
             return (myNewObject);
         }
     }
     else
     {
-        CTextureObject *myNewObject = new CTextureObject();
+        CTextureObject* myNewObject = new CTextureObject();
         myNewObject->serialize(ar);
         return (myNewObject);
     }

@@ -62,7 +62,7 @@ CToolDlgWrapper::~CToolDlgWrapper()
     }
 }
 
-void CToolDlgWrapper::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CToolDlgWrapper::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     if (toolDialog != nullptr)
         toolDialog->dialogCallbackFunc(cmdIn, cmdOut);
@@ -99,7 +99,7 @@ void CToolDlgWrapper::visibleInstanceAboutToSwitch()
             setVisible(false, nullptr);
     }
 }
-void CToolDlgWrapper::setVisible(bool visible, QWidget *parentWindow)
+void CToolDlgWrapper::setVisible(bool visible, QWidget* parentWindow)
 {
     if ((toolDialog != nullptr) && (!visible))
     {
@@ -240,7 +240,7 @@ int CToolDlgWrapper::getDialogType()
     return (dialogType);
 }
 
-CDlgEx *CToolDlgWrapper::getDialog()
+CDlgEx* CToolDlgWrapper::getDialog()
 {
     return (toolDialog);
 }

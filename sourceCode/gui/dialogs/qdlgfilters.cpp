@@ -27,15 +27,16 @@
 #include "qdlgsimplefilter_pixelChange.h"
 #include "qdlgsimplefilter_uniformImage.h"
 
-CQDlgFilters::CQDlgFilters(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgFilters)
+CQDlgFilters::CQDlgFilters(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgFilters)
 {
     _dlgType = VISION_SENSOR_FILTER_DLG;
     ui->setupUi(this);
     inMainRefreshRoutine = false;
     currentComboIndex = 0;
-    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+    QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    QShortcut *shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
+    QShortcut* shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(shortcut2, SIGNAL(activated()), this, SLOT(onDeletePressed()));
 }
 
@@ -51,7 +52,7 @@ void CQDlgFilters::cancelEvent()
     App::setFullDialogRefreshFlag();
 }
 
-void CQDlgFilters::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CQDlgFilters::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     if ((cmdIn != nullptr) && (cmdIn->intParams[0] == _dlgType))
     {
@@ -64,7 +65,7 @@ void CQDlgFilters::refresh()
 {
     inMainRefreshRoutine = true;
     bool noEditModeNoSim = (App::getEditModeType() == NO_EDIT_MODE) && App::ct->simulation->isSimulationStopped();
-    CVisionSensor *it = App::ct->objCont->getLastSelection_visionSensor();
+    CVisionSensor* it = App::ct->objCont->getLastSelection_visionSensor();
 
     int selectedObjectID = getSelectedObjectID();
     updateObjectsInList();
@@ -82,7 +83,7 @@ void CQDlgFilters::refresh()
 
     if (it != nullptr)
     {
-        CComposedFilter *filters = it->getComposedFilter();
+        CComposedFilter* filters = it->getComposedFilter();
         int cnt = 0;
         int tpe = CSimpleFilter::getAvailableFilter(cnt++);
         while (tpe != -1)
@@ -146,12 +147,12 @@ void CQDlgFilters::updateObjectsInList()
 
     if (!App::ct->objCont->isLastSelectionAVisionSensor())
         return;
-    CVisionSensor *it = App::ct->objCont->getLastSelection_visionSensor();
-    CComposedFilter *filters = it->getComposedFilter();
+    CVisionSensor* it = App::ct->objCont->getLastSelection_visionSensor();
+    CComposedFilter* filters = it->getComposedFilter();
 
     for (int i = 0; i < filters->getSimpleFilterCount(); i++)
     {
-        CSimpleFilter *sf = filters->getSimpleFilter(i);
+        CSimpleFilter* sf = filters->getSimpleFilter(i);
         std::string tmp(sf->getFilterString().c_str());
         if (!sf->getEnabled())
         {
@@ -165,7 +166,7 @@ void CQDlgFilters::updateObjectsInList()
             tmp += tt::decorateString("(", strTranslate(IDSN_DOUBLE_CLICK_TO_EDIT), ")");
         }
 
-        QListWidgetItem *itm = new QListWidgetItem(tmp.c_str());
+        QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
         itm->setData(Qt::UserRole, QVariant(i));
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         ui->qqFilterList->addItem(itm);
@@ -174,7 +175,7 @@ void CQDlgFilters::updateObjectsInList()
 
 int CQDlgFilters::getSelectedObjectID()
 {
-    QList<QListWidgetItem *> sel = ui->qqFilterList->selectedItems();
+    QList<QListWidgetItem*> sel = ui->qqFilterList->selectedItems();
     if (sel.size() > 0)
         return (sel.at(0)->data(Qt::UserRole).toInt());
     return (-1);
@@ -184,7 +185,7 @@ void CQDlgFilters::selectObjectInList(int objectID)
 {
     for (int i = 0; i < ui->qqFilterList->count(); i++)
     {
-        QListWidgetItem *it = ui->qqFilterList->item(i);
+        QListWidgetItem* it = ui->qqFilterList->item(i);
         if (it != nullptr)
         {
             if (it->data(Qt::UserRole).toInt() == objectID)
@@ -196,7 +197,7 @@ void CQDlgFilters::selectObjectInList(int objectID)
     }
 }
 
-void CQDlgFilters::on_qqFilterList_itemDoubleClicked(QListWidgetItem *item)
+void CQDlgFilters::on_qqFilterList_itemDoubleClicked(QListWidgetItem* item)
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
@@ -208,13 +209,13 @@ void CQDlgFilters::on_qqFilterList_itemDoubleClicked(QListWidgetItem *item)
 bool CQDlgFilters::_editFilter(int index)
 {
     bool retVal = false;
-    CVisionSensor *it = App::ct->objCont->getVisionSensor(App::ct->objCont->getLastSelectionID());
+    CVisionSensor* it = App::ct->objCont->getVisionSensor(App::ct->objCont->getLastSelectionID());
     SSimulationThreadCommand cmd;
     cmd.cmdId = SET_FILTERPARAMS_VISIONSENSORFILTERGUITRIGGEREDCMD;
     if (it != nullptr)
     {
-        CComposedFilter *filters = it->getComposedFilter();
-        CSimpleFilter *filter = filters->getSimpleFilter(index);
+        CComposedFilter* filters = it->getComposedFilter();
+        CSimpleFilter* filter = filters->getSimpleFilter(index);
         if ((filter != nullptr) && (filter->canFilterBeEdited()))
         {
             int ft = filter->getFilterType();
@@ -438,7 +439,7 @@ bool CQDlgFilters::_editFilter(int index)
                 filter->getCustomFilterInfo(header, id);
                 int auxData[4] = {header, id, static_cast<int>(params.size()), -1};
                 int retVals[4] = {-1, -1, -1, -1};
-                void *callbackReturnVal = nullptr;
+                void* callbackReturnVal = nullptr;
                 if (params.size() == 0)
                     callbackReturnVal = CPluginContainer::sendEventCallbackMessageToAllPlugins(
                         sim_message_eventcallback_imagefilter_adjustparams, auxData, nullptr, retVals);
@@ -448,11 +449,11 @@ bool CQDlgFilters::_editFilter(int index)
                 if ((retVals[0] > 0) && (callbackReturnVal != nullptr))
                 {
                     for (int i = 0; i < retVals[0]; i++)
-                        cmd.uint8Params.push_back(((unsigned char *)callbackReturnVal)[i]);
+                        cmd.uint8Params.push_back(((unsigned char*)callbackReturnVal)[i]);
                     cmd.cmdId = SET_CUSTOMFILTERPARAMS_VISIONSENSORFILTERGUITRIGGEREDCMD;
                     retVal = true;
                 }
-                delete[]((char *)callbackReturnVal);
+                delete[]((char*)callbackReturnVal);
             }
         }
     }
@@ -481,7 +482,7 @@ void CQDlgFilters::on_qqUp_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         int data = getSelectedObjectID();
-        CVisionSensor *it = App::ct->objCont->getVisionSensor(App::ct->objCont->getLastSelectionID());
+        CVisionSensor* it = App::ct->objCont->getVisionSensor(App::ct->objCont->getLastSelectionID());
         if ((it != nullptr) && (data > 0))
         {
             SSimulationThreadCommand cmd;
@@ -502,10 +503,10 @@ void CQDlgFilters::on_qqDown_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         int data = getSelectedObjectID();
-        CVisionSensor *it = App::ct->objCont->getVisionSensor(App::ct->objCont->getLastSelectionID());
+        CVisionSensor* it = App::ct->objCont->getVisionSensor(App::ct->objCont->getLastSelectionID());
         if ((it != nullptr) && (data >= 0))
         {
-            CComposedFilter *filters = it->getComposedFilter();
+            CComposedFilter* filters = it->getComposedFilter();
             if (data < filters->getSimpleFilterCount() - 1)
             {
                 SSimulationThreadCommand cmd;
@@ -549,7 +550,7 @@ void CQDlgFilters::on_qqApply_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CVisionSensor *last = App::ct->objCont->getLastSelection_visionSensor();
+        CVisionSensor* last = App::ct->objCont->getLastSelection_visionSensor();
         if (last != nullptr)
         {
             SSimulationThreadCommand cmd;

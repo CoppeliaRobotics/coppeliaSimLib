@@ -13,7 +13,7 @@ CCollectionElement::~CCollectionElement()
 {
 }
 
-void CCollectionElement::addOrRemoveAnObject(std::vector<int> *theObjects, int objectHandle) const
+void CCollectionElement::addOrRemoveAnObject(std::vector<int>* theObjects, int objectHandle) const
 {
     if (_additive)
     {
@@ -42,9 +42,9 @@ std::string CCollectionElement::getMainObjectTempName() const
     return (_objectTempName);
 }
 
-void CCollectionElement::addOrRemoveYourObjects(std::vector<int> *theObjects) const
+void CCollectionElement::addOrRemoveYourObjects(std::vector<int>* theObjects) const
 {
-    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_mainObjectHandle);
+    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_mainObjectHandle);
     if (it == nullptr)
     {
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
@@ -55,7 +55,7 @@ void CCollectionElement::addOrRemoveYourObjects(std::vector<int> *theObjects) co
     if ((_elementType == sim_collectionelement_frombaseincluded) ||
         (_elementType == sim_collectionelement_frombaseexcluded))
     {
-        std::vector<CSceneObject *> allObj;
+        std::vector<CSceneObject*> allObj;
         allObj.reserve(8);
         allObj.clear();
         it->getAllObjectsRecursive(&allObj, _elementType == sim_collectionelement_frombaseincluded);
@@ -67,7 +67,7 @@ void CCollectionElement::addOrRemoveYourObjects(std::vector<int> *theObjects) co
     {
         if (_elementType == sim_collectionelement_fromtipincluded)
             addOrRemoveAnObject(theObjects, it->getObjectHandle());
-        CSceneObject *itIt = it->getParent();
+        CSceneObject* itIt = it->getParent();
         while (itIt != nullptr)
         {
             addOrRemoveAnObject(theObjects, itIt->getObjectHandle());
@@ -76,7 +76,7 @@ void CCollectionElement::addOrRemoveYourObjects(std::vector<int> *theObjects) co
     }
 }
 
-bool CCollectionElement::isSame(CCollectionElement *it) const
+bool CCollectionElement::isSame(CCollectionElement* it) const
 {
     if (it->getMainObject() != _mainObjectHandle)
         return (false);
@@ -85,18 +85,18 @@ bool CCollectionElement::isSame(CCollectionElement *it) const
     return (it->getIsAdditive() == _additive);
 }
 
-void CCollectionElement::performObjectLoadingMapping(const std::map<int, int> *map)
+void CCollectionElement::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     _mainObjectHandle = CWorld::getLoadingMapping(map, _mainObjectHandle);
 }
 
-CCollectionElement *CCollectionElement::copyYourself() const
+CCollectionElement* CCollectionElement::copyYourself() const
 {
-    CCollectionElement *newGroupEl = new CCollectionElement(_mainObjectHandle, _elementType, _additive);
+    CCollectionElement* newGroupEl = new CCollectionElement(_mainObjectHandle, _elementType, _additive);
     return (newGroupEl);
 }
 
-void CCollectionElement::serialize(CSer &ar)
+void CCollectionElement::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -170,7 +170,7 @@ void CCollectionElement::serialize(CSer &ar)
             else
             {
                 std::string str;
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_mainObjectHandle);
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_mainObjectHandle);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(" 'objectName' tag: required if 'type' is not 'everything'. Has to be an "

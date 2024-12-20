@@ -18,7 +18,7 @@ class CPathPointManipulation_old
     void addPathPointToSelection_nonEditMode(int pathPointIdentifier);
     void xorAddPathPointToSelection_nonEditMode(int pathPointIdentifier);
 
-    std::vector<int> *getPointerToSelectedPathPointIndices_nonEditMode();
+    std::vector<int>* getPointerToSelectedPathPointIndices_nonEditMode();
     void clearPathPointIndices_nonEditMode();
     bool isPathPointIndexSelected_nonEditMode(int index, bool removeIfYes);
     int getUniqueSelectedPathId_nonEditMode();

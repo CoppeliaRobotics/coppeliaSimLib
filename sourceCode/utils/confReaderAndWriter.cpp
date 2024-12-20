@@ -14,7 +14,7 @@ CConfReaderAndWriter::~CConfReaderAndWriter()
 {
 }
 
-bool CConfReaderAndWriter::readConfiguration(const char *filename, const char *namespaceNamedParam)
+bool CConfReaderAndWriter::readConfiguration(const char* filename, const char* namespaceNamedParam)
 {
     bool retVal = false;
     if (VFile::doesFileExist(filename))
@@ -37,7 +37,7 @@ bool CConfReaderAndWriter::readConfiguration(const char *filename, const char *n
                     if (tt::removeSpacesAtBeginningAndEnd(var) && tt::removeSpacesAtBeginningAndEnd(val) &&
                         (var.find(' ') == std::string::npos))
                     {
-                        int ind = _getVariableIndex((const char *)var.c_str());
+                        int ind = _getVariableIndex((const char*)var.c_str());
                         if (ind != -1)
                         { // Variable multiple defined. We keep the last one!
                             _variables.erase(_variables.begin() + ind);
@@ -76,7 +76,7 @@ bool CConfReaderAndWriter::readConfiguration(const char *filename, const char *n
     return (retVal);
 }
 
-bool CConfReaderAndWriter::writeConfiguration(const char *filename)
+bool CConfReaderAndWriter::writeConfiguration(const char* filename)
 {
     bool retVal = false;
     try
@@ -113,7 +113,7 @@ bool CConfReaderAndWriter::writeConfiguration(const char *filename)
     return (retVal);
 }
 
-bool CConfReaderAndWriter::getString(const char *variableName, std::string &variable) const
+bool CConfReaderAndWriter::getString(const char* variableName, std::string& variable) const
 {
     int ind = _getVariableIndex(variableName);
     if (ind == -1)
@@ -131,7 +131,7 @@ bool CConfReaderAndWriter::getString(const char *variableName, std::string &vari
     return (true);
 }
 
-bool CConfReaderAndWriter::getBoolean(const char *variableName, bool &variable) const
+bool CConfReaderAndWriter::getBoolean(const char* variableName, bool& variable) const
 {
     int ind = _getVariableIndex(variableName);
     if (ind == -1)
@@ -155,7 +155,7 @@ bool CConfReaderAndWriter::getBoolean(const char *variableName, bool &variable) 
     return (false);
 }
 
-bool CConfReaderAndWriter::getInteger(const char *variableName, int &variable) const
+bool CConfReaderAndWriter::getInteger(const char* variableName, int& variable) const
 {
     int ind = _getVariableIndex(variableName);
     if (ind == -1)
@@ -163,7 +163,7 @@ bool CConfReaderAndWriter::getInteger(const char *variableName, int &variable) c
     return (tt::getValidInt(_values[ind].c_str(), variable));
 }
 
-bool CConfReaderAndWriter::getFloat(const char *variableName, double &variable) const
+bool CConfReaderAndWriter::getFloat(const char* variableName, double& variable) const
 {
     int ind = _getVariableIndex(variableName);
     if (ind == -1)
@@ -171,7 +171,7 @@ bool CConfReaderAndWriter::getFloat(const char *variableName, double &variable) 
     return (tt::getValidFloat(_values[ind].c_str(), variable));
 }
 
-bool CConfReaderAndWriter::getFloatVector3(const char *variableName, double variable[3]) const
+bool CConfReaderAndWriter::getFloatVector3(const char* variableName, double variable[3]) const
 {
     bool retVal = false;
     int ind = _getVariableIndex(variableName);
@@ -184,7 +184,7 @@ bool CConfReaderAndWriter::getFloatVector3(const char *variableName, double vari
     return (retVal);
 }
 
-bool CConfReaderAndWriter::_toFloatArray(const std::vector<std::string> &vals, size_t size, double *arr)
+bool CConfReaderAndWriter::_toFloatArray(const std::vector<std::string>& vals, size_t size, double* arr)
 {
     bool retVal = false;
     std::vector<double> v;
@@ -209,7 +209,7 @@ bool CConfReaderAndWriter::_toFloatArray(const std::vector<std::string> &vals, s
     return (retVal);
 }
 
-bool CConfReaderAndWriter::_toIntArray(const std::vector<std::string> &vals, size_t size, int *arr)
+bool CConfReaderAndWriter::_toIntArray(const std::vector<std::string>& vals, size_t size, int* arr)
 {
     bool retVal = false;
     std::vector<int> v;
@@ -234,7 +234,7 @@ bool CConfReaderAndWriter::_toIntArray(const std::vector<std::string> &vals, siz
     return (retVal);
 }
 
-size_t CConfReaderAndWriter::_split(const char *value, char splitChar, std::vector<std::string> &vals)
+size_t CConfReaderAndWriter::_split(const char* value, char splitChar, std::vector<std::string>& vals)
 {
     std::stringstream s(value);
     while (s.good())
@@ -246,7 +246,7 @@ size_t CConfReaderAndWriter::_split(const char *value, char splitChar, std::vect
     return (vals.size());
 }
 
-bool CConfReaderAndWriter::getIntVector3(const char *variableName, int variable[3]) const
+bool CConfReaderAndWriter::getIntVector3(const char* variableName, int variable[3]) const
 {
     bool retVal = false;
     int ind = _getVariableIndex(variableName);
@@ -259,7 +259,7 @@ bool CConfReaderAndWriter::getIntVector3(const char *variableName, int variable[
     return (retVal);
 }
 
-bool CConfReaderAndWriter::getIntVector2(const char *variableName, int variable[2]) const
+bool CConfReaderAndWriter::getIntVector2(const char* variableName, int variable[2]) const
 {
     bool retVal = false;
     int ind = _getVariableIndex(variableName);
@@ -272,7 +272,7 @@ bool CConfReaderAndWriter::getIntVector2(const char *variableName, int variable[
     return (retVal);
 }
 
-bool CConfReaderAndWriter::addString(const char *variableName, std::string variable, const char *comment)
+bool CConfReaderAndWriter::addString(const char* variableName, std::string variable, const char* comment)
 {
     if (_getVariableIndex(variableName) != -1)
         return (false); // variable already present
@@ -282,7 +282,7 @@ bool CConfReaderAndWriter::addString(const char *variableName, std::string varia
     return (true);
 }
 
-bool CConfReaderAndWriter::addInteger(const char *variableName, int variable, const char *comment)
+bool CConfReaderAndWriter::addInteger(const char* variableName, int variable, const char* comment)
 {
     if (_getVariableIndex(variableName) != -1)
         return (false); // variable already present
@@ -292,7 +292,7 @@ bool CConfReaderAndWriter::addInteger(const char *variableName, int variable, co
     return (true);
 }
 
-bool CConfReaderAndWriter::addFloat(const char *variableName, double variable, const char *comment)
+bool CConfReaderAndWriter::addFloat(const char* variableName, double variable, const char* comment)
 {
     if (_getVariableIndex(variableName) != -1)
         return (false); // variable already present
@@ -302,7 +302,7 @@ bool CConfReaderAndWriter::addFloat(const char *variableName, double variable, c
     return (true);
 }
 
-bool CConfReaderAndWriter::addRandomLine(const char *lineText)
+bool CConfReaderAndWriter::addRandomLine(const char* lineText)
 {
     _variables.push_back("");
     _comments.push_back(lineText);
@@ -310,7 +310,7 @@ bool CConfReaderAndWriter::addRandomLine(const char *lineText)
     return (true);
 }
 
-bool CConfReaderAndWriter::addFloatVector3(const char *variableName, double variable[3], const char *comment)
+bool CConfReaderAndWriter::addFloatVector3(const char* variableName, double variable[3], const char* comment)
 {
     if (_getVariableIndex(variableName) != -1)
         return (false); // variable already present
@@ -323,7 +323,7 @@ bool CConfReaderAndWriter::addFloatVector3(const char *variableName, double vari
     return (true);
 }
 
-bool CConfReaderAndWriter::addIntVector3(const char *variableName, int variable[3], const char *comment)
+bool CConfReaderAndWriter::addIntVector3(const char* variableName, int variable[3], const char* comment)
 {
     if (_getVariableIndex(variableName) != -1)
         return (false); // variable already present
@@ -336,7 +336,7 @@ bool CConfReaderAndWriter::addIntVector3(const char *variableName, int variable[
     return (true);
 }
 
-bool CConfReaderAndWriter::addIntVector2(const char *variableName, int variable[2], const char *comment)
+bool CConfReaderAndWriter::addIntVector2(const char* variableName, int variable[2], const char* comment)
 {
     if (_getVariableIndex(variableName) != -1)
         return (false); // variable already present
@@ -348,7 +348,7 @@ bool CConfReaderAndWriter::addIntVector2(const char *variableName, int variable[
     return (true);
 }
 
-bool CConfReaderAndWriter::addBoolean(const char *variableName, bool variable, const char *comment)
+bool CConfReaderAndWriter::addBoolean(const char* variableName, bool variable, const char* comment)
 {
     if (_getVariableIndex(variableName) != -1)
         return (false); // variable already present
@@ -361,7 +361,7 @@ bool CConfReaderAndWriter::addBoolean(const char *variableName, bool variable, c
     return (true);
 }
 
-int CConfReaderAndWriter::_getVariableIndex(const char *variableName) const
+int CConfReaderAndWriter::_getVariableIndex(const char* variableName) const
 {
     for (size_t i = 0; i < _variables.size(); i++)
     {

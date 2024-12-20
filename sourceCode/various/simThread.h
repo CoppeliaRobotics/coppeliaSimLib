@@ -17,7 +17,7 @@ struct SSimulationThreadCommand
     std::vector<quint64> uint64Params;
     std::vector<unsigned char> uint8Params;
     std::vector<double> doubleParams;
-    std::vector<void *> objectParams;
+    std::vector<void*> objectParams;
     std::vector<std::string> stringParams;
     std::vector<C3Vector> posParams;
     std::vector<C4Vector> quatParams;

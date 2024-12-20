@@ -3,7 +3,7 @@
 #include <simInternal.h>
 #include <app.h>
 
-CQDlgDetectableProperties::CQDlgDetectableProperties(QWidget *parent)
+CQDlgDetectableProperties::CQDlgDetectableProperties(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgDetectableProperties)
 {
     ui->setupUi(this);

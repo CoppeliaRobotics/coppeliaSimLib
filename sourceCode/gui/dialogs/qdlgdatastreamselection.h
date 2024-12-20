@@ -15,7 +15,7 @@ class CQDlgDataStreamSelection : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgDataStreamSelection(QWidget *parent = 0);
+    explicit CQDlgDataStreamSelection(QWidget* parent = 0);
     ~CQDlgDataStreamSelection();
 
     void refresh();
@@ -27,7 +27,7 @@ class CQDlgDataStreamSelection : public VDialog
     int box1Id;
     int box2Id;
 
-    void addElementToCombobox(QComboBox *box, int dataType);
+    void addElementToCombobox(QComboBox* box, int dataType);
 
   private slots:
     void on_qqTypeCombo_currentIndexChanged(int index);
@@ -39,7 +39,7 @@ class CQDlgDataStreamSelection : public VDialog
     void on_qqOkCancel_rejected();
 
   private:
-    Ui::CQDlgDataStreamSelection *ui;
+    Ui::CQDlgDataStreamSelection* ui;
 };
 
 #endif // QDLGDATASTREAMSELECTION_H

@@ -7,7 +7,8 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgLights::CQDlgLights(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgLights)
+CQDlgLights::CQDlgLights(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgLights)
 {
     _dlgType = LIGHT_DLG;
     ui->setupUi(this);
@@ -26,11 +27,11 @@ void CQDlgLights::cancelEvent()
 
 void CQDlgLights::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    CLight *it = App::currentWorld->sceneObjects->getLastSelectionLight();
+    CLight* it = App::currentWorld->sceneObjects->getLastSelectionLight();
 
     ui->qqEnabled->setEnabled((it != nullptr) && noEditModeNoSim);
     ui->qqLocal->setEnabled((it != nullptr) && noEditModeNoSim);

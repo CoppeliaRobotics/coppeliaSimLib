@@ -8,7 +8,7 @@
 #include <plugin.h>
 #include <random>
 
-#define DEFAULT_MAINSCRIPT_CODE                                                                                        \
+#define DEFAULT_MAINSCRIPT_CODE \
     "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
 #define DEFAULT_NONTHREADEDCHILDSCRIPT "simulationScript"
 #define DEFAULT_THREADEDCHILDSCRIPT "simulationScript-threaded"
@@ -29,24 +29,24 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propScriptObj_scriptDisabled,                 "scriptDisabled",                               sim_propertytype_bool,      0, "Enabled", "Script is enabled") \
-    FUNCX(propScriptObj_restartOnError,                 "restartOnError",                               sim_propertytype_bool,      0, "Restart", "Restart on error") \
-    FUNCX(propScriptObj_execPriority,                   "execPriority",                                 sim_propertytype_int,       0, "Execution priority", "") \
-    FUNCX(propScriptObj_scriptType,                     "scriptType",                                   sim_propertytype_int,       sim_propertyinfo_notwritable, "Type", "Script type") \
-    FUNCX(propScriptObj_executionDepth,                 "executionDepth",                               sim_propertytype_int,       sim_propertyinfo_notwritable, "Execution depth", "") \
-    FUNCX(propScriptObj_scriptState,                    "scriptState",                                  sim_propertytype_int,       sim_propertyinfo_notwritable, "State", "Script state") \
-    FUNCX(propScriptObj_language,                       "language",                                     sim_propertytype_string,    sim_propertyinfo_notwritable, "Language", "") \
-    FUNCX(propScriptObj_code,                           "code",                                         sim_propertytype_string,    0, "Code", "Script content") \
-    FUNCX(propScriptObj_scriptName,                     "scriptName",                                   sim_propertytype_string,    sim_propertyinfo_notwritable, "Name", "Script name") \
-    FUNCX(propScriptObj_addOnPath,                      "addOnPath",                                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Add-on path", "Path of add-on") \
-    FUNCX(propScriptObj_addOnMenuPath,                  "addOnMenuPath",                                sim_propertytype_string,    sim_propertyinfo_notwritable, "Add-on menu path", "Menu path of add-on") \
+#define DEFINE_PROPERTIES                                                                                                               \
+    FUNCX(propScriptObj_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0, "Enabled", "Script is enabled")                     \
+    FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0, "Restart", "Restart on error")                      \
+    FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0, "Execution priority", "")                                \
+    FUNCX(propScriptObj_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Script type")            \
+    FUNCX(propScriptObj_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_notwritable, "Execution depth", "")    \
+    FUNCX(propScriptObj_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_notwritable, "State", "Script state")        \
+    FUNCX(propScriptObj_language, "language", sim_propertytype_string, sim_propertyinfo_notwritable, "Language", "")                    \
+    FUNCX(propScriptObj_code, "code", sim_propertytype_string, 0, "Code", "Script content")                                             \
+    FUNCX(propScriptObj_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_notwritable, "Name", "Script name")         \
+    FUNCX(propScriptObj_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Add-on path", "Path of add-on") \
+    FUNCX(propScriptObj_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Add-on menu path", "Menu path of add-on")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_scriptObject = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_scriptObject = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -56,6 +56,7 @@ class CSceneObject;
 class CScriptObject
 {
     friend class CScript;
+
   public:
     enum
     {
@@ -70,9 +71,9 @@ class CScriptObject
     CScriptObject(int scriptType);
     virtual ~CScriptObject();
 
-    static void destroy(CScriptObject *obj, bool registeredObject, bool announceScriptDestruction = true);
+    static void destroy(CScriptObject* obj, bool registeredObject, bool announceScriptDestruction = true);
 
-    void addSpecializedObjectEventData(CCbor *ev);
+    void addSpecializedObjectEventData(CCbor* ev);
     int setHandle();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
@@ -85,33 +86,33 @@ class CScriptObject
 
     std::string getDescriptiveName() const;
     std::string getShortDescriptiveName() const;
-    void setDisplayAddOnName(const char *name);
+    void setDisplayAddOnName(const char* name);
     std::string getScriptName() const;
 
-    CScriptObject *copyYourself();
+    CScriptObject* copyYourself();
 
-    void serialize(CSer &ar);
-    void performSceneObjectLoadingMapping(const std::map<int, int> *map);
-    bool announceSceneObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void serialize(CSer& ar);
+    void performSceneObjectLoadingMapping(const std::map<int, int>* map);
+    bool announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     int flagScriptForRemoval();
     void setObjectHandleThatScriptIsAttachedTo(int newObjectHandle);
     int getObjectHandleThatScriptIsAttachedTo(int scriptTypeToConsider) const;
 
-    void setScriptText(const char *scriptTxt, bool toFileIfApplicable = true);
-    bool setScriptTextFromFile(const char *filename);
-    const char *getScriptText();
+    void setScriptText(const char* scriptTxt, bool toFileIfApplicable = true);
+    bool setScriptTextFromFile(const char* filename);
+    const char* getScriptText();
 
     void resetCalledInThisSimulationStep();
     bool getCalledInThisSimulationStep() const;
 
-    int systemCallMainScript(int optionalCallType, const CInterfaceStack *inStack, CInterfaceStack *outStack);
-    int systemCallScript(int callType, const CInterfaceStack *inStack, CInterfaceStack *outStack,
+    int systemCallMainScript(int optionalCallType, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+    int systemCallScript(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack,
                          bool addOnManuallyStarted = false);
-    int callCustomScriptFunction(const char *functionName, CInterfaceStack *inOutStack);
+    int callCustomScriptFunction(const char* functionName, CInterfaceStack* inOutStack);
     bool shouldTemporarilySuspendMainScript();
 
     void initSandbox();
-    int executeScriptString(const char *scriptString, CInterfaceStack *outStack);
+    int executeScriptString(const char* scriptString, CInterfaceStack* outStack);
 
     int setBoolProperty(const char* pName, bool pState);
     int getBoolProperty(const char* pName, bool& pState) const;
@@ -167,7 +168,7 @@ class CScriptObject
 
     bool addCommandToOutsideCommandQueue(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4,
                                          const double aux2Vals[8], int aux2Count);
-    int extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int &aux2Count);
+    int extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int& aux2Count);
 
     void setEventFilters(const std::map<long long int, std::set<std::string>>& filters);
     bool prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const;
@@ -195,34 +196,34 @@ class CScriptObject
     int getExecutionDepth() const;
     bool isNotInCopyBuffer() const;
 
-    void loadPluginFuncsAndVars(CPlugin *plug);
+    void loadPluginFuncsAndVars(CPlugin* plug);
 
     void registerPluginFunctions();
     bool registerPluginVariables(bool onlyRequireStatements);
 
-    bool wasModulePreviouslyUsed(const char *moduleName) const;
-    void addUsedModule(const char *moduleName);
+    bool wasModulePreviouslyUsed(const char* moduleName) const;
+    void addUsedModule(const char* moduleName);
     void addModulesDetectedInCode();
 
     int getAddOnUiMenuHandle() const;
-    void setAddOnPath(const char *p);
+    void setAddOnPath(const char* p);
     std::string getAddOnPath() const;
 
     void printInterpreterStack() const;
 
-    bool hasFunctionHook(const char *sysFunc) const;
+    bool hasFunctionHook(const char* sysFunc) const;
     int getFuncAndHookCnt(int sysCall, size_t what) const;
     void setFuncAndHookCnt(int sysCall, size_t what, int cnt);
-    int registerFunctionHook(const char *sysFunc, const char *userFunc, bool before);
-    bool replaceScriptText(const char *oldTxt, const char *newTxt);
+    int registerFunctionHook(const char* sysFunc, const char* userFunc, bool before);
+    bool replaceScriptText(const char* oldTxt, const char* newTxt);
 
-    static void getMatchingFunctions(const char *txt, std::set<std::string> &v, const CScriptObject *requestOrigin);
-    static void getMatchingConstants(const char *txt, std::set<std::string> &v, const CScriptObject *requestOrigin);
-    static std::string getFunctionCalltip(const char *txt, const CScriptObject *requestOrigin);
+    static void getMatchingFunctions(const char* txt, std::set<std::string>& v, const CScriptObject* requestOrigin);
+    static void getMatchingConstants(const char* txt, std::set<std::string>& v, const CScriptObject* requestOrigin);
+    static std::string getFunctionCalltip(const char* txt, const CScriptObject* requestOrigin);
     static bool canCallSystemCallback(int scriptType, bool threadedOld, int callType);
     static bool isSystemCallbackInReverseOrder(int callType);
     static bool isSystemCallbackInterruptible(int callType);
-    static int getSystemCallbackFromString(const char *cb);
+    static int getSystemCallbackFromString(const char* cb);
     static std::string getSystemCallbackString(int calltype, int what);
     static std::vector<int> getAllSystemCallbacks(int scriptType, bool threadedOld);
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType, int what);
@@ -236,9 +237,9 @@ class CScriptObject
     // Lua specific:
     // -----------------------------
     void registerNewFunctions_lua();
-    static void buildFromInterpreterStack_lua(void *LL, CInterfaceStack *stack, int fromPos, int cnt);
-    static void buildOntoInterpreterStack_lua(void *LL, const CInterfaceStack *stack, bool takeOnlyTop);
-    static int getScriptHandleFromInterpreterState_lua(void *LL);
+    static void buildFromInterpreterStack_lua(void* LL, CInterfaceStack* stack, int fromPos, int cnt);
+    static void buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop);
+    static int getScriptHandleFromInterpreterState_lua(void* LL);
     static std::string getSearchPath_lua();
     static std::string getSearchCPath_lua();
     // -----------------------------
@@ -251,13 +252,13 @@ class CScriptObject
     // Old:
     // *****************************************
     std::string getScriptPseudoName_old() const;
-    int setScriptVariable_old(const char *variableName, CInterfaceStack *stack);
-    void setObjectCustomData_old(int header, const char *data, int dataLength);
+    int setScriptVariable_old(const char* variableName, CInterfaceStack* stack);
+    void setObjectCustomData_old(int header, const char* data, int dataLength);
     int getObjectCustomDataLength_old(int header) const;
-    void getObjectCustomData_old(int header, char *data) const;
-    void setObjectCustomData_tempData_old(int header, const char *data, int dataLength);
+    void getObjectCustomData_old(int header, char* data) const;
+    void setObjectCustomData_tempData_old(int header, const char* data, int dataLength);
     int getObjectCustomDataLength_tempData_old(int header) const;
-    void getObjectCustomData_tempData_old(int header, char *data) const;
+    void getObjectCustomData_tempData_old(int header, char* data) const;
     void setRaiseErrors_backCompatibility(bool raise);
     bool getRaiseErrors_backCompatibility() const;
     VTHREAD_ID_TYPE getThreadedScriptThreadId_old() const;
@@ -266,15 +267,15 @@ class CScriptObject
     bool checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014();
     bool checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014();
     bool checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014();
-    CUserParameters *getScriptParametersObject_backCompatibility();
+    CUserParameters* getScriptParametersObject_backCompatibility();
     void setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled);
     bool getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const;
     void setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt);
     bool getCustomizationScriptCleanupBeforeSave_DEPRECATED() const;
-    int appendTableEntry_DEPRECATED(const char *arrayName, const char *keyName, const char *data,
+    int appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data,
                                     const int what[2]); // deprecated
-    int callScriptFunction_DEPRECATED(const char *functionName, SLuaCallBack *pdata);
-    int clearScriptVariable_DEPRECATED(const char *variableName); // deprecated
+    int callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata);
+    int clearScriptVariable_DEPRECATED(const char* variableName); // deprecated
     void setThreadedExecution_oldThreads(bool threadedExec);
     bool getThreadedExecution_oldThreads() const;
     bool getThreadedExecutionIsUnderWay_oldThreads() const;
@@ -282,32 +283,32 @@ class CScriptObject
     bool getExecuteJustOnce_oldThreads() const;
     bool launchThreadedChildScript_oldThreads();
     int resumeThreadedChildScriptIfLocationMatch_oldThreads(int resumeLocation);
-    void setLastError_old(const char *err);
+    void setLastError_old(const char* err);
     std::string getAndClearLastError_old();
     void setExecutionPriority_old(int order);
     int getExecutionPriority_old() const;
-    static void setScriptNameIndexToInterpreterState_lua_old(void *LL, int index);
-    static int getScriptNameIndexFromInterpreterState_lua_old(void *LL);
+    static void setScriptNameIndexToInterpreterState_lua_old(void* LL, int index);
+    static int getScriptNameIndexFromInterpreterState_lua_old(void* LL);
     // *****************************************
 
   protected:
     std::string _removeLangTagInCode();
-    bool _initInterpreterState(std::string *errorMsg);
+    bool _initInterpreterState(std::string* errorMsg);
     bool _killInterpreterState();
-    void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char *errMsg, bool runtimeError);
+    void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg, bool runtimeError);
     bool _loadCode();
-    int ___loadCode(const char *code, const char *functionsToFind, std::vector<bool> &functionsFound,
-                    std::string *errorMsg);
-    int _callSystemScriptFunction(int callType, const CInterfaceStack *inStack, CInterfaceStack *outStack);
-    int _callScriptFunction(int sysCallType, const char *functionName, const CInterfaceStack *inStack,
-                            CInterfaceStack *outStack, std::string *errorMsg);
-    int _callScriptFunc(const char *functionName, const CInterfaceStack *inStack, CInterfaceStack *outStack,
-                        std::string *errorMsg);
-    bool _execScriptString(const char *scriptString, CInterfaceStack *outStack);
+    int ___loadCode(const char* code, const char* functionsToFind, std::vector<bool>& functionsFound,
+                    std::string* errorMsg);
+    int _callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+    int _callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack,
+                            CInterfaceStack* outStack, std::string* errorMsg);
+    int _callScriptFunc(const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack,
+                        std::string* errorMsg);
+    bool _execScriptString(const char* scriptString, CInterfaceStack* outStack);
     void _handleInfoCallback();
 
-    int _scriptHandle; // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
-    int _sceneObjectHandle; // is same as _scriptHandle with the new scene object scripts. With old associated scripts, is handle of scene object this script is associated with. -1 with add-ons and sandbox
+    int _scriptHandle;        // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
+    int _sceneObjectHandle;   // is same as _scriptHandle with the new scene object scripts. With old associated scripts, is handle of scene object this script is associated with. -1 with add-ons and sandbox
     long long int _scriptUid; // unique across all scenes
     int _scriptType;
     bool _tempSuspended;
@@ -334,10 +335,10 @@ class CScriptObject
     std::string _scriptTextExec; // the one getting executed!
     bool _externalScriptText;
 
-    COutsideCommandQueueForScript *_outsideCommandQueue;
+    COutsideCommandQueueForScript* _outsideCommandQueue;
     std::unordered_set<std::string> _previouslyUsedModules; // needed for the code editor syntax and calltips
 
-    void *_interpreterState; // !! _interpreterState is not the same for a script when in normal or inside a coroutine !!
+    void* _interpreterState; // !! _interpreterState is not the same for a script when in normal or inside a coroutine !!
 
     int _numberOfPasses;
 
@@ -351,9 +352,9 @@ class CScriptObject
     int _sysFuncAndHookCnt_dyn[3];
     int _sysFuncAndHookCnt_contact[3];
     int _sysFuncAndHookCnt_joint[3];
-    void _printContext(const char *str, size_t p);
+    void _printContext(const char* str, size_t p);
 
-    std::string _addOnPath;        // "D:/coppeliaRobotics/coppeliaSim/addOns/Subdivide large triangles.lua"
+    std::string _addOnPath;     // "D:/coppeliaRobotics/coppeliaSim/addOns/Subdivide large triangles.lua"
     std::string _addOnMenuName; // "Subdivide large triangles"
     std::string _addOnMenuPath; // "Geometry / Mesh >> Subdivide large triangles..."
 
@@ -373,66 +374,66 @@ class CScriptObject
 
     // Lua specific:
     // -----------------------------
-    int _execSimpleString_safe_lua(void *LL, const char *string);
+    int _execSimpleString_safe_lua(void* LL, const char* string);
     int _loadBufferResult_lua;
-    bool _loadBuffer_lua(const char *buff, size_t sz, const char *name);
+    bool _loadBuffer_lua(const char* buff, size_t sz, const char* name);
     void _registerNewVariables_lua();
-    static CInterfaceStackObject *_generateObjectFromInterpreterStack_lua(void *LL, int index,
-                                                                          std::map<void *, bool> &visitedTables);
-    static CInterfaceStackTable *_generateTableArrayFromInterpreterStack_lua(void *LL, int index,
-                                                                             std::map<void *, bool> &visitedTables);
-    static CInterfaceStackTable *_generateTableMapFromInterpreterStack_lua(void *LL, int index,
-                                                                           std::map<void *, bool> &visitedTables);
-    static int _countInterpreterStackTableEntries_lua(void *LL, int index);
-    static void _pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObject *obj);
-    static void _hookFunction_lua(void *LL, void *arr);
-    static void _setScriptHandleToInterpreterState_lua(void *LL, int h);
+    static CInterfaceStackObject* _generateObjectFromInterpreterStack_lua(void* LL, int index,
+                                                                          std::map<void*, bool>& visitedTables);
+    static CInterfaceStackTable* _generateTableArrayFromInterpreterStack_lua(void* LL, int index,
+                                                                             std::map<void*, bool>& visitedTables);
+    static CInterfaceStackTable* _generateTableMapFromInterpreterStack_lua(void* LL, int index,
+                                                                           std::map<void*, bool>& visitedTables);
+    static int _countInterpreterStackTableEntries_lua(void* LL, int index);
+    static void _pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj);
+    static void _hookFunction_lua(void* LL, void* arr);
+    static void _setScriptHandleToInterpreterState_lua(void* LL, int h);
     // -----------------------------
 
     // Old:
     // *****************************************
     void _handleCallbackEx_old(int calltype);
     int _getScriptNameIndexNumber_old() const;
-    bool _callScriptChunk_old(int callType, const CInterfaceStack *inStack, CInterfaceStack *outStack);
+    bool _callScriptChunk_old(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack);
     bool _checkIfMixingOldAndNewCallMethods_old();
-    std::string _replaceOldApi(const char *txt, bool forwardAdjustment);
-    bool _convertThreadedScriptToCoroutine_old(CScriptObject *scriptObject);
-    void _adjustScriptText1_old(CScriptObject *scriptObject, bool doIt, bool doIt2);
-    void _adjustScriptText2_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText3_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText4_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText5_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText6_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText7_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText10_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText11_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText12_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText13_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText14_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText15_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText16_old(CScriptObject *scriptObject, bool doIt);
-    void _adjustScriptText17_old(CScriptObject *scriptObject, bool doIt);
-    void _detectDeprecated_old(CScriptObject *scriptObject);
-    void _insertScriptText_old(CScriptObject *scriptObject, bool toFront, const char *txt);
-    bool _replaceScriptText_old(CScriptObject *scriptObject, const char *oldTxt, const char *newTxt);
-    bool _replaceScriptText_old(CScriptObject *scriptObject, const char *oldTxt1, const char *oldTxt2,
-                                const char *oldTxt3, const char *newTxt);
-    bool _replaceScriptTextKeepMiddleUnchanged_old(CScriptObject *scriptObject, const char *oldTxtStart,
-                                                   const char *oldTxtEnd, const char *newTxtStart,
-                                                   const char *newTxtEnd);
-    bool _containsScriptText_old(CScriptObject *scriptObject, const char *txt);
-    void _performNewApiAdjustments_old(CScriptObject *scriptObject, bool forwardAdjustment);
-    void _splitApiText_old(const char *txt, size_t pos, std::string &beforePart, std::string &apiWord,
-                           std::string &afterPart);
+    std::string _replaceOldApi(const char* txt, bool forwardAdjustment);
+    bool _convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject);
+    void _adjustScriptText1_old(CScriptObject* scriptObject, bool doIt, bool doIt2);
+    void _adjustScriptText2_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText3_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText4_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText5_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText6_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText7_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText10_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText11_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText12_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText13_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText14_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText15_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText16_old(CScriptObject* scriptObject, bool doIt);
+    void _adjustScriptText17_old(CScriptObject* scriptObject, bool doIt);
+    void _detectDeprecated_old(CScriptObject* scriptObject);
+    void _insertScriptText_old(CScriptObject* scriptObject, bool toFront, const char* txt);
+    bool _replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt, const char* newTxt);
+    bool _replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt1, const char* oldTxt2,
+                                const char* oldTxt3, const char* newTxt);
+    bool _replaceScriptTextKeepMiddleUnchanged_old(CScriptObject* scriptObject, const char* oldTxtStart,
+                                                   const char* oldTxtEnd, const char* newTxtStart,
+                                                   const char* newTxtEnd);
+    bool _containsScriptText_old(CScriptObject* scriptObject, const char* txt);
+    void _performNewApiAdjustments_old(CScriptObject* scriptObject, bool forwardAdjustment);
+    void _splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord,
+                           std::string& afterPart);
     std::string _lastError_old;
     bool _compatibilityMode_oldLua;
     bool _custScriptDisabledDSim_compatibilityMode_DEPRECATED;
     bool _customizationScriptCleanupBeforeSave_DEPRECATED;
     bool _mainScriptIsDefaultMainScript_old; // 16.11.2020
     bool _raiseErrors_backCompatibility;
-    CUserParameters *_scriptParameters_backCompatibility;
-    CCustomData_old *_customObjectData_old;
-    CCustomData_old *_customObjectData_tempData_old;
+    CUserParameters* _scriptParameters_backCompatibility;
+    CCustomData_old* _customObjectData_old;
+    CCustomData_old* _customObjectData_tempData_old;
     bool _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014;
     bool _warning_simRMLPosition_oldCompatibility_30_8_2014;
     bool _warning_simRMLVelocity_oldCompatibility_30_8_2014;
@@ -447,7 +448,7 @@ class CScriptObject
     void _launchThreadedChildScriptNow_oldThreads();
     static std::map<std::string, std::string> _newApiMap_old;
     static VMutex _globalMutex_oldThreads;
-    static std::vector<CScriptObject *> toBeCalledByThread_oldThreads;
+    static std::vector<CScriptObject*> toBeCalledByThread_oldThreads;
     static VTHREAD_RETURN_TYPE _startAddressForThreadedScripts_oldThreads(VTHREAD_ARGUMENT_TYPE lpData);
     // *****************************************
 };

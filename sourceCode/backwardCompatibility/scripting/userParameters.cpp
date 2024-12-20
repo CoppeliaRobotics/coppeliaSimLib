@@ -27,8 +27,8 @@ void CUserParameters::initializeInitialValues(bool simulationAlreadyRunning)
 }
 
 void CUserParameters::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
     {
         std::vector<SUserParamEntry> currentScriptParamEntries(userParamEntries);
@@ -75,7 +75,7 @@ void CUserParameters::moveItem(int index, int newIndex)
     }
 }
 
-bool CUserParameters::setParameterValue(const char *paramName, const char *paramValue, size_t paramValueLength)
+bool CUserParameters::setParameterValue(const char* paramName, const char* paramValue, size_t paramValueLength)
 {
     int ind = getParameterIndex(paramName);
     if (ind >= 0)
@@ -96,7 +96,7 @@ bool CUserParameters::setParameterValue(const char *paramName, const char *param
     return (false);
 }
 
-bool CUserParameters::getParameterValue(const char *paramName, std::string &paramValue)
+bool CUserParameters::getParameterValue(const char* paramName, std::string& paramValue)
 {
     int ind = getParameterIndex(paramName);
     if (ind >= 0)
@@ -107,7 +107,7 @@ bool CUserParameters::getParameterValue(const char *paramName, std::string &para
     return (false);
 }
 
-void CUserParameters::addParameterValue(const char *paramName, const char *unitText, const char *paramValue,
+void CUserParameters::addParameterValue(const char* paramName, const char* unitText, const char* paramValue,
                                         size_t paramValueLength)
 {
     int ind = getParameterIndex(paramName);
@@ -139,7 +139,7 @@ bool CUserParameters::removeParameterValue(int index)
     return (true);
 }
 
-bool CUserParameters::removeParameterValue(const char *paramName)
+bool CUserParameters::removeParameterValue(const char* paramName)
 {
     int ind = getParameterIndex(paramName);
     if (ind < 0)
@@ -147,7 +147,7 @@ bool CUserParameters::removeParameterValue(const char *paramName)
     return (removeParameterValue(ind));
 }
 
-int CUserParameters::getParameterIndex(const char *paramName)
+int CUserParameters::getParameterIndex(const char* paramName)
 {
     for (size_t i = 0; i < userParamEntries.size(); i++)
     {
@@ -157,10 +157,10 @@ int CUserParameters::getParameterIndex(const char *paramName)
     return (-1);
 }
 
-CUserParameters *CUserParameters::copyYourself()
+CUserParameters* CUserParameters::copyYourself()
 {
     // First the regular stuff:
-    CUserParameters *p = new CUserParameters();
+    CUserParameters* p = new CUserParameters();
     for (size_t i = 0; i < userParamEntries.size(); i++)
         p->userParamEntries.push_back(userParamEntries[i]);
 
@@ -176,7 +176,7 @@ CUserParameters *CUserParameters::copyYourself()
     return (p);
 }
 
-void CUserParameters::serialize(CSer &ar)
+void CUserParameters::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -236,7 +236,7 @@ void CUserParameters::serialize(CSer &ar)
                 ar.xmlPushNewNode("parameter");
                 ar.xmlAddNode_string("name", userParamEntries[i].name.c_str());
                 ar.xmlAddNode_string("unit", userParamEntries[i].unit.c_str());
-                std::string str(base64_encode((unsigned char *)userParamEntries[i].value.c_str(),
+                std::string str(base64_encode((unsigned char*)userParamEntries[i].value.c_str(),
                                               userParamEntries[i].value.size()));
                 ar.xmlAddNode_string("value", str.c_str());
                 ar.xmlAddNode_int("properties", userParamEntries[i].properties);

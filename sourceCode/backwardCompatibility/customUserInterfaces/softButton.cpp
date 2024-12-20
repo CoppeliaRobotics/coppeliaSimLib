@@ -82,8 +82,8 @@ void CSoftButton::initializeInitialValues(bool simulationAlreadyRunning)
 }
 
 void CSoftButton::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
     {
         _buttonAttributes = _initialSimulation_buttonAttributes;
@@ -103,7 +103,7 @@ void CSoftButton::announceSceneObjectWillBeErased(int objID)
 {
     if (_textureProperty != nullptr)
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objID);
         if ((obj != nullptr) && _textureProperty->announceObjectWillBeErased(obj))
         {
             delete _textureProperty;
@@ -112,7 +112,7 @@ void CSoftButton::announceSceneObjectWillBeErased(int objID)
     }
 }
 
-void CSoftButton::performSceneObjectLoadingMapping(const std::map<int, int> *map)
+void CSoftButton::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (App::currentWorld->sceneObjects != nullptr)
     {
@@ -121,7 +121,7 @@ void CSoftButton::performSceneObjectLoadingMapping(const std::map<int, int> *map
     }
 }
 
-void CSoftButton::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CSoftButton::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (App::currentWorld->sceneObjects != nullptr)
     {
@@ -215,19 +215,19 @@ int CSoftButton::getButtonType()
     return (_buttonAttributes & 0x0007);
 }
 
-void CSoftButton::setTextureProperty(CTextureProperty *tp)
+void CSoftButton::setTextureProperty(CTextureProperty* tp)
 {
     _textureProperty = tp;
 }
 
-CTextureProperty *CSoftButton::getTextureProperty()
+CTextureProperty* CSoftButton::getTextureProperty()
 {
     return (_textureProperty);
 }
 
-CSoftButton *CSoftButton::copyYourself()
+CSoftButton* CSoftButton::copyYourself()
 { // Everything is copied.
-    CSoftButton *newButton = new CSoftButton(label, xPos, yPos, length, height);
+    CSoftButton* newButton = new CSoftButton(label, xPos, yPos, length, height);
     newButton->buttonID = buttonID;
     newButton->_buttonAttributes = _buttonAttributes;
     if (arrayColors != nullptr)
@@ -262,7 +262,7 @@ void CSoftButton::removeVisionSensorTexture()
     }
 }
 
-void CSoftButton::serialize(CSer &ar)
+void CSoftButton::serialize(CSer& ar)
 {
     if (ar.isStoring())
     { // Storing

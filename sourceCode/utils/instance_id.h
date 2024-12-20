@@ -5,17 +5,17 @@
 
 class InstancesList
 {
-public:
+  public:
     InstancesList();
     ~InstancesList();
 
     int thisInstanceId();
     int numInstances();
 
-private:
+  private:
     QSharedMemory sharedMemory;
 
     QMap<int, int> readInstancesList();
-    void writeInstancesList(const QMap<int, int> &instancesList);
-    int nextInstanceId(const QMap<int, int> &m);
+    void writeInstancesList(const QMap<int, int>& instancesList);
+    int nextInstanceId(const QMap<int, int>& m);
 };

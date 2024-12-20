@@ -37,31 +37,31 @@ class GuiApp
     static void setBrowserEnabled(bool e);
     static bool getBrowserEnabled();
     static bool isOnline();
-    static bool executeUiThreadCommand(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
-    static void logMsgToStatusbar(const char *msg, bool html);
+    static bool executeUiThreadCommand(SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    static void logMsgToStatusbar(const char* msg, bool html);
 
     static void clearStatusbar();
-    static float *getRGBPointerFromItem(int objType, int objID1, int objID2, int colComponent,
-                                        std::string *auxDlgTitle);
-    static CColorObject *getVisualParamPointerFromItem(int objType, int objID1, int objID2, std::string *auxDlgTitle,
-                                                       int *allowedParts);
-    static CTextureProperty *getTexturePropertyPointerFromItem(int objType, int objID1, int objID2,
-                                                               std::string *auxDlgTitle, bool *is3D, bool *valid,
-                                                               CMesh **geom);
+    static float* getRGBPointerFromItem(int objType, int objID1, int objID2, int colComponent,
+                                        std::string* auxDlgTitle);
+    static CColorObject* getVisualParamPointerFromItem(int objType, int objID1, int objID2, std::string* auxDlgTitle,
+                                                       int* allowedParts);
+    static CTextureProperty* getTexturePropertyPointerFromItem(int objType, int objID1, int objID2,
+                                                               std::string* auxDlgTitle, bool* is3D, bool* valid,
+                                                               CMesh** geom);
 
     static void showSplashScreen();
     static void setIcon();
-    static CMainWindow *mainWindow;
+    static CMainWindow* mainWindow;
     static void createMainWindow();
     static void deleteMainWindow();
     static void setShowConsole(bool s);
 
-    static long long int getEvalInt(const char *str, bool *ok = nullptr);
-    static double getEvalDouble(const char *str, bool *ok = nullptr);
+    static long long int getEvalInt(const char* str, bool* ok = nullptr);
+    static double getEvalDouble(const char* str, bool* ok = nullptr);
 
-    static CSimQApp *qtApp;
-    static CUiThread *uiThread;
-    static luaWrap_lua_State *L; // Minimalistic Lua interpreter just for the UI thread
+    static CSimQApp* qtApp;
+    static CUiThread* uiThread;
+    static luaWrap_lua_State* L; // Minimalistic Lua interpreter just for the UI thread
 
     static int operationalUIParts;
     static int sc;
@@ -71,7 +71,7 @@ class GuiApp
 
     static int _qApp_argc;
     static char _qApp_arg0[];
-    static char *_qApp_argv[1];
+    static char* _qApp_argv[1];
 
     static bool _browserEnabled;
     static bool _online;

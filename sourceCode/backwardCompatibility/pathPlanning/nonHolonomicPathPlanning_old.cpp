@@ -24,8 +24,8 @@ CNonHolonomicPathPlanning_old::CNonHolonomicPathPlanning_old(
     maxSteeringAngle = theMaxSteeringAngle;
     minTurningRadius = stepSize / (2.0 * sin(maxSteeringAngle / 2.0));
     _startDummyID = theStartDummyID;
-    CXDummy *startDummy = (CXDummy *)_simGetObject_internal(_startDummyID);
-    CXDummy *goalDummy = (CXDummy *)_simGetObject_internal(theGoalDummyID);
+    CXDummy* startDummy = (CXDummy*)_simGetObject_internal(_startDummyID);
+    CXDummy* goalDummy = (CXDummy*)_simGetObject_internal(theGoalDummyID);
     if ((startDummy == nullptr) || (goalDummy == nullptr))
         return;
     _simGetObjectCumulativeTransformation_internal(startDummy, _startDummyCTM.X.data, _startDummyCTM.Q.data, false);
@@ -79,9 +79,9 @@ void CNonHolonomicPathPlanning_old::setStepSize(double size)
     stepSize = size;
 }
 
-void CNonHolonomicPathPlanning_old::getSearchTreeData(std::vector<double> &data, bool fromTheStart)
+void CNonHolonomicPathPlanning_old::getSearchTreeData(std::vector<double>& data, bool fromTheStart)
 {
-    std::vector<CNonHolonomicPathNode_old *> *cont;
+    std::vector<CNonHolonomicPathNode_old*>* cont;
     if (fromTheStart)
         cont = &fromStart;
     else
@@ -108,24 +108,24 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
         return (0);
 
     // Following since 2010/08/19 so that we can move the "robot" while we search:
-    CXDummy *startDummy = (CXDummy *)_simGetObject_internal(_startDummyID);
+    CXDummy* startDummy = (CXDummy*)_simGetObject_internal(_startDummyID);
     if (startDummy == nullptr)
         return (0);
     C7Vector dumSavedConf;
     _simGetObjectLocalTransformation_internal(startDummy, dumSavedConf.X.data, dumSavedConf.Q.data, false);
 
-    std::vector<CNonHolonomicPathNode_old *> *current = &fromStart;
-    std::vector<CNonHolonomicPathNode_old *> *nextCurrent = &fromGoal;
-    std::vector<CNonHolonomicPathNode_old *> *tmpCurrent = nullptr;
+    std::vector<CNonHolonomicPathNode_old*>* current = &fromStart;
+    std::vector<CNonHolonomicPathNode_old*>* nextCurrent = &fromGoal;
+    std::vector<CNonHolonomicPathNode_old*>* tmpCurrent = nullptr;
     int initTime = simGetSystemTimeInMs_internal(-1);
     int pathWasFound = 0;
     int dirConstraintsSave[2] = {directionConstraints[0], directionConstraints[1]};
     while (_simGetTimeDiffInMs_internal(initTime) < maxTimePerPass)
     {
-        CNonHolonomicPathNode_old *savedRandNode = nullptr;
+        CNonHolonomicPathNode_old* savedRandNode = nullptr;
         for (int i = 0; i < 2; i++)
         {
-            CNonHolonomicPathNode_old *randNode;
+            CNonHolonomicPathNode_old* randNode;
             if (savedRandNode != nullptr)
                 randNode = savedRandNode;
             else
@@ -135,7 +135,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
                                                          -piValue + piValT2 * SIM_RAND_FLOAT);
                 savedRandNode = randNode;
             }
-            CNonHolonomicPathNode_old *closest = nullptr;
+            CNonHolonomicPathNode_old* closest = nullptr;
             if (!firstPass)
                 closest = getClosestNode(*current, randNode, i == 0, false);
             if ((closest != nullptr) || firstPass)
@@ -146,7 +146,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
                 {
                     for (int constr = 0; constr < 2; constr++) // We have to inverse the constraints!!
                         directionConstraints[constr] *= -1;
-                    CNonHolonomicPathNode_old *closestConnect = nullptr;
+                    CNonHolonomicPathNode_old* closestConnect = nullptr;
                     if (!firstPass)
                         closestConnect = getClosestNode(*nextCurrent, closest, i == 1, true);
                     if ((closestConnect != nullptr) || firstPass)
@@ -163,7 +163,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
                         {
                             if (current == &fromStart)
                             {
-                                CNonHolonomicPathNode_old *iterat = closest;
+                                CNonHolonomicPathNode_old* iterat = closest;
                                 while (iterat != nullptr)
                                 {
                                     foundPath.insert(foundPath.begin(), new CNonHolonomicPathNode_old(iterat));
@@ -178,7 +178,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
                             }
                             else
                             {
-                                CNonHolonomicPathNode_old *iterat = closest;
+                                CNonHolonomicPathNode_old* iterat = closest;
                                 while (iterat != nullptr)
                                 {
                                     foundPath.push_back(new CNonHolonomicPathNode_old(iterat));
@@ -222,7 +222,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
 
 bool CNonHolonomicPathPlanning_old::setPartialPath()
 {
-    CNonHolonomicPathNode_old *it = getClosestNode(fromStart, fromGoal[0], true, false);
+    CNonHolonomicPathNode_old* it = getClosestNode(fromStart, fromGoal[0], true, false);
     while (it != nullptr)
     {
         foundPath.insert(foundPath.begin(), new CNonHolonomicPathNode_old(it));
@@ -240,8 +240,8 @@ bool CNonHolonomicPathPlanning_old::setPartialPath()
     return (false);
 }
 
-CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::getClosestNode(
-    std::vector<CNonHolonomicPathNode_old *> &nodes, CNonHolonomicPathNode_old *sample, bool forward,
+CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::getClosestNode(
+    std::vector<CNonHolonomicPathNode_old*>& nodes, CNonHolonomicPathNode_old* sample, bool forward,
     bool forConnection)
 {
     double minD = DBL_MAX;
@@ -271,10 +271,10 @@ CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::getClosestNode(
     return (nullptr);
 }
 
-CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::extend(std::vector<CNonHolonomicPathNode_old *> *currentList,
-                                                                 CNonHolonomicPathNode_old *toBeExtended,
-                                                                 CNonHolonomicPathNode_old *extention, bool forward,
-                                                                 CXDummy *startDummy)
+CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNonHolonomicPathNode_old*>* currentList,
+                                                                 CNonHolonomicPathNode_old* toBeExtended,
+                                                                 CNonHolonomicPathNode_old* extention, bool forward,
+                                                                 CXDummy* startDummy)
 { // Return value is !=nullptr if extention was performed to some extent
     bool specialCase =
         ((fromStart == currentList[0]) && (toBeExtended == fromStart[0]) && (_startConfInterferenceState != DBL_MAX));
@@ -325,7 +325,7 @@ CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::extend(std::vector<CNo
             {
                 if (!doCollide(nullptr))
                 {
-                    CNonHolonomicPathNode_old *newNode = new CNonHolonomicPathNode_old(x, y, t);
+                    CNonHolonomicPathNode_old* newNode = new CNonHolonomicPathNode_old(x, y, t);
                     newNode->parent = toBeExtended;
                     toBeExtended = newNode;
                     currentList->push_back(toBeExtended);
@@ -356,7 +356,7 @@ CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::extend(std::vector<CNo
                 if (d >= lastClosest_specialCase)
                 { // This is acceptable (we extend a colliding state, but slowly moving away from the collision)
                     lastClosest_specialCase = d;
-                    CNonHolonomicPathNode_old *newNode = new CNonHolonomicPathNode_old(x, y, t);
+                    CNonHolonomicPathNode_old* newNode = new CNonHolonomicPathNode_old(x, y, t);
                     newNode->parent = toBeExtended;
                     toBeExtended = newNode;
                     currentList->push_back(toBeExtended);
@@ -391,25 +391,25 @@ CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::extend(std::vector<CNo
     return (toBeExtended);
 }
 
-CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::connect(std::vector<CNonHolonomicPathNode_old *> *currentList,
-                                                                  std::vector<CNonHolonomicPathNode_old *> *nextList,
-                                                                  CNonHolonomicPathNode_old *toBeExtended,
-                                                                  CNonHolonomicPathNode_old *extention, bool forward,
-                                                                  bool connect, bool test, CXDummy *startDummy)
+CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CNonHolonomicPathNode_old*>* currentList,
+                                                                  std::vector<CNonHolonomicPathNode_old*>* nextList,
+                                                                  CNonHolonomicPathNode_old* toBeExtended,
+                                                                  CNonHolonomicPathNode_old* extention, bool forward,
+                                                                  bool connect, bool test, CXDummy* startDummy)
 { // if connect is true the return value indicates that connection can be performed!
     // other wise return value different from null means that toBeExtended could be extended to some extent!
     // if test is true, nothing is changed in the lists, we just check if connection could be made!
-    std::vector<CNonHolonomicPathNode_old *> fromStartP;
-    std::vector<CNonHolonomicPathNode_old *> fromGoalP;
-    CNonHolonomicPathNode_old *fromStartHandle = toBeExtended;
-    CNonHolonomicPathNode_old *fromGoalHandle = extention;
-    std::vector<CNonHolonomicPathNode_old *> *currentL = &fromStartP;
-    std::vector<CNonHolonomicPathNode_old *> *nextL = &fromGoalP;
-    std::vector<CNonHolonomicPathNode_old *> *tmpL = nullptr;
-    CNonHolonomicPathNode_old *currentHandle = fromStartHandle;
-    CNonHolonomicPathNode_old *nextHandle = fromGoalHandle;
-    CNonHolonomicPathNode_old *tmpHandle = nullptr;
-    CNonHolonomicPathNode_old *lastHandleFromStart = nullptr;
+    std::vector<CNonHolonomicPathNode_old*> fromStartP;
+    std::vector<CNonHolonomicPathNode_old*> fromGoalP;
+    CNonHolonomicPathNode_old* fromStartHandle = toBeExtended;
+    CNonHolonomicPathNode_old* fromGoalHandle = extention;
+    std::vector<CNonHolonomicPathNode_old*>* currentL = &fromStartP;
+    std::vector<CNonHolonomicPathNode_old*>* nextL = &fromGoalP;
+    std::vector<CNonHolonomicPathNode_old*>* tmpL = nullptr;
+    CNonHolonomicPathNode_old* currentHandle = fromStartHandle;
+    CNonHolonomicPathNode_old* nextHandle = fromGoalHandle;
+    CNonHolonomicPathNode_old* tmpHandle = nullptr;
+    CNonHolonomicPathNode_old* lastHandleFromStart = nullptr;
 
     CNonHolonomicPathNode_old st(toBeExtended); // Needed when test is true
     CNonHolonomicPathNode_old gl(extention);
@@ -475,7 +475,7 @@ CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::connect(std::vector<CN
                 }
                 else
                 {
-                    CNonHolonomicPathNode_old *newNode = new CNonHolonomicPathNode_old(x, y, t);
+                    CNonHolonomicPathNode_old* newNode = new CNonHolonomicPathNode_old(x, y, t);
                     newNode->parent = currentHandle;
                     currentHandle = newNode;
                     currentL->push_back(newNode);
@@ -527,7 +527,7 @@ CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::connect(std::vector<CN
     if (test)
     {
         if (couldReach)
-            return ((CNonHolonomicPathNode_old *)1); // Just anything different from nullptr!!
+            return ((CNonHolonomicPathNode_old*)1); // Just anything different from nullptr!!
         else
             return (nullptr);
     }
@@ -539,7 +539,7 @@ CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::connect(std::vector<CN
         {
             for (int i = 0; i < int(fromGoalP.size()); i++)
             {
-                CNonHolonomicPathNode_old *it = fromGoalP[fromGoalP.size() - i - 1];
+                CNonHolonomicPathNode_old* it = fromGoalP[fromGoalP.size() - i - 1];
                 it->parent = lastHandleFromStart;
                 currentList->push_back(it);
                 lastHandleFromStart = it;
@@ -559,7 +559,7 @@ CNonHolonomicPathNode_old *CNonHolonomicPathPlanning_old::connect(std::vector<CN
         {
             for (int i = 0; i < int(fromGoalP.size()); i++)
             {
-                CNonHolonomicPathNode_old *it = fromGoalP[fromGoalP.size() - i - 1];
+                CNonHolonomicPathNode_old* it = fromGoalP[fromGoalP.size() - i - 1];
                 it->parent = lastHandleFromStart;
                 currentList->push_back(it);
                 lastHandleFromStart = it;
@@ -582,7 +582,7 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass
         return (1);
     if (invalidData)
         return (0);
-    CXDummy *startDummy = (CXDummy *)_simGetObject_internal(_startDummyID);
+    CXDummy* startDummy = (CXDummy*)_simGetObject_internal(_startDummyID);
     if (startDummy == nullptr)
         return (0);
 
@@ -608,8 +608,8 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass
             return (-1); // we are not yet finished, but we did enough for the time we had
         numberOfRandomConnectionTriesLeft_forSteppedSmoothing--;
         int lowIndex, highIndex;
-        CNonHolonomicPathNode_old *startP;
-        CNonHolonomicPathNode_old *endP;
+        CNonHolonomicPathNode_old* startP;
+        CNonHolonomicPathNode_old* endP;
         for (int randomPass = 0; randomPass < 5; randomPass++)
         {                     // If randomPass==0, the pass is not random, i.e. the low and high indices are calculated
             startP = nullptr; // since 2010/09/09
@@ -658,7 +658,7 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass
             }
             if (startP != nullptr)
             { // Now let's try to link highIndex from lowIndex with a "straight" line:
-                std::vector<CNonHolonomicPathNode_old *> newPathElementsBetweenAndIncludingLowAndHigh;
+                std::vector<CNonHolonomicPathNode_old*> newPathElementsBetweenAndIncludingLowAndHigh;
                 newPathElementsBetweenAndIncludingLowAndHigh.push_back(new CNonHolonomicPathNode_old(startP));
                 C7Vector startDummyOriginalLocalTr;
                 _simGetObjectLocalTransformation_internal(
@@ -706,14 +706,14 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass
     return (0); // will never pass here!
 }
 
-void CNonHolonomicPathPlanning_old::getPathData(std::vector<double> &data)
+void CNonHolonomicPathPlanning_old::getPathData(std::vector<double>& data)
 {
     data.clear();
     if (invalidData)
         return;
     for (int i = 0; i < int(foundPath.size()); i++)
     {
-        CNonHolonomicPathNode_old *theNode = foundPath[i];
+        CNonHolonomicPathNode_old* theNode = foundPath[i];
         C3Vector p, euler;
         p.clear();
         euler.clear();
@@ -732,7 +732,7 @@ void CNonHolonomicPathPlanning_old::getPathData(std::vector<double> &data)
     }
 }
 
-bool CNonHolonomicPathPlanning_old::doCollide(double *dist)
+bool CNonHolonomicPathPlanning_old::doCollide(double* dist)
 { // dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is DBL_MAX!!
     if (dist != nullptr)
         dist[0] = DBL_MAX;

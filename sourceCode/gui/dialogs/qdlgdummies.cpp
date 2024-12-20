@@ -7,7 +7,8 @@
 #include <simStrings.h>
 #include <guiApp.h>
 
-CQDlgDummies::CQDlgDummies(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgDummies)
+CQDlgDummies::CQDlgDummies(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgDummies)
 {
     _dlgType = DUMMY_DLG;
     ui->setupUi(this);
@@ -28,13 +29,13 @@ void CQDlgDummies::cancelEvent()
 void CQDlgDummies::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
     bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_dummy);
     bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_dummy) > 1);
-    CDummy *it = App::currentWorld->sceneObjects->getLastSelectionDummy();
+    CDummy* it = App::currentWorld->sceneObjects->getLastSelectionDummy();
 
     ui->qqSize->setEnabled(sel && noEditModeNoSim);
     ui->qqColor->setEnabled(sel && noEditModeNoSim);
@@ -100,7 +101,7 @@ void CQDlgDummies::refresh()
             std::vector<int> ids;
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
             {
-                CDummy *it2 = App::currentWorld->sceneObjects->getDummyFromIndex(i);
+                CDummy* it2 = App::currentWorld->sceneObjects->getDummyFromIndex(i);
                 if (it2 != it)
                 {
                     names.push_back(it2->getObjectAlias_printPath());
@@ -189,7 +190,7 @@ void CQDlgDummies::on_qqApplyMainProperties_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CDummy *it = App::currentWorld->sceneObjects->getLastSelectionDummy();
+        CDummy* it = App::currentWorld->sceneObjects->getLastSelectionDummy();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -312,7 +313,7 @@ void CQDlgDummies::on_qqEditEngine_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CDummy *it = App::currentWorld->sceneObjects->getLastSelectionDummy();
+        CDummy* it = App::currentWorld->sceneObjects->getLastSelectionDummy();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;

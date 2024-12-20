@@ -14,18 +14,18 @@ class CQDlgObjectDialogContainer : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgObjectDialogContainer(QWidget *parent = 0);
+    explicit CQDlgObjectDialogContainer(QWidget* parent = 0);
     ~CQDlgObjectDialogContainer();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
-    QVBoxLayout *bl;
+    QVBoxLayout* bl;
     int objTypeDlg;
     int currentPage;
     int desiredPage;
 
-    CDlgEx *pageDlgs[2];
+    CDlgEx* pageDlgs[2];
     int originalHeights[2];
 
   private slots:
@@ -34,7 +34,7 @@ class CQDlgObjectDialogContainer : public CDlgEx
     void on_qqCommonProp_clicked();
 
   private:
-    Ui::CQDlgObjectDialogContainer *ui;
+    Ui::CQDlgObjectDialogContainer* ui;
 };
 
 #endif // QDLGOBJECTDIALOGCONTAINER_H

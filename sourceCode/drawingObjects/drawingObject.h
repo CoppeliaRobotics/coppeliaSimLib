@@ -16,11 +16,11 @@ class CDrawingObject
     void setObjectUniqueId();
     long long int getObjectUid() const;
     int getObjectId() const;
-    bool addItem(const double *itemData);
-    void addItems(const double *itemData, size_t itemCnt);
-    void setItems(const double *itemData, size_t itemCnt);
+    bool addItem(const double* itemData);
+    void addItems(const double* itemData, size_t itemCnt);
+    void setItems(const double* itemData, size_t itemCnt);
     int getObjectType() const;
-    bool announceObjectWillBeErased(const CSceneObject *object);
+    bool announceObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     void pushAddEvent();
@@ -33,10 +33,10 @@ class CDrawingObject
     int getStartItem() const;
     int getExpectedFloatsPerItem() const;
 
-    std::vector<double> *getDataPtr();
+    std::vector<double>* getDataPtr();
 
 #ifdef SIM_WITH_GUI
-    void draw(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix &cameraCTM);
+    void draw(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix& cameraCTM);
 #endif
 
     CColorObject color;
@@ -49,7 +49,7 @@ class CDrawingObject
 
   protected:
     void _initBufferedEventData();
-    void _getEventData(std::vector<float> &vertices, std::vector<float> &quaternions, std::vector<float> &colors) const;
+    void _getEventData(std::vector<float>& vertices, std::vector<float>& quaternions, std::vector<float>& colors) const;
 
     void _setItemSizes();
 

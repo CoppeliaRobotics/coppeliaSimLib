@@ -15,7 +15,7 @@ class CQDlgDependencyEquation : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgDependencyEquation(QWidget *parent = 0);
+    explicit CQDlgDependencyEquation(QWidget* parent = 0);
     ~CQDlgDependencyEquation();
 
     void cancelEvent();
@@ -26,7 +26,7 @@ class CQDlgDependencyEquation : public VDialog
     bool inMainRefreshRoutine;
 
   private slots:
-    void on_qqClose_clicked(QAbstractButton *button);
+    void on_qqClose_clicked(QAbstractButton* button);
 
     void on_qqOffset_editingFinished();
 
@@ -35,7 +35,7 @@ class CQDlgDependencyEquation : public VDialog
     void on_qqCombo_currentIndexChanged(int index);
 
   private:
-    Ui::CQDlgDependencyEquation *ui;
+    Ui::CQDlgDependencyEquation* ui;
 };
 
 #endif // QDLGDEPENDENCYEQUATION_H

@@ -1,6 +1,6 @@
 #include <bezierPathPoint_old.h>
 
-CBezierPathPoint_old::CBezierPathPoint_old(const C7Vector &transf)
+CBezierPathPoint_old::CBezierPathPoint_old(const C7Vector& transf)
 {
     _transformation = transf;
     cumulativeLength = 0.0;
@@ -17,9 +17,9 @@ CBezierPathPoint_old::~CBezierPathPoint_old()
 {
 }
 
-CBezierPathPoint_old *CBezierPathPoint_old::copyYourself()
+CBezierPathPoint_old* CBezierPathPoint_old::copyYourself()
 { // Everything is copied.
-    CBezierPathPoint_old *newPoint = new CBezierPathPoint_old(_transformation);
+    CBezierPathPoint_old* newPoint = new CBezierPathPoint_old(_transformation);
 
     newPoint->cumulativeLength = cumulativeLength;
     newPoint->segmentLength = segmentLength;

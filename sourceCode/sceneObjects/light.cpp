@@ -199,8 +199,8 @@ void CLight::setLightSize(double size)
         _lightSize = size;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propLight_size.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propLight_size.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _lightSize);
             App::worldContainer->pushEvent();
         }
@@ -222,7 +222,7 @@ void CLight::getAttenuationFactors(double fact[3]) const
 
 void CLight::setAttenuationFactors(const double fact[3])
 {
-    bool diff = ( (constantAttenuation != fact[0]) || (linearAttenuation != fact[1]) || (quadraticAttenuation != fact[2]) );
+    bool diff = ((constantAttenuation != fact[0]) || (linearAttenuation != fact[1]) || (quadraticAttenuation != fact[2]));
     if (diff)
     {
         constantAttenuation = fact[0];
@@ -230,8 +230,8 @@ void CLight::setAttenuationFactors(const double fact[3])
         quadraticAttenuation = fact[2];
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propLight_attenuationFactors.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propLight_attenuationFactors.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, fact, 3);
             App::worldContainer->pushEvent();
         }
@@ -246,8 +246,8 @@ void CLight::setLightActive(bool active)
         lightActive = active;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propLight_enabled.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propLight_enabled.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, lightActive);
             App::worldContainer->pushEvent();
         }
@@ -271,8 +271,8 @@ void CLight::setSpotExponent(int e)
         _spotExponent = e;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propLight_spotExponent.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propLight_spotExponent.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt(cmd, _spotExponent);
             App::worldContainer->pushEvent();
         }
@@ -293,8 +293,8 @@ void CLight::setSpotCutoffAngle(double co)
         _spotCutoffAngle = co;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propLight_spotCutoffAngle.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propLight_spotCutoffAngle.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _spotCutoffAngle);
             App::worldContainer->pushEvent();
         }
@@ -316,7 +316,7 @@ void CLight::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CLight::addSpecializedObjectEventData(CCbor *ev)
+void CLight::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -348,9 +348,9 @@ void CLight::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-CSceneObject *CLight::copyYourself()
+CSceneObject* CLight::copyYourself()
 {
-    CLight *newLight = (CLight *)CSceneObject::copyYourself();
+    CLight* newLight = (CLight*)CSceneObject::copyYourself();
 
     // Various
     newLight->_lightSize = _lightSize;
@@ -370,7 +370,7 @@ CSceneObject *CLight::copyYourself()
     return (newLight);
 }
 
-void CLight::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CLight::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
@@ -397,33 +397,33 @@ void CLight::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CLight::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CLight::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
 }
-void CLight::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CLight::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
 }
-void CLight::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CLight::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
-void CLight::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CLight::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
-void CLight::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CLight::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
 
-void CLight::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CLight::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CLight::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CLight::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -441,8 +441,8 @@ void CLight::simulationAboutToStart()
 }
 
 void CLight::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
@@ -474,14 +474,14 @@ int CLight::getMaxAvailableOglLights()
     return (_maximumOpenGlLights);
 }
 
-CColorObject *CLight::getColor(bool getLightColor)
+CColorObject* CLight::getColor(bool getLightColor)
 {
     if (getLightColor)
         return (&lightColor);
     return (&objectColor);
 }
 
-void CLight::serialize(CSer &ar)
+void CLight::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -788,7 +788,7 @@ void CLight::serialize(CSer &ar)
 }
 
 #ifdef SIM_WITH_GUI
-void CLight::display(CViewableBase *renderingObject, int displayAttrib)
+void CLight::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayLight(this, renderingObject, displayAttrib);
 }
@@ -946,7 +946,6 @@ int CLight::setColorProperty(const char* ppName, const float* pState)
         retVal = lightColor.setColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -962,7 +961,6 @@ int CLight::getColorProperty(const char* ppName, float* pState) const
         retVal = lightColor.getColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -1049,7 +1047,7 @@ int CLight::getPropertyName(int& index, std::string& pName, std::string& apparte
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_light[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_light[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -1078,7 +1076,7 @@ int CLight::getPropertyName_static(int& index, std::string& pName, std::string& 
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_light[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_light[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -1110,7 +1108,7 @@ int CLight::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
             {
                 retVal = allProps_light[i].type;
                 info = allProps_light[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_light[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_light[i].infoTxt, "") != 0))
                     infoTxt = allProps_light[i].infoTxt;
                 else
                     infoTxt = allProps_light[i].shortInfoTxt;
@@ -1138,7 +1136,7 @@ int CLight::getPropertyInfo_static(const char* ppName, int& info, std::string& i
             {
                 retVal = allProps_light[i].type;
                 info = allProps_light[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_light[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_light[i].infoTxt, "") != 0))
                     infoTxt = allProps_light[i].infoTxt;
                 else
                     infoTxt = allProps_light[i].shortInfoTxt;
@@ -1148,4 +1146,3 @@ int CLight::getPropertyInfo_static(const char* ppName, int& info, std::string& i
     }
     return retVal;
 }
-

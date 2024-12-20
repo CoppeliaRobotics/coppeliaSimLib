@@ -6,29 +6,29 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intarray, sim_propertyinfo_notwritable, "Meshes", "Mesh handles") \
-    FUNCX(propShape_applyCulling,            "applyCulling",                             sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply culling", "Enables/disables culling for all contained meshes") \
-    FUNCX(propShape_applyShadingAngle,       "applyShadingAngle",                        sim_propertytype_float, sim_propertyinfo_notreadable, "Apply shading", "Applies a shading angle to all contained meshes") \
-    FUNCX(propShape_applyShowEdges,          "applyShowEdges",                           sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply edges", "Enables/disables edges for all contained meshes") \
-    FUNCX(propShape_flipFaces,               "flipFaces",                                sim_propertytype_bool, sim_propertyinfo_notreadable, "Flip faces", "Flips faces of all contained meshes") \
-    FUNCX(propShape_respondableMask,         "respondableMask",                          sim_propertytype_int, 0, "Respondable mask", "") \
-    FUNCX(propShape_startInDynSleepMode,     "startInDynSleepMode",                      sim_propertytype_bool, 0, "Start in sleep mode", "") \
-    FUNCX(propShape_dynamic,                 "dynamic",                                  sim_propertytype_bool, 0, "Dynamic", "Shape is dynamic, i.e. not static") \
-    FUNCX(propShape_kinematic,               "kinematic",                                sim_propertytype_bool, 0, "Kinematic", "Special flag mainly used for MuJoCo static shapes that move and need to transmit a friction") \
-    FUNCX(propShape_respondable,             "respondable",                              sim_propertytype_bool, 0, "Respondable", "Shape will transmit a collision force") \
-    FUNCX(propShape_setToDynamicWithParent,  "setToDynamicWithParent",                   sim_propertytype_bool, 0, "Set to dynamic if gets parent", "Shape will be made dynamic if it receives a parent") \
-    FUNCX(propShape_initLinearVelocity,      "initLinearVelocity",                       sim_propertytype_vector3, 0, "Initial linear velocity", "") \
-    FUNCX(propShape_initAngularVelocity,     "initAngularVelocity",                      sim_propertytype_vector3, 0, "Initial rotational velocity", "") \
-    FUNCX(propShape_dynLinearVelocity,       "dynLinearVelocity",                        sim_propertytype_vector3, sim_propertyinfo_notwritable, "Linear velocity", "Linear velocity, as transmitted by the physics engine") \
-    FUNCX(propShape_dynAngularVelocity,      "dynAngularVelocity",                       sim_propertytype_vector3, sim_propertyinfo_notwritable, "Rotational velocity", "Rotational velocity, as transmitted by the physics engine") \
-    FUNCX(propShape_convex,                  "convex",                                   sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether the shape's components are all convex or not") \
+#define DEFINE_PROPERTIES                                                                                                                                                                                 \
+    FUNCX(propShape_meshes, "meshes", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Meshes", "Mesh handles")                                                                                  \
+    FUNCX(propShape_applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply culling", "Enables/disables culling for all contained meshes")                              \
+    FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_notreadable, "Apply shading", "Applies a shading angle to all contained meshes")                     \
+    FUNCX(propShape_applyShowEdges, "applyShowEdges", sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply edges", "Enables/disables edges for all contained meshes")                              \
+    FUNCX(propShape_flipFaces, "flipFaces", sim_propertytype_bool, sim_propertyinfo_notreadable, "Flip faces", "Flips faces of all contained meshes")                                                     \
+    FUNCX(propShape_respondableMask, "respondableMask", sim_propertytype_int, 0, "Respondable mask", "")                                                                                                  \
+    FUNCX(propShape_startInDynSleepMode, "startInDynSleepMode", sim_propertytype_bool, 0, "Start in sleep mode", "")                                                                                      \
+    FUNCX(propShape_dynamic, "dynamic", sim_propertytype_bool, 0, "Dynamic", "Shape is dynamic, i.e. not static")                                                                                         \
+    FUNCX(propShape_kinematic, "kinematic", sim_propertytype_bool, 0, "Kinematic", "Special flag mainly used for MuJoCo static shapes that move and need to transmit a friction")                         \
+    FUNCX(propShape_respondable, "respondable", sim_propertytype_bool, 0, "Respondable", "Shape will transmit a collision force")                                                                         \
+    FUNCX(propShape_setToDynamicWithParent, "setToDynamicWithParent", sim_propertytype_bool, 0, "Set to dynamic if gets parent", "Shape will be made dynamic if it receives a parent")                    \
+    FUNCX(propShape_initLinearVelocity, "initLinearVelocity", sim_propertytype_vector3, 0, "Initial linear velocity", "")                                                                                 \
+    FUNCX(propShape_initAngularVelocity, "initAngularVelocity", sim_propertytype_vector3, 0, "Initial rotational velocity", "")                                                                           \
+    FUNCX(propShape_dynLinearVelocity, "dynLinearVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Linear velocity", "Linear velocity, as transmitted by the physics engine")           \
+    FUNCX(propShape_dynAngularVelocity, "dynAngularVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Rotational velocity", "Rotational velocity, as transmitted by the physics engine") \
+    FUNCX(propShape_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether the shape's components are all convex or not")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_shape = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_shape = {DEFINE_PROPERTIES};
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -37,46 +37,45 @@ class CShape : public CSceneObject
 {
   public:
     CShape();
-    CShape(const std::vector<double> &allHeights, int xSize, int ySize, double dx, double minH, double maxH); // heightfield
-    CShape(const C7Vector &transformation, const std::vector<double> &vertices, const std::vector<int> &indices,
-           const std::vector<double> *optNormals, const std::vector<float> *optTexCoords, int options); // mesh
+    CShape(const std::vector<double>& allHeights, int xSize, int ySize, double dx, double minH, double maxH); // heightfield
+    CShape(const C7Vector& transformation, const std::vector<double>& vertices, const std::vector<int>& indices,
+           const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options); // mesh
     virtual ~CShape();
 
-    void replaceMesh(CMeshWrapper *newMesh, bool keepMeshAttributes);
-    CMeshWrapper *detachMesh();
+    void replaceMesh(CMeshWrapper* newMesh, bool keepMeshAttributes);
+    CMeshWrapper* detachMesh();
     bool computeMassAndInertia(double density);
 
     void invertFrontBack();
 
     int getMeshModificationCounter();
-    CMeshWrapper *getMesh() const;
-    CMesh *getSingleMesh() const;
+    CMeshWrapper* getMesh() const;
+    CMesh* getSingleMesh() const;
     CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const;
 
-
-    void *_meshCalculationStructure;
+    void* _meshCalculationStructure;
     int _meshModificationCounter;
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
-    void copyAttributesTo(CShape *target);
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
+    void copyAttributesTo(CShape* target);
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
     bool scaleObjectNonIsometrically(double x, double y, double z);
-    void serialize(CSer &ar);
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void serialize(CSer& ar);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -112,7 +111,6 @@ class CShape : public CSceneObject
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
-
     // Various
     void commonInit();
     int getComponentCount() const;
@@ -131,13 +129,13 @@ class CShape : public CSceneObject
     void setEdgeWidth_DEPRECATED(int w);
     bool getShapeWireframe_OLD() const;
     void setShapeWireframe_OLD(bool w);
-    CDynMaterialObject *getDynMaterial();
-    void setDynMaterial(CDynMaterialObject *mat);
+    CDynMaterialObject* getDynMaterial();
+    void setDynMaterial(CDynMaterialObject* mat);
 
-    void display_extRenderer(CViewableBase *renderingObject, int displayAttrib);
+    void display_extRenderer(CViewableBase* renderingObject, int displayAttrib);
 
     // Overridden from CSceneObject:
-    bool setParent(CSceneObject *newParent);
+    bool setParent(CSceneObject* newParent);
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
 
@@ -149,13 +147,13 @@ class CShape : public CSceneObject
     void setDynKinematic(bool kin);
 
     C3Vector getInitialDynamicLinearVelocity();
-    void setInitialDynamicLinearVelocity(const C3Vector &vel);
+    void setInitialDynamicLinearVelocity(const C3Vector& vel);
     C3Vector getInitialDynamicAngularVelocity();
-    void setInitialDynamicAngularVelocity(const C3Vector &vel);
+    void setInitialDynamicAngularVelocity(const C3Vector& vel);
     bool isCompound() const;
-    void setColor(const char *colorName, int colorComponent, float r, float g, float b);
-    void setColor(const char *colorName, int colorComponent, const float *rgbData);
-    bool getColor(const char *colorName, int colorComponent, float *rgbData);
+    void setColor(const char* colorName, int colorComponent, float r, float g, float b);
+    void setColor(const char* colorName, int colorComponent, const float* rgbData);
+    bool getColor(const char* colorName, int colorComponent, float* rgbData);
     void setRespondable(bool r);
     bool getRespondable();
     void setRespondableMask(int m);
@@ -164,32 +162,31 @@ class CShape : public CSceneObject
     bool getSetAutomaticallyToNonStaticIfGetsParent();
     void setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic);
 
-    void setDynamicVelocity(const C3Vector &linearV, const C3Vector &angularV);
+    void setDynamicVelocity(const C3Vector& linearV, const C3Vector& angularV);
     C3Vector getDynamicLinearVelocity();
     C3Vector getDynamicAngularVelocity();
-    void addAdditionalForceAndTorque(const C3Vector &f, const C3Vector &t);
+    void addAdditionalForceAndTorque(const C3Vector& f, const C3Vector& t);
     void clearAdditionalForce();
     void clearAdditionalTorque();
     void clearAdditionalForceAndTorque();
     C3Vector getAdditionalForce();
     C3Vector getAdditionalTorque();
 
-    CSceneObject *getLastParentForLocalGlobalRespondable();
+    CSceneObject* getLastParentForLocalGlobalRespondable();
     void clearLastParentForLocalGlobalRespondable();
 
-
     // Distance measurement functions
-    bool getShapeShapeDistance_IfSmaller(CShape *it, double &dist, double ray[7], int buffer[2]);
-    bool getDistanceToDummy_IfSmaller(CDummy *it, double &dist, double ray[7], int &buffer);
+    bool getShapeShapeDistance_IfSmaller(CShape* it, double& dist, double ray[7], int buffer[2]);
+    bool getDistanceToDummy_IfSmaller(CDummy* it, double& dist, double ray[7], int& buffer);
 
     // Collision detection functions
     bool isMeshCalculationStructureInitialized();
     void initializeMeshCalculationStructureIfNeeded();
     void removeMeshCalculationStructure();
-    bool doesShapeCollideWithShape(CShape *collidee, std::vector<double> *intersections);
+    bool doesShapeCollideWithShape(CShape* collidee, std::vector<double>* intersections);
 
-    bool relocateFrame(const char *mode, const C7Vector *tr = nullptr);
-    bool alignBB(const char *mode, const C7Vector *tr = nullptr);
+    bool relocateFrame(const char* mode, const C7Vector* tr = nullptr);
+    bool alignBB(const char* mode, const C7Vector* tr = nullptr);
     C7Vector getCumulCenteredMeshFrame() const;
 
     void setInsideAndOutsideFacesSameColor_DEPRECATED(bool s);
@@ -202,11 +199,11 @@ class CShape : public CSceneObject
     bool getRigidBodyWasAlreadyPutToSleepOnce();
 
   protected:
-    CMeshWrapper *_mesh;
-    void _serializeMesh(CSer &ar);
+    CMeshWrapper* _mesh;
+    void _serializeMesh(CSer& ar);
 
     int _respondableMask;
-    CSceneObject *_lastParentForLocalGlobalRespondable;
+    CSceneObject* _lastParentForLocalGlobalRespondable;
 
     // Variables which need to be serialized
     bool _startInDynamicSleeping;
@@ -217,7 +214,7 @@ class CShape : public CSceneObject
     bool _setAutomaticallyToNonStaticIfGetsParent;
     C3Vector _initialDynamicLinearVelocity;
     C3Vector _initialDynamicAngularVelocity;
-    CDynMaterialObject *_dynMaterial;
+    CDynMaterialObject* _dynMaterial;
 
     // other variables:
     C3Vector _dynamicLinearVelocity;
@@ -234,8 +231,8 @@ class CShape : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
-    void displayInertia(CViewableBase *renderingObject, double size, bool persp);
-    void displayFrames(CViewableBase *renderingObject, double size, bool persp);
+    void display(CViewableBase* renderingObject, int displayAttrib);
+    void displayInertia(CViewableBase* renderingObject, double size, bool persp);
+    void displayFrames(CViewableBase* renderingObject, double size, bool persp);
 #endif
 };

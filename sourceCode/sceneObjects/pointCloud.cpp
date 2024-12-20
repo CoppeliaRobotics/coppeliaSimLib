@@ -47,22 +47,22 @@ CPointCloud::~CPointCloud()
     clear();
 }
 
-CColorObject *CPointCloud::getColor()
+CColorObject* CPointCloud::getColor()
 {
     return (&color);
 }
 
-std::vector<double> *CPointCloud::getColors()
+std::vector<double>* CPointCloud::getColors()
 {
     return (&_colors);
 }
 
-std::vector<double> *CPointCloud::getDisplayPoints()
+std::vector<double>* CPointCloud::getDisplayPoints()
 {
     return (&_displayPoints);
 }
 
-std::vector<double> *CPointCloud::getDisplayColors()
+std::vector<double>* CPointCloud::getDisplayColors()
 {
     return (&_displayColors);
 }
@@ -170,8 +170,8 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
     {
         if (displayPoints_old.size() == _displayPoints.size())
         {
-            unsigned char *v = (unsigned char *)_displayPoints.data();
-            unsigned char *w = (unsigned char *)displayPoints_old.data();
+            unsigned char* v = (unsigned char*)_displayPoints.data();
+            unsigned char* w = (unsigned char*)displayPoints_old.data();
             unsigned long long vv = 0;
             unsigned long long ww = 0;
             for (size_t i = 0; i < displayPoints_old.size() * 4; i++)
@@ -205,14 +205,14 @@ void CPointCloud::_updatePointCloudEvent() const
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-        const char *cmd = "points";
-        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        const char* cmd = "points";
+        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
         ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
 #else
-        const char *cmd = propPointCloud_points.name;
-        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        const char* cmd = propPointCloud_points.name;
+        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyDoubleArray(cmd, _displayPoints.data(), _displayPoints.size());
         ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
 #endif
@@ -220,7 +220,7 @@ void CPointCloud::_updatePointCloudEvent() const
     }
 }
 
-void CPointCloud::_getCharRGB3Colors(const std::vector<double> &floatRGBA, std::vector<unsigned char> &charRGB)
+void CPointCloud::_getCharRGB3Colors(const std::vector<double>& floatRGBA, std::vector<unsigned char>& charRGB)
 {
     charRGB.resize(floatRGBA.size() * 3 / 4);
     for (size_t i = 0; i < floatRGBA.size() / 4; i++)
@@ -231,13 +231,13 @@ void CPointCloud::_getCharRGB3Colors(const std::vector<double> &floatRGBA, std::
     }
 }
 
-int CPointCloud::removePoints(const double *pts, int ptsCnt, bool ptsAreRelativeToPointCloud, double distanceTolerance)
+int CPointCloud::removePoints(const double* pts, int ptsCnt, bool ptsAreRelativeToPointCloud, double distanceTolerance)
 {
     TRACE_INTERNAL;
     int pointCntRemoved = 0;
     if (_pointCloudInfo != nullptr)
     {
-        const double *_pts = pts;
+        const double* _pts = pts;
         std::vector<double> __pts;
         if (!ptsAreRelativeToPointCloud)
         {
@@ -263,25 +263,25 @@ int CPointCloud::removePoints(const double *pts, int ptsCnt, bool ptsAreRelative
     return (pointCntRemoved);
 }
 
-void CPointCloud::subtractOctree(const COcTree *octree)
+void CPointCloud::subtractOctree(const COcTree* octree)
 {
     TRACE_INTERNAL;
     if (octree->getOctreeInfo() != nullptr)
-        subtractOctree(octree->getOctreeInfo(), ((COcTree *)octree)->getFullCumulativeTransformation());
+        subtractOctree(octree->getOctreeInfo(), ((COcTree*)octree)->getFullCumulativeTransformation());
 }
 
-void CPointCloud::subtractDummy(const CDummy *dummy, double distanceTolerance)
+void CPointCloud::subtractDummy(const CDummy* dummy, double distanceTolerance)
 {
     TRACE_INTERNAL;
     removePoints(dummy->getFullCumulativeTransformation().X.data, 1, false, distanceTolerance);
 }
 
-void CPointCloud::subtractPointCloud(const CPointCloud *pointCloud, double distanceTolerance)
+void CPointCloud::subtractPointCloud(const CPointCloud* pointCloud, double distanceTolerance)
 {
     TRACE_INTERNAL;
     if (pointCloud->getPointCloudInfo() != nullptr)
     {
-        const std::vector<double> *_pts = pointCloud->getPoints();
+        const std::vector<double>* _pts = pointCloud->getPoints();
         C7Vector tr(pointCloud->getFullCumulativeTransformation());
         std::vector<double> pts;
         for (size_t i = 0; i < _pts->size() / 3; i++)
@@ -296,7 +296,7 @@ void CPointCloud::subtractPointCloud(const CPointCloud *pointCloud, double dista
     }
 }
 
-void CPointCloud::subtractOctree(const void *octree2Info, const C7Vector &octree2Tr)
+void CPointCloud::subtractOctree(const void* octree2Info, const C7Vector& octree2Tr)
 {
     TRACE_INTERNAL;
     if (_pointCloudInfo != nullptr)
@@ -312,33 +312,33 @@ void CPointCloud::subtractOctree(const void *octree2Info, const C7Vector &octree
     }
 }
 
-void CPointCloud::subtractObjects(const std::vector<int> &sel)
+void CPointCloud::subtractObjects(const std::vector<int>& sel)
 {
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
         if ((it != nullptr) && (it != this))
             subtractObject(it, _removalDistanceTolerance);
     }
 }
 
-void CPointCloud::subtractObject(const CSceneObject *obj, double distanceTolerance)
+void CPointCloud::subtractObject(const CSceneObject* obj, double distanceTolerance)
 {
     if (obj->getObjectType() == sim_sceneobject_octree)
-        subtractOctree((COcTree *)obj);
+        subtractOctree((COcTree*)obj);
     if (obj->getObjectType() == sim_sceneobject_dummy)
-        subtractDummy((CDummy *)obj, distanceTolerance);
+        subtractDummy((CDummy*)obj, distanceTolerance);
     if (obj->getObjectType() == sim_sceneobject_pointcloud)
-        subtractPointCloud((CPointCloud *)obj, distanceTolerance);
+        subtractPointCloud((CPointCloud*)obj, distanceTolerance);
 }
 
-int CPointCloud::intersectPoints(const double *pts, int ptsCnt, bool ptsAreRelativeToPointCloud,
+int CPointCloud::intersectPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToPointCloud,
                                  double distanceTolerance)
 {
     TRACE_INTERNAL;
     if (_pointCloudInfo != nullptr)
     {
-        const double *_pts = pts;
+        const double* _pts = pts;
         std::vector<double> __pts;
         if (!ptsAreRelativeToPointCloud)
         {
@@ -364,13 +364,13 @@ int CPointCloud::intersectPoints(const double *pts, int ptsCnt, bool ptsAreRelat
     return (int(_points.size() / 3));
 }
 
-void CPointCloud::insertPoints(const double *pts, int ptsCnt, bool ptsAreRelativeToPointCloud,
-                               const unsigned char *optionalColors3, bool colorsAreIndividual)
+void CPointCloud::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToPointCloud,
+                               const unsigned char* optionalColors3, bool colorsAreIndividual)
 {
     TRACE_INTERNAL;
     if (ptsCnt <= 0)
         return;
-    const double *_pts = pts;
+    const double* _pts = pts;
     std::vector<double> __pts;
     if (!ptsAreRelativeToPointCloud)
     {
@@ -473,7 +473,7 @@ void CPointCloud::insertPoints(const double *pts, int ptsCnt, bool ptsAreRelativ
     _readPositionsAndColorsAndSetDimensions();
 }
 
-void CPointCloud::insertShape(CShape *shape)
+void CPointCloud::insertShape(CShape* shape)
 {
     TRACE_INTERNAL;
     // We first build an octree from the shape, then insert the octree cube points:
@@ -481,7 +481,7 @@ void CPointCloud::insertShape(CShape *shape)
     C4X4Matrix m(getCumulativeTransformation().getMatrix());
     unsigned char dummyColor[3];
     const C7Vector tr(getCumulativeTransformation());
-    void *octree = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromMesh(
+    void* octree = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromMesh(
         shape->_meshCalculationStructure, shape->getCumulCenteredMeshFrame(), &tr, _buildResolution, dummyColor, 0);
     std::vector<double> pts;
     App::worldContainer->pluginContainer->geomPlugin_getOctreeVoxelPositions(octree, pts);
@@ -489,12 +489,12 @@ void CPointCloud::insertShape(CShape *shape)
     insertPoints(&pts[0], (int)pts.size() / 3, true, nullptr, false);
 }
 
-void CPointCloud::insertOctree(const COcTree *octree)
+void CPointCloud::insertOctree(const COcTree* octree)
 {
     TRACE_INTERNAL;
     if (octree->getOctreeInfo() != nullptr)
     {
-        const std::vector<double> *_pts = octree->getCubePositions();
+        const std::vector<double>* _pts = octree->getCubePositions();
         C7Vector tr(octree->getFullCumulativeTransformation());
         std::vector<double> pts;
         for (size_t i = 0; i < _pts->size() / 3; i++)
@@ -509,16 +509,16 @@ void CPointCloud::insertOctree(const COcTree *octree)
     }
 }
 
-void CPointCloud::insertDummy(const CDummy *dummy)
+void CPointCloud::insertDummy(const CDummy* dummy)
 {
     TRACE_INTERNAL;
     insertPoints(dummy->getFullCumulativeTransformation().X.data, 1, false, nullptr, false);
 }
 
-void CPointCloud::insertPointCloud(const CPointCloud *pointCloud)
+void CPointCloud::insertPointCloud(const CPointCloud* pointCloud)
 {
     TRACE_INTERNAL;
-    const std::vector<double> *_pts = pointCloud->getPoints();
+    const std::vector<double>* _pts = pointCloud->getPoints();
     std::vector<unsigned char> _cols;
     _cols.resize(_pts->size());
 
@@ -538,26 +538,26 @@ void CPointCloud::insertPointCloud(const CPointCloud *pointCloud)
     insertPoints(&pts[0], (int)pts.size() / 3, false, &_cols[0], true);
 }
 
-void CPointCloud::insertObjects(const std::vector<int> &sel)
+void CPointCloud::insertObjects(const std::vector<int>& sel)
 {
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
         if ((it != nullptr) && (it != this))
             insertObject(it);
     }
 }
 
-void CPointCloud::insertObject(const CSceneObject *obj)
+void CPointCloud::insertObject(const CSceneObject* obj)
 {
     if (obj->getObjectType() == sim_sceneobject_shape)
-        insertShape((CShape *)obj);
+        insertShape((CShape*)obj);
     if (obj->getObjectType() == sim_sceneobject_octree)
-        insertOctree((COcTree *)obj);
+        insertOctree((COcTree*)obj);
     if (obj->getObjectType() == sim_sceneobject_dummy)
-        insertDummy((CDummy *)obj);
+        insertDummy((CDummy*)obj);
     if (obj->getObjectType() == sim_sceneobject_pointcloud)
-        insertPointCloud((CPointCloud *)obj);
+        insertPointCloud((CPointCloud*)obj);
 }
 
 void CPointCloud::clear()
@@ -579,24 +579,24 @@ void CPointCloud::clear()
     _updatePointCloudEvent();
 }
 
-const std::vector<double> *CPointCloud::getPoints() const
+const std::vector<double>* CPointCloud::getPoints() const
 {
     TRACE_INTERNAL;
     return (&_points);
 }
 
-std::vector<double> *CPointCloud::getPoints()
+std::vector<double>* CPointCloud::getPoints()
 {
     TRACE_INTERNAL;
     return (&_points);
 }
 
-const void *CPointCloud::getPointCloudInfo() const
+const void* CPointCloud::getPointCloudInfo() const
 {
     return (_pointCloudInfo);
 }
 
-void *CPointCloud::getPointCloudInfo()
+void* CPointCloud::getPointCloudInfo()
 {
     return (_pointCloudInfo);
 }
@@ -691,7 +691,7 @@ void CPointCloud::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPointCloud::addSpecializedObjectEventData(CCbor *ev)
+void CPointCloud::addSpecializedObjectEventData(CCbor* ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -715,9 +715,9 @@ void CPointCloud::addSpecializedObjectEventData(CCbor *ev)
 #endif
 }
 
-CSceneObject *CPointCloud::copyYourself()
+CSceneObject* CPointCloud::copyYourself()
 {
-    CPointCloud *newPointcloud = (CPointCloud *)CSceneObject::copyYourself();
+    CPointCloud* newPointcloud = (CPointCloud*)CSceneObject::copyYourself();
 
     newPointcloud->_cellSize = _cellSize;
     newPointcloud->_maxPointCountPerCell = _maxPointCountPerCell;
@@ -752,8 +752,8 @@ void CPointCloud::setCellSize(double theNewSize)
         _cellSize = theNewSize;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propPointCloud_cellSize.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propPointCloud_cellSize.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _cellSize);
             App::worldContainer->pushEvent();
         }
@@ -779,8 +779,8 @@ void CPointCloud::setMaxPointCountPerCell(int cnt)
         _maxPointCountPerCell = cnt;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propPointCloud_maxPtsInCell.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propPointCloud_maxPtsInCell.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt(cmd, _maxPointCountPerCell);
             App::worldContainer->pushEvent();
         }
@@ -829,8 +829,8 @@ void CPointCloud::setPointSize(int s)
         _pointSize = s;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propPointCloud_pointSize.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propPointCloud_pointSize.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt(cmd, _pointSize);
             App::worldContainer->pushEvent();
         }
@@ -903,8 +903,8 @@ void CPointCloud::setDoNotUseCalculationStructure(bool s)
         _doNotUseOctreeStructure = s;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propPointCloud_ocTreeStruct.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propPointCloud_ocTreeStruct.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, !_doNotUseOctreeStructure);
             App::worldContainer->pushEvent();
         }
@@ -938,8 +938,8 @@ void CPointCloud::setPointDisplayRatio(double r)
         _pointDisplayRatio = r;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propPointCloud_pointDisplayFraction.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            const char* cmd = propPointCloud_pointDisplayFraction.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _pointDisplayRatio);
             App::worldContainer->pushEvent();
         }
@@ -963,29 +963,29 @@ void CPointCloud::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void CPointCloud::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPointCloud::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performIkLoadingMapping(map, loadingAmodel);
 }
-void CPointCloud::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPointCloud::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
 }
-void CPointCloud::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPointCloud::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
 }
-void CPointCloud::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPointCloud::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
 }
 
-void CPointCloud::performTextureObjectLoadingMapping(const std::map<int, int> *map)
+void CPointCloud::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performTextureObjectLoadingMapping(map);
 }
 
-void CPointCloud::performDynMaterialObjectLoadingMapping(const std::map<int, int> *map)
+void CPointCloud::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
@@ -1002,8 +1002,8 @@ void CPointCloud::simulationAboutToStart()
 }
 
 void CPointCloud::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
@@ -1014,7 +1014,7 @@ void CPointCloud::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-void CPointCloud::serialize(CSer &ar)
+void CPointCloud::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -1373,7 +1373,7 @@ void CPointCloud::serialize(CSer &ar)
             else
             {
                 //                CSer* w=ar.xmlAddNode_binFile("file",(std::string("ptcloud_")+_objectName).c_str());
-                CSer *w =
+                CSer* w =
                     ar.xmlAddNode_binFile("file", (_objectAlias + "-ptcloud-" + std::to_string(_objectHandle)).c_str());
                 w[0] << int(_points.size());
                 for (size_t i = 0; i < _points.size(); i++)
@@ -1445,7 +1445,7 @@ void CPointCloud::serialize(CSer &ar)
                     ar.xmlGetNode_uchars("pointColors", cols);
                 else
                 {
-                    CSer *w = ar.xmlGetNode_binFile("file");
+                    CSer* w = ar.xmlGetNode_binFile("file");
                     int cnt;
                     w[0] >> cnt;
                     pts.resize(cnt);
@@ -1497,12 +1497,12 @@ void CPointCloud::serialize(CSer &ar)
     }
 }
 
-void CPointCloud::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
+void CPointCloud::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
 }
 
-void CPointCloud::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
+void CPointCloud::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
@@ -1515,7 +1515,7 @@ void CPointCloud::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
 }
 
 #ifdef SIM_WITH_GUI
-void CPointCloud::display(CViewableBase *renderingObject, int displayAttrib)
+void CPointCloud::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayPointCloud(this, renderingObject, displayAttrib);
 }
@@ -1686,7 +1686,6 @@ int CPointCloud::setColorProperty(const char* ppName, const float* pState)
         retVal = color.setColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -1700,7 +1699,6 @@ int CPointCloud::getColorProperty(const char* ppName, float* pState) const
         retVal = color.getColorProperty(pName, pState);
     if (retVal != -1)
     {
-
     }
     return retVal;
 }
@@ -1749,7 +1747,7 @@ int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& ap
     {
         for (size_t i = 0; i < allProps_pointCloud.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -1776,7 +1774,7 @@ int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::str
     {
         for (size_t i = 0; i < allProps_pointCloud.size(); i++)
         {
-            if ( (pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()) )
+            if ((pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()))
             {
                 index--;
                 if (index == -1)
@@ -1806,7 +1804,7 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
             {
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_pointCloud[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_pointCloud[i].infoTxt, "") != 0))
                     infoTxt = allProps_pointCloud[i].infoTxt;
                 else
                     infoTxt = allProps_pointCloud[i].shortInfoTxt;
@@ -1845,7 +1843,7 @@ int CPointCloud::getPropertyInfo_static(const char* ppName, int& info, std::stri
             {
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
-                if ( (infoTxt == "") && (strcmp(allProps_pointCloud[i].infoTxt, "") != 0) )
+                if ((infoTxt == "") && (strcmp(allProps_pointCloud[i].infoTxt, "") != 0))
                     infoTxt = allProps_pointCloud[i].infoTxt;
                 else
                     infoTxt = allProps_pointCloud[i].shortInfoTxt;
@@ -1855,4 +1853,3 @@ int CPointCloud::getPropertyInfo_static(const char* ppName, int& info, std::stri
     }
     return retVal;
 }
-

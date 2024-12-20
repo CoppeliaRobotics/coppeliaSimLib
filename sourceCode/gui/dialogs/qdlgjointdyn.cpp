@@ -8,7 +8,8 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgJointDyn::CQDlgJointDyn(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgJointDyn)
+CQDlgJointDyn::CQDlgJointDyn(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgJointDyn)
 {
     _dlgType = JOINT_DYN_DLG;
     ui->setupUi(this);
@@ -30,7 +31,7 @@ void CQDlgJointDyn::cancelEvent()
 void CQDlgJointDyn::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
@@ -43,7 +44,7 @@ void CQDlgJointDyn::refresh()
     bool dynamic = false;
     bool canBeMotorized = false;
     int ctrlMode = -1;
-    CJoint *it = nullptr;
+    CJoint* it = nullptr;
 
     if (sel)
     {
@@ -247,7 +248,7 @@ void CQDlgJointDyn::on_qqK_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqK->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -268,7 +269,7 @@ void CQDlgJointDyn::on_qqC_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqC->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -325,7 +326,7 @@ void CQDlgJointDyn::on_qqVelocityMode_velocity_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqVelocityMode_velocity->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -357,7 +358,7 @@ void CQDlgJointDyn::on_qqPositionMode_position_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPositionMode_position->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -424,7 +425,7 @@ void CQDlgJointDyn::on_qqSpringMode_position_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqSpringMode_position->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -443,7 +444,7 @@ void CQDlgJointDyn::on_qqAdjustEngineProperties_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -491,7 +492,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxVel_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPositionMode_maxVel->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -512,7 +513,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxAccel_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPositionMode_maxAccel->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -533,7 +534,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxJerk_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPositionMode_maxJerk->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -565,7 +566,7 @@ void CQDlgJointDyn::on_qqVelocityMode_maxAccel_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqVelocityMode_maxAccel->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -586,7 +587,7 @@ void CQDlgJointDyn::on_qqVelocityMode_maxJerk_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqVelocityMode_maxJerk->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))

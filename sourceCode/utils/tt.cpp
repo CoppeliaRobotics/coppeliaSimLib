@@ -8,7 +8,7 @@
 
 struct filestruct_A
 {
-    bool operator<(const filestruct_A &rhs) const
+    bool operator<(const filestruct_A& rhs) const
     {
         return valA < rhs.valA;
     }
@@ -18,7 +18,7 @@ struct filestruct_A
 
 struct filestruct_B
 {
-    bool operator<(const filestruct_B &rhs) const
+    bool operator<(const filestruct_B& rhs) const
     {
         return valA < rhs.valA;
     }
@@ -28,7 +28,7 @@ struct filestruct_B
 
 struct filestruct_C
 {
-    bool operator<(const filestruct_C &rhs) const
+    bool operator<(const filestruct_C& rhs) const
     {
         return valA < rhs.valA;
     }
@@ -36,7 +36,7 @@ struct filestruct_C
     int valB;
 };
 
-bool tt::stringToInt(const char *txt, int &a)
+bool tt::stringToInt(const char* txt, int& a)
 {
     QString str(txt);
     bool ok;
@@ -44,7 +44,7 @@ bool tt::stringToInt(const char *txt, int &a)
     return (ok);
 }
 
-std::string tt::decorateString(const char *prefix, const std::string mainText, const char *suffix)
+std::string tt::decorateString(const char* prefix, const std::string mainText, const char* suffix)
 {
     std::string retVal(prefix);
     retVal += mainText;
@@ -52,7 +52,7 @@ std::string tt::decorateString(const char *prefix, const std::string mainText, c
     return (retVal);
 }
 
-void tt::lightEncodeBuffer(char *buff, int length)
+void tt::lightEncodeBuffer(char* buff, int length)
 { // Just use the first end last bytes for encoding key:
     if (length < 3)
         return;
@@ -69,7 +69,7 @@ void tt::lightEncodeBuffer(char *buff, int length)
     }
 }
 
-void tt::lightDecodeBuffer(char *buff, int length)
+void tt::lightDecodeBuffer(char* buff, int length)
 {
     if (length < 3)
         return;
@@ -86,7 +86,7 @@ void tt::lightDecodeBuffer(char *buff, int length)
     }
 }
 
-void tt::removeComments(std::string &line)
+void tt::removeComments(std::string& line)
 {
     for (int i = 0; i < int(line.length()) - 1; i++)
     {
@@ -98,7 +98,7 @@ void tt::removeComments(std::string &line)
     }
 }
 
-bool tt::removeSpacesAtBeginningAndEnd(std::string &line)
+bool tt::removeSpacesAtBeginningAndEnd(std::string& line)
 {
     while ((line.length() != 0) && (line[0] == ' '))
         line.erase(line.begin());
@@ -107,7 +107,7 @@ bool tt::removeSpacesAtBeginningAndEnd(std::string &line)
     return (line.length() != 0);
 }
 
-bool tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(std::string &line)
+bool tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(std::string& line)
 {
     while ((line.length() != 0) && ((line[0] == ' ') || (line[0] == 10)))
         line.erase(line.begin());
@@ -157,7 +157,7 @@ void tt::limitValue(double minValue, double maxValue, double value[2])
         value[1] = minValue;
 }
 
-void tt::limitValue(int minValue, int maxValue, int *value)
+void tt::limitValue(int minValue, int maxValue, int* value)
 {
     if ((*value) > maxValue)
         (*value) = maxValue;
@@ -165,33 +165,33 @@ void tt::limitValue(int minValue, int maxValue, int *value)
         (*value) = minValue;
 }
 
-bool tt::getValidFloat(const char *text, double &value)
+bool tt::getValidFloat(const char* text, double& value)
 { // don't forget those cases: 1.06581410364015e-014
     try
     {
         value = boost::lexical_cast<double>(text);
         return (true);
     }
-    catch (boost::bad_lexical_cast &)
+    catch (boost::bad_lexical_cast&)
     {
         return (false);
     }
 }
 
-bool tt::getValidInt(const char *text, int &value)
+bool tt::getValidInt(const char* text, int& value)
 {
     try
     {
         value = boost::lexical_cast<int>(text);
         return (true);
     }
-    catch (boost::bad_lexical_cast &)
+    catch (boost::bad_lexical_cast&)
     { // "1.0" and such are caught here too!
         return (false);
     }
 }
 
-bool tt::extractSpaceSeparatedWord(std::string &line, std::string &word)
+bool tt::extractSpaceSeparatedWord(std::string& line, std::string& word)
 { // Returns true if a word could be extracted
     // 1. We remove leading spaces/tabs
     while ((line.length() != 0) && ((line[0] == ' ') || (line[0] == (char)9)))
@@ -206,7 +206,7 @@ bool tt::extractSpaceSeparatedWord(std::string &line, std::string &word)
     return (word.length() != 0);
 }
 
-bool tt::extractSpaceSeparatedWord2(std::string &line, std::string &word, bool recognizeQuote,
+bool tt::extractSpaceSeparatedWord2(std::string& line, std::string& word, bool recognizeQuote,
                                     bool recognizeDoubleQuote, bool recognizeParenthesis, bool recognizeBrackets,
                                     bool recognizeSquareBrackets)
 { // Returns true if a word could be extracted
@@ -274,7 +274,7 @@ bool tt::extractSpaceSeparatedWord2(std::string &line, std::string &word, bool r
     return (word.length() != 0);
 }
 
-bool tt::extractCommaSeparatedWord(std::string &line, std::string &word)
+bool tt::extractCommaSeparatedWord(std::string& line, std::string& word)
 { // Returns true if a word could be extracted
     word = "";
     while ((line.length() != 0) && (line[0] != ','))
@@ -287,12 +287,12 @@ bool tt::extractCommaSeparatedWord(std::string &line, std::string &word)
     return (word.length() != 0);
 }
 
-bool tt::isHashFree(const char *name)
+bool tt::isHashFree(const char* name)
 {
     return (std::string(name).find('#') == std::string::npos);
 }
 
-int tt::getNameSuffixNumber(const char *name, bool hash)
+int tt::getNameSuffixNumber(const char* name, bool hash)
 { // -1 means there is no suffix!!
     std::string n(name);
     // In case the string is empty:
@@ -317,7 +317,7 @@ int tt::getNameSuffixNumber(const char *name, bool hash)
     return (atoi(oldNumber.c_str()));
 }
 
-std::string tt::getNameWithoutSuffixNumber(const char *name, bool hash)
+std::string tt::getNameWithoutSuffixNumber(const char* name, bool hash)
 {
     std::string n(name);
     if (n.length() == 0)
@@ -341,7 +341,7 @@ std::string tt::getNameWithoutSuffixNumber(const char *name, bool hash)
     return (n);
 }
 
-std::string tt::generateNewName_hashOrNoHash(const char *name, bool hash)
+std::string tt::generateNewName_hashOrNoHash(const char* name, bool hash)
 {
     std::string retVal;
     if (hash)
@@ -351,12 +351,12 @@ std::string tt::generateNewName_hashOrNoHash(const char *name, bool hash)
     return (retVal);
 }
 
-std::string tt::generateNewName_hash(const char *name)
+std::string tt::generateNewName_hash(const char* name)
 {
     return (generateNewName_hash(name, 1)); // increment by 1
 }
 
-std::string tt::generateNewName_hash(const char *name, int suffixOffset)
+std::string tt::generateNewName_hash(const char* name, int suffixOffset)
 {
     int newNumber = getNameSuffixNumber(name, true) + suffixOffset;
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name, true));
@@ -369,7 +369,7 @@ std::string tt::generateNewName_hash(const char *name, int suffixOffset)
     return (nameWithoutSuffix);
 }
 
-std::string tt::generateNewName_noHash(const char *name)
+std::string tt::generateNewName_noHash(const char* name)
 {
     int newNumber = getNameSuffixNumber(name, false) + 1;
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name, false));
@@ -378,7 +378,7 @@ std::string tt::generateNewName_noHash(const char *name)
     return (nameWithoutSuffix);
 }
 
-std::string tt::generateNewName_noHash(const char *name, int suffixOffset)
+std::string tt::generateNewName_noHash(const char* name, int suffixOffset)
 {
     int newNumber = getNameSuffixNumber(name, false) + suffixOffset;
     std::string nameWithoutSuffix(getNameWithoutSuffixNumber(name, false));
@@ -390,13 +390,13 @@ std::string tt::generateNewName_noHash(const char *name, int suffixOffset)
     return (nameWithoutSuffix);
 }
 
-bool tt::isAliasValid(const char *alias)
+bool tt::isAliasValid(const char* alias)
 {
     std::string str(getValidAlias(alias));
     return (str.compare(alias) == 0);
 }
 
-std::string tt::getValidAlias(const char *alias)
+std::string tt::getValidAlias(const char* alias)
 { // Illegal characters are replaced with underscore.
     // Permitted characters are: a-z, A-Z, 0-9, and underscore (same as ROS names)
     std::string retVal(alias);
@@ -412,7 +412,7 @@ std::string tt::getValidAlias(const char *alias)
     return (retVal);
 }
 
-bool tt::isObjectNameValid_old(const char *text, bool allowOneHashFollowedByNumbers)
+bool tt::isObjectNameValid_old(const char* text, bool allowOneHashFollowedByNumbers)
 {
     bool retVal = false;
     std::string nm(text);
@@ -424,7 +424,7 @@ bool tt::isObjectNameValid_old(const char *text, bool allowOneHashFollowedByNumb
     return (retVal);
 }
 
-bool tt::removeIllegalCharacters(std::string &text, bool allowOneHashFollowedByNumbers)
+bool tt::removeIllegalCharacters(std::string& text, bool allowOneHashFollowedByNumbers)
 { // Illegal characters are replaced with underscore.
     // Permitted characters are: a-z, A-Z, 0-9, parenthesis and underscore
     // If allowOneHashFollowedByNumbers is true, then one hash (not in first position) followed by a number are ok
@@ -487,7 +487,7 @@ bool tt::removeIllegalCharacters(std::string &text, bool allowOneHashFollowedByN
     return (retVal);
 }
 
-bool tt::removeAltNameIllegalCharacters(std::string &text)
+bool tt::removeAltNameIllegalCharacters(std::string& text)
 { // Illegal characters are replaced with underscore.
     // Permitted characters are: a-z, A-Z, 0-9, underscore
     // Return value is true if something was modified
@@ -513,7 +513,7 @@ bool tt::removeAltNameIllegalCharacters(std::string &text)
     return (retVal);
 }
 
-std::string tt::getObjectAltNameFromObjectName(const char *text)
+std::string tt::getObjectAltNameFromObjectName(const char* text)
 {
     std::string retVal(text);
     boost::replace_all(retVal, "#", "_HASHMARK_");
@@ -525,13 +525,13 @@ std::string tt::getObjectAltNameFromObjectName(const char *text)
     return (retVal);
 }
 
-void tt::addToFloatArray(std::vector<double> *ar, double x, double y, double z)
+void tt::addToFloatArray(std::vector<double>* ar, double x, double y, double z)
 {
     ar->push_back(x);
     ar->push_back(y);
     ar->push_back(z);
 }
-void tt::addToIntArray(std::vector<int> *ar, int x, int y, int z)
+void tt::addToIntArray(std::vector<int>* ar, int x, int y, int z)
 {
     ar->push_back(x);
     ar->push_back(y);
@@ -570,8 +570,8 @@ double tt::getAngleMinusAlpha(double angle, double alpha)
 }
 
 double tt::getAngleMinusAlpha_range(double angle, double alpha, double range)
-{ // Returns angle-alpha. Angle and alpha are cyclic values in range [-range/2;range/2], or in range [-PI;+PI] if range
-  // is 0.0
+{   // Returns angle-alpha. Angle and alpha are cyclic values in range [-range/2;range/2], or in range [-PI;+PI] if range
+    // is 0.0
     if (range == 0.0)
         return (getAngleMinusAlpha(angle, alpha));
     double angle_ = 6.28318530718 * double(angle / range);
@@ -663,7 +663,7 @@ void tt::hslToRgb(float hsl[3], float rgb[3])
     }
 }
 
-void tt::orderAscending(std::vector<int> &toBeOrdered, std::vector<int> &index)
+void tt::orderAscending(std::vector<int>& toBeOrdered, std::vector<int>& index)
 {
     std::vector<filestruct_A> lst;
     for (size_t i = 0; i < toBeOrdered.size(); i++)
@@ -681,7 +681,7 @@ void tt::orderAscending(std::vector<int> &toBeOrdered, std::vector<int> &index)
     }
 }
 
-void tt::orderAscending(std::vector<double> &toBeOrdered, std::vector<int> &index)
+void tt::orderAscending(std::vector<double>& toBeOrdered, std::vector<int>& index)
 {
     std::vector<filestruct_B> lst;
     for (size_t i = 0; i < toBeOrdered.size(); i++)
@@ -699,7 +699,7 @@ void tt::orderAscending(std::vector<double> &toBeOrdered, std::vector<int> &inde
     }
 }
 
-void tt::orderStrings(std::vector<std::string> &toBeOrdered, std::vector<int> &index)
+void tt::orderStrings(std::vector<std::string>& toBeOrdered, std::vector<int>& index)
 {
     std::vector<filestruct_C> lst;
     for (size_t i = 0; i < toBeOrdered.size(); i++)
@@ -741,7 +741,7 @@ int tt::getLimitedInt(int minValue, int maxValue, int value)
     return (value);
 }
 
-void tt::limitValue(int minValue, int maxValue, int &value)
+void tt::limitValue(int minValue, int maxValue, int& value)
 {
     if (value > maxValue)
         value = maxValue;
@@ -758,7 +758,7 @@ double tt::getLimitedFloat(double minValue, double maxValue, double value)
     return (value);
 }
 
-void tt::limitValue(double minValue, double maxValue, double &value)
+void tt::limitValue(double minValue, double maxValue, double& value)
 {
     if (value > maxValue)
         value = maxValue;
@@ -766,7 +766,7 @@ void tt::limitValue(double minValue, double maxValue, double &value)
         value = minValue;
 }
 
-void tt::limitDoubleValue(double minValue, double maxValue, double &value)
+void tt::limitDoubleValue(double minValue, double maxValue, double& value)
 {
     if (value > maxValue)
         value = maxValue;
@@ -774,7 +774,7 @@ void tt::limitDoubleValue(double minValue, double maxValue, double &value)
         value = minValue;
 }
 
-bool tt::getValueOfKey(const char *key, const char *txt, std::string &value)
+bool tt::getValueOfKey(const char* key, const char* txt, std::string& value)
 {
     std::vector<std::string> keys;
     int keyCnt = separateWords(key, '@', keys);
@@ -804,13 +804,13 @@ bool tt::getValueOfKey(const char *key, const char *txt, std::string &value)
     return (true);
 }
 
-void tt::removeKeyAndValue(const char *key, std::string &txt)
+void tt::removeKeyAndValue(const char* key, std::string& txt)
 {
     _removeKeyAndValue(key, txt);
     _removeKeysWithEmptyValues(txt);
 }
 
-void tt::_removeKeyAndValue(const char *key, std::string &txt)
+void tt::_removeKeyAndValue(const char* key, std::string& txt)
 {
     if (txt.size() == 0)
         return;
@@ -846,7 +846,7 @@ void tt::_removeKeyAndValue(const char *key, std::string &txt)
     }
 }
 
-void tt::_removeKeysWithEmptyValues(std::string &txt)
+void tt::_removeKeysWithEmptyValues(std::string& txt)
 {
     if (txt.size() == 0)
         return;
@@ -864,13 +864,13 @@ void tt::_removeKeysWithEmptyValues(std::string &txt)
     }
 }
 
-void tt::insertKeyAndValue(const char *key, const char *value, std::string &txt)
+void tt::insertKeyAndValue(const char* key, const char* value, std::string& txt)
 {
     tt::removeKeyAndValue(key, txt);
     tt::_insertKeyAndValue(key, value, txt);
 }
 
-void tt::_insertKeyAndValue(const char *key, const char *value, std::string &txt)
+void tt::_insertKeyAndValue(const char* key, const char* value, std::string& txt)
 {
     std::string theMainKey(key);
     std::string theAuxKey;
@@ -906,7 +906,7 @@ void tt::_insertKeyAndValue(const char *key, const char *value, std::string &txt
     }
 }
 
-int tt::getAllKeyValuePairs(const char *txt, std::vector<std::string> &allKeys, std::vector<std::string> &allValues)
+int tt::getAllKeyValuePairs(const char* txt, std::vector<std::string>& allKeys, std::vector<std::string>& allValues)
 {
     allKeys.clear();
     allValues.clear();
@@ -956,7 +956,7 @@ int tt::getAllKeyValuePairs(const char *txt, std::vector<std::string> &allKeys, 
     return ((int)allKeys.size());
 }
 
-void tt::appendKeyValuePair(std::string &txt, const char *key, const char *value)
+void tt::appendKeyValuePair(std::string& txt, const char* key, const char* value)
 {
     if (txt.size() > 0)
         txt += " ";
@@ -966,7 +966,7 @@ void tt::appendKeyValuePair(std::string &txt, const char *key, const char *value
     txt += "}";
 }
 
-int tt::separateWords(const char *txt, char separationChar, std::vector<std::string> &words)
+int tt::separateWords(const char* txt, char separationChar, std::vector<std::string>& words)
 {
     words.clear();
     if (strlen(txt) == 0)

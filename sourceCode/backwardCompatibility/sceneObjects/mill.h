@@ -11,28 +11,28 @@ class CMill : public CSceneObject
     virtual ~CMill();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev);
-    CSceneObject *copyYourself();
+    void addSpecializedObjectEventData(CCbor* ev);
+    CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer &ar);
-    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void serialize(CSer& ar);
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
-    bool getMillingVolumeBoundingBox(C3Vector &minV, C3Vector &maxV) const;
+    bool getMillingVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) const;
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
     bool isPotentiallyCollidable() const;
@@ -44,14 +44,14 @@ class CMill : public CSceneObject
     void setMillableObject(int objectID);
     int getMillableObject() const;
 
-    int handleMill(bool exceptExplicitHandling, double &milledSurface, double &milledVolume,
+    int handleMill(bool exceptExplicitHandling, double& milledSurface, double& milledVolume,
                    bool justForInitialization);
     void resetMill(bool exceptExplicitHandling);
 
     void commonInit();
-    bool getMilledSurface(double &surf) const;
-    bool getMilledVolume(double &vol) const;
-    bool getMilledCount(int &milledCount) const;
+    bool getMilledSurface(double& surf) const;
+    bool getMilledVolume(double& vol) const;
+    bool getMilledCount(int& milledCount) const;
 
     void setSize(double newSize);
     double getSize() const;
@@ -65,10 +65,10 @@ class CMill : public CSceneObject
     double getCalculationTime() const;
     bool getMillDataIsValid() const;
 
-    CColorObject *getColor(bool getActiveColor);
+    CColorObject* getColor(bool getActiveColor);
 
     // Variables which need to be serialized & copied
-    CConvexVolume *convexVolume;
+    CConvexVolume* convexVolume;
 
   protected:
     // Variables which need to be serialized & copied
@@ -88,6 +88,6 @@ class CMill : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase *renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib);
 #endif
 };

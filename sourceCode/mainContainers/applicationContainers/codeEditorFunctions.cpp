@@ -15,7 +15,7 @@ void CCodeEditorFunctions::clear()
     _allFuncs.clear();
 }
 
-bool CCodeEditorFunctions::set(const char *info)
+bool CCodeEditorFunctions::set(const char* info)
 {
     bool retVal = true;
     clear();
@@ -58,7 +58,7 @@ void CCodeEditorFunctions::print() const
         printf("%s\n", it->second.c_str());
 }
 
-void CCodeEditorFunctions::insertWhatStartsSame(const char *txt, std::set<std::string> &v) const
+void CCodeEditorFunctions::insertWhatStartsSame(const char* txt, std::set<std::string>& v) const
 {
     std::string ttxt(txt);
     bool hasDot = (ttxt.find('.') != std::string::npos);
@@ -78,7 +78,7 @@ void CCodeEditorFunctions::insertWhatStartsSame(const char *txt, std::set<std::s
     }
 }
 
-std::string CCodeEditorFunctions::getFunctionCalltip(const char *txt) const
+std::string CCodeEditorFunctions::getFunctionCalltip(const char* txt) const
 {
     std::string retVal;
     auto it = _allFuncs.find(txt);

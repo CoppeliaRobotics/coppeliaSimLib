@@ -6,7 +6,7 @@
 #include <qdlgdistances.h>
 #include <qdlgik.h>
 
-CQDlgCalcDialogContainer_OLD::CQDlgCalcDialogContainer_OLD(QWidget *parent)
+CQDlgCalcDialogContainer_OLD::CQDlgCalcDialogContainer_OLD(QWidget* parent)
     : CDlgEx(parent), ui(new Ui::CQDlgCalcDialogContainer_OLD)
 {
     _dlgType = CALCULATION_DLG_OLD;
@@ -47,7 +47,7 @@ CQDlgCalcDialogContainer_OLD::~CQDlgCalcDialogContainer_OLD()
     delete ui;
 }
 
-void CQDlgCalcDialogContainer_OLD::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CQDlgCalcDialogContainer_OLD::dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 {
     pageDlgs[currentPage]->dialogCallbackFunc(cmdIn, cmdOut);
 }

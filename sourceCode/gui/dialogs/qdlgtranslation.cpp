@@ -18,7 +18,8 @@ int CQDlgTranslation::manipulationTranslationRelativeTo;
 double CQDlgTranslation::manipulationTranslationStepSize;
 bool CQDlgTranslation::objectTranslationSettingsLocked;
 
-CQDlgTranslation::CQDlgTranslation(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgTranslation)
+CQDlgTranslation::CQDlgTranslation(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgTranslation)
 {
     ui->setupUi(this);
     lastLastSelectionID = -1;
@@ -37,7 +38,7 @@ void CQDlgTranslation::cancelEvent()
 
 void CQDlgTranslation::refresh()
 {
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
     int editMode = GuiApp::getEditModeType();
     int lastSelID = App::currentWorld->sceneObjects->getLastSelectionHandle();
     lastLastSelectionID = lastSelID;
@@ -51,7 +52,7 @@ void CQDlgTranslation::refresh()
         _enableCoordinatePart(sel, bigSel, true);
         _enableTranslationPart(sel, sel, true);
         _enableScalingPart(sel && (scaleMode != 2), sel && (scaleMode != 2), true);
-        CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (sel && (object != nullptr))
         {
             // Coordinate part:
@@ -187,7 +188,7 @@ void CQDlgTranslation::refresh()
                 ui->qqTransfOwn->setEnabled(false);
                 ui->qqScaleWorld->setEnabled(sel);
                 ui->qqScaleParent->setEnabled(sel);
-                CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+                CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 if (sel && (shape != nullptr))
                 {
                     // Coordinate part:
@@ -221,9 +222,9 @@ void CQDlgTranslation::refresh()
                 _enableScalingPart(sel && (scaleMode != 2), sel && (scaleMode != 2), true);
                 if (sel)
                 {
-                    CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+                    CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
                     int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
-                    CSimplePathPoint_old *pp =
+                    CSimplePathPoint_old* pp =
                         GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPoint(ind);
                     if (sel && (path != nullptr) && (pp != nullptr))
                     {
@@ -375,7 +376,7 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
 {
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+    CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr))
     {
         C7Vector tr;
@@ -397,10 +398,10 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
     if ((editMode & PATH_EDIT_MODE_OLD) && (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0) &&
         (GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old() != nullptr))
     {
-        CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
         int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
-        CSimplePathPoint_old *pp = pathCont->getSimplePathPoint(ind);
-        CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+        CSimplePathPoint_old* pp = pathCont->getSimplePathPoint(ind);
+        CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ((pp != nullptr) && (path != nullptr))
         {
             C7Vector tr(pp->getTransformation());
@@ -420,7 +421,7 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
     {
         int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
         C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
             C7Vector tr;
@@ -438,7 +439,7 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
     return (retVal);
 }
 
-C7Vector CQDlgTranslation::_getNewTransf(const C7Vector &transf, double newValueInUserUnit, int index)
+C7Vector CQDlgTranslation::_getNewTransf(const C7Vector& transf, double newValueInUserUnit, int index)
 {
     C7Vector retVal(transf);
     retVal.X(index) = newValueInUserUnit;
@@ -449,7 +450,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
 {
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+    CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
     size_t objSelSize = App::currentWorld->sceneObjects->getSelectionCount();
     int editObjSelSize = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr) && (objSelSize > 1))
@@ -468,10 +469,10 @@ bool CQDlgTranslation::_applyCoord(int mask)
     if ((editMode & PATH_EDIT_MODE_OLD) && (editObjSelSize > 1) &&
         (GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old() != nullptr))
     {
-        CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
         int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
-        CSimplePathPoint_old *pp = pathCont->getSimplePathPoint(ind);
-        CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+        CSimplePathPoint_old* pp = pathCont->getSimplePathPoint(ind);
+        CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ((pp != nullptr) && (path != nullptr))
         {
             C7Vector tr(pp->getTransformation());
@@ -479,7 +480,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
                 tr = path->getCumulativeTransformation() * tr;
             for (int i = 0; i < editObjSelSize - 1; i++)
             {
-                CSimplePathPoint_old *ppIt =
+                CSimplePathPoint_old* ppIt =
                     GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
                 if (ppIt != nullptr)
                 {
@@ -500,7 +501,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
     {
         int ind = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
         C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
             C7Vector tr;
@@ -527,7 +528,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
     return (retVal);
 }
 
-void CQDlgTranslation::_copyTransf(const C7Vector &tr, C7Vector &trIt, int mask)
+void CQDlgTranslation::_copyTransf(const C7Vector& tr, C7Vector& trIt, int mask)
 {
     if (mask & 1)
         trIt.X(0) = tr.X(0);
@@ -573,11 +574,11 @@ bool CQDlgTranslation::_applyTranslation(int axis)
     if ((editMode & PATH_EDIT_MODE_OLD) && (editObjSelSize > 0) &&
         (GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old() != nullptr))
     {
-        CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
-        CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+        CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         for (int i = 0; i < editObjSelSize; i++)
         {
-            CSimplePathPoint_old *pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
+            CSimplePathPoint_old* pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
             if ((pp != nullptr) && (path != nullptr))
             {
                 C7Vector tr(pp->getTransformation());
@@ -594,7 +595,7 @@ bool CQDlgTranslation::_applyTranslation(int axis)
     }
     if ((editMode & VERTEX_EDIT_MODE) && (editObjSelSize > 0))
     {
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
             for (int i = 0; i < editObjSelSize; i++)
@@ -652,11 +653,11 @@ bool CQDlgTranslation::_applyScaling(int axis)
     if ((editMode & PATH_EDIT_MODE_OLD) && (editObjSelSize > 0) &&
         (GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old() != nullptr))
     {
-        CPathCont_old *pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
-        CPath_old *path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+        CPathCont_old* pathCont = GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         for (int i = 0; i < editObjSelSize; i++)
         {
-            CSimplePathPoint_old *pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
+            CSimplePathPoint_old* pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
             if ((pp != nullptr) && (path != nullptr))
             {
                 C7Vector tr(pp->getTransformation());
@@ -673,7 +674,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
     }
     if ((editMode & VERTEX_EDIT_MODE) && (editObjSelSize > 0))
     {
-        CShape *shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
+        CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
             for (int i = 0; i < editObjSelSize; i++)
@@ -695,7 +696,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
     return (retVal);
 }
 
-void CQDlgTranslation::_transformTranslation(C7Vector &tr, bool self, int axis)
+void CQDlgTranslation::_transformTranslation(C7Vector& tr, bool self, int axis)
 {
     double TX[3] = {0.0, 0.0, 0.0};
     if (axis == -1)
@@ -715,7 +716,7 @@ void CQDlgTranslation::_transformTranslation(C7Vector &tr, bool self, int axis)
         tr = m * tr;
 }
 
-void CQDlgTranslation::_transformScaling(C7Vector &tr, int axis)
+void CQDlgTranslation::_transformScaling(C7Vector& tr, int axis)
 {
     double TX[3] = {1.0, 1.0, 1.0};
     if (axis == -1)
@@ -1088,7 +1089,7 @@ void CQDlgTranslation::on_qqPosX_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -1112,7 +1113,7 @@ void CQDlgTranslation::on_qqPosY_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -1136,7 +1137,7 @@ void CQDlgTranslation::on_qqPosZ_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject *object = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::currentWorld->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -1168,12 +1169,12 @@ void CQDlgTranslation::on_qqPosCombo_activated(int index)
     }
 }
 
-void CQDlgTranslation::_selectItemOfCombobox(QComboBox *theBox, int itemData)
+void CQDlgTranslation::_selectItemOfCombobox(QComboBox* theBox, int itemData)
 {
     theBox->setCurrentIndex(_getIndexOfComboboxItemWithData(theBox, itemData));
 }
 
-int CQDlgTranslation::_getIndexOfComboboxItemWithData(QComboBox *theBox, int itemData)
+int CQDlgTranslation::_getIndexOfComboboxItemWithData(QComboBox* theBox, int itemData)
 {
     for (int i = 0; i < theBox->count(); i++)
     {

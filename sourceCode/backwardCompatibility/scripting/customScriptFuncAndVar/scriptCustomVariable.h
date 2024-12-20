@@ -5,13 +5,13 @@
 class CScriptCustomVariable
 {
   public:
-    CScriptCustomVariable(const char *theFullVariableName, const char *theVariableValue, int theVariableStackValue);
+    CScriptCustomVariable(const char* theFullVariableName, const char* theVariableValue, int theVariableStackValue);
 
     virtual ~CScriptCustomVariable();
 
-    bool shouldBeDestroyed(const char *pluginName) const;
-    bool isVariableNameSame(const char *fullName) const;
-    bool isPluginNameSame(const char *plugName) const;
+    bool shouldBeDestroyed(const char* pluginName) const;
+    bool isVariableNameSame(const char* fullName) const;
+    bool isPluginNameSame(const char* plugName) const;
     bool isDeprecated() const;
     bool getHasAutoCompletion() const;
     std::string getVariableName() const;
@@ -19,8 +19,8 @@ class CScriptCustomVariable
     int getVariableStackId() const;
 
   protected:
-    std::string _getVariableNameFromFull(const char *fullName) const;
-    std::string _getPluginNameFromFull(const char *fullName) const;
+    std::string _getVariableNameFromFull(const char* fullName) const;
+    std::string _getPluginNameFromFull(const char* fullName) const;
 
     std::string _pluginName;
     std::string _variableName;

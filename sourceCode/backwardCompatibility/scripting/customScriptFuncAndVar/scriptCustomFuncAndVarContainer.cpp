@@ -18,7 +18,7 @@ void CScriptCustomFuncAndVarContainer::removeAllCustomFunctions()
     _allCustomFunctions.clear();
 }
 
-bool CScriptCustomFuncAndVarContainer::removeCustomFunction(const char *fullFunctionName)
+bool CScriptCustomFuncAndVarContainer::removeCustomFunction(const char* fullFunctionName)
 {
     for (size_t i = 0; i < _allCustomFunctions.size(); i++)
     {
@@ -32,7 +32,7 @@ bool CScriptCustomFuncAndVarContainer::removeCustomFunction(const char *fullFunc
     return (false);
 }
 
-void CScriptCustomFuncAndVarContainer::announcePluginWasKilled(const char *pluginName)
+void CScriptCustomFuncAndVarContainer::announcePluginWasKilled(const char* pluginName)
 {
     for (size_t i = 0; i < _allCustomFunctions.size(); i++)
     {
@@ -55,7 +55,7 @@ void CScriptCustomFuncAndVarContainer::announcePluginWasKilled(const char *plugi
     }
 }
 
-bool CScriptCustomFuncAndVarContainer::insertCustomFunction(CScriptCustomFunction *function)
+bool CScriptCustomFuncAndVarContainer::insertCustomFunction(CScriptCustomFunction* function)
 {
     if (doesCustomFunctionAlreadyExist(function))
         return (false);
@@ -79,7 +79,7 @@ bool CScriptCustomFuncAndVarContainer::insertCustomFunction(CScriptCustomFunctio
     return (true);
 }
 
-bool CScriptCustomFuncAndVarContainer::doesCustomFunctionAlreadyExist(CScriptCustomFunction *function)
+bool CScriptCustomFuncAndVarContainer::doesCustomFunctionAlreadyExist(CScriptCustomFunction* function)
 {
     for (int i = 0; i < int(_allCustomFunctions.size()); i++)
     {
@@ -89,7 +89,7 @@ bool CScriptCustomFuncAndVarContainer::doesCustomFunctionAlreadyExist(CScriptCus
     return (false);
 }
 
-CScriptCustomFunction *CScriptCustomFuncAndVarContainer::getCustomFunctionFromID(int functionID)
+CScriptCustomFunction* CScriptCustomFuncAndVarContainer::getCustomFunctionFromID(int functionID)
 {
     for (size_t i = 0; i < _allCustomFunctions.size(); i++)
     {
@@ -104,7 +104,7 @@ size_t CScriptCustomFuncAndVarContainer::getCustomFunctionCount() const
     return (_allCustomFunctions.size());
 }
 
-CScriptCustomFunction *CScriptCustomFuncAndVarContainer::getCustomFunctionFromIndex(size_t index)
+CScriptCustomFunction* CScriptCustomFuncAndVarContainer::getCustomFunctionFromIndex(size_t index)
 {
     return (_allCustomFunctions[index]);
 }
@@ -114,12 +114,12 @@ size_t CScriptCustomFuncAndVarContainer::getCustomVariableCount() const
     return (_allCustomVariables.size());
 }
 
-CScriptCustomVariable *CScriptCustomFuncAndVarContainer::getCustomVariableFromIndex(size_t index)
+CScriptCustomVariable* CScriptCustomFuncAndVarContainer::getCustomVariableFromIndex(size_t index)
 {
     return (_allCustomVariables[index]);
 }
 
-void CScriptCustomFuncAndVarContainer::appendAllFunctionNames_spaceSeparated(std::string &v)
+void CScriptCustomFuncAndVarContainer::appendAllFunctionNames_spaceSeparated(std::string& v)
 {
     for (size_t i = 0; i < _allCustomFunctions.size(); i++)
     {
@@ -138,7 +138,7 @@ void CScriptCustomFuncAndVarContainer::removeAllCustomVariables()
     _allCustomVariables.clear();
 }
 
-bool CScriptCustomFuncAndVarContainer::removeCustomVariable(const char *fullVariableName)
+bool CScriptCustomFuncAndVarContainer::removeCustomVariable(const char* fullVariableName)
 {
     for (size_t i = 0; i < _allCustomVariables.size(); i++)
     {
@@ -152,13 +152,13 @@ bool CScriptCustomFuncAndVarContainer::removeCustomVariable(const char *fullVari
     return (false);
 }
 
-bool CScriptCustomFuncAndVarContainer::insertCustomVariable(const char *fullVariableName, const char *variableValue,
+bool CScriptCustomFuncAndVarContainer::insertCustomVariable(const char* fullVariableName, const char* variableValue,
                                                             int stackHandle)
 {
     if (variableValue != nullptr)
     { // we register a simple variable
         removeCustomVariable(fullVariableName);
-        CScriptCustomVariable *v = new CScriptCustomVariable(fullVariableName, variableValue, stackHandle);
+        CScriptCustomVariable* v = new CScriptCustomVariable(fullVariableName, variableValue, stackHandle);
         _allCustomVariables.push_back(v);
         return (true);
     }
@@ -167,12 +167,12 @@ bool CScriptCustomFuncAndVarContainer::insertCustomVariable(const char *fullVari
         if (stackHandle == 0)
         { // we only register a variable name for auto-completion (variable has no value!)
             removeCustomVariable(fullVariableName);
-            CScriptCustomVariable *v = new CScriptCustomVariable(fullVariableName, nullptr, 0);
+            CScriptCustomVariable* v = new CScriptCustomVariable(fullVariableName, nullptr, 0);
             _allCustomVariables.push_back(v);
         }
         else
         { // register a stack variable
-            CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
             if (stack == nullptr)
                 return (false);
             if (stack->getStackSize() < 1)
@@ -183,14 +183,14 @@ bool CScriptCustomFuncAndVarContainer::insertCustomVariable(const char *fullVari
                 stack->popStackValue(1);
             }
             removeCustomVariable(fullVariableName);
-            CScriptCustomVariable *v = new CScriptCustomVariable(fullVariableName, nullptr, stackHandle);
+            CScriptCustomVariable* v = new CScriptCustomVariable(fullVariableName, nullptr, stackHandle);
             _allCustomVariables.push_back(v);
         }
         return (true);
     }
 }
 
-void CScriptCustomFuncAndVarContainer::appendAllVariableNames_spaceSeparated_keywordHighlight(std::string &v)
+void CScriptCustomFuncAndVarContainer::appendAllVariableNames_spaceSeparated_keywordHighlight(std::string& v)
 {
     for (size_t i = 0; i < _allCustomVariables.size(); i++)
     {
@@ -202,7 +202,7 @@ void CScriptCustomFuncAndVarContainer::appendAllVariableNames_spaceSeparated_key
     }
 }
 
-void CScriptCustomFuncAndVarContainer::insertAllFunctionNamesThatStartSame(const char *txt, std::set<std::string> &v)
+void CScriptCustomFuncAndVarContainer::insertAllFunctionNamesThatStartSame(const char* txt, std::set<std::string>& v)
 {
     std::string ttxt(txt);
     bool hasDot = (ttxt.find('.') != std::string::npos);
@@ -228,7 +228,7 @@ void CScriptCustomFuncAndVarContainer::insertAllFunctionNamesThatStartSame(const
     }
 }
 
-void CScriptCustomFuncAndVarContainer::insertAllVariableNamesThatStartSame(const char *txt, std::set<std::string> &v)
+void CScriptCustomFuncAndVarContainer::insertAllVariableNamesThatStartSame(const char* txt, std::set<std::string>& v)
 {
     std::string ttxt(txt);
     bool hasDot = (ttxt.find('.') != std::string::npos);

@@ -19,48 +19,48 @@ struct SEventInf
 class CCbor
 {
   public:
-    CCbor(const std::string *initBuff = nullptr, int options = 0);
+    CCbor(const std::string* initBuff = nullptr, int options = 0);
     virtual ~CCbor();
 
-    void swapWithEmptyBuffer(std::vector<unsigned char> *emptyBuff);
-    static bool isText(const char *v, size_t l);
+    void swapWithEmptyBuffer(std::vector<unsigned char>* emptyBuff);
+    static bool isText(const char* v, size_t l);
 
     void appendInt(long long int v);
-    void appendUCharArray(const unsigned char *v, size_t cnt);
-    void appendIntArray(const int *v, size_t cnt);
-    void appendIntArray(const long long int *v, size_t cnt);
+    void appendUCharArray(const unsigned char* v, size_t cnt);
+    void appendIntArray(const int* v, size_t cnt);
+    void appendIntArray(const long long int* v, size_t cnt);
     void appendFloat(float v);
-    void appendFloatArray(const float *v, size_t cnt);
+    void appendFloatArray(const float* v, size_t cnt);
     void appendDouble(double v);
-    void appendDoubleArray(const double *v, size_t cnt);
+    void appendDoubleArray(const double* v, size_t cnt);
     void appendNull();
     void appendBool(bool v);
-    void appendBuff(const unsigned char *v, size_t l);
-    void appendText(const char *v, int l = -1);
+    void appendBuff(const unsigned char* v, size_t l);
+    void appendText(const char* v, int l = -1);
 
-    void appendKeyInt(const char *key, long long int v);
-    void appendKeyUCharArray(const char *key, const unsigned char *v, size_t cnt);
-    void appendKeyIntArray(const char *key, const int *v, size_t cnt);
-    void appendKeyIntArray(const char *key, const long long int *v, size_t cnt);
-    void appendKeyFloat(const char *key, float v);
-    void appendKeyFloatArray(const char *key, const float *v, size_t cnt);
-    void appendKeyDouble(const char *key, double v);
-    void appendKeyDoubleArray(const char *key, const double *v, size_t cnt);
-    void appendKeyNull(const char *key);
-    void appendKeyBool(const char *key, bool v);
-    void appendKeyBuff(const char *key, const unsigned char *v, size_t l);
-    void appendKeyText(const char *key, const char *v, int l = -1);
+    void appendKeyInt(const char* key, long long int v);
+    void appendKeyUCharArray(const char* key, const unsigned char* v, size_t cnt);
+    void appendKeyIntArray(const char* key, const int* v, size_t cnt);
+    void appendKeyIntArray(const char* key, const long long int* v, size_t cnt);
+    void appendKeyFloat(const char* key, float v);
+    void appendKeyFloatArray(const char* key, const float* v, size_t cnt);
+    void appendKeyDouble(const char* key, double v);
+    void appendKeyDoubleArray(const char* key, const double* v, size_t cnt);
+    void appendKeyNull(const char* key);
+    void appendKeyBool(const char* key, bool v);
+    void appendKeyBuff(const char* key, const unsigned char* v, size_t l);
+    void appendKeyText(const char* key, const char* v, int l = -1);
 
     void openArray();
-    void openKeyArray(const char *key);
+    void openKeyArray(const char* key);
     void openMap();
-    void openKeyMap(const char *key);
+    void openKeyMap(const char* key);
     void closeArrayOrMap();
 
-    void appendLuaString(const std::string &v, bool isBuffer, bool isText);
-    void appendRaw(const unsigned char *v, size_t l);
+    void appendLuaString(const std::string& v, bool isBuffer, bool isText);
+    void appendRaw(const unsigned char* v, size_t l);
 
-    void createEvent(const char *event, const char *fieldName, const char *objType, long long int handle, long long int uid, bool mergeable, bool openDataField = true);
+    void createEvent(const char* event, const char* fieldName, const char* objType, long long int handle, long long int uid, bool mergeable, bool openDataField = true);
     void pushEvent();
     long long int finalizeEvents(long long int nextSeq, bool seqChanges, std::vector<SEventInf>* inf = nullptr);
     size_t getEventCnt() const;
@@ -69,7 +69,7 @@ class CCbor
     void clear();
 
     std::string getBuff() const;
-    const unsigned char *getBuff(size_t &l) const;
+    const unsigned char* getBuff(size_t& l) const;
 
   protected:
     void _handleDataField(const char* key = nullptr);

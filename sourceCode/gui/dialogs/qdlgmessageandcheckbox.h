@@ -14,7 +14,7 @@ class CQDlgMessageAndCheckbox : public VDialog
     Q_OBJECT
 
   public:
-    explicit CQDlgMessageAndCheckbox(QWidget *parent = 0);
+    explicit CQDlgMessageAndCheckbox(QWidget* parent = 0);
     ~CQDlgMessageAndCheckbox();
 
     void cancelEvent();
@@ -32,7 +32,7 @@ class CQDlgMessageAndCheckbox : public VDialog
     void on_qqOk_accepted();
 
   private:
-    Ui::CQDlgMessageAndCheckbox *ui;
+    Ui::CQDlgMessageAndCheckbox* ui;
 };
 
 #endif // QDLGMESSAGEANDCHECKBOX_H

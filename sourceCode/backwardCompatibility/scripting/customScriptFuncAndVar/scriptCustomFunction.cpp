@@ -1,7 +1,7 @@
 #include <scriptCustomFunction.h>
 
-CScriptCustomFunction::CScriptCustomFunction(const char *theFullFunctionName, const char *theCallTips,
-                                             void (*callBack)(struct SScriptCallBack *cb), bool pluginFunction)
+CScriptCustomFunction::CScriptCustomFunction(const char* theFullFunctionName, const char* theCallTips,
+                                             void (*callBack)(struct SScriptCallBack* cb), bool pluginFunction)
 { // the new way, called through simRegisterScriptCallbackFunction
     useStackToExchangeData = true;
     _functionIsDefinedInScript = false;
@@ -48,13 +48,13 @@ bool CScriptCustomFunction::getUsesStackToExchangeData() const
     return (useStackToExchangeData);
 }
 
-bool CScriptCustomFunction::isFunctionNameSame(const char *fullName) const
+bool CScriptCustomFunction::isFunctionNameSame(const char* fullName) const
 {
     std::string funcName(_getFunctionNameFromFull(fullName));
     return (functionName.compare(funcName) == 0);
 }
 
-bool CScriptCustomFunction::isPluginNameSame(const char *plugName) const
+bool CScriptCustomFunction::isPluginNameSame(const char* plugName) const
 {
     return (pluginName.compare(plugName) == 0);
 }
@@ -84,7 +84,7 @@ void CScriptCustomFunction::setFunctionID(int newID)
     functionID = newID;
 }
 
-std::string CScriptCustomFunction::_getFunctionNameFromFull(const char *fullName)
+std::string CScriptCustomFunction::_getFunctionNameFromFull(const char* fullName)
 {
     std::string f(fullName);
     size_t p = f.find('@');
@@ -94,7 +94,7 @@ std::string CScriptCustomFunction::_getFunctionNameFromFull(const char *fullName
     return (subF);
 }
 
-std::string CScriptCustomFunction::_getPluginNameFromFull(const char *fullName)
+std::string CScriptCustomFunction::_getPluginNameFromFull(const char* fullName)
 {
     std::string f(fullName);
     size_t p = f.find('@');
@@ -104,9 +104,9 @@ std::string CScriptCustomFunction::_getPluginNameFromFull(const char *fullName)
     return (subF);
 }
 
-CScriptCustomFunction::CScriptCustomFunction(const char *theFullFunctionName, const char *theCallTips,
-                                             std::vector<int> &theInputArgTypes,
-                                             void (*callBack)(struct SLuaCallBack *p))
+CScriptCustomFunction::CScriptCustomFunction(const char* theFullFunctionName, const char* theCallTips,
+                                             std::vector<int>& theInputArgTypes,
+                                             void (*callBack)(struct SLuaCallBack* p))
 { // old
     useStackToExchangeData = false;
     _functionIsDefinedInScript = false;

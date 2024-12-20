@@ -14,18 +14,18 @@ class CQDlgCalcDialogContainer_OLD : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgCalcDialogContainer_OLD(QWidget *parent = 0);
+    explicit CQDlgCalcDialogContainer_OLD(QWidget* parent = 0);
     ~CQDlgCalcDialogContainer_OLD();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
-    QVBoxLayout *bl;
+    QVBoxLayout* bl;
     int currentPage;
     int desiredPage;
     int topBorderWidth;
 
-    CDlgEx *pageDlgs[3];
+    CDlgEx* pageDlgs[3];
     int originalHeights[3];
 
   private slots:
@@ -36,7 +36,7 @@ class CQDlgCalcDialogContainer_OLD : public CDlgEx
     void on_qqIk_clicked();
 
   private:
-    Ui::CQDlgCalcDialogContainer_OLD *ui;
+    Ui::CQDlgCalcDialogContainer_OLD* ui;
 };
 
 #endif // QDLGCALCDIALOGCONTAINER_H

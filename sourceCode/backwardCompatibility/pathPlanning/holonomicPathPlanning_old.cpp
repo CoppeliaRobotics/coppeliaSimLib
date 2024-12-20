@@ -7,7 +7,7 @@ CHolonomicPathPlanning_old::CHolonomicPathPlanning_old(
     int theStartDummyID, int theGoalDummyID, int theRobotCollectionID, int theObstacleCollectionID, int ikGroupID,
     int thePlanningType, double theAngularCoeff, double theStepSize, const double theSearchMinVal[4],
     const double theSearchRange[4], const int theDirectionConstraints[4], const double clearanceAndMaxDistance[2],
-    const C3Vector &gammaAxis)
+    const C3Vector& gammaAxis)
 {
     isHolonomic = true;
     double angle = C3Vector::unitZVector.getAngle(gammaAxis);
@@ -33,8 +33,8 @@ CHolonomicPathPlanning_old::CHolonomicPathPlanning_old(
     planningType = thePlanningType;
     startDummyID = theStartDummyID;
     goalDummyID = theGoalDummyID;
-    CXDummy *startDummy = (CXDummy *)_simGetObject_internal(startDummyID);
-    CXDummy *goalDummy = (CXDummy *)_simGetObject_internal(goalDummyID);
+    CXDummy* startDummy = (CXDummy*)_simGetObject_internal(startDummyID);
+    CXDummy* goalDummy = (CXDummy*)_simGetObject_internal(goalDummyID);
     if ((startDummy == nullptr) || (goalDummy == nullptr))
         return;
 
@@ -100,9 +100,9 @@ void CHolonomicPathPlanning_old::setStepSize(double size)
     stepSize = size;
 }
 
-void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<double> &data, bool fromTheStart)
+void CHolonomicPathPlanning_old::getSearchTreeData(std::vector<double>& data, bool fromTheStart)
 {
-    std::vector<CHolonomicPathNode_old *> *cont;
+    std::vector<CHolonomicPathNode_old*>* cont;
     if (fromTheStart)
         cont = &fromStart;
     else
@@ -162,7 +162,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
         return (0);
     if ((fromStart.size() == 0) || (fromGoal.size() == 0) || (foundPath.size() != 0))
         return (0);
-    CXDummy *startDummy = (CXDummy *)_simGetObject_internal(startDummyID);
+    CXDummy* startDummy = (CXDummy*)_simGetObject_internal(startDummyID);
     if (startDummy == nullptr)
         return (0);
     // Following since 2010/08/19 so that we can move the "robot" while we search:
@@ -176,9 +176,9 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
     if (maxTimePerPass == 131183)
         return (61855195);
 
-    std::vector<CHolonomicPathNode_old *> *current = &fromStart;
-    std::vector<CHolonomicPathNode_old *> *nextCurrent = &fromGoal;
-    std::vector<CHolonomicPathNode_old *> *tmpCurrent = nullptr;
+    std::vector<CHolonomicPathNode_old*>* current = &fromStart;
+    std::vector<CHolonomicPathNode_old*>* nextCurrent = &fromGoal;
+    std::vector<CHolonomicPathNode_old*>* tmpCurrent = nullptr;
 
     int foundAPath = 0;
     int initTime = simGetSystemTimeInMs_internal(-1);
@@ -186,7 +186,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
     {
         for (int i = 0; i < 2; i++)
         {
-            CHolonomicPathNode_old *randNode;
+            CHolonomicPathNode_old* randNode;
             if (firstPass) // If first pass, we try to link start to goal directly!
             {
                 randNode = (*nextCurrent)[0]->copyYourself();
@@ -196,7 +196,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
                 randNode = new CHolonomicPathNode_old(planningType, _searchMinVal, _searchRange, _gammaAxisRotation,
                                                       _gammaAxisRotationInv);
 
-            CHolonomicPathNode_old *closest = getClosestNode(*current, randNode);
+            CHolonomicPathNode_old* closest = getClosestNode(*current, randNode);
             if (closest != nullptr)
             {
                 closest = extend(current, closest, randNode, false, startDummy);
@@ -204,7 +204,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
                 {
                     for (int constr = 0; constr < 4; constr++) // We have to inverse the constraints!!
                         _directionConstraints[constr] *= -1;
-                    CHolonomicPathNode_old *closestConnect = getClosestNode(*nextCurrent, closest);
+                    CHolonomicPathNode_old* closestConnect = getClosestNode(*nextCurrent, closest);
                     if (closestConnect != nullptr)
                     {
                         closestConnect = extend(nextCurrent, closestConnect, closest, true, startDummy);
@@ -212,7 +212,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
                         {
                             if (current == &fromStart)
                             {
-                                CHolonomicPathNode_old *iterat = closest;
+                                CHolonomicPathNode_old* iterat = closest;
                                 while (iterat != nullptr)
                                 {
                                     foundPath.insert(foundPath.begin(), iterat->copyYourself());
@@ -227,7 +227,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
                             }
                             else
                             {
-                                CHolonomicPathNode_old *iterat = closest;
+                                CHolonomicPathNode_old* iterat = closest;
                                 while (iterat != nullptr)
                                 {
                                     foundPath.push_back(iterat->copyYourself());
@@ -271,7 +271,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
 
 bool CHolonomicPathPlanning_old::setPartialPath()
 {
-    CHolonomicPathNode_old *it = getClosestNode(fromStart, fromGoal[0]);
+    CHolonomicPathNode_old* it = getClosestNode(fromStart, fromGoal[0]);
     while (it != nullptr)
     {
         foundPath.insert(foundPath.begin(), it->copyYourself());
@@ -280,8 +280,8 @@ bool CHolonomicPathPlanning_old::setPartialPath()
     return (true);
 }
 
-CHolonomicPathNode_old *CHolonomicPathPlanning_old::getClosestNode(std::vector<CHolonomicPathNode_old *> &nodes,
-                                                                   CHolonomicPathNode_old *sample)
+CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<CHolonomicPathNode_old*>& nodes,
+                                                                   CHolonomicPathNode_old* sample)
 {
     double minD = DBL_MAX;
     int index = -1;
@@ -497,10 +497,10 @@ CHolonomicPathNode_old *CHolonomicPathPlanning_old::getClosestNode(std::vector<C
     return (nullptr);
 }
 
-CHolonomicPathNode_old *CHolonomicPathPlanning_old::extend(std::vector<CHolonomicPathNode_old *> *nodeList,
-                                                           CHolonomicPathNode_old *toBeExtended,
-                                                           CHolonomicPathNode_old *extention, bool connect,
-                                                           CXDummy *dummy)
+CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomicPathNode_old*>* nodeList,
+                                                           CHolonomicPathNode_old* toBeExtended,
+                                                           CHolonomicPathNode_old* extention, bool connect,
+                                                           CXDummy* dummy)
 { // Return value is !=nullptr if extention was performed and connect is false
     // If connect is true, then return value indicates that connection can be performed!
     bool specialCase =
@@ -653,7 +653,7 @@ CHolonomicPathNode_old *CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
         }
 
         // No collision at this configuration! We extend it
-        CHolonomicPathNode_old *save = toBeExtended;
+        CHolonomicPathNode_old* save = toBeExtended;
         toBeExtended = save->copyYourself();
         toBeExtended->setAllValues(totalVect);
 
@@ -666,8 +666,8 @@ CHolonomicPathNode_old *CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
     return (nullptr);
 }
 
-int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old *fromPoint, CHolonomicPathNode_old *toPoint,
-                                          double vect[7], double e, double &artificialLength, bool dontDivide)
+int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHolonomicPathNode_old* toPoint,
+                                          double vect[7], double e, double& artificialLength, bool dontDivide)
 { // if direction constraints are not respected, return value is -1 and vect does not contain anything
     // Otherwise return value is the number of times we have to add 'vect' to 'fromPoint' to reach 'toPoint'
     int retVal = -1;
@@ -889,7 +889,7 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old *fromPoint, CHo
     return (retVal);
 }
 
-bool CHolonomicPathPlanning_old::addVector(C3Vector &pos, C4Vector &orient, double vect[7])
+bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, C4Vector& orient, double vect[7])
 { // return value true means values are not forbidden!
     double auxVect[7];
     if (planningType == sim_holonomicpathplanning_xy)
@@ -989,7 +989,7 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass)
         return (1);
     if (invalidData)
         return (0);
-    CXDummy *startDummy = (CXDummy *)_simGetObject_internal(startDummyID);
+    CXDummy* startDummy = (CXDummy*)_simGetObject_internal(startDummyID);
     if (startDummy == nullptr)
         return (0);
 
@@ -1015,8 +1015,8 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass)
             return (-1); // we are not yet finished, but we did enough for the time we had
         numberOfRandomConnectionTriesLeft_forSteppedSmoothing--;
         int lowIndex, highIndex;
-        CHolonomicPathNode_old *startP;
-        CHolonomicPathNode_old *endP;
+        CHolonomicPathNode_old* startP;
+        CHolonomicPathNode_old* endP;
         for (int randomPass = 0; randomPass < 5; randomPass++)
         {                     // If randomPass==0, the pass is not random, i.e. the low and high indices are calculated
             startP = nullptr; // added on 2010/09/09
@@ -1116,7 +1116,7 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass)
                         for (int currentPass = 0; currentPass < passes - 1; currentPass++)
                         {
                             addVector(pos, orient, vect);
-                            CHolonomicPathNode_old *it = endP->copyYourself(); // just to have the right size!
+                            CHolonomicPathNode_old* it = endP->copyYourself(); // just to have the right size!
                             it->setAllValues(pos, orient);
                             foundPath[lowIndex + 1 + currentPass] = it;
                             foundPathSameStraightLineID_forSteppedSmoothing[lowIndex + 1 + currentPass] =
@@ -1131,14 +1131,14 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass)
     return (0); // will never pass here!
 }
 
-void CHolonomicPathPlanning_old::getPathData(std::vector<double> &data)
+void CHolonomicPathPlanning_old::getPathData(std::vector<double>& data)
 {
     data.clear();
     if (invalidData)
         return;
     for (int i = 0; i < int(foundPath.size()); i++)
     {
-        CHolonomicPathNode_old *theNode = foundPath[i];
+        CHolonomicPathNode_old* theNode = foundPath[i];
         C3Vector p;
         C4Vector o;
         theNode->getAllValues(p, o);
@@ -1361,7 +1361,7 @@ bool CHolonomicPathPlanning_old::areSomeValuesForbidden(double values[7])
     return (gamma > (_searchMinVal[3] + _searchRange[3]));
 }
 
-bool CHolonomicPathPlanning_old::doCollide(double *dist)
+bool CHolonomicPathPlanning_old::doCollide(double* dist)
 { // dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is DBL_MAX!!
     if (dist != nullptr)
         dist[0] = DBL_MAX;

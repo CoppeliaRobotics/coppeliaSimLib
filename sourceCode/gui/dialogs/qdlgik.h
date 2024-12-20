@@ -15,11 +15,11 @@ class CQDlgIk : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgIk(QWidget *parent = 0);
+    explicit CQDlgIk(QWidget* parent = 0);
     ~CQDlgIk();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
 
     void cancelEvent();
 
@@ -31,8 +31,8 @@ class CQDlgIk : public CDlgEx
     bool inListSelectionRoutine;
     bool noListSelectionAllowed;
 
-    QShortcut *delKeyShortcut;
-    QShortcut *backspaceKeyShortcut;
+    QShortcut* delKeyShortcut;
+    QShortcut* backspaceKeyShortcut;
 
   private slots:
     void onDeletePressed();
@@ -41,7 +41,7 @@ class CQDlgIk : public CDlgEx
 
     void on_qqAddNewGroup_clicked();
 
-    void on_qqList_itemChanged(QListWidgetItem *item);
+    void on_qqList_itemChanged(QListWidgetItem* item);
 
     void on_qqList_itemSelectionChanged();
 
@@ -66,7 +66,7 @@ class CQDlgIk : public CDlgEx
     void on_qqEditIkElements_clicked();
 
   private:
-    Ui::CQDlgIk *ui;
+    Ui::CQDlgIk* ui;
 };
 
 #endif // QDLGIK_H

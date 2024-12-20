@@ -23,8 +23,8 @@ CCollection::~CCollection()
 }
 
 void CCollection::initializeInitialValues(bool simulationAlreadyRunning)
-{ // is called at simulation start, but also after object(s) have been copied into a scene!
-  //_initialValuesInitialized=true;
+{   // is called at simulation start, but also after object(s) have been copied into a scene!
+    //_initialValuesInitialized=true;
 }
 
 void CCollection::simulationAboutToStart()
@@ -33,12 +33,12 @@ void CCollection::simulationAboutToStart()
 }
 
 void CCollection::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
-  // ended). For thoses situations there is the initializeInitialValues routine!
-  // if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
-  //{
-  //}
-  //_initialValuesInitialized=false;
+{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+    // ended). For thoses situations there is the initializeInitialValues routine!
+    // if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    //{
+    //}
+    //_initialValuesInitialized=false;
 }
 
 bool CCollection::isObjectInCollection(int objectHandle) const
@@ -51,7 +51,7 @@ bool CCollection::isObjectInCollection(int objectHandle) const
     return (false);
 }
 
-void CCollection::addCollectionElement(CCollectionElement *collectionElement)
+void CCollection::addCollectionElement(CCollectionElement* collectionElement)
 {
     int i = 0;
     while (getElementFromHandle(i) != nullptr)
@@ -72,7 +72,7 @@ bool CCollection::actualizeCollection()
         size_t i = 0;
         while (i < getElementCount())
         {
-            CSceneObject *it =
+            CSceneObject* it =
                 App::currentWorld->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
             if (it == nullptr)
             {
@@ -179,9 +179,9 @@ bool CCollection::announceObjectWillBeErased(int objectHandle, bool copyBuffer)
     return (retVal);
 }
 
-bool CCollection::setCollectionName(const char *newName, bool check)
+bool CCollection::setCollectionName(const char* newName, bool check)
 {
-    CCollection *it = nullptr;
+    CCollection* it = nullptr;
     if (check)
         it = App::currentWorld->collections->getObjectFromHandle(_collectionHandle);
     std::string nn;
@@ -216,16 +216,16 @@ bool CCollection::setCollectionName(const char *newName, bool check)
     return (diff);
 }
 
-void CCollection::performObjectLoadingMapping(const std::map<int, int> *map)
+void CCollection::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     for (size_t i = 0; i < getElementCount(); i++)
         getElementFromIndex(i)->performObjectLoadingMapping(map);
     actualizeCollection();
 }
 
-CCollection *CCollection::copyYourself() const
+CCollection* CCollection::copyYourself() const
 {
-    CCollection *newCollection = new CCollection(-2);
+    CCollection* newCollection = new CCollection(-2);
     newCollection->_collectionHandle = _collectionHandle; // important for copy operations connections
     newCollection->_collectionName = _collectionName;
     for (size_t i = 0; i < getElementCount(); i++)
@@ -265,7 +265,7 @@ int CCollection::getSceneObjectHandleFromIndex(size_t index) const
     return (retVal);
 }
 
-void CCollection::serialize(CSer &ar)
+void CCollection::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -326,7 +326,7 @@ void CCollection::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        CCollectionElement *it = new CCollectionElement(0, 0, false);
+                        CCollectionElement* it = new CCollectionElement(0, 0, false);
                         it->serialize(ar);
                         _addCollectionElement(it);
                     }
@@ -370,7 +370,7 @@ void CCollection::serialize(CSer &ar)
 
             if (exhaustiveXml)
             {
-                std::string str(base64_encode((unsigned char *)_uniquePersistentIdString.c_str(),
+                std::string str(base64_encode((unsigned char*)_uniquePersistentIdString.c_str(),
                                               _uniquePersistentIdString.size()));
                 ar.xmlAddNode_string("uniquePersistentIdString_base64Coded", str.c_str());
             }
@@ -411,7 +411,7 @@ void CCollection::serialize(CSer &ar)
             {
                 while (true)
                 {
-                    CCollectionElement *it = new CCollectionElement(0, 0, false);
+                    CCollectionElement* it = new CCollectionElement(0, 0, false);
                     it->serialize(ar);
                     _addCollectionElement(it);
                     if (!ar.xmlPushSiblingNode("item", false))
@@ -423,7 +423,7 @@ void CCollection::serialize(CSer &ar)
     }
 }
 
-void CCollection::_updateCollectionObjects_(const std::vector<int> &sceneObjectHandles)
+void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectHandles)
 {
     _collectionObjects.assign(sceneObjectHandles.begin(), sceneObjectHandles.end());
 }
@@ -443,15 +443,15 @@ size_t CCollection::getElementCount() const
     return (_collectionElements.size());
 }
 
-CCollectionElement *CCollection::getElementFromIndex(size_t index) const
+CCollectionElement* CCollection::getElementFromIndex(size_t index) const
 {
-    CCollectionElement *retVal = nullptr;
+    CCollectionElement* retVal = nullptr;
     if (index < _collectionElements.size())
         retVal = _collectionElements[index];
     return (retVal);
 }
 
-CCollectionElement *CCollection::getElementFromHandle(int collectionElementHandle) const
+CCollectionElement* CCollection::getElementFromHandle(int collectionElementHandle) const
 {
     for (size_t i = 0; i < _collectionElements.size(); i++)
     {
@@ -486,7 +486,7 @@ bool CCollection::setCollectionHandle(int newHandle)
     return (diff);
 }
 
-void CCollection::_addCollectionElement(CCollectionElement *collectionElement)
+void CCollection::_addCollectionElement(CCollectionElement* collectionElement)
 {
     _collectionElements.push_back(collectionElement);
 }

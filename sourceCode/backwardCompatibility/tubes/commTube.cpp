@@ -1,7 +1,7 @@
 #include <commTube.h>
 #include <tt.h>
 
-CCommTube::CCommTube(int header, const char *identifier, int firstPartner, bool killAtSimulationEnd, int readBufferSize)
+CCommTube::CCommTube(int header, const char* identifier, int firstPartner, bool killAtSimulationEnd, int readBufferSize)
 {
     _header = header;
     _identifier = identifier;
@@ -103,7 +103,7 @@ void CCommTube::_swapPartners()
     _packetSizes[0].swap(_packetSizes[1]);
 }
 
-bool CCommTube::writeData(int partner, char *data, int dataSize)
+bool CCommTube::writeData(int partner, char* data, int dataSize)
 { // data is not copied!
     for (int i = 0; i < 2; i++)
     {
@@ -124,7 +124,7 @@ bool CCommTube::writeData(int partner, char *data, int dataSize)
     return (false);
 }
 
-char *CCommTube::readData(int partner, int &dataSize)
+char* CCommTube::readData(int partner, int& dataSize)
 { // data is not copied!
     for (int j = 0; j < 2; j++)
     {
@@ -132,7 +132,7 @@ char *CCommTube::readData(int partner, int &dataSize)
         {
             if (_packets[j].size() != 0)
             {
-                char *retVal = _packets[j][0];
+                char* retVal = _packets[j][0];
                 dataSize = _packetSizes[j][0];
                 _packets[j].erase(_packets[j].begin());
                 _packetSizes[j].erase(_packetSizes[j].begin());
@@ -149,12 +149,12 @@ bool CCommTube::isPartnerThere(int partner)
     return ((partner == _partner[0]) || (partner == _partner[1]));
 }
 
-bool CCommTube::isSameHeaderAndIdentifier(int header, const char *identifier)
+bool CCommTube::isSameHeaderAndIdentifier(int header, const char* identifier)
 {
     return ((header == _header) && (_identifier.compare(identifier) == 0));
 }
 
-int CCommTube::getTubeStatus(int tubeHandle, int &readBufferFill, int &writeBufferFill)
+int CCommTube::getTubeStatus(int tubeHandle, int& readBufferFill, int& writeBufferFill)
 {
     if ((tubeHandle != _partner[0]) && (tubeHandle != _partner[1]))
         return (-1);

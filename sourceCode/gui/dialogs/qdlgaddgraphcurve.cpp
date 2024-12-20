@@ -4,7 +4,7 @@
 #include <graphingRoutines_old.h>
 #include <app.h>
 
-CQDlgAddGraphCurve::CQDlgAddGraphCurve(QWidget *parent)
+CQDlgAddGraphCurve::CQDlgAddGraphCurve(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgAddGraphCurve)
 {
     ui->setupUi(this);
@@ -27,7 +27,7 @@ void CQDlgAddGraphCurve::okEvent()
 
 void CQDlgAddGraphCurve::refresh()
 {
-    CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+    CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
     ui->qqZValue->setVisible(!xyGraph);
     ui->qqComboZ->setVisible(!xyGraph);
 

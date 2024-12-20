@@ -10,7 +10,8 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgProximitySensors::CQDlgProximitySensors(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgProximitySensors)
+CQDlgProximitySensors::CQDlgProximitySensors(QWidget* parent)
+    : CDlgEx(parent), ui(new Ui::CQDlgProximitySensors)
 {
     _dlgType = PROXIMITY_SENSOR_DLG;
     ui->setupUi(this);
@@ -31,9 +32,9 @@ void CQDlgProximitySensors::cancelEvent()
 void CQDlgProximitySensors::refresh()
 {
     inMainRefreshRoutine = true;
-    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    QLineEdit* lineEditToSelect = getSelectedLineEdit();
 
-    CProxSensor *it = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
+    CProxSensor* it = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
 
     bool isSensor = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_proximitysensor);
     bool manySensors = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_proximitysensor) > 1;
@@ -150,7 +151,7 @@ void CQDlgProximitySensors::on_qqApplyMain_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CProxSensor *last = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
+        CProxSensor* last = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
         if ((last != nullptr) && (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_proximitysensor) >= 2))
         {
             SSimulationThreadCommand cmd;
@@ -180,7 +181,7 @@ void CQDlgProximitySensors::on_qqAdjustDetectionParams_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CProxSensor *it = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
+        CProxSensor* it = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
         if (it != nullptr)
         {
             CQDlgProxSensDetectionParam theDialog(this);

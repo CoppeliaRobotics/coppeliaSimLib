@@ -15,7 +15,7 @@ class CQDlgPathShaping : public CDlgEx
     Q_OBJECT
 
   public:
-    explicit CQDlgPathShaping(QWidget *parent = 0);
+    explicit CQDlgPathShaping(QWidget* parent = 0);
     ~CQDlgPathShaping();
 
     void refresh();
@@ -23,7 +23,7 @@ class CQDlgPathShaping : public CDlgEx
 
     bool inMainRefreshRoutine;
 
-    bool _extractOneFloat(std::string &txt, double &val);
+    bool _extractOneFloat(std::string& txt, double& val);
 
     static bool showWindow;
 
@@ -49,7 +49,7 @@ class CQDlgPathShaping : public CDlgEx
     void on_qqCoordinates_textChanged();
 
   private:
-    Ui::CQDlgPathShaping *ui;
+    Ui::CQDlgPathShaping* ui;
 };
 
 #endif // QDLGPATHSHAPING_H

@@ -8,8 +8,8 @@ class CFolderSystem
     CFolderSystem();
     virtual ~CFolderSystem();
 
-    static std::string getPathFromFull(const char *full); // no final backslash or slash is returned
-    static std::string getNameFromFull(const char *full);
+    static std::string getPathFromFull(const char* full); // no final backslash or slash is returned
+    static std::string getNameFromFull(const char* full);
     static std::string getUserSettingsPath();
 
     std::string getExecutablePath() const;
@@ -23,17 +23,17 @@ class CFolderSystem
     std::string getModelsDefaultPath() const;
 
     std::string getScenesPath() const;
-    void setScenesPath(const char *path);
+    void setScenesPath(const char* path);
     std::string getModelsPath() const;
-    void setModelsPath(const char *path);
+    void setModelsPath(const char* path);
     std::string getImportExportPath() const;
-    void setImportExportPath(const char *path);
+    void setImportExportPath(const char* path);
     std::string getTexturesPath() const;
-    void setTexturesPath(const char *path);
+    void setTexturesPath(const char* path);
     std::string getVideosPath() const;
-    void setVideosPath(const char *path);
+    void setVideosPath(const char* path);
     std::string getOtherFilesPath() const;
-    void setOtherFilesPath(const char *path);
+    void setOtherFilesPath(const char* path);
     // std::string getAppDataPath() const;
     std::string getTempDataPath() const;
     std::string getSceneTempDataPath() const;
@@ -42,7 +42,7 @@ class CFolderSystem
     std::string getMujocoPath() const;
 
   private:
-    QTemporaryDir *_tempDir;
+    QTemporaryDir* _tempDir;
     std::string _executablePath;
     std::string _systemPath;
     std::string _addOnPath;

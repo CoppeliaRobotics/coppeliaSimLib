@@ -8,39 +8,39 @@ class CGraphCurve
 {
   public:
     CGraphCurve();
-    CGraphCurve(int dim, const int streamIds[3], const double defaultVals[3], const char *curveName,
-                const char *unitStr, int options, const float *color, int curveWidth, int scriptHandle);
+    CGraphCurve(int dim, const int streamIds[3], const double defaultVals[3], const char* curveName,
+                const char* unitStr, int options, const float* color, int curveWidth, int scriptHandle);
     virtual ~CGraphCurve();
 
-    void serialize(CSer &ar, int startPt, int ptCnt, int bufferSize);
-    CGraphCurve *copyYourself() const;
-    void setBasics(int dim, const int streamIds[3], const double defaultVals[3], const char *unitStr, int options,
-                   const float *color, int curveWidth, int scriptHandle);
-    void updateStreamIds(const std::vector<int> &allStreamIds);
-    bool getCurveData_xy(CGraphDataStream *streams[3], int *index, int bufferSize, int startPt, int ptCnt,
-                         std::string *label, std::vector<double> &xVals, std::vector<double> &yVals, int *curveType,
+    void serialize(CSer& ar, int startPt, int ptCnt, int bufferSize);
+    CGraphCurve* copyYourself() const;
+    void setBasics(int dim, const int streamIds[3], const double defaultVals[3], const char* unitStr, int options,
+                   const float* color, int curveWidth, int scriptHandle);
+    void updateStreamIds(const std::vector<int>& allStreamIds);
+    bool getCurveData_xy(CGraphDataStream* streams[3], int* index, int bufferSize, int startPt, int ptCnt,
+                         std::string* label, std::vector<double>& xVals, std::vector<double>& yVals, int* curveType,
                          float col[3], double minMax[6]) const;
-    bool getCurveData_xyz(CGraphDataStream *streams[3], int *index, int bufferSize, int startPt, int ptCnt,
-                          std::string *label, std::vector<double> &xVals, int *curveType, float col[3],
-                          double minMax[6], int *curveWidth) const;
-    void makeStatic(CGraphDataStream *streams[3], int bufferSize, int startPt, int ptCnt);
+    bool getCurveData_xyz(CGraphDataStream* streams[3], int* index, int bufferSize, int startPt, int ptCnt,
+                          std::string* label, std::vector<double>& xVals, int* curveType, float col[3],
+                          double minMax[6], int* curveWidth) const;
+    void makeStatic(CGraphDataStream* streams[3], int bufferSize, int startPt, int ptCnt);
     bool announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript,
                                     bool copyBuffer);
-    void performScriptLoadingMapping(const std::map<int, int> *map);
+    void performScriptLoadingMapping(const std::map<int, int>* map);
 
     void setId(int id);
     int getId() const;
     long long int getUid() const;
-    void setCurveName(const char *nm);
+    void setCurveName(const char* nm);
     std::string getCurveName() const;
     std::string getUnitStr() const;
     int getOptions() const;
     bool getIsStatic() const;
-    const int *getStreamIdsPtr() const;
+    const int* getStreamIdsPtr() const;
     int getCurveWidth() const;
-    const float *getColorPtr() const;
+    const float* getColorPtr() const;
     int getDim() const;
-    const double *getDefaultValsPtr() const;
+    const double* getDefaultValsPtr() const;
     int getScriptHandle() const;
 
   protected:

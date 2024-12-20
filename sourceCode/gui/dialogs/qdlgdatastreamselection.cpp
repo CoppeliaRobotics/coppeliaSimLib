@@ -8,7 +8,7 @@
 #include <app.h>
 #include <guiApp.h>
 
-CQDlgDataStreamSelection::CQDlgDataStreamSelection(QWidget *parent)
+CQDlgDataStreamSelection::CQDlgDataStreamSelection(QWidget* parent)
     : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgDataStreamSelection)
 {
     ui->setupUi(this);
@@ -29,8 +29,8 @@ void CQDlgDataStreamSelection::cancelEvent()
 }
 
 void CQDlgDataStreamSelection::okEvent()
-{ // we want the user to click "ok"
-  //  defaultModalDialogEndRoutine(true);
+{   // we want the user to click "ok"
+    //  defaultModalDialogEndRoutine(true);
 }
 
 void CQDlgDataStreamSelection::refresh()
@@ -185,7 +185,7 @@ void CQDlgDataStreamSelection::refresh()
     inRefreshRoutine = false;
 }
 
-void CQDlgDataStreamSelection::addElementToCombobox(QComboBox *box, int dataType)
+void CQDlgDataStreamSelection::addElementToCombobox(QComboBox* box, int dataType)
 {
     std::string tmp;
     CGraphingRoutines_old::loopThroughAllAndGetDataName(dataType, tmp);

@@ -33,8 +33,8 @@
 
 CUiThread::CUiThread()
 {
-    connect(this, SIGNAL(_executeCommandViaUiThread(SUIThreadCommand *, SUIThreadCommand *)), this,
-            SLOT(__executeCommandViaUiThread(SUIThreadCommand *, SUIThreadCommand *)), Qt::BlockingQueuedConnection);
+    connect(this, SIGNAL(_executeCommandViaUiThread(SUIThreadCommand*, SUIThreadCommand*)), this,
+            SLOT(__executeCommandViaUiThread(SUIThreadCommand*, SUIThreadCommand*)), Qt::BlockingQueuedConnection);
     connect(this, SIGNAL(_renderScene()), this, SLOT(__renderScene()), Qt::QueuedConnection);
 }
 
@@ -42,7 +42,7 @@ CUiThread::~CUiThread()
 {
 }
 
-bool CUiThread::executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 { // Called by any thread
     bool retVal = false;
     if (App::getAppStage() >= App::appstage_simInit2Done)
@@ -56,7 +56,7 @@ bool CUiThread::executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadComm
     return (retVal);
 }
 
-void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
+void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut)
 { // called by the UI thread.
     if ((cmdIn->cmdId > PLUGIN_START_PLUGUITHREADCMD) && (cmdIn->cmdId < PLUGIN_END_PLUGUITHREADCMD))
     {
@@ -71,11 +71,11 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         destroyGlTexture(cmdIn->uintParams[0]);
 
     if (cmdIn->cmdId == CREATE_GL_CONTEXT_FBO_TEXTURE_IF_NEEDED_UITHREADCMD)
-        ((CVisionSensor *)cmdIn->objectParams[0])
+        ((CVisionSensor*)cmdIn->objectParams[0])
             ->createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(cmdIn->boolParams[0]);
 
     if (cmdIn->cmdId == DETECT_VISION_SENSOR_ENTITY_UITHREADCMD)
-        cmdOut->boolParams.push_back(((CVisionSensor *)cmdIn->objectParams[0])
+        cmdOut->boolParams.push_back(((CVisionSensor*)cmdIn->objectParams[0])
                                          ->detectVisionSensorEntity_executedViaUiThread(
                                              cmdIn->intParams[0], cmdIn->boolParams[0], cmdIn->boolParams[1],
                                              cmdIn->boolParams[2], cmdIn->boolParams[3]));
@@ -96,7 +96,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
             std::string txt(CSimFlavor::getStringVal(9));
             if (txt.length() != 0)
             {
-                if ( (!App::userSettings->doNotShowUpdateCheckMessage) && (!App::userSettings->suppressStartupDialogs) )
+                if ((!App::userSettings->doNotShowUpdateCheckMessage) && (!App::userSettings->suppressStartupDialogs))
                     GuiApp::uiThread->messageBox_informationSystemModal(GuiApp::mainWindow, "Update information", txt.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
                 App::logMsg(sim_verbosity_msgs, txt.c_str());
             }
@@ -111,7 +111,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
 
     if (GuiApp::canShowDialogs() && (cmdIn->cmdId == MENUBAR_COLOR_UITHREADCMD))
     {
-        QMenuBar *menubar = GuiApp::mainWindow->menuBar();
+        QMenuBar* menubar = GuiApp::mainWindow->menuBar();
         if (menubar != nullptr)
         {
             static QPalette originalPalette;
@@ -152,13 +152,13 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     }
     if (cmdIn->cmdId == CALL_PLUGIN_INITUI_FROM_UITHREAD_UITHREADCMD)
     {
-        CPlugin *it = App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
+        CPlugin* it = App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
         if (it != nullptr)
             it->init_ui();
     }
     if (cmdIn->cmdId == CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD)
     {
-        CPlugin *it = App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
+        CPlugin* it = App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
         if (it != nullptr)
             it->cleanup_ui();
     }
@@ -228,7 +228,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
             App::currentWorld->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
             SSimulationThreadCommand cmd;
             cmd.cmdId = SET_THUMBNAIL_GUITRIGGEREDCMD;
-            unsigned char *img = (unsigned char *)dlg.thumbnail.getPointerToUncompressedImage();
+            unsigned char* img = (unsigned char*)dlg.thumbnail.getPointerToUncompressedImage();
             for (size_t i = 0; i < 128 * 128 * 4; i++)
                 cmd.uint8Params.push_back(img[i]);
             App::appendSimulationThreadCommand(cmd);
@@ -256,7 +256,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD))
     {
-        CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
+        CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
         if (object != nullptr)
         {
             CQDlgUserParameters theDialog(GuiApp::mainWindow);
@@ -267,7 +267,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
             SSimulationThreadCommand cmd;
             cmd.cmdId = SET_ALL_SCRIPTSIMULPARAMETERGUITRIGGEREDCMD;
             cmd.intParams.push_back(cmdIn->intParams[0]);
-            CUserParameters *sp = object->getUserScriptParameterObject();
+            CUserParameters* sp = object->getUserScriptParameterObject();
             for (size_t i = 0; i < sp->userParamEntries.size(); i++)
             {
                 cmd.intParams.push_back(sp->userParamEntries[i].properties);
@@ -281,7 +281,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == OPEN_MODAL_MODEL_PROPERTIES_UITHREADCMD))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
         if (it != nullptr)
         {
             CQDlgModelProperties theDialog(GuiApp::mainWindow);
@@ -313,18 +313,18 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
 
     if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DISPLAY_MSG_WITH_CHECKBOX_UITHREADCMD))
-        cmdOut->boolParams.push_back(messageBox_checkbox((QWidget *)cmdIn->objectParams[0],
+        cmdOut->boolParams.push_back(messageBox_checkbox((QWidget*)cmdIn->objectParams[0],
                                                          cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str(),
                                                          cmdIn->stringParams[2].c_str(), cmdIn->boolParams[0]));
 
     if (GuiApp::canShowDialogs() && (cmdIn->cmdId == DISPLAY_MSGBOX_UITHREADCMD))
-        cmdOut->uintParams.push_back(_messageBox(cmdIn->intParams[0], (QWidget *)cmdIn->objectParams[0],
+        cmdOut->uintParams.push_back(_messageBox(cmdIn->intParams[0], (QWidget*)cmdIn->objectParams[0],
                                                  cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str(),
                                                  cmdIn->uintParams[0], cmdIn->uintParams[1]));
 
     if (GuiApp::canShowDialogs() && (cmdIn->cmdId == DISPLAY_SAVE_DLG_UITHREADCMD))
         cmdOut->stringParams.push_back(getSaveFileName(
-            (QWidget *)cmdIn->objectParams[0], cmdIn->uintParams[0], cmdIn->stringParams[0].c_str(),
+            (QWidget*)cmdIn->objectParams[0], cmdIn->uintParams[0], cmdIn->stringParams[0].c_str(),
             cmdIn->stringParams[1].c_str(), cmdIn->stringParams[2].c_str(), cmdIn->boolParams[0],
             cmdIn->stringParams[3].c_str(), cmdIn->stringParams[4].c_str(), cmdIn->stringParams[5].c_str(),
             cmdIn->stringParams[6].c_str(), cmdIn->stringParams[7].c_str(), cmdIn->stringParams[8].c_str(),
@@ -336,14 +336,14 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     {
         cmdOut->floatParams.push_back(0.0);
         cmdOut->boolParams.push_back(
-            dialogInputGetFloat((QWidget *)cmdIn->objectParams[0], cmdIn->stringParams[0].c_str(),
+            dialogInputGetFloat((QWidget*)cmdIn->objectParams[0], cmdIn->stringParams[0].c_str(),
                                 cmdIn->stringParams[1].c_str(), cmdIn->floatParams[0], cmdIn->floatParams[1],
                                 cmdIn->floatParams[2], cmdIn->intParams[0], &cmdOut->floatParams[0]));
     }
 
     if (GuiApp::canShowDialogs() && (cmdIn->cmdId == DISPLAY_OPEN_DLG_UITHREADCMD))
         cmdOut->stringParams.push_back(getOpenFileName(
-            (QWidget *)cmdIn->objectParams[0], cmdIn->uintParams[0], cmdIn->stringParams[0].c_str(),
+            (QWidget*)cmdIn->objectParams[0], cmdIn->uintParams[0], cmdIn->stringParams[0].c_str(),
             cmdIn->stringParams[1].c_str(), cmdIn->stringParams[2].c_str(), cmdIn->boolParams[0],
             cmdIn->stringParams[3].c_str(), cmdIn->stringParams[4].c_str(), cmdIn->stringParams[5].c_str(),
             cmdIn->stringParams[6].c_str(), cmdIn->stringParams[7].c_str(), cmdIn->stringParams[8].c_str(),
@@ -352,7 +352,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
 
     if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DISPLAY_OPEN_DLG_MULTIFILE_UITHREADCMD))
-        getOpenFileNames(cmdOut->stringParams, (QWidget *)cmdIn->objectParams[0], cmdIn->uintParams[0],
+        getOpenFileNames(cmdOut->stringParams, (QWidget*)cmdIn->objectParams[0], cmdIn->uintParams[0],
                          cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str(), cmdIn->stringParams[2].c_str(),
                          cmdIn->boolParams[0], cmdIn->stringParams[3].c_str(), cmdIn->stringParams[4].c_str(),
                          cmdIn->stringParams[5].c_str(), cmdIn->stringParams[6].c_str(), cmdIn->stringParams[7].c_str(),
@@ -372,7 +372,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         int faceSubdiv, sides, discSubdiv;
         bool smooth, dynamic, openEnds;
         double density;
-        if (showPrimitiveShapeDialog(cmdIn->intParams[0], (C3Vector *)cmdIn->objectParams[0], sizes, subdiv, faceSubdiv,
+        if (showPrimitiveShapeDialog(cmdIn->intParams[0], (C3Vector*)cmdIn->objectParams[0], sizes, subdiv, faceSubdiv,
                                      sides, discSubdiv, smooth, openEnds, dynamic, density))
         {
             cmdOut->posParams.push_back(sizes);
@@ -390,7 +390,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     }
 }
 
-void CUiThread::showOrHideProgressBar(bool show, double pos, const char *txt)
+void CUiThread::showOrHideProgressBar(bool show, double pos, const char* txt)
 { // pos and txt can be omitted (then previously provided values will be used)
     TRACE_INTERNAL;
     if (App::userSettings->doNotShowProgressBars || (App::getDlgVerbosity() < sim_verbosity_infos))
@@ -405,7 +405,7 @@ void CUiThread::showOrHideProgressBar(bool show, double pos, const char *txt)
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
-            static CQDlgProgress *theDialog = nullptr;
+            static CQDlgProgress* theDialog = nullptr;
             if (show)
             { // Show/update the dialog:
                 if (theDialog == nullptr)
@@ -436,13 +436,13 @@ void CUiThread::showOrHideProgressBar(bool show, double pos, const char *txt)
     }
 }
 
-bool CUiThread::showOrHideEmergencyStop(bool show, const char *txt)
+bool CUiThread::showOrHideEmergencyStop(bool show, const char* txt)
 {
     TRACE_INTERNAL;
     bool retVal = false; // button was pressed
     if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
-        static CQDlgStopScripts *_emergencyStopDlg = nullptr;
+        static CQDlgStopScripts* _emergencyStopDlg = nullptr;
         if (show)
         {
             if (_emergencyStopDlg == nullptr)
@@ -532,8 +532,8 @@ void CUiThread::setFrameRendered()
     _frameRendered = true;
 }
 
-std::string CUiThread::getOpenOrSaveFileName_api(int mode, const char *title, const char *startPath,
-                                                 const char *initName, const char *extName, const char *ext)
+std::string CUiThread::getOpenOrSaveFileName_api(int mode, const char* title, const char* startPath,
+                                                 const char* initName, const char* extName, const char* ext)
 { // mode= 1: save, 0: load single, >1: load multiple
     TRACE_INTERNAL;
     std::string retVal;
@@ -595,7 +595,7 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode, const char *title, co
     return (retVal);
 }
 
-unsigned short CUiThread::messageBox_informationSystemModal(void *parentWidget, const char *title, const char *message,
+unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget, const char* title, const char* message,
                                                             unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
@@ -608,7 +608,7 @@ unsigned short CUiThread::messageBox_informationSystemModal(void *parentWidget, 
     return retVal;
 }
 
-unsigned short CUiThread::messageBox_information(void *parentWidget, const char *title, const char *message,
+unsigned short CUiThread::messageBox_information(void* parentWidget, const char* title, const char* message,
                                                  unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
@@ -621,7 +621,7 @@ unsigned short CUiThread::messageBox_information(void *parentWidget, const char 
     return retVal;
 }
 
-unsigned short CUiThread::messageBox_question(void *parentWidget, const char *title, const char *message,
+unsigned short CUiThread::messageBox_question(void* parentWidget, const char* title, const char* message,
                                               unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
@@ -634,7 +634,7 @@ unsigned short CUiThread::messageBox_question(void *parentWidget, const char *ti
     return retVal;
 }
 
-unsigned short CUiThread::messageBox_warning(void *parentWidget, const char *title, const char *message,
+unsigned short CUiThread::messageBox_warning(void* parentWidget, const char* title, const char* message,
                                              unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
@@ -647,7 +647,7 @@ unsigned short CUiThread::messageBox_warning(void *parentWidget, const char *tit
     return retVal;
 }
 
-unsigned short CUiThread::messageBox_critical(void *parentWidget, const char *title, const char *message,
+unsigned short CUiThread::messageBox_critical(void* parentWidget, const char* title, const char* message,
                                               unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
@@ -660,7 +660,7 @@ unsigned short CUiThread::messageBox_critical(void *parentWidget, const char *ti
     return retVal;
 }
 
-unsigned short CUiThread::_messageBox(int type, void *parentWidget, const char *title, const char *message,
+unsigned short CUiThread::_messageBox(int type, void* parentWidget, const char* title, const char* message,
                                       unsigned short flags, unsigned short defaultAnswer)
 { // type: 0=info, 1=question, 2=warning, 3=critical, 4=info, system modal
     TRACE_INTERNAL;
@@ -670,16 +670,16 @@ unsigned short CUiThread::_messageBox(int type, void *parentWidget, const char *
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             if (type == 0)
-                retVal = VMessageBox::information((QWidget *)parentWidget, title, message, flags, defaultAnswer);
+                retVal = VMessageBox::information((QWidget*)parentWidget, title, message, flags, defaultAnswer);
             if (type == 1)
-                retVal = VMessageBox::question((QWidget *)parentWidget, title, message, flags, defaultAnswer);
+                retVal = VMessageBox::question((QWidget*)parentWidget, title, message, flags, defaultAnswer);
             if (type == 2)
-                retVal = VMessageBox::warning((QWidget *)parentWidget, title, message, flags, defaultAnswer);
+                retVal = VMessageBox::warning((QWidget*)parentWidget, title, message, flags, defaultAnswer);
             if (type == 3)
-                retVal = VMessageBox::critical((QWidget *)parentWidget, title, message, flags, defaultAnswer);
+                retVal = VMessageBox::critical((QWidget*)parentWidget, title, message, flags, defaultAnswer);
             if (type == 4)
                 retVal =
-                    VMessageBox::informationSystemModal((QWidget *)parentWidget, title, message, flags, defaultAnswer);
+                    VMessageBox::informationSystemModal((QWidget*)parentWidget, title, message, flags, defaultAnswer);
         }
         else
         { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -700,8 +700,8 @@ unsigned short CUiThread::_messageBox(int type, void *parentWidget, const char *
     return (retVal);
 }
 
-bool CUiThread::messageBox_checkbox(void *parentWidget, const char *title, const char *message,
-                                    const char *checkboxMessage, bool isWarning)
+bool CUiThread::messageBox_checkbox(void* parentWidget, const char* title, const char* message,
+                                    const char* checkboxMessage, bool isWarning)
 {
     TRACE_INTERNAL;
     bool retVal = false;
@@ -714,7 +714,7 @@ bool CUiThread::messageBox_checkbox(void *parentWidget, const char *title, const
                 v = sim_verbosity_warnings;
             if (App::getDlgVerbosity() >= v)
             {
-                CQDlgMessageAndCheckbox dlg((QWidget *)parentWidget);
+                CQDlgMessageAndCheckbox dlg((QWidget*)parentWidget);
                 dlg.title = title;
                 dlg.text = message;
                 dlg.checkbox = checkboxMessage;
@@ -744,7 +744,7 @@ bool CUiThread::messageBox_checkbox(void *parentWidget, const char *title, const
     return (retVal);
 }
 
-bool CUiThread::checkExecuteUnsafeOk(const char *what, const char *arg, const char *idStr)
+bool CUiThread::checkExecuteUnsafeOk(const char* what, const char* arg, const char* idStr)
 {
     TRACE_INTERNAL;
     std::string msg;
@@ -769,12 +769,12 @@ bool CUiThread::checkExecuteUnsafeOk(const char *what, const char *arg, const ch
                               VMESSAGEBOX_REPLY_NO) == VMESSAGEBOX_REPLY_YES;
 }
 
-bool CUiThread::getOpenFileNames(std::vector<std::string> &files, void *parentWidget, unsigned short option,
-                                 const char *title, const char *startPath, const char *initFilename, bool allowAnyFile,
-                                 const char *extensionName, const char *extension1, const char *extension2,
-                                 const char *extension3, const char *extension4, const char *extension5,
-                                 const char *extension6, const char *extension7, const char *extension8,
-                                 const char *extension9, const char *extension10)
+bool CUiThread::getOpenFileNames(std::vector<std::string>& files, void* parentWidget, unsigned short option,
+                                 const char* title, const char* startPath, const char* initFilename, bool allowAnyFile,
+                                 const char* extensionName, const char* extension1, const char* extension2,
+                                 const char* extension3, const char* extension4, const char* extension5,
+                                 const char* extension6, const char* extension7, const char* extension8,
+                                 const char* extension9, const char* extension10)
 {
     TRACE_INTERNAL;
     bool retVal = false;
@@ -782,7 +782,7 @@ bool CUiThread::getOpenFileNames(std::vector<std::string> &files, void *parentWi
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
-            retVal = VFileDialog::getOpenFileNames(files, (QWidget *)parentWidget, option, title, startPath,
+            retVal = VFileDialog::getOpenFileNames(files, (QWidget*)parentWidget, option, title, startPath,
                                                    initFilename, allowAnyFile, extensionName, extension1, extension2,
                                                    extension3, extension4, extension5, extension6, extension7,
                                                    extension8, extension9, extension10);
@@ -837,12 +837,12 @@ void CUiThread::setFileDialogsNative(int n)
     }
 }
 
-std::string CUiThread::getOpenFileName(void *parentWidget, unsigned short option, const char *title,
-                                       const char *startPath, const char *initFilename, bool allowAnyFile,
-                                       const char *extensionName, const char *extension1, const char *extension2,
-                                       const char *extension3, const char *extension4, const char *extension5,
-                                       const char *extension6, const char *extension7, const char *extension8,
-                                       const char *extension9, const char *extension10)
+std::string CUiThread::getOpenFileName(void* parentWidget, unsigned short option, const char* title,
+                                       const char* startPath, const char* initFilename, bool allowAnyFile,
+                                       const char* extensionName, const char* extension1, const char* extension2,
+                                       const char* extension3, const char* extension4, const char* extension5,
+                                       const char* extension6, const char* extension7, const char* extension8,
+                                       const char* extension9, const char* extension10)
 {
     TRACE_INTERNAL;
     std::string retVal;
@@ -850,7 +850,7 @@ std::string CUiThread::getOpenFileName(void *parentWidget, unsigned short option
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
-            retVal = VFileDialog::getOpenFileName((QWidget *)parentWidget, option, title, startPath, initFilename,
+            retVal = VFileDialog::getOpenFileName((QWidget*)parentWidget, option, title, startPath, initFilename,
                                                   allowAnyFile, extensionName, extension1, extension2, extension3,
                                                   extension4, extension5, extension6, extension7, extension8,
                                                   extension9, extension10);
@@ -886,12 +886,12 @@ std::string CUiThread::getOpenFileName(void *parentWidget, unsigned short option
     return (retVal);
 }
 
-std::string CUiThread::getSaveFileName(void *parentWidget, unsigned short option, const char *title,
-                                       const char *startPath, const char *initFilename, bool allowAnyFile,
-                                       const char *extensionName, const char *extension1, const char *extension2,
-                                       const char *extension3, const char *extension4, const char *extension5,
-                                       const char *extension6, const char *extension7, const char *extension8,
-                                       const char *extension9, const char *extension10)
+std::string CUiThread::getSaveFileName(void* parentWidget, unsigned short option, const char* title,
+                                       const char* startPath, const char* initFilename, bool allowAnyFile,
+                                       const char* extensionName, const char* extension1, const char* extension2,
+                                       const char* extension3, const char* extension4, const char* extension5,
+                                       const char* extension6, const char* extension7, const char* extension8,
+                                       const char* extension9, const char* extension10)
 {
     TRACE_INTERNAL;
     std::string retVal;
@@ -899,7 +899,7 @@ std::string CUiThread::getSaveFileName(void *parentWidget, unsigned short option
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
-            retVal = VFileDialog::getSaveFileName((QWidget *)parentWidget, option, title, startPath, initFilename,
+            retVal = VFileDialog::getSaveFileName((QWidget*)parentWidget, option, title, startPath, initFilename,
                                                   allowAnyFile, extensionName, extension1, extension2, extension3,
                                                   extension4, extension5, extension6, extension7, extension8,
                                                   extension9, extension10);
@@ -935,8 +935,8 @@ std::string CUiThread::getSaveFileName(void *parentWidget, unsigned short option
     return (retVal);
 }
 
-bool CUiThread::dialogInputGetFloat(void *parentWidget, const char *title, const char *msg, double def, double minV,
-                                    double maxV, int decimals, double *outFloat)
+bool CUiThread::dialogInputGetFloat(void* parentWidget, const char* title, const char* msg, double def, double minV,
+                                    double maxV, int decimals, double* outFloat)
 {
     TRACE_INTERNAL;
     bool retVal = false;
@@ -944,7 +944,7 @@ bool CUiThread::dialogInputGetFloat(void *parentWidget, const char *title, const
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
-            outFloat[0] = (double)QInputDialog::getDouble((QWidget *)parentWidget, title, msg, def, minV, maxV,
+            outFloat[0] = (double)QInputDialog::getDouble((QWidget*)parentWidget, title, msg, def, minV, maxV,
                                                           decimals, &retVal);
         }
         else
@@ -970,9 +970,9 @@ bool CUiThread::dialogInputGetFloat(void *parentWidget, const char *title, const
     return (retVal);
 }
 
-bool CUiThread::showPrimitiveShapeDialog(int type, const C3Vector *optionalSizesIn, C3Vector &sizes, int subdiv[3],
-                                         int &facesSubdiv, int &sides, int &discSubdiv, bool &smooth, bool &openEnds,
-                                         bool &dynamic, double &density)
+bool CUiThread::showPrimitiveShapeDialog(int type, const C3Vector* optionalSizesIn, C3Vector& sizes, int subdiv[3],
+                                         int& facesSubdiv, int& sides, int& discSubdiv, bool& smooth, bool& openEnds,
+                                         bool& dynamic, double& density)
 {
     TRACE_INTERNAL;
     bool retVal = false;
@@ -1004,7 +1004,7 @@ bool CUiThread::showPrimitiveShapeDialog(int type, const C3Vector *optionalSizes
             SUIThreadCommand cmdOut;
             cmdIn.cmdId = SHOW_PRIMITIVE_SHAPE_DLG_UITHREADCMD;
             cmdIn.intParams.push_back(type);
-            cmdIn.objectParams.push_back((void *)optionalSizesIn);
+            cmdIn.objectParams.push_back((void*)optionalSizesIn);
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             executeCommandViaUiThread(&cmdIn, &cmdOut);
             if (cmdOut.intParams.size() > 0)
