@@ -1,7 +1,7 @@
 TARGET = coppeliaSim
 TEMPLATE = lib
 DEFINES += SIM_MATH_DOUBLE # math and vector classes
-#DEFINES += HAS_PHYSX
+#DEFINES += HAS_DRAKE
 
 !USE_DEFAULT_DESTDIR {
     DESTDIR = $$PWD/"../"

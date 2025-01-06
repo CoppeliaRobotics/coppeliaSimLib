@@ -60,6 +60,7 @@ CPlugin::CPlugin(const char* filename, const char* pluginnamespaceAndVersion, lo
     vortex_engine = nullptr;
     newton_engine = nullptr;
     mujoco_engine = nullptr;
+    drake_engine = nullptr;
 }
 
 CPlugin::~CPlugin()
@@ -85,6 +86,8 @@ CPlugin::~CPlugin()
         App::worldContainer->pluginContainer->newtonEngine = nullptr;
     if (mujoco_engine != nullptr) // also check constructor above
         App::worldContainer->pluginContainer->mujocoEngine = nullptr;
+    if (drake_engine != nullptr) // also check constructor above
+        App::worldContainer->pluginContainer->drakeEngine = nullptr;
     if (oldIkPlugin_createEnv != nullptr) // also check constructor above
     {
         App::worldContainer->pluginContainer->currentIKPlugin = nullptr;
@@ -571,6 +574,7 @@ void CPlugin::_loadAuxEntryPoints()
     vortex_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_vortex"));
     newton_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_newton"));
     mujoco_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_mujoco"));
+    drake_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_drake"));
     if (bullet278_engine != nullptr)
         App::worldContainer->pluginContainer->bullet278Engine = this;
     if (bullet283_engine != nullptr)
@@ -583,6 +587,8 @@ void CPlugin::_loadAuxEntryPoints()
         App::worldContainer->pluginContainer->newtonEngine = this;
     if (mujoco_engine != nullptr)
         App::worldContainer->pluginContainer->mujocoEngine = this;
+    if (drake_engine != nullptr)
+        App::worldContainer->pluginContainer->drakeEngine = this;
 
     // For the geom plugin:
     geomPlugin_releaseBuffer =

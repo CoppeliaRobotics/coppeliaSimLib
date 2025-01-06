@@ -121,8 +121,8 @@ void CCalculationInfo::formatInfo()
                 _dynamicsTxt[0] += IDS_NEWTON;
             if (eng == sim_physics_mujoco)
                 _dynamicsTxt[0] += IDS_MUJOCO;
-            if (eng == sim_physics_physx)
-                _dynamicsTxt[0] += IDS_PHYSX;
+            if (eng == sim_physics_drake)
+                _dynamicsTxt[0] += IDS_DRAKE;
             _dynamicsTxt[0] += ")";
         }
         else

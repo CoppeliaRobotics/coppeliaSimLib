@@ -506,6 +506,7 @@ class CPlugin
     ptr_dynPlugin_engine vortex_engine;
     ptr_dynPlugin_engine newton_engine;
     ptr_dynPlugin_engine mujoco_engine;
+    ptr_dynPlugin_engine drake_engine;
 
     ptr_geomPlugin_releaseBuffer geomPlugin_releaseBuffer;
     ptr_geomPlugin_createMesh geomPlugin_createMesh;

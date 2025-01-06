@@ -21,6 +21,7 @@
 #define SIMVORTEX_DEFAULT "simVortex"
 #define SIMNEWTON_DEFAULT "simNewton"
 #define SIMMUJOCO_DEFAULT "simMujoco"
+#define SIMDRAKE_DEFAULT "simDrake"
 #define SIMGEOM_DEFAULT "simGeom"
 #define SIMCODEEDITOR_DEFAULT "simCodeEditor"
 #define SIMRUCKIG_DEFAULT "simRuckig"
@@ -41,6 +42,7 @@ CPluginContainer::CPluginContainer()
     vortexEngine = nullptr;
     newtonEngine = nullptr;
     mujocoEngine = nullptr;
+    drakeEngine = nullptr;
     currentGeomPlugin = nullptr;
     currentIKPlugin = nullptr;
     currentCodeEditorPlugin = nullptr;
@@ -594,6 +596,12 @@ bool CPluginContainer::dyn_startSimulation(int engine, int version, const double
         if (mujocoEngine == nullptr)
             _tryToLoadPluginOnce(SIMMUJOCO_DEFAULT);
         currentDynEngine = mujocoEngine;
+    }
+    if (engine == sim_physics_drake)
+    {
+        if (drakeEngine == nullptr)
+            _tryToLoadPluginOnce(SIMDRAKE_DEFAULT);
+        currentDynEngine = drakeEngine;
     }
 
     bool retVal = false;

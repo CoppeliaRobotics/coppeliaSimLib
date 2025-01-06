@@ -1034,8 +1034,8 @@ void CMainWindow::_createDefaultToolBars()
         _engineSelectCombo->addItem(IDS_VORTEX);
         _engineSelectCombo->addItem(IDS_NEWTON);
         _engineSelectCombo->addItem(IDS_MUJOCO);
-#ifdef HAS_PHYSX
-        _engineSelectCombo->addItem(IDS_PHYSX);
+#ifdef HAS_DRAKE
+        _engineSelectCombo->addItem(IDS_DRAKE);
 #endif
         _engineSelectCombo->setToolTip(IDS_TOOLBAR_TOOLTIP_DYNAMICS_ENGINE);
         _toolbar1->addWidget(_engineSelectCombo);
@@ -1597,8 +1597,8 @@ void CMainWindow::_actualizetoolbarButtonState()
             _engineSelectCombo->setCurrentIndex(4);
         if (eng == sim_physics_mujoco)
             _engineSelectCombo->setCurrentIndex(5);
-#ifdef HAS_PHYSX
-        if (eng == sim_physics_physx)
+#ifdef HAS_DRAKE
+        if (eng == sim_physics_drake)
             _engineSelectCombo->setCurrentIndex(6);
 #endif
 
@@ -1697,7 +1697,7 @@ void CMainWindow::_engineSelectedViaToolbar(int index)
     if (index == 5)
         App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD);
     if (index == 6)
-        App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_PHYSX_ENGINE_SCCMD);
+        App::currentWorld->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_DRAKE_ENGINE_SCCMD);
 }
 
 void CMainWindow::_simPopupMessageHandler(int id)

@@ -80,8 +80,8 @@ void CQDlgSimulation::refresh()
     ui->qqEngineCombo->addItem(IDS_VORTEX, 3);
     ui->qqEngineCombo->addItem(IDS_NEWTON, 4);
     ui->qqEngineCombo->addItem(IDS_MUJOCO, 5);
-#ifdef HAS_PHYSX
-    ui->qqEngineCombo->addItem(IDS_PHYSX, 6);
+#ifdef HAS_DRAKE
+    ui->qqEngineCombo->addItem(IDS_DRAKE, 6);
 #endif
     int ver;
     int eng = App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
@@ -97,7 +97,7 @@ void CQDlgSimulation::refresh()
         ui->qqEngineCombo->setCurrentIndex(4);
     if (eng == sim_physics_mujoco)
         ui->qqEngineCombo->setCurrentIndex(5);
-    if (eng == sim_physics_physx)
+    if (eng == sim_physics_drake)
         ui->qqEngineCombo->setCurrentIndex(6);
     ui->qqDynamicsDtLabel->setText(
         (std::string("Dynamics dt (effective dt=") +
@@ -297,7 +297,7 @@ void CQDlgSimulation::on_qqEngineCombo_currentIndexChanged(int index)
             if (index == 5)
                 eng = sim_physics_mujoco;
             if (index == 6)
-                eng = sim_physics_physx;
+                eng = sim_physics_drake;
 
             App::appendSimulationThreadCommand(SET_ENGINE_DYNAMICSGUITRIGGEREDCMD, eng, ver);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
