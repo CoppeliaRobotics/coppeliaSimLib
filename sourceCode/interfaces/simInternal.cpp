@@ -9059,16 +9059,29 @@ int simGetDecimatedMesh_internal(const double* inVertices, int inVerticesL, cons
     return (-1);
 }
 
-int simCallScriptFunctionEx_internal(int scriptHandleOrType, const char* functionNameAtScriptName, int stackId)
+int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName, int stackId)
 {
     C_API_START;
     CScriptObject* script = nullptr;
     std::string funcName;
 
-    int handleFlags = scriptHandleOrType & 0x0ff00000;
-    scriptHandleOrType = scriptHandleOrType & 0x000fffff;
+    // printf("ScriptHandle, funcName: %i, %s\n", scriptHandle, functionName);
 
-    std::string funcNameAtScriptName(functionNameAtScriptName);
+    int handleFlags = 0;
+    if (scriptHandle >= 0)
+    {
+        handleFlags = scriptHandle & 0x0ff00000;
+        scriptHandle = scriptHandle & 0x000fffff;
+    }
+    else
+    {
+        if (scriptHandle == -1)
+            scriptHandle = simGetScriptHandleEx_internal(sim_scripttype_sandbox, -1, nullptr);
+        if (scriptHandle == -2)
+            scriptHandle = simGetScriptHandleEx_internal(sim_scripttype_main, -1, nullptr);
+    }
+
+    std::string funcNameAtScriptName(functionName);
     int lang = sim_lang_undefined;
     if (boost::algorithm::ends_with(funcNameAtScriptName.c_str(), "@lua"))
     {
@@ -9086,10 +9099,10 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType, const char* functio
         funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
     else
         funcName = funcNameAtScriptName;
-    script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
+    script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
 
     std::string tmp("External call to simCallScriptFunction failed ('");
-    tmp += functionNameAtScriptName;
+    tmp += functionName;
     tmp += "'): ";
     if (script != nullptr)
     {
