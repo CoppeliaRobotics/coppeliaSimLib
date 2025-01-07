@@ -8,7 +8,7 @@ under the same terms of the files in the parent directory otherwise.
 CoppeliaSimLib, based on AutomationSim library from Marc Freese on
 December 2015
 
-Copyright (C) 2006-2024 Coppelia Robotics AG
+Copyright (C) 2006-2025 Coppelia Robotics AG
 
 All rights reserved.
 
