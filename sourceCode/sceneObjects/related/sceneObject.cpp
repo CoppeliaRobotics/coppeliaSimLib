@@ -1700,12 +1700,13 @@ void CSceneObject::clearObjectCustomData_old()
     _customObjectData_old = nullptr;
 }
 
-bool CSceneObject::getCustomDataEvents(std::map<std::string, bool>& dataEvents)
+bool CSceneObject::getCustomDataEvents(std::map<std::string, bool>& customDataEvents, std::map<std::string, bool>& signalEvents)
 {
-    dataEvents.clear();
-    customObjectData.getDataEvents(dataEvents);
-    customObjectData_volatile.getDataEvents(dataEvents);
-    return dataEvents.size() > 0;
+    customDataEvents.clear();
+    customObjectData.getDataEvents(customDataEvents);
+    signalEvents.clear();
+    customObjectData_volatile.getDataEvents(signalEvents);
+    return customDataEvents.size() + signalEvents.size() > 0;
 }
 
 void CSceneObject::clearCustomDataEvents()

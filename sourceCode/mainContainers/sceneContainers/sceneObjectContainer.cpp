@@ -2797,8 +2797,9 @@ void CSceneObjectContainer::handleDataCallbacks()
     for (size_t j = 0; j < _allObjects.size(); j++)
     {
         CSceneObject* obj = _allObjects[j];
-        std::map<std::string, bool> dataItems;
-        if (obj->getCustomDataEvents(dataItems))
+        std::map<std::string, bool> customDataItems;
+        std::map<std::string, bool> signalItems;
+        if (obj->getCustomDataEvents(customDataItems, signalItems))
         {
             std::vector<CScriptObject*> scripts;
             if (obj->getObjectType() == sim_sceneobject_script)
@@ -2808,13 +2809,29 @@ void CSceneObjectContainer::handleDataCallbacks()
                 obj->getAttachedScripts(scripts, -1, true);
                 obj->getAttachedScripts(scripts, -1, false);
             }
-            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
-            stack->pushTableOntoStack();
-            for (const auto& r : dataItems)
-                stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
-            for (size_t i = 0; i < scripts.size(); i++)
-                scripts[i]->systemCallScript(sim_syscb_data, stack, nullptr);
-            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+            if (customDataItems.size() > 0)
+            {
+                CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+                stack->pushTableOntoStack();
+                for (const auto& r : customDataItems)
+                    stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
+                stack->pushTextOntoStack("customData");
+                for (size_t i = 0; i < scripts.size(); i++)
+                    scripts[i]->systemCallScript(sim_syscb_data, stack, nullptr);
+                App::worldContainer->interfaceStackContainer->destroyStack(stack);
+            }
+
+            if (signalItems.size() > 0)
+            {
+                CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+                stack->pushTableOntoStack();
+                for (const auto& r : signalItems)
+                    stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
+                stack->pushTextOntoStack("signal");
+                for (size_t i = 0; i < scripts.size(); i++)
+                    scripts[i]->systemCallScript(sim_syscb_data, stack, nullptr);
+                App::worldContainer->interfaceStackContainer->destroyStack(stack);
+            }
         }
         obj->clearCustomDataEvents();
     }

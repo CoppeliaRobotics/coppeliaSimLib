@@ -247,11 +247,9 @@ bool CVisionSensor::writePortionOfCharImage(const unsigned char* img, int posX, 
     return (retVal);
 }
 
-unsigned char* CVisionSensor::readPortionOfCharImage(int posX, int posY, int sizeX, int sizeY, double cutoffRgba,
-                                                     int option) const
+unsigned char* CVisionSensor::readPortionOfCharImage(int posX, int posY, int sizeX, int sizeY, double cutoffRgba, int option) const
 {
-    if ((posX < 0) || (posY < 0) || (sizeX < 1) || (sizeY < 1) || (posX + sizeX > _resolution[0]) ||
-        (posY + sizeY > _resolution[1]))
+    if ((posX < 0) || (posY < 0) || (sizeX < 1) || (sizeY < 1) || (posX + sizeX > _resolution[0]) || (posY + sizeY > _resolution[1]))
         return (nullptr);
     unsigned char* buff = nullptr;
     if ((option & 2) == 0)

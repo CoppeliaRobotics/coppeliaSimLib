@@ -3294,8 +3294,7 @@ int _simGetVisionSensorImg(luaWrap_lua_State* L)
                         if (res == 2)
                             getIntsFromTable(L, 5, 2, size);
                         int resolution[2];
-                        unsigned char* img =
-                            simGetVisionSensorImg_internal(sensorHandle, options, rgbaCutOff, pos, size, resolution);
+                        unsigned char* img = simGetVisionSensorImg_internal(sensorHandle, options, rgbaCutOff, pos, size, resolution);
                         if (img != nullptr)
                         {
                             int s = 3;

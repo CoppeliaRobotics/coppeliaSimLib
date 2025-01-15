@@ -297,7 +297,7 @@ class CSceneObject
     void writeCustomDataBlock(bool tmpData, const char* dataName, const char* data, size_t dataLength);
     std::string readCustomDataBlock(bool tmpData, const char* dataName) const;
     std::string getAllCustomDataBlockTags(bool tmpData, size_t* cnt) const;
-    bool getCustomDataEvents(std::map<std::string, bool>& dataEvents);
+    bool getCustomDataEvents(std::map<std::string, bool>& customDataEvents, std::map<std::string, bool>& signalEvents);
     void clearCustomDataEvents();
 
     void clearObjectCustomData_old();
