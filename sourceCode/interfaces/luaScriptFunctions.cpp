@@ -5627,7 +5627,7 @@ int _simSetTableProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetBufferProperty_internal(target, pName.c_str(), pValue, pValueL))
+        if (1 == simSetTableProperty_internal(target, pName.c_str(), pValue, pValueL))
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5669,7 +5669,7 @@ int _simGetTableProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         int pValueL;
-        char* pValue = simGetBufferProperty_internal(target, pName.c_str(), &pValueL);
+        char* pValue = simGetTableProperty_internal(target, pName.c_str(), &pValueL);
         if (pValue != nullptr)
         {
             luaWrap_lua_pushbuffer(L, pValue, pValueL);
