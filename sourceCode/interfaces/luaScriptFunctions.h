@@ -380,6 +380,8 @@ extern int _simSetFloatProperty(luaWrap_lua_State* L);
 extern int _simGetFloatProperty(luaWrap_lua_State* L);
 extern int _simSetStringProperty(luaWrap_lua_State* L);
 extern int _simGetStringProperty(luaWrap_lua_State* L);
+extern int _simSetTableProperty(luaWrap_lua_State* L);
+extern int _simGetTableProperty(luaWrap_lua_State* L);
 extern int _simSetBufferProperty(luaWrap_lua_State* L);
 extern int _simGetBufferProperty(luaWrap_lua_State* L);
 extern int _simSetIntArray2Property(luaWrap_lua_State* L);

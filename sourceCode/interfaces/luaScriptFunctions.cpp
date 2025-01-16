@@ -416,6 +416,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getFloatProperty", _simGetFloatProperty},
     {"sim.setStringProperty", _simSetStringProperty},
     {"sim.getStringProperty", _simGetStringProperty},
+    {"sim.setTableProperty", _simSetTableProperty},
+    {"sim.getTableProperty", _simGetTableProperty},
     {"sim.setBufferProperty", _simSetBufferProperty},
     {"sim.getBufferProperty", _simGetBufferProperty},
     {"sim.setIntArray2Property", _simSetIntArray2Property},
@@ -5593,6 +5595,84 @@ int _simGetStringProperty(luaWrap_lua_State* L)
         if (pValue != nullptr)
         {
             luaWrap_lua_pushtext(L, pValue);
+            delete[] pValue;
+            LUA_END(1);
+        }
+        if (noError)
+            LUA_END(0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetTableProperty(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setTableProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_buffer, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        size_t pValueL;
+        const char* pValue = ((char*)luaWrap_lua_tobuffer(L, 3, &pValueL));
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 4))
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 4, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        if (1 == simSetBufferProperty_internal(target, pName.c_str(), pValue, pValueL))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
+            }
+        }
+        if (noError)
+            LUA_END(0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetTableProperty(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getTableProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 3))
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        int pValueL;
+        char* pValue = simGetBufferProperty_internal(target, pName.c_str(), &pValueL);
+        if (pValue != nullptr)
+        {
+            luaWrap_lua_pushbuffer(L, pValue, pValueL);
             delete[] pValue;
             LUA_END(1);
         }

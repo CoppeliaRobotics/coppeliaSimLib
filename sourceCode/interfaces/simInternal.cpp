@@ -1131,6 +1131,96 @@ char* simGetStringProperty_internal(long long int target, const char* ppName)
     return nullptr;
 }
 
+int simSetTableProperty_internal(long long int target, const char* ppName, const char* buffer, int bufferL)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_table))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_table))))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), buffer, bufferL);
+            else
+            {
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PROPERTY_NAME);
+                /*
+                int res = App::setTableProperty(target, pName.c_str(), pState);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    if (p < 0)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    else if ((p & 0xff) == sim_propertytype_table)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                }
+                */
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+char* simGetTableProperty_internal(long long int target, const char* ppName, int* bufferL)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        char* retVal = nullptr;
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_table))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_table))))
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), bufferL);
+            else
+            {
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PROPERTY_NAME);
+                /*
+                std::string s;
+                int res = App::getStringProperty(target, pName.c_str(), s);
+                if (res == 1)
+                {
+                    retVal = new char[s.size() + 1];
+                    for (size_t i = 0; i < s.size(); i++)
+                        retVal[i] = s[i];
+                    retVal[s.size()] = 0;
+                }
+                else if (res == -2)
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    if (p < 0)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    else if ((p & 0xff) == sim_propertytype_string)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                }
+                */
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return nullptr;
+}
+
 int simSetBufferProperty_internal(long long int target, const char* ppName, const char* buffer, int bufferL)
 { // this is also called from all other property type setters
     C_API_START;

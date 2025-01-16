@@ -21,6 +21,8 @@ int simSetFloatProperty_internal(long long int target, const char* pName, double
 int simGetFloatProperty_internal(long long int target, const char* pName, double* pState);
 int simSetStringProperty_internal(long long int target, const char* pName, const char* pState);
 char* simGetStringProperty_internal(long long int target, const char* pName);
+int simSetTableProperty_internal(long long int target, const char* pName, const char* buffer, int bufferL);
+char* simGetTableProperty_internal(long long int target, const char* pName, int* bufferL);
 int simSetBufferProperty_internal(long long int target, const char* pName, const char* buffer, int bufferL);
 char* simGetBufferProperty_internal(long long int target, const char* pName, int* bufferL);
 int simSetIntArray2Property_internal(long long int target, const char* pName, const int* pState);

@@ -15,6 +15,8 @@ SIM_DLLEXPORT int simSetFloatProperty(long long int target, const char* pName, d
 SIM_DLLEXPORT int simGetFloatProperty(long long int target, const char* pName, double* pState);
 SIM_DLLEXPORT int simSetStringProperty(long long int target, const char* pName, const char* pState);
 SIM_DLLEXPORT char* simGetStringProperty(long long int target, const char* pName);
+SIM_DLLEXPORT int simSetTableProperty(long long int target, const char* pName, const char* buffer, int bufferL);
+SIM_DLLEXPORT char* simGetTableProperty(long long int target, const char* pName, int* bufferL);
 SIM_DLLEXPORT int simSetBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
 SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName, int* bufferL);
 SIM_DLLEXPORT int simSetIntArray2Property(long long int target, const char* pName, const int* pState);
