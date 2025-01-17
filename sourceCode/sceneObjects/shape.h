@@ -12,6 +12,10 @@
     FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_notreadable, "Apply shading", "Applies a shading angle to all contained meshes")                     \
     FUNCX(propShape_applyShowEdges, "applyShowEdges", sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply edges", "Enables/disables edges for all contained meshes")                              \
     FUNCX(propShape_flipFaces, "flipFaces", sim_propertytype_bool, sim_propertyinfo_notreadable, "Flip faces", "Flips faces of all contained meshes")                                                     \
+    FUNCX(propShape_applyColorDiffuse, "applyColor.diffuse", sim_propertytype_color, sim_propertyinfo_notreadable, "Apply diffuse color", "Applies the diffuse color component to all contained meshes")  \
+    FUNCX(propShape_applyColorSpecular, "applyColor.specular", sim_propertytype_color, sim_propertyinfo_notreadable, "Apply specular color", "Applies the specular color component to all contained meshes") \
+    FUNCX(propShape_applyColorEmission, "applyColor.emission", sim_propertytype_color, sim_propertyinfo_notreadable, "Apply emission color", "Applies the emission color component to all contained meshes") \
+    FUNCX(propShape_applyColorTransparency, "applyColor.transparency", sim_propertytype_float, sim_propertyinfo_notreadable, "Apply transparency", "Applies transparency to all contained meshes")        \
     FUNCX(propShape_respondableMask, "respondableMask", sim_propertytype_int, 0, "Respondable mask", "")                                                                                                  \
     FUNCX(propShape_startInDynSleepMode, "startInDynSleepMode", sim_propertytype_bool, 0, "Start in sleep mode", "")                                                                                      \
     FUNCX(propShape_dynamic, "dynamic", sim_propertytype_bool, 0, "Dynamic", "Shape is dynamic, i.e. not static")                                                                                         \
@@ -102,6 +106,7 @@ class CShape : public CSceneObject
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setQuaternionProperty(const char* pName, const C4Vector& pState);
     int getQuaternionProperty(const char* pName, C4Vector& pState) const;
+    int setColorProperty(const char* pName, const float* pState);
     int setFloatArrayProperty(const char* pName, const double* v, int vL);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty(const char* pName, const int* v, int vL);

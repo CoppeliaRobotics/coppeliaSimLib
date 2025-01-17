@@ -1920,6 +1920,12 @@ int CShape::setFloatProperty(const char* ppName, double pState)
             setShadingAngle(pState);
             retVal = 1;
         }
+        else if (_pName == propShape_applyColorTransparency.name)
+        {
+            float tr = float(1.0 - pState);
+            _mesh->setColor(sim_colorcomponent_transparency, &tr);
+            retVal = 1;
+        }
     }
 
     return retVal;
@@ -2081,6 +2087,33 @@ int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
         retVal = _mesh->getQuaternionProperty_wrapper(pName, pState);
     if (retVal == -1)
     {
+    }
+
+    return retVal;
+}
+
+int CShape::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_applyColorDiffuse.name)
+        {
+            _mesh->setColor(sim_colorcomponent_ambient_diffuse, pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_applyColorSpecular.name)
+        {
+            _mesh->setColor(sim_colorcomponent_specular, pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_applyColorEmission.name)
+        {
+            _mesh->setColor(sim_colorcomponent_emission, pState);
+            retVal = 1;
+        }
     }
 
     return retVal;

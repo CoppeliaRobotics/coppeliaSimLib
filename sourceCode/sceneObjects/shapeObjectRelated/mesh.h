@@ -65,15 +65,12 @@ class CMesh : public CMeshWrapper
     void pushObjectRemoveEvent();
 
     int countTriangles() const;
-    void getCumulativeMeshes(const C7Vector& parentCumulTr, std::vector<double>& vertices, std::vector<int>* indices,
-                             std::vector<double>* normals);
-    void getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper, std::vector<double>& vertices,
-                             std::vector<int>* indices, std::vector<double>* normals);
-    void setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent,
-                  const float* rgbData, int& rgbDataOffset);
+    void getCumulativeMeshes(const C7Vector& parentCumulTr, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals);
+    void getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals);
+    void setColor(int colorComponent, const float* rgbData);
+    void setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent, const float* rgbData, int& rgbDataOffset);
     bool getColor(const char* colorName, int colorComponent, float* rgbData, int& rgbDataOffset) const;
-    void getAllMeshComponentsCumulative(const C7Vector& parentCumulTr, std::vector<CMesh*>& shapeComponentList,
-                                        std::vector<C7Vector>* OptParentCumulTrList = nullptr);
+    void getAllMeshComponentsCumulative(const C7Vector& parentCumulTr, std::vector<CMesh*>& shapeComponentList, std::vector<C7Vector>* OptParentCumulTrList = nullptr);
     CMesh* getMeshComponentAtIndex(const C7Vector& parentCumulTr, int& index, C7Vector* optParentCumulTrOut = nullptr);
     int getComponentCount() const;
     bool serialize(CSer& ar, const char* shapeName, const C7Vector& parentCumulIFrame, bool rootLevel);

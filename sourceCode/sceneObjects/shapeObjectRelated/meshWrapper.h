@@ -67,6 +67,7 @@ class CMeshWrapper
     virtual void getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper,
                                      std::vector<double>& vertices, std::vector<int>* indices,
                                      std::vector<double>* normals);
+    virtual void setColor(int colorComponent, const float* rgbData); // cumulative
     virtual void setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent,
                           const float* rgbData, int& rgbDataOffset);
     virtual bool getColor(const char* colorName, int colorComponent, float* rgbData, int& rgbDataOffset) const;

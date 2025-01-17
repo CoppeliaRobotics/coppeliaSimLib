@@ -646,6 +646,24 @@ void CMesh::setColor(const float* c, unsigned char colorMode)
     color.setColor(c, colorMode);
 }
 
+void CMesh::setColor(int colorComponent, const float* rgbData)
+{ // function has virtual/non-virtual counterpart!
+    if (colorComponent < sim_colorcomponent_transparency)
+    { // regular components
+        setColor(rgbData, colorComponent);
+    }
+    if (colorComponent == sim_colorcomponent_transparency)
+    {
+        float ccol = 1.0f - rgbData[0];
+        setColor(&ccol, colorComponent);
+    }
+    if (colorComponent == sim_colorcomponent_auxiliary)
+    { // auxiliary components
+        for (int i = 0; i < 3; i++)
+            color.getColorsPtr()[12 + i] = rgbData[i];
+    }
+}
+
 void CMesh::setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent,
                      const float* rgbData, int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!

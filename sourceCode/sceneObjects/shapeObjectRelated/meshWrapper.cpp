@@ -625,6 +625,12 @@ void CMeshWrapper::getCumulativeMeshes(const C7Vector& parentCumulTr, const CMes
         childList[i]->getCumulativeMeshes(parentCumulTr * _iFrame, w, vertices, indices, normals);
 }
 
+void CMeshWrapper::setColor(int colorComponent, const float* rgbData)
+{ // function has virtual/non-virtual counterpart!
+    for (size_t i = 0; i < childList.size(); i++)
+        childList[i]->setColor(colorComponent, rgbData);
+}
+
 void CMeshWrapper::setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent,
                             const float* rgbData, int& rgbDataOffset)
 { // function has virtual/non-virtual counterpart!
