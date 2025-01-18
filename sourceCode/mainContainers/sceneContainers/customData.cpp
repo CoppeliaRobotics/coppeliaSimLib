@@ -18,6 +18,24 @@ void CCustomData::setItemsAreVolatile()
     _eventPrefix = SIGNALPREFIX;
 }
 
+std::string CCustomData::getTypeless(const char* tag)
+{
+    std::string d(tag);
+    if ((d.size() > 0) && (d[0] == '&'))
+    {
+        for (size_t i = 0; i < propertyTypes.size(); i++)
+        {
+            std::string tp = propertyTypes[i].second;
+            if ((tp.size() != 0) && (d.find(tp) == 0))
+            {
+                d.erase(0, tp.size());
+                break;
+            }
+        }
+    }
+    return d;
+}
+
 bool CCustomData::setData(const char* tag, const char* data, size_t dataLen, bool allowEmptyData /*= true*/)
 { // non-property functions (e.g. sim.setCustomBufferData) do not allow empty data
     bool diff = false;
@@ -491,7 +509,7 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
 void CCustomData::getDataEvents(std::map<std::string, bool>& dataEvents)
 {
     for (const auto& it : _dataEvents)
-        dataEvents[it.first] = it.second;
+        dataEvents[getTypeless(it.first.c_str())] = it.second;
 }
 
 void CCustomData::clearDataEvents()

@@ -31,6 +31,8 @@ class CCustomData
 
     std::string getLegacySignalFromIndex(const char* legacyTag, int index);
 
+    static std::string getTypeless(const char* tag);
+
   protected:
     std::string _eventPrefix;
     std::vector<SCustomData> _data;
