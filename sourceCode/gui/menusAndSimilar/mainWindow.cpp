@@ -941,11 +941,13 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionCameraZoom, SIGNAL(triggered()), _signalMapper, SLOT(map()));
         _signalMapper->setMapping(_toolbarActionCameraZoom, CAMERA_ZOOM_NAVIGATION_CMD);
 
-        _toolbarActionCameraAngle =
-            _toolbar1->addAction(QIcon(":/toolbarFiles/cameraAngle.png"), tr(IDS_TOOLBAR_TOOLTIP_CAMERA_OPENING_ANGLE));
-        _toolbarActionCameraAngle->setCheckable(true);
-        connect(_toolbarActionCameraAngle, SIGNAL(triggered()), _signalMapper, SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionCameraAngle, CAMERA_ANGLE_NAVIGATION_CMD);
+        if (CSimFlavor::getBoolVal(12))
+        {
+            _toolbarActionCameraAngle = _toolbar1->addAction(QIcon(":/toolbarFiles/cameraAngle.png"), tr(IDS_TOOLBAR_TOOLTIP_CAMERA_OPENING_ANGLE));
+            _toolbarActionCameraAngle->setCheckable(true);
+            connect(_toolbarActionCameraAngle, SIGNAL(triggered()), _signalMapper, SLOT(map()));
+            _signalMapper->setMapping(_toolbarActionCameraAngle, CAMERA_ANGLE_NAVIGATION_CMD);
+        }
 
         _toolbarActionCameraSizeToScreen = _toolbar1->addAction(QIcon(":/toolbarFiles/cameraResize.png"),
                                                                 tr(IDS_TOOLBAR_TOOLTIP_CAMERA_FIT_TO_SCREEN));
@@ -981,11 +983,13 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionAssemble, SIGNAL(triggered()), _signalMapper, SLOT(map()));
         _signalMapper->setMapping(_toolbarActionAssemble, SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD);
 
-        _toolbarActionTransferDna =
-            _toolbar1->addAction(QIcon(":/toolbarFiles/transferDna.png"), tr(IDSN_TRANSFER_DNA));
-        _toolbarActionTransferDna->setCheckable(false);
-        connect(_toolbarActionTransferDna, SIGNAL(triggered()), _signalMapper, SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionTransferDna, SCENE_OBJECT_OPERATION_TRANSFER_DNA_SOOCMD);
+        if (CSimFlavor::getBoolVal(12))
+        {
+            _toolbarActionTransferDna = _toolbar1->addAction(QIcon(":/toolbarFiles/transferDna.png"), tr(IDSN_TRANSFER_DNA));
+            _toolbarActionTransferDna->setCheckable(false);
+            connect(_toolbarActionTransferDna, SIGNAL(triggered()), _signalMapper, SLOT(map()));
+            _signalMapper->setMapping(_toolbarActionTransferDna, SCENE_OBJECT_OPERATION_TRANSFER_DNA_SOOCMD);
+        }
 
         _toolbar1->addSeparator();
 
@@ -1000,12 +1004,13 @@ void CMainWindow::_createDefaultToolBars()
         _signalMapper->setMapping(_toolbarActionRedo, SCENE_OBJECT_OPERATION_REDO_SOOCMD);
         _toolbar1->addSeparator();
 
-        _toolbarActionDynamicContentVisualization = _toolbar1->addAction(
-            QIcon(":/toolbarFiles/dynamics.png"), tr(IDS_TOOLBAR_TOOLTIP_VISUALIZE_DYNAMIC_CONTENT));
-        _toolbarActionDynamicContentVisualization->setCheckable(true);
-        connect(_toolbarActionDynamicContentVisualization, SIGNAL(triggered()), _signalMapper, SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionDynamicContentVisualization,
-                                  SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD);
+        if (CSimFlavor::getBoolVal(12))
+        {
+            _toolbarActionDynamicContentVisualization = _toolbar1->addAction(QIcon(":/toolbarFiles/dynamics.png"), tr(IDS_TOOLBAR_TOOLTIP_VISUALIZE_DYNAMIC_CONTENT));
+            _toolbarActionDynamicContentVisualization->setCheckable(true);
+            connect(_toolbarActionDynamicContentVisualization, SIGNAL(triggered()), _signalMapper, SLOT(map()));
+            _signalMapper->setMapping(_toolbarActionDynamicContentVisualization, SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD);
+        }
 
         _engineSelectCombo = new QComboBox();
 
@@ -1076,18 +1081,19 @@ void CMainWindow::_createDefaultToolBars()
         connect(_toolbarActionIncreaseSpeed, SIGNAL(triggered()), _signalMapper, SLOT(map()));
         _signalMapper->setMapping(_toolbarActionIncreaseSpeed, SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD);
 
-        _toolbarActionToggleVisualization =
-            _toolbar1->addAction(QIcon(":/toolbarFiles/toggleVisualization.png"), "Toggle visualization");
-        _toolbarActionToggleVisualization->setCheckable(true);
-        connect(_toolbarActionToggleVisualization, SIGNAL(triggered()), _signalMapper, SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionToggleVisualization, SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD);
-        _toolbar1->addSeparator();
+        if (CSimFlavor::getBoolVal(12))
+        {
+            _toolbarActionToggleVisualization = _toolbar1->addAction(QIcon(":/toolbarFiles/toggleVisualization.png"), "Toggle visualization");
+            _toolbarActionToggleVisualization->setCheckable(true);
+            connect(_toolbarActionToggleVisualization, SIGNAL(triggered()), _signalMapper, SLOT(map()));
+            _signalMapper->setMapping(_toolbarActionToggleVisualization, SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD);
+            _toolbar1->addSeparator();
 
-        _toolbarActionPageSelector =
-            _toolbar1->addAction(QIcon(":/toolbarFiles/pageSelector.png"), tr(IDSN_PAGE_SELECTOR));
-        _toolbarActionPageSelector->setCheckable(true);
-        connect(_toolbarActionPageSelector, SIGNAL(triggered()), _signalMapper, SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionPageSelector, PAGE_SELECTOR_CMD);
+            _toolbarActionPageSelector = _toolbar1->addAction(QIcon(":/toolbarFiles/pageSelector.png"), tr(IDSN_PAGE_SELECTOR));
+            _toolbarActionPageSelector->setCheckable(true);
+            connect(_toolbarActionPageSelector, SIGNAL(triggered()), _signalMapper, SLOT(map()));
+            _signalMapper->setMapping(_toolbarActionPageSelector, PAGE_SELECTOR_CMD);
+        }
 
         QWidget* spacer = new QWidget();
         spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -1111,12 +1117,14 @@ void CMainWindow::_createDefaultToolBars()
             false); // 14/7/2013: since Qt5.1.0 the toolbar looks just plain white when undocked under MacOS
 #endif
 
-        _toolbarActionSimulationSettings =
-            _toolbar2->addAction(QIcon(":/toolbarFiles/simulationSettings.png"), tr(IDSN_SIMULATION_SETTINGS));
-        _toolbarActionSimulationSettings->setCheckable(true);
-        connect(_toolbarActionSimulationSettings, SIGNAL(triggered()), _signalMapper, SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionSimulationSettings, TOGGLE_SIMULATION_DLG_CMD);
-        _toolbar2->addSeparator();
+        if (CSimFlavor::getBoolVal(12))
+        {
+            _toolbarActionSimulationSettings = _toolbar2->addAction(QIcon(":/toolbarFiles/simulationSettings.png"), tr(IDSN_SIMULATION_SETTINGS));
+            _toolbarActionSimulationSettings->setCheckable(true);
+            connect(_toolbarActionSimulationSettings, SIGNAL(triggered()), _signalMapper, SLOT(map()));
+            _signalMapper->setMapping(_toolbarActionSimulationSettings, TOGGLE_SIMULATION_DLG_CMD);
+            _toolbar2->addSeparator();
+        }
 
         if (CSimFlavor::getBoolVal(12))
         {
@@ -1165,22 +1173,23 @@ void CMainWindow::_createDefaultToolBars()
             _toolbar2->addSeparator();
         }
 
-        _toolbarActionModelBrowser =
-            _toolbar2->addAction(QIcon(":/toolbarFiles/modelBrowser.png"), tr(IDSN_MODEL_BROWSER));
+        _toolbarActionModelBrowser = _toolbar2->addAction(QIcon(":/toolbarFiles/modelBrowser.png"), tr(IDSN_MODEL_BROWSER));
         _toolbarActionModelBrowser->setCheckable(true);
         connect(_toolbarActionModelBrowser, SIGNAL(triggered()), _signalMapper, SLOT(map()));
         _signalMapper->setMapping(_toolbarActionModelBrowser, TOGGLE_BROWSER_DLG_CMD);
 
-        _toolbarActionSceneHierarchy =
-            _toolbar2->addAction(QIcon(":/toolbarFiles/sceneHierarchy.png"), tr(IDSN_SCENE_HIERARCHY));
+        _toolbarActionSceneHierarchy = _toolbar2->addAction(QIcon(":/toolbarFiles/sceneHierarchy.png"), tr(IDSN_SCENE_HIERARCHY));
         _toolbarActionSceneHierarchy->setCheckable(true);
         connect(_toolbarActionSceneHierarchy, SIGNAL(triggered()), _signalMapper, SLOT(map()));
         _signalMapper->setMapping(_toolbarActionSceneHierarchy, TOGGLE_HIERARCHY_DLG_CMD);
 
-        _toolbarActionLayers = _toolbar2->addAction(QIcon(":/toolbarFiles/layers.png"), tr(IDS_LAYERS));
-        _toolbarActionLayers->setCheckable(true);
-        connect(_toolbarActionLayers, SIGNAL(triggered()), _signalMapper, SLOT(map()));
-        _signalMapper->setMapping(_toolbarActionLayers, TOGGLE_LAYERS_DLG_CMD);
+        if (CSimFlavor::getBoolVal(12))
+        {
+            _toolbarActionLayers = _toolbar2->addAction(QIcon(":/toolbarFiles/layers.png"), tr(IDS_LAYERS));
+            _toolbarActionLayers->setCheckable(true);
+            connect(_toolbarActionLayers, SIGNAL(triggered()), _signalMapper, SLOT(map()));
+            _signalMapper->setMapping(_toolbarActionLayers, TOGGLE_LAYERS_DLG_CMD);
+        }
 
         _toolbarActionAviRecorder =
             _toolbar2->addAction(QIcon(":/toolbarFiles/aviRecorder.png"), tr(IDSN_AVI_RECORDER));
@@ -1519,70 +1528,29 @@ void CMainWindow::_actualizetoolbarButtonState()
     }
 
     if (_toolbar1 != nullptr)
-    { // We enable/disable some buttons:
+    { // We enable/disable/check/uncheck some buttons:
         _toolbarActionCameraShift->setEnabled(noSelector);
+        _toolbarActionCameraShift->setChecked((getMouseMode() & 0x00ff) == sim_navigation_camerashift);
         _toolbarActionCameraRotate->setEnabled(noSelector);
+        _toolbarActionCameraRotate->setChecked((getMouseMode() & 0x00ff) == sim_navigation_camerarotate);
         _toolbarActionCameraZoom->setEnabled(noSelector);
-        _toolbarActionCameraAngle->setEnabled(noSelector);
+        _toolbarActionCameraZoom->setChecked((getMouseMode() & 0x00ff) == sim_navigation_camerazoom);
         _toolbarActionCameraSizeToScreen->setEnabled(allowFitToView && noSelector);
-
         if (assembleEnabled)
             _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/assemble.png"));
         else
             _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/disassemble.png"));
         _toolbarActionAssemble->setEnabled(assembleEnabled || disassembleEnabled);
-
-        _toolbarActionTransferDna->setEnabled(transferDnaAllowed);
-
-        _toolbarActionObjectShift->setEnabled(noUiNorMultishapeEditMode && noSelector &&
-                                              _toolbarButtonObjectShiftEnabled);
+        _toolbarActionObjectShift->setEnabled(noUiNorMultishapeEditMode && noSelector && _toolbarButtonObjectShiftEnabled);
         bool rot = true;
         if (App::currentWorld->sceneObjects != nullptr)
             rot = editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode() == 0;
-        _toolbarActionObjectRotate->setEnabled(noUiNorMultishapeEditMode && rot && noSelector &&
-                                               _toolbarButtonObjectRotateEnabled);
-
+        _toolbarActionObjectRotate->setEnabled(noUiNorMultishapeEditMode && rot && noSelector && _toolbarButtonObjectRotateEnabled);
         _toolbarActionClickSelection->setEnabled(noSelector);
-
+        _toolbarActionClickSelection->setChecked((getMouseMode() & 0x0300) == sim_navigation_clickselection);
         _toolbarActionUndo->setEnabled(App::currentWorld->undoBufferContainer->canUndo() && noSelector);
         _toolbarActionRedo->setEnabled(App::currentWorld->undoBufferContainer->canRedo() && noSelector);
-
-        _toolbarActionDynamicContentVisualization->setEnabled((!App::currentWorld->simulation->isSimulationStopped()) &&
-                                                              noSelector);
-
-        _engineSelectCombo->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) &&
-                                       App::currentWorld->simulation->isSimulationStopped() &&
-                                       App::currentWorld->dynamicsContainer->getDynamicsEnabled() && noSelector);
-        _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled &&
-                                        (editModeContainer->getEditModeType() == NO_EDIT_MODE) &&
-                                        (!App::currentWorld->simulation->isSimulationRunning()) && noSelector);
-        _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled &&
-                                        (editModeContainer->getEditModeType() == NO_EDIT_MODE) &&
-                                        App::currentWorld->simulation->isSimulationRunning() && noSelector);
-        _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled &&
-                                       (editModeContainer->getEditModeType() == NO_EDIT_MODE) &&
-                                       (!App::currentWorld->simulation->isSimulationStopped()) && noSelector);
-        _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) &&
-                                           App::currentWorld->simulation->isSimulationStopped() && noSelector);
-        _toolbarActionReduceSpeed->setEnabled(App::currentWorld->simulation->canGoSlower() && noSelector);
-        _toolbarActionIncreaseSpeed->setEnabled(App::currentWorld->simulation->canGoFaster() && noSelector);
-        _toolbarActionToggleVisualization->setEnabled(App::currentWorld->simulation->isSimulationRunning() &&
-                                                      noSelector);
-
-        _toolbarActionPageSelector->setEnabled((!oglSurface->isViewSelectionActive()));
-
-        // Now we check/uncheck some buttons:
-        _toolbarActionCameraShift->setChecked((getMouseMode() & 0x00ff) == sim_navigation_camerashift);
-        _toolbarActionCameraRotate->setChecked((getMouseMode() & 0x00ff) == sim_navigation_camerarotate);
-        _toolbarActionCameraZoom->setChecked((getMouseMode() & 0x00ff) == sim_navigation_camerazoom);
-        _toolbarActionCameraAngle->setChecked((getMouseMode() & 0x00ff) == sim_navigation_cameraangle);
-        _toolbarActionObjectShift->setChecked((getMouseMode() & 0x00ff) == sim_navigation_objectshift);
-        _toolbarActionObjectRotate->setChecked((getMouseMode() & 0x00ff) == sim_navigation_objectrotate);
-
-        _toolbarActionClickSelection->setChecked((getMouseMode() & 0x0300) == sim_navigation_clickselection);
-        _toolbarActionDynamicContentVisualization->setChecked(
-            App::currentWorld->simulation->getDynamicContentVisualizationOnly());
-
+        _engineSelectCombo->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped() && App::currentWorld->dynamicsContainer->getDynamicsEnabled() && noSelector);
         int ver;
         int eng = App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
         if ((eng == sim_physics_bullet) && (ver == 0))
@@ -1601,73 +1569,68 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (eng == sim_physics_drake)
             _engineSelectCombo->setCurrentIndex(6);
 #endif
-
+        _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && (!App::currentWorld->simulation->isSimulationRunning()) && noSelector);
         _toolbarActionStart->setChecked(App::currentWorld->simulation->isSimulationRunning());
+        _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationRunning() && noSelector);
         _toolbarActionPause->setChecked(App::currentWorld->simulation->isSimulationPaused());
-
+        _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && (!App::currentWorld->simulation->isSimulationStopped()) && noSelector);
+        _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped() && noSelector);
         _toolbarActionRealTime->setChecked(App::currentWorld->simulation->getIsRealTimeSimulation());
-
-        _toolbarActionToggleVisualization->setChecked(!App::getOpenGlDisplayEnabled());
-        _toolbarActionPageSelector->setChecked(oglSurface->isPageSelectionActive());
-
+        _toolbarActionReduceSpeed->setEnabled(App::currentWorld->simulation->canGoSlower() && noSelector);
+        _toolbarActionIncreaseSpeed->setEnabled(App::currentWorld->simulation->canGoFaster() && noSelector);
         _toolbarLabel->setText(CSimFlavor::getStringVal(21).c_str());
+        if (CSimFlavor::getBoolVal(12))
+        {
+            _toolbarActionCameraAngle->setEnabled(noSelector);
+            _toolbarActionCameraAngle->setChecked((getMouseMode() & 0x00ff) == sim_navigation_cameraangle);
+            _toolbarActionTransferDna->setEnabled(transferDnaAllowed);
+            _toolbarActionDynamicContentVisualization->setEnabled((!App::currentWorld->simulation->isSimulationStopped()) && noSelector);
+            _toolbarActionDynamicContentVisualization->setChecked(App::currentWorld->simulation->getDynamicContentVisualizationOnly());
+            _toolbarActionToggleVisualization->setEnabled(App::currentWorld->simulation->isSimulationRunning() && noSelector);
+            _toolbarActionToggleVisualization->setChecked(!App::getOpenGlDisplayEnabled());
+            _toolbarActionPageSelector->setEnabled((!oglSurface->isViewSelectionActive()));
+            _toolbarActionPageSelector->setChecked(oglSurface->isPageSelectionActive());
+        }
     }
     if (_toolbar2 != nullptr)
-    { // We enable/disable some buttons:
-        _toolbarActionSimulationSettings->setEnabled(noEditMode && noSelector);
-
+    { // We enable/disable/check/uncheck some buttons:
         if (CSimFlavor::getBoolVal(12))
+        {
+            _toolbarActionSimulationSettings->setEnabled(noEditMode && noSelector);
+            _toolbarActionSimulationSettings->setChecked(dlgCont->isVisible(SIMULATION_DLG));
             _toolbarActionObjectProperties->setEnabled(_toolbarButtonObjPropEnabled && noEditMode && noSelector);
-        if (App::userSettings->showOldDlgs && CSimFlavor::getBoolVal(12))
-            _toolbarActionCalculationModules_OLD->setEnabled(_toolbarButtonCalcModulesEnabled_OLD && noEditMode &&
-                                                             noSelector);
-        if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
-            _toolbarActionCollections->setEnabled(noEditMode && noSelector);
-        if (CSimFlavor::getBoolVal(12))
+            _toolbarActionObjectProperties->setChecked(dlgCont->isVisible(OBJECT_DLG));
             _toolbarActionShapeEdition->setEnabled((noSelector && (selS == 1) &&
                                                     App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape) &&
                                                     App::currentWorld->simulation->isSimulationStopped() &&
                                                     (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
                                                    (editModeContainer->getEditModeType() & SHAPE_EDIT_MODE) ||
                                                    (editModeContainer->getEditModeType() & MULTISHAPE_EDIT_MODE));
-        if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
-            _toolbarActionPathEdition->setEnabled((noSelector && (selS == 1) &&
+            _toolbarActionShapeEdition->setChecked(editModeContainer->getEditModeType() & SHAPE_EDIT_MODE);
+            _toolbarActionLayers->setEnabled(true);
+            _toolbarActionLayers->setChecked(dlgCont->isVisible(LAYERS_DLG));
+            if (App::userSettings->showOldDlgs)
+            {
+                _toolbarActionCalculationModules_OLD->setEnabled(_toolbarButtonCalcModulesEnabled_OLD && noEditMode && noSelector);
+                _toolbarActionCalculationModules_OLD->setChecked(dlgCont->isVisible(CALCULATION_DLG_OLD));
+                _toolbarActionCollections->setEnabled(noEditMode && noSelector);
+                _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
+                _toolbarActionPathEdition->setEnabled((noSelector && (selS == 1) &&
                                                    App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_path) &&
                                                    App::currentWorld->simulation->isSimulationStopped() &&
                                                    (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
                                                   (editModeContainer->getEditModeType() & PATH_EDIT_MODE_OLD));
+                _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType() == PATH_EDIT_MODE_OLD);
+            }
+        }
 
         _toolbarActionModelBrowser->setEnabled(noEditMode && noSelector && _toolbarButtonBrowserEnabled);
-
-        _toolbarActionSceneHierarchy->setEnabled(noEditMode && noSelector && _toolbarButtonHierarchyEnabled &&
-                                                 ((!App::userSettings->sceneHierarchyHiddenDuringSimulation) ||
-                                                  App::currentWorld->simulation->isSimulationStopped()));
-        _toolbarActionLayers->setEnabled(true);
-
-        _toolbarActionAviRecorder->setEnabled(noEditMode && noSelector &&
-                                              (CAuxLibVideo::video_recorderGetEncoderString != nullptr));
-        _toolbarActionUserSettings->setEnabled(noEditMode && noSelector);
-
-        // Now we check/uncheck some buttons:
-        _toolbarActionSimulationSettings->setChecked(dlgCont->isVisible(SIMULATION_DLG));
-
-        if (CSimFlavor::getBoolVal(12))
-            _toolbarActionObjectProperties->setChecked(dlgCont->isVisible(OBJECT_DLG));
-        if (App::userSettings->showOldDlgs && CSimFlavor::getBoolVal(12))
-            _toolbarActionCalculationModules_OLD->setChecked(dlgCont->isVisible(CALCULATION_DLG_OLD));
-        if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
-            _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
-        if (CSimFlavor::getBoolVal(12))
-            _toolbarActionShapeEdition->setChecked(editModeContainer->getEditModeType() & SHAPE_EDIT_MODE);
-        if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
-            _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType() == PATH_EDIT_MODE_OLD);
-
         _toolbarActionModelBrowser->setChecked(dlgCont->isVisible(BROWSER_DLG));
-
+        _toolbarActionSceneHierarchy->setEnabled(noEditMode && noSelector && _toolbarButtonHierarchyEnabled && ((!App::userSettings->sceneHierarchyHiddenDuringSimulation) || App::currentWorld->simulation->isSimulationStopped()));
         _toolbarActionSceneHierarchy->setChecked(dlgCont->isVisible(HIERARCHY_DLG));
-        _toolbarActionLayers->setChecked(dlgCont->isVisible(LAYERS_DLG));
-
+        _toolbarActionAviRecorder->setEnabled(noEditMode && noSelector && (CAuxLibVideo::video_recorderGetEncoderString != nullptr));
         _toolbarActionAviRecorder->setChecked(dlgCont->isVisible(AVI_RECORDER_DLG));
+        _toolbarActionUserSettings->setEnabled(noEditMode && noSelector);
         _toolbarActionUserSettings->setChecked(dlgCont->isVisible(SETTINGS_DLG));
     }
 }

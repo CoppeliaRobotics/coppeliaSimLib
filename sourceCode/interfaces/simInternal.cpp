@@ -6226,8 +6226,6 @@ int simExportMesh_internal(int fileformat, const char* pathAndFilename, int opti
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return (-1);
         }
-        if (CSimFlavor::getBoolVal(15))
-            return (-1);
         std::string format;
         if (fileformat == 0)
             format = "obj";

@@ -215,10 +215,13 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/evalWatermark.tga", xres, yres, rgba, nullptr);
     addObject(WATERMARK_START + 1, xres, yres, rgba, false, true, dat);
     delete[] dat;
+    dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/liteWatermark.tga", xres, yres, rgba, nullptr);
+    addObject(WATERMARK_START + 2, xres, yres, rgba, false, true, dat);
+    delete[] dat;
     dat = CImageLoaderSaver::loadQTgaImageData("_watermark_.tga", xres, yres, rgba, nullptr);
     if (dat != nullptr)
     {
-        addObject(WATERMARK_START + 2, xres, yres, rgba, false, true, dat);
+        addObject(WATERMARK_START + 3, xres, yres, rgba, false, true, dat);
         delete[] dat;
         CSimFlavor::run(9);
     }

@@ -142,6 +142,12 @@ bool CDlgCont::openOrBringToFront(int dlgID)
         { // Here we check if we can open the dialog: (check also "toggle" function!)
             if ((GuiApp::operationalUIParts & sim_gui_dialogs) == 0)
                 return (false);
+            if (CSimFlavor::getIntVal(2) == 0)
+            {
+                if ((dlgID != TRANSLATION_ROTATION_DLG) && (dlgID != SETTINGS_DLG) && (dlgID != AVI_RECORDER_DLG))
+                    return false;
+            }
+
             CToolDlgWrapper* it = _getDialogWrapper(dlgID);
             if (it != nullptr)
                 it->setVisible(true, parentWindow);
@@ -312,64 +318,28 @@ void CDlgCont::addMenu(VMenu* menu)
 
     if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 1) || (CSimFlavor::getIntVal(2) == 2))
     {
-        menu->appendMenuItem(GuiApp::mainWindow->getObjPropToggleViaGuiEnabled() && noShapePathEditModeNoSelector,
-                             GuiApp::mainWindow->dlgCont->isVisible(OBJECT_DLG), TOGGLE_OBJECT_DLG_CMD,
-                             IDSN_OBJECT_PROPERTIES_MENU_ITEM, true);
+        menu->appendMenuItem(GuiApp::mainWindow->getObjPropToggleViaGuiEnabled() && noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(OBJECT_DLG), TOGGLE_OBJECT_DLG_CMD, IDSN_OBJECT_PROPERTIES_MENU_ITEM, true);
         if (App::userSettings->showOldDlgs)
-            menu->appendMenuItem(GuiApp::mainWindow->getCalcModulesToggleViaGuiEnabled_OLD() &&
-                                     noShapePathEditModeNoSelector,
-                                 GuiApp::mainWindow->dlgCont->isVisible(CALCULATION_DLG_OLD),
-                                 TOGGLE_CALCULATION_DLG_CMD_OLD, "Old dialogs", true);
+            menu->appendMenuItem(GuiApp::mainWindow->getCalcModulesToggleViaGuiEnabled_OLD() && noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(CALCULATION_DLG_OLD), TOGGLE_CALCULATION_DLG_CMD_OLD, "Old dialogs", true);
         menu->appendMenuSeparator();
 
         if (App::userSettings->showOldDlgs)
-            menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(COLLECTION_DLG),
-                                 TOGGLE_COLLECTION_DLG_CMD, IDSN_COLLECTIONS, true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(ENVIRONMENT_DLG),
-                             TOGGLE_ENVIRONMENT_DLG_CMD, IDSN_ENVIRONMENT, true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector && GuiApp::mainWindow->getBrowserToggleViaGuiEnabled(),
-                             GuiApp::getBrowserEnabled(), TOGGLE_BROWSER_DLG_CMD, IDSN_MODEL_BROWSER, true);
-        menu->appendMenuItem(GuiApp::mainWindow->getHierarchyToggleViaGuiEnabled(),
-                             App::getHierarchyEnabled(), TOGGLE_HIERARCHY_DLG_CMD,
-                             IDSN_SCENE_HIERARCHY, true);
-    }
-    if (CSimFlavor::getIntVal(2) == 0)
-    {
-        menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::getBrowserEnabled(), TOGGLE_BROWSER_DLG_CMD,
-                             IDSN_MODEL_BROWSER, true);
-        menu->appendMenuItem(true, App::getHierarchyEnabled(), TOGGLE_HIERARCHY_DLG_CMD,
-                             IDSN_SCENE_HIERARCHY, true);
-        menu->appendMenuItem(true, GuiApp::mainWindow->dlgCont->isVisible(LAYERS_DLG), TOGGLE_LAYERS_DLG_CMD,
-                             IDS_LAYERS, true);
-        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString != nullptr,
-                             GuiApp::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG), TOGGLE_AVI_RECORDER_DLG_CMD,
-                             IDSN_AVI_RECORDER, true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(SETTINGS_DLG),
-                             TOGGLE_SETTINGS_DLG_CMD, IDSN_USER_SETTINGS, true);
-    }
-    if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 0) || (CSimFlavor::getIntVal(2) == 1) ||
-        (CSimFlavor::getIntVal(2) == 2))
-    {
-        menu->appendMenuItem(true, GuiApp::mainWindow->dlgCont->isVisible(LAYERS_DLG), TOGGLE_LAYERS_DLG_CMD,
-                             IDS_LAYERS, true);
-        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString != nullptr,
-                             GuiApp::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG), TOGGLE_AVI_RECORDER_DLG_CMD,
-                             IDSN_AVI_RECORDER, true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(SETTINGS_DLG),
-                             TOGGLE_SETTINGS_DLG_CMD, IDSN_USER_SETTINGS, true);
-    }
-    if (CSimFlavor::getIntVal(2) == 0)
-    {
-        menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::getBrowserEnabled(), TOGGLE_BROWSER_DLG_CMD,
-                             IDSN_MODEL_BROWSER, true);
-        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString != nullptr,
-                             GuiApp::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG), TOGGLE_AVI_RECORDER_DLG_CMD,
-                             IDSN_AVI_RECORDER, true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(SETTINGS_DLG),
-                             TOGGLE_SETTINGS_DLG_CMD, IDSN_USER_SETTINGS, false);
+            menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(COLLECTION_DLG), TOGGLE_COLLECTION_DLG_CMD, IDSN_COLLECTIONS, true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(ENVIRONMENT_DLG), TOGGLE_ENVIRONMENT_DLG_CMD, IDSN_ENVIRONMENT, true);
     }
 
-    if (!CSimFlavor::getBoolVal(15))
+    menu->appendMenuItem(noShapePathEditModeNoSelector && GuiApp::mainWindow->getBrowserToggleViaGuiEnabled(), GuiApp::getBrowserEnabled(), TOGGLE_BROWSER_DLG_CMD, IDSN_MODEL_BROWSER, true);
+    menu->appendMenuItem(GuiApp::mainWindow->getHierarchyToggleViaGuiEnabled(), App::getHierarchyEnabled(), TOGGLE_HIERARCHY_DLG_CMD, IDSN_SCENE_HIERARCHY, true);
+
+    if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 1) || (CSimFlavor::getIntVal(2) == 2))
+    {
+        menu->appendMenuItem(true, GuiApp::mainWindow->dlgCont->isVisible(LAYERS_DLG), TOGGLE_LAYERS_DLG_CMD, IDS_LAYERS, true);
+    }
+
+    menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString != nullptr, GuiApp::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG), TOGGLE_AVI_RECORDER_DLG_CMD, IDSN_AVI_RECORDER, true);
+    menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(SETTINGS_DLG), TOGGLE_SETTINGS_DLG_CMD, IDSN_USER_SETTINGS, true);
+
+    if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 1) || (CSimFlavor::getIntVal(2) == 2))
     {
         menu->appendMenuSeparator();
         menu->appendMenuItem(true, GuiApp::getShowInertias(), TOGGLE_SHOW_INERTIA_DLG_CMD, "Visualize inertias", true);

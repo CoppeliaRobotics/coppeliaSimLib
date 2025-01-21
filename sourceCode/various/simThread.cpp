@@ -4657,9 +4657,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
 #ifdef SIM_WITH_GUI
     noEditMode = (GuiApp::getEditModeType() == NO_EDIT_MODE);
 #endif
-    if ((!CSimFlavor::getBoolVal(15)) && CSimFlavor::getBoolVal(16) && (App::userSettings->autoSaveDelay > 0) &&
-        (!App::currentWorld->environment->getSceneLocked()) && App::currentWorld->simulation->isSimulationStopped() &&
-        noEditMode)
+    if (CSimFlavor::getBoolVal(16) && (App::userSettings->autoSaveDelay > 0) && (!App::currentWorld->environment->getSceneLocked()) && App::currentWorld->simulation->isSimulationStopped() && noEditMode)
     {
         // First repost a same command:
         App::appendSimulationThreadCommand(cmd, 1.0);

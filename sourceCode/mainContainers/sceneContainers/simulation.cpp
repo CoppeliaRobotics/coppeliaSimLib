@@ -1505,14 +1505,17 @@ void CSimulation::addMenu(VMenu* menu)
                          SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD, IDSN_REAL_TIME_SIMULATION, true);
     menu->appendMenuItem(canGoSlower, false, SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD, IDSN_SLOW_DOWN_SIMULATION);
     menu->appendMenuItem(canGoFaster, false, SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD, IDSN_SPEED_UP_SIMULATION);
-    menu->appendMenuItem(simRunning && (!(GuiApp::mainWindow->oglSurface->isPageSelectionActive() ||
-                                          GuiApp::mainWindow->oglSurface->isViewSelectionActive())),
-                         !App::getOpenGlDisplayEnabled(), SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,
-                         "Toggle visualization", true);
-    menu->appendMenuSeparator();
-    if (GuiApp::canShowDialogs())
-        menu->appendMenuItem(true, GuiApp::mainWindow->dlgCont->isVisible(SIMULATION_DLG), TOGGLE_SIMULATION_DLG_CMD,
-                             IDSN_SIMULATION_SETTINGS, true);
+    if (CSimFlavor::getBoolVal(12))
+    {
+        menu->appendMenuItem(simRunning && (!(GuiApp::mainWindow->oglSurface->isPageSelectionActive() ||
+                                              GuiApp::mainWindow->oglSurface->isViewSelectionActive())),
+                             !App::getOpenGlDisplayEnabled(), SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,
+                             "Toggle visualization", true);
+        menu->appendMenuSeparator();
+        if (GuiApp::canShowDialogs())
+            menu->appendMenuItem(true, GuiApp::mainWindow->dlgCont->isVisible(SIMULATION_DLG), TOGGLE_SIMULATION_DLG_CMD,
+                                 IDSN_SIMULATION_SETTINGS, true);
+    }
 }
 
 void CSimulation::keyPress(int key)

@@ -575,7 +575,6 @@ void CFileOperations::addMenu(VMenu* menu)
     size_t graphNumber = sel.size();
 
     menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_NEW_SCENE_FOCMD, IDS_NEW_SCENE_MENU_ITEM);
-
     menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_OPEN_SCENE_FOCMD, IDS_OPEN_SCENE___MENU_ITEM);
 
     // recent scene files:
@@ -594,68 +593,39 @@ void CFileOperations::addMenu(VMenu* menu)
     for (int i = 0; i < 10; i++)
     {
         if (recentScenes[i].length() > 3)
-            recentSceneMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_OPEN_RECENT_SCENE0_FOCMD + i,
-                                            VVarious::splitPath_fileBaseAndExtension(recentScenes[i].c_str()).c_str());
+            recentSceneMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_OPEN_RECENT_SCENE0_FOCMD + i, VVarious::splitPath_fileBaseAndExtension(recentScenes[i].c_str()).c_str());
     }
     menu->appendMenuAndDetach(recentSceneMenu, (recentScenesCnt > 0) && fileOpOk, IDS_OPEN_RECENT_SCENE_MENU_ITEM);
-
-    menu->appendMenuItem(fileOpOkAlsoDuringSimulation, false, FILE_OPERATION_LOAD_MODEL_FOCMD,
-                         IDS_LOAD_MODEL___MENU_ITEM);
-
+    menu->appendMenuItem(fileOpOkAlsoDuringSimulation, false, FILE_OPERATION_LOAD_MODEL_FOCMD, IDS_LOAD_MODEL___MENU_ITEM);
     menu->appendMenuSeparator();
-
     menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_CLOSE_SCENE_FOCMD, IDS_CLOSE_SCENE_MENU_ITEM);
 
-    if (CSimFlavor::getIntVal(2) != 0)
-    {
-        menu->appendMenuSeparator();
-        bool r = (CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1));
-        menu->appendMenuItem(fileOpOk, false,
-                             r ? FILE_OPERATION_SAVE_SCENE_FOCMD : FILE_OPERATION_KY,
-                             IDS_SAVE_SCENE_MENU_ITEM);
-        VMenu* saveSceneMenu = new VMenu();
-        saveSceneMenu->appendMenuItem(fileOpOk, false,
-                                      r ? FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD : FILE_OPERATION_KY,
-                                      IDS_SCENE_AS_CSIM___MENU_ITEM);
-        VMenu* saveSceneAsXmlMenu = new VMenu();
-        saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false,
-                                           r ? FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD : FILE_OPERATION_KY,
-                                           IDS_SCENE_AS_XML___MENU_ITEM);
-        saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false,
-                                           r ? FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD : FILE_OPERATION_KY,
-                                           IDS_SCENE_AS_SIMPLEXML___MENU_ITEM);
-        saveSceneMenu->appendMenuAndDetach(saveSceneAsXmlMenu, fileOpOk, IDS_SAVE_SCENE_AS_XML_MENU_ITEM);
-        menu->appendMenuAndDetach(saveSceneMenu, fileOpOk, IDS_SAVE_SCENE_AS_MENU_ITEM);
+    menu->appendMenuSeparator();
+    bool r = (CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1));
+    menu->appendMenuItem(fileOpOk, false, r ? FILE_OPERATION_SAVE_SCENE_FOCMD : FILE_OPERATION_KY, IDS_SAVE_SCENE_MENU_ITEM);
+    VMenu* saveSceneMenu = new VMenu();
+    saveSceneMenu->appendMenuItem(fileOpOk, false, r ? FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD : FILE_OPERATION_KY, IDS_SCENE_AS_CSIM___MENU_ITEM);
+    VMenu* saveSceneAsXmlMenu = new VMenu();
+    saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false, r ? FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD : FILE_OPERATION_KY, IDS_SCENE_AS_XML___MENU_ITEM);
+    saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false, r ? FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD : FILE_OPERATION_KY, IDS_SCENE_AS_SIMPLEXML___MENU_ITEM);
+    saveSceneMenu->appendMenuAndDetach(saveSceneAsXmlMenu, fileOpOk, IDS_SAVE_SCENE_AS_XML_MENU_ITEM);
+    menu->appendMenuAndDetach(saveSceneMenu, fileOpOk, IDS_SAVE_SCENE_AS_MENU_ITEM);
+    VMenu* saveModelMenu = new VMenu();
+    saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false, r ? FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD : FILE_OPERATION_KY, IDS_MODEL_AS_CSIM___MENU_ITEM);
+    saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false, r ? FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD : FILE_OPERATION_KY, IDS_MODEL_AS_XML___MENU_ITEM);
+    menu->appendMenuAndDetach(saveModelMenu, fileOpOk && justModelSelected, IDS_SAVE_MODEL_AS_MENU_ITEM);
 
-        VMenu* saveModelMenu = new VMenu();
-        saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false,
-                                      r ? FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD : FILE_OPERATION_KY,
-                                      IDS_MODEL_AS_CSIM___MENU_ITEM);
-        saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false,
-                                      r ? FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD : FILE_OPERATION_KY,
-                                      IDS_MODEL_AS_XML___MENU_ITEM);
-        menu->appendMenuAndDetach(saveModelMenu, fileOpOk && justModelSelected, IDS_SAVE_MODEL_AS_MENU_ITEM);
-    }
-
-    if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 1) || (CSimFlavor::getIntVal(2) == 2))
-    {
-        menu->appendMenuSeparator();
-        VMenu* impMenu = new VMenu();
-        impMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_IMPORT_MESH_FOCMD, IDS_IMPORT_MESH___MENU_ITEM);
-        impMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD,
-                                (std::string(IDSN_IMPORT_HEIGHTFIELD) + "...").c_str());
-        menu->appendMenuAndDetach(impMenu, true, IDSN_IMPORT_MENU_ITEM);
-
-        VMenu* expMenu = new VMenu();
-        expMenu->appendMenuItem(simStoppedOrPausedNoEditMode && (shapeNumber > 0), false,
-                                FILE_OPERATION_EXPORT_SHAPE_FOCMD, IDS_EXPORT_SELECTION_SHAPES_MENU_ITEM);
-        expMenu->appendMenuItem(fileOpOk && (graphNumber != 0), false, FILE_OPERATION_EXPORT_GRAPHS_FOCMD,
-                                IDS_EXPORT_SELECTION_GRAPHS_MENU_ITEM);
-        bool canExportDynamicContent = App::worldContainer->pluginContainer->dyn_isDynamicContentAvailable() != 0;
-        expMenu->appendMenuItem(canExportDynamicContent, false, FILE_OPERATION_EXPORT_DYNAMIC_CONTENT_FOCMD,
-                                IDSN_EXPORT_DYNAMIC_CONTENT);
-        menu->appendMenuAndDetach(expMenu, true, IDSN_EXPORT_MENU_ITEM);
-    }
+    menu->appendMenuSeparator();
+    VMenu* impMenu = new VMenu();
+    impMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_IMPORT_MESH_FOCMD, IDS_IMPORT_MESH___MENU_ITEM);
+    impMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD, (std::string(IDSN_IMPORT_HEIGHTFIELD) + "...").c_str());
+    menu->appendMenuAndDetach(impMenu, true, IDSN_IMPORT_MENU_ITEM);
+    VMenu* expMenu = new VMenu();
+    expMenu->appendMenuItem(simStoppedOrPausedNoEditMode && (shapeNumber > 0), false, r ? FILE_OPERATION_EXPORT_SHAPE_FOCMD : FILE_OPERATION_KY, IDS_EXPORT_SELECTION_SHAPES_MENU_ITEM);
+    expMenu->appendMenuItem(fileOpOk && (graphNumber != 0), false, r ? FILE_OPERATION_EXPORT_GRAPHS_FOCMD : FILE_OPERATION_KY, IDS_EXPORT_SELECTION_GRAPHS_MENU_ITEM);
+    bool canExportDynamicContent = App::worldContainer->pluginContainer->dyn_isDynamicContentAvailable() != 0;
+    expMenu->appendMenuItem(canExportDynamicContent, false, r ? FILE_OPERATION_EXPORT_DYNAMIC_CONTENT_FOCMD : FILE_OPERATION_KY, IDSN_EXPORT_DYNAMIC_CONTENT);
+    menu->appendMenuAndDetach(expMenu, true, IDSN_EXPORT_MENU_ITEM);
 
     menu->appendMenuSeparator();
     menu->appendMenuItem(true, false, FILE_OPERATION_EXIT_SIMULATOR_FOCMD, IDS_EXIT_MENU_ITEM);
@@ -1538,7 +1508,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         else
                             App::logMsg(sim_verbosity_msgs, "Aborted.");
                     }
-                    if (eng == sim_physics_bullet)
+                    else if (eng == sim_physics_bullet)
                     {
                         std::string tst(App::folders->getOtherFilesPath());
                         std::string filenameAndPath = GuiApp::uiThread->getSaveFileName(
@@ -1555,39 +1525,14 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         else
                             App::logMsg(sim_verbosity_msgs, "Aborted.");
                     }
-                    if (eng == sim_physics_vortex)
+                    else if (eng == sim_physics_mujoco)
                     {
-                        std::string tst(App::folders->getOtherFilesPath());
-                        std::string filenameAndPath = GuiApp::uiThread->getSaveFileName(
-                            GuiApp::mainWindow, 0, IDS_EXPORTING_DYNAMIC_CONTENT___, tst.c_str(), "", false,
-                            "Vortex Dynamics World Files", "vortex");
-                        if (filenameAndPath.length() != 0)
-                        {
-                            App::folders->setOtherFilesPath(
-                                App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            App::worldContainer->pluginContainer->dyn_serializeDynamicContent(filenameAndPath.c_str(),
-                                                                                              10000000);
-                            App::logMsg(sim_verbosity_msgs, "done.");
-                        }
-                        else
-                            App::logMsg(sim_verbosity_msgs, "Aborted.");
+                        std::string msg("For the related MuJoCo scene file(s), see in ");
+                        msg += App::folders->getMujocoPath();
+                        App::logMsg(sim_verbosity_scriptinfos, msg.c_str());
                     }
-                    if (eng == sim_physics_newton)
-                    {
-                        std::string tst(App::folders->getOtherFilesPath());
-                        std::string filenameAndPath = GuiApp::uiThread->getSaveFileName(
-                            GuiApp::mainWindow, 0, IDS_EXPORTING_DYNAMIC_CONTENT___, tst.c_str(), "", false,
-                            "Newton Dynamics World Files", "newton");
-                        if (filenameAndPath.length() != 0)
-                        {
-                            App::folders->setOtherFilesPath(
-                                App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            App::worldContainer->pluginContainer->dyn_serializeDynamicContent(filenameAndPath.c_str(), 10000000);
-                            App::logMsg(sim_verbosity_msgs, "done.");
-                        }
-                        else
-                            App::logMsg(sim_verbosity_msgs, "Aborted.");
-                    }
+                    else
+                        App::logMsg(sim_verbosity_errors, "Aborted: not supported with current physics engine.");
                 }
                 else
                     App::logMsg(sim_verbosity_errors, "Cannot proceed, no dynamic content available!");

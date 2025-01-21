@@ -40,12 +40,15 @@ void CHelpMenu::addMenu(VMenu* menu)
     tmp = CSimFlavor::getStringVal(7);
     if (tmp.size() > 0)
         menu->appendMenuItem(true, false, CREDITS_CMD, tmp.c_str());
-    VMenu* debugMenu = new VMenu();
-    debugMenu->appendMenuItem(true, !CViewableBase::getFrustumCullingEnabled(), DISABLE_FRUSTUM_CULLING_DEBUG_CMD,
-                              "Disable frustum culling", true);
-    debugMenu->appendMenuItem(true, !CDistanceRoutine::getDistanceCachingEnabled(), DISABLE_DISTANCE_CACHING_DEBUG_CMD,
-                              "Disable distance caching", true);
-    menu->appendMenuAndDetach(debugMenu, true, "Debug");
+    if (CSimFlavor::getBoolVal(12))
+    {
+        VMenu* debugMenu = new VMenu();
+        debugMenu->appendMenuItem(true, !CViewableBase::getFrustumCullingEnabled(), DISABLE_FRUSTUM_CULLING_DEBUG_CMD,
+                                  "Disable frustum culling", true);
+        debugMenu->appendMenuItem(true, !CDistanceRoutine::getDistanceCachingEnabled(), DISABLE_DISTANCE_CACHING_DEBUG_CMD,
+                                  "Disable distance caching", true);
+        menu->appendMenuAndDetach(debugMenu, true, "Debug");
+    }
     if (CSimFlavor::getBoolVal(13))
     {
         menu->appendMenuSeparator();
