@@ -150,6 +150,9 @@ class CUserSettings
     int xmlExportSplitSize;
     bool xmlExportKnownFormats;
 
+    std::string license_lite;
+    std::string license_edu;
+    std::string license_pro;
     std::string license;
     std::string licenseEndpoint;
     bool floatingLicenseEnabled;

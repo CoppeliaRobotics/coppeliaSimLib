@@ -149,6 +149,9 @@
 #define _USR_CONNECTION_ADDRESS "conParam1"
 #define _USR_CONNECTION_PORT "conParam2"
 
+#define _USR_LICENSE_LITE "license_lite"
+#define _USR_LICENSE_EDU "license_edu"
+#define _USR_LICENSE_PRO "license_pro"
 #define _USR_LICENSE "license"
 #define _USR_LICENSE_ENDPOINT "licenseEndpoint"
 #define _USR_FLOAT_LICENSE_ENABLED "floatingLicenseEnabled"
@@ -316,6 +319,9 @@ CUserSettings::CUserSettings()
 
     forceBugFix_rel30002 = false;
 
+    license_lite = "";
+    license_edu = "";
+    license_pro = "";
     license = "";
     licenseEndpoint = "";
     floatingLicenseEnabled = false;
@@ -672,7 +678,19 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
 
         c.addRandomLine("// License");
         c.addRandomLine("// =================================================");
-        c.addString(_USR_LICENSE, license, "");
+        #ifdef IS_LITE
+            license_lite = license;
+        #endif
+        #ifdef IS_EDU
+            license_edu = license;
+        #endif
+        #ifdef IS_PRO
+            license_pro = license;
+        #endif
+        c.addString(_USR_LICENSE_LITE, license_lite, "");
+        c.addString(_USR_LICENSE_EDU, license_edu, "");
+        c.addString(_USR_LICENSE_PRO, license_pro, "");
+        // only for backcompatibility      c.addString(_USR_LICENSE, license, "");
         if (licenseEndpoint.size() > 0)
             c.addString(_USR_LICENSE_ENDPOINT, licenseEndpoint, "");
         if (keepDongleOpen)
@@ -951,7 +969,28 @@ void CUserSettings::loadUserSettings()
 
     // License section:
     // *****************************
+    c.getString(_USR_LICENSE_LITE, license_lite);
+    c.getString(_USR_LICENSE_EDU, license_edu);
+    c.getString(_USR_LICENSE_PRO, license_pro);
     c.getString(_USR_LICENSE, license);
+#ifdef IS_LITE
+    if (license_lite != "")
+        license = license_lite;
+    license_lite = license;
+#endif
+#ifdef IS_EDU
+    if (license_edu != "")
+        license = license_edu;
+    license_edu = license;
+#endif
+#ifdef IS_PRO
+    if (license_pro != "")
+        license = license_pro;
+    license_pro = license;
+#endif
+    std::string npLicense;
+    if (App::getAppNamedParam("license", npLicense))
+        license = npLicense;
     c.getString(_USR_LICENSE_ENDPOINT, licenseEndpoint);
     c.getBoolean(_USR_KEEP_DONGLE_OPEN, keepDongleOpen);
     c.getBoolean(_USR_FLOAT_LICENSE_ENABLED, floatingLicenseEnabled);
