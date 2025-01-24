@@ -347,6 +347,7 @@ void CUndoBufferCont::undo()
 
     App::currentWorld->sceneObjects->deselectObjects();
     App::currentWorld->simulation->stopSimulation(); // should be anyway stopped!
+    std::string scenePath(App::currentWorld->environment->getScenePathAndName());
     App::currentWorld->clearScene(false);
 
     CSer serObj(theBuff, CSer::filetype_csim_bin_scene_buff);
@@ -354,6 +355,7 @@ void CUndoBufferCont::undo()
     _undoPointSavingOrRestoringUnderWay = true;
 
     App::currentWorld->loadScene(serObj, true);
+    App::currentWorld->environment->setScenePathAndName(scenePath.c_str());
     cameraBuffers->restoreCameras();
 
     _undoPointSavingOrRestoringUnderWay = false;
