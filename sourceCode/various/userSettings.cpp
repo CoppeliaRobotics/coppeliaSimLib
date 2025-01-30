@@ -924,6 +924,10 @@ void CUserSettings::loadUserSettings()
     // Various section:
     // *****************************
     c.getString(_USR_PREFERRED_SANDBOX_LANG, preferredSandboxLang);
+    std::string lang;
+    if (App::getAppNamedParam("preferredSandboxLang", lang))
+        preferredSandboxLang = lang;
+
     c.getFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR, mouseWheelZoomFactor);
     c.getFloat(_USR_DYNAMIC_ACTIVITY_RANGE, dynamicActivityRange);
     if (c.getFloat(_USR_TRANSLATION_STEP_SIZE, _translationStepSize))
