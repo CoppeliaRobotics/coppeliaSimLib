@@ -9,7 +9,17 @@
 #endif
 
 std::vector<SLoadOperationIssue> CWorld::_loadOperationIssues;
-
+#ifdef USE_LONG_LONG_HANDLES
+std::vector<bool> CWorld::oldHandles(SIM_OLDIDEND_MESH, false);
+std::map<int, S_UID> CWorld::uidFromOldHandle;
+std::map<UID, S_OID> CWorld::oldHandleFromUid;
+int CWorld::_nextOldSerializationHandle_object = SIM_OLDIDSTART_SCENEOBJECT + 5000;
+int CWorld::_nextOldSerializationHandle_collection = SIM_OLDIDSTART_COLLECTION + 5000;
+int CWorld::_nextOldSerializationHandle_script = SIM_OLDIDSTART_LUASCRIPT + 5000;
+int CWorld::_nextOldSerializationHandle_texture = SIM_OLDIDSTART_TEXTURE + 5000;
+int CWorld::_nextOldSerializationHandle_mesh = SIM_OLDUIDSTART + 5000;
+std::map<UID, S_OID> CWorld::oldSerializationHandleFromUid;
+#endif
 CWorld::CWorld()
 {
     collections = nullptr;
@@ -2428,6 +2438,180 @@ int CWorld::getLoadingMapping(const std::map<int, int>* map, int oldVal)
     if (it != map->end())
         retVal = it->second;
     return (retVal);
+}
+
+void CWorld::registerNewHandle(UID newHandle, int objectType)
+{ // we only need to register handles that might have an old handle counterpart
+#ifdef USE_LONG_LONG_HANDLES
+    // select a free, old handle:
+    int indexStart = -1;
+    int indexEnd = -1;
+    if (objectType == sim_objecttype_sceneobject)
+    {
+        indexStart = SIM_OLDIDSTART_SCENEOBJECT + 10;
+        indexEnd = SIM_OLDIDEND_SCENEOBJECT;
+    }
+    if (objectType == sim_objecttype_collection)
+    {
+        indexStart = SIM_OLDIDSTART_COLLECTION;
+        indexEnd = SIM_OLDIDEND_COLLECTION;
+    }
+    if (objectType == sim_objecttype_script)
+    {
+        indexStart = SIM_OLDIDSTART_LUASCRIPT;
+        indexEnd = SIM_OLDIDEND_LUASCRIPT;
+    }
+    if (objectType == sim_objecttype_interfacestack)
+    {
+        indexStart = SIM_OLDIDSTART_INTERFACESTACK;
+        indexEnd = SIM_OLDIDEND_INTERFACESTACK;
+    }
+    if (objectType == sim_objecttype_texture)
+    {
+        indexStart = SIM_OLDIDSTART_TEXTURE;
+        indexEnd = SIM_OLDIDEND_TEXTURE;
+    }
+    if (objectType == sim_objecttype_mesh)
+    {
+        indexStart = SIM_OLDUIDSTART;
+        indexEnd = SIM_OLDUIDSTART + ;
+    }
+    if (indexStart != -1)
+    {
+        int oldHandle = indexStart;
+        while (oldHandles[oldHandle])
+        {
+            oldHandle++;
+            if (oldHandle >= indexEnd)
+            { // too many old handles. Should never happen
+                oldHandle = -1;
+                break;
+            }
+        }
+        if (oldHandle != -1)
+        {
+            oldHandles[oldHandle] = true;
+            oldHandleFromUid[newHandle] = oldHandle;
+            uidFromOldHandle[oldHandle] = newHandle;
+        }
+    }
+#endif
+}
+
+void CWorld::releaseNewHandle(UID newHandle, int objectType /*= -1*/)
+{
+#ifdef USE_LONG_LONG_HANDLES
+    if (newHandle >= 0)
+    { // release just one
+        oldHandleFromUid.erase(newHandle);
+        for (auto it = uidFromOldHandle.begin(); it != uidFromOldHandle.end(); ++it)
+        {
+            if (it->second.uid == newHandle)
+            {
+                oldHandles[it->first] = false;
+                uidFromOldHandle.erase(it->first);
+                break;
+            }
+        }
+    }
+    else
+    { // release all of the same type
+        std::vector<UID> newHandlesToRemove;
+        std::vector<int> oldHandlesToRemove;
+        for (auto it = oldHandleFromUid.begin(); it != oldHandleFromUid.end(); ++it)
+        {
+            if (it->second.objectType == objectType)
+            {
+                newHandlesToRemove.push_back(it->first);
+                oldHandlesToRemove.push_back(it->second.oldHandle);
+            }
+        }
+        for (size_t i = 0; i < newHandlesToRemove.size(); i++)
+            oldHandleFromUid.erase(newHandlesToRemove[i]);
+        for (size_t i = 0; i < oldHandlesToRemove.size(); i++)
+        {
+            oldHandles[oldHandlesToRemove[i]] = false;
+            uidFromOldHandle.erase(oldHandlesToRemove[i]);
+        }
+    }
+#endif
+}
+
+UID CWorld::getNewHandleFromOldHandle(int oldHandle)
+{
+    UID retVal = oldHandle;
+#ifdef USE_LONG_LONG_HANDLES
+    if (oldHandle >= 0)
+    {
+        UID handleFlags = oldHandle & 0x3c00000;
+        oldHandle = oldHandle & 0x03fffff;
+
+        auto s = uidFromOldHandle.find(oldHandle);
+        if (s != uidFromOldHandle.end())
+            retVal = s->second.uid | (handleFlags * 0x100000000);
+        else
+            retVal = -1;
+    }
+#endif
+    return retVal;
+}
+
+int CWorld::getOldHandleFromNewHandle(UID newHandle)
+{
+    int retVal = int(newHandle);
+#ifdef USE_LONG_LONG_HANDLES
+    if (newHandle >= 0)
+    {
+        UID handleFlags = newHandle & 0x3c0000000000000;
+        newHandle = newHandle & 0x03fffffffffffff;
+        auto s = oldHandleFromUid.find(newHandle);
+        if (s != oldHandleFromUid.end())
+            retVal = s->second | int(handleFlags / 0x100000000);
+        else
+            retVal = -1;
+    }
+#endif
+    return retVal;
+}
+
+int CWorld::getOldSerializationHandleFromNewHandle(UID newHandle, int objectType)
+{
+#ifdef USE_LONG_LONG_HANDLES
+    int retVal = -1;
+    auto s = oldSerializationHandleFromUid.find(newHandle);
+    if (s != oldSerializationHandleFromUid.end())
+        retVal = s->second;
+    else
+    {
+        if (objectType == sim_objecttype_sceneobject)
+            retVal = _nextOldSerializationHandle_object++;
+        if (objectType == sim_objecttype_collection)
+            retVal = _nextOldSerializationHandle_collection++;
+        if (objectType == sim_objecttype_script)
+            retVal = _nextOldSerializationHandle_script++;
+        if (objectType == sim_objecttype_texture)
+            retVal = _nextOldSerializationHandle_texture++;
+        if (objectType == sim_objecttype_mesh)
+            retVal = _nextOldSerializationHandle_mesh++;
+        if (retVal != -1)
+            oldSerializationHandleFromUid[newHandle] = retVal;
+    }
+#else
+    int retVal = newHandle;
+#endif
+    return retVal;
+}
+
+void CWorld::resetOldSerializationHandles()
+{
+#ifdef USE_LONG_LONG_HANDLES
+    _nextOldSerializationHandle_object = SIM_OLDIDSTART_SCENEOBJECT + 5000;
+    _nextOldSerializationHandle_collection = SIM_OLDIDSTART_COLLECTION + 5000;
+    _nextOldSerializationHandle_script = SIM_OLDIDSTART_LUASCRIPT + 5000;
+    _nextOldSerializationHandle_texture = SIM_OLDIDSTART_TEXTURE + 5000;
+    _nextOldSerializationHandle_mesh = SIM_OLDUIDSTART + 5000;
+    oldSerializationHandleFromUid.clear();
+#endif
 }
 
 void CWorld::setWorldHandle(int handle)

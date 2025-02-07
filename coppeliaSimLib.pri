@@ -3,6 +3,10 @@ TEMPLATE = lib
 DEFINES += SIM_MATH_DOUBLE # math and vector classes
 #DEFINES += HAS_DRAKE
 
+#DEFINES += USE_LONG_LONG_HANDLES
+#DEFINES += UID=long long int
+DEFINES += UID=int
+
 !USE_DEFAULT_DESTDIR {
     DESTDIR = $$PWD/"../"
 }

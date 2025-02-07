@@ -586,7 +586,7 @@ void CSceneObject::recomputeModelInfluencedValues(int overrideFlags /*=-1*/)
 
 void CSceneObject::setObjectUniqueId()
 {
-    _objectUid = App::getFreshUniqueId();
+    _objectUid = App::getFreshUniqueId(-1);
 }
 
 void CSceneObject::setSelected(bool s)

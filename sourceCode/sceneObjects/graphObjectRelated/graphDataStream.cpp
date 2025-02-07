@@ -11,7 +11,7 @@ CGraphDataStream::CGraphDataStream()
     _transformationMult = 1.0;
     _transformationOff = 0.0;
     _movingAveragePeriod = 1;
-    _uid = App::getFreshUniqueId();
+    _uid = App::getFreshUniqueId(-1);
 }
 
 CGraphDataStream::CGraphDataStream(const char* streamName, const char* unitStr, int options, const float* color,
@@ -25,7 +25,7 @@ CGraphDataStream::CGraphDataStream(const char* streamName, const char* unitStr, 
     setBasics(unitStr, options, color, cyclicRange, scriptHandle);
     setTransformation(sim_stream_transf_raw, 1.0, 0.0, 1);
     _nextValueToInsertIsValid = false;
-    _uid = App::getFreshUniqueId();
+    _uid = App::getFreshUniqueId(-1);
 }
 
 CGraphDataStream::~CGraphDataStream()

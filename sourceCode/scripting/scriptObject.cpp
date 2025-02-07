@@ -31,7 +31,7 @@ std::map<std::string, std::pair<int, int>> CScriptObject::_signalNameToScriptHan
 
 CScriptObject::CScriptObject(int scriptType)
 { // scriptType to -1 for serialization
-    _scriptUid = App::getFreshUniqueId();
+    _scriptUid = App::getFreshUniqueId(-1);
     _tempSuspended = false;
     _sceneObjectScript = false;
     _parentIsProxy = false;

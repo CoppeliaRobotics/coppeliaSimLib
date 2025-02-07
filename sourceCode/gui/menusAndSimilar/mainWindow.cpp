@@ -1542,10 +1542,12 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/disassemble.png"));
         _toolbarActionAssemble->setEnabled(assembleEnabled || disassembleEnabled);
         _toolbarActionObjectShift->setEnabled(noUiNorMultishapeEditMode && noSelector && _toolbarButtonObjectShiftEnabled);
+        _toolbarActionObjectShift->setChecked((getMouseMode() & 0x00ff) == sim_navigation_objectshift);
         bool rot = true;
         if (App::currentWorld->sceneObjects != nullptr)
             rot = editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode() == 0;
         _toolbarActionObjectRotate->setEnabled(noUiNorMultishapeEditMode && rot && noSelector && _toolbarButtonObjectRotateEnabled);
+        _toolbarActionObjectRotate->setChecked((getMouseMode() & 0x00ff) == sim_navigation_objectrotate);
         _toolbarActionClickSelection->setEnabled(noSelector);
         _toolbarActionClickSelection->setChecked((getMouseMode() & 0x0300) == sim_navigation_clickselection);
         _toolbarActionUndo->setEnabled(App::currentWorld->undoBufferContainer->canUndo() && noSelector);

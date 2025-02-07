@@ -51,7 +51,6 @@ volatile int App::_appStage = App::appstage_none;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
 std::map<std::string, std::map<int, std::map<std::string, bool>>> App::_logOnceMessages;
-long long int App::_nextUniqueId = SIM_UIDSTART;
 std::string App::_applicationDir;
 std::vector<std::string> App::_applicationArguments;
 std::map<std::string, std::string> App::_applicationNamedParams;
@@ -65,6 +64,15 @@ SignalHandler* App::_sigHandler = nullptr;
 CGm* App::gm = nullptr;
 std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
+long long int App::_nextUniqueId = SIM_UIDSTART;
+#ifdef USE_LONG_LONG_HANDLES
+long long int App::_nextHandle_object = SIM_IDSTART_SCENEOBJECT;
+long long int App::_nextHandle_collection = SIM_IDSTART_COLLECTION;
+long long int App::_nextHandle_script = SIM_IDSTART_LUASCRIPT;
+long long int App::_nextHandle_stack = SIM_IDSTART_INTERFACESTACK;
+long long int App::_nextHandle_texture = SIM_IDSTART_TEXTURE;
+long long int App::_nextHandle_mesh = SIM_IDSTART_MESH;
+#endif
 
 #ifdef WIN_SIM
 LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
@@ -467,9 +475,68 @@ void App::loop(void (*callback)(), bool stepIfRunning)
 #endif
 }
 
-long long int App::getFreshUniqueId()
+long long int App::getFreshUniqueId(int objectType)
 {
-    return (_nextUniqueId++);
+    long long int uniqueId = -1;
+#ifdef USE_LONG_LONG_HANDLES
+    if (objectType == sim_objecttype_sceneobject)
+        uniqueId = _nextHandle_object++;
+    if (objectType == sim_objecttype_collection)
+        uniqueId = _nextHandle_collection++;
+    if (objectType == sim_objecttype_script)
+        uniqueId = _nextHandle_script++;
+    if (objectType == sim_objecttype_interfacestack)
+        uniqueId = _nextHandle_stack++;
+    if (objectType == sim_objecttype_texture)
+        uniqueId = _nextHandle_texture++;
+    if (objectType == sim_objecttype_mesh)
+        uniqueId = _nextHandle_mesh++;
+    if (uniqueId != -1)
+        currentWorld->registerNewHandle(uniqueId, objectType);
+    else
+        uniqueId = _nextUniqueId++;
+#else
+    uniqueId = _nextUniqueId++;
+#endif
+    return uniqueId;
+}
+
+void App::releaseUniqueId(long long int uid, int objectType /*= -1 */)
+{
+    currentWorld->releaseNewHandle(uid, objectType);
+//    releaseForAppWide(uid, -1);
+}
+
+UID App::getNewHandleFromOldHandle(int oldHandle)
+{
+    UID retVal = oldHandle;
+#ifdef USE_LONG_LONG_HANDLES
+    if (oldHandle >= 0)
+    {
+        UID handleFlags = oldHandle & 0x3c00000;
+        oldHandle = oldHandle & 0x03fffff;
+        retVal = currentWorld->getNewHandleFromOldHandle(oldHandle);
+        if (retVal >= 0)
+            retVal = retVal | (handleFlags * 0x100000000);
+    }
+#endif
+    return retVal;
+}
+
+int App::getOldHandleFromNewHandle(UID newHandle)
+{
+    int retVal = int(newHandle);
+#ifdef USE_LONG_LONG_HANDLES
+    if (newHandle >= 0)
+    {
+        UID handleFlags = newHandle & 0x3c0000000000000;
+        newHandle = newHandle & 0x03fffffffffffff;
+        retVal = currentWorld->getOldHandleFromNewHandle(newHandle);
+        if (retVal >= 0)
+            retVal = retVal | int(handleFlags / 0x100000000);
+    }
+#endif
+    return retVal;
 }
 
 App::App()

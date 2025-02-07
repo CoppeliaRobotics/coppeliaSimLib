@@ -26,7 +26,9 @@
     FUNCX(propShape_initAngularVelocity, "initAngularVelocity", sim_propertytype_vector3, 0, "Initial rotational velocity", "")                                                                           \
     FUNCX(propShape_dynLinearVelocity, "dynLinearVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Linear velocity", "Linear velocity, as transmitted by the physics engine")           \
     FUNCX(propShape_dynAngularVelocity, "dynAngularVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Rotational velocity", "Rotational velocity, as transmitted by the physics engine") \
-    FUNCX(propShape_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether the shape's components are all convex or not")
+    FUNCX(propShape_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether the shape's components are all convex or not")                                              \
+    FUNCX(propShape_primitive, "primitive", sim_propertytype_bool, sim_propertyinfo_notwritable, "Primitive", "Whether the shape's components are all primitives")                                        \
+    FUNCX(propShape_compound, "compound", sim_propertytype_bool, sim_propertyinfo_notwritable, "Compound", "Whether the shape is a compound")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

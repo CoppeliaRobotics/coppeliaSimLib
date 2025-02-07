@@ -102,7 +102,7 @@ CMesh::~CMesh()
 void CMesh::_commonInit()
 {
     _isInSceneShapeUid = -1;
-    _uniqueID = App::getFreshUniqueId();
+    _uniqueID = App::getFreshUniqueId(-1);
     color.setDefaultValues();
     color.setColor(0.9f, 0.9f, 0.9f, sim_colorcomponent_ambient_diffuse);
     color.setEventParams(false, -1, 1 + 4 + 8 + 16);

@@ -132,7 +132,7 @@ long long int CDrawingObject::getObjectUid() const
 
 void CDrawingObject::setObjectUniqueId()
 {
-    _objectUid = App::getFreshUniqueId();
+    _objectUid = App::getFreshUniqueId(-1);
 }
 
 void CDrawingObject::setItems(const double* itemData, size_t itemCnt)

@@ -1497,6 +1497,43 @@ enum
     DIRECTORY_ID_TEXTURE = 0
 };
 
+#ifdef USE_LONG_LONG_HANDLES
+enum
+{
+    SIM_OLDIDSTART_SCENEOBJECT      = 0,
+    SIM_OLDIDEND_SCENEOBJECT        = 999999,
+    SIM_OLDIDSTART_COLLECTION       = 2000000,
+    SIM_OLDIDEND_COLLECTION         = 2010000,
+    SIM_OLDIDSTART_LUASCRIPT        = 1010000,
+    SIM_OLDIDEND_LUASCRIPT          = 1019999,
+    SIM_OLDIDSTART_INTERFACESTACK   = 1020000,
+    SIM_OLDIDEND_INTERFACESTACK     = 1029999,
+    SIM_OLDIDSTART_TEXTURE          = 2180009,
+    SIM_OLDIDEND_TEXTURE            = 2280009,
+    SIM_OLDIDSTART_MESH             = 2280010,
+    SIM_OLDIDEND_MESH               = 2999999,
+    SIM_OLDUIDSTART                 = 10000000,
+
+    // keep below 0x0010000000000000 (b/c of handleflags)
+    // Keep in mind that scene object handles are serialized, other handles/ids are created on-the-fly
+
+    SIM_IDSTART_SCENEOBJECT         = 0x0000010000000000,
+    SIM_IDEND_SCENEOBJECT           = 0x000001ffffffffff,
+    SIM_IDSTART_COLLECTION          = 0x0000020000000000,
+    SIM_IDEND_COLLECTION            = 0x000002ffffffffff,
+    SIM_IDSTART_LUASCRIPT           = 0x0000030000000000,
+    SIM_IDEND_LUASCRIPT             = 0x000003ffffffffff,
+    SIM_IDSTART_INTERFACESTACK      = 0x0000040000000000,
+    SIM_IDEND_INTERFACESTACK        = 0x000004ffffffffff,
+    SIM_IDSTART_TEXTURE             = 0x0000050000000000,
+    SIM_IDEND_TEXTURE               = 0x000005ffffffffff,
+    SIM_IDSTART_MESH                = 0x0000060000000000,
+    SIM_IDEND_MESH                  = 0x000006ffffffffff,
+    SIM_IDSTART_DRAWING             = 0x0000070000000000,
+    SIM_IDEND_DRAWING               = 0x000007ffffffffff,
+    SIM_UIDSTART                    = 0x0000f00000000000,
+};
+#else
 enum
 { // keep below 2^20=1048576 (b/c of handleflags)
     // Keep in mind that scene object handles are serialized, other handles/ids are created on-the-fly
@@ -1521,7 +1558,7 @@ enum
                                    // if we remove float support anyways
     SIM_UIDSTART = 10000000,       // only for object related to a specific scene! (i.e. no app objects!)
 };
-
+#endif
 enum
 { // Old. Values are serialized:
     SIM_IDSTART_COLLISION_old = 2010001,

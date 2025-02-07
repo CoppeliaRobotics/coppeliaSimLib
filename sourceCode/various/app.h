@@ -174,7 +174,11 @@ class App
     App();
     virtual ~App();
 
-    static long long int getFreshUniqueId();
+    static long long int getFreshUniqueId(int objectType);
+    static void releaseUniqueId(long long int uid, int objectType = -1);
+
+    static UID getNewHandleFromOldHandle(int oldHandle);
+    static int getOldHandleFromNewHandle(UID newHandle);
 
     static void beep(int frequ = 5000, int duration = 1000);
 
@@ -326,8 +330,15 @@ class App
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
     static std::map<std::string /*originName*/, std::map<int /*verbosityLevel*/, std::map<std::string /*msg*/, bool>>> _logOnceMessages;
-
     static std::string _applicationDir;
+#ifdef USE_LONG_LONG_HANDLES
+    static long long int _nextHandle_object;
+    static long long int _nextHandle_collection;
+    static long long int _nextHandle_script;
+    static long long int _nextHandle_stack;
+    static long long int _nextHandle_texture;
+    static long long int _nextHandle_mesh;
+#endif
 };
 
 class CFuncTrace

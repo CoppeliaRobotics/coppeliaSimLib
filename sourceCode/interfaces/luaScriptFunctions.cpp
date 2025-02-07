@@ -718,8 +718,10 @@ const SLuaVariables simLuaVariables[] = {
     // Other object types:
     {"sim.objecttype_sceneobject", sim_objecttype_sceneobject},
     {"sim.objecttype_collection", sim_objecttype_collection},
+    {"sim.objecttype_script", sim_objecttype_script},
     {"sim.objecttype_texture", sim_objecttype_texture},
     {"sim.objecttype_mesh", sim_objecttype_mesh},
+    {"sim.objecttype_interfacestack", sim_objecttype_interfacestack},
 
     // Simulation messages:
     {"sim.message_model_loaded", sim_message_model_loaded},

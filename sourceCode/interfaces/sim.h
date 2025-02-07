@@ -5,6 +5,223 @@
 #include <simLib/simTypes.h>
 #include <simLib/simExp.h>
 
+#ifdef SIM_UNIFIED_HANDLES
+SIM_DLLEXPORT UID simGetObject_L(const char* objectPath, int index, UID proxy, int options);
+SIM_DLLEXPORT long long int simGetObjectUid_L(UID objectHandle);
+SIM_DLLEXPORT UID simGetObjectFromUid_L(long long int uid, int options);
+SIM_DLLEXPORT UID simGetScriptHandleEx_L(int scriptType, UID objectHandle, const char* scriptName);
+SIM_DLLEXPORT int simRemoveObjects_L(const UID* objectHandles, int count);
+SIM_DLLEXPORT int simRemoveModel_L(UID objectHandle);
+SIM_DLLEXPORT char* simGetObjectAlias_L(UID objectHandle, int options);
+SIM_DLLEXPORT int simSetObjectAlias_L(UID objectHandle, const char* objectAlias, int options);
+SIM_DLLEXPORT UID simGetObjectParent_L(UID objectHandle);
+SIM_DLLEXPORT UID simGetObjectChild_L(UID objectHandle, int index);
+SIM_DLLEXPORT int simSetObjectParent_L(UID objectHandle, UID parentObjectHandle, bool keepInPlace);
+SIM_DLLEXPORT int simGetObjectType_L(UID objectHandle);
+SIM_DLLEXPORT int simGetJointType_L(UID objectHandle);
+SIM_DLLEXPORT UID simLoadModel_L(const char* filename);
+SIM_DLLEXPORT int simSaveModel_L(UID baseOfModelHandle, const char* filename);
+SIM_DLLEXPORT UID* simGetObjectSel_L(int* cnt);
+SIM_DLLEXPORT int simSetObjectSel_L(const UID* handles, int cnt);
+SIM_DLLEXPORT int simAssociateScriptWithObject_L(UID scriptHandle, UID associatedObjectHandle);
+SIM_DLLEXPORT int simResetScript_L(UID scriptHandle);
+SIM_DLLEXPORT UID simAddScript_L(int scriptProperty);
+SIM_DLLEXPORT int simRemoveScript_L(UID scriptHandle);
+SIM_DLLEXPORT int simResetProximitySensor_L(UID sensorHandle);
+SIM_DLLEXPORT int simCheckCollision_L(UID entity1Handle, UID entity2Handle);
+SIM_DLLEXPORT int simAdjustView_L(int viewHandleOrIndex, UID associatedViewableObjectHandle, int options, const char* viewLabel);
+SIM_DLLEXPORT int simResetGraph_L(UID graphHandle);
+SIM_DLLEXPORT int simDestroyGraphCurve_L(UID graphHandle, UID curveId);
+SIM_DLLEXPORT int simDuplicateGraphCurveToStatic_L(UID graphHandle, UID curveId, const char* curveName);
+SIM_DLLEXPORT int simRegisterScriptVariable_L(const char* var, const char* val, UID stackHandle);
+SIM_DLLEXPORT int simRegisterScriptFuncHook_L(UID scriptHandle, const char* funcToHook, const char* userFunction, bool executeBefore, int options);
+SIM_DLLEXPORT int simCopyPasteObjects_L(UID* objectHandles, int objectCount, int options);
+SIM_DLLEXPORT char* simReceiveData_L(int dataHeader, const char* dataName, UID antennaHandle, int index, int* dataLength, UID* senderID, int* dataHeaderR, char** dataNameR)
+SIM_DLLEXPORT int simRemoveDrawingObject_L(UID objectHandle);
+SIM_DLLEXPORT int simSetExplicitHandling_L(UID objectHandle, int explicitFlags);
+SIM_DLLEXPORT int simGetExplicitHandling_L(UID objectHandle);
+SIM_DLLEXPORT UID simGetLinkDummy_L(UID dummyHandle);
+SIM_DLLEXPORT int simSetLinkDummy_L(UID dummyHandle, UID linkedDummyHandle);
+SIM_DLLEXPORT int simResetDynamicObject_L(UID objectHandle);
+SIM_DLLEXPORT int simSetJointMode_L(UID jointHandle, int jointMode, int options);
+SIM_DLLEXPORT int simGetJointMode_L(UID jointHandle, int* options);
+SIM_DLLEXPORT int simIsHandle_L(UID generalObjectHandle, int generalObjectType);
+SIM_DLLEXPORT int simResetVisionSensor_L(UID visionSensorHandle);
+SIM_DLLEXPORT int simSetVisionSensorImg_L(UID sensorHandle, const unsigned char* img, int options, const int* pos, const int* size);
+SIM_DLLEXPORT UID simGroupShapes_L(const UID* shapeHandles, int shapeCount);
+SIM_DLLEXPORT UID* simUngroupShape_L(UID shapeHandle, int* shapeCount);
+SIM_DLLEXPORT int simSetShapeMaterial_L(UID shapeHandle, UID materialIdOrShapeHandle);
+SIM_DLLEXPORT UID simGetTextureId_L(const char* textureName, int* resolution);
+SIM_DLLEXPORT UID simGetObjects_L(int index, int objectType);
+SIM_DLLEXPORT UID* simGetObjectsInTree_L(UID treeBaseHandle, int objectType, int options, int* objectCount);
+SIM_DLLEXPORT UID simGetShapeTextureId_L(UID shapeHandle);
+SIM_DLLEXPORT UID simCreateCollectionEx_L(int options);
+SIM_DLLEXPORT int simAddItemToCollection_L(UID collectionHandle, int what, UID objectHandle, int options);
+SIM_DLLEXPORT int simDestroyCollection_L(UID collectionHandle);
+SIM_DLLEXPORT UID* simGetCollectionObjects_L(UID collectionHandle, int* objectCount);
+SIM_DLLEXPORT int simAlignShapeBB_L(UID shapeHandle, const double* pose);
+SIM_DLLEXPORT int simRelocateShapeFrame_L(UID shapeHandle, const double* pose);
+SIM_DLLEXPORT int simCallScriptFunctionEx_L(UID scriptHandleOrType, const char* functionNameAtScriptName, UID stackId);
+SIM_DLLEXPORT char* simGetExtensionString_L(UID objectHandle, int index, const char* key);
+SIM_DLLEXPORT UID simCreateStack_L();
+SIM_DLLEXPORT int simReleaseStack_L(UID stackHandle);
+SIM_DLLEXPORT UID simCopyStack_L(UID stackHandle);
+SIM_DLLEXPORT int simPushNullOntoStack_L(UID stackHandle);
+SIM_DLLEXPORT int simPushBoolOntoStack_L(UID stackHandle, bool value);
+SIM_DLLEXPORT int simPushInt32OntoStack_L(UID stackHandle, int value);
+SIM_DLLEXPORT int simPushInt64OntoStack_L(UID stackHandle, long long int value);
+SIM_DLLEXPORT int simPushFloatOntoStack_L(UID stackHandle, float value);
+SIM_DLLEXPORT int simPushDoubleOntoStack_L(UID stackHandle, double value);
+SIM_DLLEXPORT int simPushTextOntoStack_L(UID stackHandle, const char* value);
+SIM_DLLEXPORT int simPushStringOntoStack_L(UID stackHandle, const char* value, int stringSize);
+SIM_DLLEXPORT int simPushBufferOntoStack_L(UID stackHandle, const char* value, int stringSize);
+SIM_DLLEXPORT int simPushUInt8TableOntoStack_L(UID stackHandle, const unsigned char* values, int valueCnt);
+SIM_DLLEXPORT int simPushInt32TableOntoStack_L(UID stackHandle, const int* values, int valueCnt);
+SIM_DLLEXPORT int simPushInt64TableOntoStack_L(UID stackHandle, const long long int* values, int valueCnt);
+SIM_DLLEXPORT int simPushFloatTableOntoStack_L(UID stackHandle, const float* values, int valueCnt);
+SIM_DLLEXPORT int simPushDoubleTableOntoStack_L(UID stackHandle, const double* values, int valueCnt);
+SIM_DLLEXPORT int simPushTableOntoStack_L(UID stackHandle);
+SIM_DLLEXPORT int simInsertDataIntoStackTable_L(UID stackHandle);
+SIM_DLLEXPORT int simGetStackSize_L(UID stackHandle);
+SIM_DLLEXPORT int simPopStackItem_L(UID stackHandle, int count);
+SIM_DLLEXPORT int simMoveStackItemToTop_L(UID stackHandle, int cIndex);
+SIM_DLLEXPORT int simGetStackItemType_L(UID stackHandle, int cIndex);
+SIM_DLLEXPORT int simGetStackStringType_L(UID stackHandle, int cIndex);
+SIM_DLLEXPORT int simGetStackBoolValue_L(UID stackHandle, bool* boolValue);
+SIM_DLLEXPORT int simGetStackInt32Value_L(UID stackHandle, int* numberValue);
+SIM_DLLEXPORT int simGetStackInt64Value_L(UID stackHandle, long long int* numberValue);
+SIM_DLLEXPORT int simGetStackFloatValue_L(UID stackHandle, float* numberValue);
+SIM_DLLEXPORT int simGetStackDoubleValue_L(UID stackHandle, double* numberValue);
+SIM_DLLEXPORT char* simGetStackStringValue_L(UID stackHandle, int* stringSize);
+SIM_DLLEXPORT int simGetStackTableInfo_L(UID stackHandle, int infoType);
+SIM_DLLEXPORT int simGetStackUInt8Table_L(UID stackHandle, unsigned char* array, int count);
+SIM_DLLEXPORT int simGetStackInt32Table_L(UID stackHandle, int* array, int count);
+SIM_DLLEXPORT int simGetStackInt64Table_L(UID stackHandle, long long int* array, int count);
+SIM_DLLEXPORT int simGetStackFloatTable_L(UID stackHandle, float* array, int count);
+SIM_DLLEXPORT int simGetStackDoubleTable_L(UID stackHandle, double* array, int count);
+SIM_DLLEXPORT int simUnfoldStackTable_L(UID stackHandle);
+SIM_DLLEXPORT int simDebugStack_L(UID stackHandle, int cIndex);
+SIM_DLLEXPORT float* simGetVisionSensorDepth_L(UID sensorHandle, int options, const int* pos, const int* size, int* resolution);
+SIM_DLLEXPORT int _simSetVisionSensorDepth_L(UID sensorHandle, int options, const float* depth);
+SIM_DLLEXPORT float* simCheckVisionSensorEx_L(UID visionSensorHandle, UID entityHandle, bool returnImage);
+SIM_DLLEXPORT int simInsertObjectIntoOctree_L(UID octreeHandle, UID objectHandle, int options, const unsigned char* color, unsigned int tag, void* reserved);
+SIM_DLLEXPORT int simSubtractObjectFromOctree_L(UID octreeHandle, UID objectHandle, int options, void* reserved);
+SIM_DLLEXPORT char* simPackTable_L(UID stackHandle, int* bufferSize);
+SIM_DLLEXPORT int simUnpackTable_L(UID stackHandle, const char* buffer, int bufferSize);
+SIM_DLLEXPORT int simSetReferencedHandles_L(UID objectHandle, int count, const UID* referencedHandles, const char* tag, const int* reserved2);
+SIM_DLLEXPORT int simGetReferencedHandles_L(UID objectHandle, UID** referencedHandles, const char* tag, UID** reserved2);
+SIM_DLLEXPORT int simExecuteScriptString_L(UID scriptHandle, const char* stringToExecute, UID stackHandle);
+SIM_DLLEXPORT char* simGetApiFunc_L(UID scriptHandle, const char* apiWord);
+SIM_DLLEXPORT char* simGetApiInfo_L(UID scriptHandleOrType, const char* apiWord);
+SIM_DLLEXPORT int simIsDynamicallyEnabled_L(UID objectHandle);
+SIM_DLLEXPORT int simInitScript_L(UID scriptHandle);
+SIM_DLLEXPORT int simGetVisionSensorRes_L(UID sensorHandle, int* resolution);
+SIM_DLLEXPORT UID _simGetObjectID_L(const void* object);
+SIM_DLLEXPORT const void* _simGetObject_L(UID objID);
+SIM_DLLEXPORT int _simGetDummyLinkType_L(const void* dummy, UID* linkedDummyID);
+SIM_DLLEXPORT bool _simDoEntitiesCollide_L(UID entity1ID, UID entity2ID, UID* cacheBuffer, bool overrideCollidableFlagIfShape1, bool overrideCollidableFlagIfShape2, bool pathOrMotionPlanningRoutineCalling);
+SIM_DLLEXPORT UID simCreateScript_L(int scriptType, const char* scriptText, int options, const char* lang);
+SIM_DLLEXPORT int simGetObjectHierarchyOrder_L(UID objectHandle, int* totalSiblings);
+SIM_DLLEXPORT int simSetObjectHierarchyOrder_L(UID objectHandle, int order);
+SIM_DLLEXPORT int simGetShapeViz_D_L(UID shapeHandle, int index, struct SShapeVizInfo* info);
+SIM_DLLEXPORT int simGetObjectMatrix_D_L(UID objectHandle, UID relativeToObjectHandle, double* matrix);
+SIM_DLLEXPORT int simSetObjectMatrix_D_L(UID objectHandle, UID relativeToObjectHandle, const double* matrix);
+SIM_DLLEXPORT int simGetObjectPose_D_L(UID objectHandle, UID relativeToObjectHandle, double* pose);
+SIM_DLLEXPORT int simSetObjectPose_D_L(UID objectHandle, UID relativeToObjectHandle, const double* pose);
+SIM_DLLEXPORT int simGetObjectPosition_D_L(UID objectHandle, UID relativeToObjectHandle, double* position);
+SIM_DLLEXPORT int simSetObjectPosition_D_L(UID objectHandle, UID relativeToObjectHandle, const double* position);
+SIM_DLLEXPORT int simGetObjectOrientation_D_L(UID objectHandle, UID relativeToObjectHandle, double* eulerAngles);
+SIM_DLLEXPORT int simGetObjectQuaternion_D_L(UID objectHandle, UID relativeToObjectHandle, double* quaternion);
+SIM_DLLEXPORT int simSetObjectQuaternion_D_L(UID objectHandle, UID relativeToObjectHandle, const double* quaternion);
+SIM_DLLEXPORT int simSetObjectOrientation_D_L(UID objectHandle, UID relativeToObjectHandle, const double* eulerAngles);
+SIM_DLLEXPORT int simGetJointPosition_D_L(UID objectHandle, double* position);
+SIM_DLLEXPORT int simSetJointPosition_D_L(UID objectHandle, double position);
+SIM_DLLEXPORT int simSetJointTargetPosition_D_L(UID objectHandle, double targetPosition);
+SIM_DLLEXPORT int simGetJointTargetPosition_D_L(UID objectHandle, double* targetPosition);
+SIM_DLLEXPORT int simGetObjectChildPose_D_L(UID objectHandle, double* pose);
+SIM_DLLEXPORT int simSetObjectChildPose_D_L(UID objectHandle, const double* pose);
+SIM_DLLEXPORT int simGetJointInterval_D_L(UID objectHandle, bool* cyclic, double* interval);
+SIM_DLLEXPORT int simSetJointInterval_D_L(UID objectHandle, bool cyclic, const double* interval);
+SIM_DLLEXPORT int simHandleProximitySensor_D_L(UID sensorHandle, double* detectedPoint, UID* detectedObjectHandle, double* normalVector);
+SIM_DLLEXPORT int simReadProximitySensor_D_L(UID sensorHandle, double* detectedPoint, UID* detectedObjectHandle, double* normalVector);
+SIM_DLLEXPORT int simCheckProximitySensor_D_L(UID sensorHandle, UID entityHandle, double* detectedPoint);
+SIM_DLLEXPORT int simCheckProximitySensorEx_D_L(UID sensorHandle, UID entityHandle, int detectionMode, double detectionThreshold, double maxAngle, double* detectedPoint, UID* detectedObjectHandle, double* normalVector);
+SIM_DLLEXPORT int simCheckProximitySensorEx2_D_L(UID sensorHandle, double* vertexPointer, int itemType, int itemCount, int detectionMode, double detectionThreshold, double maxAngle, double* detectedPoint, double* normalVector);
+SIM_DLLEXPORT int simCheckCollisionEx_D_L(UID entity1Handle, UID entity2Handle, double** intersectionSegments);
+SIM_DLLEXPORT int simCheckDistance_D_L(UID entity1Handle, UID entity2Handle, double threshold, double* distanceData);
+SIM_DLLEXPORT int simHandleGraph_D_L(UID graphHandle, double simulationTime);
+SIM_DLLEXPORT int simSetGraphStreamTransformation_D_L(UID graphHandle, int streamId, int trType, double mult, double off, int movingAvgPeriod);
+SIM_DLLEXPORT int simAddGraphStream_D_L(UID graphHandle, const char* streamName, const char* unitStr, int options, const float* color, double cyclicRange);
+SIM_DLLEXPORT int simAddGraphCurve_D_L(UID graphHandle, const char* curveName, int dim, const int* streamIds, const double* defaultValues, const char* unitStr, int options, const float* color, int curveWidth);
+SIM_DLLEXPORT int simSetGraphStreamValue_D_L(UID graphHandle, int streamId, double value);
+SIM_DLLEXPORT int simSetJointTargetVelocity_D_L(UID objectHandle, double targetVelocity);
+SIM_DLLEXPORT int simGetJointTargetVelocity_D_L(UID objectHandle, double* targetVelocity);
+SIM_DLLEXPORT int simScaleObjects_D_L(const UID* objectHandles, int objectCount, double scalingFactor, bool scalePositionsToo);
+SIM_DLLEXPORT UID simAddDrawingObject_D_L(int objectType, double size, double duplicateTolerance, UID parentObjectHandle, int maxItemCount, const float* color, const float* setToNULL, const float* setToNULL2, const float* setToNULL3);
+SIM_DLLEXPORT int simAddDrawingObjectItem_D_L(UID objectHandle, const double* itemData);
+SIM_DLLEXPORT double simGetObjectSizeFactor_D_L(UID objectHandle);
+SIM_DLLEXPORT int simReadForceSensor_D_L(UID objectHandle, double* forceVector, double* torqueVector);
+SIM_DLLEXPORT int simGetVelocity_D_L(UID shapeHandle, double* linearVelocity, double* angularVelocity);
+SIM_DLLEXPORT int simGetObjectVelocity_D_L(UID objectHandle, double* linearVelocity, double* angularVelocity);
+SIM_DLLEXPORT int simGetJointVelocity_D_L(UID jointHandle, double* velocity);
+SIM_DLLEXPORT int simAddForceAndTorque_D_L(UID shapeHandle, const double* force, const double* torque);
+SIM_DLLEXPORT int simAddForce_D_L(UID shapeHandle, const double* position, const double* force);
+SIM_DLLEXPORT int simSetObjectColor_L(UID objectHandle, int index, int colorComponent, const float* rgbData);
+SIM_DLLEXPORT int simGetObjectColor_L(UID objectHandle, int index, int colorComponent, float* rgbData);
+SIM_DLLEXPORT int simSetShapeColor_L(UID shapeHandle, const char* colorName, int colorComponent, const float* rgbData);
+SIM_DLLEXPORT int simGetShapeColor_L(UID shapeHandle, const char* colorName, int colorComponent, float* rgbData);
+SIM_DLLEXPORT int simGetContactInfo_D_L(int dynamicPass, UID objectHandle, int index, UID* objectHandles, double* contactInfo);
+SIM_DLLEXPORT UID simImportShape_D_L(int fileformat, const char* pathAndFilename, int options, double identicalVerticeTolerance, double scalingFactor);
+SIM_DLLEXPORT UID simImportMesh_D_L(int fileformat, const char* pathAndFilename, int options, double identicalVerticeTolerance, double scalingFactor, double*** vertices, int** verticesSizes, int*** indices, int** indicesSizes, double*** reserved, char*** names);
+SIM_DLLEXPORT UID simCreatePrimitiveShape_D_L(int primitiveType, const double* sizes, int options);
+SIM_DLLEXPORT UID simCreateHeightfieldShape_D_L(int options, double shadingAngle, int xPointCount, int yPointCount, double xSize, const double* heights);
+SIM_DLLEXPORT int simGetShapeMesh_D_L(UID shapeHandle, double** vertices, int* verticesSize, int** indices, int* indicesSize, double** normals);
+SIM_DLLEXPORT UID simCreateJoint_D_L(int jointType, int jointMode, int options, const double* sizes, const double* reservedA, const double* reservedB);
+SIM_DLLEXPORT int simGetJointForce_D_L(UID jointHandle, double* forceOrTorque);
+SIM_DLLEXPORT int simGetJointTargetForce_D_L(UID jointHandle, double* forceOrTorque);
+SIM_DLLEXPORT int simSetJointTargetForce_D_L(UID objectHandle, double forceOrTorque, bool signedValue);
+SIM_DLLEXPORT int simCameraFitToView_D_L(int viewHandleOrIndex, int objectCount, const UID* objectHandles, int options, double scaling);
+SIM_DLLEXPORT int simHandleVisionSensor_D_L(UID visionSensorHandle, double** auxValues, int** auxValuesCount);
+SIM_DLLEXPORT int simReadVisionSensor_D_L(UID visionSensorHandle, double** auxValues, int** auxValuesCount);
+SIM_DLLEXPORT int simCheckVisionSensor_D_L(UID visionSensorHandle, UID entityHandle, double** auxValues, int** auxValuesCount);
+SIM_DLLEXPORT unsigned char* simGetVisionSensorImg_D_L(UID sensorHandle, int options, double rgbaCutOff, const int* pos, const int* size, int* resolution);
+SIM_DLLEXPORT UID simCreateDummy_D_L(double size, const float* reserved);
+SIM_DLLEXPORT UID simCreateProximitySensor_D_L(int sensorType, int subType, int options, const int* intParams, const double* floatParams, const double* reserved);
+SIM_DLLEXPORT UID simCreateForceSensor_D_L(int options, const int* intParams, const double* floatParams, const double* reserved);
+SIM_DLLEXPORT UID simCreateVisionSensor_D_L(int options, const int* intParams, const double* floatParams, const double* reserved);
+SIM_DLLEXPORT UID simConvexDecompose_D_L(UID shapeHandle, int options, const int* intParams, const double* floatParams);
+SIM_DLLEXPORT int simWriteTexture_D_L(UID textureId, int options, const char* data, int posX, int posY, int sizeX, int sizeY, double interpol);
+SIM_DLLEXPORT UID simCreateTexture_D_L(const char* fileName, int options, const double* planeSizes, const double* scalingUV, const double* xy_g, int fixedResolution, int* textureId, int* resolution, const void* reserved);
+SIM_DLLEXPORT int simGetShapeGeomInfo_D_L(UID shapeHandle, int* intData, double* floatData, void* reserved);
+SIM_DLLEXPORT int simScaleObject_D_L(UID objectHandle, double xScale, double yScale, double zScale, int options);
+SIM_DLLEXPORT int simSetShapeTexture_D_L(UID shapeHandle, UID textureId, int mappingMode, int options, const double* uvScaling, const double* position, const double* orientation);
+SIM_DLLEXPORT int simComputeMassAndInertia_D_L(UID shapeHandle, double density);
+SIM_DLLEXPORT UID simCreateOctree_D_L(double voxelSize, int options, double pointSize, void* reserved);
+SIM_DLLEXPORT UID simCreatePointCloud_D_L(double maxVoxelSize, int maxPtCntPerVoxel, int options, double pointSize, void* reserved);
+SIM_DLLEXPORT int simSetPointCloudOptions_D_L(UID pointCloudHandle, double maxVoxelSize, int maxPtCntPerVoxel, int options, double pointSize, void* reserved);
+SIM_DLLEXPORT int simGetPointCloudOptions_D_L(UID pointCloudHandle, double* maxVoxelSize, int* maxPtCntPerVoxel, int* options, double* pointSize, void* reserved);
+SIM_DLLEXPORT int simInsertVoxelsIntoOctree_D_L(UID octreeHandle, int options, const double* pts, int ptCnt, const unsigned char* color, const unsigned int* tag, void* reserved);
+SIM_DLLEXPORT int simRemoveVoxelsFromOctree_D_L(UID octreeHandle, int options, const double* pts, int ptCnt, void* reserved);
+SIM_DLLEXPORT int simInsertPointsIntoPointCloud_D_L(UID pointCloudHandle, int options, const double* pts, int ptCnt, const unsigned char* color, void* optionalValues);
+SIM_DLLEXPORT int simRemovePointsFromPointCloud_D_L(UID pointCloudHandle, int options, const double* pts, int ptCnt, double tolerance, void* reserved);
+SIM_DLLEXPORT int simIntersectPointsWithPointCloud_D_L(UID pointCloudHandle, int options, const double* pts, int ptCnt, double tolerance, void* reserved);
+SIM_DLLEXPORT const double* simGetOctreeVoxels_D_L(UID octreeHandle, int* ptCnt, void* reserved);
+SIM_DLLEXPORT const double* simGetPointCloudPoints_D_L(UID pointCloudHandle, int* ptCnt, void* reserved);
+SIM_DLLEXPORT int simInsertObjectIntoPointCloud_D_L(UID pointCloudHandle, UID objectHandle, int options, double gridSize, const unsigned char* color, void* optionalValues);
+SIM_DLLEXPORT int simSubtractObjectFromPointCloud_D_L(UID pointCloudHandle, UID objectHandle, int options, double tolerance, void* reserved);
+SIM_DLLEXPORT int simCheckOctreePointOccupancy_D_L(UID octreeHandle, int options, const double* points, int ptCnt, unsigned int* tag, unsigned long long int* location, void* reserved);
+SIM_DLLEXPORT int simApplyTexture_D_L(UID shapeHandle, const double* textureCoordinates, int textCoordSize, const unsigned char* texture, const int* textureResolution, int options);
+SIM_DLLEXPORT int simSetJointDependency_D_L(UID jointHandle, UID masterJointHandle, double offset, double multCoeff);
+SIM_DLLEXPORT int simGetJointDependency_D_L(UID jointHandle, UID* masterJointHandle, double* offset, double* multCoeff);
+SIM_DLLEXPORT int simGetShapeMass_D_L(UID shapeHandle, double* mass);
+SIM_DLLEXPORT int simSetShapeMass_D_L(UID shapeHandle, double mass);
+SIM_DLLEXPORT int simGetShapeInertia_D_L(UID shapeHandle, double* inertiaMatrix, double* transformationMatrix);
+SIM_DLLEXPORT int simSetShapeInertia_D_L(UID shapeHandle, const double* inertiaMatrix, const double* transformationMatrix);
+SIM_DLLEXPORT UID simGenerateShapeFromPath_D_L(const double* path, int pathSize, const double* section, int sectionSize, int options, const double* upVector, double reserved);
+SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller_D_L(UID entity1ID, UID entity2ID, double* distance, double* ray, UID* cacheBuffer, bool overrideMeasurableFlagIfNonCollection1, bool overrideMeasurableFlagIfNonCollection2, bool pathPlanningRoutineCalling);
+SIM_DLLEXPORT int _simHandleCustomContact_D_L(UID objHandle1, UID objHandle2, int engine, int* dataInt, double* dataFloat);
+#endif
+
 SIM_DLLEXPORT int simSetBoolProperty(long long int target, const char* pName, int pState);
 SIM_DLLEXPORT int simGetBoolProperty(long long int target, const char* pName, int* pState);
 SIM_DLLEXPORT int simSetIntProperty(long long int target, const char* pName, int pState);
@@ -112,8 +329,7 @@ SIM_DLLEXPORT int simAuxiliaryConsoleShow(int consoleHandle, bool showState);
 SIM_DLLEXPORT int simAuxiliaryConsolePrint(int consoleHandle, const char* text);
 SIM_DLLEXPORT int simIsHandle(int generalObjectHandle, int generalObjectType);
 SIM_DLLEXPORT int simResetVisionSensor(int visionSensorHandle);
-SIM_DLLEXPORT int simSetVisionSensorImg(int sensorHandle, const unsigned char* img, int options, const int* pos,
-                                        const int* size);
+SIM_DLLEXPORT int simSetVisionSensorImg(int sensorHandle, const unsigned char* img, int options, const int* pos, const int* size);
 SIM_DLLEXPORT int simRuckigPos(int dofs, double baseCycleTime, int flags, const double* currentPos,
                                const double* currentVel, const double* currentAccel, const double* maxVel,
                                const double* maxAccel, const double* maxJerk, const bool* selection,
@@ -140,11 +356,9 @@ SIM_DLLEXPORT int simDestroyCollection(int collectionHandle);
 SIM_DLLEXPORT int* simGetCollectionObjects(int collectionHandle, int* objectCount);
 SIM_DLLEXPORT int simAlignShapeBB(int shapeHandle, const double* pose);
 SIM_DLLEXPORT int simRelocateShapeFrame(int shapeHandle, const double* pose);
-SIM_DLLEXPORT int simSaveImage(const unsigned char* image, const int* resolution, int options, const char* filename,
-                               int quality, void* reserved);
+SIM_DLLEXPORT int simSaveImage(const unsigned char* image, const int* resolution, int options, const char* filename, int quality, void* reserved);
 SIM_DLLEXPORT unsigned char* simLoadImage(int* resolution, int options, const char* filename, void* reserved);
-SIM_DLLEXPORT unsigned char* simGetScaledImage(const unsigned char* imageIn, const int* resolutionIn,
-                                               int* resolutionOut, int options, void* reserved);
+SIM_DLLEXPORT unsigned char* simGetScaledImage(const unsigned char* imageIn, const int* resolutionIn, int* resolutionOut, int options, void* reserved);
 SIM_DLLEXPORT int simCallScriptFunctionEx(int scriptHandleOrType, const char* functionNameAtScriptName, int stackId);
 SIM_DLLEXPORT char* simGetExtensionString(int objectHandle, int index, const char* key);
 SIM_DLLEXPORT int simCreateStack();
@@ -185,18 +399,15 @@ SIM_DLLEXPORT int simGetStackFloatTable(int stackHandle, float* array, int count
 SIM_DLLEXPORT int simGetStackDoubleTable(int stackHandle, double* array, int count);
 SIM_DLLEXPORT int simUnfoldStackTable(int stackHandle);
 SIM_DLLEXPORT int simDebugStack(int stackHandle, int cIndex);
-SIM_DLLEXPORT float* simGetVisionSensorDepth(int sensorHandle, int options, const int* pos, const int* size,
-                                             int* resolution);
+SIM_DLLEXPORT float* simGetVisionSensorDepth(int sensorHandle, int options, const int* pos, const int* size, int* resolution);
 SIM_DLLEXPORT int _simSetVisionSensorDepth(int sensorHandle, int options, const float* depth);
 SIM_DLLEXPORT float* simCheckVisionSensorEx(int visionSensorHandle, int entityHandle, bool returnImage);
-SIM_DLLEXPORT int simInsertObjectIntoOctree(int octreeHandle, int objectHandle, int options, const unsigned char* color,
-                                            unsigned int tag, void* reserved);
+SIM_DLLEXPORT int simInsertObjectIntoOctree(int octreeHandle, int objectHandle, int options, const unsigned char* color, unsigned int tag, void* reserved);
 SIM_DLLEXPORT int simSubtractObjectFromOctree(int octreeHandle, int objectHandle, int options, void* reserved);
 SIM_DLLEXPORT char* simOpenTextEditor(const char* initText, const char* xml, int* various);
 SIM_DLLEXPORT char* simPackTable(int stackHandle, int* bufferSize);
 SIM_DLLEXPORT int simUnpackTable(int stackHandle, const char* buffer, int bufferSize);
-SIM_DLLEXPORT int simSetReferencedHandles(int objectHandle, int count, const int* referencedHandles,
-                                          const char* tag, const int* reserved2);
+SIM_DLLEXPORT int simSetReferencedHandles(int objectHandle, int count, const int* referencedHandles, const char* tag, const int* reserved2);
 SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle, int** referencedHandles, const char* tag, int** reserved2);
 SIM_DLLEXPORT int simExecuteScriptString(int scriptHandle, const char* stringToExecute, int stackHandle);
 SIM_DLLEXPORT char* simGetApiFunc(int scriptHandle, const char* apiWord);
@@ -293,48 +504,33 @@ SIM_DLLEXPORT int simInvertMatrix_D(double* matrix);
 SIM_DLLEXPORT int simMultiplyMatrices_D(const double* matrixIn1, const double* matrixIn2, double* matrixOut);
 SIM_DLLEXPORT int simMultiplyPoses_D(const double* poseIn1, const double* poseIn2, double* poseOut);
 SIM_DLLEXPORT int simInvertPose_D(double* pose);
-SIM_DLLEXPORT int simInterpolatePoses_D(const double* poseIn1, const double* poseIn2, double interpolFactor,
-                                        double* poseOut);
+SIM_DLLEXPORT int simInterpolatePoses_D(const double* poseIn1, const double* poseIn2, double interpolFactor, double* poseOut);
 SIM_DLLEXPORT int simPoseToMatrix_D(const double* poseIn, double* matrixOut);
 SIM_DLLEXPORT int simMatrixToPose_D(const double* matrixIn, double* poseOut);
-SIM_DLLEXPORT int simInterpolateMatrices_D(const double* matrixIn1, const double* matrixIn2, double interpolFactor,
-                                           double* matrixOut);
+SIM_DLLEXPORT int simInterpolateMatrices_D(const double* matrixIn1, const double* matrixIn2, double interpolFactor, double* matrixOut);
 SIM_DLLEXPORT int simTransformVector_D(const double* matrix, double* vect);
 SIM_DLLEXPORT double simGetSimulationTime_D();
 SIM_DLLEXPORT double simGetSystemTime_D();
-SIM_DLLEXPORT int simHandleProximitySensor_D(int sensorHandle, double* detectedPoint, int* detectedObjectHandle,
-                                             double* normalVector);
-SIM_DLLEXPORT int simReadProximitySensor_D(int sensorHandle, double* detectedPoint, int* detectedObjectHandle,
-                                           double* normalVector);
+SIM_DLLEXPORT int simHandleProximitySensor_D(int sensorHandle, double* detectedPoint, int* detectedObjectHandle, double* normalVector);
+SIM_DLLEXPORT int simReadProximitySensor_D(int sensorHandle, double* detectedPoint, int* detectedObjectHandle, double* normalVector);
 SIM_DLLEXPORT int simHandleDynamics_D(double deltaTime);
 SIM_DLLEXPORT int simCheckProximitySensor_D(int sensorHandle, int entityHandle, double* detectedPoint);
-SIM_DLLEXPORT int simCheckProximitySensorEx_D(int sensorHandle, int entityHandle, int detectionMode,
-                                              double detectionThreshold, double maxAngle, double* detectedPoint,
-                                              int* detectedObjectHandle, double* normalVector);
-SIM_DLLEXPORT int simCheckProximitySensorEx2_D(int sensorHandle, double* vertexPointer, int itemType, int itemCount,
-                                               int detectionMode, double detectionThreshold, double maxAngle,
-                                               double* detectedPoint, double* normalVector);
+SIM_DLLEXPORT int simCheckProximitySensorEx_D(int sensorHandle, int entityHandle, int detectionMode, double detectionThreshold, double maxAngle, double* detectedPoint, int* detectedObjectHandle, double* normalVector);
+SIM_DLLEXPORT int simCheckProximitySensorEx2_D(int sensorHandle, double* vertexPointer, int itemType, int itemCount, int detectionMode, double detectionThreshold, double maxAngle, double* detectedPoint, double* normalVector);
 SIM_DLLEXPORT int simCheckCollisionEx_D(int entity1Handle, int entity2Handle, double** intersectionSegments);
 SIM_DLLEXPORT int simCheckDistance_D(int entity1Handle, int entity2Handle, double threshold, double* distanceData);
 SIM_DLLEXPORT int simSetSimulationTimeStep_D(double timeStep);
 SIM_DLLEXPORT double simGetSimulationTimeStep_D();
 SIM_DLLEXPORT int simFloatingViewAdd_D(double posX, double posY, double sizeX, double sizeY, int options);
 SIM_DLLEXPORT int simHandleGraph_D(int graphHandle, double simulationTime);
-SIM_DLLEXPORT int simSetGraphStreamTransformation_D(int graphHandle, int streamId, int trType, double mult, double off,
-                                                    int movingAvgPeriod);
-SIM_DLLEXPORT int simAddGraphStream_D(int graphHandle, const char* streamName, const char* unitStr, int options,
-                                      const float* color, double cyclicRange);
-SIM_DLLEXPORT int simAddGraphCurve_D(int graphHandle, const char* curveName, int dim, const int* streamIds,
-                                     const double* defaultValues, const char* unitStr, int options, const float* color,
-                                     int curveWidth);
+SIM_DLLEXPORT int simSetGraphStreamTransformation_D(int graphHandle, int streamId, int trType, double mult, double off, int movingAvgPeriod);
+SIM_DLLEXPORT int simAddGraphStream_D(int graphHandle, const char* streamName, const char* unitStr, int options, const float* color, double cyclicRange);
+SIM_DLLEXPORT int simAddGraphCurve_D(int graphHandle, const char* curveName, int dim, const int* streamIds, const double* defaultValues, const char* unitStr, int options, const float* color, int curveWidth);
 SIM_DLLEXPORT int simSetGraphStreamValue_D(int graphHandle, int streamId, double value);
 SIM_DLLEXPORT int simSetJointTargetVelocity_D(int objectHandle, double targetVelocity);
 SIM_DLLEXPORT int simGetJointTargetVelocity_D(int objectHandle, double* targetVelocity);
-SIM_DLLEXPORT int simScaleObjects_D(const int* objectHandles, int objectCount, double scalingFactor,
-                                    bool scalePositionsToo);
-SIM_DLLEXPORT int simAddDrawingObject_D(int objectType, double size, double duplicateTolerance, int parentObjectHandle,
-                                        int maxItemCount, const float* color, const float* setToNULL,
-                                        const float* setToNULL2, const float* setToNULL3);
+SIM_DLLEXPORT int simScaleObjects_D(const int* objectHandles, int objectCount, double scalingFactor, bool scalePositionsToo);
+SIM_DLLEXPORT int simAddDrawingObject_D(int objectType, double size, double duplicateTolerance, int parentObjectHandle, int maxItemCount, const float* color, const float* setToNULL, const float* setToNULL2, const float* setToNULL3);
 SIM_DLLEXPORT int simAddDrawingObjectItem_D(int objectHandle, const double* itemData);
 SIM_DLLEXPORT double simGetObjectSizeFactor_D(int objectHandle);
 SIM_DLLEXPORT int simReadForceSensor_D(int objectHandle, double* forceVector, double* torqueVector);
@@ -347,116 +543,68 @@ SIM_DLLEXPORT int simSetObjectColor(int objectHandle, int index, int colorCompon
 SIM_DLLEXPORT int simGetObjectColor(int objectHandle, int index, int colorComponent, float* rgbData);
 SIM_DLLEXPORT int simSetShapeColor(int shapeHandle, const char* colorName, int colorComponent, const float* rgbData);
 SIM_DLLEXPORT int simGetShapeColor(int shapeHandle, const char* colorName, int colorComponent, float* rgbData);
-SIM_DLLEXPORT int simGetContactInfo_D(int dynamicPass, int objectHandle, int index, int* objectHandles,
-                                      double* contactInfo);
-SIM_DLLEXPORT int simImportShape_D(int fileformat, const char* pathAndFilename, int options,
-                                   double identicalVerticeTolerance, double scalingFactor);
-SIM_DLLEXPORT int simImportMesh_D(int fileformat, const char* pathAndFilename, int options,
-                                  double identicalVerticeTolerance, double scalingFactor, double*** vertices,
-                                  int** verticesSizes, int*** indices, int** indicesSizes, double*** reserved,
-                                  char*** names);
-SIM_DLLEXPORT int simExportMesh_D(int fileformat, const char* pathAndFilename, int options, double scalingFactor,
-                                  int elementCount, const double** vertices, const int* verticesSizes,
-                                  const int** indices, const int* indicesSizes, double** reserved, const char** names);
-SIM_DLLEXPORT int simCreateMeshShape_D(int options, double shadingAngle, const double* vertices, int verticesSize,
-                                       const int* indices, int indicesSize, double* reserved);
+SIM_DLLEXPORT int simGetContactInfo_D(int dynamicPass, int objectHandle, int index, int* objectHandles, double* contactInfo);
+SIM_DLLEXPORT int simImportShape_D(int fileformat, const char* pathAndFilename, int options, double identicalVerticeTolerance, double scalingFactor);
+SIM_DLLEXPORT int simImportMesh_D(int fileformat, const char* pathAndFilename, int options, double identicalVerticeTolerance, double scalingFactor, double*** vertices, int** verticesSizes, int*** indices, int** indicesSizes, double*** reserved, char*** names);
+SIM_DLLEXPORT int simExportMesh_D(int fileformat, const char* pathAndFilename, int options, double scalingFactor, int elementCount, const double** vertices, const int* verticesSizes, const int** indices, const int* indicesSizes, double** reserved, const char** names);
+SIM_DLLEXPORT int simCreateMeshShape_D(int options, double shadingAngle, const double* vertices, int verticesSize, const int* indices, int indicesSize, double* reserved);
 SIM_DLLEXPORT int simCreatePrimitiveShape_D(int primitiveType, const double* sizes, int options);
-SIM_DLLEXPORT int simCreateHeightfieldShape_D(int options, double shadingAngle, int xPointCount, int yPointCount,
-                                              double xSize, const double* heights);
-SIM_DLLEXPORT int simGetShapeMesh_D(int shapeHandle, double** vertices, int* verticesSize, int** indices,
-                                    int* indicesSize, double** normals);
-SIM_DLLEXPORT int simCreateJoint_D(int jointType, int jointMode, int options, const double* sizes,
-                                   const double* reservedA, const double* reservedB);
-SIM_DLLEXPORT int simAuxiliaryConsoleOpen(const char* title, int maxLines, int mode, const int* position,
-                                          const int* size, const float* textColor, const float* backgroundColor);
-SIM_DLLEXPORT int simGetRotationAxis_D(const double* matrixStart, const double* matrixGoal, double* axis,
-                                       double* angle);
-SIM_DLLEXPORT int simRotateAroundAxis_D(const double* matrixIn, const double* axis, const double* axisPos, double angle,
-                                        double* matrixOut);
+SIM_DLLEXPORT int simCreateHeightfieldShape_D(int options, double shadingAngle, int xPointCount, int yPointCount, double xSize, const double* heights);
+SIM_DLLEXPORT int simGetShapeMesh_D(int shapeHandle, double** vertices, int* verticesSize, int** indices, int* indicesSize, double** normals);
+SIM_DLLEXPORT int simCreateJoint_D(int jointType, int jointMode, int options, const double* sizes, const double* reservedA, const double* reservedB);
+SIM_DLLEXPORT int simAuxiliaryConsoleOpen(const char* title, int maxLines, int mode, const int* position, const int* size, const float* textColor, const float* backgroundColor);
+SIM_DLLEXPORT int simGetRotationAxis_D(const double* matrixStart, const double* matrixGoal, double* axis, double* angle);
+SIM_DLLEXPORT int simRotateAroundAxis_D(const double* matrixIn, const double* axis, const double* axisPos, double angle, double* matrixOut);
 SIM_DLLEXPORT int simGetJointForce_D(int jointHandle, double* forceOrTorque);
 SIM_DLLEXPORT int simGetJointTargetForce_D(int jointHandle, double* forceOrTorque);
 SIM_DLLEXPORT int simSetJointTargetForce_D(int objectHandle, double forceOrTorque, bool signedValue);
-SIM_DLLEXPORT int simCameraFitToView_D(int viewHandleOrIndex, int objectCount, const int* objectHandles, int options,
-                                       double scaling);
+SIM_DLLEXPORT int simCameraFitToView_D(int viewHandleOrIndex, int objectCount, const int* objectHandles, int options, double scaling);
 SIM_DLLEXPORT int simHandleVisionSensor_D(int visionSensorHandle, double** auxValues, int** auxValuesCount);
 SIM_DLLEXPORT int simReadVisionSensor_D(int visionSensorHandle, double** auxValues, int** auxValuesCount);
-SIM_DLLEXPORT int simCheckVisionSensor_D(int visionSensorHandle, int entityHandle, double** auxValues,
-                                         int** auxValuesCount);
-SIM_DLLEXPORT unsigned char* simGetVisionSensorImg_D(int sensorHandle, int options, double rgbaCutOff, const int* pos,
-                                                     const int* size, int* resolution);
+SIM_DLLEXPORT int simCheckVisionSensor_D(int visionSensorHandle, int entityHandle, double** auxValues, int** auxValuesCount);
+SIM_DLLEXPORT unsigned char* simGetVisionSensorImg_D(int sensorHandle, int options, double rgbaCutOff, const int* pos, const int* size, int* resolution);
 SIM_DLLEXPORT int simCreateDummy_D(double size, const float* reserved);
-SIM_DLLEXPORT int simCreateProximitySensor_D(int sensorType, int subType, int options, const int* intParams,
-                                             const double* floatParams, const double* reserved);
-SIM_DLLEXPORT int simCreateForceSensor_D(int options, const int* intParams, const double* floatParams,
-                                         const double* reserved);
-SIM_DLLEXPORT int simCreateVisionSensor_D(int options, const int* intParams, const double* floatParams,
-                                          const double* reserved);
+SIM_DLLEXPORT int simCreateProximitySensor_D(int sensorType, int subType, int options, const int* intParams, const double* floatParams, const double* reserved);
+SIM_DLLEXPORT int simCreateForceSensor_D(int options, const int* intParams, const double* floatParams, const double* reserved);
+SIM_DLLEXPORT int simCreateVisionSensor_D(int options, const int* intParams, const double* floatParams, const double* reserved);
 SIM_DLLEXPORT int simConvexDecompose_D(int shapeHandle, int options, const int* intParams, const double* floatParams);
-SIM_DLLEXPORT int simWriteTexture_D(int textureId, int options, const char* data, int posX, int posY, int sizeX,
-                                    int sizeY, double interpol);
-SIM_DLLEXPORT int simCreateTexture_D(const char* fileName, int options, const double* planeSizes,
-                                     const double* scalingUV, const double* xy_g, int fixedResolution, int* textureId,
-                                     int* resolution, const void* reserved);
+SIM_DLLEXPORT int simWriteTexture_D(int textureId, int options, const char* data, int posX, int posY, int sizeX, int sizeY, double interpol);
+SIM_DLLEXPORT int simCreateTexture_D(const char* fileName, int options, const double* planeSizes, const double* scalingUV, const double* xy_g, int fixedResolution, int* textureId, int* resolution, const void* reserved);
 SIM_DLLEXPORT int simGetShapeGeomInfo_D(int shapeHandle, int* intData, double* floatData, void* reserved);
 SIM_DLLEXPORT int simScaleObject_D(int objectHandle, double xScale, double yScale, double zScale, int options);
-SIM_DLLEXPORT int simSetShapeTexture_D(int shapeHandle, int textureId, int mappingMode, int options,
-                                       const double* uvScaling, const double* position, const double* orientation);
-SIM_DLLEXPORT int simTransformImage_D(unsigned char* image, const int* resolution, int options,
-                                      const double* floatParams, const int* intParams, void* reserved);
-SIM_DLLEXPORT int simGetQHull_D(const double* inVertices, int inVerticesL, double** verticesOut, int* verticesOutL,
-                                int** indicesOut, int* indicesOutL, int reserved1, const double* reserved2);
-SIM_DLLEXPORT int simGetDecimatedMesh_D(const double* inVertices, int inVerticesL, const int* inIndices, int inIndicesL,
-                                        double** verticesOut, int* verticesOutL, int** indicesOut, int* indicesOutL,
-                                        double decimationPercent, int reserved1, const double* reserved2);
+SIM_DLLEXPORT int simSetShapeTexture_D(int shapeHandle, int textureId, int mappingMode, int options, const double* uvScaling, const double* position, const double* orientation);
+SIM_DLLEXPORT int simTransformImage_D(unsigned char* image, const int* resolution, int options, const double* floatParams, const int* intParams, void* reserved);
+SIM_DLLEXPORT int simGetQHull_D(const double* inVertices, int inVerticesL, double** verticesOut, int* verticesOutL, int** indicesOut, int* indicesOutL, int reserved1, const double* reserved2);
+SIM_DLLEXPORT int simGetDecimatedMesh_D(const double* inVertices, int inVerticesL, const int* inIndices, int inIndicesL, double** verticesOut, int* verticesOutL, int** indicesOut, int* indicesOutL, double decimationPercent, int reserved1, const double* reserved2);
 SIM_DLLEXPORT int simComputeMassAndInertia_D(int shapeHandle, double density);
 SIM_DLLEXPORT int simCreateOctree_D(double voxelSize, int options, double pointSize, void* reserved);
-SIM_DLLEXPORT int simCreatePointCloud_D(double maxVoxelSize, int maxPtCntPerVoxel, int options, double pointSize,
-                                        void* reserved);
-SIM_DLLEXPORT int simSetPointCloudOptions_D(int pointCloudHandle, double maxVoxelSize, int maxPtCntPerVoxel,
-                                            int options, double pointSize, void* reserved);
-SIM_DLLEXPORT int simGetPointCloudOptions_D(int pointCloudHandle, double* maxVoxelSize, int* maxPtCntPerVoxel,
-                                            int* options, double* pointSize, void* reserved);
-SIM_DLLEXPORT int simInsertVoxelsIntoOctree_D(int octreeHandle, int options, const double* pts, int ptCnt,
-                                              const unsigned char* color, const unsigned int* tag, void* reserved);
-SIM_DLLEXPORT int simRemoveVoxelsFromOctree_D(int octreeHandle, int options, const double* pts, int ptCnt,
-                                              void* reserved);
-SIM_DLLEXPORT int simInsertPointsIntoPointCloud_D(int pointCloudHandle, int options, const double* pts, int ptCnt,
-                                                  const unsigned char* color, void* optionalValues);
-SIM_DLLEXPORT int simRemovePointsFromPointCloud_D(int pointCloudHandle, int options, const double* pts, int ptCnt,
-                                                  double tolerance, void* reserved);
-SIM_DLLEXPORT int simIntersectPointsWithPointCloud_D(int pointCloudHandle, int options, const double* pts, int ptCnt,
-                                                     double tolerance, void* reserved);
+SIM_DLLEXPORT int simCreatePointCloud_D(double maxVoxelSize, int maxPtCntPerVoxel, int options, double pointSize, void* reserved);
+SIM_DLLEXPORT int simSetPointCloudOptions_D(int pointCloudHandle, double maxVoxelSize, int maxPtCntPerVoxel, int options, double pointSize, void* reserved);
+SIM_DLLEXPORT int simGetPointCloudOptions_D(int pointCloudHandle, double* maxVoxelSize, int* maxPtCntPerVoxel, int* options, double* pointSize, void* reserved);
+SIM_DLLEXPORT int simInsertVoxelsIntoOctree_D(int octreeHandle, int options, const double* pts, int ptCnt, const unsigned char* color, const unsigned int* tag, void* reserved);
+SIM_DLLEXPORT int simRemoveVoxelsFromOctree_D(int octreeHandle, int options, const double* pts, int ptCnt, void* reserved);
+SIM_DLLEXPORT int simInsertPointsIntoPointCloud_D(int pointCloudHandle, int options, const double* pts, int ptCnt, const unsigned char* color, void* optionalValues);
+SIM_DLLEXPORT int simRemovePointsFromPointCloud_D(int pointCloudHandle, int options, const double* pts, int ptCnt, double tolerance, void* reserved);
+SIM_DLLEXPORT int simIntersectPointsWithPointCloud_D(int pointCloudHandle, int options, const double* pts, int ptCnt, double tolerance, void* reserved);
 SIM_DLLEXPORT const double* simGetOctreeVoxels_D(int octreeHandle, int* ptCnt, void* reserved);
 SIM_DLLEXPORT const double* simGetPointCloudPoints_D(int pointCloudHandle, int* ptCnt, void* reserved);
-SIM_DLLEXPORT int simInsertObjectIntoPointCloud_D(int pointCloudHandle, int objectHandle, int options, double gridSize,
-                                                  const unsigned char* color, void* optionalValues);
-SIM_DLLEXPORT int simSubtractObjectFromPointCloud_D(int pointCloudHandle, int objectHandle, int options,
-                                                    double tolerance, void* reserved);
-SIM_DLLEXPORT int simCheckOctreePointOccupancy_D(int octreeHandle, int options, const double* points, int ptCnt,
-                                                 unsigned int* tag, unsigned long long int* location, void* reserved);
-SIM_DLLEXPORT int simApplyTexture_D(int shapeHandle, const double* textureCoordinates, int textCoordSize,
-                                    const unsigned char* texture, const int* textureResolution, int options);
+SIM_DLLEXPORT int simInsertObjectIntoPointCloud_D(int pointCloudHandle, int objectHandle, int options, double gridSize, const unsigned char* color, void* optionalValues);
+SIM_DLLEXPORT int simSubtractObjectFromPointCloud_D(int pointCloudHandle, int objectHandle, int options, double tolerance, void* reserved);
+SIM_DLLEXPORT int simCheckOctreePointOccupancy_D(int octreeHandle, int options, const double* points, int ptCnt, unsigned int* tag, unsigned long long int* location, void* reserved);
+SIM_DLLEXPORT int simApplyTexture_D(int shapeHandle, const double* textureCoordinates, int textCoordSize, const unsigned char* texture, const int* textureResolution, int options);
 SIM_DLLEXPORT int simSetJointDependency_D(int jointHandle, int masterJointHandle, double offset, double multCoeff);
 SIM_DLLEXPORT int simGetJointDependency_D(int jointHandle, int* masterJointHandle, double* offset, double* multCoeff);
 SIM_DLLEXPORT int simGetShapeMass_D(int shapeHandle, double* mass);
 SIM_DLLEXPORT int simSetShapeMass_D(int shapeHandle, double mass);
 SIM_DLLEXPORT int simGetShapeInertia_D(int shapeHandle, double* inertiaMatrix, double* transformationMatrix);
-SIM_DLLEXPORT int simSetShapeInertia_D(int shapeHandle, const double* inertiaMatrix,
-                                       const double* transformationMatrix);
-SIM_DLLEXPORT int simGenerateShapeFromPath_D(const double* path, int pathSize, const double* section, int sectionSize,
-                                             int options, const double* upVector, double reserved);
-SIM_DLLEXPORT double simGetClosestPosOnPath_D(const double* path, int pathSize, const double* pathLengths,
-                                              const double* absPt);
-SIM_DLLEXPORT void _simGetObjectLocalTransformation_D(const void* object, double* pos, double* quat,
-                                                      bool excludeFirstJointTransformation);
-SIM_DLLEXPORT void _simSetObjectLocalTransformation_D(void* object, const double* pos, const double* quat,
-                                                      double simTime);
-SIM_DLLEXPORT void _simDynReportObjectCumulativeTransformation_D(void* object, const double* pos, const double* quat,
-                                                                 double simTime);
-SIM_DLLEXPORT void _simSetObjectCumulativeTransformation_D(void* object, const double* pos, const double* quat,
-                                                           bool keepChildrenInPlace);
-SIM_DLLEXPORT void _simGetObjectCumulativeTransformation_D(const void* object, double* pos, double* quat,
-                                                           bool excludeFirstJointTransformation);
+SIM_DLLEXPORT int simSetShapeInertia_D(int shapeHandle, const double* inertiaMatrix, const double* transformationMatrix);
+SIM_DLLEXPORT int simGenerateShapeFromPath_D(const double* path, int pathSize, const double* section, int sectionSize, int options, const double* upVector, double reserved);
+SIM_DLLEXPORT double simGetClosestPosOnPath_D(const double* path, int pathSize, const double* pathLengths, const double* absPt);
+SIM_DLLEXPORT void _simGetObjectLocalTransformation_D(const void* object, double* pos, double* quat, bool excludeFirstJointTransformation);
+SIM_DLLEXPORT void _simSetObjectLocalTransformation_D(void* object, const double* pos, const double* quat, double simTime);
+SIM_DLLEXPORT void _simDynReportObjectCumulativeTransformation_D(void* object, const double* pos, const double* quat, double simTime);
+SIM_DLLEXPORT void _simSetObjectCumulativeTransformation_D(void* object, const double* pos, const double* quat, bool keepChildrenInPlace);
+SIM_DLLEXPORT void _simGetObjectCumulativeTransformation_D(const void* object, double* pos, double* quat, bool excludeFirstJointTransformation);
 SIM_DLLEXPORT void _simSetJointVelocity_D(const void* joint, double vel);
 SIM_DLLEXPORT void _simSetJointPosition_D(const void* joint, double pos);
 SIM_DLLEXPORT double _simGetJointPosition_D(const void* joint);
@@ -465,8 +613,7 @@ SIM_DLLEXPORT void _simGetInitialDynamicVelocity_D(const void* shape, double* ve
 SIM_DLLEXPORT void _simSetInitialDynamicVelocity_D(void* shape, const double* vel);
 SIM_DLLEXPORT void _simGetInitialDynamicAngVelocity_D(const void* shape, double* angularVel);
 SIM_DLLEXPORT void _simSetInitialDynamicAngVelocity_D(void* shape, const double* angularVel);
-SIM_DLLEXPORT void _simSetShapeDynamicVelocity_D(void* shape, const double* linear, const double* angular,
-                                                 double simTime);
+SIM_DLLEXPORT void _simSetShapeDynamicVelocity_D(void* shape, const double* linear, const double* angular, double simTime);
 SIM_DLLEXPORT void _simGetAdditionalForceAndTorque_D(const void* shape, double* force, double* torque);
 SIM_DLLEXPORT bool _simGetJointPositionInterval_D(const void* joint, double* minValue, double* rangeValue);
 SIM_DLLEXPORT double _simGetDynamicMotorTargetPosition_D(const void* joint);
@@ -475,29 +622,18 @@ SIM_DLLEXPORT double _simGetDynamicMotorMaxForce_D(const void* joint);
 SIM_DLLEXPORT double _simGetDynamicMotorUpperLimitVelocity_D(const void* joint);
 SIM_DLLEXPORT void _simSetDynamicMotorReflectedPositionFromDynamicEngine_D(void* joint, double pos, double simTime);
 SIM_DLLEXPORT void _simSetJointSphericalTransformation_D(void* joint, const double* quat, double simTime);
-SIM_DLLEXPORT void _simAddForceSensorCumulativeForcesAndTorques_D(void* forceSensor, const double* force,
-                                                                  const double* torque, int totalPassesCount,
-                                                                  double simTime);
-SIM_DLLEXPORT void _simAddJointCumulativeForcesOrTorques_D(void* joint, double forceOrTorque, int totalPassesCount,
-                                                           double simTime);
+SIM_DLLEXPORT void _simAddForceSensorCumulativeForcesAndTorques_D(void* forceSensor, const double* force, const double* torque, int totalPassesCount, double simTime);
+SIM_DLLEXPORT void _simAddJointCumulativeForcesOrTorques_D(void* joint, double forceOrTorque, int totalPassesCount, double simTime);
 SIM_DLLEXPORT double _simGetMass_D(const void* geomInfo);
 SIM_DLLEXPORT double _simGetLocalInertiaInfo_D(const void* object, double* pos, double* quat, double* diagI);
 SIM_DLLEXPORT void _simGetPurePrimitiveSizes_D(const void* geometric, double* sizes);
 SIM_DLLEXPORT void _simGetVerticesLocalFrame_D(const void* shape, const void* geometric, double* pos, double* quat);
-SIM_DLLEXPORT const double* _simGetHeightfieldData_D(const void* geometric, int* xCount, int* yCount, double* minHeight,
-                                                     double* maxHeight);
-SIM_DLLEXPORT void _simGetCumulativeMeshes_D(const void* shape, const void* geomInfo, double** vertices,
-                                             int* verticesSize, int** indices, int* indicesSize);
+SIM_DLLEXPORT const double* _simGetHeightfieldData_D(const void* geometric, int* xCount, int* yCount, double* minHeight, double* maxHeight);
+SIM_DLLEXPORT void _simGetCumulativeMeshes_D(const void* shape, const void* geomInfo, double** vertices, int* verticesSize, int** indices, int* indicesSize);
 SIM_DLLEXPORT void _simGetGravity_D(double* gravity);
-SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller_D(int entity1ID, int entity2ID, double* distance,
-                                                             double* ray, int* cacheBuffer,
-                                                             bool overrideMeasurableFlagIfNonCollection1,
-                                                             bool overrideMeasurableFlagIfNonCollection2,
-                                                             bool pathPlanningRoutineCalling);
-SIM_DLLEXPORT int _simHandleJointControl_D(const void* joint, int auxV, const int* inputValuesInt,
-                                           const double* inputValuesFloat, double* outputValues);
-SIM_DLLEXPORT int _simHandleCustomContact_D(int objHandle1, int objHandle2, int engine, int* dataInt,
-                                            double* dataFloat);
+SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller_D(int entity1ID, int entity2ID, double* distance, double* ray, int* cacheBuffer, bool overrideMeasurableFlagIfNonCollection1, bool overrideMeasurableFlagIfNonCollection2, bool pathPlanningRoutineCalling);
+SIM_DLLEXPORT int _simHandleJointControl_D(const void* joint, int auxV, const int* inputValuesInt, const double* inputValuesFloat, double* outputValues);
+SIM_DLLEXPORT int _simHandleCustomContact_D(int objHandle1, int objHandle2, int engine, int* dataInt, double* dataFloat);
 SIM_DLLEXPORT double _simGetPureHollowScaling_D(const void* geometric);
 SIM_DLLEXPORT void _simDynCallback_D(const int* intData, const double* floatData);
 

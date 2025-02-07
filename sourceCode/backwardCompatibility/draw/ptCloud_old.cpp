@@ -104,7 +104,7 @@ int CPtCloud_old::getObjectID() const
 
 void CPtCloud_old::setObjectUniqueId()
 {
-    _uniqueId = App::getFreshUniqueId();
+    _uniqueId = App::getFreshUniqueId(-1);
 }
 
 long long int CPtCloud_old::getObjectUniqueId() const

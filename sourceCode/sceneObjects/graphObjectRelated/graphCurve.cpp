@@ -4,7 +4,7 @@
 CGraphCurve::CGraphCurve()
 {
     _scriptHandle = -1;
-    _uid = App::getFreshUniqueId();
+    _uid = App::getFreshUniqueId(-1);
 }
 
 CGraphCurve::CGraphCurve(int dim, const int streamIds[3], const double defaultVals[3], const char* curveName,
@@ -13,7 +13,7 @@ CGraphCurve::CGraphCurve(int dim, const int streamIds[3], const double defaultVa
     _curveName = curveName;
     _isStatic = false;
     setBasics(dim, streamIds, defaultVals, unitStr, options, color, curveWidth, scriptHandle);
-    _uid = App::getFreshUniqueId();
+    _uid = App::getFreshUniqueId(-1);
 }
 
 CGraphCurve::~CGraphCurve()

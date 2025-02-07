@@ -125,6 +125,12 @@ class CWorld
 
     static void appendLoadOperationIssue(int verbosity, const char* text, int objectId);
     static int getLoadingMapping(const std::map<int, int>* map, int oldVal);
+    static void registerNewHandle(UID newHandle, int objectType);
+    static void releaseNewHandle(UID newHandle, int objectType = -1);
+    static UID getNewHandleFromOldHandle(int oldHandle);
+    static int getOldHandleFromNewHandle(UID newHandle);
+    static int getOldSerializationHandleFromNewHandle(UID newHandle, int objectType);
+    static void resetOldSerializationHandles();
 
     CUndoBufferCont* undoBufferContainer;
     CDynamicsContainer* dynamicsContainer;
@@ -177,6 +183,15 @@ class CWorld
     std::vector<long long int> _initialObjectUniqueIdentifiersForRemovingNewObjects;
 
     static std::vector<SLoadOperationIssue> _loadOperationIssues;
+    static std::vector<bool> oldHandles;
+    static std::map<int, S_UID> uidFromOldHandle;
+    static std::map<UID, S_OID> oldHandleFromUid;
+    static int _nextOldSerializationHandle_object;
+    static int _nextOldSerializationHandle_collection;
+    static int _nextOldSerializationHandle_script;
+    static int _nextOldSerializationHandle_texture;
+    static int _nextOldSerializationHandle_mesh;
+    static std::map<UID, int> oldSerializationHandleFromUid;
 
 #ifdef SIM_WITH_GUI
   public:

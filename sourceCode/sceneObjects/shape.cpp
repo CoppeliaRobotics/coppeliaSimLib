@@ -1626,7 +1626,9 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDoubleArray(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity.data, 3);
     ev->appendKeyDoubleArray(propShape_dynLinearVelocity.name, _dynamicLinearVelocity.data, 3);
     ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
-
+    ev->appendKeyBool(propShape_convex.name, _mesh->isConvex());
+    ev->appendKeyBool(propShape_primitive.name, _mesh->isPure());
+    ev->appendKeyBool(propShape_compound.name, (_mesh->getComponentCount() > 1));
     _mesh->addSpecializedObjectEventData(_objectHandle, ev);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -1859,6 +1861,16 @@ int CShape::getBoolProperty(const char* ppName, bool& pState) const
         else if (_pName == propShape_convex.name)
         {
             pState = _mesh->isConvex();
+            retVal = 1;
+        }
+        else if (_pName == propShape_primitive.name)
+        {
+            pState = _mesh->isPure();
+            retVal = 1;
+        }
+        else if (_pName == propShape_compound.name)
+        {
+            pState = (_mesh->getComponentCount() > 1);
             retVal = 1;
         }
     }
