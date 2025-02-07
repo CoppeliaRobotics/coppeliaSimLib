@@ -117,6 +117,7 @@ if(WITH_QSCINTILLA)
 endif()
 
 target_compile_definitions(coppeliaSim PRIVATE SIM_MATH_DOUBLE)
+target_compile_definitions(coppeliaSim PRIVATE UID=int) # <-- to be modified once we switch to long long handles
 #target_compile_definitions(coppeliaSim PRIVATE TMPOPERATION) # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats)
 
 set(Qt Qt5 CACHE STRING "Qt version to use (e.g. Qt5)")
