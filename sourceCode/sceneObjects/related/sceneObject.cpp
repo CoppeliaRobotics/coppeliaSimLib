@@ -6460,6 +6460,7 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
                     info = 4; // removable
                     if (s > LARGE_PROPERTY_SIZE)
                         s = s | 0x100;
+                    infoTxt = "";
                 }
             }
         }

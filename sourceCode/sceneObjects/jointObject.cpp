@@ -231,7 +231,7 @@ void CJoint::_commonInit()
     _mujocoFloatParams.push_back(0.0);   // sim_mujoco_joint_springref
     _mujocoFloatParams.push_back(0.0);   // sim_mujoco_joint_springdamper1
     _mujocoFloatParams.push_back(0.0);   // sim_mujoco_joint_springdamper2
-    _mujocoFloatParams.push_back(2.0);   // sim_mujoco_joint_armature (changed from 0.02 to 2 on 18.11.2024)
+    _mujocoFloatParams.push_back(0.02);   // sim_mujoco_joint_armature (changed back from 2 to 0.02 on 17.02.2025. changed from 0.02 to 2 on 18.11.2024)
     _mujocoFloatParams.push_back(0.0);   // sim_mujoco_joint_margin
     _mujocoFloatParams.push_back(0.0);   // deprecated. sim_mujoco_joint_polycoef1
     _mujocoFloatParams.push_back(0.0);   // deprecated. sim_mujoco_joint_polycoef2

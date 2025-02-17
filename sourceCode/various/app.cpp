@@ -2751,6 +2751,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                         info = 4; // removable
                         if (s > LARGE_PROPERTY_SIZE)
                             info = info | 0x100;
+                        infoTxt = "";
                     }
                 }
             }
@@ -2766,6 +2767,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                         info = 4; // removable
                         if (s > LARGE_PROPERTY_SIZE)
                             info = info | 0x100;
+                        infoTxt = "";
                     }
                 }
             }
@@ -2782,6 +2784,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                         info = 4; // removable
                         if (param.size() > LARGE_PROPERTY_SIZE)
                             info = info | 0x100;
+                        infoTxt = "";
                     }
                 }
             }

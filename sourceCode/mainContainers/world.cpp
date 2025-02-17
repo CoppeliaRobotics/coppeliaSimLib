@@ -4123,6 +4123,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                             info = 4; // removable
                             if (s > LARGE_PROPERTY_SIZE)
                                 info = info | 0x100;
+                            infoTxt = "";
                         }
                     }
                 }
@@ -4140,6 +4141,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                             info = 4; // removable
                             if (s > LARGE_PROPERTY_SIZE)
                                 info = info | 0x100;
+                            infoTxt = "";
                         }
                     }
                 }
