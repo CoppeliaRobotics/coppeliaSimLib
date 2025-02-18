@@ -31,7 +31,10 @@ struct SDummyProperty
     FUNCX(propDummy_mujocoSpringStiffness, "mujoco.springStiffness", sim_propertytype_float, 0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1, "", "")                                                                                                               \
     FUNCX(propDummy_mujocoSpringDamping, "mujoco.springDamping", sim_propertytype_float, 0, sim_mujoco_dummy_damping, -1, -1, -1, -1, "", "")                                                                                                                     \
     FUNCX(propDummy_mujocoSpringLength, "mujoco.springLength", sim_propertytype_float, 0, sim_mujoco_dummy_springlength, -1, -1, -1, -1, "", "")                                                                                                                  \
-    FUNCX(propDummy_mujocoJointProxyHandle, "mujoco.jointProxyHandle", sim_propertytype_int, 0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "Joint proxy", "Handle of the joint proxy (MuJoCo only)")
+    FUNCX(propDummy_mujocoJointProxyHandle, "mujoco.jointProxyHandle", sim_propertytype_int, 0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "Joint proxy", "Handle of the joint proxy (MuJoCo only)")                                                          \
+    FUNCX(propDummy_mujocoOverlapConstrSolref, "mujoco.overlapConstrSolref", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solrefoverlapconstr1, sim_mujoco_dummy_solrefoverlapconstr2, -1, -1, -1, "", "")                                                    \
+    FUNCX(propDummy_mujocoOverlapConstrSolimp, "mujoco.overlapConstrSolimp", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solimpoverlapconstr1, sim_mujoco_dummy_solimpoverlapconstr2, sim_mujoco_dummy_solimpoverlapconstr3, sim_mujoco_dummy_solimpoverlapconstr4, sim_mujoco_dummy_solimpoverlapconstr5, "", "") \
+    FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, sim_mujoco_dummy_torquescaleoverlapconstr, -1, -1, -1, -1, "", "")
 
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES
@@ -57,6 +60,14 @@ enum
     simi_mujoco_dummy_springlength,
     simi_mujoco_dummy_stiffness,
     simi_mujoco_dummy_damping,
+    simi_mujoco_dummy_solrefoverlapconstr1,
+    simi_mujoco_dummy_solrefoverlapconstr2,
+    simi_mujoco_dummy_solimpoverlapconstr1,
+    simi_mujoco_dummy_solimpoverlapconstr2,
+    simi_mujoco_dummy_solimpoverlapconstr3,
+    simi_mujoco_dummy_solimpoverlapconstr4,
+    simi_mujoco_dummy_solimpoverlapconstr5,
+    simi_mujoco_dummy_torquescaleoverlapconstr,
 };
 
 enum

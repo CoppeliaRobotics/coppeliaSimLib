@@ -51,6 +51,15 @@ CDummy::CDummy()
     _mujocoFloatParams.push_back(0.0);   // simi_mujoco_dummy_stiffness
     _mujocoFloatParams.push_back(0.0);   // simi_mujoco_dummy_damping
 
+    _mujocoFloatParams.push_back(0.02);  // simi_mujoco_dummy_solrefoverlapconstr1
+    _mujocoFloatParams.push_back(1.0);   // simi_mujoco_dummy_solrefoverlapconstr2
+    _mujocoFloatParams.push_back(0.9);   // simi_mujoco_dummy_solimpoverlapconstr1
+    _mujocoFloatParams.push_back(0.95);  // simi_mujoco_dummy_solimpoverlapconstr2
+    _mujocoFloatParams.push_back(0.001); // simi_mujoco_dummy_solimpoverlapconstr3
+    _mujocoFloatParams.push_back(0.5);   // simi_mujoco_dummy_solimpoverlapconstr4
+    _mujocoFloatParams.push_back(2.0);   // simi_mujoco_dummy_solimpoverlapconstr5
+    _mujocoFloatParams.push_back(1.0);   // simi_mujoco_dummy_torquescaleoverlapconstr
+
     _mujocoIntParams.push_back(0);  // simi_mujoco_dummy_bitcoded
     _mujocoIntParams.push_back(-1); // simi_mujoco_dummy_proxyjointid
     // ----------------------------------------------------
@@ -733,6 +742,11 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlAddNode_floats("solreflimit", v.data(), 2);
             if (getFloatArrayProperty(propDummy_mujocoLimitsSolimp.name, v) == 1)
                 ar.xmlAddNode_floats("solimplimit", v.data(), 5);
+            if (getFloatArrayProperty(propDummy_mujocoOverlapConstrSolref.name, v) == 1)
+                ar.xmlAddNode_floats("solrefoverlapconstr", v.data(), 2);
+            if (getFloatArrayProperty(propDummy_mujocoOverlapConstrSolimp.name, v) == 1)
+                ar.xmlAddNode_floats("solimpoverlapconstr", v.data(), 5);
+            ar.xmlAddNode_float("torquescaleoverlapconstr", _mujocoFloatParams[simi_mujoco_dummy_torquescaleoverlapconstr]);
             ar.xmlAddNode_float("margin", _mujocoFloatParams[simi_mujoco_dummy_margin]);
             ar.xmlAddNode_float("springlength", _mujocoFloatParams[simi_mujoco_dummy_springlength]);
             ar.xmlAddNode_float("stiffness", _mujocoFloatParams[simi_mujoco_dummy_stiffness]);
@@ -811,7 +825,19 @@ void CDummy::serialize(CSer& ar)
                             for (size_t j = 0; j < 5; j++)
                                 _mujocoFloatParams[simi_mujoco_dummy_solimplimit1 + int(j)] = w[j];
                         }
+                        if (ar.xmlGetNode_floats("solrefoverlapconstr", w, 2, exhaustiveXml))
+                        {
+                            for (size_t j = 0; j < 2; j++)
+                                _mujocoFloatParams[simi_mujoco_dummy_solrefoverlapconstr1 + int(j)] = w[j];
+                        }
+                        if (ar.xmlGetNode_floats("solimpoverlapconstr", w, 5, exhaustiveXml))
+                        {
+                            for (size_t j = 0; j < 5; j++)
+                                _mujocoFloatParams[simi_mujoco_dummy_solimpoverlapconstr1 + int(j)] = w[j];
+                        }
                         double v;
+                        if (ar.xmlGetNode_float("torquescaleoverlapconstr", v, exhaustiveXml))
+                            _mujocoFloatParams[simi_mujoco_dummy_torquescaleoverlapconstr] = v;
                         if (ar.xmlGetNode_float("margin", v, exhaustiveXml))
                             _mujocoFloatParams[simi_mujoco_dummy_margin] = v;
                         if (ar.xmlGetNode_float("springlength", v, exhaustiveXml))
@@ -1372,6 +1398,7 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev /* = 
         handleProp(propDummy_mujocoSpringStiffness.name, _mujocoFloatParams, simi_mujoco_dummy_stiffness);
         handleProp(propDummy_mujocoSpringDamping.name, _mujocoFloatParams, simi_mujoco_dummy_damping);
         handleProp(propDummy_mujocoSpringLength.name, _mujocoFloatParams, simi_mujoco_dummy_springlength);
+        handleProp(propDummy_mujocoOverlapConstrTorqueScale.name, _mujocoFloatParams, simi_mujoco_dummy_torquescaleoverlapconstr);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
@@ -1417,6 +1444,11 @@ int CDummy::getFloatProperty(const char* ppName, double& pState) const
         {
             retVal = 1;
             pState = _mujocoFloatParams[simi_mujoco_dummy_springlength];
+        }
+        else if (_pName == propDummy_mujocoOverlapConstrTorqueScale.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_dummy_torquescaleoverlapconstr];
         }
     }
 
@@ -1655,6 +1687,8 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
         handleProp(propDummy_mujocoLimitsRange.name, _mujocoFloatParams, simi_mujoco_dummy_range1, 2);
         handleProp(propDummy_mujocoLimitsSolref.name, _mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
         handleProp(propDummy_mujocoLimitsSolimp.name, _mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 5);
+        handleProp(propDummy_mujocoOverlapConstrSolref.name, _mujocoFloatParams, simi_mujoco_dummy_solrefoverlapconstr1, 2);
+        handleProp(propDummy_mujocoOverlapConstrSolimp.name, _mujocoFloatParams, simi_mujoco_dummy_solimpoverlapconstr1, 5);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
@@ -1688,8 +1722,12 @@ int CDummy::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_range1, 2);
         else if (_pName == propDummy_mujocoLimitsSolref.name)
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
-        if (_pName == propDummy_mujocoLimitsSolimp.name)
+        else if (_pName == propDummy_mujocoLimitsSolimp.name)
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 5);
+        else if (_pName == propDummy_mujocoOverlapConstrSolref.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_dummy_solrefoverlapconstr1, 2);
+        else if (_pName == propDummy_mujocoOverlapConstrSolimp.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_dummy_solimpoverlapconstr1, 5);
         // ------------------------
     }
 

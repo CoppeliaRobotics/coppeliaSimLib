@@ -2016,6 +2016,15 @@ void CEngineProperties::_writeDummy(int engine, int dummyHandle, CAnnJson& annJs
         dummy->getFloatArrayProperty(propDummy_mujocoLimitsSolimp.name, v);
         annJson.addJson(jmujocoLimits, "solimp", v.data(), 5);
         annJson.addJson(jmujoco, "limits", jmujocoLimits);
+
+        QJsonObject jmujocoOverlapConstr;
+        dummy->getFloatArrayProperty(propDummy_mujocoOverlapConstrSolref.name, v);
+        annJson.addJson(jmujocoOverlapConstr, "solref", v.data(), 2);
+        dummy->getFloatArrayProperty(propDummy_mujocoOverlapConstrSolimp.name, v);
+        annJson.addJson(jmujocoOverlapConstr, "solimp", v.data(), 5);
+        annJson.addJson(jmujocoOverlapConstr, "torquescale", dummy->getFloatPropertyValue(propDummy_mujocoOverlapConstrTorqueScale.name));
+        annJson.addJson(jmujoco, "overlapConstraint", jmujocoOverlapConstr);
+
         QJsonObject jmujocoSpring;
         annJson.addJson(jmujocoSpring, "stiffness", dummy->getFloatPropertyValue(propDummy_mujocoSpringStiffness.name));
         annJson.addJson(jmujocoSpring, "damping", dummy->getFloatPropertyValue(propDummy_mujocoSpringDamping.name));
@@ -2086,6 +2095,16 @@ void CEngineProperties::_readDummy(int engine, int dummyHandle, CAnnJson& annJso
                     dummy->setFloatArrayProperty(propDummy_mujocoLimitsSolref.name, w, 2);
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
                     dummy->setFloatArrayProperty(propDummy_mujocoLimitsSolimp.name, w, 5);
+            }
+            if (annJson.getValue(mujoco, "overlapConstraint", QJsonValue::Object, val, allErrors))
+            {
+                QJsonObject sub(val.toObject());
+                if (annJson.getValue(sub, "solref", w, 2, allErrors))
+                    dummy->setFloatArrayProperty(propDummy_mujocoOverlapConstrSolref.name, w, 2);
+                if (annJson.getValue(sub, "solimp", w, 5, allErrors))
+                    dummy->setFloatArrayProperty(propDummy_mujocoOverlapConstrSolimp.name, w, 5);
+                if (annJson.getValue(sub, "torquescale", QJsonValue::Double, val, allErrors))
+                    dummy->setFloatProperty(propDummy_mujocoOverlapConstrTorqueScale.name, val.toDouble());
             }
             if (annJson.getValue(mujoco, "spring", QJsonValue::Object, val, allErrors))
             {
