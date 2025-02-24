@@ -328,7 +328,7 @@ void CShape::commonInit()
     _containsTransparentComponents = false;
     _startInDynamicSleeping = false;
     _shapeIsDynamicallyStatic = true;
-    _shapeIsDynamicallyKinematic = true;
+    _shapeIsDynamicallyKinematic = false; // from true to false on 24.02.2025
     _setAutomaticallyToNonStaticIfGetsParent = false;
     _shapeIsDynamicallyRespondable = false; // keep false, otherwise too many "default" problems
     _respondableSuspendCount = 0;

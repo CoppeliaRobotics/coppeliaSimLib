@@ -1615,6 +1615,13 @@ void CDynamicsContainer::serialize(CSer& ar)
             for (size_t j = 0; j < 5; j++)
                 w[j] = _mujocoFloatParams[simi_mujoco_global_overridesolimp1 + int(j)];
             ar.xmlAddNode_floats("overridesolimp", w, 5);
+            ar.xmlAddNode_float("kinematicweldtorquescale", _mujocoFloatParams[simi_mujoco_global_kinematicweldtorquescale]);
+            for (size_t j = 0; j < 2; j++)
+                w[j] = _mujocoFloatParams[simi_mujoco_global_kinematicweldsolref1 + int(j)];
+            ar.xmlAddNode_floats("kinematicweldsolref", w, 2);
+            for (size_t j = 0; j < 5; j++)
+                w[j] = _mujocoFloatParams[simi_mujoco_global_kinematicweldsolimp1 + int(j)];
+            ar.xmlAddNode_floats("kinematicweldsolimp", w, 5);
             ar.xmlAddNode_float("kinmass", _mujocoFloatParams[simi_mujoco_global_kinmass]);
             ar.xmlAddNode_float("kininertia", _mujocoFloatParams[simi_mujoco_global_kininertia]);
             ar.xmlAddNode_float("tolerance", _mujocoFloatParams[simi_mujoco_global_tolerance]);
@@ -1887,6 +1894,18 @@ void CDynamicsContainer::serialize(CSer& ar)
                     {
                         for (size_t j = 0; j < 5; j++)
                             _mujocoFloatParams[simi_mujoco_global_overridesolimp1 + int(j)] = w[j];
+                    }
+                    if (ar.xmlGetNode_float("kinematicweldtorquescale", v, exhaustiveXml))
+                        _mujocoFloatParams[simi_mujoco_global_kinematicweldtorquescale] = v;
+                    if (ar.xmlGetNode_floats("kinematicweldsolref", w, 2, exhaustiveXml))
+                    {
+                        for (size_t j = 0; j < 2; j++)
+                            _mujocoFloatParams[simi_mujoco_global_kinematicweldsolref1 + int(j)] = w[j];
+                    }
+                    if (ar.xmlGetNode_floats("kinematicweldsolimp", w, 5, exhaustiveXml))
+                    {
+                        for (size_t j = 0; j < 5; j++)
+                            _mujocoFloatParams[simi_mujoco_global_kinematicweldsolimp1 + int(j)] = w[j];
                     }
                     if (ar.xmlGetNode_float("kinmass", v, exhaustiveXml))
                         _mujocoFloatParams[simi_mujoco_global_kinmass] = v;
@@ -2178,6 +2197,14 @@ void CDynamicsContainer::getMujocoDefaultFloatParams(std::vector<double>& p, int
     p.push_back(0.01);     // simi_mujoco_global_ls_tolerance
     p.push_back(1e-8);     // simi_mujoco_global_noslip_tolerance
     p.push_back(1e-6);     // simi_mujoco_global_ccd_tolerance
+    p.push_back(0.02);     // simi_mujoco_global_kinematicweldsolref1
+    p.push_back(1.0);      // simi_mujoco_global_kinematicweldsolref2
+    p.push_back(0.9);      // simi_mujoco_global_kinematicweldsolimp1
+    p.push_back(0.95);     // simi_mujoco_global_kinematicweldsolimp2
+    p.push_back(0.001);    // simi_mujoco_global_kinematicweldsolimp3
+    p.push_back(0.5);      // simi_mujoco_global_kinematicweldsolimp4
+    p.push_back(2.0);      // simi_mujoco_global_kinematicweldsolimp5
+    p.push_back(1.0);      // simi_mujoco_global_kinematicweldtorquescale
 }
 
 void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int>& p, int defType /*=-1*/) const
@@ -2873,6 +2900,7 @@ int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor
         handleProp(propDyn_mujocoLs_tolerance.name, _mujocoFloatParams, simi_mujoco_global_ls_tolerance);
         handleProp(propDyn_mujocoNoslip_tolerance.name, _mujocoFloatParams, simi_mujoco_global_noslip_tolerance);
         handleProp(propDyn_mujocoCcd_tolerance.name, _mujocoFloatParams, simi_mujoco_global_ccd_tolerance);
+        handleProp(propDyn_mujocoKinematicWeldTorqueScale.name, _mujocoFloatParams, simi_mujoco_global_kinematicweldtorquescale);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
@@ -3047,6 +3075,11 @@ int CDynamicsContainer::getFloatProperty(const char* pName, double& pState, bool
         {
             retVal = 1;
             pState = mujocoFloatParams[simi_mujoco_global_ccd_tolerance];
+        }
+        else if (strcmp(pName, propDyn_mujocoKinematicWeldTorqueScale.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_kinematicweldtorquescale];
         }
     }
     // ------------------------
@@ -3385,6 +3418,8 @@ int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v
 
         handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
         handleProp(propDyn_mujocoContactParamsSolimp.name, _mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
+        handleProp(propDyn_mujocoKinematicWeldSolref.name, _mujocoFloatParams, simi_mujoco_global_kinematicweldsolref1, 2);
+        handleProp(propDyn_mujocoKinematicWeldSolimp.name, _mujocoFloatParams, simi_mujoco_global_kinematicweldsolimp1, 5);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::worldContainer->pushEvent();
@@ -3447,6 +3482,10 @@ int CDynamicsContainer::getFloatArrayProperty(const char* pName, std::vector<dou
             handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
         if (strcmp(pName, propDyn_mujocoContactParamsSolimp.name) == 0)
             handleProp(mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
+        if (strcmp(pName, propDyn_mujocoKinematicWeldSolref.name) == 0)
+            handleProp(mujocoFloatParams, simi_mujoco_global_kinematicweldsolref1, 2);
+        if (strcmp(pName, propDyn_mujocoKinematicWeldSolimp.name) == 0)
+            handleProp(mujocoFloatParams, simi_mujoco_global_kinematicweldsolimp1, 5);
     }
     // ------------------------
 

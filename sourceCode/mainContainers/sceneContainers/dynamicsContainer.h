@@ -105,7 +105,10 @@ struct SDynProperty
     FUNCX(propDyn_mujocoEnergyEnable, "mujoco.energyEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, "", "")                                                                                                                                                                                \
     FUNCX(propDyn_mujocoInvdiscreteEnable, "mujoco.invdiscreteEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, "", "")                                                                                                                                                                      \
     FUNCX(propDyn_mujocoNativeccdEnable, "mujoco.nativeccdEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, "", "")                                                                                                                                                                          \
-    FUNCX(propDyn_mujocoAlignfree, "mujoco.alignfree", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, "", "")
+    FUNCX(propDyn_mujocoAlignfree, "mujoco.alignfree", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, "", "")                                                                                                                                                                                      \
+    FUNCX(propDyn_mujocoKinematicWeldSolref, "mujoco.kinematicWeldSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1, "", "")                                                    \
+    FUNCX(propDyn_mujocoKinematicWeldSolimp, "mujoco.kinematicWeldSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1, "", "")                                                    \
+    FUNCX(propDyn_mujocoKinematicWeldTorqueScale, "mujoco.kinematicWeldTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "", "")
 
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDynProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES
@@ -228,6 +231,14 @@ enum
     simi_mujoco_global_ls_tolerance,
     simi_mujoco_global_noslip_tolerance,
     simi_mujoco_global_ccd_tolerance,
+    simi_mujoco_global_kinematicweldsolref1,
+    simi_mujoco_global_kinematicweldsolref2,
+    simi_mujoco_global_kinematicweldsolimp1,
+    simi_mujoco_global_kinematicweldsolimp2,
+    simi_mujoco_global_kinematicweldsolimp3,
+    simi_mujoco_global_kinematicweldsolimp4,
+    simi_mujoco_global_kinematicweldsolimp5,
+    simi_mujoco_global_kinematicweldtorquescale,
 };
 
 enum

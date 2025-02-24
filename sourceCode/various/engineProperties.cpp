@@ -1499,6 +1499,14 @@ void CEngineProperties::_writeGlobal(int engine, CAnnJson& annJson) const
         _getGlobalFloatParams(propDyn_mujocoContactParamsSolimp.name, w, comment);
         annJson.addJson(jmujocoContacts, "solimp", w, 5, comment.c_str());
         annJson.addJson(jmujoco, "contactParams", jmujocoContacts);
+        QJsonObject jmujocoKinematicWeld;
+        fv = _getGlobalFloatParam(propDyn_mujocoKinematicWeldTorqueScale.name, comment);
+        annJson.addJson(jmujocoKinematicWeld, "torquescale", fv, comment.c_str());
+        _getGlobalFloatParams(propDyn_mujocoKinematicWeldSolref.name, w, comment);
+        annJson.addJson(jmujocoKinematicWeld, "solref", w, 2, comment.c_str());
+        _getGlobalFloatParams(propDyn_mujocoKinematicWeldSolimp.name, w, comment);
+        annJson.addJson(jmujocoKinematicWeld, "solimp", w, 5, comment.c_str());
+        annJson.addJson(jmujoco, "kinematicWeld", jmujocoKinematicWeld);
         fv = _getGlobalFloatParam(propDyn_mujocoImpRatio.name, comment);
         annJson.addJson(jmujoco, "impratio", fv, comment.c_str());
         _getGlobalFloatParams(propDyn_mujocoWind.name, w, comment);
@@ -1733,15 +1741,23 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* 
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "override", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoContactParamsOverride.name,
-                                                                          val.toBool());
+                    App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoContactParamsOverride.name, val.toBool());
                 if (annJson.getValue(sub, "margin", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoContactParamsMargin.name,
-                                                                           val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoContactParamsMargin.name, val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    App::currentWorld->dynamicsContainer->setVector2Property(propDyn_mujocoContactParamsSolref.name, w);
+                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDyn_mujocoContactParamsSolref.name, w, 2);
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
                     App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDyn_mujocoContactParamsSolimp.name, w, 5);
+            }
+            if (annJson.getValue(mujoco, "kinematicWeld", QJsonValue::Object, val, allErrors))
+            {
+                QJsonObject sub(val.toObject());
+                if (annJson.getValue(sub, "torquescale", QJsonValue::Double, val, allErrors))
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoKinematicWeldTorqueScale.name, val.toDouble());
+                if (annJson.getValue(sub, "solref", w, 2, allErrors))
+                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDyn_mujocoKinematicWeldSolref.name, w, 2);
+                if (annJson.getValue(sub, "solimp", w, 5, allErrors))
+                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDyn_mujocoKinematicWeldSolimp.name, w, 5);
             }
             if (annJson.getValue(mujoco, "impratio", QJsonValue::Double, val, allErrors))
                 App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoImpRatio.name, val.toDouble());
