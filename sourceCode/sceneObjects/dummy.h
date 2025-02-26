@@ -32,9 +32,9 @@ struct SDummyProperty
     FUNCX(propDummy_mujocoSpringDamping, "mujoco.springDamping", sim_propertytype_float, 0, sim_mujoco_dummy_damping, -1, -1, -1, -1, "", "")                                                                                                                     \
     FUNCX(propDummy_mujocoSpringLength, "mujoco.springLength", sim_propertytype_float, 0, sim_mujoco_dummy_springlength, -1, -1, -1, -1, "", "")                                                                                                                  \
     FUNCX(propDummy_mujocoJointProxyHandle, "mujoco.jointProxyHandle", sim_propertytype_int, 0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "Joint proxy", "Handle of the joint proxy (MuJoCo only)")                                                          \
-    FUNCX(propDummy_mujocoOverlapConstrSolref, "mujoco.overlapConstrSolref", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solrefoverlapconstr1, sim_mujoco_dummy_solrefoverlapconstr2, -1, -1, -1, "", "")                                                    \
-    FUNCX(propDummy_mujocoOverlapConstrSolimp, "mujoco.overlapConstrSolimp", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solimpoverlapconstr1, sim_mujoco_dummy_solimpoverlapconstr2, sim_mujoco_dummy_solimpoverlapconstr3, sim_mujoco_dummy_solimpoverlapconstr4, sim_mujoco_dummy_solimpoverlapconstr5, "", "") \
-    FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, sim_mujoco_dummy_torquescaleoverlapconstr, -1, -1, -1, -1, "", "")
+    FUNCX(propDummy_mujocoOverlapConstrSolref, "mujoco.overlapConstrSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1, "", "")                                                    \
+    FUNCX(propDummy_mujocoOverlapConstrSolimp, "mujoco.overlapConstrSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "", "")
 
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES

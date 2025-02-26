@@ -101,16 +101,19 @@ int CWorldContainer::createNewWorld()
 {
     TRACE_INTERNAL;
 
+
     // Inform scripts about future switch to new world (only if there is already at least one world):
     if (currentWorld != nullptr)
         callScripts(sim_syscb_beforeinstanceswitch, nullptr, nullptr);
 
+    int oldSceneUiqueId = -1;
+
     // Inform plugins about future switch to new world (only if there is already at least one world):
     if (currentWorld != nullptr)
     {
-        int pluginData[4] = {_currentWorldIndex, CEnvironment::getNextSceneUniqueId(), 0, 0};
-        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
-            sim_message_eventcallback_instanceabouttoswitch, pluginData);
+        oldSceneUiqueId = currentWorld->environment->getSceneUniqueID();
+        int pluginData[4] = {_currentWorldIndex, CEnvironment::getNextSceneUniqueId(), oldSceneUiqueId, 0};
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch, pluginData);
     }
 
 #ifdef SIM_WITH_GUI
@@ -140,9 +143,8 @@ int CWorldContainer::createNewWorld()
     callScripts(sim_syscb_afterinstanceswitch, nullptr, nullptr);
 
     // Inform plugins about performed switch to new world:
-    int dat[4] = {getCurrentWorldIndex(), currentWorld->environment->getSceneUniqueID(), 0, 0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,
-                                                                               dat);
+    int dat[4] = {getCurrentWorldIndex(), currentWorld->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, dat);
     setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI
@@ -169,6 +171,7 @@ int CWorldContainer::destroyCurrentWorld()
 
     int nextWorldIndex = -1;
 
+    int oldSceneUiqueId = -1;
     if (_worlds.size() > 1)
     {
         nextWorldIndex = _currentWorldIndex;
@@ -178,8 +181,9 @@ int CWorldContainer::destroyCurrentWorld()
         // Inform scripts about future world switch:
         callScripts(sim_syscb_beforeinstanceswitch, nullptr, nullptr);
 
+        oldSceneUiqueId = currentWorld->environment->getSceneUniqueID();
         // Inform plugins about future world switch:
-        int pluginData[4] = {-1, _worlds[nextWorldIndex]->environment->getSceneUniqueID(), 0, 0};
+        int pluginData[4] = {-1, _worlds[nextWorldIndex]->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
         App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
             sim_message_eventcallback_instanceabouttoswitch, pluginData);
     }
@@ -220,9 +224,8 @@ int CWorldContainer::destroyCurrentWorld()
         callScripts(sim_syscb_afterinstanceswitch, nullptr, nullptr);
 
         // Inform plugins about performed world switch:
-        int pluginData[4] = {_currentWorldIndex, currentWorld->environment->getSceneUniqueID(), 0, 0};
-        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
-            sim_message_eventcallback_instanceswitch, pluginData);
+        int pluginData[4] = {_currentWorldIndex, currentWorld->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, pluginData);
         setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI
@@ -310,7 +313,8 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     callScripts(sim_syscb_beforeinstanceswitch, nullptr, nullptr);
 
     // Inform plugins about future world switch:
-    int pluginData[4] = {_currentWorldIndex, _worlds[newWorldIndex]->environment->getSceneUniqueID(), 0, 0};
+    int oldSceneUiqueId = currentWorld->environment->getSceneUniqueID();
+    int pluginData[4] = {_currentWorldIndex, _worlds[newWorldIndex]->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
     App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
         sim_message_eventcallback_instanceabouttoswitch, pluginData);
 
@@ -340,6 +344,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     // Inform plugins about performed world switch:
     pluginData[0] = _currentWorldIndex;
     pluginData[1] = currentWorld->environment->getSceneUniqueID();
+    pluginData[2] = oldSceneUiqueId;
     App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,
                                                                                pluginData);
     setModificationFlag(64); // instance switched
