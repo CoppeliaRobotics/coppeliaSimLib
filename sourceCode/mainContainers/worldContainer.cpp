@@ -315,8 +315,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     // Inform plugins about future world switch:
     int oldSceneUiqueId = currentWorld->environment->getSceneUniqueID();
     int pluginData[4] = {_currentWorldIndex, _worlds[newWorldIndex]->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
-        sim_message_eventcallback_instanceabouttoswitch, pluginData);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch, pluginData);
 
 #ifdef SIM_WITH_GUI
     // Inform UI about future world switch:
@@ -345,8 +344,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     pluginData[0] = _currentWorldIndex;
     pluginData[1] = currentWorld->environment->getSceneUniqueID();
     pluginData[2] = oldSceneUiqueId;
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,
-                                                                               pluginData);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, pluginData);
     setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI

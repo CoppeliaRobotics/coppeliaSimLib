@@ -6981,8 +6981,7 @@ int simGetRotationAxis_internal(const double* matrixStart, const double* matrixG
     return (1);
 }
 
-int simRotateAroundAxis_internal(const double* matrixIn, const double* axis, const double* axisPos, double angle,
-                                 double* matrixOut)
+int simRotateAroundAxis_internal(const double* matrixIn, const double* axis, const double* axisPos, double angle, double* matrixOut)
 {
     C_API_START;
 
@@ -7007,6 +7006,10 @@ int simRotateAroundAxis_internal(const double* matrixIn, const double* axis, con
     C7Vector m(mIn);
     C3Vector ax(axis);
     C3Vector pos(axisPos);
+
+//    angle = std::fmod(angle, piValT2);
+//    if (angle < 0.0)
+//        angle += piValT2;
 
     double alpha = -atan2(ax(1), ax(0));
     double beta = atan2(-sqrt(ax(0) * ax(0) + ax(1) * ax(1)), ax(2));
@@ -12107,13 +12110,13 @@ void _simSetJointPosition_internal(const void* joint, double pos)
 {   // only used by MuJoCo. Other engines have the joint position set via
     // _simSetDynamicMotorReflectedPositionFromDynamicEngine
     C_API_START;
-    ((CJoint*)joint)->setPosition(pos);
+    ((CJoint*)joint)->setPosition(pos, nullptr, true); // here we should set what the engine tells us, and not enforce the joint limits!! (otherwise we have discrepancies between dyn. state and visuals)
 }
 
 void _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(void* joint, double pos, double simTime)
 { // only from non-MuJoCo engines. MuJoCo uses above 2 functions instead
     C_API_START;
-    ((CJoint*)joint)->setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(pos, simTime);
+    ((CJoint*)joint)->setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(pos, simTime); // here we should set what the engine tells us, and not enforce the joint limits!! (otherwise we have discrepancies between dyn. state and visuals)
 }
 
 double _simGetJointPosition_internal(const void* joint)
