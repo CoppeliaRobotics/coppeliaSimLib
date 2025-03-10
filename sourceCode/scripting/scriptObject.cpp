@@ -2762,7 +2762,7 @@ bool CScriptObject::prepareFilteredEventsBuffer(const std::vector<unsigned char>
                     bool headerThere = false;
                     for (size_t i = 0; i < inf[ev].fieldNames.size(); i++)
                     {
-                        if (s_event->second.find(inf[ev].fieldNames[i]) != s_event->second.end())
+                        if ( (s_event->second.find(inf[ev].fieldNames[i]) != s_event->second.end()) || (s_event->second.size() == 0) )
                         {
                             if (!headerThere)
                             {

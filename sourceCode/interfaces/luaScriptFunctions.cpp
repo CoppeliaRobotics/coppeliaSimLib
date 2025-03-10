@@ -6524,18 +6524,23 @@ int _simSetEventFilters(luaWrap_lua_State* L)
                 {
                     std::vector<std::string> fields;
                     arr->getTextArray(fields);
-                    for (size_t j = 0; j < fields.size(); j++)
+                    if (fields.size() != 0)
                     {
-                        if (fields[j].size() > 0)
+                        for (size_t j = 0; j < fields.size(); j++)
                         {
-                            if (first)
+                            if (fields[j].size() > 0)
                             {
-                                filters[intKeys[i]] = std::set<std::string>();
-                                first = false;
+                                if (first)
+                                {
+                                    filters[intKeys[i]] = std::set<std::string>();
+                                    first = false;
+                                }
+                                filters[intKeys[i]].insert(fields[j]);
                             }
-                            filters[intKeys[i]].insert(fields[j]);
                         }
                     }
+                    else
+                        filters[intKeys[i]] = std::set<std::string>(); // empty table --> we want all events for that target object
                 }
             }
         }
