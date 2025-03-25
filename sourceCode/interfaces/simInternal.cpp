@@ -2828,6 +2828,12 @@ int simGetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
             if (parent != nullptr)
                 relativeToObjectHandle = parent->getObjectHandle();
         }
+        bool inverse = false;
+        if (relativeToObjectHandle == sim_handle_inverse)
+        {
+            inverse = true;
+            relativeToObjectHandle = sim_handle_world;
+        }
         if (relativeToObjectHandle != sim_handle_world)
         {
             if (!doesObjectExist(__func__, relativeToObjectHandle))
@@ -2850,6 +2856,8 @@ int simGetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
                 tr = relTr.getInverse() * it->getCumulativeTransformation();
             }
         }
+        if (inverse)
+            tr.Q.inverse();
         C3Vector(tr.Q.getEulerAngles()).getData(eulerAngles);
         return (1);
     }
@@ -2880,6 +2888,12 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
             if (parent != nullptr)
                 relativeToObjectHandle = parent->getObjectHandle();
         }
+        bool inverse = false;
+        if (relativeToObjectHandle == sim_handle_inverse)
+        {
+            inverse = true;
+            relativeToObjectHandle = sim_handle_world;
+        }
         if (relativeToObjectHandle != sim_handle_world)
         {
             if (!doesObjectExist(__func__, relativeToObjectHandle))
@@ -2889,7 +2903,17 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
             it->setDynamicsResetFlag(true, true);
         CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj == nullptr)
-            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(), C3Vector(eulerAngles));
+        {
+            C3Vector eul(eulerAngles);
+            if (inverse)
+            {
+                C4Vector q;
+                q.setEulerAngles(eulerAngles);
+                q.inverse();
+                eul = q.getEulerAngles();
+            }
+            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(), eul);
+        }
         else
         {
             C7Vector absTr(it->getCumulativeTransformation());
@@ -2900,6 +2924,8 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
                 relTr = relObj->getFullCumulativeTransformation();
             C7Vector x(relTr.getInverse() * absTr);
             x.Q.setEulerAngles(eulerAngles);
+            if (inverse)
+                x.Q.inverse();
             absTr = relTr * x;
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),
                                                                           absTr.Q.getEulerAngles());
@@ -7611,6 +7637,12 @@ int simGetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
             if (parent != nullptr)
                 relativeToObjectHandle = parent->getObjectHandle();
         }
+        bool inverse = false;
+        if (relativeToObjectHandle == sim_handle_inverse)
+        {
+            inverse = true;
+            relativeToObjectHandle = sim_handle_world;
+        }
         if (relativeToObjectHandle != sim_handle_world)
         {
             if (!doesObjectExist(__func__, relativeToObjectHandle))
@@ -7638,6 +7670,8 @@ int simGetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
                 }
             }
         }
+        if (inverse)
+            tr.Q.inverse();
         tr.Q.getData(quaternion, (handleFlags & sim_handleflag_wxyzquat) == 0);
         return (1);
     }
@@ -7671,6 +7705,12 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
             if (parent != nullptr)
                 relativeToObjectHandle = parent->getObjectHandle();
         }
+        bool inverse = false;
+        if (relativeToObjectHandle == sim_handle_inverse)
+        {
+            inverse = true;
+            relativeToObjectHandle = sim_handle_world;
+        }
         if (relativeToObjectHandle != sim_handle_world)
         {
             if (!doesObjectExist(__func__, relativeToObjectHandle))
@@ -7684,6 +7724,8 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
             C4Vector q;
             q.setData(quaternion, (handleFlags & sim_handleflag_wxyzquat) == 0);
             q.normalize();
+            if (inverse)
+                q.inverse();
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(), q.getEulerAngles());
         }
         else
@@ -7693,6 +7735,8 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
                 C7Vector tr(it->getLocalTransformation());
                 tr.Q.setData(quaternion, (handleFlags & sim_handleflag_wxyzquat) == 0);
                 tr.Q.normalize();
+                if (inverse)
+                    tr.Q.inverse();
                 it->setLocalTransformation(tr);
             }
             else
@@ -7706,6 +7750,8 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
                 C7Vector x(relTr.getInverse() * absTr);
                 x.Q.setData(quaternion, (handleFlags & sim_handleflag_wxyzquat) == 0);
                 x.Q.normalize();
+                if (inverse)
+                    x.Q.inverse();
                 absTr = relTr * x;
                 App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),
                                                                               absTr.Q.getEulerAngles());

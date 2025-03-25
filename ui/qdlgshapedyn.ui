@@ -398,7 +398,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="text">
-      <string>Values are mass-less</string>
+      <string>Displayed values are mass-less</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="qqI21">

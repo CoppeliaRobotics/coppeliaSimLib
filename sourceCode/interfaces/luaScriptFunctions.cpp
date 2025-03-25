@@ -5098,7 +5098,7 @@ int _simMultiplyVector(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.multiplyVector");
 
-    if (checkInputArguments(L, &errorString, lua_arg_number, 7, lua_arg_number, 3))
+    if (checkInputArguments(L, &errorString, lua_arg_number, 4, lua_arg_number, 3))
     {
         double matr[12];
         std::vector<double> vect;
@@ -5117,7 +5117,7 @@ int _simMultiplyVector(luaWrap_lua_State* L)
                 (m * v).getData(&vect[3 * i]);
             }
         }
-        else
+        else if (luaWrap_lua_rawlen(L, 1) == 7)
         { // we have a pose
             getDoublesFromTable(L, 1, 7, matr);
             C7Vector tr;
@@ -5127,6 +5127,17 @@ int _simMultiplyVector(luaWrap_lua_State* L)
             {
                 C3Vector v(&vect[3 * i]);
                 (tr * v).getData(&vect[3 * i]);
+            }
+        }
+        else if (luaWrap_lua_rawlen(L, 1) == 4)
+        { // we have a quaternion
+            getDoublesFromTable(L, 1, 4, matr);
+            C4Vector q;
+            q.setData(matr, true);
+            for (size_t i = 0; i < cnt; i++)
+            {
+                C3Vector v(&vect[3 * i]);
+                (q * v).getData(&vect[3 * i]);
             }
         }
 
