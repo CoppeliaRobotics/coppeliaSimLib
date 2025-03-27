@@ -24,6 +24,7 @@
 // Old:
 #include <threadPool_old.h>
 
+#define BASE_SANDBOX_SCRIPT "sandboxScriptBase.lua"
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
 std::vector<int> CScriptObject::_externalScriptCalls;
@@ -126,7 +127,7 @@ void CScriptObject::initSandbox()
         if (App::userSettings->preferredSandboxLang == "bareLua")
         {
             _lang = "lua";
-            if (setScriptTextFromFile((App::folders->getLuaPath() + "/sandboxScript.lua").c_str()))
+            if (setScriptTextFromFile((App::folders->getLuaPath() + "/" + BASE_SANDBOX_SCRIPT).c_str()))
             {
                 if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
                     App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized.");
@@ -134,7 +135,7 @@ void CScriptObject::initSandbox()
             else
             {
                 _scriptIsDisabled = true;
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.lua was not found.");
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string(BASE_SANDBOX_SCRIPT) + " was not found.").c_str());
             }
         }
         else
@@ -147,7 +148,7 @@ void CScriptObject::initSandbox()
                 else
                 { // we revert to bareLua
                     _lang = "lua";
-                    if (setScriptTextFromFile((App::folders->getLuaPath() + "/sandboxScript.lua").c_str()))
+                    if (setScriptTextFromFile((App::folders->getLuaPath() + "/" + BASE_SANDBOX_SCRIPT).c_str()))
                     {
                         resetScript();
                         if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
@@ -156,7 +157,7 @@ void CScriptObject::initSandbox()
                     else
                     {
                         _scriptIsDisabled = true;
-                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.lua was not found (Python sandbox failed).");
+                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string(BASE_SANDBOX_SCRIPT) + " was not found (Python sandbox failed).").c_str());
                     }
                 }
             }
@@ -2861,6 +2862,9 @@ int CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(void* LL)
 std::string CScriptObject::getSearchPath_lua()
 {
     std::string retVal;
+
+    retVal += App::folders->getUserSettingsPath(); // in first position, so we can override things
+    retVal += "/?.lua;";
     retVal += App::folders->getInterpretersRootPath();
     retVal += "/?.lua;";
     retVal += App::folders->getInterpretersRootPath();
