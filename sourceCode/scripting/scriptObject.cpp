@@ -2864,7 +2864,7 @@ std::string CScriptObject::getSearchPath_lua()
     std::string retVal;
 
     retVal += App::folders->getUserSettingsPath(); // in first position, so we can override things
-    retVal += "/?.lua;";
+    retVal += "/lua/?.lua;";
     retVal += App::folders->getInterpretersRootPath();
     retVal += "/?.lua;";
     retVal += App::folders->getInterpretersRootPath();
