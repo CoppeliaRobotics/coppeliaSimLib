@@ -71,6 +71,7 @@
     FUNCX(propApp_appArg9, "appArg9", sim_propertytype_string, 0, "App arg. 9", "")                                                                                                                       \
     FUNCX(propApp_randomQuaternion, "randomQuaternion", sim_propertytype_quaternion, sim_propertyinfo_notwritable, "Random quaternion", "")                                                               \
     FUNCX(propApp_randomFloat, "randomFloat", sim_propertytype_float, sim_propertyinfo_notwritable, "Random number", "")                                                                                  \
+    FUNCX(propApp_randomString, "randomString", sim_propertytype_string, sim_propertyinfo_notwritable, "Random string", "")                                                                                  \
     FUNCX(propApp_notifyDeprecated, "notifyDeprecated", sim_propertytype_int, sim_propertyinfo_notwritable, "Notify deprecated", "Notify deprecated API (0: off, 1: light, 2: full)")                     \
     FUNCX(propApp_execUnsafe, "execUnsafe", sim_propertytype_bool, sim_propertyinfo_notwritable, "Execute unsafe", "")                                                                                    \
     FUNCX(propApp_execUnsafeExt, "execUnsafeExt", sim_propertytype_bool, sim_propertyinfo_notwritable, "Execute unsafe extended", "Execute unsafe for code triggered externally")                         \

@@ -1900,7 +1900,6 @@ int CScriptObject::___loadCode(const char* code, const char* functionsToFind, st
         _code = t + "\nrequire(wrapper) pythonUserCode=[=[" + _code +
                 "]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
     }
-
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     _raiseErrors_backCompatibility = true;
     if (_checkIfMixingOldAndNewCallMethods_old())

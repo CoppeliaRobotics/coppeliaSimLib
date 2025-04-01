@@ -2209,6 +2209,11 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                 pState = CSimFlavor::getStringVal(30);
                 retVal = 1;
             }
+            else if (strcmp(pName, propApp_randomString.name) == 0)
+            {
+                pState = utils::generateUniqueAlphaNumericString();
+                retVal = 1;
+            }
         }
     }
     else if (currentWorld != nullptr)

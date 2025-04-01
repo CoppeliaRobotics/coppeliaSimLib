@@ -10749,8 +10749,14 @@ int _simSetJointMode(luaWrap_lua_State* L)
     LUA_START("sim.setJointMode");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int option_old = 0;
+        int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, true, &errorString);
+        if (res == 2)
+            option_old = luaToInt(L, 3);
         retVal = simSetJointMode_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3));
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
