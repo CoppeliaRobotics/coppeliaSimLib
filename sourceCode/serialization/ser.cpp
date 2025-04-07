@@ -347,6 +347,11 @@ void CSer::_writeBinaryHeader()
     }
 }
 
+std::string CSer::getFilename() const
+{
+    return _filename;
+}
+
 std::string CSer::getFilenamePath() const
 {
     std::string retVal;

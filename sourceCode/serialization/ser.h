@@ -100,6 +100,7 @@ class CSer
     int readBytesButKeepPointerUnchanged(unsigned char* buffer, int desiredCount);
     VArchive& getArchive();
 
+    std::string getFilename() const;
     std::string getFilenamePath() const;
     std::string getFilenameBase() const;
     int getIncrementCounter();

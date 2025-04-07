@@ -173,7 +173,7 @@ bool CUndoBufferCont::memorizeState()
     _undoPointSavingOrRestoringUnderWay = true;
     CUndoBufferCameras* cameraBuffers = new CUndoBufferCameras();
     cameraBuffers->storeCameras();
-    App::currentWorld->saveScene(serObj); // This takes the 90% of time of the whole routine
+    App::currentWorld->saveScene(serObj, false); // This takes the 90% of time of the whole routine
     cameraBuffers->releaseCameras();
     _undoPointSavingOrRestoringUnderWay = false;
     serObj.writeClose();

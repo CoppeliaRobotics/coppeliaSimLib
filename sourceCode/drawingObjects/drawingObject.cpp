@@ -166,19 +166,6 @@ bool CDrawingObject::addItem(const double* itemData)
         return (false);
     }
 
-    int newPos = _startItem;
-    if (int(_data.size()) / floatsPerItem >= _maxItemCount)
-    { // the buffer is full
-        if (_objectType & sim_drawing_cyclic)
-        {
-            _startItem++;
-            if (_startItem >= _maxItemCount)
-                _startItem = 0;
-        }
-        else
-            return (false); // saturated
-    }
-
     C7Vector trInv;
     trInv.setIdentity();
     if ((_sceneObjectId >= 0) && ((_objectType & sim_drawing_local) == 0))
@@ -200,6 +187,19 @@ bool CDrawingObject::addItem(const double* itemData)
             if ((w - v).getLength() <= _duplicateTolerance)
                 return (false); // point already there!
         }
+    }
+
+    int newPos = _startItem;
+    if (int(_data.size()) / floatsPerItem >= _maxItemCount)
+    { // the buffer is full
+        if (_objectType & sim_drawing_cyclic)
+        {
+            _startItem++;
+            if (_startItem >= _maxItemCount)
+                _startItem = 0;
+        }
+        else
+            return (false); // saturated
     }
 
     int tmp = _objectType & 0x001f;

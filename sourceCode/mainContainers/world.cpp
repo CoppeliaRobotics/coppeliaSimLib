@@ -202,17 +202,27 @@ bool CWorld::loadScene(CSer& ar, bool forUndoRedoOperation)
     return (retVal);
 }
 
-void CWorld::saveScene(CSer& ar)
+void CWorld::saveScene(CSer& ar, bool regularSave /*= true*/)
 {
+    CInterfaceStack* stackForSaveCallback = App::worldContainer->interfaceStackContainer->createStack();
+    stackForSaveCallback->pushTableOntoStack();
+    stackForSaveCallback->pushTextOntoStack("file");
+    stackForSaveCallback->pushTextOntoStack(ar.getFilename().c_str());
+    stackForSaveCallback->insertDataIntoStackTable();
+    stackForSaveCallback->pushTextOntoStack("regularSave");
+    stackForSaveCallback->pushBoolOntoStack(regularSave);
+    stackForSaveCallback->insertDataIntoStackTable();
+
     if (ar.getFileType() == CSer::filetype_csim_xml_simplescene_file)
     {
-        App::worldContainer->callScripts(sim_syscb_beforesave, nullptr, nullptr);
+        App::worldContainer->callScripts(sim_syscb_beforesave, stackForSaveCallback, nullptr);
         _saveSimpleXmlScene(ar);
-        App::worldContainer->callScripts(sim_syscb_aftersave, nullptr, nullptr);
+        App::worldContainer->callScripts(sim_syscb_aftersave, stackForSaveCallback, nullptr);
+        App::worldContainer->interfaceStackContainer->destroyStack(stackForSaveCallback);
         return;
     }
 
-    App::worldContainer->callScripts(sim_syscb_beforesave, nullptr, nullptr);
+    App::worldContainer->callScripts(sim_syscb_beforesave, stackForSaveCallback, nullptr);
 
     // **** Following needed to save existing calculation structures:
     environment->setSaveExistingCalculationStructuresTemp(false);
@@ -572,7 +582,8 @@ void CWorld::saveScene(CSer& ar)
         ar.storeDataName(SER_END_OF_FILE);
     CMesh::clearTempVerticesIndicesNormalsAndEdges();
 
-    App::worldContainer->callScripts(sim_syscb_aftersave, nullptr, nullptr);
+    App::worldContainer->callScripts(sim_syscb_aftersave, stackForSaveCallback, nullptr);
+    App::worldContainer->interfaceStackContainer->destroyStack(stackForSaveCallback);
 }
 
 bool CWorld::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr,

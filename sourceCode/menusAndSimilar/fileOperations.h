@@ -18,7 +18,7 @@ class CFileOperations
                           std::string* infoStr = nullptr, std::string* errorStr = nullptr);
     static bool saveScene(const char* pathAndFilename, bool setCurrentDir, bool changeSceneUniqueId,
                           std::vector<char>* saveBuffer = nullptr, std::string* infoStr = nullptr,
-                          std::string* errorStr = nullptr);
+                          std::string* errorStr = nullptr, bool autoSaveMechanism = false);
     static bool saveModel(int modelBaseDummyID, const char* pathAndFilename, bool setCurrentDir,
                           std::vector<char>* saveBuffer = nullptr, std::string* infoStr = nullptr,
                           std::string* errorStr = nullptr);

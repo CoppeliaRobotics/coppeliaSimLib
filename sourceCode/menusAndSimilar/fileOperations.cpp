@@ -236,7 +236,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename, bool setCurrentDir,
 
 bool CFileOperations::saveScene(const char* pathAndFilename, bool setCurrentDir, bool changeSceneUniqueId,
                                 std::vector<char>* saveBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/,
-                                std::string* errorStr /*=nullptr*/)
+                                std::string* errorStr /*=nullptr*/, bool autoSaveMechanism /*= false*/)
 {
     bool retVal = false;
     if (CSimFlavor::getBoolVal(16))
@@ -301,7 +301,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename, bool setCurrentDir,
                     else
                         infoStr[0] += boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION) + ".";
                 }
-                App::currentWorld->saveScene(serObj[0]);
+                App::currentWorld->saveScene(serObj[0], !autoSaveMechanism);
                 serObj->writeClose();
             }
             delete serObj;
@@ -311,7 +311,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename, bool setCurrentDir,
             CSer serObj(saveBuffer[0], CSer::filetype_csim_bin_scene_buff);
             retVal = serObj.writeOpenBinary(App::userSettings->compressFiles);
             App::currentWorld->sceneObjects->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
-            App::currentWorld->saveScene(serObj);
+            App::currentWorld->saveScene(serObj, false);
             serObj.writeClose();
         }
     }

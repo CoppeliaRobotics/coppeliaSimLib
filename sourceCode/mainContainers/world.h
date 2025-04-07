@@ -47,7 +47,7 @@ class CWorld
     void setWorldHandle(int handle);
 
     bool loadScene(CSer& ar, bool forUndoRedoOperation);
-    void saveScene(CSer& ar);
+    void saveScene(CSer& ar, bool regularSave = true);
     bool loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr,
                    C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize);
 

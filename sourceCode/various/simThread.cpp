@@ -4669,7 +4669,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
             testScene += std::to_string(App::worldContainer->getCurrentWorldIndex() + 1) + "-" +
                          App::currentWorld->environment->getUniquePersistentIdString() + ".";
             testScene += SIM_SCENE_EXTENSION;
-            CFileOperations::saveScene(testScene.c_str(), false, false);
+            CFileOperations::saveScene(testScene.c_str(), false, false, nullptr, nullptr, nullptr, true);
 #ifdef SIM_WITH_GUI
             GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
 #endif
