@@ -2862,31 +2862,42 @@ std::string CScriptObject::getSearchPath_lua()
 {
     std::string retVal;
 
-    retVal += App::folders->getUserSettingsPath(); // in first position, so we can override things
-    retVal += "/lua/?.lua;";
-    retVal += App::folders->getInterpretersRootPath();
-    retVal += "/?.lua;";
-    retVal += App::folders->getInterpretersRootPath();
-    retVal += "/lua/?.lua;"; // present by default, but also needed for the code editor
-    retVal += App::folders->getInterpretersRootPath();
-    retVal += "/lua/models/deprecated/?.lua;"; // backw. compatibility
-    retVal += App::folders->getInterpretersRootPath();
-    retVal += "/lua/deprecated/?.lua;"; // backw. compatibility
-    retVal += App::folders->getInterpretersRootPath();
-    retVal += "/bwf/?.lua;";
-    retVal += App::folders->getInterpretersRootPath();
-    retVal += "/luarocks/share/lua/5.3/?.lua";
+    // in first position, so we can override things:
+    retVal += App::folders->getUserSettingsPath() + "/lua/?.lua;";
+    retVal += App::folders->getUserSettingsPath() + "/lua/?/init.lua;";
+
+    // main:
+    retVal += App::folders->getInterpretersRootPath() + "/?.lua;";
+    retVal += App::folders->getInterpretersRootPath() + "/?/init.lua;";
+
+    // present by default, but also needed for the code editor:
+    retVal += App::folders->getInterpretersRootPath() + "/lua/?.lua;";
+    retVal += App::folders->getInterpretersRootPath() + "/lua/?/init.lua;";
+
+    // backw. compatibility:
+    retVal += App::folders->getInterpretersRootPath() + "/lua/models/deprecated/?.lua;";
+
+    // backw. compatibility:
+    retVal += App::folders->getInterpretersRootPath() + "/lua/deprecated/?.lua;";
+
+    // backw. compatibility:
+    retVal += App::folders->getInterpretersRootPath() + "/bwf/?.lua;";
+
+    retVal += App::folders->getInterpretersRootPath() + "/luarocks/share/lua/5.3/?.lua";
+
     if (App::currentWorld->environment->getScenePathAndName().compare("") != 0)
     {
         retVal += ";";
-        retVal += App::currentWorld->environment->getScenePath();
-        retVal += "/?.lua";
+        retVal += App::currentWorld->environment->getScenePath() + "/?.lua";
+        retVal += ";";
+        retVal += App::currentWorld->environment->getScenePath() + "/?/init.lua";
     }
     if (App::userSettings->additionalLuaPath.length() > 0)
     {
         retVal += ";";
-        retVal += App::userSettings->additionalLuaPath;
-        retVal += "/?.lua";
+        retVal += App::userSettings->additionalLuaPath + "/?.lua";
+        retVal += ";";
+        retVal += App::userSettings->additionalLuaPath + "/?/init.lua";
     }
     return (retVal);
 }
