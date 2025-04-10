@@ -405,6 +405,8 @@ int CScriptObject::getSystemCallbackFromString(const char* cb)
         return (sim_syscb_beforesave);
     if (std::string(cb) == "sysCall_afterSave")
         return (sim_syscb_aftersave);
+    if (std::string(cb) == "sysCall_afterLoad")
+        return (sim_syscb_afterload);
     if (std::string(cb) == "sysCall_msg")
         return (sim_syscb_msg);
     if (std::string(cb) == "sysCall_selChange")
@@ -676,6 +678,13 @@ std::string CScriptObject::getSystemCallbackString(int calltype, int what)
             r += " - Called just after the scene was saved.";
         return (r);
     }
+    if (calltype == sim_syscb_afterload)
+    {
+        std::string r("sysCall_afterLoad");
+        if (what == 2)
+            r += " - Called just after the scene was loaded.";
+        return (r);
+    }
     if (calltype == sim_syscb_msg)
     {
         std::string r("sysCall_msg");
@@ -885,6 +894,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType, bool threadedOld, int 
             return (true);
         if (callType == sim_syscb_aftersave)
             return (true);
+        if (callType == sim_syscb_afterload)
+            return (true);
         if (callType == sim_syscb_msg)
             return (true);
         if (callType == sim_syscb_selchange)
@@ -962,7 +973,7 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType, bool threa
                       sim_syscb_customcallback2, sim_syscb_customcallback3, sim_syscb_customcallback4,
                       // sim_syscb_threadmain, // for backward compatibility
                       sim_syscb_userconfig, sim_syscb_moduleentry, sim_syscb_event, sim_syscb_ext,
-                      sim_syscb_realtimeidle, sim_syscb_beforesave, sim_syscb_aftersave, sim_syscb_msg,
+                      sim_syscb_realtimeidle, sim_syscb_beforesave, sim_syscb_aftersave, sim_syscb_afterload, sim_syscb_msg,
                       sim_syscb_selchange, sim_syscb_data, -1};
 
     std::vector<int> retVal;

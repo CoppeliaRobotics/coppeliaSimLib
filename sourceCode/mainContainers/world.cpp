@@ -199,6 +199,8 @@ bool CWorld::loadScene(CSer& ar, bool forUndoRedoOperation)
             outsideCommandQueue_old->addCommand(sim_message_scene_loaded, 0, 0, 0, 0, nullptr, 0);
         }
     }
+
+    App::worldContainer->callScripts(sim_syscb_afterload, nullptr, nullptr);
     return (retVal);
 }
 
