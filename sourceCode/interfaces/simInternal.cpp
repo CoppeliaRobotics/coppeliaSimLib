@@ -12156,7 +12156,8 @@ void _simSetJointPosition_internal(const void* joint, double pos)
 {   // only used by MuJoCo. Other engines have the joint position set via
     // _simSetDynamicMotorReflectedPositionFromDynamicEngine
     C_API_START;
-    ((CJoint*)joint)->setPosition(pos, nullptr, true); // here we should set what the engine tells us, and not enforce the joint limits!! (otherwise we have discrepancies between dyn. state and visuals)
+    CJoint* j = (CJoint*)joint;
+    j->setPosition(pos, nullptr, !j->getEnforceLimits()); // here we should set what the engine tells us, and not enforce the joint limits!! (otherwise we have discrepancies between dyn. state and visuals)
 }
 
 void _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(void* joint, double pos, double simTime)

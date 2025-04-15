@@ -85,6 +85,7 @@ void CJoint::_commonInit()
     _pos = 0.0;
     _targetPos = 0.0;
     _targetVel = 0.0;
+    _enforceLimits = false;
 
     _jointMode = sim_jointmode_kinematic;
     _dependencyMasterJointHandle = -1;
@@ -569,7 +570,7 @@ void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(double rfp,
         // This is because dynamic joints can over or undershoot limits.
         // So we set the position directly, without checking for limits.
         // Turn count is taken care by the physics plugin.
-        setPosition(rfp, nullptr, true);
+        setPosition(rfp, nullptr, !_enforceLimits);
     }
     measureJointVelocity(simTime);
 }
@@ -1931,6 +1932,24 @@ void CJoint::setIsCyclic(bool isCyclic)
     }
 }
 
+void CJoint::setEnforceLimits(bool enforceLimits)
+{
+    bool diff = (_enforceLimits != enforceLimits);
+    if (diff)
+    {
+        _enforceLimits = enforceLimits;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = propJoint_enforceLimits.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _enforceLimits);
+            App::worldContainer->pushEvent();
+        }
+        if (_enforceLimits)
+            setPosition(_pos);
+    }
+}
+
 void CJoint::_setPositionIsCyclic_sendOldIk(bool isCyclic) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
@@ -2004,6 +2023,7 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
     double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
     ev->appendKeyDoubleArray(propJoint_dependencyParams.name, arr, 2);
     ev->appendKeyBool(propJoint_cyclic.name, _isCyclic);
+    ev->appendKeyBool(propJoint_enforceLimits.name, _enforceLimits);
     ev->appendKeyDouble(propJoint_targetPos.name, _targetPos);
     ev->appendKeyDouble(propJoint_targetVel.name, _targetVel);
     ev->appendKeyDouble(propJoint_targetForce.name, _targetForce);
@@ -2060,6 +2080,7 @@ CSceneObject* CJoint::copyYourself()
     newJoint->_diameter = _diameter;
     newJoint->_length = _length;
     newJoint->_isCyclic = _isCyclic;
+    newJoint->_enforceLimits = _enforceLimits;
     newJoint->_posRange = _posRange;
     newJoint->_posMin = _posMin;
     newJoint->_maxStepSize_old = _maxStepSize_old;
@@ -2213,6 +2234,7 @@ void CJoint::serialize(CSer& ar)
             ar.storeDataName("Vaa");
             dummy = 0;
             SIM_SET_CLEAR_BIT(dummy, 1, _motorLock);
+            SIM_SET_CLEAR_BIT(dummy, 2, _enforceLimits);
             ar << dummy;
             ar.flush();
 
@@ -2501,6 +2523,7 @@ void CJoint::serialize(CSer& ar)
                         ar >> dummy;
                         // _dynamicMotorCustomControl_old=SIM_IS_BIT_SET(dummy,0);
                         _motorLock = SIM_IS_BIT_SET(dummy, 1);
+                        _enforceLimits = SIM_IS_BIT_SET(dummy, 2);
                     }
                     if (theName.compare("Jmd") == 0)
                     {
@@ -3127,6 +3150,7 @@ void CJoint::serialize(CSer& ar)
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("cyclic", _isCyclic);
+            ar.xmlAddNode_bool("enforceLimits", _enforceLimits);
             ar.xmlAddNode_bool("hybridMode", _jointHasHybridFunctionality);
             ar.xmlPopNode();
 
@@ -3432,6 +3456,7 @@ void CJoint::serialize(CSer& ar)
             if (ar.xmlPushChildNode("switches", exhaustiveXml))
             {
                 ar.xmlGetNode_bool("cyclic", _isCyclic, exhaustiveXml);
+                ar.xmlGetNode_bool("enforceLimits", _enforceLimits, exhaustiveXml);
                 ar.xmlGetNode_bool("hybridMode", _jointHasHybridFunctionality, exhaustiveXml);
                 ar.xmlPopNode();
             }
@@ -4507,6 +4532,11 @@ bool CJoint::getIsCyclic() const
     return (_isCyclic);
 }
 
+bool CJoint::getEnforceLimits() const
+{
+    return (_enforceLimits);
+}
+
 double CJoint::getIKWeight_old() const
 {
     return (_ikWeight_old);
@@ -4609,6 +4639,11 @@ int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev /* = nul
                 setIsCyclic(pState);
                 retVal = 1;
             }
+            else if (_pName == propJoint_enforceLimits.name)
+            {
+                setEnforceLimits(pState);
+                retVal = 1;
+            }
         }
     }
 
@@ -4659,6 +4694,11 @@ int CJoint::getBoolProperty(const char* ppName, bool& pState) const
         if (_pName == propJoint_cyclic.name)
         {
             pState = _isCyclic;
+            retVal = 1;
+        }
+        else if (_pName == propJoint_enforceLimits.name)
+        {
+            pState = _enforceLimits;
             retVal = 1;
         }
 

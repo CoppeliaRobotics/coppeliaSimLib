@@ -25,6 +25,7 @@ struct SJointProperty
     FUNCX(propJoint_calcVelocity, "calcVelocity", sim_propertytype_float, sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "Velocity", "Calculated joint linear or angular velocity")                                                                                               \
     FUNCX(propJoint_jointType, "jointType", sim_propertytype_int, sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "Type", "Joint type")                                                                                                                                            \
     FUNCX(propJoint_cyclic, "cyclic", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, "Cyclic", "Cyclic revolute joint, has no limits")                                                                                                                                                \
+    FUNCX(propJoint_enforceLimits, "enforceLimits", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, "Enforce limits", "Enforce limits strictly")                                                                                                                                                \
     FUNCX(propJoint_interval, "interval", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1, "Interval", "Joint limits (lower and upper bounds)")                                                                                                                                   \
     FUNCX(propJoint_targetPos, "targetPos", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "Target position", "Position to reach by controller")                                                                                                                                     \
     FUNCX(propJoint_targetVel, "targetVel", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "Target velocity", "Velocity to reach by controller")                                                                                                                                     \
@@ -376,6 +377,7 @@ class CJoint : public CSceneObject
     int getJointType() const;
     C4Vector getSphericalTransformation() const;
     bool getIsCyclic() const;
+    bool getEnforceLimits() const;
     void getInterval(double& minV, double& maxV) const;
     int getJointMode() const;
     int getDependencyMasterJointHandle() const;
@@ -392,6 +394,7 @@ class CJoint : public CSceneObject
 
     void setInterval(double minV, double maxV);
     void setIsCyclic(bool isCyclic);
+    void setEnforceLimits(bool enforce);
     void setSize(double l = 0.0, double d = 0.0);
     void setMaxVelAccelJerk(const double maxVelAccelJerk[3]);
     bool setScrewLead(double lead);
@@ -512,6 +515,7 @@ class CJoint : public CSceneObject
     double _diameter;
     C4Vector _sphericalTransf; // spherical joints don't have a range anymore since 22.10.2022
     bool _isCyclic;
+    bool _enforceLimits; // enforces joint limits when the physics engine sets the joint position
     double _screwLead; // distance along the screw's axis for one complete rotation of the screw
     double _posMin;
     double _posRange;
