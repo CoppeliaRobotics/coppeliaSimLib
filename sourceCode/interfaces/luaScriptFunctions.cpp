@@ -7893,7 +7893,13 @@ int _simTransformImage(luaWrap_lua_State* L)
         if (int(dataLength) >= resol[0] * resol[1] * channels)
         {
             if ((resol[0] > 0) && (resol[1] > 0))
-                retVal = simTransformImage_internal((unsigned char*)data, resol, options, nullptr, nullptr, nullptr);
+            {
+                if (simTransformImage_internal((unsigned char*)data, resol, options, nullptr, nullptr, nullptr) == 1)
+                {
+                    luaWrap_lua_pushbuffer(L, (const char*)data, dataLength);
+                    LUA_END(1);
+                }
+            }
             else
                 errorString = SIM_ERROR_INVALID_RESOLUTION;
         }
@@ -7902,8 +7908,7 @@ int _simTransformImage(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simPackInt32Table(luaWrap_lua_State* L)
