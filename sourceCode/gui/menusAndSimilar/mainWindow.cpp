@@ -153,6 +153,7 @@ CMainWindow::CMainWindow(int operationalUiParts)
 
     // --- OpenGl widget ---
     openglWidget = new COpenglWidget();
+    openglWidget->setObjectName("openglWidget");
     if (App::userSettings->stereoDist > 0.0)
     {
         if (openglWidget->format().stereo())
