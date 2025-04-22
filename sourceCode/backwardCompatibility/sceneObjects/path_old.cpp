@@ -274,30 +274,30 @@ void CPath_old::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CPath_old::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPath_old::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
 }
-void CPath_old::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPath_old::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
-void CPath_old::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPath_old::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CPath_old::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPath_old::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CPath_old::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPath_old::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CPath_old::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CPath_old::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CPath_old::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

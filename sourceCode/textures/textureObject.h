@@ -19,6 +19,7 @@ class CTextureObject
     void setImage(bool rgba, bool horizFlip, bool vertFlip, const unsigned char* data);
     CTextureObject* copyYourself() const;
     void serialize(CSer& ar);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void setTextureBuffer(const std::vector<unsigned char>& tb);
     void getTextureBuffer(std::vector<unsigned char>& tb) const;
     const unsigned char* getTextureBufferPointer() const;

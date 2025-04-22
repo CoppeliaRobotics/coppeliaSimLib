@@ -1542,9 +1542,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                     double ctrl = e * P;
 
                     // Integral part:
-                    if ((I != 0.0) &&
-                        (rk4 ==
-                         0)) // so that if we turn the integral part on, we don't try to catch up all the past errors!
+                    if ((I != 0.0) && (rk4 == 0)) // so that if we turn the integral part on, we don't try to catch up all the past errors!
                         _dynCtrl_pid_cumulErr += e * dynStepSize;
                     else
                         _dynCtrl_pid_cumulErr = 0.0;
@@ -1566,7 +1564,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                             velAndForce[1] = -velAndForce[1]; // make sure they have same sign
                     }
                     else
-                    {                              // regular position control
+                    { // regular position control
                         double vel = ctrl / 0.005; // was ctrl/dynStepSize, but has to be step size independent
                         double maxVel = _maxVelAccelJerk[0];
                         if (vel > maxVel)
@@ -2163,29 +2161,29 @@ void CJoint::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void CJoint::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CJoint::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CJoint::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CJoint::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
 
-void CJoint::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CJoint::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
 
-void CJoint::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CJoint::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
 
-void CJoint::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CJoint::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CJoint::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
@@ -3852,9 +3850,9 @@ void CJoint::serialize(CSer& ar)
     }
 }
 
-void CJoint::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CJoint::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
     _dependencyMasterJointHandle = CWorld::getLoadingMapping(map, _dependencyMasterJointHandle);
 
     // following to support the old way joint dependencies for the dynamic engines were specified:

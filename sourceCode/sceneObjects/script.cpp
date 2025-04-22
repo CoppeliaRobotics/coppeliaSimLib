@@ -197,29 +197,29 @@ void CScript::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void CScript::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CScript::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CScript::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CScript::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
 
-void CScript::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CScript::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
 
-void CScript::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CScript::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
 
-void CScript::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CScript::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CScript::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
@@ -381,9 +381,9 @@ void CScript::serialize(CSer& ar)
     }
 }
 
-void CScript::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CScript::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
 }
 
 void CScript::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)

@@ -249,34 +249,34 @@ void CMirror::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CMirror::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMirror::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
     if (_clippingObjectOrCollection <= SIM_IDEND_SCENEOBJECT)
         _clippingObjectOrCollection = CWorld::getLoadingMapping(map, _clippingObjectOrCollection);
 }
-void CMirror::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMirror::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
     if (_clippingObjectOrCollection > SIM_IDEND_SCENEOBJECT)
         _clippingObjectOrCollection = CWorld::getLoadingMapping(map, _clippingObjectOrCollection);
 }
-void CMirror::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMirror::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CMirror::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMirror::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CMirror::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMirror::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CMirror::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CMirror::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CMirror::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

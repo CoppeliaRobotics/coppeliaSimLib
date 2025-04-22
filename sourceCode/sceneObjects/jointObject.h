@@ -302,12 +302,12 @@ class CJoint : public CSceneObject
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
+    void performIkLoadingMapping(const std::map<int, int>* map, int opType);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, int opType);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, int opType);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();

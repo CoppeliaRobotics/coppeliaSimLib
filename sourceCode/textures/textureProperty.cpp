@@ -469,15 +469,13 @@ bool CTextureProperty::announceObjectWillBeErased(const CSceneObject* object)
 void CTextureProperty::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (_textureOrVisionSensorObjectID <= SIM_IDEND_SCENEOBJECT)
-        _textureOrVisionSensorObjectID =
-            CWorld::getLoadingMapping(map, _textureOrVisionSensorObjectID); // texture is a vision sensor texture object
+        _textureOrVisionSensorObjectID = CWorld::getLoadingMapping(map, _textureOrVisionSensorObjectID); // texture is a vision sensor texture object
 }
 
-void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (_textureOrVisionSensorObjectID > SIM_IDEND_SCENEOBJECT)
-        _textureOrVisionSensorObjectID =
-            CWorld::getLoadingMapping(map, _textureOrVisionSensorObjectID); // texture is a regular texture object
+        _textureOrVisionSensorObjectID = CWorld::getLoadingMapping(map, _textureOrVisionSensorObjectID); // texture is a regular texture object
 }
 
 C7Vector CTextureProperty::getTextureRelativeConfig()

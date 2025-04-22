@@ -99,11 +99,11 @@ class CDummy : public CSceneObject
     void announceCollectionWillBeErased(int groupID, bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
-    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performIkLoadingMapping(const std::map<int, int>* map, int opType);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, int opType);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, int opType);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     void simulationAboutToStart();
     void simulationEnded();
@@ -116,7 +116,7 @@ class CDummy : public CSceneObject
     bool isPotentiallyDetectable() const;
     void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void setIsInScene(bool s);
 
     int setBoolProperty(const char* pName, bool pState, CCbor* eev = nullptr);

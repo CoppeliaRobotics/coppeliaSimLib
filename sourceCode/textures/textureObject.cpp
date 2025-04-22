@@ -59,6 +59,12 @@ int CTextureObject::getObjectID() const
     return (_objectID);
 }
 
+void CTextureObject::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
+{
+    if (opType == 3)
+        _objectID = CWorld::getLoadingMapping(map, _objectID); // model save
+}
+
 void CTextureObject::setObjectName(const char* newName)
 {
     _objectName = newName;

@@ -2192,34 +2192,34 @@ void CVisionSensor::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CVisionSensor::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CVisionSensor::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
     if (_detectableEntityHandle <= SIM_IDEND_SCENEOBJECT)
         _detectableEntityHandle = CWorld::getLoadingMapping(map, _detectableEntityHandle);
 }
-void CVisionSensor::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CVisionSensor::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
     if (_detectableEntityHandle > SIM_IDEND_SCENEOBJECT)
         _detectableEntityHandle = CWorld::getLoadingMapping(map, _detectableEntityHandle);
 }
-void CVisionSensor::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CVisionSensor::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CVisionSensor::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CVisionSensor::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CVisionSensor::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CVisionSensor::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CVisionSensor::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CVisionSensor::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 void CVisionSensor::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {

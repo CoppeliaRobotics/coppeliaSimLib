@@ -1042,31 +1042,31 @@ void CCamera::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     // in the copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
-void CCamera::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CCamera::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
     _trackedObjectHandle = CWorld::getLoadingMapping(map, _trackedObjectHandle);
 }
-void CCamera::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CCamera::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
-void CCamera::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CCamera::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CCamera::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CCamera::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CCamera::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CCamera::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CCamera::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CCamera::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CCamera::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

@@ -360,34 +360,34 @@ void CProxSensor::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CProxSensor::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CProxSensor::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
     if (_sensableObject_deprecated <= SIM_IDEND_SCENEOBJECT)
         _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
 }
-void CProxSensor::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CProxSensor::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
     if (_sensableObject_deprecated > SIM_IDEND_SCENEOBJECT)
         _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
 }
-void CProxSensor::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CProxSensor::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CProxSensor::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CProxSensor::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CProxSensor::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CProxSensor::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CProxSensor::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CProxSensor::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CProxSensor::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

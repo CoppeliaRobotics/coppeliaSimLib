@@ -40,7 +40,7 @@ class CMeshWrapper
 
     virtual void prepareVerticesIndicesNormalsAndEdgesForSerialization();
     virtual void performSceneObjectLoadingMapping(const std::map<int, int>* map);
-    virtual void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    virtual void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     virtual void announceSceneObjectWillBeErased(const CSceneObject* object);
     virtual void setTextureDependencies(int shapeID);

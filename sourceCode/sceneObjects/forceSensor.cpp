@@ -713,30 +713,30 @@ void CForceSensor::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     // in the copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
-void CForceSensor::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CForceSensor::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
 }
-void CForceSensor::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CForceSensor::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
-void CForceSensor::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CForceSensor::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CForceSensor::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CForceSensor::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CForceSensor::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CForceSensor::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CForceSensor::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CForceSensor::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CForceSensor::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

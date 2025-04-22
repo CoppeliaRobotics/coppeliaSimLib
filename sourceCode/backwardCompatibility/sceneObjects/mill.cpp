@@ -175,34 +175,34 @@ void CMill::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CMill::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMill::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
     if (_millableObject <= SIM_IDEND_SCENEOBJECT)
         _millableObject = CWorld::getLoadingMapping(map, _millableObject);
 }
-void CMill::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMill::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
     if (_millableObject > SIM_IDEND_SCENEOBJECT)
         _millableObject = CWorld::getLoadingMapping(map, _millableObject);
 }
-void CMill::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMill::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CMill::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMill::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CMill::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CMill::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CMill::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CMill::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CMill::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

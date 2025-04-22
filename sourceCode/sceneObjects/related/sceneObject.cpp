@@ -1274,7 +1274,7 @@ void CSceneObject::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
         }
     }
 }
-void CSceneObject::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CSceneObject::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
     for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
@@ -1284,8 +1284,8 @@ void CSceneObject::performIkLoadingMapping(const std::map<int, int>* map, bool l
                 it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
-    if (!loadingAmodel)
-    {
+    if (opType == 0)
+    { // scene load only
         for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
             for (size_t i = 0; i < it->second.size(); i++)
@@ -1298,7 +1298,7 @@ void CSceneObject::performIkLoadingMapping(const std::map<int, int>* map, bool l
     }
 }
 
-void CSceneObject::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CSceneObject::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if ((_authorizedViewableObjects >= 0) && (_authorizedViewableObjects > SIM_IDEND_SCENEOBJECT))
         _authorizedViewableObjects = CWorld::getLoadingMapping(map, _authorizedViewableObjects);
@@ -1310,8 +1310,8 @@ void CSceneObject::performCollectionLoadingMapping(const std::map<int, int>* map
                 it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
-    if (!loadingAmodel)
-    {
+    if (opType == 0)
+    { // scene load only
         for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
             for (size_t i = 0; i < it->second.size(); i++)
@@ -1324,7 +1324,7 @@ void CSceneObject::performCollectionLoadingMapping(const std::map<int, int>* map
     }
 }
 
-void CSceneObject::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CSceneObject::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
@@ -1334,8 +1334,8 @@ void CSceneObject::performCollisionLoadingMapping(const std::map<int, int>* map,
                 it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
-    if (!loadingAmodel)
-    {
+    if (opType == 0)
+    { // scene load only
         for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
             for (size_t i = 0; i < it->second.size(); i++)
@@ -1348,7 +1348,7 @@ void CSceneObject::performCollisionLoadingMapping(const std::map<int, int>* map,
     }
 }
 
-void CSceneObject::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CSceneObject::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
     for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
@@ -1358,8 +1358,8 @@ void CSceneObject::performDistanceLoadingMapping(const std::map<int, int>* map, 
                 it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
-    if (!loadingAmodel)
-    {
+    if (opType == 0)
+    { // scene load only
         for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
             for (size_t i = 0; i < it->second.size(); i++)
@@ -1372,7 +1372,7 @@ void CSceneObject::performDistanceLoadingMapping(const std::map<int, int>* map, 
     }
 }
 
-void CSceneObject::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CSceneObject::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
 }
 
@@ -3981,11 +3981,14 @@ void CSceneObject::serialize(CSer& ar)
     }
 }
 
-void CSceneObject::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CSceneObject::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    int newParentID = CWorld::getLoadingMapping(map, _parentObjectHandle_forSerializationOnly);
-    App::currentWorld->sceneObjects->setObjectParent(
-        this, App::currentWorld->sceneObjects->getObjectFromHandle(newParentID), false);
+    if (opType == 3)
+        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle);
+    _parentObjectHandle_forSerializationOnly = CWorld::getLoadingMapping(map, _parentObjectHandle_forSerializationOnly);
+
+    if (opType <= 1) // scene or model loading only
+        App::currentWorld->sceneObjects->setObjectParent(this, App::currentWorld->sceneObjects->getObjectFromHandle(_parentObjectHandle_forSerializationOnly), false);
 
     if ((_authorizedViewableObjects >= 0) && (_authorizedViewableObjects <= SIM_IDEND_SCENEOBJECT))
         _authorizedViewableObjects = CWorld::getLoadingMapping(map, _authorizedViewableObjects);
@@ -3995,12 +3998,11 @@ void CSceneObject::performObjectLoadingMapping(const std::map<int, int>* map, bo
         for (size_t i = 0; i < it->second.size(); i++)
         {
             if (it->second[i].generalObjectType == sim_objecttype_sceneobject)
-                it->second[i].generalObjectHandle =
-                    CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
-    if (!loadingAmodel)
-    {
+    if (opType == 0)
+    { // scene loading only
         for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
             for (size_t i = 0; i < it->second.size(); i++)
@@ -4013,7 +4015,7 @@ void CSceneObject::performObjectLoadingMapping(const std::map<int, int>* map, bo
     }
 }
 
-void CSceneObject::performScriptLoadingMapping(const std::map<int, int>* map)
+void CSceneObject::performScriptLoadingMapping(const std::map<int, int>* map, int opType)
 {
 }
 

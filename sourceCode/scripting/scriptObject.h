@@ -92,6 +92,7 @@ class CScriptObject
     CScriptObject* copyYourself();
 
     void serialize(CSer& ar);
+    void performScriptLoadingMapping(const std::map<int, int>* map, int opType);
     void performSceneObjectLoadingMapping(const std::map<int, int>* map);
     bool announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     int flagScriptForRemoval();

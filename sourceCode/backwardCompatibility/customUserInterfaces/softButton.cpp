@@ -126,7 +126,7 @@ void CSoftButton::performTextureObjectLoadingMapping(const std::map<int, int>* m
     if (App::currentWorld->sceneObjects != nullptr)
     {
         if (_textureProperty != nullptr)
-            _textureProperty->performTextureObjectLoadingMapping(map);
+            _textureProperty->performTextureObjectLoadingMapping(map, 0);
     }
 }
 

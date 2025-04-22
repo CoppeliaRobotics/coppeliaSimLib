@@ -339,6 +339,12 @@ void CIkGroup_old::serialize(CSer& ar)
     }
 }
 
+void CIkGroup_old::performIkGroupLoadingMapping(const std::map<int, int>* map, int opType)
+{
+    if (opType == 3)
+        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle); // model save
+}
+
 void CIkGroup_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     for (size_t i = 0; i < getIkElementCount(); i++)

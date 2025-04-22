@@ -298,6 +298,12 @@ int CCollisionObject_old::readCollision(int collObjHandles[2]) const
     return (0); // was -1 until 16/6/2015
 }
 
+void CCollisionObject_old::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
+{
+    if (opType == 3)
+        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle); // model save
+}
+
 void CCollisionObject_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)

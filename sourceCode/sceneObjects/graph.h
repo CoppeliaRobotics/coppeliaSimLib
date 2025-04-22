@@ -44,9 +44,9 @@ class CGraph : public CSceneObject
     void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript,
                                     bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performScriptLoadingMapping(const std::map<int, int>* map);
-    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
+    void performScriptLoadingMapping(const std::map<int, int>* map, int opType);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void setIsInScene(bool s);
     int setBoolProperty(const char* pName, bool pState);
     int getBoolProperty(const char* pName, bool& pState) const;
@@ -67,10 +67,10 @@ class CGraph : public CSceneObject
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, int opType);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, int opType);
+    void performIkLoadingMapping(const std::map<int, int>* map, int opType);
     void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     // ---------
 

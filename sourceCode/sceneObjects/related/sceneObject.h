@@ -131,9 +131,9 @@ class CSceneObject
     virtual void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript,
                                             bool copyBuffer);
 
-    virtual void performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    virtual void performScriptLoadingMapping(const std::map<int, int>* map);
-    virtual void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    virtual void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
+    virtual void performScriptLoadingMapping(const std::map<int, int>* map, int opType);
+    virtual void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
 
     // Old:
     // -----------
@@ -141,10 +141,10 @@ class CSceneObject
     virtual void announceCollectionWillBeErased(int collectionID, bool copyBuffer);
     virtual void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
     virtual void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
-    virtual void performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    virtual void performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    virtual void performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
-    virtual void performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel);
+    virtual void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
+    virtual void performCollisionLoadingMapping(const std::map<int, int>* map, int opType);
+    virtual void performDistanceLoadingMapping(const std::map<int, int>* map, int opType);
+    virtual void performIkLoadingMapping(const std::map<int, int>* map, int opType);
     virtual void performGcsLoadingMapping(const std::map<int, int>* map);
     virtual void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     // -----------

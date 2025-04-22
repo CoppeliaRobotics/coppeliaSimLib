@@ -130,10 +130,10 @@ void CMeshWrapper::performSceneObjectLoadingMapping(const std::map<int, int>* ma
         childList[i]->performSceneObjectLoadingMapping(map);
 }
 
-void CMeshWrapper::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CMeshWrapper::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
-        childList[i]->performTextureObjectLoadingMapping(map);
+        childList[i]->performTextureObjectLoadingMapping(map, opType);
 }
 
 void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

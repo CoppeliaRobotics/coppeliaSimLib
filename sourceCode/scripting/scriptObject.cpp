@@ -1531,6 +1531,12 @@ void CScriptObject::setDisplayAddOnName(const char* name)
     _addOnMenuPath = _addOnMenuName; // e.g. "Tools >> Blabla" (if sysCall_info returns menu = 'Tools\nBlabla')
 }
 
+void CScriptObject::performScriptLoadingMapping(const std::map<int, int>* map, int opType)
+{
+    if (opType == 3)
+        _scriptHandle = CWorld::getLoadingMapping(map, _scriptHandle); // model save
+}
+
 void CScriptObject::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (App::currentWorld->sceneObjects != nullptr)

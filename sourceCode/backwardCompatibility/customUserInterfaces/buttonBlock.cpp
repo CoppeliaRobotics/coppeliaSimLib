@@ -586,7 +586,7 @@ void CButtonBlock::performTextureObjectLoadingMapping(const std::map<int, int>* 
     if (App::currentWorld->sceneObjects != nullptr)
     {
         if (_textureProperty != nullptr)
-            _textureProperty->performTextureObjectLoadingMapping(map);
+            _textureProperty->performTextureObjectLoadingMapping(map, 0);
     }
     for (int i = 0; i < int(allButtons.size()); i++)
         allButtons[i]->performTextureObjectLoadingMapping(map);

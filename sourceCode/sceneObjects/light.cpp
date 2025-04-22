@@ -397,30 +397,30 @@ void CLight::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CLight::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CLight::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
 }
-void CLight::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CLight::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
-void CLight::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CLight::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CLight::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CLight::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CLight::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CLight::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CLight::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CLight::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CLight::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

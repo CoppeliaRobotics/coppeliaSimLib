@@ -24,7 +24,8 @@
     FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable, "Object type", "")                             \
     FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_notwritable, "Shape UID", "Unique identifier of parent shape")     \
     FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether mesh is convex or not")               \
-    FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, "Color name", "")
+    FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, "Color name", "")                                                           \
+    FUNCX(propMesh_meshHash, "meshHash", sim_propertytype_long, sim_propertyinfo_notwritable, "Mesh hash", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -45,7 +46,7 @@ class CMesh : public CMeshWrapper
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
     void performSceneObjectLoadingMapping(const std::map<int, int>* map);
-    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void announceSceneObjectWillBeErased(const CSceneObject* object);
     void setTextureDependencies(int shapeID);
     bool getContainsTransparentComponents() const;
@@ -143,6 +144,7 @@ class CMesh : public CMeshWrapper
     int getBoolProperty(const char* pName, bool& pState, const C7Vector& shapeRelTr) const;
     int setIntProperty(const char* pName, int pState, const C7Vector& shapeRelTr);
     int getIntProperty(const char* pName, int& pState, const C7Vector& shapeRelTr) const;
+    int getLongProperty(const char* pName, long long int& pState, const C7Vector& shapeRelTr) const;
     int setFloatProperty(const char* pName, double pState, const C7Vector& shapeRelTr);
     int getFloatProperty(const char* pName, double& pState, const C7Vector& shapeRelTr) const;
     int setStringProperty(const char* pName, const char* pState, const C7Vector& shapeRelTr);
@@ -200,6 +202,7 @@ class CMesh : public CMeshWrapper
     void _commonInit();
     void _recomputeNormals();
     void _computeVisibleEdges();
+    long long int _getMeshHash() const;
     C3Vector _computeBBSize(C3Vector* optBBCenter = nullptr);
 
     static void _loadPackedIntegers_OLD(CSer& ar, std::vector<int>& data);

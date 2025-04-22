@@ -249,8 +249,7 @@ unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalIm
     return (nim);
 }
 
-bool CImageLoaderSaver::save(const unsigned char* data, const int resolution[2], int options, const char* filename,
-                             int quality, std::string* buffer)
+bool CImageLoaderSaver::save(const unsigned char* data, const int resolution[2], int options, const char* filename, int quality, std::string* buffer)
 {
     bool retVal = false;
     unsigned char* buff = nullptr;
@@ -305,7 +304,7 @@ bool CImageLoaderSaver::save(const unsigned char* data, const int resolution[2],
         }
     }
     delete[] buff;
-    return (retVal);
+    return retVal;
 }
 
 unsigned char* CImageLoaderSaver::load(int resolution[2], int options, const char* filename, void* reserved)

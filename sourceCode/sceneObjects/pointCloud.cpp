@@ -963,26 +963,26 @@ void CPointCloud::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void CPointCloud::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPointCloud::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
-void CPointCloud::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPointCloud::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
-void CPointCloud::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPointCloud::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CPointCloud::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPointCloud::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
 
-void CPointCloud::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CPointCloud::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CPointCloud::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
@@ -1497,9 +1497,9 @@ void CPointCloud::serialize(CSer& ar)
     }
 }
 
-void CPointCloud::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CPointCloud::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
 }
 
 void CPointCloud::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)

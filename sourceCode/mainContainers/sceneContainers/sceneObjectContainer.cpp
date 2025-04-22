@@ -4677,12 +4677,10 @@ int CSceneObjectContainer::getLongProperty(long long int target, const char* pNa
         }
         else
         {
-            /*
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getLongProperty(pName, pState, shapeRelTr);
-                */
         }
         retVal = -2; // object does not exist
     }

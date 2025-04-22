@@ -391,29 +391,29 @@ void CDummy::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void CDummy::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CDummy::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CDummy::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CDummy::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
 
-void CDummy::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CDummy::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
 
-void CDummy::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CDummy::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
 
-void CDummy::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CDummy::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void CDummy::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
@@ -878,9 +878,9 @@ void CDummy::loadUnknownObjectType(CSer& ar)
     }
 }
 
-void CDummy::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CDummy::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
     _linkedDummyHandle = CWorld::getLoadingMapping(map, _linkedDummyHandle);
     _mujocoIntParams[simi_mujoco_dummy_proxyjointid] = CWorld::getLoadingMapping(map, _mujocoIntParams[simi_mujoco_dummy_proxyjointid]); // Mujoco proxy joint
 }

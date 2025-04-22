@@ -680,32 +680,32 @@ void CShape::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-void CShape::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CShape::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
     getMesh()->performSceneObjectLoadingMapping(map);
 }
-void CShape::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CShape::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
-void CShape::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CShape::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void CShape::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CShape::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
-void CShape::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void CShape::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CShape::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CShape::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
-    getMesh()->performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
+    getMesh()->performTextureObjectLoadingMapping(map, opType);
 }
 
 void CShape::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)

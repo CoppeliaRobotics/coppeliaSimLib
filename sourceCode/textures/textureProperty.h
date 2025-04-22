@@ -17,7 +17,7 @@ class CTextureProperty
     void serialize(CSer& ar);
     bool announceObjectWillBeErased(const CSceneObject* object);
     void performObjectLoadingMapping(const std::map<int, int>* map);
-    void performTextureObjectLoadingMapping(const std::map<int, int>* map);
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void addTextureDependencies(long long int objID, long long int objSubID);
     void scaleObject(double scalingFactor);
     void setInterpolateColors(bool ic);

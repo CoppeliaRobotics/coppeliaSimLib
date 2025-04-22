@@ -24,7 +24,8 @@ class CDistanceObject_old
     double handleDistance();
 
     void serialize(CSer& ar);
-    void performObjectLoadingMapping(const std::map<int, int>* map);
+    void performDistanceLoadingMapping(const std::map<int, int>* map, int opType);
+    void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void performCollectionLoadingMapping(const std::map<int, int>* map);
     bool announceObjectWillBeErased(int objectHandle, bool copyBuffer);
     bool announceCollectionWillBeErased(int collectionHandle, bool copyBuffer);

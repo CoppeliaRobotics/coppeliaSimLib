@@ -265,7 +265,13 @@ bool CDistanceObject_old::announceCollectionWillBeErased(int collectionHandle, b
     return (false);
 }
 
-void CDistanceObject_old::performObjectLoadingMapping(const std::map<int, int>* map)
+void CDistanceObject_old::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
+{
+    if (opType == 3)
+        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle); // model save
+}
+
+void CDistanceObject_old::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
         _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);

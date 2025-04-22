@@ -27,6 +27,7 @@ class CCollisionObject_old
                              const std::vector<double>& intersect);
 
     void serialize(CSer& ar);
+    void performCollisionLoadingMapping(const std::map<int, int>* map, int opType);
     void performObjectLoadingMapping(const std::map<int, int>* map);
     void performCollectionLoadingMapping(const std::map<int, int>* map);
     bool announceObjectWillBeErased(int objectHandle, bool copyBuffer);

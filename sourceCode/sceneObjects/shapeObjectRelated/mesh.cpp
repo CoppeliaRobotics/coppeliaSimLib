@@ -148,10 +148,10 @@ void CMesh::performSceneObjectLoadingMapping(const std::map<int, int>* map)
         _textureProperty->performObjectLoadingMapping(map);
 }
 
-void CMesh::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void CMesh::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty != nullptr)
-        _textureProperty->performTextureObjectLoadingMapping(map);
+        _textureProperty->performTextureObjectLoadingMapping(map, opType);
 }
 
 void CMesh::announceSceneObjectWillBeErased(const CSceneObject* object)
@@ -512,6 +512,7 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
     CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, nullptr, false);
 
     ev->appendKeyInt(propMesh_shapeUid.name, _isInSceneShapeUid);
+    ev->appendKeyInt(propMesh_meshHash.name, _getMeshHash());
     ev->appendKeyText(propMesh_objectType.name, "mesh");
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
@@ -2732,6 +2733,31 @@ int* CMesh::getEdgeBufferIdPtr()
 }
 #endif
 
+long long int CMesh::_getMeshHash() const
+{
+    long long int h = 0;
+    for (size_t i = 0; i < _verticesForDisplayAndDisk.size(); i++)
+        h += ((long long int*)&_verticesForDisplayAndDisk[i])[0];
+    for (size_t i = 0; i < _indices.size(); i++)
+        h += _indices[i];
+    for (size_t i = 0; i < _normalsForDisplayAndDisk.size(); i++)
+        h += ((long long int*)&_normalsForDisplayAndDisk[i])[0];
+    for (size_t i = 0; i < _edges.size(); i++)
+        h += _edges[i];
+    if (_textureProperty != nullptr)
+    {
+        const std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
+        for (size_t i = 0; i < tc->size(); i++)
+            h += ((long long int*)&tc->at(i))[0];
+        int ts[2];
+        _textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
+        const char* t = (const char*)_textureProperty->getTextureObject()->getTextureBufferPointer();
+        for (size_t i = 0; i <ts[0] * ts[1] * 4; i++)
+            h += t[i];
+    }
+    return h;
+}
+
 void CMesh::setTextureRepeatU(bool r)
 {
     if (_textureProperty != nullptr)
@@ -2950,6 +2976,21 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
     {
         retVal = 1;
         pState = _isInSceneShapeUid;
+    }
+
+    return retVal;
+}
+
+int CMesh::getLongProperty(const char* ppName, long long int& pState, const C7Vector& shapeRelTr) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    if (strcmp(pName, propMesh_meshHash.name) == 0)
+    {
+        retVal = 1;
+        pState = _getMeshHash();
     }
 
     return retVal;

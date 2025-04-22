@@ -22,6 +22,7 @@ class CIkGroup_old : public _CIkGroup_old
     void simulationEnded();
     CIkGroup_old* copyYourself() const;
     void serialize(CSer& ar);
+    void performIkGroupLoadingMapping(const std::map<int, int>* map, int opType);
     void performObjectLoadingMapping(const std::map<int, int>* map);
     void performIkGroupLoadingMapping(const std::map<int, int>* map);
     bool announceObjectWillBeErased(int objID, bool copyBuffer);

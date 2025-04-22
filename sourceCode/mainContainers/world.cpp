@@ -835,7 +835,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     std::map<int, int> objectMapping;
     for (size_t i = 0; i < loadedObjectList->size(); i++)
     {
-        loadedObjectList->at(i)->performTextureObjectLoadingMapping(&textureMapping);
+        loadedObjectList->at(i)->performTextureObjectLoadingMapping(&textureMapping, model);
         int oldHandle = loadedObjectList->at(i)->getObjectHandle();
         sceneObjects->addObjectToSceneWithSuffixOffset(loadedObjectList->at(i), objectIsACopy, suffixOffset, false);
         objectMapping[oldHandle] = loadedObjectList->at(i)->getObjectHandle();
@@ -946,7 +946,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     {
         CSceneObject* it = loadedObjectList->at(i);
         it->performObjectLoadingMapping(&objectMapping, model);
-        it->performScriptLoadingMapping(&luaScriptMapping);
+        it->performScriptLoadingMapping(&luaScriptMapping, model);
         it->performCollectionLoadingMapping(&collectionMapping, model);
         it->performCollisionLoadingMapping(&collisionMapping, model);
         it->performDistanceLoadingMapping(&distanceMapping, model);
@@ -956,7 +956,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     for (size_t i = 0; i < loadedCollectionList->size(); i++)
     {
         CCollection* it = loadedCollectionList->at(i);
-        it->performObjectLoadingMapping(&objectMapping);
+        it->performObjectLoadingMapping(&objectMapping, model);
     }
     // We do the mapping for the collisions (OLD):
     for (size_t i = 0; i < loadedCollisionList->size(); i++)
@@ -969,7 +969,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     for (size_t i = 0; i < loadedDistanceList->size(); i++)
     {
         CDistanceObject_old* it = loadedDistanceList->at(i);
-        it->performObjectLoadingMapping(&objectMapping);
+        it->performObjectLoadingMapping(&objectMapping, model);
         it->performCollectionLoadingMapping(&collectionMapping);
     }
     // We do the mapping for the ik groups (OLD):

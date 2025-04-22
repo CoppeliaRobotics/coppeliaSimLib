@@ -216,11 +216,18 @@ bool CCollection::setCollectionName(const char* newName, bool check)
     return (diff);
 }
 
-void CCollection::performObjectLoadingMapping(const std::map<int, int>* map)
+void CCollection::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
+{
+    if (opType == 3)
+        _collectionHandle = CWorld::getLoadingMapping(map, _collectionHandle); // model save
+}
+
+void CCollection::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     for (size_t i = 0; i < getElementCount(); i++)
         getElementFromIndex(i)->performObjectLoadingMapping(map);
-    actualizeCollection();
+    if (opType <= 1) // i.e. scene or model loading
+        actualizeCollection();
 }
 
 CCollection* CCollection::copyYourself() const

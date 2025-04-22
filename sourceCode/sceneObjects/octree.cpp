@@ -704,26 +704,26 @@ void COcTree::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void COcTree::performIkLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void COcTree::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performIkLoadingMapping(map, loadingAmodel);
+    CSceneObject::performIkLoadingMapping(map, opType);
 }
-void COcTree::performCollectionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void COcTree::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollectionLoadingMapping(map, opType);
 }
-void COcTree::performCollisionLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void COcTree::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performCollisionLoadingMapping(map, loadingAmodel);
+    CSceneObject::performCollisionLoadingMapping(map, opType);
 }
-void COcTree::performDistanceLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void COcTree::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performDistanceLoadingMapping(map, loadingAmodel);
+    CSceneObject::performDistanceLoadingMapping(map, opType);
 }
 
-void COcTree::performTextureObjectLoadingMapping(const std::map<int, int>* map)
+void COcTree::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performTextureObjectLoadingMapping(map);
+    CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
 void COcTree::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
@@ -1116,9 +1116,9 @@ void COcTree::serialize(CSer& ar)
     }
 }
 
-void COcTree::performObjectLoadingMapping(const std::map<int, int>* map, bool loadingAmodel)
+void COcTree::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
+    CSceneObject::performObjectLoadingMapping(map, opType);
 }
 
 void COcTree::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)

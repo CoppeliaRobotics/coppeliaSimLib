@@ -17,7 +17,8 @@ class CCollection
     void addCollectionElement(CCollectionElement* collectionElement);
     void removeCollectionElementFromHandle(int collectionElementHandle);
     void serialize(CSer& ar);
-    void performObjectLoadingMapping(const std::map<int, int>* map);
+    void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
+    void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
     bool announceObjectWillBeErased(int objectHandle, bool copyBuffer);
     bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     CCollection* copyYourself() const;

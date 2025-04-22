@@ -54,12 +54,15 @@ void CCopyBuffer::clearBuffer()
     for (size_t i = 0; i < ikGroupBuffer.size(); i++)
         delete ikGroupBuffer[i];
     ikGroupBuffer.clear();
+    // Not supported anymore for copy/paste operations:
+/*
     for (size_t i = 0; i < pathPlanningTaskBuffer.size(); i++)
         delete pathPlanningTaskBuffer[i];
     pathPlanningTaskBuffer.clear();
     for (size_t i = 0; i < buttonBlockBuffer.size(); i++)
         delete buttonBlockBuffer[i];
     buttonBlockBuffer.clear();
+    */
 }
 
 void CCopyBuffer::clearMemorizedBuffer()
@@ -87,12 +90,15 @@ void CCopyBuffer::clearMemorizedBuffer()
     for (size_t i = 0; i < ikGroupBuffer_memorized.size(); i++)
         delete ikGroupBuffer_memorized[i];
     ikGroupBuffer_memorized.clear();
+    // Not supported anymore for copy/paste operations:
+    /*
     for (size_t i = 0; i < pathPlanningTaskBuffer_memorized.size(); i++)
         delete pathPlanningTaskBuffer_memorized[i];
     pathPlanningTaskBuffer_memorized.clear();
     for (size_t i = 0; i < buttonBlockBuffer_memorized.size(); i++)
         delete buttonBlockBuffer_memorized[i];
     buttonBlockBuffer_memorized.clear();
+    */
 }
 
 void CCopyBuffer::memorizeBuffer()
@@ -117,10 +123,13 @@ void CCopyBuffer::memorizeBuffer()
         distanceBuffer_memorized.push_back(distanceBuffer[i]->copyYourself());
     for (size_t i = 0; i < ikGroupBuffer.size(); i++)
         ikGroupBuffer_memorized.push_back(ikGroupBuffer[i]->copyYourself());
+    // Not supported anymore for copy/paste operations:
+    /*
     for (size_t i = 0; i < pathPlanningTaskBuffer.size(); i++)
         pathPlanningTaskBuffer_memorized.push_back(pathPlanningTaskBuffer[i]->copyYourself());
     for (size_t i = 0; i < buttonBlockBuffer.size(); i++)
         buttonBlockBuffer_memorized.push_back(buttonBlockBuffer[i]->copyYourself());
+    */
 
     _bufferIsFromLockedScene_memorized = _bufferIsFromLockedScene;
 }
@@ -146,10 +155,13 @@ void CCopyBuffer::restoreBuffer()
         distanceBuffer.push_back(distanceBuffer_memorized[i]->copyYourself());
     for (size_t i = 0; i < ikGroupBuffer_memorized.size(); i++)
         ikGroupBuffer.push_back(ikGroupBuffer_memorized[i]->copyYourself());
+    // Not supported anymore for copy/paste operations:
+    /*
     for (size_t i = 0; i < pathPlanningTaskBuffer_memorized.size(); i++)
         pathPlanningTaskBuffer.push_back(pathPlanningTaskBuffer_memorized[i]->copyYourself());
     for (size_t i = 0; i < buttonBlockBuffer_memorized.size(); i++)
         buttonBlockBuffer.push_back(buttonBlockBuffer_memorized[i]->copyYourself());
+        */
 
     _bufferIsFromLockedScene = _bufferIsFromLockedScene_memorized;
 }
@@ -202,6 +214,8 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     for (size_t i = 0; i < ikGroupBuffer.size(); i++)
         ikGroupCopy.push_back(ikGroupBuffer[i]->copyYourself());
 
+    // Not supported anymore for copy/paste operations:
+    /*
     std::vector<CPathPlanningTask*> pathPlanningTaskCopy;
     for (size_t i = 0; i < pathPlanningTaskBuffer.size(); i++)
         pathPlanningTaskCopy.push_back(pathPlanningTaskBuffer[i]->copyYourself());
@@ -209,6 +223,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     std::vector<CButtonBlock*> buttonBlockCopy;
     for (size_t i = 0; i < buttonBlockBuffer.size(); i++)
         buttonBlockCopy.push_back(buttonBlockBuffer[i]->copyYourself());
+        */
 
     _copyIsForPasting = false;
 
@@ -216,11 +231,13 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
 
     // Following for backward compatibility (leave empty):
     std::vector<CDynMaterialObject*> dynMaterialObjectCopy;
+    std::vector<CPathPlanningTask*> pathPlanningTsk;
+    std::vector<CButtonBlock*> buttonBlk;
 
     // And we add everything to the scene:
     App::currentWorld->addGeneralObjectsToWorldAndPerformMappings(
-        &objectCopy, &collectionCopy, &collisionCopy, &distanceCopy, &ikGroupCopy, &pathPlanningTaskCopy,
-        &buttonBlockCopy, &luaScriptCopy, textureObjectCopy, dynMaterialObjectCopy, true, SIM_PROGRAM_VERSION_NB,
+        &objectCopy, &collectionCopy, &collisionCopy, &distanceCopy, &ikGroupCopy, &pathPlanningTsk,
+        &buttonBlk, &luaScriptCopy, textureObjectCopy, dynMaterialObjectCopy, true, SIM_PROGRAM_VERSION_NB,
         false);
 
     // Enabled scripts (we previously don't wanted to have them react to object add event, etc., during the load operation)
@@ -436,6 +453,9 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         distanceBuffer.push_back(App::currentWorld->distances_old->getObjectFromIndex(i)->copyYourself());
     for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
         ikGroupBuffer.push_back(App::currentWorld->ikGroups_old->getObjectFromIndex(i)->copyYourself());
+
+    // Not supported anymore for copy/paste operations:
+    /*
     for (size_t i = 0; i < App::currentWorld->pathPlanning_old->allObjects.size(); i++)
         pathPlanningTaskBuffer.push_back(App::currentWorld->pathPlanning_old->allObjects[i]->copyYourself());
     for (size_t i = 0; i < App::currentWorld->buttonBlockContainer_old->allBlocks.size(); i++)
@@ -445,6 +465,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
             (App::currentWorld->buttonBlockContainer_old->allBlocks[i]->getObjectIDAttachedTo() != -1))
             buttonBlockBuffer.push_back(App::currentWorld->buttonBlockContainer_old->allBlocks[i]->copyYourself());
     }
+    */
 
     std::vector<CSceneObject*> unselected;
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
@@ -459,10 +480,168 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     // This will in turn also erase general objects (which might trigger other object erase)
     for (size_t i = 0; i < unselected.size(); i++)
         _announceObjectWillBeErased(unselected[i]);
+
+    // Now remap all handles so that we start with the smallest handle always. This would allow us to compare model binaries:
+    // Comparing model binaries is actually quite tricky (what about the thumbnail, the thumbnail infos, the local transf. of the model base, etc.)
+    // We keep this disabled for now:
+    /*
+    int sh = SIM_IDEND_SCENEOBJECT;
+    for (size_t i = 0; i < objectBuffer.size(); i++)
+    {
+        int h = objectBuffer[i]->getObjectHandle();
+        if (h < sh)
+            sh = h;
+    }
+    std::map<int, int> objectMapping;
+    for (size_t i = 0; i < objectBuffer.size(); i++)
+    {
+        int h = objectBuffer[i]->getObjectHandle();
+        objectMapping[h] = h - sh + SIM_IDSTART_SCENEOBJECT;
+    }
+
+    sh = SIM_IDEND_TEXTURE;
+    for (size_t i = 0; i < textureObjectBuffer.size(); i++)
+    {
+        int h = textureObjectBuffer[i]->getObjectID();
+        if (h < sh)
+            sh = h;
+    }
+    std::map<int, int> textureMapping;
+    for (size_t i = 0; i < textureObjectBuffer.size(); i++)
+    {
+        int h = textureObjectBuffer[i]->getObjectID();
+        textureMapping[h] = h - sh + SIM_IDSTART_TEXTURE;
+    }
+
+    // Old:
+    // ----------------------------
+    sh = SIM_IDEND_COLLECTION;
+    for (size_t i = 0; i < collectionBuffer.size(); i++)
+    {
+        int h = collectionBuffer[i]->getCollectionHandle();
+        if (h < sh)
+            sh = h;
+    }
+    std::map<int, int> collectionMapping;
+    for (size_t i = 0; i < collectionBuffer.size(); i++)
+    {
+        int h = collectionBuffer[i]->getCollectionHandle();
+        collectionMapping[h] = h - sh + SIM_IDSTART_COLLECTION;
+    }
+    sh = SIM_IDEND_COLLISION_old;
+    for (size_t i = 0; i < collisionBuffer.size(); i++)
+    {
+        int h = collisionBuffer[i]->getObjectHandle();
+        if (h < sh)
+            sh = h;
+    }
+    std::map<int, int> collisionMapping;
+    for (size_t i = 0; i < collisionBuffer.size(); i++)
+    {
+        int h = collisionBuffer[i]->getObjectHandle();
+        collisionMapping[h] = h - sh + SIM_IDSTART_COLLISION_old;
+    }
+    sh = SIM_IDEND_DISTANCE_old;
+    for (size_t i = 0; i < distanceBuffer.size(); i++)
+    {
+        int h = distanceBuffer[i]->getObjectHandle();
+        if (h < sh)
+            sh = h;
+    }
+    std::map<int, int> distanceMapping;
+    for (size_t i = 0; i < distanceBuffer.size(); i++)
+    {
+        int h = distanceBuffer[i]->getObjectHandle();
+        distanceMapping[h] = h - sh + SIM_IDSTART_DISTANCE_old;
+    }
+    sh = SIM_IDEND_IKGROUP_old;
+    for (size_t i = 0; i < ikGroupBuffer.size(); i++)
+    {
+        int h = ikGroupBuffer[i]->getObjectHandle();
+        if (h < sh)
+            sh = h;
+    }
+    std::map<int, int> ikGroupMapping;
+    for (size_t i = 0; i < ikGroupBuffer.size(); i++)
+    {
+        int h = ikGroupBuffer[i]->getObjectHandle();
+        ikGroupMapping[h] = h - sh + SIM_IDSTART_IKGROUP_old;
+    }
+    sh = SIM_IDEND_LUASCRIPT;
+    for (size_t i = 0; i < luaScriptBuffer.size(); i++)
+    {
+        int h = luaScriptBuffer[i]->getScriptHandle();
+        if (h < sh)
+            sh = h;
+    }
+    std::map<int, int> luaScriptMapping;
+    for (size_t i = 0; i < luaScriptBuffer.size(); i++)
+    {
+        int h = luaScriptBuffer[i]->getScriptHandle();
+        luaScriptMapping[h] = h - sh + SIM_IDSTART_LUASCRIPT;
+    }
+    // ----------------------------
+
+    // We do the mapping for the sceneObjects:
+    for (size_t i = 0; i < objectBuffer.size(); i++)
+    {
+        CSceneObject* it = objectBuffer[i];
+        it->performObjectLoadingMapping(&objectMapping, 3);
+        it->performScriptLoadingMapping(&luaScriptMapping, 3);
+        it->performCollectionLoadingMapping(&collectionMapping, 3);
+        it->performCollisionLoadingMapping(&collisionMapping, 3);
+        it->performDistanceLoadingMapping(&distanceMapping, 3);
+        it->performIkLoadingMapping(&ikGroupMapping, 3);
+        it->performTextureObjectLoadingMapping(&textureMapping, 3);
+    }
+
+    // We do the mapping for the textures:
+    for (size_t i = 0; i < textureObjectBuffer.size(); i++)
+    {
+        CTextureObject* it = textureObjectBuffer[i];
+        it->performTextureObjectLoadingMapping(&textureMapping, 3);
+    }
+
+    // Old:
+    // ----------------------------
+    for (size_t i = 0; i < collectionBuffer.size(); i++)
+    {
+        CCollection* it = collectionBuffer[i];
+        it->performCollectionLoadingMapping(&collectionMapping, 3);
+        it->performObjectLoadingMapping(&objectMapping, 3);
+    }
+    for (size_t i = 0; i < collisionBuffer.size(); i++)
+    {
+        CCollisionObject_old* it = collisionBuffer[i];
+        it->performCollisionLoadingMapping(&collisionMapping, 3);
+        it->performObjectLoadingMapping(&objectMapping);
+        it->performCollectionLoadingMapping(&collectionMapping);
+    }
+    for (size_t i = 0; i < distanceBuffer.size(); i++)
+    {
+        CDistanceObject_old* it = distanceBuffer[i];
+        it->performDistanceLoadingMapping(&distanceMapping, 3);
+        it->performObjectLoadingMapping(&objectMapping, 3);
+        it->performCollectionLoadingMapping(&collectionMapping);
+    }
+    for (size_t i = 0; i < ikGroupBuffer.size(); i++)
+    {
+        CIkGroup_old* it = ikGroupBuffer[i];
+        it->performIkGroupLoadingMapping(&ikGroupMapping, 3);
+        it->performObjectLoadingMapping(&objectMapping);
+        it->performIkGroupLoadingMapping(&ikGroupMapping);
+    }
+    for (size_t i = 0; i < luaScriptBuffer.size(); i++)
+    {
+        CScriptObject* it = luaScriptBuffer[i];
+        it->performScriptLoadingMapping(&luaScriptMapping, 3);
+        it->performSceneObjectLoadingMapping(&objectMapping);
+    }
+    // ----------------------------
+    //*/
 }
 
-void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7Vector& modelTr, C3Vector& modelBBSize,
-                                            double modelNonDefaultTranslationStepSize)
+void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7Vector& modelTr, C3Vector& modelBBSize, double modelNonDefaultTranslationStepSize)
 {
     // This is used when saving a model. When saving a model, we basically perform
     // the same operations as for copying a selection. Since we will make use of the
@@ -664,6 +843,9 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
             ar.xmlPopNode();
         }
     }
+
+    // Not supported anymore for copy/paste operations:
+    /*
     if (ar.isBinary())
     { // following for backward compatibility, but not supported anymore:
         // Here we store the path planning objects:
@@ -688,6 +870,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
             }
         }
     }
+    */
 
     // Here we store the script objects:
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
@@ -739,10 +922,13 @@ void CCopyBuffer::_backupBuffers_temp()
     distanceBuffer.clear();
     ikGroupBuffer_tempSer.assign(ikGroupBuffer.begin(), ikGroupBuffer.end());
     ikGroupBuffer.clear();
+    // Not supported anymore for copy/paste operations:
+    /*
     pathPlanningTaskBuffer_tempSer.assign(pathPlanningTaskBuffer.begin(), pathPlanningTaskBuffer.end());
     pathPlanningTaskBuffer.clear();
     buttonBlockBuffer_tempSer.assign(buttonBlockBuffer.begin(), buttonBlockBuffer.end());
     buttonBlockBuffer.clear();
+    */
 }
 
 void CCopyBuffer::_restoreBuffers_temp()
@@ -763,10 +949,13 @@ void CCopyBuffer::_restoreBuffers_temp()
     distanceBuffer_tempSer.clear();
     ikGroupBuffer.assign(ikGroupBuffer_tempSer.begin(), ikGroupBuffer_tempSer.end());
     ikGroupBuffer_tempSer.clear();
+    // Not supported anymore for copy/paste operations:
+    /*
     pathPlanningTaskBuffer.assign(pathPlanningTaskBuffer_tempSer.begin(), pathPlanningTaskBuffer_tempSer.end());
     pathPlanningTaskBuffer_tempSer.clear();
     buttonBlockBuffer.assign(buttonBlockBuffer_tempSer.begin(), buttonBlockBuffer_tempSer.end());
     buttonBlockBuffer_tempSer.clear();
+    */
 }
 
 void CCopyBuffer::_eraseScriptInBuffer(int objectID)
@@ -796,6 +985,8 @@ void CCopyBuffer::_eraseTextureObjectInBuffer(int objectID)
     }
 }
 
+// Not supported anymore for copy/paste operations:
+/*
 void CCopyBuffer::_erase2DElementInBuffer(int objectID)
 { // Old
     _announce2DElementWillBeErased(objectID);
@@ -822,6 +1013,7 @@ void CCopyBuffer::_erasePathPlanningTaskInBuffer(int objectID)
         }
     }
 }
+*/
 
 void CCopyBuffer::_eraseCollisionInBuffer(int objectID)
 { // Old
@@ -919,32 +1111,6 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
 
     // Old:
     i = 0;
-    while (i < buttonBlockBuffer.size())
-    {
-        CButtonBlock* it = buttonBlockBuffer[i];
-        if (it->announceSceneObjectWillBeErased(object->getObjectHandle(), true) || (it->getObjectIDAttachedTo() == -1))
-        {
-            _erase2DElementInBuffer(it->getBlockID());
-            i = 0; // Ordering may have changed!
-        }
-        else
-            i++;
-    }
-
-    i = 0;
-    while (i < pathPlanningTaskBuffer.size())
-    {
-        CPathPlanningTask* it = pathPlanningTaskBuffer[i];
-        if (it->announceObjectWillBeErased(object->getObjectHandle(), true))
-        {
-            _erasePathPlanningTaskInBuffer(it->getObjectID());
-            i = 0; // Ordering may have changed!
-        }
-        else
-            i++;
-    }
-
-    i = 0;
     while (i < collisionBuffer.size())
     {
         CCollisionObject_old* it = collisionBuffer[i];
@@ -995,6 +1161,35 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
         else
             i++;
     }
+
+    // Not supported anymore for copy/paste operations:
+    /*
+    i = 0;
+    while (i < buttonBlockBuffer.size())
+    {
+        CButtonBlock* it = buttonBlockBuffer[i];
+        if (it->announceSceneObjectWillBeErased(object->getObjectHandle(), true) || (it->getObjectIDAttachedTo() == -1))
+        {
+            _erase2DElementInBuffer(it->getBlockID());
+            i = 0; // Ordering may have changed!
+        }
+        else
+            i++;
+    }
+
+    i = 0;
+    while (i < pathPlanningTaskBuffer.size())
+    {
+        CPathPlanningTask* it = pathPlanningTaskBuffer[i];
+        if (it->announceObjectWillBeErased(object->getObjectHandle(), true))
+        {
+            _erasePathPlanningTaskInBuffer(it->getObjectID());
+            i = 0; // Ordering may have changed!
+        }
+        else
+            i++;
+    }
+    */
 }
 
 void CCopyBuffer::_announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
@@ -1036,6 +1231,8 @@ void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)
             i++;
     }
 
+    // Not supported anymore for copy/paste operations:
+    /*
     i = 0;
     while (i < pathPlanningTaskBuffer.size())
     {
@@ -1048,6 +1245,7 @@ void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)
         else
             i++;
     }
+    */
 }
 
 void CCopyBuffer::_announceIkGroupWillBeErased(int ikGroupID)
@@ -1083,6 +1281,8 @@ void CCopyBuffer::_announceDistanceWillBeErased(int distanceID)
                                                       true); // this never triggers scene object destruction!
 }
 
+// Not supported anymore for copy/paste operations:
+/*
 void CCopyBuffer::_announce2DElementWillBeErased(int elementID)
 { // Old
     size_t i = 0;
@@ -1098,3 +1298,4 @@ void CCopyBuffer::_announce2DElementWillBeErased(int elementID)
             i++;
     }
 }
+*/
