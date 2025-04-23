@@ -2311,3 +2311,4 @@ int CShape::getPropertyInfo_static(const char* ppName, int& info, std::string& i
     }
     return retVal;
 }
+

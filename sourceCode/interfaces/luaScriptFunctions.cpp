@@ -7257,6 +7257,20 @@ int _simTest(luaWrap_lua_State* L)
             }
             LUA_END(0);
         }
+        if (cmd.compare("getModelState") == 0)
+        {
+            int h = luaWrap_lua_tointeger(L, 2);
+            std::string state = App::currentWorld->sceneObjects->getModelState(h);
+            luaWrap_lua_pushbuffer(L, state.c_str(), state.size());
+            LUA_END(1);
+        }
+        if (cmd.compare("getModelHash") == 0)
+        {
+            int h = luaWrap_lua_tointeger(L, 2);
+            std::string state = App::currentWorld->sceneObjects->getModelState(h);
+            luaWrap_lua_pushinteger(L, std::hash<std::string>{}(state));
+            LUA_END(1);
+        }
         if ((cmd.compare("sim.recomputeInertia1KeepMass") == 0) ||
             (cmd.compare("sim.recomputeInertia2KeepMass") == 0) || (cmd.compare("sim.recomputeInertia4KeepMass") == 0))
         {

@@ -13,8 +13,8 @@
     FUNCX(propPointCloud_maxPtsInCell, "maxPointsInCell", sim_propertytype_int, 0, "Max. points in cell", "Maximum number of points in an oc-tree cell/voxel")                       \
     FUNCX(propPointCloud_cellSize, "cellSize", sim_propertytype_float, 0, "Cell size", "Size of the oc-tree cell/voxel")                                                             \
     FUNCX(propPointCloud_pointDisplayFraction, "pointDisplayFraction", sim_propertytype_float, 0, "Display fraction", "Fraction of points to be displayed in an oc-tree cell/voxel") \
-    FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable, "Points", "Point positions")                                                   \
-    FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable, "Colors", "Point colors")
+    FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Points", "Point positions")                                                   \
+    FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Colors", "Point colors")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -81,6 +81,8 @@ class CPointCloud : public CSceneObject
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
+
+    std::string getObjectState() const;
 
     // Various functions
     void setCellSize(double theNewSize);

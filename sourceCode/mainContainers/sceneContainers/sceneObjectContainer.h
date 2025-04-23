@@ -23,9 +23,9 @@
 #define DEFINE_PROPERTIES                                                                                                                                                                           \
     FUNCX(propObjCont_objectHandles, "objectHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects")                                           \
     FUNCX(propObjCont_orphanHandles, "orphanHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects")                             \
-    FUNCX(propObjCont_selectionHandles, "selectionHandles", sim_propertytype_intarray, 0, "Selected objects", "Handles of selected scene objects")                                                  \
-    FUNCX(propObjCont_objectCreationCounter, "objectCreationCounter", sim_propertytype_int, sim_propertyinfo_notwritable, "Object creation counter", "Counter of created scene objects")            \
-    FUNCX(propObjCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_notwritable, "Object destruction counter", "Counter of destroyed scene objects") \
+    FUNCX(propObjCont_selectionHandles, "selectionHandles", sim_propertytype_intarray, sim_propertyinfo_modelhashexclude, "Selected objects", "Handles of selected scene objects")                                                  \
+    FUNCX(propObjCont_objectCreationCounter, "objectCreationCounter", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object creation counter", "Counter of created scene objects")            \
+    FUNCX(propObjCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object destruction counter", "Counter of destroyed scene objects") \
     FUNCX(propObjCont_hierarchyChangeCounter, "hierarchyChangeCounter", sim_propertytype_int, sim_propertyinfo_notwritable, "Hierarchy change counter", "Counter of scene hierarchy changes")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -234,6 +234,8 @@ class CSceneObjectContainer
     int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CSceneObjectContainer* targetObject);
+
+    std::string getModelState(int modelHandle) const;
 
     void setTextureDependencies();
     void removeSceneDependencies();

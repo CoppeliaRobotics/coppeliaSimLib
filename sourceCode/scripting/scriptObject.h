@@ -34,13 +34,13 @@
     FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0, "Restart", "Restart on error")                      \
     FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0, "Execution priority", "")                                \
     FUNCX(propScriptObj_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Script type")            \
-    FUNCX(propScriptObj_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_notwritable, "Execution depth", "")    \
-    FUNCX(propScriptObj_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_notwritable, "State", "Script state")        \
+    FUNCX(propScriptObj_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Execution depth", "")    \
+    FUNCX(propScriptObj_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "State", "Script state")        \
     FUNCX(propScriptObj_language, "language", sim_propertytype_string, sim_propertyinfo_notwritable, "Language", "")                    \
     FUNCX(propScriptObj_code, "code", sim_propertytype_string, 0, "Code", "Script content")                                             \
-    FUNCX(propScriptObj_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_notwritable, "Name", "Script name")         \
-    FUNCX(propScriptObj_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Add-on path", "Path of add-on") \
-    FUNCX(propScriptObj_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_notwritable, "Add-on menu path", "Menu path of add-on")
+    FUNCX(propScriptObj_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Name", "Script name")         \
+    FUNCX(propScriptObj_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Add-on path", "Path of add-on") \
+    FUNCX(propScriptObj_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Add-on menu path", "Menu path of add-on")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

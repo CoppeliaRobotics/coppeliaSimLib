@@ -1853,3 +1853,13 @@ int CPointCloud::getPropertyInfo_static(const char* ppName, int& info, std::stri
     }
     return retVal;
 }
+
+std::string CPointCloud::getObjectState() const
+{
+    long long int h = 0;
+    for (size_t i = 0; i < _displayPoints.size(); i++)
+        h += ((long long int*)&_displayPoints[i])[0];
+    for (size_t i = 0; i < _displayColorsByte.size(); i++)
+        h += _displayColorsByte[i];
+    return std::string(reinterpret_cast<const char*>(&h), sizeof(h));
+}

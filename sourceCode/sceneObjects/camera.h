@@ -13,7 +13,7 @@
     FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0, "Parent as proxy", "Use parent as manipulation proxy") \
     FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0, "Translation enabled", "")                                    \
     FUNCX(propCamera_rotationEnabled, "rotationEnabled", sim_propertytype_bool, 0, "Rotation enabled", "")                                             \
-    FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, 0, "Tracked object", "Tracked scene object handle")
+    FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, "Tracked object", "Tracked scene object handle")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

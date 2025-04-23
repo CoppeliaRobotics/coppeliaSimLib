@@ -6488,3 +6488,4 @@ int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info, std::str
     }
     return retVal;
 }
+

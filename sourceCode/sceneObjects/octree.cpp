@@ -1384,3 +1384,13 @@ int COcTree::getPropertyInfo_static(const char* ppName, int& info, std::string& 
     }
     return retVal;
 }
+
+std::string COcTree::getObjectState() const
+{
+    long long int h = 0;
+    for (size_t i = 0; i < _voxelPositions.size(); i++)
+        h += ((long long int*)&_voxelPositions[i])[0];
+    for (size_t i = 0; i < _colorsByte.size(); i++)
+        h += _colorsByte[i];
+    return std::string(reinterpret_cast<const char*>(&h), sizeof(h));
+}

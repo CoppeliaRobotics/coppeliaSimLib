@@ -9,8 +9,8 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                      \
     FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0, "Voxel size", "")                                      \
-    FUNCX(propOctree_voxels, "voxels", sim_propertytype_floatarray, sim_propertyinfo_notwritable, "Voxels", "Voxel positions") \
-    FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable, "Voxel Colors", "")
+    FUNCX(propOctree_voxels, "voxels", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Voxels", "Voxel positions") \
+    FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Voxel Colors", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -72,6 +72,8 @@ class COcTree : public CSceneObject
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
+
+    std::string getObjectState() const;
 
     // Various functions
     void setCellSize(double theNewSize);

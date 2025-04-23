@@ -512,7 +512,6 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
     CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, nullptr, false);
 
     ev->appendKeyInt(propMesh_shapeUid.name, _isInSceneShapeUid);
-    ev->appendKeyInt(propMesh_meshHash.name, _getMeshHash());
     ev->appendKeyText(propMesh_objectType.name, "mesh");
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
@@ -2733,7 +2732,7 @@ int* CMesh::getEdgeBufferIdPtr()
 }
 #endif
 
-long long int CMesh::_getMeshHash() const
+std::string CMesh::getMeshState() const
 {
     long long int h = 0;
     for (size_t i = 0; i < _verticesForDisplayAndDisk.size(); i++)
@@ -2755,7 +2754,31 @@ long long int CMesh::_getMeshHash() const
         for (size_t i = 0; i <ts[0] * ts[1] * 4; i++)
             h += t[i];
     }
-    return h;
+    std::string retVal = std::string(reinterpret_cast<const char*>(&h), sizeof(h));
+    bool b;
+    C7Vector tr;
+    getBoolProperty(propMesh_textureRepeatU.name, b, tr);
+    retVal += (reinterpret_cast<const char*>(&b), sizeof(b));
+    getBoolProperty(propMesh_textureRepeatV.name, b, tr);
+    retVal += (reinterpret_cast<const char*>(&b), sizeof(b));
+    getBoolProperty(propMesh_textureInterpolate.name, b, tr);
+    retVal += (reinterpret_cast<const char*>(&b), sizeof(b));
+    getBoolProperty(propMesh_showEdges.name, b, tr);
+    retVal += (reinterpret_cast<const char*>(&b), sizeof(b));
+    getBoolProperty(propMesh_culling.name, b, tr);
+    retVal += (reinterpret_cast<const char*>(&b), sizeof(b));
+    getBoolProperty(propMesh_convex.name, b, tr);
+    retVal += (reinterpret_cast<const char*>(&b), sizeof(b));
+    int intV;
+    getIntProperty(propMesh_textureApplyMode.name, intV, tr);
+    retVal += (reinterpret_cast<const char*>(&intV), sizeof(intV));
+    double f;
+    getFloatProperty(propMesh_shadingAngle.name, f, tr);
+    retVal += (reinterpret_cast<const char*>(&f), sizeof(f));
+    std::string cn;
+    getStringProperty(propMesh_colorName.name, cn, tr);
+    retVal += cn;
+    return retVal;
 }
 
 void CMesh::setTextureRepeatU(bool r)
@@ -2986,12 +3009,6 @@ int CMesh::getLongProperty(const char* ppName, long long int& pState, const C7Ve
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
     int retVal = -1;
-
-    if (strcmp(pName, propMesh_meshHash.name) == 0)
-    {
-        retVal = 1;
-        pState = _getMeshHash();
-    }
 
     return retVal;
 }

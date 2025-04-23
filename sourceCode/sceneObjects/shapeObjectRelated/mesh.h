@@ -8,24 +8,23 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                          \
     FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable, "Texture resolution", "")     \
-    FUNCX(propMesh_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable, "Texture coordinates", "") \
+    FUNCX(propMesh_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture coordinates", "") \
     FUNCX(propMesh_textureApplyMode, "textureApplyMode", sim_propertytype_int, 0, "Texture apply mode", "")                                        \
     FUNCX(propMesh_textureRepeatU, "textureRepeatU", sim_propertytype_bool, 0, "Texture repeat U", "")                                             \
     FUNCX(propMesh_textureRepeatV, "textureRepeatV", sim_propertytype_bool, 0, "Texture repeat V", "")                                             \
     FUNCX(propMesh_textureInterpolate, "textureInterpolate", sim_propertytype_bool, 0, "Interpolate texture", "")                                  \
-    FUNCX(propMesh_texture, "rawTexture", sim_propertytype_buffer, sim_propertyinfo_notwritable, "Texture", "")                                    \
-    FUNCX(propMesh_textureID, "textureID", sim_propertytype_int, sim_propertyinfo_notwritable, "Texture ID", "")                                   \
-    FUNCX(propMesh_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable, "Vertices", "")                                \
-    FUNCX(propMesh_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Indices", "Indices (3 values per triangle)")      \
-    FUNCX(propMesh_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable, "Normals", "Normals (3*3 values per triangle)")  \
+    FUNCX(propMesh_texture, "rawTexture", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture", "")                                    \
+    FUNCX(propMesh_textureID, "textureID", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture ID", "")                                   \
+    FUNCX(propMesh_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Vertices", "")                                \
+    FUNCX(propMesh_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Indices", "Indices (3 values per triangle)")      \
+    FUNCX(propMesh_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Normals", "Normals (3*3 values per triangle)")  \
     FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0, "Shading angle", "")                                                   \
     FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0, "Visible edges", "")                                                          \
     FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0, "Backface culling", "")                                                           \
-    FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable, "Object type", "")                             \
-    FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_notwritable, "Shape UID", "Unique identifier of parent shape")     \
+    FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                             \
+    FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Shape UID", "Unique identifier of parent shape")     \
     FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether mesh is convex or not")               \
-    FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, "Color name", "")                                                           \
-    FUNCX(propMesh_meshHash, "meshHash", sim_propertytype_long, sim_propertyinfo_notwritable, "Mesh hash", "")
+    FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, "Color name", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -171,6 +170,8 @@ class CMesh : public CMeshWrapper
     static int getPropertyName(int& index, std::string& pName, CMesh* targetObject);
     static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt, CMesh* targetObject);
 
+    std::string getMeshState() const;
+
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();
     static void serializeTempVerticesIndicesNormalsAndEdges(CSer& ar);
@@ -202,7 +203,6 @@ class CMesh : public CMeshWrapper
     void _commonInit();
     void _recomputeNormals();
     void _computeVisibleEdges();
-    long long int _getMeshHash() const;
     C3Vector _computeBBSize(C3Vector* optBBCenter = nullptr);
 
     static void _loadPackedIntegers_OLD(CSer& ar, std::vector<int>& data);

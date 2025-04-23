@@ -15,14 +15,14 @@
     FUNCX(propSim_realtimeSimulation, "realtimeSimulation", sim_propertytype_bool, 0, "Real-time simulation", "")                                                                    \
     FUNCX(propSim_pauseSimulationAtTime, "pauseSimulationAtTime", sim_propertytype_bool, 0, "Pause simulation at time", "Pause simulation when simulation time exceeds a threshold") \
     FUNCX(propSim_pauseSimulationAtError, "pauseSimulationAtError", sim_propertytype_bool, 0, "Pause simulation on script error", "")                                                \
-    FUNCX(propSim_simulationTime, "simulationTime", sim_propertytype_float, sim_propertyinfo_notwritable, "Simulation time", "")                                                     \
+    FUNCX(propSim_simulationTime, "simulationTime", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Simulation time", "")                                                     \
     FUNCX(propSim_timeStep, "timeStep", sim_propertytype_float, 0, "Simulation dt", "Simulation time step")                                                                          \
     FUNCX(propSim_timeToPause, "timeToPause", sim_propertytype_float, 0, "Simulation pause time", "Time at which simulation should pause")                                           \
     FUNCX(propSim_realtimeModifier, "realtimeModifier", sim_propertytype_float, 0, "Real-time modifier", "Real-time multiplication factor")                                          \
-    FUNCX(propSim_stepCount, "stepCount", sim_propertytype_int, sim_propertyinfo_notwritable, "Simulation steps", "Counter of simulation steps")                                     \
-    FUNCX(propSim_simulationState, "simulationState", sim_propertytype_int, sim_propertyinfo_notwritable, "Simulation state", "")                                                    \
+    FUNCX(propSim_stepCount, "stepCount", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Simulation steps", "Counter of simulation steps")                                     \
+    FUNCX(propSim_simulationState, "simulationState", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Simulation state", "")                                                    \
     FUNCX(propSim_stepsPerRendering, "stepsPerRendering", sim_propertytype_int, 0, "Steps per frame", "Simulation steps per frame")                                                  \
-    FUNCX(propSim_speedModifier, "speedModifier", sim_propertytype_int, 0, "Speed modifier", "")
+    FUNCX(propSim_speedModifier, "speedModifier", sim_propertytype_int, sim_propertyinfo_modelhashexclude, "Speed modifier", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

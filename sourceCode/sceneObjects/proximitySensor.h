@@ -14,10 +14,10 @@
     FUNCX(propProximitySensor_showVolume, "showVolume", sim_propertytype_bool, 0, "Show volume", "")                                                                               \
     FUNCX(propProximitySensor_randomizedDetection, "randomizedDetection", sim_propertytype_bool, sim_propertyinfo_notwritable, "Randomized detection", "")                         \
     FUNCX(propProximitySensor_sensorType, "sensorType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Sensor type")                                                 \
-    FUNCX(propProximitySensor_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, sim_propertyinfo_notwritable, "Detected object", "Detected scene object handle") \
+    FUNCX(propProximitySensor_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Detected object", "Detected scene object handle") \
     FUNCX(propProximitySensor_angleThreshold, "angleThreshold", sim_propertytype_float, 0, "Angle threshold", "Angle threshold, 0.0 to disable")                                   \
-    FUNCX(propProximitySensor_detectedPoint, "detectedPoint", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Detected point", "")                                        \
-    FUNCX(propProximitySensor_detectedNormal, "detectedNormal", sim_propertytype_vector3, sim_propertyinfo_notwritable, "Detected normal", "Detected normal vector")
+    FUNCX(propProximitySensor_detectedPoint, "detectedPoint", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Detected point", "")                                        \
+    FUNCX(propProximitySensor_detectedNormal, "detectedNormal", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Detected normal", "Detected normal vector")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
