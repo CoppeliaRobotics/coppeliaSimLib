@@ -1658,8 +1658,7 @@ CSceneObject* CShape::copyYourself()
         newShape->_mesh = _mesh->copyYourself();
 
     if (_meshCalculationStructure != nullptr)
-        newShape->_meshCalculationStructure =
-            App::worldContainer->pluginContainer->geomPlugin_copyMesh(_meshCalculationStructure);
+        newShape->_meshCalculationStructure = App::worldContainer->pluginContainer->geomPlugin_copyMesh(_meshCalculationStructure);
 
     delete newShape->_dynMaterial;
     newShape->_dynMaterial = _dynMaterial->copyYourself();

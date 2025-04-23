@@ -208,8 +208,7 @@ CMesh* CMesh::copyYourself()
 
     newIt->_heightfieldXCount = _heightfieldXCount;
     newIt->_heightfieldYCount = _heightfieldYCount;
-    newIt->_heightfieldHeights.insert(newIt->_heightfieldHeights.end(), _heightfieldHeights.begin(),
-                                      _heightfieldHeights.end());
+    newIt->_heightfieldHeights.insert(newIt->_heightfieldHeights.end(), _heightfieldHeights.begin(), _heightfieldHeights.end());
 
     newIt->_visibleEdges = _visibleEdges;
     newIt->_hideEdgeBorders_OLD = _hideEdgeBorders_OLD;
@@ -2736,11 +2735,11 @@ std::string CMesh::getMeshState() const
 {
     long long int h = 0;
     for (size_t i = 0; i < _verticesForDisplayAndDisk.size(); i++)
-        h += ((long long int*)&_verticesForDisplayAndDisk[i])[0];
+        h += ((int*)&_verticesForDisplayAndDisk[i])[0];
     for (size_t i = 0; i < _indices.size(); i++)
         h += _indices[i];
     for (size_t i = 0; i < _normalsForDisplayAndDisk.size(); i++)
-        h += ((long long int*)&_normalsForDisplayAndDisk[i])[0];
+        h += ((int*)&_normalsForDisplayAndDisk[i])[0];
     for (size_t i = 0; i < _edges.size(); i++)
         h += _edges[i];
     if (_textureProperty != nullptr)

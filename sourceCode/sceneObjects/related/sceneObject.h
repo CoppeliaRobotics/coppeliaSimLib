@@ -13,7 +13,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                         \
-    FUNCX(propObject_modelInvisible, "modelInvisible", sim_propertytype_bool, sim_propertyinfo_notwritable, "Inherited model invisibility", "")                                                   \
+    FUNCX(propObject_modelInvisible, "modelInvisible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Inherited model invisibility", "")                                                   \
     FUNCX(propObject_modelBase, "modelBase", sim_propertytype_bool, 0, "Model base", "Model base flag, indicates the scene object is the base of a model")                                        \
     FUNCX(propObject_layer, "layer", sim_propertytype_int, 0, "Visibility layer", "")                                                                                                             \
     FUNCX(propObject_childOrder, "childOrder", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Child order", "")                                                                             \
@@ -28,7 +28,7 @@
     FUNCX(propObject_detectable, "detectable", sim_propertytype_bool, 0, "Detectable", "")                                                                                                        \
     FUNCX(propObject_modelAcknowledgment, "modelAcknowledgment", sim_propertytype_string, 0, "Acknowledgment", "Model acknowledgment")                                                            \
     FUNCX(propObject_dna, "dna", sim_propertytype_buffer, sim_propertyinfo_notwritable, "DNA", "Scene object DNA")                                                                                \
-    FUNCX(propObject_persistentUid, "persistentUid", sim_propertytype_string, sim_propertyinfo_notwritable, "Persistent UID", "Scene object persistent unique identifier")                        \
+    FUNCX(propObject_persistentUid, "persistentUid", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Persistent UID", "Scene object persistent unique identifier")                        \
     FUNCX(propObject_calcLinearVelocity, "calcLinearVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Linear velocity", "Calculated scene object linear velocity vector")       \
     FUNCX(propObject_calcRotationAxis, "calcRotationAxis", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Rotation axis", "Calculated scene object rotation axis")                      \
     FUNCX(propObject_calcRotationVelocity, "calcRotationVelocity", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Rotation velocity", "Calculated scene object rotation velocity")        \
