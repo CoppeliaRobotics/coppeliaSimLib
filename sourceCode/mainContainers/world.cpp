@@ -4133,7 +4133,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                         retVal = targetObject->customSceneData.hasData(pN.c_str(), true, &s);
                         if (retVal >= 0)
                         {
-                            info = 4; // removable
+                            info = sim_propertyinfo_removable;
                             if (s > LARGE_PROPERTY_SIZE)
                                 info = info | 0x100;
                             infoTxt = "";
@@ -4151,7 +4151,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                         retVal = targetObject->customSceneData_volatile.hasData(pN.c_str(), true, &s);
                         if (retVal >= 0)
                         {
-                            info = 4; // removable
+                            info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
                             if (s > LARGE_PROPERTY_SIZE)
                                 info = info | 0x100;
                             infoTxt = "";

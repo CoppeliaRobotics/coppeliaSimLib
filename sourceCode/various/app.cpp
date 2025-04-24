@@ -2753,7 +2753,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     retVal = cont.hasData(pN.c_str(), true, &s);
                     if (retVal >= 0)
                     {
-                        info = 4; // removable
+                        info = sim_propertyinfo_removable;
                         if (s > LARGE_PROPERTY_SIZE)
                             info = info | 0x100;
                         infoTxt = "";
@@ -2769,7 +2769,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     retVal = worldContainer->customAppData_volatile.hasData(pN.c_str(), true, &s);
                     if (retVal >= 0)
                     {
-                        info = 4; // removable
+                        info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
                         if (s > LARGE_PROPERTY_SIZE)
                             info = info | 0x100;
                         infoTxt = "";
@@ -2786,7 +2786,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     if (getAppNamedParam(pN.c_str(), param))
                     {
                         retVal = sim_propertytype_string;
-                        info = 4; // removable
+                        info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
                         if (param.size() > LARGE_PROPERTY_SIZE)
                             info = info | 0x100;
                         infoTxt = "";

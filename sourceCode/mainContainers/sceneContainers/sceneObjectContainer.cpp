@@ -6232,14 +6232,13 @@ std::string CSceneObjectContainer::getModelState(int modelHandle) const
                 int info;
                 t = obj->getPropertyInfo(name.c_str(), info, app);
                 if ((info & (sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude)) == 0)
-                {
+                { // signals (and some other properties) are excluded via sim_propertyinfo_modelhashexclude
                     if ((sel[i] != modelHandle) || (name != propObject_pose.name))
-                    { // the model base's pose should not be included
+                    { // the model base's pose should not be included.
                         int result = -1;
-                        if ( (t != sim_propertytype_buffer) && ((name.find(CUSTOMDATAPREFIX) != std::string::npos) || (name.find(SIGNALPREFIX) != std::string::npos)) )
-                        { // customData and signals might return a different type than 'buffer', but is actually always buffer (this is normally handled at the API entry)
+                        if ((t != sim_propertytype_buffer) && (name.find(CUSTOMDATAPREFIX) != std::string::npos))
+                        { // customData (and signals) might return a different type than 'buffer', but is actually always buffer (this is normally handled at the API entry)
                             utils::replaceSubstringStart(name, CUSTOMDATAPREFIX, (std::string(CUSTOMDATAPREFIX) + propertyStrings[t]).c_str());
-                            utils::replaceSubstringStart(name, SIGNALPREFIX, (std::string(SIGNALPREFIX) + propertyStrings[t]).c_str());
                             t = sim_propertytype_buffer;
                         }
                         switch (t)

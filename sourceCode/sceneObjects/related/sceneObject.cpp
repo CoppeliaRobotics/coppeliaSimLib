@@ -6455,11 +6455,15 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
     if (retVal == -1)
     {
         std::string pN(pName);
+        bool signal = false;
         const CCustomData* customDataPtr = nullptr;
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             customDataPtr = &customObjectData;
         else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        {
+            signal = true;
             customDataPtr = &customObjectData_volatile;
+        }
         if (customDataPtr != nullptr)
         {
             if (pN.size() > 0)
@@ -6468,7 +6472,9 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
                 retVal = customDataPtr->hasData(pN.c_str(), true, &s);
                 if (retVal >= 0)
                 {
-                    info = 4; // removable
+                    info = sim_propertyinfo_removable;
+                    if (signal)
+                        info = info | sim_propertyinfo_modelhashexclude;
                     if (s > LARGE_PROPERTY_SIZE)
                         s = s | 0x100;
                     infoTxt = "";
