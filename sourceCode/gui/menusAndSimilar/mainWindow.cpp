@@ -204,6 +204,7 @@ CMainWindow::CMainWindow(int operationalUiParts)
 
     // --- Tabbar + hierarchy + OpenGl
     QVBoxLayout* vlay = new QVBoxLayout();
+    vlay->setObjectName("vlay");
     vlay->addWidget(tabBar);
     vlay->addWidget(_sceneHierarchySplitter);
     vlay->setSpacing(0);
