@@ -6,6 +6,9 @@
 CSimQApp::CSimQApp(int& argc, char** argv)
     : QAPP(argc, argv)
 {
+#ifdef Q_OS_MAC
+    QuitKeyInterceptor::install();
+#endif
 }
 
 CSimQApp::~CSimQApp()
