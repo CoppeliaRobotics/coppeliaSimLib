@@ -519,7 +519,6 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event, int t)
             QResizeEvent* rEvent = (QResizeEvent*)event;
             e.x = rEvent->size().width();
             e.y = rEvent->size().height();
-            setProperty("hierarchyWidth", App::getHierarchyEnabled() * GuiApp::mainWindow->oglSurface->getHierarchyWidth() / GuiApp::sc);
         }
         _bufferedMouseOrKeyboardOrResizeEvents.push_back(e);
     }
