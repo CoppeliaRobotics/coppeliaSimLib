@@ -6202,12 +6202,23 @@ std::string CSceneObjectContainer::getModelState(int modelHandle) const
     std::string dnaString;
     std::vector<int> sel;
     sel.push_back(modelHandle);
-    addModelObjects(sel);
+    std::map<int, int> handleMapping;
+    for (size_t i = 0; i < sel.size(); i++)
+    {
+        handleMapping[sel[i]] = int(i);
+        const CSceneObject* obj = getObjectFromHandle(sel[i]);
+        for (size_t j = 0; j < obj->getChildCount(); j++)
+            sel.push_back(obj->getChildFromIndex(j)->getObjectHandle());
+    }
     for (size_t i = 0; i < sel.size(); i++)
     {
         const CSceneObject* obj = getObjectFromHandle(sel[i]);
         if (obj != nullptr)
         {
+            // We only indirectly have parent-child infos. Adding child count makes it more robust:
+            size_t cc = obj->getChildCount();
+            dnaString.append(reinterpret_cast<const char*>(&cc), sizeof(cc));
+
             int index = 0;
             while (true)
             {
@@ -6225,6 +6236,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle) const
                     if ((sel[i] != modelHandle) || (name != propObject_pose.name))
                     { // the model base's pose should not be included
                         int result = -1;
+                        if ( (t != sim_propertytype_buffer) && ((name.find(CUSTOMDATAPREFIX) != std::string::npos) || (name.find(SIGNALPREFIX) != std::string::npos)) )
+                        { // customData and signals might return a different type than 'buffer', but is actually always buffer (this is normally handled at the API entry)
+                            utils::replaceSubstringStart(name, CUSTOMDATAPREFIX, (std::string(CUSTOMDATAPREFIX) + propertyStrings[t]).c_str());
+                            utils::replaceSubstringStart(name, SIGNALPREFIX, (std::string(SIGNALPREFIX) + propertyStrings[t]).c_str());
+                            t = sim_propertytype_buffer;
+                        }
                         switch (t)
                         {
                             case sim_propertytype_bool:
@@ -6333,6 +6350,8 @@ std::string CSceneObjectContainer::getModelState(int modelHandle) const
                         {
                             std::string err("Missing dnaString handler: ");
                             err += name;
+                            err += " for data type ";
+                            err += std::to_string(t);
                             App::logMsg(sim_verbosity_errors, err.c_str());
                             #ifdef WIN_SIM
                                 Beep(5000, 1000);
@@ -6340,7 +6359,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle) const
                             #endif
                         }
                     }
-                    printf("size: %i, %s\n", dnaString.size(), name.c_str());
+                    std::string str("Model state buffer size: ");
+                    str += std::to_string(dnaString.size());
+                    str += " (last property: ";
+                    str += name;
+                    str += ")";
+                    App::logMsg(sim_verbosity_debug, str.c_str());
                 }
             }
 
@@ -6356,6 +6380,47 @@ std::string CSceneObjectContainer::getModelState(int modelHandle) const
                 dnaString += ((CPointCloud*)obj)->getObjectState();
             if (obj->getObjectType() == sim_sceneobject_octree)
                 dnaString += ((COcTree*)obj)->getObjectState();
+            if (obj->getObjectType() == sim_sceneobject_joint)
+            {
+                CJoint* joint = (CJoint*)obj;
+                int h = joint->getDependencyMasterJointHandle();
+                auto it = handleMapping.find(h);
+                if (it != handleMapping.end())
+                    h = it->second;
+                else
+                    h = -1;
+                dnaString.append(reinterpret_cast<const char*>(&h), sizeof(h));
+            }
+            if (obj->getObjectType() == sim_sceneobject_dummy)
+            {
+                CDummy* dummy = (CDummy*)obj;
+                int h = dummy->getLinkedDummyHandle();
+                auto it = handleMapping.find(h);
+                if (it != handleMapping.end())
+                    h = it->second;
+                else
+                    h = -1;
+                dnaString.append(reinterpret_cast<const char*>(&h), sizeof(h));
+
+                dummy->getIntProperty(propDummy_mujocoJointProxyHandle.name, h);
+                it = handleMapping.find(h);
+                if (it != handleMapping.end())
+                    h = it->second;
+                else
+                    h = -1;
+                dnaString.append(reinterpret_cast<const char*>(&h), sizeof(h));
+            }
+            if (obj->getObjectType() == sim_sceneobject_camera)
+            {
+                CCamera* camera = (CCamera*)obj;
+                int h = camera->getTrackedObjectHandle();
+                auto it = handleMapping.find(h);
+                if (it != handleMapping.end())
+                    h = it->second;
+                else
+                    h = -1;
+                dnaString.append(reinterpret_cast<const char*>(&h), sizeof(h));
+            }
         }
     }
     return dnaString;

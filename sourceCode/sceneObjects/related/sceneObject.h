@@ -74,7 +74,8 @@
     FUNCX(propObject_movementStepSize, "movementStepSize", sim_propertytype_floatarray, 0, "Movement step sizes", "Linear and angular step sizes")                                                \
     FUNCX(propObject_movementRelativity, "movementRelativity", sim_propertytype_intarray, 0, "Movement relativity", "Movement relativity, linear and angular")                                    \
     FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Type", "Scene object type")                                                                \
-    FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Visible", "Whether the scene object is currently visible")
+    FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Visible", "Whether the scene object is currently visible")     \
+    FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Model hash", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

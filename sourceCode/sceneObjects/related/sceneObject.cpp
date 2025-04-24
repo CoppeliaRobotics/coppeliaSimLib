@@ -6044,6 +6044,15 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
         retVal = 1;
         pState = _uniquePersistentIdString;
     }
+    else if (_pName == propObject_modelHash.name)
+    {
+        retVal = 1;
+        pState = App::currentWorld->sceneObjects->getModelState(_objectHandle);
+        size_t hv = std::hash<std::string>{}(pState);
+        std::stringstream ss;
+        ss << std::hex << hv;
+        pState = ss.str();
+    }
 
     return retVal;
 }
