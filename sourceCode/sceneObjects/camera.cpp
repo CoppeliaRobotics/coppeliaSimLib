@@ -3567,7 +3567,7 @@ int CCamera::getIntArrayProperty(const char* ppName, std::vector<int>& pState) c
     return retVal;
 }
 
-int CCamera::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CCamera::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -3625,7 +3625,7 @@ int CCamera::getPropertyName_static(int& index, std::string& pName, std::string&
     return retVal;
 }
 
-int CCamera::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CCamera::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();

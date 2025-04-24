@@ -77,9 +77,9 @@ class CPointCloud : public CSceneObject
     int getColorProperty(const char* pName, float* pState) const;
     int setFloatArrayProperty(const char* pName, const double* v, int vL);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     std::string getObjectState() const;

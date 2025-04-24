@@ -522,7 +522,7 @@ int CMirror::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CMirror::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CMirror::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -576,7 +576,7 @@ int CMirror::getPropertyName_static(int& index, std::string& pName, std::string&
     return retVal;
 }
 
-int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
     const char* pName = _pName.c_str();

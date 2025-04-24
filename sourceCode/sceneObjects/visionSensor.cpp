@@ -3786,7 +3786,7 @@ int CVisionSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pSt
     return retVal;
 }
 
-int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -3844,7 +3844,7 @@ int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::s
     return retVal;
 }
 
-int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();

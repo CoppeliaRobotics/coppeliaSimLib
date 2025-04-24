@@ -148,7 +148,7 @@ int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes, 
     return retVal;
 }
 
-bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName)
+bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName) const
 {
     bool retVal = false;
     for (size_t i = 0; i < _dataNames.size(); i++)

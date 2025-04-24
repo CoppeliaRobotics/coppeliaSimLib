@@ -652,7 +652,7 @@ int CScript::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CScript::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CScript::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -710,7 +710,7 @@ int CScript::getPropertyName_static(int& index, std::string& pName, std::string&
     return retVal;
 }
 
-int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
     const char* pName = _pName.c_str();

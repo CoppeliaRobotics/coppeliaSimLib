@@ -69,9 +69,9 @@ class CScript : public CSceneObject
     int getStringProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const override;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     double getScriptSize() const;

@@ -85,9 +85,9 @@ class CProxSensor : public CSceneObject
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty(const char* pName, const int* v, int vL);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     // Various

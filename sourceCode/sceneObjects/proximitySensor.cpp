@@ -1559,7 +1559,7 @@ int CProxSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pStat
     return retVal;
 }
 
-int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -1621,7 +1621,7 @@ int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::str
     return retVal;
 }
 
-int CProxSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CProxSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();

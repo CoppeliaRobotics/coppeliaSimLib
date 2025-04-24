@@ -1255,7 +1255,7 @@ int CForceSensor::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -1309,7 +1309,7 @@ int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::st
     return retVal;
 }
 
-int CForceSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CForceSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
     const char* pName = _pName.c_str();

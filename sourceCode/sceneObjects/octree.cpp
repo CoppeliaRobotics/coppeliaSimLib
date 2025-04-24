@@ -1266,7 +1266,7 @@ int COcTree::getFloatArrayProperty(const char* ppName, std::vector<double>& pSta
     return retVal;
 }
 
-int COcTree::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int COcTree::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -1320,7 +1320,7 @@ int COcTree::getPropertyName_static(int& index, std::string& pName, std::string&
     return retVal;
 }
 
-int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
     const char* pName = _pName.c_str();

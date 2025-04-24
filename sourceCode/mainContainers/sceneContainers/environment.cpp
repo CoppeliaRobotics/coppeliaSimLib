@@ -1214,7 +1214,7 @@ int CEnvironment::getColorProperty(const char* pName, float* pState) const
     return retVal;
 }
 
-int CEnvironment::getPropertyName(int& index, std::string& pName)
+int CEnvironment::getPropertyName(int& index, std::string& pName) const
 {
     int retVal = -1;
 
@@ -1236,7 +1236,7 @@ int CEnvironment::getPropertyName(int& index, std::string& pName)
     return retVal;
 }
 
-int CEnvironment::getPropertyInfo(const char* pName, int& info, std::string& infoTxt)
+int CEnvironment::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = -1;
 

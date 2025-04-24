@@ -1735,7 +1735,7 @@ int CPointCloud::getFloatArrayProperty(const char* ppName, std::vector<double>& 
     return retVal;
 }
 
-int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -1789,7 +1789,7 @@ int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::str
     return retVal;
 }
 
-int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
     const char* pName = _pName.c_str();

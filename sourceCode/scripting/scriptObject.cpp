@@ -4471,7 +4471,12 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     if (strcmp(propScriptObj_code.name, pName) == 0)
     {
         retVal = 1;
+#ifdef SIM_WITH_GUI
+        if (GuiApp::mainWindow != nullptr)
+            GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+#endif
         pState = _scriptText;
+
     }
     else if (strcmp(propScriptObj_language.name, pName) == 0)
     {
@@ -4497,7 +4502,7 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     return retVal;
 }
 
-int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* appartenance)
+int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* appartenance) const
 {
     int retVal = CScriptObject::getPropertyName_static(index, pName, appartenance);
     return retVal;
@@ -4524,7 +4529,7 @@ int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::s
     return retVal;
 }
 
-int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool detachedScript)
+int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool detachedScript) const
 {
     int retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt, detachedScript);
     if (retVal != -1)

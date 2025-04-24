@@ -2295,7 +2295,7 @@ int CConvexVolume::getIntArrayProperty(const char* pName, std::vector<int>& pSta
     return retVal;
 }
 
-int CConvexVolume::getPropertyName(int& index, std::string& pName)
+int CConvexVolume::getPropertyName(int& index, std::string& pName) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
@@ -2333,7 +2333,7 @@ int CConvexVolume::getPropertyName_static(int& index, std::string& pName)
     return retVal;
 }
 
-int CConvexVolume::getPropertyInfo(const char* pName, int& info, std::string& infoTxt)
+int CConvexVolume::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)

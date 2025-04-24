@@ -1033,7 +1033,7 @@ int CLight::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     return retVal;
 }
 
-int CLight::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CLight::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -1091,7 +1091,7 @@ int CLight::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CLight::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CLight::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
     const char* pName = _pName.c_str();

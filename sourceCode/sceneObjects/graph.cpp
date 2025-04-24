@@ -3760,7 +3760,7 @@ int CGraph::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CGraph::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CGraph::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -3814,7 +3814,7 @@ int CGraph::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CGraph::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CGraph::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
     const char* pName = _pName.c_str();
