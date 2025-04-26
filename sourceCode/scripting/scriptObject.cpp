@@ -1248,7 +1248,7 @@ void CScriptObject::simulationEnded()
         if (_outsideCommandQueue != nullptr)
             _outsideCommandQueue->simulationEnded();
         _scriptTextExec.clear();
-        if (_scriptObjectInitialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+        if (_scriptObjectInitialValuesInitialized)
         {
         }
         _scriptObjectInitialValuesInitialized = false;

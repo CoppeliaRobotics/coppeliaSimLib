@@ -524,7 +524,7 @@ void CButtonBlock::simulationEnded()
     {
         for (int i = 0; i < int(allButtons.size()); i++)
             allButtons[i]->simulationEnded();
-        if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+        if (_initialValuesInitialized)
         {
             _attributes = _initialAttributes;
             desiredBlockPosition.x = _initialPos[0];

@@ -84,7 +84,7 @@ void CSoftButton::initializeInitialValues(bool simulationAlreadyRunning)
 void CSoftButton::simulationEnded()
 {   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
-    if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    if (_initialValuesInitialized)
     {
         _buttonAttributes = _initialSimulation_buttonAttributes;
         label = _initialSimulation_label;

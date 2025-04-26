@@ -10,7 +10,6 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                            \
-    FUNCX(propSim_resetSimulationAtEnd, "resetSceneAtEnd", sim_propertytype_bool, 0, "Reset scene", "Reset scene to initial state at simulation end")                                \
     FUNCX(propSim_removeNewObjectsAtEnd, "removeNewObjectsAtEnd", sim_propertytype_bool, 0, "Remove new objects", "Remove new scene objects at simulation end")                      \
     FUNCX(propSim_realtimeSimulation, "realtimeSimulation", sim_propertytype_bool, 0, "Real-time simulation", "")                                                                    \
     FUNCX(propSim_pauseSimulationAtTime, "pauseSimulationAtTime", sim_propertytype_bool, 0, "Pause simulation at time", "Pause simulation when simulation time exceeds a threshold") \
@@ -54,8 +53,6 @@ class CSimulation
 
     double getSimulationTime() const;
     double getSimulationTime_real() const;
-    void setResetSceneAtSimulationEnd(bool r);
-    bool getResetSceneAtSimulationEnd() const;
     void setRemoveNewObjectsAtSimulationEnd(bool r);
     bool getRemoveNewObjectsAtSimulationEnd() const;
 
@@ -132,7 +129,6 @@ class CSimulation
 
     double _getSpeedModifier_forRealTimeCoefficient() const;
 
-    bool _resetSimulationAtEnd;
     bool _removeNewObjectsAtSimulationEnd;
 
     bool _fullscreenAtSimulationStart;

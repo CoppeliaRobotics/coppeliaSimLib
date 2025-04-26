@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>426</height>
+    <height>367</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,54 +16,6 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <widget class="QGroupBox" name="groupBox">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>330</y>
-     <width>411</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>At simulation end</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <widget class="QCheckBox" name="qqResetScene">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>231</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Reset scene to initial state</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="qqRemoveNewObjects">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>231</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Remove new objects</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
@@ -130,7 +82,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>405</y>
+     <y>345</y>
      <width>411</width>
      <height>18</height>
     </rect>
@@ -143,7 +95,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>230</y>
+     <y>250</y>
      <width>411</width>
      <height>91</height>
     </rect>
@@ -259,7 +211,7 @@
      <x>10</x>
      <y>90</y>
      <width>411</width>
-     <height>131</height>
+     <height>151</height>
     </rect>
    </property>
    <property name="title">
@@ -375,6 +327,22 @@
      <string>Real-time simulation, multiplication factor</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="qqRemoveNewObjects">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>125</y>
+      <width>381</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Remove new objects at simulation end</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <tabstops>
@@ -387,6 +355,7 @@
   <tabstop>qqPauseTime</tabstop>
   <tabstop>qqPauseOnScriptError</tabstop>
   <tabstop>qqFullscreen</tabstop>
+  <tabstop>qqRemoveNewObjects</tabstop>
   <tabstop>qqEnabled</tabstop>
   <tabstop>qqEngineCombo</tabstop>
   <tabstop>qqContactPoints</tabstop>
@@ -394,8 +363,6 @@
   <tabstop>qqGravityX</tabstop>
   <tabstop>qqGravityY</tabstop>
   <tabstop>qqGravityZ</tabstop>
-  <tabstop>qqResetScene</tabstop>
-  <tabstop>qqRemoveNewObjects</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -7260,7 +7260,10 @@ int _simTest(luaWrap_lua_State* L)
         if (cmd.compare("getModelState") == 0)
         {
             int h = luaWrap_lua_tointeger(L, 2);
-            std::string state = App::currentWorld->sceneObjects->getModelState(h);
+            int p = -1;
+            if (checkInputArguments(L, nullptr, lua_arg_string, 0, lua_arg_number, 0, lua_arg_number, 0))
+                p = luaWrap_lua_tointeger(L, 3);
+            std::string state = App::currentWorld->sceneObjects->getModelState(h, p);
             luaWrap_lua_pushbuffer(L, state.c_str(), state.size());
             LUA_END(1);
         }

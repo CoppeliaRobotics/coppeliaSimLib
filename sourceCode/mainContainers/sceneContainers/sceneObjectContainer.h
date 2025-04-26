@@ -235,7 +235,7 @@ class CSceneObjectContainer
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CSceneObjectContainer* targetObject);
 
-    std::string getModelState(int modelHandle) const;
+    std::string getModelState(int modelHandle, int debugPos = -1) const;
 
     void setTextureDependencies();
     void removeSceneDependencies();

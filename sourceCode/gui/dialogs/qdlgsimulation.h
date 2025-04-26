@@ -28,7 +28,6 @@ class CQDlgSimulation : public CDlgEx
     void on_qqPauseWhenTimeHigher_clicked();
     void on_qqPauseTime_editingFinished();
     void on_qqPauseOnScriptError_clicked();
-    void on_qqResetScene_clicked();
     void on_qqRemoveNewObjects_clicked();
     void on_qqFullscreen_clicked();
 

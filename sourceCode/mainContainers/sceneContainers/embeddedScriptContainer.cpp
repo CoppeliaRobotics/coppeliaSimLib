@@ -76,7 +76,7 @@ void CEmbeddedScriptContainer::simulationEnded()
     for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_old.size(); i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_old[i];
     _callbackStructureToDestroyAtEndOfSimulation_old.clear();
-    //  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    //  if (_initialValuesInitialized)
     //  {
     //  }
 }

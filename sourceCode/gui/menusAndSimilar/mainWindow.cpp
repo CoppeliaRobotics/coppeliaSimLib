@@ -229,9 +229,8 @@ CMainWindow::CMainWindow(int operationalUiParts)
     statusBar->setMaximumHeight(600);
     statusBar->setObjectName("statusBar");
     if ((GuiApp::operationalUIParts & sim_gui_statusbar) == 0)
-        statusBar->setVisible(
-            false); // do not explicitely set to true (not nice artifacts during creation). Is true by default anyways
-                    // ---------------
+        statusBar->setVisible(false); // do not explicitely set to true (not nice artifacts during creation). Is true by default anyways
+    // ---------------
 
     // --- statusbar splitter ---
     _statusbarSplitter = new QSplitter(Qt::Vertical);

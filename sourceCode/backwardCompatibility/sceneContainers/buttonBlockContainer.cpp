@@ -219,7 +219,7 @@ void CButtonBlockContainer::simulationEnded()
 {
     for (int i = 0; i < int(allBlocks.size()); i++)
         allBlocks[i]->simulationEnded();
-    //  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    //  if (_initialValuesInitialized)
     //  {
     //  }
 }

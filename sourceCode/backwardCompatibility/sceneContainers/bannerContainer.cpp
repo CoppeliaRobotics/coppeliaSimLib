@@ -14,7 +14,7 @@ CBannerContainer::~CBannerContainer()
 void CBannerContainer::simulationEnded()
 {
     eraseAllObjects(true);
-    //  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    //  if (_initialValuesInitialized)
     //  {
     //  }
 }

@@ -593,9 +593,14 @@ void CFileOperations::addMenu(VMenu* menu)
     for (int i = 0; i < 10; i++)
     {
         if (recentScenes[i].length() > 3)
-            recentSceneMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_OPEN_RECENT_SCENE0_FOCMD + i, VVarious::splitPath_fileBaseAndExtension(recentScenes[i].c_str()).c_str());
+        {
+            std::string str(VVarious::splitPath_fileBaseAndExtension(recentScenes[i].c_str()));
+            str += "     (in ";
+            str += VVarious::splitPath_path(recentScenes[i].c_str()) + ")";
+            recentSceneMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_OPEN_RECENT_SCENE0_FOCMD + i, str.c_str());
+        }
     }
-    menu->appendMenuAndDetach(recentSceneMenu, (recentScenesCnt > 0) && fileOpOk, IDS_OPEN_RECENT_SCENE_MENU_ITEM);
+    menu->appendMenuAndDetach(recentSceneMenu, (recentScenesCnt > 0) && fileOpOk, "Open recent scene");
     menu->appendMenuItem(fileOpOkAlsoDuringSimulation, false, FILE_OPERATION_LOAD_MODEL_FOCMD, IDS_LOAD_MODEL___MENU_ITEM);
     menu->appendMenuSeparator();
     menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_CLOSE_SCENE_FOCMD, IDS_CLOSE_SCENE_MENU_ITEM);

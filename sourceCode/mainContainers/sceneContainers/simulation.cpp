@@ -46,7 +46,6 @@ void CSimulation::setUpDefaultValues()
     _pauseOnErrorRequested = false;
     _hierarchyWasEnabledBeforeSimulation = false;
     _initialValuesInitialized = false;
-    _resetSimulationAtEnd = true;
     _removeNewObjectsAtSimulationEnd = true;
     _realTimeSimulation = false;
     _fullscreenAtSimulationStart = false;
@@ -117,26 +116,6 @@ void CSimulation::setRemoveNewObjectsAtSimulationEnd(bool r)
 bool CSimulation::getRemoveNewObjectsAtSimulationEnd() const
 {
     return (_removeNewObjectsAtSimulationEnd);
-}
-
-void CSimulation::setResetSceneAtSimulationEnd(bool r)
-{
-    bool diff = (_resetSimulationAtEnd != r);
-    if (diff)
-    {
-        _resetSimulationAtEnd = r;
-        if (App::worldContainer->getEventsEnabled())
-        {
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propSim_resetSimulationAtEnd.name, true);
-            ev->appendKeyBool(propSim_resetSimulationAtEnd.name, _resetSimulationAtEnd);
-            App::worldContainer->pushEvent();
-        }
-    }
-}
-
-bool CSimulation::getResetSceneAtSimulationEnd() const
-{
-    return (_resetSimulationAtEnd);
 }
 
 void CSimulation::simulationAboutToStart()
@@ -567,7 +546,6 @@ void CSimulation::appendGenesisData(CCbor* ev) const
     ev->appendKeyInt("state", _simulationState);
     ev->appendKeyInt("time", int(_simulationTime * 1000.0));
 #else
-    ev->appendKeyBool(propSim_resetSimulationAtEnd.name, _resetSimulationAtEnd);
     ev->appendKeyBool(propSim_removeNewObjectsAtEnd.name, _removeNewObjectsAtSimulationEnd);
     ev->appendKeyBool(propSim_realtimeSimulation.name, _realTimeSimulation);
     ev->appendKeyBool(propSim_pauseSimulationAtTime.name, _pauseAtSpecificTime);
@@ -925,7 +903,7 @@ void CSimulation::serialize(CSer& ar)
             SIM_SET_CLEAR_BIT(nothing, 3, _pauseAtError);
             // 06.09.2022 SIM_SET_CLEAR_BIT(nothing,4,_catchUpIfLate);
             SIM_SET_CLEAR_BIT(nothing, 5, _fullscreenAtSimulationStart);
-            SIM_SET_CLEAR_BIT(nothing, 6, !_resetSimulationAtEnd);
+            SIM_SET_CLEAR_BIT(nothing, 6, false);
             SIM_SET_CLEAR_BIT(nothing, 7, !_removeNewObjectsAtSimulationEnd);
 
             ar << nothing;
@@ -1022,7 +1000,7 @@ void CSimulation::serialize(CSer& ar)
                         _pauseAtError = SIM_IS_BIT_SET(nothing, 3);
                         // 06.09.2022 _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
                         bool defaultSimulationTimeStep = SIM_IS_BIT_SET(nothing, 5);
-                        _resetSimulationAtEnd = !SIM_IS_BIT_SET(nothing, 6);
+                        // removed on 26.04.2025 _resetSimulationAtEnd = !SIM_IS_BIT_SET(nothing, 6);
                         _removeNewObjectsAtSimulationEnd = !SIM_IS_BIT_SET(nothing, 7);
                         if (defaultSimulationTimeStep)
                             oldDefautParamsIndex = 2; // for default parameters
@@ -1041,7 +1019,7 @@ void CSimulation::serialize(CSer& ar)
                         _pauseAtError = SIM_IS_BIT_SET(nothing, 3);
                         // 06.09.2022 _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
                         _fullscreenAtSimulationStart = SIM_IS_BIT_SET(nothing, 5);
-                        _resetSimulationAtEnd = !SIM_IS_BIT_SET(nothing, 6);
+                        // removed on 26.04.2025 _resetSimulationAtEnd = !SIM_IS_BIT_SET(nothing, 6);
                         _removeNewObjectsAtSimulationEnd = !SIM_IS_BIT_SET(nothing, 7);
                     }
 
@@ -1146,7 +1124,7 @@ void CSimulation::serialize(CSer& ar)
             ar.xmlAddNode_bool("pauseAtError", _pauseAtError);
             if (exhaustiveXml)
                 ar.xmlAddNode_bool("fullScreen", _fullscreenAtSimulationStart);
-            ar.xmlAddNode_bool("resetAtEnd", _resetSimulationAtEnd);
+            // removed on 26.04.2025 ar.xmlAddNode_bool("resetAtEnd", _resetSimulationAtEnd);
             ar.xmlAddNode_bool("removeNewObjectsAtEnd", _removeNewObjectsAtSimulationEnd);
             ar.xmlPopNode();
         }
@@ -1188,7 +1166,7 @@ void CSimulation::serialize(CSer& ar)
                 ar.xmlGetNode_bool("pauseAtError", _pauseAtError, exhaustiveXml);
                 if (exhaustiveXml)
                     ar.xmlGetNode_bool("fullScreen", _fullscreenAtSimulationStart, exhaustiveXml);
-                ar.xmlGetNode_bool("resetAtEnd", _resetSimulationAtEnd, exhaustiveXml);
+                // removed on 26.04.2025 ar.xmlGetNode_bool("resetAtEnd", _resetSimulationAtEnd, exhaustiveXml);
                 ar.xmlGetNode_bool("removeNewObjectsAtEnd", _removeNewObjectsAtSimulationEnd, exhaustiveXml);
                 ar.xmlPopNode();
             }
@@ -1541,12 +1519,7 @@ int CSimulation::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = -1;
 
-    if (strcmp(pName, propSim_resetSimulationAtEnd.name) == 0)
-    {
-        retVal = 1;
-        setResetSceneAtSimulationEnd(pState);
-    }
-    else if (strcmp(pName, propSim_removeNewObjectsAtEnd.name) == 0)
+    if (strcmp(pName, propSim_removeNewObjectsAtEnd.name) == 0)
     {
         retVal = 1;
         setRemoveNewObjectsAtSimulationEnd(pState);
@@ -1574,12 +1547,7 @@ int CSimulation::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = -1;
 
-    if (strcmp(pName, propSim_resetSimulationAtEnd.name) == 0)
-    {
-        pState = _resetSimulationAtEnd;
-        retVal = 1;
-    }
-    else if (strcmp(pName, propSim_removeNewObjectsAtEnd.name) == 0)
+    if (strcmp(pName, propSim_removeNewObjectsAtEnd.name) == 0)
     {
         pState = _removeNewObjectsAtSimulationEnd;
         retVal = 1;

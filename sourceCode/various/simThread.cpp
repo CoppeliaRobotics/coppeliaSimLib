@@ -1392,11 +1392,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (App::currentWorld->simulation->isSimulationStopped())
             App::currentWorld->simulation->setPauseAtError(!App::currentWorld->simulation->getPauseAtError());
     }
-    if (cmd.cmdId == TOGGLE_RESETSCENETOINITIAL_SIMULATIONGUITRIGGEREDCMD)
-    {
-        App::currentWorld->simulation->setResetSceneAtSimulationEnd(
-            !App::currentWorld->simulation->getResetSceneAtSimulationEnd());
-    }
     if (cmd.cmdId == TOGGLE_REMOVENEWOBJECTS_SIMULATIONGUITRIGGEREDCMD)
     {
         App::currentWorld->simulation->setRemoveNewObjectsAtSimulationEnd(

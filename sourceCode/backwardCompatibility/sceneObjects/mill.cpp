@@ -227,8 +227,7 @@ void CMill::simulationEnded()
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
-        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
-            ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0))
+        if ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0)
         {
             _explicitHandling = _initialExplicitHandling;
         }

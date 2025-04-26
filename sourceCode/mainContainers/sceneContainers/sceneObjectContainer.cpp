@@ -6197,7 +6197,7 @@ int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pNa
     return retVal;
 }
 
-std::string CSceneObjectContainer::getModelState(int modelHandle) const
+std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /*= -1 */) const
 {
     std::string dnaString;
     std::vector<int> sel;
@@ -6358,12 +6358,17 @@ std::string CSceneObjectContainer::getModelState(int modelHandle) const
                             #endif
                         }
                     }
-                    std::string str("Model state buffer size: ");
-                    str += std::to_string(dnaString.size());
-                    str += " (last property: ";
-                    str += name;
-                    str += ")";
-                    App::logMsg(sim_verbosity_debug, str.c_str());
+                    if ( (debugPos != -1) && (std::abs(int(dnaString.size() - debugPos)) < 1000) )
+                    {
+                        std::string str("Model state buffer size: ");
+                        str += std::to_string(dnaString.size());
+                        str += " (last property: ";
+                        str += name;
+                        str += ", object: ";
+                        str += obj->getObjectAlias();
+                        str += ")";
+                        App::logMsg(sim_verbosity_loadinfos, str.c_str());
+                    }
                 }
             }
 

@@ -1982,8 +1982,7 @@ void CSceneObject::simulationEnded_restoreHierarchy()
 { // called before simulationEnded
     if (_initialValuesInitialized && _initialConfigurationMemorized)
     {
-        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
-            ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0))
+        if ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0)
         {
             long long int puid = -1;
             CSceneObject* p = getParent();
@@ -2008,8 +2007,7 @@ void CSceneObject::simulationEnded()
         _userScriptParameters->simulationEnded();
     if (_initialValuesInitialized)
     {
-        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
-            ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0))
+        if ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0)
         {
             if (_initialConfigurationMemorized)
             { // this section is special and reserved to local configuration restoration!

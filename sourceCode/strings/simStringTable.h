@@ -436,7 +436,6 @@
 #define IDS_NEW_SCENE_MENU_ITEM "New scene"
 
 #define IDS_OPEN_SCENE___MENU_ITEM "Open scene..."
-#define IDS_OPEN_RECENT_SCENE_MENU_ITEM "Open recent scene"
 #define IDS_LOAD_MODEL___MENU_ITEM "Load model..."
 #define IDS_SAVE_SCENE_MENU_ITEM "Save scene"
 #define IDS_SAVE_SCENE_AS_MENU_ITEM "Save scene as"

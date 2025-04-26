@@ -1911,12 +1911,9 @@ void CPathCont_old::simulationEnded()
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
-        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd())
-        {
-            _position = _initialPosition;
-            _nominalVelocity = _initialNominalVelocity;
-            _targetNominalVelocity = _initialTargetNominalVelocity;
-        }
+        _position = _initialPosition;
+        _nominalVelocity = _initialNominalVelocity;
+        _targetNominalVelocity = _initialTargetNominalVelocity;
     }
     _initialValuesInitialized = false;
 }

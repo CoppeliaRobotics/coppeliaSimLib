@@ -37,7 +37,6 @@ void CQDlgSimulation::refresh()
     ui->qqPauseTime->setEnabled(noEditModeNoSim && App::currentWorld->simulation->getPauseAtSpecificTime());
     ui->qqPauseWhenTimeHigher->setEnabled(noEditModeNoSim);
     ui->qqPauseOnScriptError->setEnabled(noEditModeNoSim);
-    ui->qqResetScene->setEnabled(noEditMode);
     ui->qqRemoveNewObjects->setEnabled(noEditMode);
 
     ui->qqEngineCombo->setEnabled(noEditModeNoSim && App::currentWorld->dynamicsContainer->getDynamicsEnabled());
@@ -57,7 +56,6 @@ void CQDlgSimulation::refresh()
     ui->qqMultiplicationCoefficient->setText(
         utils::getMultString(false, App::currentWorld->simulation->getRealTimeCoeff()).c_str());
 
-    ui->qqResetScene->setChecked(App::currentWorld->simulation->getResetSceneAtSimulationEnd());
     ui->qqRemoveNewObjects->setChecked(App::currentWorld->simulation->getRemoveNewObjectsAtSimulationEnd());
 
     ui->qqPauseTime->setText(utils::getTimeString(true, App::currentWorld->simulation->getPauseTime()).c_str());
@@ -230,16 +228,6 @@ void CQDlgSimulation::on_qqPauseOnScriptError_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_PAUSEATERROR_SIMULATIONGUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgSimulation::on_qqResetScene_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        App::appendSimulationThreadCommand(TOGGLE_RESETSCENETOINITIAL_SIMULATIONGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

@@ -111,7 +111,7 @@ void CSPage::simulationEnded()
         }
     }
 
-    if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    if (_initialValuesInitialized)
     {
         // Make sure we restore floating view's initial positions and sizes:
         for (size_t i = getRegularViewCount(); i < _allViews.size(); i++)

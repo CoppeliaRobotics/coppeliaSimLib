@@ -97,7 +97,7 @@ void CPathPlanningTask::simulationAboutToStart()
 void CPathPlanningTask::simulationEnded()
 {   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
-    // if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    // if (_initialValuesInitialized)
     //{
     //}
     //_initialValuesInitialized=false;

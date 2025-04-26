@@ -68,7 +68,7 @@ void CViewableBase::simulationAboutToStart()
 }
 void CViewableBase::simulationEnded()
 {
-    //  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    //  if (_initialValuesInitialized)
     //  {
     //  }
 }

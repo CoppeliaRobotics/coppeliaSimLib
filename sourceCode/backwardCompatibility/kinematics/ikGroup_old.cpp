@@ -43,7 +43,7 @@ void CIkGroup_old::simulationEnded()
     // ended). For thoses situations there is the initializeInitialValues routine!
     for (size_t i = 0; i < getIkElementCount(); i++)
         getIkElementFromIndex(i)->simulationEnded();
-    if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    if (_initialValuesInitialized)
     {
         _CIkGroup_old::setExplicitHandling(_initialExplicitHandling);
     }

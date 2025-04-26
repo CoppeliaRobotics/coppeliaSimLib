@@ -66,7 +66,7 @@ void CPageContainer::simulationAboutToStart()
 
 void CPageContainer::simulationEnded()
 {
-    if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    if (_initialValuesInitialized)
     {
         _activePageIndex = _initialActivePageIndex;
     }
