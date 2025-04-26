@@ -35,55 +35,54 @@ class CGraph : public CSceneObject
     virtual ~CGraph();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev);
-    CSceneObject* copyYourself();
-    void removeSceneDependencies();
-    void scaleObject(double scalingFactor);
-    void serialize(CSer& ar);
+    void addSpecializedObjectEventData(CCbor* ev) override;
+    CSceneObject* copyYourself() override;
+    void removeSceneDependencies() override;
+    void scaleObject(double scalingFactor) override;
+    void serialize(CSer& ar) override;
 
-    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
-    void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript,
-                                    bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
-    void performScriptLoadingMapping(const std::map<int, int>* map, int opType);
-    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
-    void setIsInScene(bool s);
-    int setBoolProperty(const char* pName, bool pState);
-    int getBoolProperty(const char* pName, bool& pState) const;
-    int setIntProperty(const char* pName, int pState);
-    int getIntProperty(const char* pName, int& pState) const;
-    int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState) const;
-    int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState) const;
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer) override;
+    void performObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performScriptLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void setIsInScene(bool s) override;
+    int setBoolProperty(const char* pName, bool pState) override;
+    int getBoolProperty(const char* pName, bool& pState) const override;
+    int setIntProperty(const char* pName, int pState) override;
+    int getIntProperty(const char* pName, int& pState) const override;
+    int setFloatProperty(const char* pName, double pState) override;
+    int getFloatProperty(const char* pName, double& pState) const override;
+    int setColorProperty(const char* pName, const float* pState) override;
+    int getColorProperty(const char* pName, float* pState) const override;
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const override;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     // Old:
     // ---------
-    void announceCollectionWillBeErased(int groupID, bool copyBuffer);
-    void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
-    void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
-    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
-    void performCollisionLoadingMapping(const std::map<int, int>* map, int opType);
-    void performDistanceLoadingMapping(const std::map<int, int>* map, int opType);
-    void performIkLoadingMapping(const std::map<int, int>* map, int opType);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
+    void announceCollectionWillBeErased(int groupID, bool copyBuffer) override;
+    void announceCollisionWillBeErased(int collisionID, bool copyBuffer) override;
+    void announceDistanceWillBeErased(int distanceID, bool copyBuffer) override;
+    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer) override;
+    void performCollectionLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performCollisionLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performDistanceLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performIkLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map) override;
     // ---------
 
-    void simulationAboutToStart();
-    void simulationEnded();
-    void initializeInitialValues(bool simulationAlreadyRunning);
-    void computeBoundingBox();
-    std::string getObjectTypeInfo() const;
-    std::string getObjectTypeInfoExtended() const;
-    bool isPotentiallyCollidable() const;
-    bool isPotentiallyMeasurable() const;
-    bool isPotentiallyDetectable() const;
-    bool isPotentiallyRenderable() const;
+    void simulationAboutToStart() override;
+    void simulationEnded() override;
+    void initializeInitialValues(bool simulationAlreadyRunning) override;
+    void computeBoundingBox() override;
+    std::string getObjectTypeInfo() const override;
+    std::string getObjectTypeInfoExtended() const override;
+    bool isPotentiallyCollidable() const override;
+    bool isPotentiallyMeasurable() const override;
+    bool isPotentiallyDetectable() const override;
+    bool isPotentiallyRenderable() const override;
 
     // Various
     bool getGraphCurveData(int graphType, int index, std::string& label, std::vector<double>& xVals,

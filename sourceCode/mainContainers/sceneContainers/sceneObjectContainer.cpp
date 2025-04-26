@@ -55,6 +55,7 @@ void CSceneObjectContainer::simulationAboutToEnd()
 void CSceneObjectContainer::simulationEnded()
 {
     embeddedScriptContainer->simulationEnded();
+
     for (size_t i = 0; i < getObjectCount(); i++)
         getObjectFromIndex(i)->simulationEnded_restoreHierarchy();
 
