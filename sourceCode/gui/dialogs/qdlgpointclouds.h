@@ -17,9 +17,9 @@ class CQDlgPointclouds : public CDlgEx
     explicit CQDlgPointclouds(QWidget* parent = 0);
     ~CQDlgPointclouds();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   private slots:
     void on_qqMaxCellSize_editingFinished();

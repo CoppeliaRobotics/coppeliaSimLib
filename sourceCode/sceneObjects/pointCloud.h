@@ -13,7 +13,7 @@
     FUNCX(propPointCloud_maxPtsInCell, "maxPointsInCell", sim_propertytype_int, 0, "Max. points in cell", "Maximum number of points in an oc-tree cell/voxel")                       \
     FUNCX(propPointCloud_cellSize, "cellSize", sim_propertytype_float, 0, "Cell size", "Size of the oc-tree cell/voxel")                                                             \
     FUNCX(propPointCloud_pointDisplayFraction, "pointDisplayFraction", sim_propertytype_float, 0, "Display fraction", "Fraction of points to be displayed in an oc-tree cell/voxel") \
-    FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Points", "Point positions")                                                   \
+    FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Points", "Point positions")               \
     FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Colors", "Point colors")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -166,6 +166,6 @@ class CPointCloud : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
 #endif
 };

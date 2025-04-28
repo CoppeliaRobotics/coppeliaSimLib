@@ -101,7 +101,6 @@ int CWorldContainer::createNewWorld()
 {
     TRACE_INTERNAL;
 
-
     // Inform scripts about future switch to new world (only if there is already at least one world):
     if (currentWorld != nullptr)
         callScripts(sim_syscb_beforeinstanceswitch, nullptr, nullptr);
@@ -672,7 +671,7 @@ void CWorldContainer::dispatchEvents()
             _eventSeq = _events->finalizeEvents(_eventSeq, true, &_eventInfos);
             std::vector<unsigned char> ev;
             _events->swapWithEmptyBuffer(&ev);
-            int evCnt = _events->getEventCnt();
+            int evCnt = int(_events->getEventCnt());
             _eventMutex.unlock(); // below might lead to a deadlock if _eventMutex still locked
 
             int auxData[2];

@@ -18,9 +18,9 @@ class CQDlgPathEdit : public CDlgEx
     explicit CQDlgPathEdit(QWidget* parent = 0);
     ~CQDlgPathEdit();
 
-    void refresh();
-    void cancelEvent();
-    void okEvent();
+    void refresh() override;
+    void cancelEvent() override;
+    void okEvent() override;
 
     CPathCont_old* getPathCont();
 

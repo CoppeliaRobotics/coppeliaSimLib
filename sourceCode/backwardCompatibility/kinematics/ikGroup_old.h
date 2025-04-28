@@ -29,11 +29,11 @@ class CIkGroup_old : public _CIkGroup_old
     bool announceIkGroupWillBeErased(int ikGroupID, bool copyBuffer);
 
     // Overridden from _CIkGroup_old:
-    bool setObjectName(const char* newName, bool check);
-    bool setDoOnFailOrSuccessOf(int groupID, bool check);
-    bool setMaxIterations(int maxIter);
-    bool setCalculationMethod(int theMethod);
-    bool setDampingFactor(double theFactor);
+    bool setObjectName(const char* newName, bool check) override;
+    bool setDoOnFailOrSuccessOf(int groupID, bool check) override;
+    bool setMaxIterations(int maxIter) override;
+    bool setCalculationMethod(int theMethod) override;
+    bool setDampingFactor(double theFactor) override;
 
     std::string getUniquePersistentIdString() const;
     int getIkPluginCounterpartHandle() const;
@@ -63,21 +63,21 @@ class CIkGroup_old : public _CIkGroup_old
 
   protected:
     // Overridden from _CIkGroup_old:
-    void _addIkElement(CIkElement_old* anElement);
-    void _removeIkElement(int ikElementHandle);
+    void _addIkElement(CIkElement_old* anElement) override;
+    void _removeIkElement(int ikElementHandle) override;
 
     double _getDeterminant(const CMatrix& m, const std::vector<int>* activeRows,
                            const std::vector<int>* activeColumns) const;
 
   private:
     // Overridden from _CIkGroup_old:
-    void _setEnabled_send(bool e) const;
-    void _setMaxIterations_send(int it) const;
-    void _setCalculationMethod_send(int m) const;
-    void _setDampingFactor_send(double f) const;
-    void _setIgnoreMaxStepSizes_send(bool e) const;
-    void _setRestoreIfPositionNotReached_send(bool e) const;
-    void _setRestoreIfOrientationNotReached_send(bool e) const;
+    void _setEnabled_send(bool e) const override;
+    void _setMaxIterations_send(int it) const override;
+    void _setCalculationMethod_send(int m) const override;
+    void _setDampingFactor_send(double f) const override;
+    void _setIgnoreMaxStepSizes_send(bool e) const override;
+    void _setRestoreIfPositionNotReached_send(bool e) const override;
+    void _setRestoreIfOrientationNotReached_send(bool e) const override;
 
     void _setLastJacobian(CMatrix* j);
 

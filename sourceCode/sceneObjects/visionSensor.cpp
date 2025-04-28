@@ -1718,7 +1718,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
             }
         }
         else
-        {   // we have a model here that we want to render. We render also non-renderable object. And only those currently
+        { // we have a model here that we want to render. We render also non-renderable object. And only those currently
             // visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
@@ -1908,7 +1908,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
             }
         }
         else
-        {   // we have a model here that we want to render. We render also non-renderable object. And only those currently
+        { // we have a model here that we want to render. We render also non-renderable object. And only those currently
             // visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
@@ -2027,7 +2027,7 @@ int CVisionSensor::_getActiveMirrors(int entityID, bool detectAll,
             }
         }
         else
-        {   // we have a model here that we want to render. We render also non-renderable object. And only those currently
+        { // we have a model here that we want to render. We render also non-renderable object. And only those currently
             // visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
@@ -2251,7 +2251,7 @@ void CVisionSensor::simulationAboutToStart()
 }
 
 void CVisionSensor::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {

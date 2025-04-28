@@ -55,7 +55,7 @@ void CCopyBuffer::clearBuffer()
         delete ikGroupBuffer[i];
     ikGroupBuffer.clear();
     // Not supported anymore for copy/paste operations:
-/*
+    /*
     for (size_t i = 0; i < pathPlanningTaskBuffer.size(); i++)
         delete pathPlanningTaskBuffer[i];
     pathPlanningTaskBuffer.clear();
@@ -167,7 +167,7 @@ void CCopyBuffer::restoreBuffer()
 }
 
 int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
-{   // return -1 means the operation cannot procceed because the scene is not locked (but buffer is), 0=empty buffer,
+{ // return -1 means the operation cannot procceed because the scene is not locked (but buffer is), 0=empty buffer,
     // 1=successful
     // This function is very similar to a model-loading operation:
     // Everything is inserted (sceneObjects, collections, etc. ) and then

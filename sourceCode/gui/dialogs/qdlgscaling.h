@@ -17,8 +17,8 @@ class CQDlgScaling : public VDialog
     explicit CQDlgScaling(QWidget* parent = 0);
     ~CQDlgScaling();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

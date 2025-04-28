@@ -45,11 +45,11 @@ class CMainWindow : public QMainWindow
 
     void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid);
 
-    bool event(QEvent* event);
-    void dragEnterEvent(QDragEnterEvent* dEvent);
-    void dragLeaveEvent(QDragLeaveEvent* dEvent);
-    void dropEvent(QDropEvent* dEvent);
-    QMenu* createPopupMenu()
+    bool event(QEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent* dEvent) override;
+    void dragLeaveEvent(QDragLeaveEvent* dEvent) override;
+    void dropEvent(QDropEvent* dEvent) override;
+    QMenu* createPopupMenu() override
     {
         return nullptr;
     } // required to avoid having a popup when over the toolbar (and other situations). 4/12/2011

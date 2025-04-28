@@ -2585,7 +2585,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
         if (!CThreadPool_old::switchBackToPreviousThread())
             break;
         if (CThreadPool_old::getSimulationStopRequestedAndActivated())
-        {   // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop
+        { // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop
             // request arrived)
             // Following: the extension module might still write 0 into that position to signal "no more waiting" in
             // case this while loop got interrupted by a stop request.
@@ -2615,7 +2615,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
 }
 
 int _simGenericFunctionHandler(luaWrap_lua_State* L)
-{   // THIS FUNCTION SHOULD NOT LOCK THE API (AT LEAST NOT WHILE CALLING THE CALLBACK!!) SINCE IT IS NOT DIRECTLY
+{ // THIS FUNCTION SHOULD NOT LOCK THE API (AT LEAST NOT WHILE CALLING THE CALLBACK!!) SINCE IT IS NOT DIRECTLY
     // ACCESSING THE API!!!!
     TRACE_LUA_API;
     LUA_START("sim.genericFunctionHandler");
@@ -6676,7 +6676,7 @@ int _simRemoveModel(luaWrap_lua_State* L)
             }
         }
         else
-        {   // this script runs threaded and wants to destroy other objects. We need to make sure that it will only
+        { // this script runs threaded and wants to destroy other objects. We need to make sure that it will only
             // destroy objects that do not have any scripts attached with a non-nullptr lua state:
             CSceneObject* objBase = App::currentWorld->sceneObjects->getObjectFromHandle(objId);
             if (objBase != nullptr)
@@ -10056,7 +10056,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
     {
         int objectHandle = luaToInt(L, 1);
         if (objectHandle == sim_handle_all)
-        {   // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from
+        { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from
             // add-on:
             int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
@@ -10556,7 +10556,7 @@ int _simSetShapeColor(luaWrap_lua_State* L)
     bool ok = false;
     bool correctColors = false;
     if (!checkInputArguments(L, nullptr, lua_arg_number, 0))
-    {   // this section is to guarantee backward compatibility: color values have changed in the release following 3.1.3.
+    { // this section is to guarantee backward compatibility: color values have changed in the release following 3.1.3.
         // So we need to adjust them
         if (checkInputArguments(L, &errorString, lua_arg_string, 0))
         {

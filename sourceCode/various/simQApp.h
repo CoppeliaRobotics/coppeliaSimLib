@@ -15,12 +15,12 @@ class CSimQApp : public QAPP
     CSimQApp(int& argc, char** argv);
     virtual ~CSimQApp();
 
-    bool notify(QObject* object, QEvent* event);
+    bool notify(QObject* object, QEvent* event) override;
 };
 
 class QuitKeyInterceptor : public QObject
 {
-public:
+  public:
     bool eventFilter(QObject* obj, QEvent* event) override
     {
         if (event->type() == QEvent::KeyPress)
@@ -43,7 +43,8 @@ public:
     static void install()
     {
         static bool installed = false;
-        if(installed) return;
+        if (installed)
+            return;
         QuitKeyInterceptor* interceptor = new QuitKeyInterceptor();
         qApp->installEventFilter(interceptor);
         installed = true;

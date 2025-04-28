@@ -20,10 +20,10 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                           \
-    FUNCX(propObjCont_objectHandles, "objectHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects")                                           \
-    FUNCX(propObjCont_orphanHandles, "orphanHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects")                             \
-    FUNCX(propObjCont_selectionHandles, "selectionHandles", sim_propertytype_intarray, sim_propertyinfo_modelhashexclude, "Selected objects", "Handles of selected scene objects")                                                  \
+#define DEFINE_PROPERTIES                                                                                                                                                                                                               \
+    FUNCX(propObjCont_objectHandles, "objectHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects")                                                                               \
+    FUNCX(propObjCont_orphanHandles, "orphanHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects")                                                                 \
+    FUNCX(propObjCont_selectionHandles, "selectionHandles", sim_propertytype_intarray, sim_propertyinfo_modelhashexclude, "Selected objects", "Handles of selected scene objects")                                                      \
     FUNCX(propObjCont_objectCreationCounter, "objectCreationCounter", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object creation counter", "Counter of created scene objects")            \
     FUNCX(propObjCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object destruction counter", "Counter of destroyed scene objects") \
     FUNCX(propObjCont_hierarchyChangeCounter, "hierarchyChangeCounter", sim_propertytype_int, sim_propertyinfo_notwritable, "Hierarchy change counter", "Counter of scene hierarchy changes")

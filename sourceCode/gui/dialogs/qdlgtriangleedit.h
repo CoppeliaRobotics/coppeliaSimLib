@@ -17,9 +17,9 @@ class CQDlgTriangleEdit : public CDlgEx
     explicit CQDlgTriangleEdit(QWidget* parent = 0);
     ~CQDlgTriangleEdit();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   private slots:
     void on_qqMakeShape_clicked();

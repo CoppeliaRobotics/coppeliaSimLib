@@ -16,9 +16,9 @@ class CQDlgAbout : public VDialog
     explicit CQDlgAbout(QWidget* parent = 0);
     ~CQDlgAbout();
 
-    void cancelEvent();
-    void okEvent();
-    void initializationEvent();
+    void cancelEvent() override;
+    void okEvent() override;
+    void initializationEvent() override;
 
   private slots:
     void on_qqClose_clicked(QAbstractButton* button);

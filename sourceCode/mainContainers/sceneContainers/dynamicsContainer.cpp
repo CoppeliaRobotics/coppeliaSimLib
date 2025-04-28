@@ -1113,7 +1113,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                             ar >> vi;
                         }
                         if (ar.getCoppeliaSimVersionThatWroteThisFile() < 30400)
-                        {   // In Vortex Studio we have some crashes and instability due to multithreading. At the same
+                        { // In Vortex Studio we have some crashes and instability due to multithreading. At the same
                             // time, if multithreading is off, it is faster for CoppeliaSim scenes
                             _vortexIntParams[0] |= simi_vortex_global_multithreading;
                             _vortexIntParams[0] -= simi_vortex_global_multithreading;
@@ -1153,7 +1153,7 @@ void CDynamicsContainer::serialize(CSer& ar)
                             ar >> vi;
                         }
                         if (ar.getCoppeliaSimVersionThatWroteThisFile() < 30400)
-                        {   // In Vortex Studio we have some crashes and instability due to multithreading. At the same
+                        { // In Vortex Studio we have some crashes and instability due to multithreading. At the same
                             // time, if multithreading is off, it is faster for CoppeliaSim scenes
                             _vortexIntParams[0] |= simi_vortex_global_multithreading;
                             _vortexIntParams[0] -= simi_vortex_global_multithreading;
@@ -1481,7 +1481,7 @@ void CDynamicsContainer::serialize(CSer& ar)
             if (!hasStepSizeTag)
             {
                 if (oldDynamicsSettingsMode < 5)
-                {   // for backward compatibility. Previously this was one of the default settings (precise, balanced,
+                { // for backward compatibility. Previously this was one of the default settings (precise, balanced,
                     // fast, etc.)
                     getBulletDefaultFloatParams(_bulletFloatParams, oldDynamicsSettingsMode);
                     getBulletDefaultIntParams(_bulletIntParams, oldDynamicsSettingsMode);
@@ -2025,7 +2025,7 @@ void CDynamicsContainer::serialize(CSer& ar)
             if (!hasStepSizeTag)
             {
                 if (oldDynamicsSettingsMode < 5)
-                {   // for backward compatibility. Previously this was one of the default settings (precise, balanced,
+                { // for backward compatibility. Previously this was one of the default settings (precise, balanced,
                     // fast, etc.)
                     getBulletDefaultFloatParams(_bulletFloatParams, oldDynamicsSettingsMode);
                     getBulletDefaultIntParams(_bulletIntParams, oldDynamicsSettingsMode);

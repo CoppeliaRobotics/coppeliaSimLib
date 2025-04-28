@@ -18,10 +18,10 @@ class CQDlgCollisions : public CDlgEx
     explicit CQDlgCollisions(QWidget* parent = 0);
     ~CQDlgCollisions();
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     void updateObjectsInList();
     int getSelectedObjectID();

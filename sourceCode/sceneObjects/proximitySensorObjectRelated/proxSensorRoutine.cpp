@@ -252,7 +252,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
 int CProxSensorRoutine::_detectDummy(CProxSensor* sensor, CDummy* dummy, C3Vector& detectedPt, double& dist,
                                      C3Vector& triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
                                      double maxAngle, bool frontFace, bool backFace, double minThreshold)
-{   // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
+{ // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
     // the sensor
     if (dist == 0.0)
         return (-1);
@@ -291,7 +291,7 @@ int CProxSensorRoutine::_detectDummy(CProxSensor* sensor, CDummy* dummy, C3Vecto
 int CProxSensorRoutine::_detectShape(CProxSensor* sensor, CShape* shape, C3Vector& detectedPt, double& dist,
                                      C3Vector& triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
                                      double maxAngle, bool frontFace, bool backFace, double minThreshold)
-{   // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
+{ // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
     // the sensor
     if (dist == 0.0)
         return (-1);
@@ -420,7 +420,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor, CShape* shape, C3Vecto
 int CProxSensorRoutine::_detectOctree(CProxSensor* sensor, COcTree* octree, C3Vector& detectedPt, double& dist,
                                       C3Vector& triNormalNotNormalized, bool closestFeatureMode, bool angleLimitation,
                                       double maxAngle, bool frontFace, bool backFace, double minThreshold)
-{   // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
+{ // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
     // the sensor
     if (dist == 0.0)
         return (-1);
@@ -550,7 +550,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor, CPointCloud* poin
                                           double& dist, C3Vector& triNormalNotNormalized, bool closestFeatureMode,
                                           bool angleLimitation, double maxAngle, bool frontFace, bool backFace,
                                           double minThreshold)
-{   // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
+{ // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered
     // the sensor
     if (dist == 0.0)
         return (-1);

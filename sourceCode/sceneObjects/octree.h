@@ -7,8 +7,8 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                      \
-    FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0, "Voxel size", "")                                      \
+#define DEFINE_PROPERTIES                                                                                                                                          \
+    FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0, "Voxel size", "")                                                                          \
     FUNCX(propOctree_voxels, "voxels", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Voxels", "Voxel positions") \
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Voxel Colors", "")
 
@@ -150,6 +150,6 @@ class COcTree : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
 #endif
 };

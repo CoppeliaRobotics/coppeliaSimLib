@@ -18,9 +18,9 @@ class CQDlgPaths : public CDlgEx
     explicit CQDlgPaths(QWidget* parent = 0);
     ~CQDlgPaths();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     bool inMainRefreshRoutine;
 

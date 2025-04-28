@@ -17,8 +17,8 @@ class CQDlgJointDyn : public CDlgEx
     explicit CQDlgJointDyn(QWidget* parent = 0);
     ~CQDlgJointDyn();
 
-    void refresh();
-    void cancelEvent();
+    void refresh() override;
+    void cancelEvent() override;
 
   private slots:
     void on_qqApplyParams_clicked();

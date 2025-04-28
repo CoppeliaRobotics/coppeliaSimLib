@@ -16,9 +16,9 @@ class CQDlgCameras : public CDlgEx
     explicit CQDlgCameras(QWidget* parent = 0);
     ~CQDlgCameras();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     bool inMainRefreshRoutine;
 

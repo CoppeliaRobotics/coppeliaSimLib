@@ -17,12 +17,12 @@ class CQDlgGeometry : public CDlgEx
     explicit CQDlgGeometry(QWidget* parent = 0);
     ~CQDlgGeometry();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
-    bool needsDestruction();
+    void cancelEvent() override;
+    bool needsDestruction() override;
     bool isLinkedDataValid();
-    bool doesInstanceSwitchRequireDestruction();
+    bool doesInstanceSwitchRequireDestruction() override;
 
     void _initialize(int shapeHandle);
     void _setCurrentSizes();

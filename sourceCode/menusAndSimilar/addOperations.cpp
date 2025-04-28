@@ -190,7 +190,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
     }
 
     if (type == sim_primitiveshape_capsule)
-    {   // sizes(2) is the total length of the capsule. maxs=sizes(2)-max(sizes(0),sizes(1)) is the length of the cyl.
+    { // sizes(2) is the total length of the capsule. maxs=sizes(2)-max(sizes(0),sizes(1)) is the length of the cyl.
         // part
         if (sizes(0) > sizes(2) - 0.0001)
             sizes(0) = sizes(2) - 0.0001;

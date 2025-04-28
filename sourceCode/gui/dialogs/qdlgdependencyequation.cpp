@@ -19,12 +19,12 @@ CQDlgDependencyEquation::~CQDlgDependencyEquation()
 }
 
 void CQDlgDependencyEquation::cancelEvent()
-{   // no cancel event allowed
+{ // no cancel event allowed
     // defaultModalDialogEndRoutine(false);
 }
 
 void CQDlgDependencyEquation::okEvent()
-{   // no ok event allowed
+{ // no ok event allowed
     // defaultModalDialogEndRoutine(false);
 }
 

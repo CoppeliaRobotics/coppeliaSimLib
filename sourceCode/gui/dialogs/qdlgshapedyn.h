@@ -17,8 +17,8 @@ class CQDlgShapeDyn : public CDlgEx
     explicit CQDlgShapeDyn(QWidget* parent = 0);
     ~CQDlgShapeDyn();
 
-    void refresh();
-    void cancelEvent();
+    void refresh() override;
+    void cancelEvent() override;
 
     static bool showDynamicWindow;
     static bool masslessInertia;

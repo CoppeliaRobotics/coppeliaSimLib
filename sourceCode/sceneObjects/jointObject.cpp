@@ -814,7 +814,7 @@ void CJoint::simulationAboutToStart()
 }
 
 void CJoint::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
@@ -1359,7 +1359,7 @@ void CJoint::_setFilteredForceOrTorque(bool valid, double f /*= 0.0*/)
 }
 
 void CJoint::addCumulativeForceOrTorque(double forceOrTorque, int countForAverage)
-{   // The countForAverage mechanism is needed because we need to average all values in a simulation time step (but this
+{ // The countForAverage mechanism is needed because we need to average all values in a simulation time step (but this
     // is called every dynamic simulation time step!!)
     _setForceOrTorque(true, forceOrTorque);
     _cumulativeForceOrTorqueTmp += forceOrTorque;
@@ -1399,7 +1399,7 @@ bool CJoint::getDynamicForceOrTorque(double& forceOrTorque, bool dynamicStepValu
 }
 
 int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVelAccel[3], double effort, double dynStepSize, double errorV, double velAndForce[2])
-{   // constant callback for every dynamically enabled joint, except for spherical joints. retVal: bit0 set: motor on,
+{ // constant callback for every dynamically enabled joint, except for spherical joints. retVal: bit0 set: motor on,
     // bit1 set: motor locked
     // Called before a dyn step. After the step, setDynamicMotorReflectedPosition_useOnlyFromDynamicPart is called
     // flags: bit0: init (first time called), bit1: currentPosVelAccel[1] is valid, bit2: currentPosVelAccel[2] is valid
@@ -1563,7 +1563,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                             velAndForce[1] = -velAndForce[1]; // make sure they have same sign
                     }
                     else
-                    { // regular position control
+                    {                              // regular position control
                         double vel = ctrl / 0.005; // was ctrl/dynStepSize, but has to be step size independent
                         double maxVel = _maxVelAccelJerk[0];
                         if (vel > maxVel)
@@ -3079,7 +3079,7 @@ void CJoint::serialize(CSer& ar)
                 if (!kAndCSpringParameterPresent)
                 { // for backward compatibility (7/5/2014):
                     if (motorEnabled_old && ctrlEnabled_old && springMode_old)
-                    {   // we have a joint that behaves as a spring. We need to compute the corresponding K and C
+                    { // we have a joint that behaves as a spring. We need to compute the corresponding K and C
                         // parameters, and adjust the max. force/torque (since that was not limited before):
                         double P, I, D;
                         getPid(P, I, D, sim_physics_bullet);

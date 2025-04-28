@@ -17,9 +17,9 @@ class CQDlgVisionSensors : public CDlgEx
     explicit CQDlgVisionSensors(QWidget* parent = 0);
     ~CQDlgVisionSensors();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     bool inMainRefreshRoutine;
 

@@ -142,7 +142,7 @@ void ogl::setTextColor(float r, float g, float b)
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, bl); // 13.07.2022
     glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
     //      if (App::userSettings->specificGpuTweak)
-    {   // Following needed with some graphic card to see text when there is a background! This is probably a bug in the
+    { // Following needed with some graphic card to see text when there is a background! This is probably a bug in the
         // driver
         glBegin(GL_QUADS);
         glEnd();
@@ -168,7 +168,7 @@ void ogl::setMaterialColor(const float ambientCol[3], const float specularCol[3]
         _lastAmbientDiffuseAlpha[2] = ambientCol[2];
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, _lastAmbientDiffuseAlpha);
         if (App::userSettings->specificGpuTweak)
-        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
             // the driver
             glBegin(GL_QUADS);
             glEnd();
@@ -182,7 +182,7 @@ void ogl::setMaterialColor(const float ambientCol[3], const float specularCol[3]
         buff[2] = specularCol[2];
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buff);
         if (App::userSettings->specificGpuTweak)
-        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
             // the driver
             glBegin(GL_QUADS);
             glEnd();
@@ -196,7 +196,7 @@ void ogl::setMaterialColor(const float ambientCol[3], const float specularCol[3]
         buff[2] = emissiveCol[2];
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
         if (App::userSettings->specificGpuTweak)
-        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
             // the driver
             glBegin(GL_QUADS);
             glEnd();
@@ -232,7 +232,7 @@ void ogl::setMaterialColor(int colorMode, float r, float g, float b)
         _lastAmbientDiffuseAlpha[2] = b;
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, _lastAmbientDiffuseAlpha);
         if (App::userSettings->specificGpuTweak)
-        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
             // the driver
             glBegin(GL_QUADS);
             glEnd();
@@ -244,7 +244,7 @@ void ogl::setMaterialColor(int colorMode, float r, float g, float b)
         float buff[4] = {r, g, b, 1.0};
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buff);
         if (App::userSettings->specificGpuTweak)
-        {   // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
+        { // Following needed with some graphic cards to see text when there is a background! This is probably a bug in
             // the driver
             glBegin(GL_QUADS);
             glEnd();
@@ -256,7 +256,7 @@ void ogl::setMaterialColor(int colorMode, float r, float g, float b)
         float buff[4] = {r, g, b, 1.0};
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
         if (App::userSettings->specificGpuTweak)
-        {   // Following needed with some graphic card to see text when there is a background! This is probably a bug in
+        { // Following needed with some graphic card to see text when there is a background! This is probably a bug in
             // the driver
             glBegin(GL_QUADS);
             glEnd();

@@ -48,24 +48,26 @@ WITH_GUI {
 }
 
 *-msvc* {
+    CONFIG += c++17
     QMAKE_CXXFLAGS += /std:c++17
-    QMAKE_CFLAGS += -O2
-    QMAKE_CFLAGS += -fp:precise
-    QMAKE_CXXFLAGS += -O2
-    QMAKE_CXXFLAGS += -fp:precise
-    QMAKE_CXXFLAGS += -we4715 # "error when no return value"
-    #QMAKE_CXXFLAGS += -Zi
-    #QMAKE_LFLAGS += -DEBUG
+    QMAKE_CFLAGS += /O2
+    QMAKE_CFLAGS += /fp:precise
+    QMAKE_CXXFLAGS += /O2
+    QMAKE_CXXFLAGS += /fp:precise
+    QMAKE_CXXFLAGS += /we4715 # "error when no return value"
 
-    QMAKE_CFLAGS_WARN_ON = -W3
-    QMAKE_CFLAGS_WARN_ON += -wd4100 # "unreferenced formal parameter"
-    QMAKE_CFLAGS_WARN_ON += -wd4996 # "function or variable may be unsafe..."
-    QMAKE_CFLAGS_WARN_ON += -wd4101 # "unreferenced local variable"
+    #QMAKE_CXXFLAGS += /Zi
+    #QMAKE_LFLAGS += /DEBUG
 
-    QMAKE_CXXFLAGS_WARN_ON = -W3
-    QMAKE_CXXFLAGS_WARN_ON += -wd4100 # "unreferenced formal parameter"
-    QMAKE_CXXFLAGS_WARN_ON += -wd4996 # "function or variable may be unsafe..."
-    QMAKE_CXXFLAGS_WARN_ON += -wd4101 # "unreferenced local variable"
+    QMAKE_CFLAGS_WARN_ON = /W3
+    QMAKE_CFLAGS_WARN_ON += /wd4100 # "unreferenced formal parameter"
+    QMAKE_CFLAGS_WARN_ON += /wd4996 # "function or variable may be unsafe..."
+    QMAKE_CFLAGS_WARN_ON += /wd4101 # "unreferenced local variable"
+
+    QMAKE_CXXFLAGS_WARN_ON = /W3
+    QMAKE_CXXFLAGS_WARN_ON += /wd4100 # "unreferenced formal parameter"
+    QMAKE_CXXFLAGS_WARN_ON += /wd4996 # "function or variable may be unsafe..."
+    QMAKE_CXXFLAGS_WARN_ON += /wd4101 # "unreferenced local variable"
 
     MSVC_VER = $$(VisualStudioVersion)
     equals(MSVC_VER,14.0){
@@ -93,6 +95,7 @@ WITH_GUI {
     QMAKE_CFLAGS_WARN_ON += -Wno-unused-but-set-variable
     QMAKE_CFLAGS_WARN_ON += -Wno-unused-local-typedefs
 
+
     QMAKE_CXXFLAGS_WARN_ON = -Wall
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
     QMAKE_CXXFLAGS_WARN_ON += -Wno-strict-aliasing
@@ -101,6 +104,8 @@ WITH_GUI {
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-but-set-variable
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-local-typedefs
     QMAKE_CXXFLAGS_WARN_ON += -Wno-narrowing
+    QMAKE_CXXFLAGS_WARN_ON += -Wsuggest-override
+    QMAKE_CXXFLAGS_WARN_ON += -Werror=suggest-override
     QMAKE_CXXFLAGS += -Werror=return-type
 
     DEFINES += SIM_COMPILER_STR=\\\"GCC\\\"
@@ -129,6 +134,8 @@ clang* {
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-but-set-variable
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-local-typedefs
     QMAKE_CXXFLAGS_WARN_ON += -Wno-narrowing
+    QMAKE_CXXFLAGS_WARN_ON += -Wsuggest-override
+    QMAKE_CXXFLAGS_WARN_ON += -Werror=suggest-override
     QMAKE_CXXFLAGS += -Werror=return-type
     QMAKE_CFLAGS += -mmacosx-version-min=10.7
     QMAKE_CXXFLAGS += -mmacosx-version-min=10.7

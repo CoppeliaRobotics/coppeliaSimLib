@@ -53,12 +53,12 @@ class CMirror : public CSceneObject
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
-    std::string getObjectTypeInfo() const;
-    std::string getObjectTypeInfoExtended() const;
-    bool isPotentiallyCollidable() const;
-    bool isPotentiallyMeasurable() const;
-    bool isPotentiallyDetectable() const;
-    bool isPotentiallyRenderable() const;
+    std::string getObjectTypeInfo() const override;
+    std::string getObjectTypeInfoExtended() const override;
+    bool isPotentiallyCollidable() const override;
+    bool isPotentiallyMeasurable() const override;
+    bool isPotentiallyDetectable() const override;
+    bool isPotentiallyRenderable() const override;
 
     void setMirrorWidth(double w);
     double getMirrorWidth();
@@ -99,6 +99,6 @@ class CMirror : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
 #endif
 };

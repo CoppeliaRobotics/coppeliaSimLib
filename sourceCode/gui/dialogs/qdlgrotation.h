@@ -20,9 +20,9 @@ class CQDlgRotation : public CDlgEx
     explicit CQDlgRotation(QWidget* parent = 0);
     ~CQDlgRotation();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   protected:
     void _enableCoordinatePart(bool enableState, bool enableButtons, bool alsoRadioButtons);

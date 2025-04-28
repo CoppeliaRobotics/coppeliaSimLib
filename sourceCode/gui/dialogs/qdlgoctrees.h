@@ -17,9 +17,9 @@ class CQDlgOctrees : public CDlgEx
     explicit CQDlgOctrees(QWidget* parent = 0);
     ~CQDlgOctrees();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   private slots:
     void on_qqSize_editingFinished();

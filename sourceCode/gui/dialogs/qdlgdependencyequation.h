@@ -18,8 +18,8 @@ class CQDlgDependencyEquation : public VDialog
     explicit CQDlgDependencyEquation(QWidget* parent = 0);
     ~CQDlgDependencyEquation();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

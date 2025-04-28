@@ -17,8 +17,8 @@ class CQDlgMessageAndCheckbox : public VDialog
     explicit CQDlgMessageAndCheckbox(QWidget* parent = 0);
     ~CQDlgMessageAndCheckbox();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

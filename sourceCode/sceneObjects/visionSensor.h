@@ -34,8 +34,8 @@ struct SHandlingResult
     FUNCX(propVisionSensor_omitPacket1, "omitPacket1", sim_propertytype_bool, 0, "Packet 1 is blank", "Omit packet 1 (faster)")                                                   \
     FUNCX(propVisionSensor_emitImageChangedEvent, "emitImageChangedEvent", sim_propertytype_bool, 0, "Emit image change event", "")                                               \
     FUNCX(propVisionSensor_emitDepthChangedEvent, "emitDepthChangedEvent", sim_propertytype_bool, 0, "Emit depth change event", "")                                               \
-    FUNCX(propVisionSensor_imageBuffer, "imageBuffer", sim_propertytype_buffer, sim_propertyinfo_modelhashexclude, "RGB buffer", "")                                                                              \
-    FUNCX(propVisionSensor_depthBuffer, "depthBuffer", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Depth buffer", "")                                        \
+    FUNCX(propVisionSensor_imageBuffer, "imageBuffer", sim_propertytype_buffer, sim_propertyinfo_modelhashexclude, "RGB buffer", "")                                              \
+    FUNCX(propVisionSensor_depthBuffer, "depthBuffer", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Depth buffer", "")         \
     FUNCX(propVisionSensor_povFocalBlur, "povray.focalBlur", sim_propertytype_bool, 0, "POV-Ray: focal blur", "Focal blur (with the POV-Ray renderer plugin)")                    \
     FUNCX(propVisionSensor_povBlurSamples, "povray.blurSamples", sim_propertytype_int, 0, "POV-Ray: blur samples", "Focal blur samples (with the POV-Ray renderer plugin)")       \
     FUNCX(propVisionSensor_povBlurDistance, "povray.blurDistance", sim_propertytype_float, 0, "POV-Ray: blur distance", "Focal blur distance (with the POV-Ray renderer plugin)") \
@@ -112,7 +112,7 @@ class CVisionSensor : public CViewableBase
 
     void commonInit();
 
-    void setResolution(const int r[2]); // override
+    void setResolution(const int r[2]) override;
 
     void setVisionSensorSize(double s);
     double getVisionSensorSize() const;
@@ -256,7 +256,7 @@ class CVisionSensor : public CViewableBase
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
     void lookAt(CSView* viewObject, int viewPos[2] = nullptr, int viewSize[2] = nullptr);
     CTextureObject* getTextureObject();
 

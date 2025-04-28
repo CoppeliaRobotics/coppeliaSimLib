@@ -850,7 +850,7 @@ std::string CInterfaceStackTable::getObjectData(std::string& auxInfos) const
         }
     }
     else
-    {   // we need to store the map data according to a specific key order,
+    { // we need to store the map data according to a specific key order,
         // otherwise we can't compare packed tables (which is very convenient in Lua):
         int boolFalse = -1;
         int boolTrue = -1;
@@ -950,7 +950,7 @@ void CInterfaceStackTable::addCborObjectData(CCbor* cborObj) const
             _tableObjects[i]->addCborObjectData(cborObj);
     }
     else
-    {   // we need to store the map data according to a specific key order,
+    { // we need to store the map data according to a specific key order,
         // otherwise we can't compare packed tables (which is very convenient in Lua):
         int boolFalse = -1;
         int boolTrue = -1;

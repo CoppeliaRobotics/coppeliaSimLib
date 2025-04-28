@@ -94,6 +94,6 @@ class CScript : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
 #endif
 };

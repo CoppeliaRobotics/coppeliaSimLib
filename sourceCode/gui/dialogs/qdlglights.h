@@ -17,9 +17,9 @@ class CQDlgLights : public CDlgEx
     explicit CQDlgLights(QWidget* parent = 0);
     ~CQDlgLights();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   private slots:
     void on_qqEnabled_clicked();

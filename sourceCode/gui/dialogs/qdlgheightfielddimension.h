@@ -17,8 +17,8 @@ class CQDlgHeightfieldDimension : public VDialog
     explicit CQDlgHeightfieldDimension(QWidget* parent = 0);
     ~CQDlgHeightfieldDimension();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

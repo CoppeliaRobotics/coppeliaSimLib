@@ -6,24 +6,24 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                          \
-    FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable, "Texture resolution", "")     \
+#define DEFINE_PROPERTIES                                                                                                                                                              \
+    FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable, "Texture resolution", "")                                         \
     FUNCX(propMesh_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture coordinates", "") \
-    FUNCX(propMesh_textureApplyMode, "textureApplyMode", sim_propertytype_int, 0, "Texture apply mode", "")                                        \
-    FUNCX(propMesh_textureRepeatU, "textureRepeatU", sim_propertytype_bool, 0, "Texture repeat U", "")                                             \
-    FUNCX(propMesh_textureRepeatV, "textureRepeatV", sim_propertytype_bool, 0, "Texture repeat V", "")                                             \
-    FUNCX(propMesh_textureInterpolate, "textureInterpolate", sim_propertytype_bool, 0, "Interpolate texture", "")                                  \
+    FUNCX(propMesh_textureApplyMode, "textureApplyMode", sim_propertytype_int, 0, "Texture apply mode", "")                                                                            \
+    FUNCX(propMesh_textureRepeatU, "textureRepeatU", sim_propertytype_bool, 0, "Texture repeat U", "")                                                                                 \
+    FUNCX(propMesh_textureRepeatV, "textureRepeatV", sim_propertytype_bool, 0, "Texture repeat V", "")                                                                                 \
+    FUNCX(propMesh_textureInterpolate, "textureInterpolate", sim_propertytype_bool, 0, "Interpolate texture", "")                                                                      \
     FUNCX(propMesh_texture, "rawTexture", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture", "")                                    \
     FUNCX(propMesh_textureID, "textureID", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture ID", "")                                   \
     FUNCX(propMesh_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Vertices", "")                                \
     FUNCX(propMesh_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Indices", "Indices (3 values per triangle)")      \
     FUNCX(propMesh_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Normals", "Normals (3*3 values per triangle)")  \
-    FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0, "Shading angle", "")                                                   \
-    FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0, "Visible edges", "")                                                          \
-    FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0, "Backface culling", "")                                                           \
+    FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0, "Shading angle", "")                                                                                       \
+    FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0, "Visible edges", "")                                                                                              \
+    FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0, "Backface culling", "")                                                                                               \
     FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                             \
     FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Shape UID", "Unique identifier of parent shape")     \
-    FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether mesh is convex or not")               \
+    FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether mesh is convex or not")                                                   \
     FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, "Color name", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -43,44 +43,44 @@ class CMesh : public CMeshWrapper
           const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options);
     virtual ~CMesh();
 
-    void prepareVerticesIndicesNormalsAndEdgesForSerialization();
-    void performSceneObjectLoadingMapping(const std::map<int, int>* map);
-    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
-    void announceSceneObjectWillBeErased(const CSceneObject* object);
-    void setTextureDependencies(int shapeID);
-    bool getContainsTransparentComponents() const;
-    CMesh* copyYourself();
-    void scale(double isoVal);
+    void prepareVerticesIndicesNormalsAndEdgesForSerialization() override;
+    void performSceneObjectLoadingMapping(const std::map<int, int>* map) override;
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void announceSceneObjectWillBeErased(const CSceneObject* object) override;
+    void setTextureDependencies(int shapeID) override;
+    bool getContainsTransparentComponents() const override;
+    CMesh* copyYourself() override;
+    void scale(double isoVal) override;
     void scale(double xVal, double yVal, double zVal);
-    int getPurePrimitiveType() const;
-    void setPurePrimitiveType(int theType, double xOrDiameter, double y, double zOrHeight);
-    bool isMesh() const;
-    bool isPure() const;
-    bool isConvex() const;
+    int getPurePrimitiveType() const override;
+    void setPurePrimitiveType(int theType, double xOrDiameter, double y, double zOrHeight) override;
+    bool isMesh() const override;
+    bool isPure() const override;
+    bool isConvex() const override;
     void setConvex_raw(bool c);
     bool checkIfConvex();
-    CMesh* getFirstMesh();
-    CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
+    CMesh* getFirstMesh() override;
+    CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) override;
     void pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr);
     void pushObjectRemoveEvent();
 
-    int countTriangles() const;
-    void getCumulativeMeshes(const C7Vector& parentCumulTr, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals);
-    void getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals);
-    void setColor(int colorComponent, const float* rgbData);
-    void setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent, const float* rgbData, int& rgbDataOffset);
-    bool getColor(const char* colorName, int colorComponent, float* rgbData, int& rgbDataOffset) const;
-    void getAllMeshComponentsCumulative(const C7Vector& parentCumulTr, std::vector<CMesh*>& shapeComponentList, std::vector<C7Vector>* OptParentCumulTrList = nullptr);
-    CMesh* getMeshComponentAtIndex(const C7Vector& parentCumulTr, int& index, C7Vector* optParentCumulTrOut = nullptr);
-    int getComponentCount() const;
-    bool serialize(CSer& ar, const char* shapeName, const C7Vector& parentCumulIFrame, bool rootLevel);
-    void flipFaces();
-    void setHideEdgeBorders_OLD(bool v);
-    bool getHideEdgeBorders_OLD() const;
-    int getTextureCount() const;
-    bool hasTextureThatUsesFixedTextureCoordinates() const;
-    void removeAllTextures();
-    void getColorStrings(std::string& colorStrings, bool onlyNamed) const;
+    int countTriangles() const override;
+    void getCumulativeMeshes(const C7Vector& parentCumulTr, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals) override;
+    void getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals) override;
+    void setColor(int colorComponent, const float* rgbData) override;
+    void setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent, const float* rgbData, int& rgbDataOffset) override;
+    bool getColor(const char* colorName, int colorComponent, float* rgbData, int& rgbDataOffset) const override;
+    void getAllMeshComponentsCumulative(const C7Vector& parentCumulTr, std::vector<CMesh*>& shapeComponentList, std::vector<C7Vector>* OptParentCumulTrList = nullptr) override;
+    CMesh* getMeshComponentAtIndex(const C7Vector& parentCumulTr, int& index, C7Vector* optParentCumulTrOut = nullptr) override;
+    int getComponentCount() const override;
+    bool serialize(CSer& ar, const char* shapeName, const C7Vector& parentCumulIFrame, bool rootLevel) override;
+    void flipFaces() override;
+    void setHideEdgeBorders_OLD(bool v) override;
+    bool getHideEdgeBorders_OLD() const override;
+    int getTextureCount() const override;
+    bool hasTextureThatUsesFixedTextureCoordinates() const override;
+    void removeAllTextures() override;
+    void getColorStrings(std::string& colorStrings, bool onlyNamed) const override;
     void setHeightfieldDiamonds(bool d);
 
     long long int getUniqueID() const;
@@ -103,15 +103,15 @@ class CMesh : public CMeshWrapper
     void setTextureApplyMode(int m);
     int getTextureApplyMode() const;
 
-    double getShadingAngle() const;
-    void setShadingAngle(double angle);
-    double getEdgeThresholdAngle() const;
-    void setEdgeThresholdAngle(double angle);
-    void setVisibleEdges(bool v);
+    double getShadingAngle() const override;
+    void setShadingAngle(double angle) override;
+    double getEdgeThresholdAngle() const override;
+    void setEdgeThresholdAngle(double angle) override;
+    void setVisibleEdges(bool v) override;
     bool getVisibleEdges() const;
     void setEdgeWidth_DEPRECATED(int w);
     int getEdgeWidth_DEPRECATED() const;
-    void setCulling(bool c);
+    void setCulling(bool c) override;
     bool getCulling() const;
     void setColor(const float* c, unsigned char colorMode);
 
@@ -134,10 +134,10 @@ class CMesh : public CMeshWrapper
     std::vector<float>* getNormalsForDisplayAndDisk();
 
     void copyVisualAttributesTo(CMeshWrapper* target);
-    void takeVisualAttributesFrom(CMesh* origin);
+    void takeVisualAttributesFrom(CMesh* origin) override;
 
-    bool reorientBB(const C4Vector* rot);
-    void setBBFrame(const C7Vector& bbFrame);
+    bool reorientBB(const C4Vector* rot) override;
+    void setBBFrame(const C7Vector& bbFrame) override;
 
     int setBoolProperty(const char* pName, bool pState, const C7Vector& shapeRelTr);
     int getBoolProperty(const char* pName, bool& pState, const C7Vector& shapeRelTr) const;
@@ -263,14 +263,11 @@ class CMesh : public CMeshWrapper
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, CColorObject* collisionColor,
-                 int dynObjFlag_forVisualization, int transparencyHandling, bool multishapeEditSelected);
-    void display_colorCoded(const C7Vector& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib);
-    void displayGhost(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors,
-                      bool backfaceCulling, double transparency, const float* newColors);
+    void display(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, CColorObject* collisionColor, int dynObjFlag_forVisualization, int transparencyHandling, bool multishapeEditSelected) override;
+    void display_colorCoded(const C7Vector& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib) override;
+    void displayGhost(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors, bool backfaceCulling, double transparency, const float* newColors) override;
 
-    void display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, const C7Vector& tr,
-                             int shapeHandle, int& componentIndex);
+    void display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, const C7Vector& tr, int shapeHandle, int& componentIndex) override;
     bool getNonCalculatedTextureCoordinates(std::vector<float>& texCoords);
     int* getVertexBufferIdPtr();
     int* getNormalBufferIdPtr();

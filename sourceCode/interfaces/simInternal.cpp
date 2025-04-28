@@ -7033,9 +7033,9 @@ int simRotateAroundAxis_internal(const double* matrixIn, const double* axis, con
     C3Vector ax(axis);
     C3Vector pos(axisPos);
 
-//    angle = std::fmod(angle, piValT2);
-//    if (angle < 0.0)
-//        angle += piValT2;
+    //    angle = std::fmod(angle, piValT2);
+    //    if (angle < 0.0)
+    //        angle += piValT2;
 
     double alpha = -atan2(ax(1), ax(0));
     double beta = atan2(-sqrt(ax(0) * ax(0) + ax(1) * ax(1)), ax(2));
@@ -9280,7 +9280,7 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
 
                     retVal = script->callCustomScriptFunction(funcName.c_str(), stack);
                     if (stack->getStackSize() > 0)
-                    {   // when the script is a Python script, we must check for other errors, since the call is handled
+                    { // when the script is a Python script, we must check for other errors, since the call is handled
                         // via sysCall_ext:
                         CInterfaceStackObject* obj = stack->getStackObjectFromIndex(0);
                         if (obj->getObjectType() == sim_stackitem_string)
@@ -11864,7 +11864,7 @@ const void* _simGetParentObject_internal(const void* object)
 
 void _simDynReportObjectCumulativeTransformation_internal(void* obj, const double* pos, const double* quat,
                                                           double simTime)
-{   // obj is always a shape. Used by the physics engines. The joints and force sensors's internal errors are updated
+{ // obj is always a shape. Used by the physics engines. The joints and force sensors's internal errors are updated
     // accordingly
     C_API_START;
     CSceneObject* object = (CSceneObject*)obj;
@@ -12146,14 +12146,14 @@ void _simDisableDynamicTreeForManipulation_internal(const void* object, bool dis
 }
 
 void _simSetJointVelocity_internal(const void* joint, double vel)
-{   // only used by MuJoCo. Other engines have the joint velocity computed via
+{ // only used by MuJoCo. Other engines have the joint velocity computed via
     // _simSetDynamicMotorReflectedPositionFromDynamicEngine
     C_API_START;
     ((CJoint*)joint)->setVelocity(vel);
 }
 
 void _simSetJointPosition_internal(const void* joint, double pos)
-{   // only used by MuJoCo. Other engines have the joint position set via
+{ // only used by MuJoCo. Other engines have the joint position set via
     // _simSetDynamicMotorReflectedPositionFromDynamicEngine
     C_API_START;
     CJoint* j = (CJoint*)joint;

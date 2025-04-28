@@ -17,10 +17,10 @@ class CQDlgCollections : public CDlgEx
     explicit CQDlgCollections(QWidget* parent = 0);
     ~CQDlgCollections();
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
-    void initializationEvent();
+    void initializationEvent() override;
 
     int operationType;
     bool baseInclusive;

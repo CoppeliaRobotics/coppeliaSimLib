@@ -17,8 +17,8 @@ class CQDlgOpenGlSettings : public VDialog
     explicit CQDlgOpenGlSettings(QWidget* parent = 0);
     ~CQDlgOpenGlSettings();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

@@ -844,7 +844,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
             CShape* shape = (CShape*)loadedObjectList->at(i);
             int matId = shape->getMesh()->getDynMaterialId_old();
             if ((fileSimVersion < 30303) && (matId >= 0))
-            {   // for backward compatibility(29/10/2016), when the dyn material was stored separaterly and shared among
+            { // for backward compatibility(29/10/2016), when the dyn material was stored separaterly and shared among
                 // shapes
                 for (size_t j = 0; j < loadedDynMaterialObjectList.size(); j++)
                 {
@@ -1121,7 +1121,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
 }
 
 void CWorld::cleanupHashNames_allObjects(int suffix)
-{   // This function will try to use the lowest hash naming possible (e.g. model#59 --> model and model#67 --> model#0 if
+{ // This function will try to use the lowest hash naming possible (e.g. model#59 --> model and model#67 --> model#0 if
     // possible)
     // if suffix is -1, then all suffixes are cleaned, otherwise only those equal or above 'suffix'
 
@@ -1425,7 +1425,7 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                     if ((it->getScriptType() == sim_scripttype_jointctrlcallback_old) ||
                         (it->getScriptType() == sim_scripttype_generalcallback_old) ||
                         (it->getScriptType() == sim_scripttype_contactcallback_old))
-                    {   // joint callback, contact callback and general callback scripts are not supported anymore since
+                    { // joint callback, contact callback and general callback scripts are not supported anymore since
                         // V3.6.1.rev2
                         std::string ml(it->getScriptText());
                         if (it->getScriptType() == sim_scripttype_jointctrlcallback_old)

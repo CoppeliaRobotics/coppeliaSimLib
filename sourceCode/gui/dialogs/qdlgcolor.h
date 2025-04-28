@@ -17,13 +17,13 @@ class CQDlgColor : public CDlgEx
     explicit CQDlgColor(QWidget* parent = 0);
     ~CQDlgColor();
 
-    void refresh();
+    void refresh() override;
 
-    void initializationEvent();
-    void cancelEvent();
-    bool needsDestruction();
+    void initializationEvent() override;
+    void cancelEvent() override;
+    bool needsDestruction() override;
     bool isLinkedDataValid();
-    bool doesInstanceSwitchRequireDestruction();
+    bool doesInstanceSwitchRequireDestruction() override;
 
     void computeRGBValues();
     void computeHSLValues();

@@ -17,9 +17,9 @@ class CQDlgEdgeEdit : public CDlgEx
     explicit CQDlgEdgeEdit(QWidget* parent = 0);
     ~CQDlgEdgeEdit();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   private slots:
     void on_qqShowHiddenEdges_clicked();

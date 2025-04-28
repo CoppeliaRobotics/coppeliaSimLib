@@ -18,12 +18,12 @@ class CHolonomicPathPlanning_old : public CPathPlanning_old
     virtual ~CHolonomicPathPlanning_old();
 
     // Following functions are inherited from CPathPlanning:
-    int searchPath(int maxTimePerPass);
-    bool setPartialPath();
-    int smoothFoundPath(int steps, int maxTimePerPass);
-    void getPathData(std::vector<double>& data);
+    int searchPath(int maxTimePerPass) override;
+    bool setPartialPath() override;
+    int smoothFoundPath(int steps, int maxTimePerPass) override;
+    void getPathData(std::vector<double>& data) override;
 
-    void getSearchTreeData(std::vector<double>& data, bool fromStart);
+    void getSearchTreeData(std::vector<double>& data, bool fromStart) override;
 
     void setAngularCoefficient(double coeff);
     void setStepSize(double size);
@@ -33,7 +33,7 @@ class CHolonomicPathPlanning_old : public CPathPlanning_old
     std::vector<CHolonomicPathNode_old*> foundPath;
 
   private:
-    bool doCollide(double* dist);
+    bool doCollide(double* dist) override;
 
     CHolonomicPathNode_old* getClosestNode(std::vector<CHolonomicPathNode_old*>& nodes,
                                            CHolonomicPathNode_old* sample);

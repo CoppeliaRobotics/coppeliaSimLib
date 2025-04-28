@@ -18,8 +18,8 @@ class CQDlgModelThumbnailVisu : public VDialog
     explicit CQDlgModelThumbnailVisu(QWidget* parent = 0);
     ~CQDlgModelThumbnailVisu();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void applyThumbnail(const CThumbnail* thumbnail);
 

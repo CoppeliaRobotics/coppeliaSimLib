@@ -17,8 +17,8 @@ class CQDlgProxSensDetectionParam : public VDialog
     explicit CQDlgProxSensDetectionParam(QWidget* parent = 0);
     ~CQDlgProxSensDetectionParam();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

@@ -1395,7 +1395,7 @@ SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller(int entity1ID, int en
                                                            bool overrideMeasurableFlagIfNonCollection1,
                                                            bool overrideMeasurableFlagIfNonCollection2,
                                                            bool pathPlanningRoutineCalling)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(
         sim_verbosity_errors,
@@ -3464,40 +3464,40 @@ SIM_DLLEXPORT int simGetShapeTriangle(int shapeHandle, int groupElementIndex, in
 
 SIM_DLLEXPORT void _simGetJointOdeParameters(const void* joint, float* stopERP, float* stopCFM, float* bounce,
                                              float* fudge, float* normalCFM)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors,
                 "support for API function _simGetJointOdeParameters was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetJointBulletParameters(const void* joint, float* stopERP, float* stopCFM, float* normalCFM)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors,
                 "support for API function _simGetJointBulletParameters was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetOdeMaxContactFrictionCFMandERP(const void* geomInfo, int* maxContacts, float* friction,
                                                          float* cfm, float* erp)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors,
                 "support for API function _simGetOdeMaxContactFrictionCFMandERP was dropped: call has no effect");
 }
 SIM_DLLEXPORT bool _simGetBulletCollisionMargin(const void* geomInfo, float* margin, int* otherProp)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors,
                 "support for API function _simGetBulletCollisionMargin was dropped: call has no effect");
     return (0);
 }
 SIM_DLLEXPORT float _simGetBulletRestitution(const void* geomInfo)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors,
                 "support for API function _simGetBulletRestitution was dropped: call has no effect");
     return (0.0);
 }
 SIM_DLLEXPORT void _simGetVortexParameters(const void* object, int version, float* floatParams, int* intParams)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors,
                 "support for API function _simGetVortexParameters was dropped: call has no effect");
@@ -3515,39 +3515,39 @@ SIM_DLLEXPORT void _simGetNewtonParameters(const void* object, int* version, flo
     }
 }
 SIM_DLLEXPORT void _simGetDamping(const void* geomInfo, float* linDamping, float* angDamping)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors, "support for API function _simGetFriction was dropped: call has no effect");
 }
 SIM_DLLEXPORT float _simGetFriction(const void* geomInfo)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors, "support for API function _simGetFriction was dropped: call has no effect");
     return (0.0);
 }
 SIM_DLLEXPORT void _simSetDynamicJointLocalTransformationPart2(void* joint, const float* pos, const float* quat)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors,
                 "support for API function _simSetDynamicJointLocalTransformationPart2 was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simSetDynamicForceSensorLocalTransformationPart2(void* forceSensor, const float* pos,
                                                                      const float* quat)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(
         sim_verbosity_errors,
         "support for API function _simSetDynamicForceSensorLocalTransformationPart2 was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetDynamicForceSensorLocalTransformationPart2(const void* forceSensor, float* pos, float* quat)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(
         sim_verbosity_errors,
         "support for API function _simGetDynamicForceSensorLocalTransformationPart2 was dropped: call has no effect");
 }
 SIM_DLLEXPORT void _simGetMotorPid(const void* joint, float* pParam, float* iParam, float* dParam)
-{   // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
+{ // not supported anymore in single-precision float mode, once we switch to double-precision float mode. Only physics
     // plugins relied on those, and they will be rebuilt
     App::logMsg(sim_verbosity_errors, "support for API function _simGetMotorPid was dropped: call has no effect");
 }

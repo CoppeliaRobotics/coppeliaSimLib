@@ -17,8 +17,8 @@ class CQDlgCalcDialogContainer_OLD : public CDlgEx
     explicit CQDlgCalcDialogContainer_OLD(QWidget* parent = 0);
     ~CQDlgCalcDialogContainer_OLD();
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
     QVBoxLayout* bl;
     int currentPage;

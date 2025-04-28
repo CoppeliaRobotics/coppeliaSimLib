@@ -19,8 +19,8 @@ class CQDlgDataStreamSelection : public VDialog
     ~CQDlgDataStreamSelection();
 
     void refresh();
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     bool inRefreshRoutine;
     bool first;

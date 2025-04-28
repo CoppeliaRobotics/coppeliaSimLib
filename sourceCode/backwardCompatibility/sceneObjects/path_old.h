@@ -10,33 +10,33 @@ class CPath_old : public CSceneObject
     virtual ~CPath_old();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev);
-    CSceneObject* copyYourself();
-    void removeSceneDependencies();
-    void scaleObject(double scalingFactor);
-    void serialize(CSer& ar);
-    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
-    void announceCollectionWillBeErased(int groupID, bool copyBuffer);
-    void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
-    void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
-    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
-    void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
-    void performCollisionLoadingMapping(const std::map<int, int>* map, int opType);
-    void performDistanceLoadingMapping(const std::map<int, int>* map, int opType);
-    void performIkLoadingMapping(const std::map<int, int>* map, int opType);
-    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
-    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
-    void simulationAboutToStart();
-    void simulationEnded();
-    void initializeInitialValues(bool simulationAlreadyRunning);
-    void computeBoundingBox();
-    bool isPotentiallyCollidable() const;
-    bool isPotentiallyMeasurable() const;
-    bool isPotentiallyDetectable() const;
-    bool isPotentiallyRenderable() const;
-    std::string getObjectTypeInfo() const;
-    std::string getObjectTypeInfoExtended() const;
+    void addSpecializedObjectEventData(CCbor* ev) override;
+    CSceneObject* copyYourself() override;
+    void removeSceneDependencies() override;
+    void scaleObject(double scalingFactor) override;
+    void serialize(CSer& ar) override;
+    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    void announceCollectionWillBeErased(int groupID, bool copyBuffer) override;
+    void announceCollisionWillBeErased(int collisionID, bool copyBuffer) override;
+    void announceDistanceWillBeErased(int distanceID, bool copyBuffer) override;
+    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer) override;
+    void performObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performCollectionLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performCollisionLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performDistanceLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performIkLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map) override;
+    void simulationAboutToStart() override;
+    void simulationEnded() override;
+    void initializeInitialValues(bool simulationAlreadyRunning) override;
+    void computeBoundingBox() override;
+    bool isPotentiallyCollidable() const override;
+    bool isPotentiallyMeasurable() const override;
+    bool isPotentiallyDetectable() const override;
+    bool isPotentiallyRenderable() const override;
+    std::string getObjectTypeInfo() const override;
+    std::string getObjectTypeInfoExtended() const override;
 
     void setExplicitHandling(bool explicitHandl);
     bool getExplicitHandling();
@@ -93,7 +93,7 @@ class CPath_old : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
     bool transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf, const C3Vector& clicked3DPoint, double prevPos[2],
                                      double pos[2], double screenHalfSizes[2], double halfSizes[2], bool perspective,
                                      int eventID);

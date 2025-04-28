@@ -23,7 +23,7 @@ CCollection::~CCollection()
 }
 
 void CCollection::initializeInitialValues(bool simulationAlreadyRunning)
-{   // is called at simulation start, but also after object(s) have been copied into a scene!
+{ // is called at simulation start, but also after object(s) have been copied into a scene!
     //_initialValuesInitialized=true;
 }
 
@@ -33,7 +33,7 @@ void CCollection::simulationAboutToStart()
 }
 
 void CCollection::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     // if (_initialValuesInitialized)
     //{

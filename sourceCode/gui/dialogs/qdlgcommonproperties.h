@@ -17,9 +17,9 @@ class CQDlgCommonProperties : public CDlgEx
     explicit CQDlgCommonProperties(QWidget* parent = 0);
     ~CQDlgCommonProperties();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     bool inPlaceState;
     double scalingState;

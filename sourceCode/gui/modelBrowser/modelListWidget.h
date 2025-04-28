@@ -25,7 +25,7 @@ class CModelListWidget : public CModelListWidgetBase
     CModelListWidget();
     virtual ~CModelListWidget();
 
-    QMimeData* mimeData(const QList<QListWidgetItem*> items) const;
+    QMimeData* mimeData(const QList<QListWidgetItem*> items) const override;
     void setFolder(const char* folderPath);
 
     SModelThumbnailInfo* getThumbnailInfoFromModelName(const char* name, int* index);

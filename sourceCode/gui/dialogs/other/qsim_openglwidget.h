@@ -41,10 +41,10 @@ class COpenglWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     void makeContextCurrent();
 
-    void dragEnterEvent(QDragEnterEvent* dEvent);
-    void dragLeaveEvent(QDragLeaveEvent* dEvent);
-    void dragMoveEvent(QDragMoveEvent* dEvent);
-    void dropEvent(QDropEvent* dEvent);
+    void dragEnterEvent(QDragEnterEvent* dEvent) override;
+    void dragLeaveEvent(QDragLeaveEvent* dEvent) override;
+    void dragMoveEvent(QDragMoveEvent* dEvent) override;
+    void dropEvent(QDropEvent* dEvent) override;
 
     SModelThumbnailInfo* getModelDragAndDropInfo();
     void clearModelDragAndDropInfo();
@@ -54,29 +54,29 @@ class COpenglWidget : public QOpenGLWidget, protected QOpenGLFunctions
     void _computeMousePos(int inX, int inY, int& outX, int& outY);
     void _handleMouseAndKeyboardAndResizeEvents(void* event, int t);
 
-    void mousePressEvent(QMouseEvent* mEvent);
+    void mousePressEvent(QMouseEvent* mEvent) override;
     void _mousePressEvent(SMouseOrKeyboardOrResizeEvent e);
-    void mouseReleaseEvent(QMouseEvent* mEvent);
+    void mouseReleaseEvent(QMouseEvent* mEvent) override;
     void _mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e);
-    void mouseDoubleClickEvent(QMouseEvent* mEvent);
+    void mouseDoubleClickEvent(QMouseEvent* mEvent) override;
     void _mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e);
-    void mouseMoveEvent(QMouseEvent* mEvent);
+    void mouseMoveEvent(QMouseEvent* mEvent) override;
     void _mouseMoveEvent(SMouseOrKeyboardOrResizeEvent e);
 
-    void wheelEvent(QWheelEvent* wEvent);
+    void wheelEvent(QWheelEvent* wEvent) override;
     void _wheelEvent(SMouseOrKeyboardOrResizeEvent e);
 
-    bool focusNextPrevChild(bool next);
-    void keyPressEvent(QKeyEvent* kEvent);
+    bool focusNextPrevChild(bool next) override;
+    void keyPressEvent(QKeyEvent* kEvent) override;
     void _keyPressEvent(SMouseOrKeyboardOrResizeEvent e);
-    void keyReleaseEvent(QKeyEvent* kEvent);
+    void keyReleaseEvent(QKeyEvent* kEvent) override;
     void _keyReleaseEvent(SMouseOrKeyboardOrResizeEvent e);
 
-    void resizeEvent(QResizeEvent* rEvent);
+    void resizeEvent(QResizeEvent* rEvent) override;
     void _resizeEvent(SMouseOrKeyboardOrResizeEvent e);
 
-    void initializeGL();
-    void paintGL();
+    void initializeGL() override;
+    void paintGL() override;
 
     int _lastGlobalMousePos[2];
     SModelThumbnailInfo* _modelDragAndDropInfo;

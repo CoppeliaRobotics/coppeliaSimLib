@@ -16,9 +16,9 @@ class CQDlgScripts : public CDlgEx
     explicit CQDlgScripts(QWidget* parent = 0);
     ~CQDlgScripts();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     bool inMainRefreshRoutine;
 

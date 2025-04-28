@@ -4,15 +4,15 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                             \
-    FUNCX(propFSensor_size, "sensorSize", sim_propertytype_float, 0, "Size", "Sensor size")                                                                           \
-    FUNCX(propFSensor_forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0, "Force threshold enabled", "")                                        \
-    FUNCX(propFSensor_torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0, "Torque threshold enabled", "")                                     \
-    FUNCX(propFSensor_filterType, "filterType", sim_propertytype_int, 0, "Filter", "Filter type")                                                                     \
-    FUNCX(propFSensor_filterSampleSize, "filterSampleSize", sim_propertytype_int, 0, "Filter sample", "Filter sample size")                                           \
-    FUNCX(propFSensor_consecutiveViolationsToTrigger, "consecutiveViolationsToTrigger", sim_propertytype_int, 0, "Consecutive violations to trigger", "")             \
-    FUNCX(propFSensor_forceThreshold, "forceThreshold", sim_propertytype_float, 0, "Force threshold", "")                                                             \
-    FUNCX(propFSensor_torqueThreshold, "torqueThreshold", sim_propertytype_float, 0, "Torque threshold", "")                                                          \
+#define DEFINE_PROPERTIES                                                                                                                                                                                 \
+    FUNCX(propFSensor_size, "sensorSize", sim_propertytype_float, 0, "Size", "Sensor size")                                                                                                               \
+    FUNCX(propFSensor_forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0, "Force threshold enabled", "")                                                                            \
+    FUNCX(propFSensor_torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0, "Torque threshold enabled", "")                                                                         \
+    FUNCX(propFSensor_filterType, "filterType", sim_propertytype_int, 0, "Filter", "Filter type")                                                                                                         \
+    FUNCX(propFSensor_filterSampleSize, "filterSampleSize", sim_propertytype_int, 0, "Filter sample", "Filter sample size")                                                                               \
+    FUNCX(propFSensor_consecutiveViolationsToTrigger, "consecutiveViolationsToTrigger", sim_propertytype_int, 0, "Consecutive violations to trigger", "")                                                 \
+    FUNCX(propFSensor_forceThreshold, "forceThreshold", sim_propertytype_float, 0, "Force threshold", "")                                                                                                 \
+    FUNCX(propFSensor_torqueThreshold, "torqueThreshold", sim_propertytype_float, 0, "Torque threshold", "")                                                                                              \
     FUNCX(propFSensor_sensorForce, "sensorForce", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Force", "Measured force vector")                           \
     FUNCX(propFSensor_sensorTorque, "sensorTorque", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Torque", "Measured torque vector")                       \
     FUNCX(propFSensor_sensorAverageForce, "filterSensorForce", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Filtered force", "Filtered force vector")     \
@@ -81,8 +81,8 @@ class CForceSensor : public CSceneObject
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     // Overridden from CSceneObject:
-    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const;
-    virtual C7Vector getFullLocalTransformation() const;
+    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const override;
+    virtual C7Vector getFullLocalTransformation() const override;
 
     void commonInit();
 
@@ -165,6 +165,6 @@ class CForceSensor : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
 #endif
 };

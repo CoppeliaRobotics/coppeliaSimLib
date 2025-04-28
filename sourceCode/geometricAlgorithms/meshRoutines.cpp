@@ -1818,7 +1818,7 @@ void CMeshRoutines::removeDuplicateVerticesAndTriangles(std::vector<double>& ver
     if (indices != nullptr)
     {
         for (size_t i = 0; i < indices->size(); i++)
-            indices->at(i) = map[indices->at(i)];
+            indices->at(i) = int(map[indices->at(i)]);
     }
 
     // Identify duplicate vertices:
@@ -1846,7 +1846,7 @@ void CMeshRoutines::removeDuplicateVerticesAndTriangles(std::vector<double>& ver
     {
         if (map[i] == i)
         {
-            map2[i] = vertices.size() / 3;
+            map2[i] = int(vertices.size()) / 3;
             vertices.push_back(nvert[3 * i + 0]);
             vertices.push_back(nvert[3 * i + 1]);
             vertices.push_back(nvert[3 * i + 2]);

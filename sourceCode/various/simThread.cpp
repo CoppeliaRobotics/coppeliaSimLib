@@ -34,7 +34,7 @@ void CSimThread::executeMessages()
 {
 #ifdef SIM_WITH_GUI
     if (_renderRequired() && (GuiApp::mainWindow != nullptr))
-    {   // we always enter here, unless we skip display frames during simulation. In idle mode, _renderRequired will sleep
+    { // we always enter here, unless we skip display frames during simulation. In idle mode, _renderRequired will sleep
         // appropriately
         if (App::currentWorld->simulation->isSimulationStopped())
         {

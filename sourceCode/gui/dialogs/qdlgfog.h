@@ -17,7 +17,7 @@ class CQDlgFog : public CDlgEx
     explicit CQDlgFog(QWidget* parent = 0);
     ~CQDlgFog();
 
-    void refresh();
+    void refresh() override;
 
   private slots:
     void on_qqFogEnabled_clicked();

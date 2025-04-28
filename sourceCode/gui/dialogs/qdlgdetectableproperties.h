@@ -17,9 +17,9 @@ class CQDlgDetectableProperties : public VDialog
     explicit CQDlgDetectableProperties(QWidget* parent = 0);
     ~CQDlgDetectableProperties();
 
-    void cancelEvent();
-    void okEvent();
-    void initializationEvent();
+    void cancelEvent() override;
+    void okEvent() override;
+    void initializationEvent() override;
 
     void refresh();
 

@@ -194,7 +194,7 @@ class CGraph : public CSceneObject
     double squareDistFromTrackingValue;
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
     void lookAt(int windowSize[2], CSView* subView, bool timeGraph, bool drawText, bool passiveSubView,
                 bool oneOneProportionForXYGraph);
     void validateViewValues(int windowSize[2], double graphPosition[2], double graphSize[2], bool timeGraph,

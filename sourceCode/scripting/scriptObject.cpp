@@ -429,7 +429,7 @@ int CScriptObject::getSystemCallbackFromString(const char* cb)
 }
 
 std::string CScriptObject::getSystemCallbackString(int calltype, int what)
-{   // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
+{ // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
     // if not deprecated
     if (calltype == sim_syscb_info)
     {
@@ -1008,7 +1008,7 @@ int CScriptObject::getInExternalCall()
 }
 
 std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptType, int what)
-{   // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
+{ // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
     // if not deprecated
     std::vector<int> ct = getAllSystemCallbacks(scriptType, false);
     std::vector<std::string> retVal;
@@ -1241,7 +1241,7 @@ void CScriptObject::simulationAboutToStart()
 }
 
 void CScriptObject::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (isSimulationOrMainScript())
     {
@@ -2127,7 +2127,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
     }
 
     if (_executionDepth == 0)
-    {   // remember: a script func. can call another script func indirectly via the system, even system callback can do
+    { // remember: a script func. can call another script func indirectly via the system, even system callback can do
         // that!
         _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
         _forbidOverallYieldingLevel = 0;
@@ -2205,7 +2205,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
         changeOverallYieldingForbidLevel(-1, false);
 
     if (_executionDepth == 0)
-    {   // a system script func. could call a custom script function which could call a system script function, etc. Let
+    { // a system script func. could call a custom script function which could call a system script function, etc. Let
         // the calls unwind before doing anything heavy!
         if ((_scriptState & scriptState_error) != 0)
         { // We got an error
@@ -2233,7 +2233,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
                         _killInterpreterState();
                 }
                 else
-                {   // Following for backward compatibility with older add-ons: they could return 1 (sim_syscb_cleanup) to
+                { // Following for backward compatibility with older add-ons: they could return 1 (sim_syscb_cleanup) to
                     // request cleanup
                     long long int theValue;
                     if ((_scriptType == sim_scripttype_addon) && (outStack->getStackStrictInt64Value(theValue)) &&
@@ -2450,7 +2450,7 @@ int CScriptObject::callCustomScriptFunction(const char* functionName, CInterface
         bool extFunc = luaWrap_lua_isfunction(L, -1);
         luaWrap_lua_pop(L, 1);
         if (extFunc || hasFunctionHook("sysCall_ext"))
-        {   // if sysCall_ext is present, the original func won't be called. Otherwise yes, independently of any such
+        { // if sysCall_ext is present, the original func won't be called. Otherwise yes, independently of any such
             // hooks
             CInterfaceStack* inStack = nullptr;
             if (inOutStack)
@@ -2500,7 +2500,7 @@ int CScriptObject::callCustomScriptFunction(const char* functionName, CInterface
 }
 
 int CScriptObject::executeScriptString(const char* scriptString, CInterfaceStack* outStack)
-{   // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string
+{ // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string
     // didn't cause an error
     int retVal = -2;
     changeOverallYieldingForbidLevel(1, false);
@@ -2779,7 +2779,7 @@ bool CScriptObject::prepareFilteredEventsBuffer(const std::vector<unsigned char>
                     bool headerThere = false;
                     for (size_t i = 0; i < inf[ev].fieldNames.size(); i++)
                     {
-                        if ( (s_event->second.find(inf[ev].fieldNames[i]) != s_event->second.end()) || (s_event->second.size() == 0) )
+                        if ((s_event->second.find(inf[ev].fieldNames[i]) != s_event->second.end()) || (s_event->second.size() == 0))
                         {
                             if (!headerThere)
                             {
@@ -3226,7 +3226,7 @@ void CScriptObject::registerNewFunctions_lua()
             luaWrap_lua_register(L, simLuaCommands[i].name.c_str(), simLuaCommands[i].func);
     }
     if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
-    {   // i.e. sim_old.simGetObjectHandle, etc. We need to put this in the global namespace, since we do not have a lazy
+    { // i.e. sim_old.simGetObjectHandle, etc. We need to put this in the global namespace, since we do not have a lazy
         // load option
         for (int i = 0; simLuaCommandsOldApi[i].name != ""; i++)
         {
@@ -3603,7 +3603,7 @@ void CScriptObject::_registerNewVariables_lua()
         _execSimpleString_safe_lua(L, tmp.c_str());
     }
     if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
-    {   // i.e. sim_old.sim_handle_all, etc. We need to put this in the global namespace, since we do not have a lazy load
+    { // i.e. sim_old.sim_handle_all, etc. We need to put this in the global namespace, since we do not have a lazy load
         // option
         for (size_t i = 0; simLuaVariablesOldApi[i].name != ""; i++)
         {
@@ -4476,7 +4476,6 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
             GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
         pState = _scriptText;
-
     }
     else if (strcmp(propScriptObj_language.name, pName) == 0)
     {
@@ -9415,7 +9414,7 @@ void CScriptObject::_adjustScriptText2_old(CScriptObject* scriptObject, bool doI
         return;
     if ((scriptObject->getScriptType() == sim_scripttype_simulation) &&
         scriptObject->getThreadedExecution_oldThreads())
-    {   // to correct for a forgotten thing. Happens only with files I modified between 11/8/2014 and 13/8/2014 (half of
+    { // to correct for a forgotten thing. Happens only with files I modified between 11/8/2014 and 13/8/2014 (half of
         // the demo scenes and models)
         _replaceScriptText_old(scriptObject, "pcall(threadFunction)", "@@call(threadFunction)");
         _replaceScriptText_old(scriptObject, "@@call(threadFunction)",

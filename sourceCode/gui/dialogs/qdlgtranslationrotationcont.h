@@ -18,9 +18,9 @@ class CQDlgTranslationRotationCont : public CDlgEx
     explicit CQDlgTranslationRotationCont(QWidget* parent = 0);
     ~CQDlgTranslationRotationCont();
 
-    void refresh();
-    void cancelEvent();
-    void okEvent();
+    void refresh() override;
+    void cancelEvent() override;
+    void okEvent() override;
 
     QVBoxLayout* bl;
 

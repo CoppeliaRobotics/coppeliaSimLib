@@ -202,7 +202,7 @@ void CQDlgCollections::selectGroup(int groupID)
 }
 
 void CQDlgCollections::refreshGroupList()
-{   // It is not good to clear all, then add everything again, because the selection state gets lost
+{ // It is not good to clear all, then add everything again, because the selection state gets lost
     //  // 1. Remove all items that are not valid anymore, and update the existing ones (REMOVED)
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();

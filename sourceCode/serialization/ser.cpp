@@ -158,7 +158,7 @@ void CSer::writeClose()
             _writeBinaryHeader();
         // Now we write all the data:
         if (_compress)
-        {   // compressed. When changing compression method, then serialization version has to be incremented and older
+        { // compressed. When changing compression method, then serialization version has to be incremented and older
             // version won't be able to read newer versions anymore!
             // Hufmann:
             unsigned char* writeBuff = new unsigned char[_fileBuffer.size() + 400]; // actually 384
@@ -528,7 +528,7 @@ int CSer::readOpenBinaryNoHeader()
 
 int CSer::readOpenXml(int fileType, bool ignoreTooOldSerializationVersion, std::string* infoStr /*=nullptr*/,
                       std::string* errorStr /*=nullptr*/)
-{   // return values: -4 file can't be opened, -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor
+{ // return values: -4 file can't be opened, -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor
     // unknown, 1=alright!
     _storing = false;
     unsigned short coppeliaSimVersionThatWroteThis = 0; // means: not yet supported
@@ -546,7 +546,7 @@ int CSer::readOpenXml(int fileType, bool ignoreTooOldSerializationVersion, std::
 }
 int CSer::readOpenBinary(int fileType, bool ignoreTooOldSerializationVersion, std::string* infoStr /*=nullptr*/,
                          std::string* errorStr /*=nullptr*/)
-{   // return values: -4 file can't be opened, -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor
+{ // return values: -4 file can't be opened, -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor
     // unknown, 1=alright!
     int retVal = 1;
     _storing = false;

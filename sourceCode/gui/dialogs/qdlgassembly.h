@@ -19,8 +19,8 @@ class CQDlgAssembly : public VDialog
     explicit CQDlgAssembly(QWidget* parent = 0);
     ~CQDlgAssembly();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

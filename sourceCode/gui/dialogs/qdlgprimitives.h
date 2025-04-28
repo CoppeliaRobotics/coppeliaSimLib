@@ -20,8 +20,8 @@ class CQDlgPrimitives : public VDialog
 
     void refresh();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void initialize(int type, const C3Vector* sizes);
     void _correctDependentValues();

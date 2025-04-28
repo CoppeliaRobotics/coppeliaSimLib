@@ -17,9 +17,9 @@ class CQDlgVertexEdit : public CDlgEx
     explicit CQDlgVertexEdit(QWidget* parent = 0);
     ~CQDlgVertexEdit();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   protected:
   private slots:

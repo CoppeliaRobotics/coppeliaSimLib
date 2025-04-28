@@ -16,9 +16,9 @@ class CQDlgProximitySensors : public CDlgEx
     explicit CQDlgProximitySensors(QWidget* parent = 0);
     ~CQDlgProximitySensors();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     bool inMainRefreshRoutine;
 

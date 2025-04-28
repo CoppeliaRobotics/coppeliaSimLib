@@ -17,8 +17,8 @@ class CQDlgTextureLoadOptions : public VDialog
     explicit CQDlgTextureLoadOptions(QWidget* parent = 0);
     ~CQDlgTextureLoadOptions();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

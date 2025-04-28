@@ -865,7 +865,7 @@ float* GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
 
 CColorObject* GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int objID2, std::string* auxDlgTitle,
                                                     int* allowedParts)
-{   // auxDlgTitle and allowedParts can be nullptr. Bit-coded: 1=ambient/diffuse, 2=diffuse(light only), 4=spec, 8=emiss.,
+{ // auxDlgTitle and allowedParts can be nullptr. Bit-coded: 1=ambient/diffuse, 2=diffuse(light only), 4=spec, 8=emiss.,
     // 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
     std::string __auxDlgTitle;
     int __allowedParts;

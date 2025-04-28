@@ -18,9 +18,9 @@ class CQDlgShapeEditionContainer : public CDlgEx
     explicit CQDlgShapeEditionContainer(QWidget* parent = 0);
     ~CQDlgShapeEditionContainer();
 
-    void refresh();
-    void cancelEvent();
-    void okEvent();
+    void refresh() override;
+    void cancelEvent() override;
+    void okEvent() override;
 
     QVBoxLayout* bl;
     int currentPage;

@@ -18,11 +18,11 @@ class CNonHolonomicPathPlanning_old : public CPathPlanning_old
     virtual ~CNonHolonomicPathPlanning_old();
 
     // Following functions are inherited from CPathPlanning:
-    int searchPath(int maxTimePerPass);
-    bool setPartialPath();
-    int smoothFoundPath(int steps, int maxTimePerPass);
-    void getPathData(std::vector<double>& data);
-    void getSearchTreeData(std::vector<double>& data, bool fromStart);
+    int searchPath(int maxTimePerPass) override;
+    bool setPartialPath() override;
+    int smoothFoundPath(int steps, int maxTimePerPass) override;
+    void getPathData(std::vector<double>& data) override;
+    void getSearchTreeData(std::vector<double>& data, bool fromStart) override;
 
     void setStepSize(double size);
 
@@ -31,7 +31,7 @@ class CNonHolonomicPathPlanning_old : public CPathPlanning_old
     std::vector<CNonHolonomicPathNode_old*> foundPath;
 
   private:
-    bool doCollide(double* dist);
+    bool doCollide(double* dist) override;
 
     CNonHolonomicPathNode_old* getClosestNode(std::vector<CNonHolonomicPathNode_old*>& nodes,
                                               CNonHolonomicPathNode_old* sample, bool forward, bool forConnection);

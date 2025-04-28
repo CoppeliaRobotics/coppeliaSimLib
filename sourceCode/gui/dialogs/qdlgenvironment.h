@@ -17,7 +17,7 @@ class CQDlgEnvironment : public CDlgEx
     explicit CQDlgEnvironment(QWidget* parent = 0);
     ~CQDlgEnvironment();
 
-    void refresh();
+    void refresh() override;
 
   private slots:
     void on_qqBackgroundColorUp_clicked();

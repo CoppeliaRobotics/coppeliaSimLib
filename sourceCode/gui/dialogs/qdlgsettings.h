@@ -19,7 +19,7 @@ class CQDlgSettings : public CDlgEx
     explicit CQDlgSettings(QWidget* parent = 0);
     ~CQDlgSettings();
 
-    void refresh();
+    void refresh() override;
 
   private slots:
     void on_translationStepSize_activated(int index);

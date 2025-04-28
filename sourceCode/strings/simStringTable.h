@@ -140,8 +140,8 @@
 
 //#define IDS_LOOK_AT_SELECTED_GRAPH_MENU_ITEM "Associate view with selected graph" //modifiedOn 10/3/2012
 #define IDS_LOOK_THROUGH_SELECTED_CAMERA_MENU_ITEM "Associate view with selected camera" // modifiedOn 10/3/2012
-#define IDS_LOOK_AT_SELECTED_VISION_SENSOR_MENU_ITEM           \
-    "Associate view with selected vision sensor" // modifiedOn \
+#define IDS_LOOK_AT_SELECTED_VISION_SENSOR_MENU_ITEM \
+    "Associate view with selected vision sensor" // modifiedOn 
                                                  // 10/3/2012
 
 #define IDS_2D_ELEMENTS "OpenGl-based custom UI edition"     // modifiedOn 11/3/2012

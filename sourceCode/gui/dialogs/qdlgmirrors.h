@@ -17,9 +17,9 @@ class CQDlgMirrors : public CDlgEx
     explicit CQDlgMirrors(QWidget* parent = 0);
     ~CQDlgMirrors();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
     bool inMainRefreshRoutine;
   private slots:
     void on_qqEnabled_clicked();

@@ -17,8 +17,8 @@ class CQDlgImageColor : public VDialog
     explicit CQDlgImageColor(QWidget* parent = 0);
     ~CQDlgImageColor();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

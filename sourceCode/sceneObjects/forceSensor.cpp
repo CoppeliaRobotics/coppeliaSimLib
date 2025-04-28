@@ -222,7 +222,7 @@ int CForceSensor::getConsecutiveViolationsToTrigger() const
 }
 
 void CForceSensor::addCumulativeForcesAndTorques(const C3Vector& f, const C3Vector& t, int countForAverage)
-{   // the countForAverage mechanism is needed because we need to average all values in a simulation time step (but this
+{ // the countForAverage mechanism is needed because we need to average all values in a simulation time step (but this
     // is called every dynamic simulation time step!!)
     _setForceAndTorque(true, &f, &t);
     if (countForAverage > 0)
@@ -522,7 +522,7 @@ void CForceSensor::simulationAboutToStart()
 }
 
 void CForceSensor::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {

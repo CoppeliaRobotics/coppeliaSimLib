@@ -19,18 +19,18 @@ class CQDlg2D3DGraphProperties : public CDlgEx
     explicit CQDlg2D3DGraphProperties(QWidget* parent = 0);
     ~CQDlg2D3DGraphProperties();
 
-    void cancelEvent();
+    void cancelEvent() override;
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
     void updateObjectsInList();
     int getSelectedObjectID();
     void selectObjectInList(int objectID);
 
-    bool needsDestruction();
+    bool needsDestruction() override;
     bool isLinkedDataValid();
-    bool doesInstanceSwitchRequireDestruction();
+    bool doesInstanceSwitchRequireDestruction() override;
 
     void _initialize(int graphHandle, bool xyGraph);
     static void display(int graphHandle, bool xyGraph, QWidget* theParentWindow);

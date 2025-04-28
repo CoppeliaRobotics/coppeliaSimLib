@@ -29,7 +29,7 @@ void CQDlgDataStreamSelection::cancelEvent()
 }
 
 void CQDlgDataStreamSelection::okEvent()
-{   // we want the user to click "ok"
+{ // we want the user to click "ok"
     //  defaultModalDialogEndRoutine(true);
 }
 

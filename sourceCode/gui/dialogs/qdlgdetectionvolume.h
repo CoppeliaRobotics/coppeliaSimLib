@@ -19,8 +19,8 @@ class CQDlgDetectionVolume : public CDlgEx
     explicit CQDlgDetectionVolume(QWidget* parent = 0);
     ~CQDlgDetectionVolume();
 
-    void refresh();
-    void cancelEvent();
+    void refresh() override;
+    void cancelEvent() override;
 
     CConvexVolume* getCurrentConvexVolume();
 

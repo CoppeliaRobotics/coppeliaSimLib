@@ -6,28 +6,28 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                                 \
-    FUNCX(propShape_meshes, "meshes", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Meshes", "Mesh handles")                                                                                  \
-    FUNCX(propShape_applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply culling", "Enables/disables culling for all contained meshes")                              \
-    FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply shading", "Applies a shading angle to all contained meshes")                     \
-    FUNCX(propShape_applyShowEdges, "applyShowEdges", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply edges", "Enables/disables edges for all contained meshes")                              \
-    FUNCX(propShape_flipFaces, "flipFaces", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Flip faces", "Flips faces of all contained meshes")                                                     \
-    FUNCX(propShape_applyColorDiffuse, "applyColor.diffuse", sim_propertytype_color, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply diffuse color", "Applies the diffuse color component to all contained meshes")  \
+#define DEFINE_PROPERTIES                                                                                                                                                                                                                        \
+    FUNCX(propShape_meshes, "meshes", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Meshes", "Mesh handles")                                                                                     \
+    FUNCX(propShape_applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply culling", "Enables/disables culling for all contained meshes")                                 \
+    FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply shading", "Applies a shading angle to all contained meshes")                        \
+    FUNCX(propShape_applyShowEdges, "applyShowEdges", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply edges", "Enables/disables edges for all contained meshes")                                 \
+    FUNCX(propShape_flipFaces, "flipFaces", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Flip faces", "Flips faces of all contained meshes")                                                        \
+    FUNCX(propShape_applyColorDiffuse, "applyColor.diffuse", sim_propertytype_color, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply diffuse color", "Applies the diffuse color component to all contained meshes")     \
     FUNCX(propShape_applyColorSpecular, "applyColor.specular", sim_propertytype_color, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply specular color", "Applies the specular color component to all contained meshes") \
     FUNCX(propShape_applyColorEmission, "applyColor.emission", sim_propertytype_color, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply emission color", "Applies the emission color component to all contained meshes") \
-    FUNCX(propShape_applyColorTransparency, "applyColor.transparency", sim_propertytype_float, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply transparency", "Applies transparency to all contained meshes")        \
-    FUNCX(propShape_respondableMask, "respondableMask", sim_propertytype_int, 0, "Respondable mask", "")                                                                                                  \
-    FUNCX(propShape_startInDynSleepMode, "startInDynSleepMode", sim_propertytype_bool, 0, "Start in sleep mode", "")                                                                                      \
-    FUNCX(propShape_dynamic, "dynamic", sim_propertytype_bool, 0, "Dynamic", "Shape is dynamic, i.e. not static")                                                                                         \
-    FUNCX(propShape_kinematic, "kinematic", sim_propertytype_bool, 0, "Kinematic", "Special flag mainly used for MuJoCo static shapes that move and need to transmit a friction")                         \
-    FUNCX(propShape_respondable, "respondable", sim_propertytype_bool, 0, "Respondable", "Shape will transmit a collision force")                                                                         \
-    FUNCX(propShape_setToDynamicWithParent, "setToDynamicWithParent", sim_propertytype_bool, 0, "Set to dynamic if gets parent", "Shape will be made dynamic if it receives a parent")                    \
-    FUNCX(propShape_initLinearVelocity, "initLinearVelocity", sim_propertytype_vector3, 0, "Initial linear velocity", "")                                                                                 \
-    FUNCX(propShape_initAngularVelocity, "initAngularVelocity", sim_propertytype_vector3, 0, "Initial rotational velocity", "")                                                                           \
-    FUNCX(propShape_dynLinearVelocity, "dynLinearVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Linear velocity", "Linear velocity, as transmitted by the physics engine")           \
-    FUNCX(propShape_dynAngularVelocity, "dynAngularVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Rotational velocity", "Rotational velocity, as transmitted by the physics engine") \
-    FUNCX(propShape_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether the shape's components are all convex or not")                                              \
-    FUNCX(propShape_primitive, "primitive", sim_propertytype_bool, sim_propertyinfo_notwritable, "Primitive", "Whether the shape's components are all primitives")                                        \
+    FUNCX(propShape_applyColorTransparency, "applyColor.transparency", sim_propertytype_float, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply transparency", "Applies transparency to all contained meshes")           \
+    FUNCX(propShape_respondableMask, "respondableMask", sim_propertytype_int, 0, "Respondable mask", "")                                                                                                                                         \
+    FUNCX(propShape_startInDynSleepMode, "startInDynSleepMode", sim_propertytype_bool, 0, "Start in sleep mode", "")                                                                                                                             \
+    FUNCX(propShape_dynamic, "dynamic", sim_propertytype_bool, 0, "Dynamic", "Shape is dynamic, i.e. not static")                                                                                                                                \
+    FUNCX(propShape_kinematic, "kinematic", sim_propertytype_bool, 0, "Kinematic", "Special flag mainly used for MuJoCo static shapes that move and need to transmit a friction")                                                                \
+    FUNCX(propShape_respondable, "respondable", sim_propertytype_bool, 0, "Respondable", "Shape will transmit a collision force")                                                                                                                \
+    FUNCX(propShape_setToDynamicWithParent, "setToDynamicWithParent", sim_propertytype_bool, 0, "Set to dynamic if gets parent", "Shape will be made dynamic if it receives a parent")                                                           \
+    FUNCX(propShape_initLinearVelocity, "initLinearVelocity", sim_propertytype_vector3, 0, "Initial linear velocity", "")                                                                                                                        \
+    FUNCX(propShape_initAngularVelocity, "initAngularVelocity", sim_propertytype_vector3, 0, "Initial rotational velocity", "")                                                                                                                  \
+    FUNCX(propShape_dynLinearVelocity, "dynLinearVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Linear velocity", "Linear velocity, as transmitted by the physics engine")              \
+    FUNCX(propShape_dynAngularVelocity, "dynAngularVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Rotational velocity", "Rotational velocity, as transmitted by the physics engine")    \
+    FUNCX(propShape_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether the shape's components are all convex or not")                                                                                     \
+    FUNCX(propShape_primitive, "primitive", sim_propertytype_bool, sim_propertyinfo_notwritable, "Primitive", "Whether the shape's components are all primitives")                                                                               \
     FUNCX(propShape_compound, "compound", sim_propertytype_bool, sim_propertyinfo_notwritable, "Compound", "Whether the shape is a compound")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -142,7 +142,7 @@ class CShape : public CSceneObject
     void display_extRenderer(CViewableBase* renderingObject, int displayAttrib);
 
     // Overridden from CSceneObject:
-    bool setParent(CSceneObject* newParent);
+    bool setParent(CSceneObject* newParent) override;
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
 
@@ -238,8 +238,8 @@ class CShape : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
     void displayInertia(CViewableBase* renderingObject, double size, bool persp);
-    void displayFrames(CViewableBase* renderingObject, double size, bool persp);
+    void displayFrames(CViewableBase* renderingObject, double size, bool persp) override;
 #endif
 };

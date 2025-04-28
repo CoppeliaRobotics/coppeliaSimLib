@@ -37,7 +37,7 @@ SIM_DLLEXPORT int simRegisterScriptVariable_L(const char* var, const char* val, 
 SIM_DLLEXPORT int simRegisterScriptFuncHook_L(UID scriptHandle, const char* funcToHook, const char* userFunction, bool executeBefore, int options);
 SIM_DLLEXPORT int simCopyPasteObjects_L(UID* objectHandles, int objectCount, int options);
 SIM_DLLEXPORT char* simReceiveData_L(int dataHeader, const char* dataName, UID antennaHandle, int index, int* dataLength, UID* senderID, int* dataHeaderR, char** dataNameR)
-SIM_DLLEXPORT int simRemoveDrawingObject_L(UID objectHandle);
+    SIM_DLLEXPORT int simRemoveDrawingObject_L(UID objectHandle);
 SIM_DLLEXPORT int simSetExplicitHandling_L(UID objectHandle, int explicitFlags);
 SIM_DLLEXPORT int simGetExplicitHandling_L(UID objectHandle);
 SIM_DLLEXPORT UID simGetLinkDummy_L(UID dummyHandle);

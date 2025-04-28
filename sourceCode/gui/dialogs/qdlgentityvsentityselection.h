@@ -18,8 +18,8 @@ class CQDlgEntityVsEntitySelection : public VDialog
     explicit CQDlgEntityVsEntitySelection(QWidget* parent = 0);
     ~CQDlgEntityVsEntitySelection();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void initialize(int theMode); // 0=collisions, 1=distances, 2=IK avoidance
 

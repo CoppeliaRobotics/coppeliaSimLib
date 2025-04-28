@@ -17,9 +17,9 @@ class CQDlgMultishapeEdition : public CDlgEx
     explicit CQDlgMultishapeEdition(QWidget* parent = 0);
     ~CQDlgMultishapeEdition();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   private slots:
     void on_qqBackfaceCulling_clicked();

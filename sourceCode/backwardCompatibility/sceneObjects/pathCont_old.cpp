@@ -230,7 +230,7 @@ void CPathCont_old::handlePath(CPath_old* it, double deltaTime)
 void CPathCont_old::handlePath_keepObjectUnchanged(double deltaTime, double& pos_, double& nomVel_,
                                                    double& targetNomVel_, double maxAccel, bool invertVelocity,
                                                    bool infiniteAccel)
-{   // This function should not change any values in this object (so that the path can be handled by simFollowPath
+{ // This function should not change any values in this object (so that the path can be handled by simFollowPath
     // functions or such!)
     if (deltaTime <= 0.0)
         return;
@@ -327,7 +327,7 @@ void CPathCont_old::_handleAttachedDummies(CPath_old* it)
             if (dum->getAssignedToParentPath())
             {
                 if (dum->getFreeOnPathTrajectory())
-                {   // The dummy is free. We search for the closest position on the path and then assign the dummy to that
+                { // The dummy is free. We search for the closest position on the path and then assign the dummy to that
                     // position:
                     C3Vector dp(dum->getLocalTransformation().X);
                     C7Vector conf;
@@ -1228,7 +1228,7 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                     if (v1.getLength() == 0.0)
                         v1 = nextVectors[i + 0]; // we get the next non-zero vector
                     if ((v0.getLength() != 0.0) && (v1.getLength() != 0.0))
-                    {   // unless we have a completely coincident trajectory (e.g. on-spot rotation), this should always
+                    { // unless we have a completely coincident trajectory (e.g. on-spot rotation), this should always
                         // pass:
                         double angle = v0.getAngle(v1);
                         double len = std::min<double>(v0.getLength(), v1.getLength());
@@ -1823,7 +1823,7 @@ void CPathCont_old::_recomputeBezierPoints()
                 }
             }
             if ((!linOk) && (!angOk) && (!onSpotDist))
-            {   // This means we either have Bezier interpol. disabled or ((coincident points or colinear points)and(two
+            { // This means we either have Bezier interpol. disabled or ((coincident points or colinear points)and(two
                 // same orientations))!
                 _addBezierPathPoint(tr1, itm->getMaxRelAbsVelocity(), itm->getOnSpotDistance(), auxFlags1,
                                     auxChannels1);
@@ -1907,7 +1907,7 @@ void CPathCont_old::initializeInitialValues(bool simulationAlreadyRunning)
 }
 
 void CPathCont_old::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {

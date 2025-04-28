@@ -1073,7 +1073,7 @@ SIM_DLLEXPORT UID simGenerateShapeFromPath_D_L(const double* path, int pathSize,
     return (simGenerateShapeFromPath_internal(path, pathSize, section, sectionSize, options, upVector, reserved));
 }
 
-SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller_D_L(UID entity1ID, UID entity2ID, double* distance, double* ray, int* cacheBuffer, bool overrideMeasurableFlagIfNonCollection1, bool overrideMeasurableFlagIfNonCollection2,  bool pathPlanningRoutineCalling)
+SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller_D_L(UID entity1ID, UID entity2ID, double* distance, double* ray, int* cacheBuffer, bool overrideMeasurableFlagIfNonCollection1, bool overrideMeasurableFlagIfNonCollection2, bool pathPlanningRoutineCalling)
 {
     return (_simGetDistanceBetweenEntitiesIfSmaller_internal(entity1ID, entity2ID, distance, ray, cacheBuffer, overrideMeasurableFlagIfNonCollection1, overrideMeasurableFlagIfNonCollection2, pathPlanningRoutineCalling));
 }
@@ -1283,7 +1283,6 @@ SIM_DLLEXPORT int simDeinitialize()
 {
     return (simDeinitialize_internal());
 }
-
 
 SIM_DLLEXPORT int simTest(int mode, void* ptr1, void* ptr2, void* ptr3)
 {
@@ -3125,7 +3124,7 @@ SIM_DLLEXPORT void _simAddForceSensorCumulativeForcesAndTorques_D(void* forceSen
     return (_simAddForceSensorCumulativeForcesAndTorques_internal(forceSensor, force, torque, totalPassesCount, simTime));
 }
 
-SIM_DLLEXPORT void _simAddJointCumulativeForcesOrTorques_D(void* joint, double forceOrTorque, int totalPassesCount,double simTime)
+SIM_DLLEXPORT void _simAddJointCumulativeForcesOrTorques_D(void* joint, double forceOrTorque, int totalPassesCount, double simTime)
 {
     return (_simAddJointCumulativeForcesOrTorques_internal(joint, forceOrTorque, totalPassesCount, simTime));
 }
@@ -3165,7 +3164,7 @@ SIM_DLLEXPORT void _simGetGravity_D(double* gravity)
     return (_simGetGravity_internal(gravity));
 }
 
-SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller_D(int entity1ID, int entity2ID, double* distance, double* ray, int* cacheBuffer, bool overrideMeasurableFlagIfNonCollection1, bool overrideMeasurableFlagIfNonCollection2,  bool pathPlanningRoutineCalling)
+SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller_D(int entity1ID, int entity2ID, double* distance, double* ray, int* cacheBuffer, bool overrideMeasurableFlagIfNonCollection1, bool overrideMeasurableFlagIfNonCollection2, bool pathPlanningRoutineCalling)
 { // backw. compatibility version
     UID* __cacheBuffer = nullptr;
     UID _cacheBuffer[4];

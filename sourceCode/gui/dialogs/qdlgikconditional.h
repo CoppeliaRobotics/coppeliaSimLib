@@ -19,8 +19,8 @@ class CQDlgIkConditional : public VDialog
     explicit CQDlgIkConditional(QWidget* parent = 0);
     ~CQDlgIkConditional();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

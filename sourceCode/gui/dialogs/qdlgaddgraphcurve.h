@@ -17,8 +17,8 @@ class CQDlgAddGraphCurve : public VDialog
     explicit CQDlgAddGraphCurve(QWidget* parent = 0);
     ~CQDlgAddGraphCurve();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

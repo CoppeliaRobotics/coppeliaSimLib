@@ -1587,7 +1587,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
 }
 
 CSceneObject* CSceneObject::copyYourself()
-{   // This routine should be called in the very first line of function
+{ // This routine should be called in the very first line of function
     // "copyYourself" in every joint, camera, etc. !
 
     CSceneObject* theNewObject = nullptr;
@@ -1998,7 +1998,7 @@ void CSceneObject::simulationEnded_restoreHierarchy()
 }
 
 void CSceneObject::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     // called after simulationEnded_restoreHierarchy
     setDynamicSimulationIconCode(sim_dynamicsimicon_none);
@@ -2744,7 +2744,7 @@ void CSceneObject::serialize(CSer& ar)
                 {
                     bool noHit = true;
                     if (theName.compare("3do") == 0)
-                    {   // 3D object identifier. Needed for forward compatibility when trying to load an object type that
+                    { // 3D object identifier. Needed for forward compatibility when trying to load an object type that
                         // doesn't yet exist!
                         noHit = false;
                         ar >> byteQuantity;
@@ -3250,7 +3250,7 @@ void CSceneObject::serialize(CSer& ar)
             //*************************************************************
             // For backward compatibility 13/09/2011
             if ((_objectProperty & sim_objectproperty_reserved5) == 0)
-            {   // this used to be the sim_objectproperty_visible property. If it wasn't set in the past, we now try to
+            { // this used to be the sim_objectproperty_visible property. If it wasn't set in the past, we now try to
                 // hide it in a hidden layer:
                 if (_visibilityLayer < 256)
                     _visibilityLayer = _visibilityLayer * 256;
@@ -4817,7 +4817,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
     bool ctrlKeyDown = ((GuiApp::mainWindow != nullptr) && (GuiApp::mainWindow->getKeyDownState() & 1)) &&
                        ((_objectMovementOptions & 32) == 0);
     if ((!ctrlKeyDown) && ((getObjectMovementPreferredAxes() & 56) == 0))
-    {   // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green
+    { // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green
         // manip disc doesn't appear
         _objectManipulationModeAxisIndex = -1;
         _objectManipulationMode_flaggedForGridOverlay = 0;
@@ -4960,7 +4960,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     bool ctrlKeyDown = ((GuiApp::mainWindow != nullptr) && (GuiApp::mainWindow->getKeyDownState() & 1)) &&
                        ((_objectMovementOptions & 16) == 0);
     if ((!ctrlKeyDown) && ((getObjectMovementPreferredAxes() & 7) == 0))
-    {   // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green
+    { // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green
         // manip bars don't appear
         _objectManipulationModeAxisIndex = -1;
         _objectManipulationMode_flaggedForGridOverlay = 0;
@@ -6501,4 +6501,3 @@ int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info, std::str
     }
     return retVal;
 }
-

@@ -17,8 +17,8 @@ class CQDlgTextureSelection : public VDialog
     explicit CQDlgTextureSelection(QWidget* parent = 0);
     ~CQDlgTextureSelection();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

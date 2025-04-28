@@ -1618,10 +1618,10 @@ void CMainWindow::_actualizetoolbarButtonState()
                 _toolbarActionCollections->setEnabled(noEditMode && noSelector);
                 _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
                 _toolbarActionPathEdition->setEnabled((noSelector && (selS == 1) &&
-                                                   App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_path) &&
-                                                   App::currentWorld->simulation->isSimulationStopped() &&
-                                                   (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
-                                                  (editModeContainer->getEditModeType() & PATH_EDIT_MODE_OLD));
+                                                       App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_path) &&
+                                                       App::currentWorld->simulation->isSimulationStopped() &&
+                                                       (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
+                                                      (editModeContainer->getEditModeType() & PATH_EDIT_MODE_OLD));
                 _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType() == PATH_EDIT_MODE_OLD);
             }
         }

@@ -18,10 +18,10 @@ class CQDlgIk : public CDlgEx
     explicit CQDlgIk(QWidget* parent = 0);
     ~CQDlgIk();
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     void updateObjectsInList();
     int getSelectedObjectID();

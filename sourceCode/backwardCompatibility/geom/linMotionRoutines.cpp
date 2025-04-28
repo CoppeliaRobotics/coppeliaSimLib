@@ -133,7 +133,7 @@ bool CLinMotionRoutines::getNextValues(double& position, double& velocity, doubl
     }
     // We divide the task into two sub-tasks if targetVelocity*velocity is negative:
     if (targetVelocity * velocity < 0.0)
-    {   // 1.0.0 We first try to go to zero. The only thing that limits us here is the deltaTime that might not be enough
+    { // 1.0.0 We first try to go to zero. The only thing that limits us here is the deltaTime that might not be enough
         // to reach zero or a limit.
         // signedAccel means speeding down!
         double nextLimitMaxSpeed = lowerMaxAbsVel;

@@ -20,9 +20,9 @@ class CQDlgTranslation : public CDlgEx
     explicit CQDlgTranslation(QWidget* parent = 0);
     ~CQDlgTranslation();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   protected:
     void _enableCoordinatePart(bool enableState, bool enableButtons, bool alsoRadioButtons);

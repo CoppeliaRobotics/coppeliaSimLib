@@ -18,8 +18,8 @@ class CQDlgPathShaping : public CDlgEx
     explicit CQDlgPathShaping(QWidget* parent = 0);
     ~CQDlgPathShaping();
 
-    void refresh();
-    void cancelEvent();
+    void refresh() override;
+    void cancelEvent() override;
 
     bool inMainRefreshRoutine;
 

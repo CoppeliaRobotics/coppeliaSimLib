@@ -18,10 +18,10 @@ class CQDlgDistances : public CDlgEx
     explicit CQDlgDistances(QWidget* parent = 0);
     ~CQDlgDistances();
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     void updateObjectsInList();
     int getSelectedObjectID();

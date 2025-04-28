@@ -287,7 +287,7 @@ void CMesh::scale(double isoVal)
 }
 
 void CMesh::scale(double xVal, double yVal, double zVal)
-{   // We scale along _bbFrame, not _iFrame, since non-iso scaling of inertia is delicate
+{ // We scale along _bbFrame, not _iFrame, since non-iso scaling of inertia is delicate
     // So we leave inertia items untouched
     // Only for non-compound shapes
     if (_purePrimitive == sim_primitiveshape_plane)
@@ -2750,7 +2750,7 @@ std::string CMesh::getMeshState() const
         int ts[2];
         _textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
         const char* t = (const char*)_textureProperty->getTextureObject()->getTextureBufferPointer();
-        for (size_t i = 0; i <ts[0] * ts[1] * 4; i++)
+        for (size_t i = 0; i < ts[0] * ts[1] * 4; i++)
             h += t[i];
     }
     std::string retVal = std::string(reinterpret_cast<const char*>(&h), sizeof(h));

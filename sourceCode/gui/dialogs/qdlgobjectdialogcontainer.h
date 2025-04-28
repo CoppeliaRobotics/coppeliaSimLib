@@ -17,8 +17,8 @@ class CQDlgObjectDialogContainer : public CDlgEx
     explicit CQDlgObjectDialogContainer(QWidget* parent = 0);
     ~CQDlgObjectDialogContainer();
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
     QVBoxLayout* bl;
     int objTypeDlg;

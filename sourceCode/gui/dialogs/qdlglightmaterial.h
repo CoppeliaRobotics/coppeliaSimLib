@@ -19,13 +19,13 @@ class CQDlgLightMaterial : public CDlgEx
     explicit CQDlgLightMaterial(QWidget* parent = 0);
     ~CQDlgLightMaterial();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
-    bool needsDestruction();
+    bool needsDestruction() override;
     bool isLinkedDataValid();
-    bool doesInstanceSwitchRequireDestruction();
+    bool doesInstanceSwitchRequireDestruction() override;
 
     int _objType;
     int _objID1;

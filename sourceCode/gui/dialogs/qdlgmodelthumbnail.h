@@ -19,8 +19,8 @@ class CQDlgModelThumbnail : public VDialog
     explicit CQDlgModelThumbnail(QWidget* parent = 0);
     ~CQDlgModelThumbnail();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void initialize();
     void actualizeBitmap();

@@ -11,5 +11,5 @@ class CModelListWidgetBase : public QListWidget
     virtual ~CModelListWidgetBase();
 
   protected:
-    void updateGeometries();
+    void updateGeometries() override;
 };

@@ -15,5 +15,5 @@ class Thread : public QThread
     void threadFinished();
 
   protected:
-    void run();
+    void run() override;
 };

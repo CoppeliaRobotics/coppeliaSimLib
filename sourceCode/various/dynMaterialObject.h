@@ -17,7 +17,7 @@ struct SEngMaterialProperty
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                     \
-    FUNCX(propMaterial_engineProperties, "engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text")                                                           \
+    FUNCX(propMaterial_engineProperties, "engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text")                           \
     FUNCX(propMaterial_bulletRestitution, "bullet.restitution", sim_propertytype_float, 0, sim_bullet_body_restitution, -1, -1, -1, -1, "", "")                                                                               \
     FUNCX(propMaterial_bulletFriction0, "bullet.frictionOld", sim_propertytype_float, 0, sim_bullet_body_oldfriction, -1, -1, -1, -1, "", "")                                                                                 \
     FUNCX(propMaterial_bulletFriction, "bullet.friction", sim_propertytype_float, 0, sim_bullet_body_friction, -1, -1, -1, -1, "", "")                                                                                        \
@@ -75,7 +75,7 @@ struct SEngMaterialProperty
     FUNCX(propMaterial_vortexSecondaryAngularAxisFrictionModel, "vortex.angularSecondaryAxisFrictionModel", sim_propertytype_int, 0, sim_vortex_body_secangularaxisfrictionmodel, -1, -1, -1, -1, "", "")                     \
     FUNCX(propMaterial_vortexNormalAngularAxisFrictionModel, "vortex.angularNormalAxisFrictionModel", sim_propertytype_int, 0, sim_vortex_body_normalangularaxisfrictionmodel, -1, -1, -1, -1, "", "")                        \
     FUNCX(propMaterial_vortexAutoSleepStepLiveThreshold, "vortex.autoSleepThresholdSteps", sim_propertytype_int, 0, sim_vortex_body_autosleepsteplivethreshold, -1, -1, -1, -1, "", "")                                       \
-    FUNCX(propMaterial_vortexMaterialUniqueId, "vortex.materialUniqueId", sim_propertytype_int, sim_propertyinfo_modelhashexclude, sim_vortex_body_materialuniqueid, -1, -1, -1, -1, "", "")                                                                  \
+    FUNCX(propMaterial_vortexMaterialUniqueId, "vortex.materialUniqueId", sim_propertytype_int, sim_propertyinfo_modelhashexclude, sim_vortex_body_materialuniqueid, -1, -1, -1, -1, "", "")                                  \
     FUNCX(propMaterial_vortexPrimitiveShapesAsConvex, "vortex.primitiveAsConvex", sim_propertytype_bool, 0, sim_vortex_body_pureshapesasconvex, -1, -1, -1, -1, "", "")                                                       \
     FUNCX(propMaterial_vortexConvexShapesAsRandom, "vortex.convexAsRandom", sim_propertytype_bool, 0, sim_vortex_body_convexshapesasrandom, -1, -1, -1, -1, "", "")                                                           \
     FUNCX(propMaterial_vortexRandomShapesAsTerrain, "vortex.randomAsTerrain", sim_propertytype_bool, 0, sim_vortex_body_randomshapesasterrain, -1, -1, -1, -1, "", "")                                                        \

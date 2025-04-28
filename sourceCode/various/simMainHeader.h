@@ -84,8 +84,8 @@ typedef void* (*VTHREAD_START_ADDRESS)(void*);
 #define QT_MODAL_DLG_STYLE                  \
     (Qt::Dialog | Qt::CustomizeWindowHint | \
      Qt::WindowTitleHint) // Qt::Tool is buggy on Mac sinc Qt5.1 or so (modal dialogs are not 100% modal!)
-#define QT_MODELESS_DLG_STYLE                                                                                           \
-    (Qt::Tool | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint) // Qt::Dialog is buggy on Mac (dialog doesn't stay \
+#define QT_MODELESS_DLG_STYLE \
+    (Qt::Tool | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint) // Qt::Dialog is buggy on Mac (dialog doesn't stay 
                                                                      // on top. With Qt::Tool it stays on top)
 #define QT_MODAL_SCINTILLA_DLG_STYLE (Qt::Dialog)
 #define QT_MODELESS_SCINTILLA_DLG_STYLE (Qt::Tool) // Otherwise doesn't stay in front!!!
@@ -95,11 +95,11 @@ typedef void* (*VTHREAD_START_ADDRESS)(void*);
 #define __cdecl
 #define QT_MODAL_DLG_STYLE (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint)
 #define QT_MODELESS_DLG_STYLE (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
-#define QT_MODAL_SCINTILLA_DLG_STYLE                                                                                    \
-    (Qt::WindowCloseButtonHint) // WindowMaximizeButtonHint has a strange behaviour here. Can't get anything work right \
+#define QT_MODAL_SCINTILLA_DLG_STYLE \
+    (Qt::WindowCloseButtonHint) // WindowMaximizeButtonHint has a strange behaviour here. Can't get anything work right 
                                 // except for a single close button!!!
-#define QT_MODELESS_SCINTILLA_DLG_STYLE                                                                                 \
-    (Qt::WindowCloseButtonHint) // WindowMaximizeButtonHint has a strange behaviour here. Can't get anything work right \
+#define QT_MODELESS_SCINTILLA_DLG_STYLE \
+    (Qt::WindowCloseButtonHint) // WindowMaximizeButtonHint has a strange behaviour here. Can't get anything work right 
                                 // except for a single close button!!!
 #endif
 

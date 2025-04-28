@@ -678,15 +678,15 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
 
         c.addRandomLine("// License");
         c.addRandomLine("// =================================================");
-        #ifdef IS_LITE
-            license_lite = license;
-        #endif
-        #ifdef IS_EDU
-            license_edu = license;
-        #endif
-        #ifdef IS_PRO
-            license_pro = license;
-        #endif
+#ifdef IS_LITE
+        license_lite = license;
+#endif
+#ifdef IS_EDU
+        license_edu = license;
+#endif
+#ifdef IS_PRO
+        license_pro = license;
+#endif
         c.addString(_USR_LICENSE_LITE, license_lite, "");
         c.addString(_USR_LICENSE_EDU, license_edu, "");
         c.addString(_USR_LICENSE_PRO, license_pro, "");

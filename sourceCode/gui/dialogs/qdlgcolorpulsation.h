@@ -18,8 +18,8 @@ class CQDlgColorPulsation : public VDialog
     explicit CQDlgColorPulsation(QWidget* parent = 0);
     ~CQDlgColorPulsation();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

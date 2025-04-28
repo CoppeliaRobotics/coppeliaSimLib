@@ -63,7 +63,7 @@ void CCollisionObject_old::simulationAboutToStart()
 }
 
 void CCollisionObject_old::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
         setExplicitHandling(_initialExplicitHandling);

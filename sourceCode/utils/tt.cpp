@@ -570,7 +570,7 @@ double tt::getAngleMinusAlpha(double angle, double alpha)
 }
 
 double tt::getAngleMinusAlpha_range(double angle, double alpha, double range)
-{   // Returns angle-alpha. Angle and alpha are cyclic values in range [-range/2;range/2], or in range [-PI;+PI] if range
+{ // Returns angle-alpha. Angle and alpha are cyclic values in range [-range/2;range/2], or in range [-PI;+PI] if range
     // is 0.0
     if (range == 0.0)
         return (getAngleMinusAlpha(angle, alpha));

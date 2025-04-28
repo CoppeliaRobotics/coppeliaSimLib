@@ -10,12 +10,12 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                   \
-    FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, "Final save", "Lock scene and models after next scene save operation")                                  \
+    FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, "Final save", "Lock scene and models after next scene save operation")  \
     FUNCX(propScene_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_notwritable, "Scene is locked", "")                                                             \
     FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs", sim_propertytype_bool, 0, "Save calculation structures", "Save operation also saves existing calculation structures") \
-    FUNCX(propScene_sceneUid, "sceneUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Scene UID", "Scene unique identifier")                                                       \
+    FUNCX(propScene_sceneUid, "sceneUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Scene UID", "Scene unique identifier")                   \
     FUNCX(propScene_visibilityLayers, "visibilityLayers", sim_propertytype_int, 0, "Visibility layers", "Currently active visibility layers")                                               \
-    FUNCX(propScene_scenePath, "scenePath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "Scene path", "")                                                                                                   \
+    FUNCX(propScene_scenePath, "scenePath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "Scene path", "")                                                                   \
     FUNCX(propScene_acknowledgment, "acknowledgment", sim_propertytype_string, 0, "Acknowledgment", "Scene acknowledgment")                                                                 \
     FUNCX(propScene_sceneUidString, "sceneUidString", sim_propertytype_string, sim_propertyinfo_notwritable, "Scene UID string", "Scene unique identifier string")                          \
     FUNCX(propScene_ambientLight, "ambientLight", sim_propertytype_color, 0, "Ambient light", "")

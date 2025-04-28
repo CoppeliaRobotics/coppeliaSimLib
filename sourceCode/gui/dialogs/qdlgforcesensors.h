@@ -17,9 +17,9 @@ class CQDlgForceSensors : public CDlgEx
     explicit CQDlgForceSensors(QWidget* parent = 0);
     ~CQDlgForceSensors();
 
-    void cancelEvent();
+    void cancelEvent() override;
 
-    void refresh();
+    void refresh() override;
 
   private slots:
     void on_qqSize_editingFinished();

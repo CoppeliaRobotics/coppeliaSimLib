@@ -90,7 +90,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                                                   int maxRenderedPos[2], bool forDragAndDrop /*=false*/,
                                                   int transparentForTreeObjects /*=-1*/, int dropID /*=-1*/,
                                                   int worldClick /*=-9999*/)
-{   // transparentForTreeObjects==-1: normal, transparentForTreeObjects==-2: transparent, otherwise transparent only for
+{ // transparentForTreeObjects==-1: normal, transparentForTreeObjects==-2: transparent, otherwise transparent only for
     // objID=transparentForTreeObjects
     const unsigned char horizontalShift = 13 * GuiApp::sc;
     double transparencyFactor = 0.0;

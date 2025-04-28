@@ -20,7 +20,7 @@ CAddOnScriptContainer::CAddOnScriptContainer()
 }
 
 void CAddOnScriptContainer::loadAllAddOns()
-{   // will load them. But not call any script function yet (including 'info', which is called on-demand when a callback
+{ // will load them. But not call any script function yet (including 'info', which is called on-demand when a callback
     // is distributed)
     _insertAddOns(ADDON_EXTENTION_LUA);
     _insertAddOns(ADDON_EXTENTION_PY);

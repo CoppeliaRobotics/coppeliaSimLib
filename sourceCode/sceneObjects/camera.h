@@ -85,15 +85,15 @@ class CCamera : public CViewableBase
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const override;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const const override;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
-    std::string getObjectTypeInfo() const;
-    std::string getObjectTypeInfoExtended() const;
-    bool isPotentiallyCollidable() const;
-    bool isPotentiallyMeasurable() const;
-    bool isPotentiallyDetectable() const;
-    bool isPotentiallyRenderable() const;
+    std::string getObjectTypeInfo() const override;
+    std::string getObjectTypeInfoExtended() const override;
+    bool isPotentiallyCollidable() const override;
+    bool isPotentiallyMeasurable() const override;
+    bool isPotentiallyDetectable() const override;
+    bool isPotentiallyRenderable() const override;
 
     void handleCameraTracking();
     void commonInit();
@@ -154,7 +154,7 @@ class CCamera : public CViewableBase
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
     void lookIn(int windowSize[2], CSView* subView, bool drawText = false, bool passiveSubView = true);
     void setAttributesForRendering(int attr);
     int getAttributesForRendering() const;

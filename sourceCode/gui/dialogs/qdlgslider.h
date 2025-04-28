@@ -18,8 +18,8 @@ class CQDlgSlider : public VDialog
     explicit CQDlgSlider(QWidget* parent = 0);
     ~CQDlgSlider();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

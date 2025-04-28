@@ -39,7 +39,7 @@ void CIkGroup_old::simulationAboutToStart()
 }
 
 void CIkGroup_old::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     for (size_t i = 0; i < getIkElementCount(); i++)
         getIkElementFromIndex(i)->simulationEnded();
@@ -942,7 +942,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int* jointHandles, double* jo
 
 int CIkGroup_old::generateIkPath(int jointCnt, const int* jointHandles, int ptCnt, int collisionPairCnt,
                                  const int* collisionPairs, const int* jointOptions, std::vector<double>& path)
-{   // ret: -1: invalidHandles, -2: ik Element inexistent, -3: invalid arg, -4: ik tip not linked to target, -5: invalid
+{ // ret: -1: invalidHandles, -2: ik Element inexistent, -3: invalid arg, -4: ik tip not linked to target, -5: invalid
     // coll pairs, 0: failed, 1: succeeded
     int retVal = 0;
 

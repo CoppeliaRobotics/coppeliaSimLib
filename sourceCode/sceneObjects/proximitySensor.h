@@ -5,17 +5,17 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                          \
-    FUNCX(propProximitySensor_size, "sensorPointSize", sim_propertytype_float, 0, "Sensor point size", "")                                                                         \
-    FUNCX(propProximitySensor_frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0, "Front face detection", "")                                                      \
-    FUNCX(propProximitySensor_backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0, "Back face detection", "")                                                         \
-    FUNCX(propProximitySensor_exactMode, "exactMode", sim_propertytype_bool, 0, "Exact mode", "")                                                                                  \
-    FUNCX(propProximitySensor_explicitHandling, "explicitHandling", sim_propertytype_bool, 0, "Explicit handling", "")                                                             \
-    FUNCX(propProximitySensor_showVolume, "showVolume", sim_propertytype_bool, 0, "Show volume", "")                                                                               \
-    FUNCX(propProximitySensor_randomizedDetection, "randomizedDetection", sim_propertytype_bool, sim_propertyinfo_notwritable, "Randomized detection", "")                         \
-    FUNCX(propProximitySensor_sensorType, "sensorType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Sensor type")                                                 \
+#define DEFINE_PROPERTIES                                                                                                                                                                                              \
+    FUNCX(propProximitySensor_size, "sensorPointSize", sim_propertytype_float, 0, "Sensor point size", "")                                                                                                             \
+    FUNCX(propProximitySensor_frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0, "Front face detection", "")                                                                                          \
+    FUNCX(propProximitySensor_backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0, "Back face detection", "")                                                                                             \
+    FUNCX(propProximitySensor_exactMode, "exactMode", sim_propertytype_bool, 0, "Exact mode", "")                                                                                                                      \
+    FUNCX(propProximitySensor_explicitHandling, "explicitHandling", sim_propertytype_bool, 0, "Explicit handling", "")                                                                                                 \
+    FUNCX(propProximitySensor_showVolume, "showVolume", sim_propertytype_bool, 0, "Show volume", "")                                                                                                                   \
+    FUNCX(propProximitySensor_randomizedDetection, "randomizedDetection", sim_propertytype_bool, sim_propertyinfo_notwritable, "Randomized detection", "")                                                             \
+    FUNCX(propProximitySensor_sensorType, "sensorType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Sensor type")                                                                                     \
     FUNCX(propProximitySensor_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Detected object", "Detected scene object handle") \
-    FUNCX(propProximitySensor_angleThreshold, "angleThreshold", sim_propertytype_float, 0, "Angle threshold", "Angle threshold, 0.0 to disable")                                   \
+    FUNCX(propProximitySensor_angleThreshold, "angleThreshold", sim_propertytype_float, 0, "Angle threshold", "Angle threshold, 0.0 to disable")                                                                       \
     FUNCX(propProximitySensor_detectedPoint, "detectedPoint", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Detected point", "")                                        \
     FUNCX(propProximitySensor_detectedNormal, "detectedNormal", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Detected normal", "Detected normal vector")
 
@@ -185,6 +185,6 @@ class CProxSensor : public CSceneObject
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(CViewableBase* renderingObject, int displayAttrib);
+    void display(CViewableBase* renderingObject, int displayAttrib) override;
 #endif
 };

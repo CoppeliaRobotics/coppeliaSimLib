@@ -749,7 +749,7 @@ bool CButtonBlockContainer::mouseDown(int xCoord, int yCoord, int currentView, i
         mouseCaptured = true;
         // Now we put that block to the front
         if (itBlock->getObjectIDAttachedTo() != -1)
-        {   // If that block is attached to an object, then also put all other blocks attached to the same object to the
+        { // If that block is attached to an object, then also put all other blocks attached to the same object to the
             // front!
             for (int i = (int)allBlocks.size() - 1; i >= 0; i--)
             {

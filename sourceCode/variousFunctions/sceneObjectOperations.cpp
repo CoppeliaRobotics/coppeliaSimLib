@@ -36,7 +36,7 @@ void CSceneObjectOperations::keyPress(int key)
 }
 
 bool CSceneObjectOperations::processCommand(int commandID)
-{   // Return value is true if the command belonged to object edition menu and was executed
+{ // Return value is true if the command belonged to object edition menu and was executed
     // Can be called by the UI and SIM thread!
 
     if (commandID == SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD)
@@ -1064,7 +1064,7 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection, dou
         if (scalePositionsToo)
             it->scalePosition(scalingFactor);
         else
-        {   // If one parent is a root object (model base) and in this selection, then we also scale the position here!!
+        { // If one parent is a root object (model base) and in this selection, then we also scale the position here!!
             // (2009/06/10)
             CSceneObject* itp = it->getParent();
             while (itp != nullptr)

@@ -223,7 +223,7 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObj
     _addObject(newObject);
 
     if (newObject->getObjectType() == sim_sceneobject_graph)
-    {   // If the simulation is running, we have to empty the buffer!!! (otherwise we might have old and new data mixed
+    { // If the simulation is running, we have to empty the buffer!!! (otherwise we might have old and new data mixed
         // together (e.g. old data in future, new data in present!)
         if ((App::currentWorld->simulation != nullptr) && (!App::currentWorld->simulation->isSimulationStopped()))
         {
@@ -615,7 +615,7 @@ int CSceneObjectContainer::getHierarchyChangeCounter() const
 }
 
 void CSceneObjectContainer::setTextureDependencies()
-{   // here we cannot use shapeList, because that list may not yet be actualized (e.g. during a scene/model load
+{ // here we cannot use shapeList, because that list may not yet be actualized (e.g. during a scene/model load
     // operation)!!
     for (size_t i = 0; i < getObjectCount(); i++)
     {
@@ -4245,7 +4245,7 @@ CSceneObject* CSceneObjectContainer::getObjectFromPath(const CSceneObject* emitt
 
 CSceneObject* CSceneObjectContainer::_getObjectInTree(const CSceneObject* treeBase, const char* objectAliasAndPath,
                                                       int& index) const
-{   // recursive. objectAliasAndPath as "objectName/objectName" with optional wildcards and order info, e.g.
+{ // recursive. objectAliasAndPath as "objectName/objectName" with optional wildcards and order info, e.g.
     // "objectName[0]/objectName[0]"
     std::vector<CSceneObject*> toExplore;
     if (treeBase == nullptr)
@@ -6244,107 +6244,93 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         }
                         switch (t)
                         {
-                            case sim_propertytype_bool:
-                            {
-                                bool state;
-                                result = obj->getBoolProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
-                                break;
-                            }
-                            case sim_propertytype_int:
-                            {
-                                int state;
-                                result = obj->getIntProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
-                                break;
-                            }
-                            case sim_propertytype_long:
-                            {
-                                long long int state;
-                                result = obj->getLongProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
-                                break;
-                            }
-                            case sim_propertytype_float:
-                            {
-                                double state;
-                                result = obj->getFloatProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
-                                break;
-                            }
-                            case sim_propertytype_string:
-                            {
-                                std::string state;
-                                result = obj->getStringProperty(name.c_str(), state);
-                                dnaString += state;
-                                break;
-                            }
-                            case sim_propertytype_buffer:
-                            {
-                                std::string state;
-                                result = obj->getBufferProperty(name.c_str(), state);
-                                dnaString += state;
-                                break;
-                            }
-                            case sim_propertytype_intarray2:
-                            {
-                                int state[2];
-                                result = obj->getIntArray2Property(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
-                                break;
-                            }
-                            case sim_propertytype_vector2:
-                            {
-                                double state[2];
-                                result = obj->getVector2Property(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
-                                break;
-                            }
-                            case sim_propertytype_vector3:
-                            {
-                                C3Vector state;
-                                result = obj->getVector3Property(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(state.data), sizeof(state.data));
-                                break;
-                            }
-                            case sim_propertytype_quaternion:
-                            {
-                                C4Vector state;
-                                result = obj->getQuaternionProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(state.data), sizeof(state.data));
-                                break;
-                            }
-                            case sim_propertytype_pose:
-                            {
-                                C7Vector state;
-                                result = obj->getPoseProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(state.X.data), sizeof(state.X.data));
-                                dnaString.append(reinterpret_cast<const char*>(state.Q.data), sizeof(state.Q.data));
-                                break;
-                            }
-                            case sim_propertytype_color:
-                            {
-                                float state[3];
-                                result = obj->getColorProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
-                                break;
-                            }
-                            case sim_propertytype_intarray:
-                            {
-                                std::vector<int> state;
-                                result = obj->getIntArrayProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(int));
-                                break;
-                            }
-                            case sim_propertytype_floatarray:
-                            {
-                                std::vector<double> state;
-                                result = obj->getFloatArrayProperty(name.c_str(), state);
-                                dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
-                                break;
-                            }
-                            default:
-                                break;
+                        case sim_propertytype_bool: {
+                            bool state;
+                            result = obj->getBoolProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
+                            break;
+                        }
+                        case sim_propertytype_int: {
+                            int state;
+                            result = obj->getIntProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
+                            break;
+                        }
+                        case sim_propertytype_long: {
+                            long long int state;
+                            result = obj->getLongProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
+                            break;
+                        }
+                        case sim_propertytype_float: {
+                            double state;
+                            result = obj->getFloatProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
+                            break;
+                        }
+                        case sim_propertytype_string: {
+                            std::string state;
+                            result = obj->getStringProperty(name.c_str(), state);
+                            dnaString += state;
+                            break;
+                        }
+                        case sim_propertytype_buffer: {
+                            std::string state;
+                            result = obj->getBufferProperty(name.c_str(), state);
+                            dnaString += state;
+                            break;
+                        }
+                        case sim_propertytype_intarray2: {
+                            int state[2];
+                            result = obj->getIntArray2Property(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
+                            break;
+                        }
+                        case sim_propertytype_vector2: {
+                            double state[2];
+                            result = obj->getVector2Property(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
+                            break;
+                        }
+                        case sim_propertytype_vector3: {
+                            C3Vector state;
+                            result = obj->getVector3Property(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state.data), sizeof(state.data));
+                            break;
+                        }
+                        case sim_propertytype_quaternion: {
+                            C4Vector state;
+                            result = obj->getQuaternionProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state.data), sizeof(state.data));
+                            break;
+                        }
+                        case sim_propertytype_pose: {
+                            C7Vector state;
+                            result = obj->getPoseProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state.X.data), sizeof(state.X.data));
+                            dnaString.append(reinterpret_cast<const char*>(state.Q.data), sizeof(state.Q.data));
+                            break;
+                        }
+                        case sim_propertytype_color: {
+                            float state[3];
+                            result = obj->getColorProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
+                            break;
+                        }
+                        case sim_propertytype_intarray: {
+                            std::vector<int> state;
+                            result = obj->getIntArrayProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(int));
+                            break;
+                        }
+                        case sim_propertytype_floatarray: {
+                            std::vector<double> state;
+                            result = obj->getFloatArrayProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                            break;
+                        }
+                        default:
+                            break;
                         }
                         if (result == -1)
                         {
@@ -6353,13 +6339,13 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                             err += " for data type ";
                             err += std::to_string(t);
                             App::logMsg(sim_verbosity_errors, err.c_str());
-                            #ifdef WIN_SIM
-                                Beep(5000, 1000);
-                                VThread::sleep(500);
-                            #endif
+#ifdef WIN_SIM
+                            Beep(5000, 1000);
+                            VThread::sleep(500);
+#endif
                         }
                     }
-                    if ( (debugPos != -1) && (std::abs(int(dnaString.size() - debugPos)) < 1000) )
+                    if ((debugPos != -1) && (std::abs(int(dnaString.size() - debugPos)) < 1000))
                     {
                         std::string str("Model state buffer size: ");
                         str += std::to_string(dnaString.size());

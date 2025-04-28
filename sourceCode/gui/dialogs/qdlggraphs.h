@@ -19,10 +19,10 @@ class CQDlgGraphs : public CDlgEx
     explicit CQDlgGraphs(QWidget* parent = 0);
     ~CQDlgGraphs();
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     void updateObjectsInList();
     int getSelectedObjectID();

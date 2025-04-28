@@ -17,7 +17,7 @@ class CQDlgLayers : public CDlgEx
     explicit CQDlgLayers(QWidget* parent = 0);
     ~CQDlgLayers();
 
-    void refresh();
+    void refresh() override;
     void clickedLayer(int bit);
 
   private slots:

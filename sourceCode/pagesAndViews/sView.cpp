@@ -38,7 +38,7 @@ void CSView::initializeInitialValues(bool simulationAlreadyRunning)
 }
 
 bool CSView::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {

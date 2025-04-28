@@ -17,12 +17,12 @@ class CQDlgTextures : public CDlgEx
     explicit CQDlgTextures(QWidget* parent = 0);
     ~CQDlgTextures();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
-    bool needsDestruction();
+    void cancelEvent() override;
+    bool needsDestruction() override;
     bool isLinkedDataValid();
-    bool doesInstanceSwitchRequireDestruction();
+    bool doesInstanceSwitchRequireDestruction() override;
 
     int _objType;
     int _objID1;

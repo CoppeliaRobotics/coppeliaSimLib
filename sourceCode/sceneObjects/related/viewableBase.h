@@ -31,43 +31,47 @@ class CViewableBase : public CSceneObject
     virtual ~CViewableBase();
 
     // Following functions need to be implemented in each class derived from CViewableBase
-    virtual void addSpecializedObjectEventData(CCbor* ev);
-    virtual CSceneObject* copyYourself();
+    virtual void addSpecializedObjectEventData(CCbor* ev) override;
+    virtual CSceneObject* copyYourself() override;
+#ifdef SIM_WITH_GUI
+    virtual void display(CViewableBase* renderingObject, int displayAttrib) override;
+#else
     virtual void display(CViewableBase* renderingObject, int displayAttrib);
-    virtual void scaleObject(double scalingFactor);
-    virtual void serialize(CSer& ar);
-    virtual void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
-    virtual void announceCollectionWillBeErased(int groupID, bool copyBuffer);
-    virtual void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
-    virtual void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
+#endif
+    virtual void scaleObject(double scalingFactor) override;
+    virtual void serialize(CSer& ar) override;
+    virtual void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    virtual void announceCollectionWillBeErased(int groupID, bool copyBuffer) override;
+    virtual void announceCollisionWillBeErased(int collisionID, bool copyBuffer) override;
+    virtual void announceDistanceWillBeErased(int distanceID, bool copyBuffer) override;
     virtual void performObjectLoadingMapping(const std::map<int, int>* map);
     virtual void performCollectionLoadingMapping(const std::map<int, int>* map);
     virtual void performCollisionLoadingMapping(const std::map<int, int>* map);
     virtual void performDistanceLoadingMapping(const std::map<int, int>* map);
-    virtual void simulationAboutToStart();
-    virtual void simulationEnded();
+    virtual void simulationAboutToStart() override;
+    virtual void simulationEnded() override;
 
-    virtual std::string getObjectTypeInfo() const;
-    virtual std::string getObjectTypeInfoExtended() const;
-    virtual bool isPotentiallyCollidable() const;
-    virtual bool isPotentiallyMeasurable() const;
-    virtual bool isPotentiallyDetectable() const;
-    virtual bool isPotentiallyRenderable() const;
+    virtual std::string getObjectTypeInfo() const override;
+    virtual std::string getObjectTypeInfoExtended() const override;
+    virtual bool isPotentiallyCollidable() const override;
+    virtual bool isPotentiallyMeasurable() const override;
+    virtual bool isPotentiallyDetectable() const override;
+    virtual bool isPotentiallyRenderable() const override;
 
-    virtual int setBoolProperty(const char* pName, bool pState);
-    virtual int getBoolProperty(const char* pName, bool& pState) const;
-    virtual int setFloatProperty(const char* pName, double pState);
-    virtual int getFloatProperty(const char* pName, double& pState) const;
-    virtual int setIntArray2Property(const char* pName, const int* pState);
-    virtual int getIntArray2Property(const char* pName, int* pState) const;
-    virtual int setVector2Property(const char* pName, const double* pState);
-    virtual int getVector2Property(const char* pName, double* pState) const;
-    virtual int setVector3Property(const char* pName, const C3Vector& pState);
-    virtual int getVector3Property(const char* pName, C3Vector& pState) const;
-    virtual int setFloatArrayProperty(const char* pName, const double* v, int vL);
-    virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
-    virtual int setIntArrayProperty(const char* pName, const int* v, int vL);
-    virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
+    virtual int setBoolProperty(const char* pName, bool pState) override;
+    virtual int getBoolProperty(const char* pName, bool& pState) const override;
+    virtual int setFloatProperty(const char* pName, double pState) override;
+    virtual int getFloatProperty(const char* pName, double& pState) const override;
+    virtual int setIntArray2Property(const char* pName, const int* pState) override;
+    virtual int getIntArray2Property(const char* pName, int* pState) const override;
+    virtual int setVector2Property(const char* pName, const double* pState) override;
+    virtual int getVector2Property(const char* pName, double* pState) const override;
+    virtual int setVector3Property(const char* pName, const C3Vector& pState) override;
+    virtual int getVector3Property(const char* pName, C3Vector& pState) const override;
+    virtual int setFloatArrayProperty(const char* pName, const double* v, int vL) override;
+    virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
+    virtual int setIntArrayProperty(const char* pName, const int* v, int vL) override;
+    virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
     static int getPropertyName_vstatic(int& index, std::string& pName);
     static int getPropertyInfo_vstatic(const char* pName, int& info, std::string& infoTxt);
 

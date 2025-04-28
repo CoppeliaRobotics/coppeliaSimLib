@@ -19,12 +19,12 @@ class CQDlgIkElements : public CDlgEx
     explicit CQDlgIkElements(QWidget* parent = 0);
     ~CQDlgIkElements();
 
-    void cancelEvent();
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
-    bool needsDestruction();
+    void cancelEvent() override;
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
+    bool needsDestruction() override;
     bool isLinkedDataValid();
-    bool doesInstanceSwitchRequireDestruction();
+    bool doesInstanceSwitchRequireDestruction() override;
 
     void _initialize(int ikGroupHandle);
     static void display(int ikGroupHandle, QWidget* theParentWindow);

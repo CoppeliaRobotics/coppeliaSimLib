@@ -18,8 +18,8 @@ class CQDlgOldScripts : public CDlgEx
     explicit CQDlgOldScripts(QWidget* parent = 0);
     ~CQDlgOldScripts();
 
-    void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut);
+    void refresh() override;
+    void dialogCallbackFunc(const SUIThreadCommand* cmdIn, SUIThreadCommand* cmdOut) override;
 
     void updateObjectsInList();
     int getSelectedObjectID();

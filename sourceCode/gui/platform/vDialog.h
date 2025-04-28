@@ -28,6 +28,6 @@ class VDialog : public QDialog
 
     static Qt::WindowFlags dialogStyle;
   public slots:
-    void reject();
-    void accept();
+    void reject() override;
+    void accept() override;
 };

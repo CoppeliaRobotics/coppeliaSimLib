@@ -15,7 +15,7 @@ int simGetShapeMaterial_internal(int shapeHandle)
     {
         int retVal = -1; // means error
         if (isShape(__func__, shapeHandle))
-        {   // since 28/10/2016 there is no more sharing of materials. So each shape has an individual material.
+        { // since 28/10/2016 there is no more sharing of materials. So each shape has an individual material.
             // Here we return simply the shape handle, which can be used for simSetShapeMaterial!
             retVal = shapeHandle;
         }
@@ -668,7 +668,7 @@ int simClearScriptVariable_internal(const char* reservedSetToNull, int scriptHan
 }
 
 void _simGetVortexParameters_internal(const void* object, int version, double* floatParams, int* intParams)
-{   // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise
+{ // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise
     // joint settings
     // Version allows to adjust for future extensions.
     C_API_START;
@@ -765,7 +765,7 @@ void _simGetVortexParameters_internal(const void* object, int version, double* f
 }
 
 void _simGetNewtonParameters_internal(const void* object, int* version, double* floatParams, int* intParams)
-{   // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise
+{ // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise
     // joint settings
     // Version allows to adjust for future extensions.
     C_API_START;

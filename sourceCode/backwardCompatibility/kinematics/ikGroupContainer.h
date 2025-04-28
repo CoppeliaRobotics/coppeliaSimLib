@@ -27,7 +27,7 @@ class CIkGroupContainer : public _CIkGroupContainer_
     void removeAllIkGroups();
 
     // Overridden from _CIkGroupContainer_:
-    bool shiftIkGroup(int ikGroupHandle, bool shiftUp);
+    bool shiftIkGroup(int ikGroupHandle, bool shiftUp) override;
 
     void announceObjectWillBeErased(int objHandle);
     void announceIkGroupWillBeErased(int ikGroupHandle);
@@ -36,6 +36,6 @@ class CIkGroupContainer : public _CIkGroupContainer_
 
   protected:
     // Overridden from _CIkGroupContainer_:
-    void _addIkGroup(CIkGroup_old* anIkGroup);
-    void _removeIkGroup(int ikGroupHandle);
+    void _addIkGroup(CIkGroup_old* anIkGroup) override;
+    void _removeIkGroup(int ikGroupHandle) override;
 };

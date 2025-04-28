@@ -19,8 +19,8 @@ class CQDlgModelProperties : public VDialog
     explicit CQDlgModelProperties(QWidget* parent = 0);
     ~CQDlgModelProperties();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void refresh();
 

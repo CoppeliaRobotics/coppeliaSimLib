@@ -17,7 +17,7 @@ class CQDlgAviRecorder : public CDlgEx
     explicit CQDlgAviRecorder(QWidget* parent = 0);
     ~CQDlgAviRecorder();
 
-    void refresh();
+    void refresh() override;
     bool inRefreshRoutine;
   private slots:
     void on_launchAtSimulationStart_clicked();

@@ -17,9 +17,9 @@ class CQDlgDummies : public CDlgEx
     explicit CQDlgDummies(QWidget* parent = 0);
     ~CQDlgDummies();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     bool inMainRefreshRoutine;
 

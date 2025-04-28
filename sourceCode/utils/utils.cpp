@@ -211,7 +211,7 @@ std::string utils::getLowerCaseString(const char* str)
 }
 
 void utils::scaleLightDown_(float* rgb)
-{   // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other
+{ // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other
     // applications
     rgb[0] *= 0.675f;
     rgb[1] *= 0.675f;
@@ -219,7 +219,7 @@ void utils::scaleLightDown_(float* rgb)
 }
 
 void utils::scaleColorUp_(float* rgb)
-{   // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other
+{ // this is for backward compatibility (29/8/2013). Default lights are now less intense, and more similar to other
     // applications
     float f = 1.5f;
     float m = std::max<float>(std::max<float>(rgb[0], rgb[1]), rgb[2]);

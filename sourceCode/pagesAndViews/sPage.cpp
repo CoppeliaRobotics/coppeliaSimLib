@@ -103,7 +103,7 @@ void CSPage::simulationEnded()
     for (int i = 0; i < int(_allViews.size()); i++)
     {
         if (_allViews[i]->simulationEnded())
-        {   //  Following part is from 26/6/2011: we have to remove a floating view that requested destruction at
+        { //  Following part is from 26/6/2011: we have to remove a floating view that requested destruction at
             //  simulation end
             // Make sure it is a floating view:
             if (removeFloatingView(size_t(i)))

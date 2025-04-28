@@ -504,7 +504,7 @@ long long int App::getFreshUniqueId(int objectType)
 void App::releaseUniqueId(long long int uid, int objectType /*= -1 */)
 {
     currentWorld->releaseNewHandle(uid, objectType);
-//    releaseForAppWide(uid, -1);
+    //    releaseForAppWide(uid, -1);
 }
 
 UID App::getNewHandleFromOldHandle(int oldHandle)
@@ -1444,7 +1444,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
                         std::string childTag(dummy->getAssemblyTag());
                         if ((dummy->getDummyType() == sim_dummytype_assembly) &&
                             utils::checkAssemblyTagValidity(parentTag.c_str(), childTag.c_str()))
-                        {   // we have the correct dummy type for the child side (we take the first compatible dummy
+                        { // we have the correct dummy type for the child side (we take the first compatible dummy
                             // found)
                             it2 = dummy;
                             break;
@@ -1467,7 +1467,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
     }
 
     if (!retVal)
-    {   // old method of assembling 2 objects. We limit the scope to joint/fsensor as parent and shape as child, since we
+    { // old method of assembling 2 objects. We limit the scope to joint/fsensor as parent and shape as child, since we
         // slowly want to get rid of that method
         it1 = App::currentWorld->sceneObjects->getObjectFromHandle(parentHandle);
         it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);

@@ -23,7 +23,7 @@ void COutsideCommandQueueForScript::initializeInitialValues(bool simulationAlrea
 }
 
 void COutsideCommandQueueForScript::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     commands.clear();
     auxValues.clear();

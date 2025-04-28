@@ -19,13 +19,13 @@ class CQDlgMaterial : public CDlgEx
     explicit CQDlgMaterial(QWidget* parent = 0);
     ~CQDlgMaterial();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
-    bool needsDestruction();
+    bool needsDestruction() override;
     bool isLinkedDataValid();
-    bool doesInstanceSwitchRequireDestruction();
+    bool doesInstanceSwitchRequireDestruction() override;
 
     bool inMainRefreshRoutine;
 

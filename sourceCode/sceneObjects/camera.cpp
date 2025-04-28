@@ -213,7 +213,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                 App::currentWorld->sceneObjects->addModelObjects(tmp);
             std::vector<CSceneObject*> selectionVisibleObjs;
             for (int i = 0; i < int(tmp.size()); i++)
-            {   // We only wanna have visible objects, otherwise we get strange behaviour with some models!! And only
+            { // We only wanna have visible objects, otherwise we get strange behaviour with some models!! And only
                 // objects that are not ignored by the view-fitting:
                 CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(tmp[i]);
                 if ((it != nullptr) && (it != this))
@@ -359,7 +359,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
         return;
 
     if (getTrackedObjectHandle() != -1)
-    {   // When tracking an object, we should stay on the current view axis. To do this, we simply reflect all points
+    { // When tracking an object, we should stay on the current view axis. To do this, we simply reflect all points
         // left/right/top/bottom relative to the camera!
         std::vector<double> ptsC(pts);
         pts.clear();
@@ -1203,7 +1203,7 @@ void CCamera::simulationAboutToStart()
 }
 
 void CCamera::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
@@ -1780,7 +1780,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
                         specialSelectionAndNavigationPass = true;
                 }
                 else if (selectionStatus == SHIFTSELECTION)
-                {   // shift key
+                { // shift key
                     //                  pass=RENDERPASS;
                     //                  numberOfPasses=1;
                 }
@@ -2100,7 +2100,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
             renderView = GuiApp::mainWindow->simulationRecorder->willNextFrameBeRecorded();
 
         if (renderView)
-        {   // When using a ray-tracer during video recording, and we want to record not every frame, don't render those
+        { // When using a ray-tracer during video recording, and we want to record not every frame, don't render those
             // frames!!
             GuiApp::mainWindow->openglWidget->doneCurrent();
 
@@ -3034,7 +3034,7 @@ int CCamera::getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthB
                         nearestObj = selectBuff[4 * i + 3];
                         hitThatIgnoresTheSelectableFlag = nearestObj;
                         if ((nearestObj <= SIM_IDEND_SCENEOBJECT) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
-                        {   // since 3/6/2013 we check for the selectable flag here instead of in the object display
+                        { // since 3/6/2013 we check for the selectable flag here instead of in the object display
                             // routine
                             CSceneObject* theObj = App::currentWorld->sceneObjects->getObjectFromHandle(nearestObj);
                             if ((theObj != nullptr) &&
@@ -3051,7 +3051,7 @@ int CCamera::getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthB
                         nearestObj = selectBuff[4 * i + 3];
                         hitThatIgnoresTheSelectableFlag = nearestObj;
                         if ((nearestObj <= SIM_IDEND_SCENEOBJECT) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
-                        {   // since 3/6/2013 we check for the selectable flag here instead of in the object display
+                        { // since 3/6/2013 we check for the selectable flag here instead of in the object display
                             // routine
                             CSceneObject* theObj = App::currentWorld->sceneObjects->getObjectFromHandle(nearestObj);
                             if ((theObj != nullptr) &&

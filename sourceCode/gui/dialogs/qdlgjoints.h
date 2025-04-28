@@ -17,9 +17,9 @@ class CQDlgJoints : public CDlgEx
     explicit CQDlgJoints(QWidget* parent = 0);
     ~CQDlgJoints();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
     bool inMainRefreshRoutine;
 

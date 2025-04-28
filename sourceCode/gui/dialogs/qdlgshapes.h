@@ -17,9 +17,9 @@ class CQDlgShapes : public CDlgEx
     explicit CQDlgShapes(QWidget* parent = 0);
     ~CQDlgShapes();
 
-    void refresh();
+    void refresh() override;
 
-    void cancelEvent();
+    void cancelEvent() override;
 
   private slots:
     void on_qqBackfaceCulling_clicked();

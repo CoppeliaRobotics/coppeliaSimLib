@@ -408,7 +408,7 @@ void CProxSensor::simulationAboutToStart()
 }
 
 void CProxSensor::simulationEnded()
-{   // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
@@ -899,7 +899,7 @@ void CProxSensor::calculateFreshRandomizedRays()
     {
         double rZ, sZ, cZ;
         if (angle > 1.1 * piValD2)
-        {   // this means we have 360x180 degrees. We compute it as 2 half-spheres, in order to have a perfect direction
+        { // this means we have 360x180 degrees. We compute it as 2 half-spheres, in order to have a perfect direction
             // distribution:
             rZ = acos(1.0 - SIM_RAND_FLOAT);
             sZ = sin(rZ);

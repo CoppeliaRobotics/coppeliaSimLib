@@ -17,7 +17,7 @@ class CQDlgSimulation : public CDlgEx
     explicit CQDlgSimulation(QWidget* parent = 0);
     ~CQDlgSimulation();
 
-    void refresh();
+    void refresh() override;
 
     bool inMainRefreshRoutine;
   private slots:

@@ -22,8 +22,8 @@ class CQDlgUserParameters : public VDialog
     void refresh();
     void refreshPart2();
 
-    void cancelEvent();
-    void okEvent();
+    void cancelEvent() override;
+    void okEvent() override;
 
     void updateObjectsInList();
     int getSelectedObjectID();

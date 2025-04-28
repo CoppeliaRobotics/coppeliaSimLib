@@ -1433,7 +1433,7 @@ void pushCorrectTypeOntoLuaStack_old(luaWrap_lua_State* L, const std::string& bu
 }
 
 int getCorrectType_old(const std::string& buff)
-{   // returns 0=nil, 1=boolean false, 2=boolean true, 3=number or 4=string (in that order!!) depending on the buff
+{ // returns 0=nil, 1=boolean false, 2=boolean true, 3=number or 4=string (in that order!!) depending on the buff
     // content!
     if (buff.length() != 0)
     {
@@ -2190,7 +2190,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
             bool movementFinished = false;
 
             if (vdl == 0.0)
-            {   // if the path length is 0 (the two positions might still be not-coincident, depending on the calculation
+            { // if the path length is 0 (the two positions might still be not-coincident, depending on the calculation
                 // method!)
                 if (App::currentWorld->sceneObjects->getObjectFromHandle(objID) ==
                     object) // make sure the object is still valid (running in a thread)
@@ -5837,7 +5837,7 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L, CScriptCustomFunction* fun
         if (!CThreadPool_old::switchBackToPreviousThread())
             break;
         if (CThreadPool_old::getSimulationStopRequestedAndActivated())
-        {   // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop
+        { // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop
             // request arrived)
             // Following: the extension module might still write 0 into that position to signal "no more waiting" in
             // case this while loop got interrupted by a stop request.
@@ -6268,7 +6268,7 @@ int _simAddBanner(luaWrap_lua_State* L)
                 retVal = simAddBanner_internal(label.c_str(), size, options, positionAndEulerAngles, parentObjectHandle,
                                                labelColors, backgroundColors);
                 if (retVal != -1)
-                {   // following condition added on 2011/01/06 so as to not remove objects created from the c/c++
+                { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++
                     // interface or an add-on:
                     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                     CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
@@ -7460,7 +7460,7 @@ int _simRemoveObject(luaWrap_lua_State* L)
         if (!it->getThreadedExecution_oldThreads())
             retVal = simRemoveObject_internal(objId);
         else
-        {   // this script runs threaded and wants to destroy another object (than itself probably). We need to make sure
+        { // this script runs threaded and wants to destroy another object (than itself probably). We need to make sure
             // that it will only destroy objects that do not have any scripts attached with a non-nullptr lua state:
             std::vector<CScriptObject*> scripts;
             App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptsFromObjectAttachedTo(objId, scripts);
