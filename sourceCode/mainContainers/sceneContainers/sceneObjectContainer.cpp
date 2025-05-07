@@ -5985,12 +5985,15 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_objCont[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_objCont[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_objCont[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_objCont[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }

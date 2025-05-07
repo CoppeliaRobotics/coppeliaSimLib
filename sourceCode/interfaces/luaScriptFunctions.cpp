@@ -964,6 +964,8 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertyinfo_notreadable", sim_propertyinfo_notreadable},
     {"sim.propertyinfo_removable", sim_propertyinfo_removable},
     {"sim.propertyinfo_largedata", sim_propertyinfo_largedata},
+    {"sim.propertyinfo_deprecated", sim_propertyinfo_deprecated},
+    {"sim.propertyinfo_modelhashexclude", sim_propertyinfo_modelhashexclude},
     // dummy-dummy link types
     {"sim.dummytype_dynloopclosure", sim_dummytype_dynloopclosure},
     {"sim.dummytype_dyntendon", sim_dummytype_dyntendon},
@@ -2489,8 +2491,7 @@ bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int type1, i
     { // enough args
         for (int i = 0; i < std::min<int>(actualArgs, totArgs); i++)
         {
-            if (checkOneGeneralInputArgument(L, i + 1, inArgs[i], inArgsCnt_zeroIfNotTable[i], false, false, errStr) !=
-                2)
+            if (checkOneGeneralInputArgument(L, i + 1, inArgs[i], inArgsCnt_zeroIfNotTable[i], false, false, errStr) != 2)
             {
                 retVal = false;
                 break;
@@ -2848,8 +2849,7 @@ int _auxFunc(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
             {
-                CScriptObject* it =
-                    App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 it->addUsedModule(luaWrap_lua_tostring(L, 2));
             }
         }

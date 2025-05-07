@@ -1577,12 +1577,15 @@ int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& ap
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_proximitySensor[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_proximitySensor[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_proximitySensor[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_proximitySensor[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -1608,12 +1611,15 @@ int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::str
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_proximitySensor[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_proximitySensor[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_proximitySensor[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_proximitySensor[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }

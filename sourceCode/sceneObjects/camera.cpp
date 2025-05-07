@@ -3582,12 +3582,15 @@ int CCamera::getPropertyName(int& index, std::string& pName, std::string& appart
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_camera[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_camera[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_camera[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_camera[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -3611,12 +3614,15 @@ int CCamera::getPropertyName_static(int& index, std::string& pName, std::string&
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_camera[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_camera[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_camera[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_camera[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }

@@ -2302,12 +2302,15 @@ int CConvexVolume::getPropertyName(int& index, std::string& pName) const
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()))
         {
-            index--;
-            if (index == -1)
+            if ((allProps_volume[i].flags & sim_propertyinfo_deprecated) == 0)
             {
-                pName = allProps_volume[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_volume[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }
@@ -2321,12 +2324,15 @@ int CConvexVolume::getPropertyName_static(int& index, std::string& pName)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()))
         {
-            index--;
-            if (index == -1)
+            if ((allProps_volume[i].flags & sim_propertyinfo_deprecated) == 0)
             {
-                pName = allProps_volume[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_volume[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }

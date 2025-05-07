@@ -2205,13 +2205,16 @@ int CShape::getPropertyName(int& index, std::string& pName, std::string& apparte
             {
                 if ((pName.size() == 0) || utils::startsWith(allProps_shape[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_shape[i].flags & sim_propertyinfo_deprecated) == 0)
                     {
-                        pName = allProps_shape[i].name;
-                        //pName = "shape." + pName;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_shape[i].name;
+                            //pName = "shape." + pName;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -2235,13 +2238,16 @@ int CShape::getPropertyName_static(int& index, std::string& pName, std::string& 
             {
                 if ((pName.size() == 0) || utils::startsWith(allProps_shape[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_shape[i].flags & sim_propertyinfo_deprecated) == 0)
                     {
-                        pName = allProps_shape[i].name;
-                        //pName = "shape." + pName;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_shape[i].name;
+                            //pName = "shape." + pName;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }

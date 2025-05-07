@@ -4514,14 +4514,17 @@ int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::s
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_scriptObject[i].name, pName.c_str()))
         {
-            index--;
-            if (index == -1)
+            if ((allProps_scriptObject[i].flags & sim_propertyinfo_deprecated) == 0)
             {
-                pName = allProps_scriptObject[i].name;
-                retVal = 1;
-                if (appartenance != nullptr)
-                    appartenance[0] += ".detachedScript";
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_scriptObject[i].name;
+                    retVal = 1;
+                    if (appartenance != nullptr)
+                        appartenance[0] += ".detachedScript";
+                    break;
+                }
             }
         }
     }

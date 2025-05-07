@@ -3535,12 +3535,15 @@ int CDynamicsContainer::getPropertyName(int& index, std::string& pName) const
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_dyn[i].name, pName.c_str()))
         {
-            index--;
-            if (index == -1)
+            if ((allProps_dyn[i].flags & sim_propertyinfo_deprecated) == 0)
             {
-                pName = allProps_dyn[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_dyn[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }

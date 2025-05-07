@@ -849,12 +849,15 @@ int CViewableBase::getPropertyName_vstatic(int& index, std::string& pName)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_viewable[i].name, pName.c_str()))
         {
-            index--;
-            if (index == -1)
+            if ((allProps_viewable[i].flags & sim_propertyinfo_deprecated) == 0)
             {
-                pName = allProps_viewable[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_viewable[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }

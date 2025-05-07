@@ -3773,12 +3773,15 @@ int CGraph::getPropertyName(int& index, std::string& pName, std::string& apparte
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_graph[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_graph[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_graph[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_graph[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -3800,12 +3803,15 @@ int CGraph::getPropertyName_static(int& index, std::string& pName, std::string& 
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_graph[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_graph[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_graph[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_graph[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }

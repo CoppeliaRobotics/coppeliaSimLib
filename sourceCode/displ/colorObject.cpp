@@ -972,12 +972,15 @@ int CColorObject::getPropertyName(int& index, std::string& pName) const
         {
             if ((pName.size() == 0) || utils::startsWith((_eventPrefix + allProps_col[i].name).c_str(), pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_col[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = _eventPrefix + allProps_col[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = _eventPrefix + allProps_col[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -999,12 +1002,15 @@ int CColorObject::getPropertyName_static(int& index, std::string& pName, int eve
                 nnmm = COLORPREFIX + nnmm;
             if ((pName.size() == 0) || utils::startsWith(nnmm.c_str(), pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_col[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = nnmm;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = nnmm;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }

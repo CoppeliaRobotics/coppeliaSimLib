@@ -2423,12 +2423,15 @@ int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_material[i].name, pName.c_str()))
         {
-            index--;
-            if (index == -1)
+            if ((allProps_material[i].flags & sim_propertyinfo_deprecated) == 0)
             {
-                pName = allProps_material[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_material[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }

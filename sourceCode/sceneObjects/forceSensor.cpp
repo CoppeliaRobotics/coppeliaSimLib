@@ -1268,12 +1268,15 @@ int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& a
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_forceSensor[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_forceSensor[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_forceSensor[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -1295,12 +1298,15 @@ int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::st
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_forceSensor[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_forceSensor[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_forceSensor[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }

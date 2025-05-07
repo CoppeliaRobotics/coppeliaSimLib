@@ -2660,13 +2660,16 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_app[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_app[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_app[i].name;
-                    //pName = "app." + pName;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_app[i].name;
+                        //pName = "app." + pName;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }

@@ -667,12 +667,15 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_script[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_script[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_script[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -696,12 +699,15 @@ int CScript::getPropertyName_static(int& index, std::string& pName, std::string&
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_script[i].flags & sim_propertyinfo_deprecated) == 0)
                 {
-                    pName = allProps_script[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_script[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
