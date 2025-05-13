@@ -6343,7 +6343,7 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                             err += std::to_string(t);
                             App::logMsg(sim_verbosity_errors, err.c_str());
 #ifdef WIN_SIM
-                            Beep(5000, 1000);
+                            App::beep(5000, 1000);
                             VThread::sleep(500);
 #endif
                         }
