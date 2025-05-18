@@ -5311,7 +5311,10 @@ int _simGetBoolProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5386,7 +5389,10 @@ int _simGetIntProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5438,7 +5444,7 @@ int _simSetLongProperty(luaWrap_lua_State* L)
 int _simGetLongProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getIntProperty");
+    LUA_START("sim.getLongProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
@@ -5461,7 +5467,10 @@ int _simGetLongProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5536,7 +5545,10 @@ int _simGetFloatProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5612,7 +5624,10 @@ int _simGetStringProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5690,7 +5705,10 @@ int _simGetTableProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5768,7 +5786,10 @@ int _simGetBufferProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5844,7 +5865,10 @@ int _simGetIntArray2Property(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5920,7 +5944,10 @@ int _simGetVector2Property(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5996,7 +6023,10 @@ int _simGetVector3Property(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6072,7 +6102,10 @@ int _simGetQuaternionProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6148,7 +6181,10 @@ int _simGetPoseProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6224,7 +6260,10 @@ int _simGetColorProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6304,7 +6343,10 @@ int _simGetFloatArrayProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6384,7 +6426,10 @@ int _simGetIntArrayProperty(luaWrap_lua_State* L)
             LUA_END(1);
         }
         if (noError)
-            LUA_END(0);
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
