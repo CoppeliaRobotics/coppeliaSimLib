@@ -16,6 +16,7 @@ long long int CWorldContainer::_eventSeq = 0;
 CWorldContainer::CWorldContainer()
 {
     TRACE_INTERNAL;
+    customAppData_volatile.setItemsAreVolatile();
     currentWorld = nullptr;
     _sessionId = utils::generateUniqueAlphaNumericString();
     pluginContainer = nullptr;
