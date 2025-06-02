@@ -4307,7 +4307,7 @@ int simRegisterScriptCallbackFunction_internal(const char* func, const char* res
                 printf("    new plugin\n");
         }
         */
-        //printf("Func: %s, CB: %u\n", func, callBack);
+
         if ((plug != nullptr) && (!plug->isLegacyPlugin()))
         { // new plugins. e.g. 'createGroup', and not 'simIK.createGroup'
             if (callBack != nullptr)
@@ -4316,12 +4316,16 @@ int simRegisterScriptCallbackFunction_internal(const char* func, const char* res
                     retVal = 1;
                 else
                     retVal = 0;
+                if ((strcmp(func, "vhacd") == 0) && (retVal == 0))
+                    printf("failed adding vhacd callback\n");
             }
             else
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CALLBACK_IS_NULL);
         }
         else
         { // old plugins
+            if (strcmp(func, "vhacd") == 0)
+                printf("failed registering vhacd\n");
             // App::worldContainer->pluginContainer->printPluginStack();
             std::string funcName;
             std::string pluginName;

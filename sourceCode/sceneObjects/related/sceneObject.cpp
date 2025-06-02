@@ -1559,6 +1559,9 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     // deprecated
     ev->appendKeyInt("movementOptions", _objectMovementOptions);
     ev->appendKeyInt("movementPreferredAxes", _objectMovementPreferredAxes);
+#else
+    ev->appendKeyInt(propObject_movementOptions.name, _objectMovementOptions);
+    ev->appendKeyInt(propObject_movementPreferredAxes.name, _objectMovementPreferredAxes);
 #endif
     ev->appendKeyBool(propObject_movTranslNoSim.name, (_objectMovementOptions & 1) == 0);
     ev->appendKeyBool(propObject_movTranslInSim.name, (_objectMovementOptions & 2) == 0);
