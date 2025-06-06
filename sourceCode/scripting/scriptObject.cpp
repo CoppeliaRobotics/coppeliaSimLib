@@ -3082,10 +3082,10 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     luaWrap_lua_pop(L, 1);
     // --------------------------------------------
 
-    _execSimpleString_safe_lua(L, "sim={} sim_2_0={}");
+    _execSimpleString_safe_lua(L, "sim={} sim1={} sim0={}");
     registerNewFunctions_lua();
     _registerNewVariables_lua();
-    _execSimpleString_safe_lua(L, "_S={sim=sim, sim_2_0=sim_2_0} sim=nil sim_2_0=nil");
+    _execSimpleString_safe_lua(L, "_S={}; _S.internalApi={sim=sim, sim1=sim1, sim0=sim0}; sim=nil sim1=nil sim0=nil");
     if (0 != _execSimpleString_safe_lua(L, "require('base')"))
     {
         if (errorMsg != nullptr)
@@ -3211,34 +3211,31 @@ void CScriptObject::buildOntoInterpreterStack_lua(void* LL, const CInterfaceStac
 void CScriptObject::registerNewFunctions_lua()
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    // CoppeliaSim API functions:
+    // API functions (base (e.g. "loadPlugin"), regular (e.g. "sim.getObject") and deprecated (e.g. "sim1.handleIkGroup")):
     for (int i = 0; simLuaCommands[i].name != ""; i++)
-    { // i.e. loadPlugin, sim.getObject, sim_2_0.getObject, etc.
+    {
         std::string name(simLuaCommands[i].name);
         size_t p = name.find('.');
         if (p != std::string::npos)
-        {
+        { // sim, sim1, sim2 namespaces
             std::string prefix(name.begin(), name.begin() + p);
             name.erase(name.begin(), name.begin() + p + 1);
             _registerTableFunction(L, prefix.c_str(), name.c_str(), simLuaCommands[i].func);
         }
         else
-            luaWrap_lua_register(L, simLuaCommands[i].name.c_str(), simLuaCommands[i].func);
+            luaWrap_lua_register(L, simLuaCommands[i].name.c_str(), simLuaCommands[i].func); // global namespace
     }
-    if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
-    { // i.e. sim_old.simGetObjectHandle, etc. We need to put this in the global namespace, since we do not have a lazy
-        // load option
-        for (int i = 0; simLuaCommandsOldApi[i].name != ""; i++)
-        {
-            std::string name(simLuaCommandsOldApi[i].name);
-            size_t p = name.find('.');
-            if (p != std::string::npos)
-            {
-                std::string prefix(name.begin(), name.begin() + p);
-                name.erase(name.begin(), name.begin() + p + 1);
-                luaWrap_lua_register(L, name.c_str(), simLuaCommandsOldApi[i].func);
-                //_registerTableFunction(L,prefix.c_str(),name.c_str(),simLuaCommandsOldApi[i].func);
-            }
+    // Very old API functions (e.g. "simGetObjectHandle": sim0.simGetObjectHandle, which later goes into the global namespace)
+//    if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
+    for (int i = 0; simLuaCommandsOldApi[i].name != ""; i++)
+    {
+        std::string name(simLuaCommandsOldApi[i].name);
+        size_t p = name.find('.');
+        if (p != std::string::npos)
+        { // sim0 namespace
+            std::string prefix(name.begin(), name.begin() + p);
+            name.erase(name.begin(), name.begin() + p + 1);
+            _registerTableFunction(L,prefix.c_str(),name.c_str(),simLuaCommandsOldApi[i].func);
         }
     }
 }
@@ -3596,26 +3593,19 @@ void CScriptObject::registerPluginFunctions()
 void CScriptObject::_registerNewVariables_lua()
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
+    // Constants (regular (e.g. "sim.sceneobject_shape") and deprecated (e.g. "sim1.particle_points1")):
     for (size_t i = 0; simLuaVariables[i].name != ""; i++)
     {
         std::string tmp(simLuaVariables[i].name.c_str());
         tmp += "=" + std::to_string(simLuaVariables[i].val);
         _execSimpleString_safe_lua(L, tmp.c_str());
     }
-    if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
-    { // i.e. sim_old.sim_handle_all, etc. We need to put this in the global namespace, since we do not have a lazy load
-        // option
-        for (size_t i = 0; simLuaVariablesOldApi[i].name != ""; i++)
-        {
-            std::string tmp(simLuaVariablesOldApi[i].name.c_str());
-            size_t p = tmp.find('.');
-            if (p != std::string::npos)
-            {
-                tmp.erase(tmp.begin(), tmp.begin() + p + 1);
-                tmp += "=" + std::to_string(simLuaVariablesOldApi[i].val);
-                _execSimpleString_safe_lua(L, tmp.c_str());
-            }
-        }
+    // Very old constants (e.g. "sim_sceneobject_shape": sim0.sim_sceneobject_shape, which later goes into the global namespace)
+    for (size_t i = 0; simLuaVariablesOldApi[i].name != ""; i++)
+    {
+        std::string tmp(simLuaVariablesOldApi[i].name.c_str());
+        tmp += "=" + std::to_string(simLuaVariablesOldApi[i].val);
+        _execSimpleString_safe_lua(L, tmp.c_str());
     }
 }
 
@@ -3893,15 +3883,13 @@ void CScriptObject::serialize(CSer& ar)
                 }
             }
 
-            _adjustScriptText1_old(this, backwardCompatibility_7_8_2014,
-                                   executeInSensingPhase_oldCompatibility_7_8_2014);
+            _adjustScriptText1_old(this, backwardCompatibility_7_8_2014, executeInSensingPhase_oldCompatibility_7_8_2014);
             _adjustScriptText2_old(this, (!backwardCompatibility_7_8_2014) && backwardCompatibility_13_8_2014);
             _adjustScriptText3_old(this, backwardCompatibilityCorrectionNeeded_13_10_2014);
             _adjustScriptText4_old(this, backwardCompatibilityCorrectionNeeded_8_11_2014);
             _adjustScriptText5_old(this, ar.getCoppeliaSimVersionThatWroteThisFile() < 30300);
             _adjustScriptText6_old(this, ar.getCoppeliaSimVersionThatWroteThisFile() < 30300);
-            _adjustScriptText7_old(this, (ar.getCoppeliaSimVersionThatWroteThisFile() <= 30302) &&
-                                             (SIM_PROGRAM_VERSION_NB > 30302));
+            _adjustScriptText7_old(this, (ar.getCoppeliaSimVersionThatWroteThisFile() <= 30302) && (SIM_PROGRAM_VERSION_NB > 30302));
             _performNewApiAdjustments_old(this, true);
             _adjustScriptText10_old(this, ar.getCoppeliaSimVersionThatWroteThisFile() < 30401);
             _adjustScriptText11_old(this, ar.getCoppeliaSimVersionThatWroteThisFile() < 40001);

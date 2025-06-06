@@ -11801,7 +11801,8 @@ void _simGetInitialDynamicVelocity_internal(const void* shape, double* vel)
 void _simSetInitialDynamicVelocity_internal(void* shape, const double* vel)
 {
     C_API_START;
-    ((CShape*)shape)->setInitialDynamicLinearVelocity(C3Vector(vel));
+    if (!isNanOrInf(vel, 3))
+        ((CShape*)shape)->setInitialDynamicLinearVelocity(C3Vector(vel));
 }
 
 void _simGetInitialDynamicAngVelocity_internal(const void* shape, double* angularVel)
@@ -11813,7 +11814,8 @@ void _simGetInitialDynamicAngVelocity_internal(const void* shape, double* angula
 void _simSetInitialDynamicAngVelocity_internal(void* shape, const double* angularVel)
 {
     C_API_START;
-    ((CShape*)shape)->setInitialDynamicAngularVelocity(C3Vector(angularVel));
+    if (!isNanOrInf(angularVel, 3))
+        ((CShape*)shape)->setInitialDynamicAngularVelocity(C3Vector(angularVel));
 }
 
 bool _simGetStartSleeping_internal(const void* shape)
@@ -11866,38 +11868,40 @@ const void* _simGetParentObject_internal(const void* object)
     return (((CSceneObject*)object)->getParent());
 }
 
-void _simDynReportObjectCumulativeTransformation_internal(void* obj, const double* pos, const double* quat,
-                                                          double simTime)
+void _simDynReportObjectCumulativeTransformation_internal(void* obj, const double* pos, const double* quat, double simTime)
 { // obj is always a shape. Used by the physics engines. The joints and force sensors's internal errors are updated
     // accordingly
     C_API_START;
-    CSceneObject* object = (CSceneObject*)obj;
-    CSceneObject* parent = object->getParent();
-    C7Vector tr;
-    tr.X.setData(pos);
-    tr.Q.setData(quat);
-    if (parent != nullptr)
+    if ( (!isNanOrInf(pos, 3)) && (!isNanOrInf(quat, 4)) )
     {
-        if (parent->getObjectType() == sim_sceneobject_joint)
+        CSceneObject* object = (CSceneObject*)obj;
+        CSceneObject* parent = object->getParent();
+        C7Vector tr;
+        tr.X.setData(pos);
+        tr.Q.setData(quat);
+        if (parent != nullptr)
         {
-            CJoint* joint = (CJoint*)parent;
-            C7Vector x(joint->getIntrinsicTransformation(false).getInverse() *
-                       joint->getCumulativeTransformation().getInverse() * tr *
-                       object->getLocalTransformation().getInverse());
-            joint->setIntrinsicTransformationError(x);
-        }
-        else if (parent->getObjectType() == sim_sceneobject_forcesensor)
-        {
-            CForceSensor* sensor = (CForceSensor*)parent;
-            C7Vector x(sensor->getCumulativeTransformation().getInverse() * tr *
-                       object->getLocalTransformation().getInverse());
-            sensor->setIntrinsicTransformationError(x);
+            if (parent->getObjectType() == sim_sceneobject_joint)
+            {
+                CJoint* joint = (CJoint*)parent;
+                C7Vector x(joint->getIntrinsicTransformation(false).getInverse() *
+                           joint->getCumulativeTransformation().getInverse() * tr *
+                           object->getLocalTransformation().getInverse());
+                joint->setIntrinsicTransformationError(x);
+            }
+            else if (parent->getObjectType() == sim_sceneobject_forcesensor)
+            {
+                CForceSensor* sensor = (CForceSensor*)parent;
+                C7Vector x(sensor->getCumulativeTransformation().getInverse() * tr *
+                           object->getLocalTransformation().getInverse());
+                sensor->setIntrinsicTransformationError(x);
+            }
+            else
+                App::currentWorld->sceneObjects->setObjectAbsolutePose(object->getObjectHandle(), tr, false);
         }
         else
-            App::currentWorld->sceneObjects->setObjectAbsolutePose(object->getObjectHandle(), tr, false);
+            object->setLocalTransformation(tr);
     }
-    else
-        object->setLocalTransformation(tr);
 }
 
 void _simSetObjectCumulativeTransformation_internal(void* object, const double* pos, const double* quat,
@@ -11914,7 +11918,8 @@ void _simSetObjectCumulativeTransformation_internal(void* object, const double* 
 void _simSetShapeDynamicVelocity_internal(void* shape, const double* linear, const double* angular, double simTime)
 {
     C_API_START;
-    ((CShape*)shape)->setDynamicVelocity(linear, angular);
+    if ( (!isNanOrInf(linear, 3)) && (!isNanOrInf(angular, 3)) )
+        ((CShape*)shape)->setDynamicVelocity(linear, angular);
 }
 
 void _simGetAdditionalForceAndTorque_internal(const void* shape, double* force, double* torque)
@@ -11995,21 +12000,23 @@ double _simGetDynamicMotorUpperLimitVelocity_internal(const void* joint)
 void _simSetJointSphericalTransformation_internal(void* joint, const double* quat, double simTime)
 {
     C_API_START;
-    ((CJoint*)joint)->setSphericalTransformation(quat);
+    if (!isNanOrInf(quat, 4))
+        ((CJoint*)joint)->setSphericalTransformation(quat);
 }
 
-void _simAddForceSensorCumulativeForcesAndTorques_internal(void* forceSensor, const double* force, const double* torque,
-                                                           int totalPassesCount, double simTime)
+void _simAddForceSensorCumulativeForcesAndTorques_internal(void* forceSensor, const double* force, const double* torque, int totalPassesCount, double simTime)
 {
     C_API_START;
-    ((CForceSensor*)forceSensor)->addCumulativeForcesAndTorques(force, torque, totalPassesCount);
+    if ((!isNanOrInf(force, 3)) && (!isNanOrInf(torque, 3)))
+        ((CForceSensor*)forceSensor)->addCumulativeForcesAndTorques(force, torque, totalPassesCount);
 }
 
 void _simAddJointCumulativeForcesOrTorques_internal(void* joint, double forceOrTorque, int totalPassesCount,
                                                     double simTime)
 {
     C_API_START;
-    ((CJoint*)joint)->addCumulativeForceOrTorque(forceOrTorque, totalPassesCount);
+    if (!isNanOrInf(forceOrTorque))
+        ((CJoint*)joint)->addCumulativeForceOrTorque(forceOrTorque, totalPassesCount);
 }
 
 int _simGetObjectListSize_internal(int objType)
@@ -12153,15 +12160,19 @@ void _simSetJointVelocity_internal(const void* joint, double vel)
 { // only used by MuJoCo. Other engines have the joint velocity computed via
     // _simSetDynamicMotorReflectedPositionFromDynamicEngine
     C_API_START;
-    ((CJoint*)joint)->setVelocity(vel);
+    if (!isNanOrInf(vel))
+        ((CJoint*)joint)->setVelocity(vel);
 }
 
 void _simSetJointPosition_internal(const void* joint, double pos)
 { // only used by MuJoCo. Other engines have the joint position set via
     // _simSetDynamicMotorReflectedPositionFromDynamicEngine
     C_API_START;
-    CJoint* j = (CJoint*)joint;
-    j->setPosition(pos, nullptr, !j->getEnforceLimits()); // here we should set what the engine tells us, and not enforce the joint limits!! (otherwise we have discrepancies between dyn. state and visuals)
+    if (!isNanOrInf(pos))
+    {
+        CJoint* j = (CJoint*)joint;
+        j->setPosition(pos, nullptr, !j->getEnforceLimits()); // here we should set what the engine tells us, and not enforce the joint limits!! (otherwise we have discrepancies between dyn. state and visuals)
+    }
 }
 
 void _simSetDynamicMotorReflectedPositionFromDynamicEngine_internal(void* joint, double pos, double simTime)
@@ -12216,8 +12227,12 @@ bool _simGetDistanceBetweenEntitiesIfSmaller_internal(int entity1ID, int entity2
 int _simHandleJointControl_internal(const void* joint, int auxV, const int* inputValuesInt, const double* inputValuesFloat, double* outputValues)
 {
     C_API_START;
-    double currentPosVelAccel[3] = {inputValuesFloat[0], inputValuesFloat[4], inputValuesFloat[5]};
-    return (((CJoint*)joint)->handleDynJoint(auxV, inputValuesInt, currentPosVelAccel, inputValuesFloat[1], inputValuesFloat[2], inputValuesFloat[3], outputValues));
+    if (!isNanOrInf(inputValuesFloat, 6))
+    {
+        double currentPosVelAccel[3] = {inputValuesFloat[0], inputValuesFloat[4], inputValuesFloat[5]};
+        return (((CJoint*)joint)->handleDynJoint(auxV, inputValuesInt, currentPosVelAccel, inputValuesFloat[1], inputValuesFloat[2], inputValuesFloat[3], outputValues));
+    }
+    return 0;
 }
 
 int _simGetJointDynCtrlMode_internal(const void* joint)

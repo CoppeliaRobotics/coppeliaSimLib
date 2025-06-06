@@ -1934,6 +1934,7 @@ int CShape::setFloatProperty(const char* ppName, double pState)
         {
             float tr = float(1.0 - pState);
             _mesh->setColor(sim_colorcomponent_transparency, &tr);
+            actualizeContainsTransparentComponent();
             retVal = 1;
         }
     }

@@ -1612,6 +1612,16 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
             else
                 retVal = 0;
         }
+        else if (strcmp(pName, propApp_supportOldApiNotation.name) == 0)
+        {
+            if (userSettings != nullptr)
+            {
+                pState = userSettings->supportOldApiNotation;
+                retVal = 1;
+            }
+            else
+                retVal = 0;
+        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getBoolProperty(target, pName, pState);
