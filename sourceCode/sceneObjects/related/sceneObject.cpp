@@ -1127,7 +1127,7 @@ bool CSceneObject::setBeforeDeleteCallbackSent()
     return (retVal);
 }
 
-bool CSceneObject::getModelBB(const C7Vector& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first)
+bool CSceneObject::getModelBB(const C7Vector& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first) const
 { // For model selection display! Return value false means there is no model BB
     bool retVal = false;
     int objProp = getObjectProperty();
@@ -6190,6 +6190,22 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
     {
         retVal = 1;
         pState = _bbHalfSize;
+    }
+    else if ( (_pName == propObject_modelBBSize.name) || (_pName == propObject_modelBBPos.name) )
+    {
+        retVal = 1;
+        C3Vector minV(C3Vector::inf);
+        C3Vector maxV(C3Vector::ninf);
+        if (!getModelBB((getCumulativeTransformation() * getBB(nullptr)).getInverse(), minV, maxV, true))
+            pState.clear();
+        else
+        {
+            retVal = 1;
+            if (_pName == propObject_modelBBSize.name)
+                pState = maxV - minV;
+            else
+                pState = (maxV + minV) * 0.5;
+        }
     }
 
     return retVal;

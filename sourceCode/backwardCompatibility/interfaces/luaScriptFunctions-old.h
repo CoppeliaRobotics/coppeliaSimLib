@@ -277,3 +277,5 @@ extern int _simSetObjectSpecialProperty(luaWrap_lua_State* L);
 extern int _simGetObjectSpecialProperty(luaWrap_lua_State* L);
 extern int _simSetModelProperty(luaWrap_lua_State* L);
 extern int _simGetModelProperty(luaWrap_lua_State* L);
+extern int _simGetRealTimeSimulation(luaWrap_lua_State* L);
+extern int _simBuildMatrixQ(luaWrap_lua_State* L);

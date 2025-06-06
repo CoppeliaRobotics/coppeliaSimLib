@@ -9677,3 +9677,39 @@ int _simSetModelProperty(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L, retVal);
     LUA_END(1);
 }
+
+int _simGetRealTimeSimulation(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getRealTimeSimulation");
+
+    int retVal = simGetRealTimeSimulation_internal();
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushboolean(L, retVal);
+    LUA_END(1);
+}
+
+int _simBuildMatrixQ(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.buildMatrixQ");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 3, lua_arg_number, 4))
+    {
+        double arr[12];
+        double pos[3];
+        double quaternion[4];
+        getDoublesFromTable(L, 1, 3, pos);
+        getDoublesFromTable(L, 2, 4, quaternion);
+        if (simBuildMatrixQ_internal(pos, quaternion, arr) == 1)
+        {
+            pushDoubleTableOntoStack(L, 12, arr);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+

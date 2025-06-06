@@ -62,6 +62,8 @@
     FUNCX(propObject_modelNotVisible, "model.notVisible", sim_propertytype_bool, 0, "Model not visible", "Model is not visible")                                                                                                 \
     FUNCX(propObject_modelScriptsNotActive, "model.scriptsNotActive", sim_propertytype_bool, 0, "Model scripts inactive", "Model scripts are not active")                                                                        \
     FUNCX(propObject_modelNotInParentBB, "model.notInParentBB", sim_propertytype_bool, 0, "Model invisible to other model's bounding boxes", "Model is invisible to other model's bounding boxes")                               \
+    FUNCX(propObject_modelBBSize, "model.bbSize", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Model bounding boxe size", "")                               \
+    FUNCX(propObject_modelBBPos, "model.bbPos", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Model bounding boxe position", "")                               \
     FUNCX(propObject_pose, "pose", sim_propertytype_pose, 0, "Pose", "Scene object local pose")                                                                                                                                 \
     FUNCX(propObject_alias, "alias", sim_propertytype_string, 0, "Alias", "Scene object alias")                                                                                                                                 \
     FUNCX(propObject_bbPose, "bbPose", sim_propertytype_pose, sim_propertyinfo_notwritable, "Bounding box pose", "Bounding box local pose")                                                                                     \
@@ -301,7 +303,7 @@ class CSceneObject
     int getSpecificLight() const;
     bool setBeforeDeleteCallbackSent();
 
-    bool getModelBB(const C7Vector& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first);
+    bool getModelBB(const C7Vector& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first) const;
 
     int getModelSelectionHandle(bool firstObject = true);
 

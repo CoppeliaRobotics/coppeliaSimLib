@@ -219,7 +219,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.saveModel", _simSaveModel},
     {"sim.getObjectSel", _simGetObjectSel},
     {"sim.setObjectSel", _simSetObjectSel},
-    {"sim.getRealTimeSimulation", _simGetRealTimeSimulation},
     {"sim.setNavigationMode", _simSetNavigationMode},
     {"sim.getNavigationMode", _simGetNavigationMode},
     {"sim.setPage", _simSetPage},
@@ -344,7 +343,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.ruckigVel", _simRuckigVel},
     {"sim.ruckigStep", _simRuckigStep},
     {"sim.ruckigRemove", _simRuckigRemove},
-    {"sim.buildMatrixQ", _simBuildMatrixQ},
     {"sim.getQuaternionFromMatrix", _simGetQuaternionFromMatrix},
     {"sim.callScriptFunction", _simCallScriptFunction},
     {"sim.getExtensionString", _simGetExtensionString},
@@ -378,7 +376,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getPluginName", _simGetPluginName},
     {"sim.getPluginInfo", _simGetPluginInfo},
     {"sim.setPluginInfo", _simSetPluginInfo},
-    {"sim.getRandom", _simGetRandom},
     {"sim.textEditorOpen", _simTextEditorOpen},
     {"sim.textEditorClose", _simTextEditorClose},
     {"sim.textEditorShow", _simTextEditorShow},
@@ -443,6 +440,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim1.buildMatrixQ", _simBuildMatrixQ},
+    {"sim1.getRealTimeSimulation", _simGetRealTimeSimulation},
     {"sim1.setObjectProperty", _simSetObjectProperty},
     {"sim1.getObjectProperty", _simGetObjectProperty},
     {"sim1.setObjectSpecialProperty", _simSetObjectSpecialProperty},
@@ -2798,6 +2797,30 @@ int _auxFunc(luaWrap_lua_State* L)
                 LUA_END(2);
             }
             LUA_END(0);
+        }
+
+        if (cmd.compare("rand") == 0)
+        {
+            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+            if (it != nullptr)
+            {
+                luaWrap_lua_pushnumber(L, it->getRandomDouble());
+                LUA_END(1);
+            }
+        }
+        if (cmd.compare("randseed") == 0)
+        {
+            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+            if (it != nullptr)
+            {
+                if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_integer, 0))
+                {
+                    unsigned int s = abs(luaToInt(L, 2));
+                    it->setRandomSeed(s);
+                }
+            }
         }
         if (cmd.compare("usedmodule") == 0)
         {
@@ -7085,18 +7108,6 @@ int _simSetObjectSel(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simGetRealTimeSimulation(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getRealTimeSimulation");
-
-    int retVal = simGetRealTimeSimulation_internal();
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushboolean(L, retVal);
-    LUA_END(1);
 }
 
 int _simLaunchExecutable(luaWrap_lua_State* L)
@@ -12182,29 +12193,6 @@ int _simSetObjectQuaternion(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simBuildMatrixQ(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.buildMatrixQ");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 3, lua_arg_number, 4))
-    {
-        double arr[12];
-        double pos[3];
-        double quaternion[4];
-        getDoublesFromTable(L, 1, 3, pos);
-        getDoublesFromTable(L, 2, 4, quaternion);
-        if (simBuildMatrixQ_internal(pos, quaternion, arr) == 1)
-        {
-            pushDoubleTableOntoStack(L, 12, arr);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simGetQuaternionFromMatrix(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -14759,31 +14747,6 @@ int _simGetLastInfo(luaWrap_lua_State* L)
     }
     luaWrap_lua_pushtext(L, inf.c_str());
     LUA_END(1);
-}
-
-int _simGetRandom(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getRandom");
-
-    int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-    if (it != nullptr)
-    {
-        int res = checkOneGeneralInputArgument(L, 1, lua_arg_number, 0, true, true, &errorString);
-        if (res >= 0)
-        {
-            if (res == 2)
-            {
-                unsigned int s = abs(luaToInt(L, 1));
-                it->setRandomSeed(s);
-            }
-            luaWrap_lua_pushnumber(L, it->getRandomDouble());
-            LUA_END(1);
-        }
-    }
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
 }
 
 #include <luaScriptFunctions-old.cpp>

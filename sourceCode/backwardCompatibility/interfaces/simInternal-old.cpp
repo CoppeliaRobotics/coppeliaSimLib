@@ -10207,8 +10207,7 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double* p
                 {
                     C3Vector minV(C3Vector::inf);
                     C3Vector maxV(C3Vector::ninf);
-                    if (!it->getModelBB((it->getCumulativeTransformation() * it->getBB(nullptr)).getInverse(), minV,
-                                        maxV, true))
+                    if (!it->getModelBB((it->getCumulativeTransformation() * it->getBB(nullptr)).getInverse(), minV, maxV, true))
                         retVal = 0;
                     else
                     {
