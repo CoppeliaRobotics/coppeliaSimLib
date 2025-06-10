@@ -2119,6 +2119,14 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = userSettings->defaultPython;
                 else
                     pState = "";
+                if (pState == "")
+                {
+                    #ifdef WIN_SIM
+                        pState = "py";
+                    #else
+                        pState = "python3";
+                    #endif
+                }
                 retVal = 1;
             }
             else if (strcmp(pName, propApp_sandboxLang.name) == 0)

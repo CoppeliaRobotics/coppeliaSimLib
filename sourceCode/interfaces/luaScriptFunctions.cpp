@@ -2787,6 +2787,30 @@ int _auxFunc(luaWrap_lua_State* L)
             it->setOldCallMode();
             LUA_END(0);
         }
+        if (cmd.compare("switchOldThread") == 0)
+        { // old, for backward compatibility
+            int retVal = -1;
+            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+            if ((it != nullptr) && (it->canManualYield()))
+            {
+                it->resetScriptExecutionTime();
+                if (CThreadPool_old::switchBackToPreviousThread())
+                    retVal = 1;
+                else
+                    retVal = 0;
+            }
+            luaWrap_lua_pushinteger(L, retVal);
+            LUA_END(1);
+        }
+        if (cmd.compare("isScriptRunningInOldThread") == 0)
+        { // old, for backward compatibility
+            int retVal = 1;
+            if (VThread::isSimThread())
+                retVal = 0;
+            luaWrap_lua_pushinteger(L, retVal);
+            LUA_END(1);
+        }
         if (cmd.compare("frexp") == 0)
         {
             if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))

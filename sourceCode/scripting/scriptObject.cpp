@@ -3102,8 +3102,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
         registerPluginFunctions();
         registerPluginVariables(false);
 
-        luaWrap_lua_sethook(L, _hookFunction_lua, luaWrapGet_LUA_MASKCOUNT(),
-                            100); // This instruction gets also called in luaHookFunction!!!!
+        luaWrap_lua_sethook(L, _hookFunction_lua, luaWrapGet_LUA_MASKCOUNT(), 100); // This instruction gets also called in luaHookFunction!!!!
         _initFunctionHookCount = int(_functionHooks_before.size() + _functionHooks_after.size());
     }
 
