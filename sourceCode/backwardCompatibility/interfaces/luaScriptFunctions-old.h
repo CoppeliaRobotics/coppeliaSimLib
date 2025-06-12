@@ -279,3 +279,6 @@ extern int _simSetModelProperty(luaWrap_lua_State* L);
 extern int _simGetModelProperty(luaWrap_lua_State* L);
 extern int _simGetRealTimeSimulation(luaWrap_lua_State* L);
 extern int _simBuildMatrixQ(luaWrap_lua_State* L);
+extern int _simCheckCollisionEx(luaWrap_lua_State* L);
+extern int _simCheckProximitySensorEx(luaWrap_lua_State* L);
+extern int _simCheckProximitySensorEx2(luaWrap_lua_State* L);

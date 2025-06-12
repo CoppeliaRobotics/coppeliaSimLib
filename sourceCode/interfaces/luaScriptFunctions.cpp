@@ -144,8 +144,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.readProximitySensor", _simReadProximitySensor},
     {"sim.resetProximitySensor", _simResetProximitySensor},
     {"sim.checkProximitySensor", _simCheckProximitySensor},
-    {"sim.checkProximitySensorEx", _simCheckProximitySensorEx},
-    {"sim.checkProximitySensorEx2", _simCheckProximitySensorEx2},
     {"sim._getObject", _sim_getObject},
     {"sim.getObjectUid", _simGetObjectUid},
     {"sim._getObjectFromUid", _sim_getObjectFromUid},
@@ -166,7 +164,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getSimulationState", _simGetSimulationState},
     {"sim.getSystemTime", _simGetSystemTime},
     {"sim.checkCollision", _simCheckCollision},
-    {"sim.checkCollisionEx", _simCheckCollisionEx},
     {"sim.checkDistance", _simCheckDistance},
     {"sim.getSimulationTimeStep", _simGetSimulationTimeStep},
     {"sim.getSimulatorMessage", _simGetSimulatorMessage},
@@ -440,6 +437,9 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim1.checkProximitySensorEx", _simCheckProximitySensorEx},
+    {"sim1.checkProximitySensorEx2", _simCheckProximitySensorEx2},
+    {"sim1.checkCollisionEx", _simCheckCollisionEx},
     {"sim1.buildMatrixQ", _simBuildMatrixQ},
     {"sim1.getRealTimeSimulation", _simGetRealTimeSimulation},
     {"sim1.setObjectProperty", _simSetObjectProperty},
@@ -3456,28 +3456,59 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
         CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(handle);
         if (it != nullptr)
         {
-            double detPt[4];
-            double n[3];
-            int detectedObjectHandle;
-            int options = 0;
-            if (it->getFrontFaceDetection())
-                options = options | 1;
-            if (it->getBackFaceDetection())
-                options = options | 2;
-            if (!it->getExactMode())
-                options = options | 4;
-            if (it->getAllowedNormal() > 0.0)
-                options = options | 8;
-            retVal = simCheckProximitySensorEx_internal(handle, luaToInt(L, 2), options, DBL_MAX,
-                                                        it->getAllowedNormal(), detPt, &detectedObjectHandle, n);
-            if (retVal == 1)
+            int res = checkOneGeneralInputArgument(L, 3, lua_arg_integer, 0, true, true, &errorString);
+            if (res >= 0)
             {
-                luaWrap_lua_pushinteger(L, retVal);
-                luaWrap_lua_pushnumber(L, detPt[3]);
-                pushDoubleTableOntoStack(L, 3, detPt);
-                luaWrap_lua_pushinteger(L, detectedObjectHandle);
-                pushDoubleTableOntoStack(L, 3, n);
-                LUA_END(5);
+                int options = 0;
+                if (it->getFrontFaceDetection())
+                    options = options | 1;
+                if (it->getBackFaceDetection())
+                    options = options | 2;
+                if (!it->getExactMode())
+                    options = options | 4;
+                if (it->getAllowedNormal() > 0.0)
+                    options = options | 8;
+                if (res == 2)
+                {
+                    int opt = luaToInt(L, 3);
+                    if (opt >= 0)
+                        options = opt;
+                }
+                res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 0, true, true, &errorString);
+                if (res >= 0)
+                {
+                    double threshhold = DBL_MAX;
+                    if (res == 2)
+                    {
+                        double thr = luaToDouble(L, 4);
+                        if (thr > 0.0)
+                            threshhold = thr;
+                    }
+                    res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 0, true, true, &errorString);
+                    if (res >= 0)
+                    {
+                        double maxNormal = it->getAllowedNormal();
+                        if (res == 2)
+                        {
+                            double mn = luaToDouble(L, 5);
+                            if (mn > 0.0)
+                                maxNormal = mn;
+                        }
+                        double detPt[4];
+                        double n[3];
+                        int detectedObjectHandle;
+                        retVal = simCheckProximitySensorEx_internal(handle, luaToInt(L, 2), options, threshhold, maxNormal, detPt, &detectedObjectHandle, n);
+                        if (retVal == 1)
+                        {
+                            luaWrap_lua_pushinteger(L, retVal);
+                            luaWrap_lua_pushnumber(L, detPt[3]);
+                            pushDoubleTableOntoStack(L, 3, detPt);
+                            luaWrap_lua_pushinteger(L, detectedObjectHandle);
+                            pushDoubleTableOntoStack(L, 3, n);
+                            LUA_END(5);
+                        }
+                    }
+                }
             }
         }
         else
@@ -3492,94 +3523,6 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L, -1);
     pushDoubleTableOntoStack(L, 3, dummy);
     LUA_END(5);
-}
-
-int _simCheckProximitySensorEx(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.checkProximitySensorEx");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0,
-                            lua_arg_number, 0))
-    {
-        double detPt[4];
-        int detObj;
-        double normVect[3];
-        retVal = simCheckProximitySensorEx_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), luaToDouble(L, 4),
-                                                    luaToDouble(L, 5), detPt, &detObj, normVect);
-        if (retVal == 1)
-        {
-            luaWrap_lua_pushinteger(L, retVal);
-            luaWrap_lua_pushnumber(L, detPt[3]);
-            pushDoubleTableOntoStack(L, 3, detPt);
-            luaWrap_lua_pushinteger(L, detObj);
-            pushDoubleTableOntoStack(L, 3, normVect);
-            LUA_END(5);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    double dummy[3] = {0.0, 0.0, 0.0};
-    luaWrap_lua_pushnumber(L, 0.0);
-    pushDoubleTableOntoStack(L, 3, dummy);
-    luaWrap_lua_pushinteger(L, -1);
-    pushDoubleTableOntoStack(L, 3, dummy);
-    LUA_END(5);
-}
-
-int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.checkProximitySensorEx2");
-
-    int retVal = -1; // means error
-    if (checkOneGeneralInputArgument(L, 1, lua_arg_number, 0, false, false, &errorString) == 2)
-    { // first argument (sensor handle)
-        int sensorID = luaToInt(L, 1);
-        if (checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, false, false, &errorString) == 2)
-        { // third argument (item type)
-            int itemType = luaToInt(L, 3);
-            if (checkOneGeneralInputArgument(L, 4, lua_arg_number, 0, false, false, &errorString) == 2)
-            { // forth argument (item count)
-                int itemCount = luaToInt(L, 4);
-                int requiredValues = itemCount * 3 * (itemType + 1);
-                if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, requiredValues,
-                                        lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0,
-                                        lua_arg_number, 0))
-                {
-                    int mode = luaToInt(L, 5);
-                    double threshold = luaToDouble(L, 6);
-                    double maxAngle = luaToDouble(L, 7);
-                    double* vertices = new double[requiredValues];
-                    getDoublesFromTable(L, 2, requiredValues, vertices);
-
-                    double detPt[4];
-                    double normVect[3];
-                    retVal = simCheckProximitySensorEx2_internal(sensorID, vertices, itemType, itemCount, mode,
-                                                                 threshold, maxAngle, detPt, normVect);
-                    delete[] vertices;
-                    if (retVal == 1)
-                    {
-                        luaWrap_lua_pushinteger(L, retVal);
-                        luaWrap_lua_pushnumber(L, detPt[3]);
-                        pushDoubleTableOntoStack(L, 3, detPt);
-                        pushDoubleTableOntoStack(L, 3, normVect);
-                        LUA_END(4);
-                    }
-                }
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    double dummy[3] = {0.0, 0.0, 0.0};
-    luaWrap_lua_pushnumber(L, 0.0);
-    pushDoubleTableOntoStack(L, 3, dummy);
-    pushDoubleTableOntoStack(L, 3, dummy);
-    LUA_END(4);
 }
 
 int _simCheckVisionSensor(luaWrap_lua_State* L)
@@ -4192,31 +4135,6 @@ int _simCheckCollision(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
     pushIntTableOntoStack(L, 2, collidingIds);
-    LUA_END(2);
-}
-
-int _simCheckCollisionEx(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.checkCollisionEx");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-    {
-        double* intersections[1];
-        retVal = simCheckCollisionEx_internal(luaToInt(L, 1), luaToInt(L, 2), intersections);
-        if (retVal > 0)
-        {
-            luaWrap_lua_pushinteger(L, retVal);
-            pushDoubleTableOntoStack(L, retVal * 6, (*intersections));
-            simReleaseBuffer_internal((char*)(*intersections));
-            LUA_END(2);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    pushIntTableOntoStack(L, 0, nullptr); // empty table
     LUA_END(2);
 }
 
