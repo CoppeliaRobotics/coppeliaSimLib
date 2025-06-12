@@ -3086,6 +3086,10 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     registerNewFunctions_lua();
     _registerNewVariables_lua();
     _execSimpleString_safe_lua(L, "_S={}; _S.internalApi={sim=sim, sim1=sim1, sim0=sim0}; sim=nil sim1=nil sim0=nil");
+
+    std::string dummyStr;
+    if (App::getAppNamedParam("devmode", dummyStr))
+        _execSimpleString_safe_lua(L, "_DEVMODE=true");
     if (0 != _execSimpleString_safe_lua(L, "require('base')"))
     {
         if (errorMsg != nullptr)
