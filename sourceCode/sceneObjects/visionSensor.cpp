@@ -9,7 +9,6 @@
 #include <vDateTime.h>
 #include <vVarious.h>
 #include <utils.h>
-#include <threadPool_old.h>
 #include <app.h>
 #include <interfaceStackString.h>
 #ifdef SIM_WITH_GUI
@@ -2426,13 +2425,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                 CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
                 if (VThread::isSimThread())
                 { // we are in the main simulation thread. Call only scripts that live in the same thread
-                    if (!script->getThreadedExecution_oldThreads())
-                        script->systemCallScript(sim_syscb_vision, inStack, outStack);
-                }
-                else
-                { // OLD: we are in the thread started by a threaded simulation script. Call only that script
-                    if (script->getThreadedExecution_oldThreads())
-                        script->systemCallScript(sim_syscb_vision, inStack, nullptr);
+                    script->systemCallScript(sim_syscb_vision, inStack, outStack);
                 }
                 if (outStack->getStackSize() >= 1)
                 {
@@ -2505,13 +2498,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                     CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
                     if (VThread::isSimThread())
                     { // we are in the main simulation thread. Call only scripts that live in the same thread
-                        if (!script->getThreadedExecution_oldThreads())
-                            script->systemCallScript(sim_syscb_trigger, inStack, outStack);
-                    }
-                    else
-                    { // we are in the thread started by a threaded simulation script. Call only that script
-                        if (script->getThreadedExecution_oldThreads())
-                            script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
+                        script->systemCallScript(sim_syscb_trigger, inStack, outStack);
                     }
                     if (outStack->getStackSize() >= 1)
                     {

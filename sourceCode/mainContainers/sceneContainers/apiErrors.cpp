@@ -1,7 +1,6 @@
 #include <apiErrors.h>
 #include <app.h>
 #include <simInternal.h>
-#include <threadPool_old.h>
 #include <simStrings.h>
 #include <iostream>
 
@@ -30,13 +29,16 @@ void CApiErrors::setLastWarningOrError(const char* functionName, const char* err
 
     std::string msg(errMsg);
     if (funcName.size() > 0)
-        msg += " (" + funcName + ")";
+        msg += " (c: " + funcName + ")";
 
     _lastWarningOrError = msg;
-    // printf("Last error: %s\n",_lastWarningOrError);
-
-    // Old:
-    setThreadBasedFirstCapiError_old(errMsg);
+/*
+    std::string dummyStr;
+    if (App::getAppNamedParam("devmode", dummyStr))
+        setThreadBasedFirstCapiError_old(_lastWarningOrError.c_str());  // debugging from Lua calling c
+    else
+        setThreadBasedFirstCapiError_old(errMsg);
+        */
 }
 
 std::string CApiErrors::getAndClearLastWarningOrError()

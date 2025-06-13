@@ -1,7 +1,6 @@
 #include <luaScriptFunctions.h>
 #include <simInternal.h>
 #include <tt.h>
-#include <threadPool_old.h>
 #include <linMotionRoutines.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -36,6 +35,7 @@ std::map<std::string, QSystemSemaphore*> _systemSemaphores;
 
 #define LUA_START(funcName)                                     \
     CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
+    CApiErrors::getAndClearLastWarningOrError();                \
     std::string functionName(funcName);                         \
     std::string errorString;                                    \
     std::string warningString;                                  \
@@ -43,6 +43,7 @@ std::map<std::string, QSystemSemaphore*> _systemSemaphores;
 
 #define LUA_START_NO_CSIDE_ERROR(funcName)                      \
     CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
+    CApiErrors::getAndClearLastWarningOrError();                \
     std::string functionName(funcName);                         \
     std::string errorString;                                    \
     std::string warningString;                                  \
@@ -91,7 +92,8 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const c
 {
     std::string errStr(errorString);
     if ((errStr.size() == 0) && cSideErrorOrWarningReporting)
-        errStr = CApiErrors::getAndClearThreadBasedFirstCapiError_old(); // without old threads, use
+        errStr = CApiErrors::getAndClearLastWarningOrError();
+//        errStr = CApiErrors::getAndClearThreadBasedFirstCapiError_old(); // without old threads, use
                                                                          // CApiErrors::getAndClearLastWarningOrError
     if (errStr.size() == 0)
         return;
@@ -1231,7 +1233,6 @@ const SLuaVariables simLuaVariables[] = {
     {"sim1.appobj_2delement_type", sim_appobj_ui_type}, // for backward compatibility
     {"sim1.appobj_ui_type", sim_appobj_ui_type},
     {"sim1.appobj_pathplanning_type", sim_appobj_pathplanning_type},
-    {"sim1.scripttype_threaded", sim_scripttype_threaded_old},
     {"sim1.navigation_camerafly", sim_navigation_camerafly_old},
     {"sim1.banner_left", sim_banner_left},
     {"sim1.banner_right", sim_banner_right},
@@ -1251,13 +1252,6 @@ const SLuaVariables simLuaVariables[] = {
     {"sim1.scriptdebug_allcalls", sim_scriptdebug_allcalls},
     {"sim1.scriptdebug_vars", sim_scriptdebug_vars},
     {"sim1.scriptdebug_callsandvars", sim_scriptdebug_callsandvars},
-    {"sim1.scriptthreadresume_allnotyetresumed", sim_scriptthreadresume_allnotyetresumed},
-    {"sim1.scriptthreadresume_default", sim_scriptthreadresume_default},
-    {"sim1.scriptthreadresume_actuation_first", sim_scriptthreadresume_actuation_first},
-    {"sim1.scriptthreadresume_actuation_last", sim_scriptthreadresume_actuation_last},
-    {"sim1.scriptthreadresume_sensing_first", sim_scriptthreadresume_sensing_first},
-    {"sim1.scriptthreadresume_sensing_last", sim_scriptthreadresume_sensing_last},
-    {"sim1.scriptthreadresume_custom", sim_scriptthreadresume_custom},
     {"sim1.callbackid_rossubscriber", sim_callbackid_rossubscriber},
     {"sim1.callbackid_dynstep", sim_callbackid_dynstep},
     {"sim1.callbackid_userdefined", sim_callbackid_userdefined},
@@ -2533,21 +2527,6 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
         func->callBackFunction_new(cb); // call into old plugin
     CScriptObject::setInExternalCall(-1);
 
-    bool dontDeleteStructureYet = false;
-    while (cb->waitUntilZero != 0)
-    { // backward compatibility (for real threads)
-        if (!CThreadPool_old::switchBackToPreviousThread())
-            break;
-        if (CThreadPool_old::getSimulationStopRequestedAndActivated())
-        { // give a chance to the c app to set the waitUntilZero to zero! (above turns true only 1-2 secs after the stop
-            // request arrived)
-            // Following: the extension module might still write 0 into that position to signal "no more waiting" in
-            // case this while loop got interrupted by a stop request.
-            dontDeleteStructureYet = true;
-            break;
-        }
-    }
-
     // Now we have to build the returned data onto the stack:
     CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
 
@@ -2557,13 +2536,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
 
     // And we return the number of arguments:
     int outputArgCount = stack->getStackSize();
-    if (dontDeleteStructureYet)
-    { // We cannot yet delete the structure because an extension module might still write '0' into
-        // p->waitUntilZero!! We delete the structure at the end of the simulation.
-        App::currentWorld->sceneObjects->embeddedScriptContainer->addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(cb);
-    }
-    else
-        delete cb;
+    delete cb;
     App::worldContainer->interfaceStackContainer->destroyStack(stack);
     return (outputArgCount);
 }
@@ -2780,37 +2753,6 @@ int _auxFunc(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         std::string cmd(luaWrap_lua_tostring(L, 1));
-        if (cmd.compare("deprecatedScriptMode") == 0)
-        {
-            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            CScriptObject* it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
-            it->setOldCallMode();
-            LUA_END(0);
-        }
-        if (cmd.compare("switchOldThread") == 0)
-        { // old, for backward compatibility
-            int retVal = -1;
-            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-            if ((it != nullptr) && (it->canManualYield()))
-            {
-                it->resetScriptExecutionTime();
-                if (CThreadPool_old::switchBackToPreviousThread())
-                    retVal = 1;
-                else
-                    retVal = 0;
-            }
-            luaWrap_lua_pushinteger(L, retVal);
-            LUA_END(1);
-        }
-        if (cmd.compare("isScriptRunningInOldThread") == 0)
-        { // old, for backward compatibility
-            int retVal = 1;
-            if (VThread::isSimThread())
-                retVal = 0;
-            luaWrap_lua_pushinteger(L, retVal);
-            LUA_END(1);
-        }
         if (cmd.compare("frexp") == 0)
         {
             if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
@@ -2966,6 +2908,18 @@ int _auxFunc(luaWrap_lua_State* L)
 #endif
             luaWrap_lua_pushboolean(L, retVal);
             LUA_END(1);
+        }
+        if (cmd.compare("simHandleJoint") == 0)
+        {
+            if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0, lua_arg_number, 0))
+                simHandleJoint_internal(luaToInt(L, 2), luaToDouble(L, 3));
+            LUA_END(0);
+        }
+        if (cmd.compare("simHandlePath") == 0)
+        {
+            if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0, lua_arg_number, 0))
+                simHandlePath_internal(luaToInt(L, 2), luaToDouble(L, 3));
+            LUA_END(0);
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6621,64 +6575,20 @@ int _simRemoveModel(luaWrap_lua_State* L)
         int objId = luaToInt(L, 1);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-        if (!it->getThreadedExecution_oldThreads())
+        bool delayed = false;
+        int res = checkOneGeneralInputArgument(L, 2, lua_arg_bool, 0, true, true, &errorString);
+        if (res >= 0)
         {
-            bool delayed = false;
-            int res = checkOneGeneralInputArgument(L, 2, lua_arg_bool, 0, true, true, &errorString);
-            if (res >= 0)
+            if (res == 2)
+                delayed = luaToBool(L, 2);
+            if (delayed)
+                objId = -objId - 1;
+            int retVal = simRemoveModel_internal(objId);
+            if (retVal >= 0)
             {
-                if (res == 2)
-                    delayed = luaToBool(L, 2);
-                if (delayed)
-                    objId = -objId - 1;
-                int retVal = simRemoveModel_internal(objId);
-                if (retVal >= 0)
-                {
-                    luaWrap_lua_pushinteger(L, retVal);
-                    LUA_END(1);
-                }
+                luaWrap_lua_pushinteger(L, retVal);
+                LUA_END(1);
             }
-        }
-        else
-        { // this script runs threaded and wants to destroy other objects. We need to make sure that it will only
-            // destroy objects that do not have any scripts attached with a non-nullptr lua state:
-            CSceneObject* objBase = App::currentWorld->sceneObjects->getObjectFromHandle(objId);
-            if (objBase != nullptr)
-            {
-                if (objBase->getModelBase())
-                {
-                    std::vector<int> modelObjects;
-                    modelObjects.push_back(objId);
-                    App::currentWorld->sceneObjects->addModelObjects(modelObjects);
-                    bool ok = true;
-                    for (size_t j = 0; j < modelObjects.size(); j++)
-                    {
-                        std::vector<CScriptObject*> scripts;
-                        App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptsFromObjectAttachedTo(modelObjects[j],
-                                                                                                                 scripts);
-                        for (size_t i = 0; i < scripts.size(); i++)
-                        {
-                            if ((it != scripts[i]) && scripts[i]->hasInterpreterState())
-                                ok = false;
-                        }
-                    }
-                    if (ok)
-                    {
-                        int retVal = simRemoveModel_internal(objId);
-                        if (retVal >= 0)
-                        {
-                            luaWrap_lua_pushinteger(L, retVal);
-                            LUA_END(1);
-                        }
-                    }
-                    else
-                        errorString = SIM_ERROR_THREADED_SCRIPT_DESTROYING_OBJECTS_WITH_ACTIVE_SCRIPTS;
-                }
-                else
-                    errorString = SIM_ERROR_OBJECT_NOT_MODEL_BASE;
-            }
-            else
-                errorString = SIM_ERROR_OBJECT_INEXISTANT;
         }
     }
 
@@ -7555,8 +7465,6 @@ int _simSetAutoYieldDelay(luaWrap_lua_State* L)
         CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
         if (it != nullptr)
             it->setDelayForAutoYielding(timeInMs);
-
-        CThreadPool_old::setThreadSwitchTiming(timeInMs);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7603,7 +7511,6 @@ int _setAutoYield(luaWrap_lua_State* L)
                 else
                     retVal = it->changeAutoYieldingForbidLevel(1, false);
             }
-            CThreadPool_old::setThreadAutomaticSwitchForbidLevel(it->getAutoYieldingForbidLevel());
             luaWrap_lua_pushinteger(L, retVal);
             LUA_END(1);
         }
@@ -12179,92 +12086,32 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
                 CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 0); // skip the two first args
 
-                if (script->getThreadedExecutionIsUnderWay_oldThreads())
-                { // very special handling here!
-                    if (VThread::areThreadIdsSame(script->getThreadedScriptThreadId_old(), VThread::getCurrentThreadId()))
+                if (VThread::isSimThread())
+                { // For now we don't allow non-main threads to call non-threaded scripts!
+                    int rr = script->callCustomScriptFunction(funcName.c_str(), stack);
+                    if (rr == 1)
                     {
-                        int rr = script->callCustomScriptFunction(funcName.c_str(), stack);
-                        if (rr == 1)
+                        CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
+                        int ss = stack->getStackSize();
+                        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                        if (ss == 0)
                         {
-                            CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
-                            int ss = stack->getStackSize();
-                            App::worldContainer->interfaceStackContainer->destroyStack(stack);
-                            if (ss == 0)
-                            {
-                                luaWrap_lua_pushnil(L);
-                                // pushIntTableOntoStack(L,0,nullptr);
-                                ss++;
-                            }
-                            LUA_END(ss);
+                            luaWrap_lua_pushnil(L);
+                            // pushIntTableOntoStack(L,0,nullptr);
+                            ss++;
                         }
-                        else
-                        {
-                            if (rr == -1)
-                                errorString = SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
-                            else // rr==0
-                                errorString = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                        }
+                        LUA_END(ss);
                     }
                     else
-                    { // we have to execute that function via another thread!
-                        void* d[4];
-                        int callType = 1;
-                        d[0] = &callType;
-                        d[1] = script;
-                        d[2] = (void*)funcName.c_str();
-                        d[3] = stack;
-                        int retVal =
-                            CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(), d);
-                        if (retVal == 1)
-                        {
-                            CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
-                            int ss = stack->getStackSize();
-                            App::worldContainer->interfaceStackContainer->destroyStack(stack);
-                            if (ss == 0)
-                            {
-                                pushIntTableOntoStack(L, 0, nullptr);
-                                ss++;
-                            }
-                            LUA_END(ss);
-                        }
-                        else
-                        {
-                            if (retVal == -1)
-                                errorString = SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
-                            else // retVal==0
-                                errorString = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                        }
+                    {
+                        if (rr == -1)
+                            errorString = SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                        else // rr==0
+                            errorString = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                     }
                 }
                 else
-                {
-                    if (VThread::isSimThread())
-                    { // For now we don't allow non-main threads to call non-threaded scripts!
-                        int rr = script->callCustomScriptFunction(funcName.c_str(), stack);
-                        if (rr == 1)
-                        {
-                            CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
-                            int ss = stack->getStackSize();
-                            App::worldContainer->interfaceStackContainer->destroyStack(stack);
-                            if (ss == 0)
-                            {
-                                luaWrap_lua_pushnil(L);
-                                // pushIntTableOntoStack(L,0,nullptr);
-                                ss++;
-                            }
-                            LUA_END(ss);
-                        }
-                        else
-                        {
-                            if (rr == -1)
-                                errorString = SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
-                            else // rr==0
-                                errorString = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                        }
-                    }
-                    else
-                        errorString = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                }
+                    errorString = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                 App::worldContainer->interfaceStackContainer->destroyStack(stack);
             }
             else

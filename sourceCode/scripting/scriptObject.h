@@ -23,7 +23,6 @@
 #include <vMutex.h>
 #include <vThread.h>
 #include <customData_old.h>
-#define DEFAULT_THREADEDCHILDSCRIPTOLD "dlttscptbkcomp"
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 // **********************
 
@@ -176,8 +175,6 @@ class CScriptObject
 
     bool hasSystemFunction(int callType, bool returnTrueIfNotInitialized = true) const;
     bool hasSystemFunctionOrHook(int callType) const;
-    bool getOldCallMode() const;
-    void setOldCallMode();
     void setTemporarilySuspended(bool s);
 
     std::string getFilenameForExternalScriptEditor();
@@ -262,7 +259,6 @@ class CScriptObject
     void getObjectCustomData_tempData_old(int header, char* data) const;
     void setRaiseErrors_backCompatibility(bool raise);
     bool getRaiseErrors_backCompatibility() const;
-    VTHREAD_ID_TYPE getThreadedScriptThreadId_old() const;
     void setAutomaticCascadingCallsDisabled_old(bool disabled);
     bool getAutomaticCascadingCallsDisabled_old() const;
     bool checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014();
@@ -277,13 +273,6 @@ class CScriptObject
                                     const int what[2]); // deprecated
     int callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata);
     int clearScriptVariable_DEPRECATED(const char* variableName); // deprecated
-    void setThreadedExecution_oldThreads(bool threadedExec);
-    bool getThreadedExecution_oldThreads() const;
-    bool getThreadedExecutionIsUnderWay_oldThreads() const;
-    void setExecuteJustOnce_oldThreads(bool justOnce);
-    bool getExecuteJustOnce_oldThreads() const;
-    bool launchThreadedChildScript_oldThreads();
-    int resumeThreadedChildScriptIfLocationMatch_oldThreads(int resumeLocation);
     void setLastError_old(const char* err);
     std::string getAndClearLastError_old();
     void setExecutionPriority_old(int order);
@@ -393,12 +382,13 @@ class CScriptObject
 
     // Old:
     // *****************************************
+    void _performNewApiAdjustments_old(CScriptObject* scriptObject, bool forwardAdjustment);
+    std::string _replaceOldApi(const char* txt, bool forwardAdjustment);
     void _handleCallbackEx_old(int calltype);
     int _getScriptNameIndexNumber_old() const;
     bool _callScriptChunk_old(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack);
     bool _checkIfMixingOldAndNewCallMethods_old();
-    std::string _replaceOldApi(const char* txt, bool forwardAdjustment);
-    bool _convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject);
+    bool _convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject, bool execJustOnce);
     void _adjustScriptText1_old(CScriptObject* scriptObject, bool doIt, bool doIt2);
     void _adjustScriptText2_old(CScriptObject* scriptObject, bool doIt);
     void _adjustScriptText3_old(CScriptObject* scriptObject, bool doIt);
@@ -423,11 +413,9 @@ class CScriptObject
                                                    const char* oldTxtEnd, const char* newTxtStart,
                                                    const char* newTxtEnd);
     bool _containsScriptText_old(CScriptObject* scriptObject, const char* txt);
-    void _performNewApiAdjustments_old(CScriptObject* scriptObject, bool forwardAdjustment);
     void _splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord,
                            std::string& afterPart);
     std::string _lastError_old;
-    bool _compatibilityMode_oldLua;
     bool _custScriptDisabledDSim_compatibilityMode_DEPRECATED;
     bool _customizationScriptCleanupBeforeSave_DEPRECATED;
     bool _mainScriptIsDefaultMainScript_old; // 16.11.2020
@@ -441,17 +429,8 @@ class CScriptObject
     bool _warning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016;
     bool _warning_simFindIkPath_oldCompatibility_2_2_2016;
     bool _automaticCascadingCallsDisabled_old; // reset to false at simulation start!
-    bool _threadedExecution_oldThreads;
-    VTHREAD_ID_TYPE _threadedScript_associatedFiberOrThreadID_oldThreads;
-    bool _threadedExecutionUnderWay_oldThreads;
-    bool _executeJustOnce_oldThreads;
     int _executionPriority_old;
-    void _launchThreadedChildScriptNow_oldThreads();
     static std::map<std::string, std::string> _newApiMap_old;
-    static VMutex _globalMutex_oldThreads;
-    static std::vector<CScriptObject*> toBeCalledByThread_oldThreads;
-    static VTHREAD_RETURN_TYPE _startAddressForThreadedScripts_oldThreads(VTHREAD_ARGUMENT_TYPE lpData);
-    // *****************************************
 };
 
 // Old:

@@ -388,9 +388,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle)
                     editorNode->SetAttribute("searchable", toBoolStr(true));
                     editorNode->SetAttribute("line-numbers", toBoolStr(true));
                     editorNode->SetAttribute("tab-width", 4);
-                    editorNode->SetAttribute("can-restart-in-sim",
-                                             toBoolStr(!((it->getScriptType() == sim_scripttype_main) ||
-                                                         it->getThreadedExecution_oldThreads())));
+                    editorNode->SetAttribute("can-restart-in-sim", toBoolStr(it->getScriptType() != sim_scripttype_main));
                     editorNode->SetAttribute("script-up-to-date", toBoolStr(it->getIsUpToDate()));
                     editorNode->SetAttribute("lang", it->getLang().c_str());
                     if (it->getLang() == "lua")
@@ -871,7 +869,7 @@ void CCodeEditorContainer::restartScript(int handle) const
             CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
             if (App::worldContainer->pluginContainer->codeEditor_getText(handle, txt, nullptr))
             {
-                if ((it != nullptr) && (!it->getThreadedExecution_oldThreads()))
+                if (it != nullptr)
                 {
                     applyChanges(_allEditors[i].handle);
                     if (it->resetScript())

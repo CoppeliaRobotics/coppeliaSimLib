@@ -4,7 +4,6 @@
 #include <tt.h>
 #include <utils.h>
 #include <graphingRoutines_old.h>
-#include <threadPool_old.h>
 #include <app.h>
 #include <simStrings.h>
 #include <vDateTime.h>
@@ -222,8 +221,6 @@ bool CSimulation::startOrResumeSimulation()
 #ifdef SIM_WITH_GUI
         GuiApp::setFullScreen(_fullscreenAtSimulationStart);
 #endif
-        CThreadPool_old::setSimulationEmergencyStop(false);
-        CThreadPool_old::setRequestSimulationStop(false);
         App::worldContainer->simulationAboutToStart();
         _pauseOnErrorRequested = false;
         _realTimeCorrection = 0.0;
@@ -357,7 +354,6 @@ void CSimulation::advanceSimulationByOneStep()
     {
         if (_requestToStop)
         {
-            CThreadPool_old::setRequestSimulationStop(true);
             setSimulationState(sim_simulation_advancing_abouttostop);
             _requestToStop = false;
         }
@@ -380,15 +376,10 @@ void CSimulation::advanceSimulationByOneStep()
         setSimulationState(sim_simulation_advancing_running);
     }
     else if (getSimulationState() == sim_simulation_advancing_abouttostop)
-    {
-        if (CThreadPool_old::getThreadPoolThreadCount() == 0)
-            setSimulationState(sim_simulation_advancing_lastbeforestop);
-    }
+        setSimulationState(sim_simulation_advancing_lastbeforestop);
     else if (getSimulationState() == sim_simulation_advancing_lastbeforestop)
     {
         App::worldContainer->simulationAboutToEnd();
-        CThreadPool_old::setSimulationEmergencyStop(false);
-        CThreadPool_old::setRequestSimulationStop(false);
         setSimulationState(sim_simulation_stopped);
         App::worldContainer->simulationEnded(_removeNewObjectsAtSimulationEnd);
     }
@@ -1291,10 +1282,8 @@ bool CSimulation::processCommand(int commandID)
     if (commandID == SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD)
     {
         if (!VThread::isUiThread())
-        {                                                                   // we are NOT in the UI thread. We execute the command now:
-            CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
-            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request, 0, 0, 0, 0,
-                                                                   nullptr, 0);
+        { // we are NOT in the UI thread. We execute the command now:
+            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request, 0, 0, 0, 0, nullptr, 0);
             incrementStopRequestCounter();
         }
         else
@@ -1423,14 +1412,7 @@ bool CSimulation::showAndHandleEmergencyStopButton(bool showState, const char* s
     { // make sure we are not in headless mode
         bool res = GuiApp::uiThread->showOrHideEmergencyStop(showState, scriptName);
         if (showState && res)
-        { // stop button was pressed
-            if (!isSimulationStopped())
-            {
-                CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
-                CThreadPool_old::setSimulationEmergencyStop(true);
-            }
-            retVal = true;
-        }
+            retVal = true; // stop button was pressed
     }
     return (retVal);
 }

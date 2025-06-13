@@ -8,7 +8,6 @@
 #include <persistentDataContainer.h>
 #include <apiErrors.h>
 #include <mesh.h>
-#include <threadPool_old.h>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -214,7 +213,6 @@ void App::init(const char* appDir, int)
     str += SIM_PLATFORM;
     logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, str.c_str());
 
-    CThreadPool_old::init();
     CSimFlavor::run(0);
     srand((int)VDateTime::getTimeInMs()); // Important so that the computer ID has some "true" random component!
                                           // Remember that each thread starts with a same seed!!!
@@ -324,8 +322,6 @@ void App::cleanup()
     worldContainer->deinitialize();
     delete worldContainer;
     worldContainer = nullptr;
-
-    CThreadPool_old::cleanUp();
 
     delete folders;
     folders = nullptr;
@@ -444,7 +440,6 @@ void App::loop(void (*callback)(), bool stepIfRunning)
                     worldContainer->calcInfo->simulationPassStart();
                     App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(
                         App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
-                    CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript();
                     it->systemCallMainScript(-1, nullptr, nullptr);
                     worldContainer->calcInfo->simulationPassEnd();
                 }
@@ -1607,16 +1602,6 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
             if (userSettings != nullptr)
             {
                 pState = userSettings->execUnsafeExt;
-                retVal = 1;
-            }
-            else
-                retVal = 0;
-        }
-        else if (strcmp(pName, propApp_supportOldApiNotation.name) == 0)
-        {
-            if (userSettings != nullptr)
-            {
-                pState = userSettings->supportOldApiNotation;
                 retVal = 1;
             }
             else

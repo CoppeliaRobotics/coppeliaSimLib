@@ -12,7 +12,6 @@
 #include <utils.h>
 #include <vVarious.h>
 #include <mesh.h>
-#include <threadPool_old.h>
 #include <graphingRoutines_old.h>
 #include <simStringTable_openGl.h>
 #include <simFlavor.h>
@@ -3429,8 +3428,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         int scriptID = cmd.intParams[0];
         CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
-        if ((it != nullptr) && it->getThreadedExecution_oldThreads())
-            it->setExecuteJustOnce_oldThreads(!it->getExecuteJustOnce_oldThreads());
     }
     if (cmd.cmdId == SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
     {

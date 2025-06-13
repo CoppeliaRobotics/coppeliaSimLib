@@ -375,29 +375,14 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             hasScript = true;
             if (!dontDisplay)
             {
-                if (script->getThreadedExecution_oldThreads())
-                {
-                    if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
-                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_THREADED_PICTURE);
-                    else
-                    {
-                        if (script->getScriptHasError())
-                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTERROR_THREADED_PICTURE);
-                        else
-                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_THREADED_PICTURE);
-                    }
-                }
+                if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
+                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_PICTURE);
                 else
                 {
-                    if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
-                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_PICTURE);
+                    if (script->getScriptHasError())
+                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTERROR_PICTURE);
                     else
-                    {
-                        if (script->getScriptHasError())
-                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTERROR_PICTURE);
-                        else
-                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
-                    }
+                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
                 }
                 _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                   HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);

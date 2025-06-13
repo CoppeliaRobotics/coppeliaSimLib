@@ -72,11 +72,9 @@ class CUserSettings
     bool disableVisibleEdges;
     bool showOldDlgs;
     bool enableOldRenderableBehaviour;
-    bool keepOldThreadedScripts;
     bool enableOldMirrorObjects;
     int allowOldEduRelease;
     int threadedScriptsStoppingGraceTime;
-    bool supportOldApiNotation;
     bool antiAliasing;
     double dynamicActivityRange;
     int freeServerPortStart;

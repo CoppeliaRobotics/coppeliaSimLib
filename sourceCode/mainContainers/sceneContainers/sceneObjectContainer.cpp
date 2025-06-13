@@ -3023,7 +3023,7 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
             CScriptObject* script = embeddedScriptContainer->getMainScript();
-            if ((script != nullptr) && (script->hasSystemFunctionOrHook(callType) || script->getOldCallMode()))
+            if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
             {
                 if (script->getScriptHandle() != scriptToExclude)
                     script->systemCallMainScript(callType, inStack, outStack);
@@ -3046,7 +3046,7 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
             if (!App::currentWorld->simulation->isSimulationStopped())
             {
                 CScriptObject* script = embeddedScriptContainer->getMainScript();
-                if ((script != nullptr) && (script->hasSystemFunctionOrHook(callType) || script->getOldCallMode()))
+                if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
                 {
                     if (script->getScriptHandle() != scriptToExclude)
                         script->systemCallMainScript(callType, inStack, outStack);
@@ -3110,17 +3110,7 @@ int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterface
         CScript* script = getScriptFromHandle(scriptHandles[i]);
         if ((script != nullptr) && (scriptHandles[i] != scriptToExclude))
         { // the script could have been erased in the mean time
-            if (script->scriptObject->getThreadedExecution_oldThreads())
-            { // is an old, threaded script
-                if (callType == sim_scriptthreadresume_launch)
-                {
-                    if (script->scriptObject->launchThreadedChildScript_oldThreads())
-                        cnt++;
-                }
-                else
-                    cnt += script->scriptObject->resumeThreadedChildScriptIfLocationMatch_oldThreads(callType);
-            }
-            else if (script->scriptObject->hasSystemFunctionOrHook(callType) || script->scriptObject->getOldCallMode())
+            if (script->scriptObject->hasSystemFunctionOrHook(callType))
             { // has the function
                 if (script->scriptObject->systemCallScript(callType, inStack, outStack) == 1)
                 {

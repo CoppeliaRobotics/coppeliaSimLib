@@ -442,10 +442,7 @@ void CForceSensor::_handleSensorTriggering()
                 {
                     CScriptObject* script = scripts[i];
                     if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
-                    {
-                        if (!script->getThreadedExecution_oldThreads())
-                            script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
-                    }
+                        script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
                 }
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }

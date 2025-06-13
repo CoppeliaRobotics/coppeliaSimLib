@@ -1756,7 +1756,7 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {
             CScriptObject* scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, loadedObjectList[i]->getObjectHandle());
-            if ((scriptObject != nullptr) && (!scriptObject->getThreadedExecution_oldThreads()))
+            if (scriptObject != nullptr)
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
                 CScript* script = new CScript(scriptObject);
@@ -1776,7 +1776,7 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                 sceneObjects->setObjectName_old(script, nn.c_str(), false);
             }
             scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, loadedObjectList[i]->getObjectHandle());
-            if ((scriptObject != nullptr) && (!scriptObject->getThreadedExecution_oldThreads()))
+            if (scriptObject != nullptr)
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
                 CScript* script = new CScript(scriptObject);

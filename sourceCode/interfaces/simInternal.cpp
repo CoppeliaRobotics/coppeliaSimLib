@@ -9,7 +9,6 @@
 #include <persistentDataContainer.h>
 #include <graphingRoutines_old.h>
 #include <sceneObjectOperations.h>
-#include <threadPool_old.h>
 #include <addOperations.h>
 #include <app.h>
 #include <mesh.h>
@@ -1117,7 +1116,10 @@ char* simGetStringProperty_internal(long long int target, const char* ppName)
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
+                    {
+                        printf("unknown string: %s\n", ppName);
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    }
                     else if ((p & 0xff) == sim_propertytype_string)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
                     else
@@ -6071,8 +6073,9 @@ int simAuxiliaryConsoleOpen_internal(const char* title, int maxLines, int mode, 
                 if (backgroundColor != nullptr)
                     bCol[i] = int(backgroundColor[i] * 255.1);
             }
-            retVal = GuiApp::mainWindow->codeEditorContainer->openConsole(title, maxLines, mode, position, size, tCol,
-                                                                          bCol, _currentScriptHandle);
+            retVal = GuiApp::mainWindow->codeEditorContainer->openConsole(title, maxLines, mode, position, size, tCol, bCol, _currentScriptHandle);
+            CApiErrors::getAndClearLastWarningOrError();
+            CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();
         }
 #endif
         return (retVal);
@@ -9251,56 +9254,38 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackId);
         if (stack != nullptr)
         {
-            if (script->getThreadedExecutionIsUnderWay_oldThreads())
-            { // very special handling here!
-                if (VThread::areThreadIdsSame(script->getThreadedScriptThreadId_old(), VThread::getCurrentThreadId()))
-                    retVal = script->callCustomScriptFunction(funcName.c_str(), stack);
-                else
-                { // we have to execute that function via another thread!
-                    void* d[4];
-                    int callType = 1;
-                    d[0] = &callType;
-                    d[1] = script;
-                    d[2] = (void*)funcName.c_str();
-                    d[3] = stack;
-                    retVal = CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(), d);
-                }
-            }
-            else
+            if (VThread::isSimThread())
             {
-                if (VThread::isSimThread())
+                if (script->getLang() == "lua")
                 {
-                    if (script->getLang() == "lua")
-                    {
-                        if (lang == sim_lang_python)
-                            funcName +=
-                                "@python"; // explicit python when Lua script --> generates an error further down
-                    }
-                    if (script->getLang() == "python")
-                    {
-                        if (lang == sim_lang_lua)
-                            funcName += "@lua"; // explicit lua when Python script
-                    }
+                    if (lang == sim_lang_python)
+                        funcName +=
+                            "@python"; // explicit python when Lua script --> generates an error further down
+                }
+                if (script->getLang() == "python")
+                {
+                    if (lang == sim_lang_lua)
+                        funcName += "@lua"; // explicit lua when Python script
+                }
 
-                    retVal = script->callCustomScriptFunction(funcName.c_str(), stack);
-                    if (stack->getStackSize() > 0)
-                    { // when the script is a Python script, we must check for other errors, since the call is handled
-                        // via sysCall_ext:
-                        CInterfaceStackObject* obj = stack->getStackObjectFromIndex(0);
-                        if (obj->getObjectType() == sim_stackitem_string)
+                retVal = script->callCustomScriptFunction(funcName.c_str(), stack);
+                if (stack->getStackSize() > 0)
+                { // when the script is a Python script, we must check for other errors, since the call is handled
+                    // via sysCall_ext:
+                    CInterfaceStackObject* obj = stack->getStackObjectFromIndex(0);
+                    if (obj->getObjectType() == sim_stackitem_string)
+                    {
+                        CInterfaceStackString* str = (CInterfaceStackString*)obj;
+                        std::string tmp(str->getValue(nullptr));
+                        if (tmp == "_*funcNotFound*_")
                         {
-                            CInterfaceStackString* str = (CInterfaceStackString*)obj;
-                            std::string tmp(str->getValue(nullptr));
-                            if (tmp == "_*funcNotFound*_")
-                            {
-                                retVal = 0;
-                                stack->clear();
-                            }
-                            if (tmp == "_*runtimeError*_")
-                            {
-                                retVal = -1;
-                                stack->clear();
-                            }
+                            retVal = 0;
+                            stack->clear();
+                        }
+                        if (tmp == "_*runtimeError*_")
+                        {
+                            retVal = -1;
+                            stack->clear();
                         }
                     }
                 }
@@ -11158,61 +11143,42 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
                 return (-1);
             }
             int retVal = -1; // error
-            if (script->getThreadedExecutionIsUnderWay_oldThreads())
-            { // OLD, very special handling here!
-                if (VThread::areThreadIdsSame(script->getThreadedScriptThreadId_old(), VThread::getCurrentThreadId()))
+            if (VThread::isSimThread())
+            { // For now we don't allow non-main threads to call non-threaded scripts!
+                if ((script->getLang() == "lua") || (lang == sim_lang_lua))
                     retVal = script->executeScriptString(stringToExec.c_str(), stack);
                 else
-                { // we have to execute that function via another thread!
-                    void* d[4];
-                    int callType = 3;
-                    d[0] = &callType;
-                    d[1] = script;
-                    d[2] = (void*)stringToExec.c_str();
-                    d[3] = stack;
-
-                    retVal = CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(), d);
-                }
-            }
-            else
-            {
-                if (VThread::isSimThread())
-                { // For now we don't allow non-main threads to call non-threaded scripts!
-                    if ((script->getLang() == "lua") || (lang == sim_lang_lua))
-                        retVal = script->executeScriptString(stringToExec.c_str(), stack);
-                    else
+                {
+                    if (script->getLang() == "python")
                     {
-                        if (script->getLang() == "python")
+                        if (script->getScriptState() == CScriptObject::scriptState_initialized)
                         {
-                            if (script->getScriptState() == CScriptObject::scriptState_initialized)
+                            CInterfaceStack* tmpStack = App::worldContainer->interfaceStackContainer->createStack();
+                            tmpStack->pushTextOntoStack(stringToExec.c_str());
+                            retVal = script->callCustomScriptFunction("_evalExecRet", tmpStack);
+                            if (stack != nullptr)
+                                stack->copyFrom(tmpStack);
+                            App::worldContainer->interfaceStackContainer->destroyStack(tmpStack);
+                            if (retVal == 1)
                             {
-                                CInterfaceStack* tmpStack = App::worldContainer->interfaceStackContainer->createStack();
-                                tmpStack->pushTextOntoStack(stringToExec.c_str());
-                                retVal = script->callCustomScriptFunction("_evalExecRet", tmpStack);
+                                retVal = 0;
                                 if (stack != nullptr)
-                                    stack->copyFrom(tmpStack);
-                                App::worldContainer->interfaceStackContainer->destroyStack(tmpStack);
-                                if (retVal == 1)
                                 {
-                                    retVal = 0;
-                                    if (stack != nullptr)
+                                    CInterfaceStackObject* obj = stack->getStackObjectFromIndex(0);
+                                    if (obj->getObjectType() == sim_stackitem_string)
                                     {
-                                        CInterfaceStackObject* obj = stack->getStackObjectFromIndex(0);
-                                        if (obj->getObjectType() == sim_stackitem_string)
-                                        {
-                                            CInterfaceStackString* str = (CInterfaceStackString*)obj;
-                                            std::string tmp(str->getValue(nullptr));
-                                            if (tmp == "_*empty*_")
-                                                stack->clear();
-                                        }
+                                        CInterfaceStackString* str = (CInterfaceStackString*)obj;
+                                        std::string tmp(str->getValue(nullptr));
+                                        if (tmp == "_*empty*_")
+                                            stack->clear();
                                     }
                                 }
-                                else
-                                    retVal = -1; // error
                             }
                             else
-                                retVal = -2; // script not initialized
+                                retVal = -1; // error
                         }
+                        else
+                            retVal = -2; // script not initialized
                     }
                 }
             }

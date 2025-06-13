@@ -449,8 +449,7 @@ void CWorldContainer::callScripts(int callType, CInterfaceStack* inStack, CInter
     bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
     if (CScriptObject::isSystemCallbackInReverseOrder(callType))
     { // reverse order
-        if ((sandboxScript != nullptr) &&
-            (sandboxScript->hasSystemFunctionOrHook(callType) || sandboxScript->getOldCallMode()))
+        if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
         {
             if (scriptToExclude != sandboxScript->getScriptHandle())
                 sandboxScript->systemCallScript(callType, inStack, outStack);
@@ -471,8 +470,7 @@ void CWorldContainer::callScripts(int callType, CInterfaceStack* inStack, CInter
             addOnScriptContainer->callScripts(callType, inStack, outStack, scriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
-            if ((sandboxScript != nullptr) &&
-                (sandboxScript->hasSystemFunctionOrHook(callType) || sandboxScript->getOldCallMode()))
+            if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
             {
                 if (scriptToExclude != sandboxScript->getScriptHandle())
                     sandboxScript->systemCallScript(callType, inStack, outStack);

@@ -2273,14 +2273,11 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
-                if ((scriptType == sim_scripttype_simulation) || (it->getThreadedExecution_oldThreads() == ((scriptType & sim_scripttype_threaded_old) != 0)))
-                { // take also old, threaded scripts into account!
-                    SScriptInfo s;
-                    s.scriptHandle = it->getScriptHandle();
-                    s.depth = depth;
-                    scripts.push_back(s);
-                    maxDepth = depth;
-                }
+                SScriptInfo s;
+                s.scriptHandle = it->getScriptHandle();
+                s.depth = depth;
+                scripts.push_back(s);
+                maxDepth = depth;
             }
         }
 
@@ -2321,7 +2318,7 @@ size_t CSceneObject::getAttachedScripts(std::vector<CScriptObject*>& scripts, in
             if (legacyEmbeddedScripts)
             {
                 CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
-                if ((it != nullptr) && (!it->getScriptIsDisabled()) && (!it->getThreadedExecution_oldThreads()))
+                if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
                         scripts.push_back(it);
@@ -2375,7 +2372,7 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
             if (legacyEmbeddedScripts)
             {
                 CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
-                if ((it != nullptr) && (!it->getScriptIsDisabled()) && (!it->getThreadedExecution_oldThreads()))
+                if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
                         scripts.push_back(it->getScriptHandle());

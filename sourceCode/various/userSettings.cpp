@@ -2,7 +2,6 @@
 #include <simInternal.h>
 #include <userSettings.h>
 #include <global.h>
-#include <threadPool_old.h>
 #include <tt.h>
 #include <vVarious.h>
 #include <app.h>
@@ -79,8 +78,6 @@
 #define _USR_USEBUFFERS "useBuffers"
 #define _USR_SCRIPTCONVERSION "scriptConversion"
 #define _USR_NOTIFY_DEPRECATED "notifyDeprecated"
-#define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
-#define _USR_SUPPORT_old_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
 #define _USR_ALLOW_old_EDU_RELEASE "allowOldEduRelease"
 #define _USR_THREADED_SCRIPTS_GRACE_TIME "threadedScriptsStoppingGraceTime"
@@ -275,8 +272,6 @@ CUserSettings::CUserSettings()
     disableVisibleEdges = false;
     showOldDlgs = false;
     enableOldRenderableBehaviour = false;
-    keepOldThreadedScripts = false;
-    supportOldApiNotation = true;
     enableOldMirrorObjects = false;
     allowOldEduRelease = -1;
     threadedScriptsStoppingGraceTime = 0;
@@ -629,8 +624,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
 
         c.addBoolean(_USR_SHOW_old_DLGS, showOldDlgs, "");
         // c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
-        // c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
-        c.addBoolean(_USR_SUPPORT_old_API_NOTATION, supportOldApiNotation, "");
         // c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
         // c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
         c.addInteger(_USR_READDELAY, readDelay, "");
@@ -909,8 +902,6 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DISABLE_VISIBLE_EDGES, disableVisibleEdges);
     c.getBoolean(_USR_SHOW_old_DLGS, showOldDlgs);
     c.getBoolean(_USR_ENABLE_OLD_RENDERABLE, enableOldRenderableBehaviour);
-    c.getBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS, keepOldThreadedScripts);
-    c.getBoolean(_USR_SUPPORT_old_API_NOTATION, supportOldApiNotation);
     c.getBoolean(_USR_ENABLE_old_MIRROR_OBJECTS, enableOldMirrorObjects);
     c.getInteger(_USR_ALLOW_old_EDU_RELEASE, allowOldEduRelease);
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME, threadedScriptsStoppingGraceTime);

@@ -1,7 +1,6 @@
 #include <simInternal.h>
 #include <tt.h>
 #include <vVarious.h>
-#include <threadPool_old.h>
 #include <vFileFinder.h>
 #include <simStrings.h>
 #include <app.h>
@@ -213,7 +212,6 @@ void CAddOnScriptContainer::_insertAdditionalAddOns()
                 defScript->setScriptText(sc.c_str());
 
                 defScript->setDisplayAddOnName(fileName_noExtension.c_str());
-                defScript->setThreadedExecution_oldThreads(false);
 
                 delete[] script;
                 archive.close();
@@ -319,7 +317,7 @@ int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack* inStack, C
         CScriptObject* it = scripts[i];
         if (it->getScriptHandle() != scriptToExclude)
         {
-            if (it->hasSystemFunctionOrHook(callType) || it->getOldCallMode())
+            if (it->hasSystemFunctionOrHook(callType))
             {
                 if (it->systemCallScript(callType, inStack, outStack) == 1)
                     retVal++;
@@ -454,7 +452,6 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                             int scriptID = _insertAddOn(defScript);
                             defScript->setScriptText(script);
                             defScript->setDisplayAddOnName(_allAddOnFunctionNames_old[index].c_str());
-                            defScript->setThreadedExecution_oldThreads(false);
                             defScript->systemCallScript(sim_syscb_init, nullptr, nullptr);
                             delete[] script;
                             archive.close();

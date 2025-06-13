@@ -2,7 +2,6 @@
 #include <embeddedScriptContainer.h>
 #include <tt.h>
 #include <vVarious.h>
-#include <threadPool_old.h>
 #include <vFileFinder.h>
 #include <simStrings.h>
 #include <app.h>
@@ -23,10 +22,6 @@ CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
 { // beware, the current world could be nullptr
     removeAllScripts();
-    for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_new.size(); i++)
-        delete _callbackStructureToDestroyAtEndOfSimulation_new[i];
-    for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_old.size(); i++)
-        delete _callbackStructureToDestroyAtEndOfSimulation_old[i];
     broadcastDataContainer.eraseAllObjects();
 }
 
@@ -70,12 +65,6 @@ void CEmbeddedScriptContainer::simulationEnded()
     broadcastDataContainer.simulationEnded();
     removeDestroyedScripts(sim_scripttype_main);
     removeDestroyedScripts(sim_scripttype_simulation);
-    for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_new.size(); i++)
-        delete _callbackStructureToDestroyAtEndOfSimulation_new[i];
-    _callbackStructureToDestroyAtEndOfSimulation_new.clear();
-    for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_old.size(); i++)
-        delete _callbackStructureToDestroyAtEndOfSimulation_old[i];
-    _callbackStructureToDestroyAtEndOfSimulation_old.clear();
     //  if (_initialValuesInitialized)
     //  {
     //  }
@@ -91,15 +80,6 @@ void CEmbeddedScriptContainer::simulationAboutToEnd()
         if (ms != allScripts[i])
             allScripts[i]->simulationAboutToEnd(); // destroys simulation script states
     }
-}
-
-void CEmbeddedScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object)
-{
-    _callbackStructureToDestroyAtEndOfSimulation_new.push_back(object);
-}
-void CEmbeddedScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object)
-{
-    _callbackStructureToDestroyAtEndOfSimulation_old.push_back(object);
 }
 
 void CEmbeddedScriptContainer::resetScriptFlagCalledInThisSimulationStep()
@@ -120,10 +100,7 @@ int CEmbeddedScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onl
                 if (allScripts[i]->getScriptType() == sim_scripttype_main)
                     cnt++;
                 if (allScripts[i]->getScriptType() == sim_scripttype_simulation)
-                {
-                    if (!allScripts[i]->getThreadedExecution_oldThreads()) // ignore old threaded scripts
-                        cnt++;
-                }
+                    cnt++;
             }
             else
                 cnt++;
@@ -140,16 +117,12 @@ int CEmbeddedScriptContainer::removeDestroyedScripts(int scriptType)
     {
         if ((allScripts[i]->getScriptType() == scriptType) && allScripts[i]->getFlaggedForDestruction())
         {
-            if ((!allScripts[i]->getThreadedExecution_oldThreads()) ||
-                (!allScripts[i]->getThreadedExecutionIsUnderWay_oldThreads()))
-            {
-                retVal++;
-                CScriptObject* it = allScripts[i];
-                it->resetScript(); // should not be done in the destructor!
-                allScripts.erase(allScripts.begin() + i);
-                i--;
-                CScriptObject::destroy(it, true);
-            }
+            retVal++;
+            CScriptObject* it = allScripts[i];
+            it->resetScript(); // should not be done in the destructor!
+            allScripts.erase(allScripts.begin() + i);
+            i--;
+            CScriptObject::destroy(it, true);
         }
     }
     return (retVal);
@@ -330,11 +303,8 @@ int CEmbeddedScriptContainer::insertScript(CScriptObject* script)
     return (script->getScriptHandle());
 }
 
-int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded, bool lua,
-                                                  bool oldThreadedScript /*=false*/)
+int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded, bool lua)
 {
-    if (scriptType != sim_scripttype_simulation)
-        oldThreadedScript = false; // just to make sure
     int retVal = -1;
     std::string filenameAndPath(App::folders->getSystemPath() + "/");
 
@@ -348,15 +318,10 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
     }
     if (scriptType == sim_scripttype_simulation)
     {
-        if (oldThreadedScript)
-            filenameAndPath += DEFAULT_THREADEDCHILDSCRIPTOLD;
+        if (threaded)
+            filenameAndPath += DEFAULT_THREADEDCHILDSCRIPT;
         else
-        {
-            if (threaded)
-                filenameAndPath += DEFAULT_THREADEDCHILDSCRIPT;
-            else
-                filenameAndPath += DEFAULT_NONTHREADEDCHILDSCRIPT;
-        }
+            filenameAndPath += DEFAULT_NONTHREADEDCHILDSCRIPT;
     }
     if (scriptType == sim_scripttype_customization)
     {
@@ -394,11 +359,6 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
                 defScript->setLang(lang.c_str());
                 retVal = insertScript(defScript);
                 defScript->setScriptText(defaultScript);
-                if (oldThreadedScript)
-                {
-                    defScript->setThreadedExecution_oldThreads(true);
-                    defScript->setExecuteJustOnce_oldThreads(true);
-                }
                 delete[] defaultScript;
                 archive.close();
                 file.close();
@@ -412,11 +372,6 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
                 defScript->setLang(lang.c_str());
                 retVal = insertScript(defScript);
                 defScript->setScriptText(defaultMessage);
-                if (oldThreadedScript)
-                {
-                    defScript->setThreadedExecution_oldThreads(true);
-                    defScript->setExecuteJustOnce_oldThreads(true);
-                }
             }
         }
         else
@@ -426,11 +381,6 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
             CScriptObject* defScript = new CScriptObject(scriptType);
             retVal = insertScript(defScript);
             defScript->setScriptText(defaultMessage);
-            if (oldThreadedScript)
-            {
-                defScript->setThreadedExecution_oldThreads(true);
-                defScript->setExecuteJustOnce_oldThreads(true);
-            }
         }
     }
 #ifdef SIM_WITH_GUI
@@ -536,17 +486,7 @@ int CEmbeddedScriptContainer::callLegacyScripts(int scriptType, int callTypeOrRe
         CScriptObject* script = getScriptObjectFromHandle(scriptHandles[i]);
         if ((script != nullptr) && (script->getScriptHandle() != scriptToExclude))
         { // the script could have been erased in the mean time
-            if (script->getThreadedExecution_oldThreads())
-            { // is an old, threaded script
-                if (callTypeOrResumeLocation == sim_scriptthreadresume_launch)
-                {
-                    if (script->launchThreadedChildScript_oldThreads())
-                        cnt++;
-                }
-                else
-                    cnt += script->resumeThreadedChildScriptIfLocationMatch_oldThreads(callTypeOrResumeLocation);
-            }
-            else if (script->hasSystemFunctionOrHook(callTypeOrResumeLocation) || script->getOldCallMode())
+            if (script->hasSystemFunctionOrHook(callTypeOrResumeLocation))
             { // has the function
                 if (script->systemCallScript(callTypeOrResumeLocation, inStack, outStack) == 1)
                 {

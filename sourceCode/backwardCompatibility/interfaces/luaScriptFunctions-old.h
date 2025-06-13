@@ -11,8 +11,6 @@ void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State* L, int dataType, in
                                           int& boolDataPos, int* intData, int& intDataPos, float* floatData,
                                           int& floatDataPos, double* doubleData, int& doubleDataPos, char* stringData,
                                           int& stringDataPos, char* charData, int& charDataPos);
-const extern SLuaCommands simLuaCommandsOldApi[];
-const extern SLuaVariables simLuaVariablesOldApi[];
 extern int _simIsDeprecated(luaWrap_lua_State* L);
 extern int _simAddStatusbarMessage(luaWrap_lua_State* L);
 extern int _simGetNameSuffix(luaWrap_lua_State* L);
@@ -28,9 +26,7 @@ extern int _simHandleVarious(luaWrap_lua_State* L);
 extern int _simGetInstanceIndex(luaWrap_lua_State* L);
 extern int _simGetVisibleInstanceIndex(luaWrap_lua_State* L);
 extern int _simResetPath(luaWrap_lua_State* L);
-extern int _simHandlePath(luaWrap_lua_State* L);
 extern int _simResetJoint(luaWrap_lua_State* L);
-extern int _simHandleJoint(luaWrap_lua_State* L);
 extern int _simGetMpConfigForTipPose(luaWrap_lua_State* L);
 extern int _simEnableWorkThreads(luaWrap_lua_State* L);
 extern int _simWaitForWorkThreads(luaWrap_lua_State* L);

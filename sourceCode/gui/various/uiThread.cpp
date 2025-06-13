@@ -5,7 +5,6 @@
 #include <fileOperations.h>
 #include <persistentDataContainer.h>
 #include <tt.h>
-#include <threadPool_old.h>
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <sceneObjectOperations.h>

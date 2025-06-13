@@ -1687,28 +1687,9 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char* functionN
     if (script != nullptr)
     {
         int retVal = -1; // error
-        if (script->getThreadedExecutionIsUnderWay_oldThreads())
-        { // very special handling here!
-            if (VThread::areThreadIdsSame(script->getThreadedScriptThreadId_old(), VThread::getCurrentThreadId()))
-                retVal = script->callScriptFunction_DEPRECATED(funcName.c_str(), data);
-            else
-            { // we have to execute that function via another thread!
-                void* d[4];
-                int callType = 0;
-                d[0] = &callType;
-                d[1] = script;
-                d[2] = (void*)funcName.c_str();
-                d[3] = data;
-
-                retVal = CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(), d);
-            }
-        }
-        else
-        {
-            if (VThread::isSimThread())
-            { // For now we don't allow non-main threads to call non-threaded scripts!
-                retVal = script->callScriptFunction_DEPRECATED(funcName.c_str(), data);
-            }
+        if (VThread::isSimThread())
+        { // For now we don't allow non-main threads to call non-threaded scripts!
+            retVal = script->callScriptFunction_DEPRECATED(funcName.c_str(), data);
         }
         if (retVal == -1)
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
@@ -2520,8 +2501,6 @@ int simSetThreadIsFree_internal(bool freeMode)
         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CANNOT_BE_CALLED_FROM_MAIN_THREAD);
         return (-1);
     }
-    if (CThreadPool_old::setThreadFreeMode(freeMode != 0))
-        return (1);
     return (0);
 }
 
@@ -3100,11 +3079,6 @@ int simGetThreadId_internal()
 int simSwitchThread_internal()
 { // deprecated on 01.10.2020
     C_API_START;
-    if (CThreadPool_old::getThreadAutomaticSwitch())
-    { // Important: when a script forbids thread switching, we don't want that a plugin switches anyways
-        if (CThreadPool_old::switchBackToPreviousThread())
-            return (1);
-    }
     return (0);
 }
 
@@ -4155,28 +4129,9 @@ int simSetScriptVariable_internal(int scriptHandleOrType, const char* variableNa
                 return (-1);
             }
             int retVal = -1; // error
-            if (script->getThreadedExecutionIsUnderWay_oldThreads())
-            { // very special handling here!
-                if (VThread::areThreadIdsSame(script->getThreadedScriptThreadId_old(), VThread::getCurrentThreadId()))
-                    retVal = script->setScriptVariable_old(variableName.c_str(), stack);
-                else
-                { // we have to execute that function via another thread!
-                    void* d[4];
-                    int callType = 2;
-                    d[0] = &callType;
-                    d[1] = script;
-                    d[2] = (void*)variableName.c_str();
-                    d[3] = stack;
-
-                    retVal = CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(), d);
-                }
-            }
-            else
-            {
-                if (VThread::isSimThread())
-                { // For now we don't allow non-main threads to call non-threaded scripts!
-                    retVal = script->setScriptVariable_old(variableName.c_str(), stack);
-                }
+            if (VThread::isSimThread())
+            { // For now we don't allow non-main threads to call non-threaded scripts!
+                retVal = script->setScriptVariable_old(variableName.c_str(), stack);
             }
 
             if (retVal == -1)
@@ -5089,8 +5044,7 @@ int simSetScriptAttribute_internal(int scriptHandle, int attributeID, double flo
             it->setNumberOfPasses(intOrBoolVal);
             retVal = 1;
         }
-        if ((attributeID == sim_childscriptattribute_automaticcascadingcalls) &&
-            (it->getScriptType() == sim_scripttype_simulation) && (!it->getThreadedExecution_oldThreads()))
+        if ( (attributeID == sim_childscriptattribute_automaticcascadingcalls) && (it->getScriptType() == sim_scripttype_simulation) )
         {
             it->setAutomaticCascadingCallsDisabled_old(intOrBoolVal == 0);
             retVal = 1;
@@ -5140,8 +5094,7 @@ int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double* fl
                 intOrBoolVal[0] = 0;
             retVal = 1;
         }
-        if ((attributeID == sim_childscriptattribute_automaticcascadingcalls) &&
-            (it->getScriptType() == sim_scripttype_simulation) && (!it->getThreadedExecution_oldThreads()))
+        if ( (attributeID == sim_childscriptattribute_automaticcascadingcalls) && (it->getScriptType() == sim_scripttype_simulation) )
         {
             if (it->getAutomaticCascadingCallsDisabled_old())
                 intOrBoolVal[0] = 0;
@@ -5167,8 +5120,6 @@ int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double* fl
         if (attributeID == sim_scriptattribute_scripttype)
         {
             intOrBoolVal[0] = it->getScriptType();
-            if (it->getThreadedExecution_oldThreads())
-                intOrBoolVal[0] |= sim_scripttype_threaded_old;
             retVal = 1;
         }
         if (attributeID == sim_scriptattribute_scripthandle)
@@ -5201,9 +5152,7 @@ int simSetScriptText_internal(int scriptHandle, const char* scriptText)
             GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(it->getScriptUid(), nullptr, true);
 #endif
         it->setScriptText(scriptText);
-        if ((it->getScriptType() != sim_scripttype_simulation) || (!it->getThreadedExecution_oldThreads()) ||
-            App::currentWorld->simulation->isSimulationStopped())
-            it->resetScript();
+        it->resetScript();
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -5255,8 +5204,6 @@ int simGetScriptProperty_internal(int scriptHandle, int* scriptProperty, int* as
         }
         scriptProperty[0] = it->getScriptType();
         associatedObjectHandle[0] = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation);
-        if (it->getThreadedExecution_oldThreads())
-            scriptProperty[0] |= sim_scripttype_threaded_old;
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -6225,9 +6172,7 @@ int simHandleMainScript_internal()
         {
             App::worldContainer->calcInfo->simulationPassStart();
 
-            App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(
-                App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
-            CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript();
+            App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
 
             if (it->systemCallMainScript(-1, nullptr, nullptr) > 0)
                 retVal = sim_script_no_error;
@@ -6320,18 +6265,10 @@ int simAddScript_internal(int scriptProperty)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int scriptType = scriptProperty;
-        if (scriptProperty & sim_scripttype_threaded_old)
-            scriptType = scriptProperty - sim_scripttype_threaded_old;
+        if (scriptProperty & 0x00f0) // old threaded scripts
+            scriptType = scriptProperty - 0x00f0;
         CScriptObject* it = new CScriptObject(scriptType);
         it->setLang("lua");
-        if (App::userSettings->keepOldThreadedScripts)
-        {
-            if (scriptProperty & sim_scripttype_threaded_old)
-            {
-                it->setThreadedExecution_oldThreads(true);
-                it->setExecuteJustOnce_oldThreads(true);
-            }
-        }
         int retVal = App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(it);
 #ifdef SIM_WITH_GUI
         GuiApp::setFullDialogRefreshFlag();
@@ -6411,8 +6348,6 @@ int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int* para
         if (parameterID == sim_scriptintparam_type)
         {
             parameter[0] = it->getScriptType();
-            if (it->getThreadedExecution_oldThreads())
-                parameter[0] |= sim_scripttype_threaded_old;
             retVal = 1;
         }
         if (parameterID == sim_scriptintparam_handle)

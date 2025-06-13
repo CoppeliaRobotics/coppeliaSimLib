@@ -2,7 +2,6 @@
 #include <toolBarCommand.h>
 #include <simulation.h>
 #include <oglSurface.h>
-#include <threadPool_old.h>
 #include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 #include <app.h>

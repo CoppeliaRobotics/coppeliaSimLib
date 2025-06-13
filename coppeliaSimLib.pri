@@ -391,7 +391,6 @@ HEADERS += $$PWD/sourceCode/backwardCompatibility/kinematics/ikGroup_old.h \
     $$PWD/sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.h \
     $$PWD/sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomFunction.h \
     $$PWD/sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomVariable.h \
-    $$PWD/sourceCode/backwardCompatibility/utils/threadPool_old.h \
     $$PWD/sourceCode/backwardCompatibility/various/memorizedConf_old.h \
     $$PWD/sourceCode/backwardCompatibility/various/ghostObject.h \
 
@@ -773,7 +772,6 @@ SOURCES += $$PWD/sourceCode/backwardCompatibility/kinematics/ikGroup_old.cpp \
     $$PWD/sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.cpp \
     $$PWD/sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomFunction.cpp \
     $$PWD/sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomVariable.cpp \
-    $$PWD/sourceCode/backwardCompatibility/utils/threadPool_old.cpp \
     $$PWD/sourceCode/backwardCompatibility/various/memorizedConf_old.cpp \
     $$PWD/sourceCode/backwardCompatibility/various/ghostObject.cpp \
 

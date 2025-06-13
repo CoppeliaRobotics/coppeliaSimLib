@@ -30,7 +30,7 @@ class CEmbeddedScriptContainer
 
     void pushObjectGenesisEvents() const;
     void killAllSimulationLuaStates();
-    int insertDefaultScript(int scriptType, bool threaded, bool lua, bool oldThreadedScript = false);
+    int insertDefaultScript(int scriptType, bool threaded, bool lua);
     const std::vector<int>* getObjectIdsWhereDynCallbackFunctionsAvailable() const;
 
     int removeDestroyedScripts(int scriptType);
@@ -38,8 +38,6 @@ class CEmbeddedScriptContainer
     int getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts);
     void setScriptsTemporarilySuspended(bool suspended);
 
-    void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object);
-    void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object);
     bool addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4,
                                           const double aux2Vals[8], int aux2Count);
 
@@ -63,6 +61,4 @@ class CEmbeddedScriptContainer
     int _sysFuncAndHookCnt_dyn;
     int _sysFuncAndHookCnt_contact;
     int _sysFuncAndHookCnt_joint;
-    std::vector<SScriptCallBack*> _callbackStructureToDestroyAtEndOfSimulation_new;
-    std::vector<SLuaCallBack*> _callbackStructureToDestroyAtEndOfSimulation_old;
 };

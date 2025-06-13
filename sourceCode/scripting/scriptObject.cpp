@@ -21,9 +21,6 @@
 #include <guiApp.h>
 #endif
 
-// Old:
-#include <threadPool_old.h>
-
 #define BASE_SANDBOX_SCRIPT "sandboxScriptBase.lua"
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
@@ -52,10 +49,7 @@ CScriptObject::CScriptObject(int scriptType)
 
     // Old
     // ***********************************************************
-    _threadedExecution_oldThreads = false;
-    _executeJustOnce_oldThreads = false;
     _automaticCascadingCallsDisabled_old = false;
-    _threadedExecutionUnderWay_oldThreads = false;
     _mainScriptIsDefaultMainScript_old = false;
     _custScriptDisabledDSim_compatibilityMode_DEPRECATED = false;
     _customizationScriptCleanupBeforeSave_DEPRECATED = false;
@@ -65,7 +59,6 @@ CScriptObject::CScriptObject(int scriptType)
     _warning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016 = false;
     _warning_simFindIkPath_oldCompatibility_2_2_2016 = false;
     _scriptParameters_backCompatibility = new CUserParameters();
-    _compatibilityMode_oldLua = false;
     _customObjectData_old = nullptr;
     _customObjectData_tempData_old = nullptr;
     _executionPriority_old = sim_scriptexecorder_normal;
@@ -1025,23 +1018,13 @@ bool CScriptObject::hasSystemFunction(int callType, bool returnTrueIfNotInitiali
 { // when the script is not initialized, we need to return true
     if (returnTrueIfNotInitialized && (_scriptState != scriptState_initialized))
         return (true);
-    return (_containedSystemCallbacks[callType]); //  ||_compatibilityMode_oldLua );
+    return (_containedSystemCallbacks[callType]);
 }
 
 bool CScriptObject::hasSystemFunctionOrHook(int callType) const
 {
     std::string tmp(getSystemCallbackString(callType, 0));
     return (hasSystemFunction(callType) || hasFunctionHook(tmp.c_str()));
-}
-
-bool CScriptObject::getOldCallMode() const
-{
-    return (_compatibilityMode_oldLua);
-}
-
-void CScriptObject::setOldCallMode()
-{
-    _compatibilityMode_oldLua = true;
 }
 
 void CScriptObject::setTemporarilySuspended(bool s)
@@ -1451,12 +1434,7 @@ std::string CScriptObject::getDescriptiveName() const
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
     {
         if (_scriptType == sim_scripttype_simulation)
-        {
-            if (_threadedExecution_oldThreads)
-                retVal += "Simulation script, threaded (deprecated, compatibility version)";
-            else
-                retVal += "Simulation script";
-        }
+            retVal += "Simulation script";
         else if (_scriptType == sim_scripttype_customization)
             retVal += "Customization script";
         else
@@ -1556,10 +1534,6 @@ bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject* object, 
             closeCodeEditor = true;
             _flaggedForDestruction = true;
             retVal = (_executionDepth == 0);
-
-            // Old:
-            if (_threadedExecution_oldThreads)
-                _sceneObjectHandle = -1;
         }
         if (closeCodeEditor)
         {
@@ -1638,32 +1612,26 @@ int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceSt
     TRACE_INTERNAL;
 
     int retVal = -1;
-    if (!CThreadPool_old::getSimulationEmergencyStop())
+    if (optionalCallType == -1)
     {
-        if (optionalCallType == -1)
-        {
-            App::currentWorld->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
-            int startT = int(VDateTime::getTimeInMs());
+        App::currentWorld->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
+        int startT = int(VDateTime::getTimeInMs());
 
-            if (App::currentWorld->simulation->getSimulationState() == sim_simulation_advancing_firstafterstop)
-                retVal = systemCallScript(sim_syscb_init, inStack, outStack);
+        if (App::currentWorld->simulation->getSimulationState() == sim_simulation_advancing_firstafterstop)
+            retVal = systemCallScript(sim_syscb_init, inStack, outStack);
 
-            retVal = systemCallScript(sim_syscb_actuation, inStack, outStack);
-            App::worldContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
-            retVal = systemCallScript(sim_syscb_sensing, inStack, outStack);
+        retVal = systemCallScript(sim_syscb_actuation, inStack, outStack);
+        App::worldContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
+        retVal = systemCallScript(sim_syscb_sensing, inStack, outStack);
 
-            if (App::currentWorld->simulation->getSimulationState() == sim_simulation_advancing_lastbeforestop)
-                retVal = systemCallScript(sim_syscb_cleanup, inStack, outStack);
+        if (App::currentWorld->simulation->getSimulationState() == sim_simulation_advancing_lastbeforestop)
+            retVal = systemCallScript(sim_syscb_cleanup, inStack, outStack);
 
-            App::worldContainer->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs()) - startT);
-            App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->sceneObjects->getCalledScriptsCountInThisSimulationStep(true));
-        }
-        else
-            retVal = systemCallScript(optionalCallType, inStack, outStack);
+        App::worldContainer->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs()) - startT);
+        App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->sceneObjects->getCalledScriptsCountInThisSimulationStep(true));
     }
     else
-        CThreadPool_old::handleAllThreads_withResumeLocation(-1); // Backward compatibility with old threads
-
+        retVal = systemCallScript(optionalCallType, inStack, outStack);
     return (retVal);
 }
 
@@ -1715,29 +1683,18 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack* inStack
             else
                 retVal = _callSystemScriptFunction(sim_syscb_init, nullptr, nullptr); // implicit call
         }
-        if (((_scriptState & 7) == scriptState_initialized) && (callType != sim_syscb_info) &&
-            (callType != sim_syscb_init))
+        if (((_scriptState & 7) == scriptState_initialized) && (callType != sim_syscb_info) && (callType != sim_syscb_init))
         { // Execute the script call
-            if (_compatibilityMode_oldLua)
-            { // Backward compatibility
-                if (_callScriptChunk_old(callType, inStack, outStack))
-                    retVal = 1;
-                else
-                    retVal = -1;
-            }
-            else
-            { // Regular system function calls
-                if (((_scriptState & scriptState_error) == 0) || (callType == sim_syscb_cleanup))
+            if (((_scriptState & scriptState_error) == 0) || (callType == sim_syscb_cleanup))
+            {
+                if ((callType != sim_syscb_event) || hasSystemFunctionOrHook(sim_syscb_event))
                 {
-                    if ((callType != sim_syscb_event) || hasSystemFunctionOrHook(sim_syscb_event))
-                    {
-                        retVal = _callSystemScriptFunction(callType, inStack, outStack);
-                        if (_scriptType == sim_scripttype_sandbox)
-                            setScriptState(_scriptState & 7); // remove a possible error flag
-                    }
-                    else
-                        retVal = 0;
+                    retVal = _callSystemScriptFunction(callType, inStack, outStack);
+                    if (_scriptType == sim_scripttype_sandbox)
+                        setScriptState(_scriptState & 7); // remove a possible error flag
                 }
+                else
+                    retVal = 0;
             }
         }
     }
@@ -1942,8 +1899,7 @@ int CScriptObject::___loadCode(const char* code, const char* functionsToFind, st
         { // here we check if we can enable the new calling method:
             retVal = 1;
 
-            // base.lua already checked for usage of "sim.syscb_init" and similar consts, and possibly set
-            // _compatibilityMode_oldLua to true in the chunk execution)
+            // base.lua already checked for usage of "sim.syscb_init" and similar consts
 
             // We check if any of the system callback function is present to rule out compatibility mode:
             bool foundCallbackMech = false;
@@ -1957,39 +1913,16 @@ int CScriptObject::___loadCode(const char* code, const char* functionsToFind, st
                 if (foundCallbackMech)
                     break;
             }
-            if (foundCallbackMech)
-                _compatibilityMode_oldLua = false;
 
-            // Remember that function hooks will also be installed with old scripts, so we can't imply
-            // with their presence that we have new scripts:
-            //            if (
-            //            _compatibilityMode_oldLua&&(_functionHooks_before.size()+_functionHooks_after.size()>_initFunctionHookCount)
-            //            )
-            //                _compatibilityMode_oldLua=false;
-
-            if (_compatibilityMode_oldLua)
-            {
-                std::string msg("the script is running in compatibility mode. It is highly recommended to switch to "
-                                "the new calling method, e.g.:");
-                msg += "\nwith the old method: if sim_call_type==sim.syscb_init then ... end";
-                msg += "\nwith the new method: function sysCall_init() ... end";
-                App::logScriptMsg(this, sim_verbosity_scriptwarnings, msg.c_str());
-            }
-            else
-                _execSimpleString_safe_lua(L, "sim_call_type=nil");
+            _execSimpleString_safe_lua(L, "sim_call_type=nil");
             size_t off = 0;
             size_t l = strlen(functionsToFind + off);
             size_t cnt = 0;
             while (l != 0)
             {
-                if (_compatibilityMode_oldLua)
-                    functionsFound[cnt++] = false;
-                else
-                {
-                    luaWrap_lua_getglobal(L, functionsToFind + off);
-                    functionsFound[cnt++] = (luaWrap_lua_isfunction(L, -1) || hasFunctionHook(functionsToFind + off));
-                    luaWrap_lua_pop(L, 1);
-                }
+                luaWrap_lua_getglobal(L, functionsToFind + off);
+                functionsFound[cnt++] = (luaWrap_lua_isfunction(L, -1) || hasFunctionHook(functionsToFind + off));
+                luaWrap_lua_pop(L, 1);
                 off += l + 1;
                 l = strlen(functionsToFind + off);
             }
@@ -2042,27 +1975,19 @@ bool CScriptObject::_loadCode()
 #ifdef SIM_WITH_GUI
                     GuiApp::setRefreshHierarchyViewFlag();
 #endif
-                    if (_compatibilityMode_oldLua)
-                    {
-                        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState, "_S.sysCallEx_init()");
-                        setScriptState(scriptState_initialized);
-                    }
-                    else
-                    {
-                        setScriptState(scriptState_uninitialized);
-                        // Following because below funcs are speed-sensitive:
-                        if (hasSystemFunction(sim_syscb_event, false))
-                            setFuncAndHookCnt(sim_syscb_event, 0, 1);
-                        if ((hasSystemFunction(sim_syscb_dyn, false)) ||
-                            (hasSystemFunction(sim_syscb_dyncallback, false)))
-                            setFuncAndHookCnt(sim_syscb_dyn, 0, 1);
-                        if ((hasSystemFunction(sim_syscb_contact, false)) ||
-                            (hasSystemFunction(sim_syscb_contactcallback, false)))
-                            setFuncAndHookCnt(sim_syscb_contact, 0, 1);
-                        if ((hasSystemFunction(sim_syscb_joint, false)) ||
-                            (hasSystemFunction(sim_syscb_jointcallback, false)))
-                            setFuncAndHookCnt(sim_syscb_joint, 0, 1);
-                    }
+                    setScriptState(scriptState_uninitialized);
+                    // Following because below funcs are speed-sensitive:
+                    if (hasSystemFunction(sim_syscb_event, false))
+                        setFuncAndHookCnt(sim_syscb_event, 0, 1);
+                    if ((hasSystemFunction(sim_syscb_dyn, false)) ||
+                        (hasSystemFunction(sim_syscb_dyncallback, false)))
+                        setFuncAndHookCnt(sim_syscb_dyn, 0, 1);
+                    if ((hasSystemFunction(sim_syscb_contact, false)) ||
+                        (hasSystemFunction(sim_syscb_contactcallback, false)))
+                        setFuncAndHookCnt(sim_syscb_contact, 0, 1);
+                    if ((hasSystemFunction(sim_syscb_joint, false)) ||
+                        (hasSystemFunction(sim_syscb_jointcallback, false)))
+                        setFuncAndHookCnt(sim_syscb_joint, 0, 1);
                 }
                 setNumberOfPasses(_numberOfPasses + 1);
             }
@@ -2086,9 +2011,6 @@ bool CScriptObject::_loadCode()
 
 int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // retval: -1: runtimeError, 0: function not there or not called, 1: ok
-    if (_compatibilityMode_oldLua)
-        return (0);
-
     if (callType == sim_syscb_info)
     {
         if (_scriptState != scriptState_uninitialized)
@@ -2667,9 +2589,7 @@ bool CScriptObject::_killInterpreterState()
     _functionHooks_after.clear();
 
     _loadBufferResult_lua = -1;
-    _compatibilityMode_oldLua = false;
-    if (!_threadedExecution_oldThreads) // those could run several times
-        setNumberOfPasses(0);
+    setNumberOfPasses(0);
 #ifdef SIM_WITH_GUI
     GuiApp::setRefreshHierarchyViewFlag();
 #endif
@@ -2706,7 +2626,6 @@ CScriptObject* CScriptObject::copyYourself()
     // it->_scriptHandle=_scriptHandle;
     it->_tempSuspended = true;
     it->_sceneObjectHandle = _sceneObjectHandle;
-    it->_threadedExecution_oldThreads = _threadedExecution_oldThreads;
     it->_scriptIsDisabled = _scriptIsDisabled;
     it->_parentIsProxy = _parentIsProxy;
     it->setScriptText(getScriptText());
@@ -2714,7 +2633,6 @@ CScriptObject* CScriptObject::copyYourself()
     it->_scriptObjectInitialValuesInitialized = _scriptObjectInitialValuesInitialized;
     it->_addOnExecPriority = _addOnExecPriority;
 
-    it->_executeJustOnce_oldThreads = _executeJustOnce_oldThreads;
     it->_executionPriority_old = _executionPriority_old;
     delete it->_customObjectData_old;
     it->_customObjectData_old = nullptr;
@@ -3082,10 +3000,10 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     luaWrap_lua_pop(L, 1);
     // --------------------------------------------
 
-    _execSimpleString_safe_lua(L, "sim={} sim1={} sim0={}");
+    _execSimpleString_safe_lua(L, "sim={} sim1={}");
     registerNewFunctions_lua();
     _registerNewVariables_lua();
-    _execSimpleString_safe_lua(L, "_S={}; _S.internalApi={sim=sim, sim1=sim1, sim0=sim0}; sim=nil sim1=nil sim0=nil");
+    _execSimpleString_safe_lua(L, "_S={}; _S.internalApi={sim=sim, sim1=sim1}; sim=nil sim1=nil");
 
     std::string dummyStr;
     if (App::getAppNamedParam("devmode", dummyStr))
@@ -3147,20 +3065,6 @@ void CScriptObject::_hookFunction_lua(void* LL, void* arr)
                 App::currentWorld->simulation->showAndHandleEmergencyStopButton(false, "");
         }
 #endif
-        if (!VThread::isSimThread())
-        { // Old, for backward compatibility with old threads
-            if (CThreadPool_old::getSimulationStopRequestedAndActivated())
-            {
-                it->terminateScriptExecutionExternally(false);
-                return;
-            }
-            if (CThreadPool_old::isSwitchBackToPreviousThreadNeeded())
-            {
-                CThreadPool_old::switchBackToPreviousThreadIfNeeded();
-                it->resetScriptExecutionTime();
-            }
-        }
-
         //        luaWrap_luaL_dostring(L,"return coroutine.isyieldable()");
         luaWrap_luaL_dostring(L, "return coroutine.running()"); // sec. ret. val. is false --> can yield
         if (luaWrap_lua_toboolean(L, -1) == 0)
@@ -3227,19 +3131,6 @@ void CScriptObject::registerNewFunctions_lua()
         }
         else
             luaWrap_lua_register(L, simLuaCommands[i].name.c_str(), simLuaCommands[i].func); // global namespace
-    }
-    // Very old API functions (e.g. "simGetObjectHandle": sim0.simGetObjectHandle, which later goes into the global namespace)
-//    if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
-    for (int i = 0; simLuaCommandsOldApi[i].name != ""; i++)
-    {
-        std::string name(simLuaCommandsOldApi[i].name);
-        size_t p = name.find('.');
-        if (p != std::string::npos)
-        { // sim0 namespace
-            std::string prefix(name.begin(), name.begin() + p);
-            name.erase(name.begin(), name.begin() + p + 1);
-            _registerTableFunction(L,prefix.c_str(),name.c_str(),simLuaCommandsOldApi[i].func);
-        }
     }
 }
 
@@ -3603,13 +3494,6 @@ void CScriptObject::_registerNewVariables_lua()
         tmp += "=" + std::to_string(simLuaVariables[i].val);
         _execSimpleString_safe_lua(L, tmp.c_str());
     }
-    // Very old constants (e.g. "sim_sceneobject_shape": sim0.sim_sceneobject_shape, which later goes into the global namespace)
-    for (size_t i = 0; simLuaVariablesOldApi[i].name != ""; i++)
-    {
-        std::string tmp(simLuaVariablesOldApi[i].name.c_str());
-        tmp += "=" + std::to_string(simLuaVariablesOldApi[i].val);
-        _execSimpleString_safe_lua(L, tmp.c_str());
-    }
 }
 
 bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
@@ -3677,16 +3561,14 @@ void CScriptObject::serialize(CSer& ar)
             // Keep following close to the beginning!
             ar.storeDataName("Va2");
             unsigned char nothing = 0;
-            SIM_SET_CLEAR_BIT(nothing, 0, _threadedExecution_oldThreads);
+            SIM_SET_CLEAR_BIT(nothing, 0, false); // _threadedExecution_oldThreads 13.06.2025
             SIM_SET_CLEAR_BIT(nothing, 1, _scriptIsDisabled);
             // RESERVED
             SIM_SET_CLEAR_BIT(nothing, 3, true); // used to be (!defaultMainScript). 16.11.2020
-            SIM_SET_CLEAR_BIT(nothing, 4, _executeJustOnce_oldThreads);
+            SIM_SET_CLEAR_BIT(nothing, 4, false); // used to be _executeJustOnce_oldThreads. 13.06.2025
             // RESERVED!!
-            SIM_SET_CLEAR_BIT(nothing, 6,
-                              true); // this indicates we have the 'almost' new script execution engine (since V3.1.3)
-            SIM_SET_CLEAR_BIT(nothing, 7,
-                              true); // this indicates we have the new script execution engine (since V3.1.3)
+            SIM_SET_CLEAR_BIT(nothing, 6, true); // this indicates we have the 'almost' new script execution engine (since V3.1.3)
+            SIM_SET_CLEAR_BIT(nothing, 7, true); // this indicates we have the new script execution engine (since V3.1.3)
             ar << nothing;
             ar.flush();
 
@@ -3757,6 +3639,8 @@ void CScriptObject::serialize(CSer& ar)
             bool executeInSensingPhase_oldCompatibility_7_8_2014 = false;
             bool backwardCompatibilityCorrectionNeeded_13_10_2014 = true;
             bool backwardCompatibilityCorrectionNeeded_8_11_2014 = true;
+            bool usingOldThreads_oldThread = false;
+            bool execJustOnce_oldThread = false;
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
                 theName = ar.readDataName();
@@ -3825,18 +3709,13 @@ void CScriptObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _threadedExecution_oldThreads = SIM_IS_BIT_SET(nothing, 0);
+                        usingOldThreads_oldThread = SIM_IS_BIT_SET(nothing, 0);
                         _scriptIsDisabled = SIM_IS_BIT_SET(nothing, 1);
                         _mainScriptIsDefaultMainScript_old = !SIM_IS_BIT_SET(nothing, 3);
-                        _executeJustOnce_oldThreads = SIM_IS_BIT_SET(nothing, 4);
+                        execJustOnce_oldThread = SIM_IS_BIT_SET(nothing, 4);
                         executeInSensingPhase_oldCompatibility_7_8_2014 = SIM_IS_BIT_SET(nothing, 5);
                         backwardCompatibility_7_8_2014 = !SIM_IS_BIT_SET(nothing, 6);
                         backwardCompatibility_13_8_2014 = !SIM_IS_BIT_SET(nothing, 7);
-                        if (_threadedExecution_oldThreads)
-                        {
-                            if (CSimFlavor::getBoolVal(18))
-                                App::logMsg(sim_verbosity_errors, "Contains a threaded script...");
-                        }
                     }
                     if (theName == "Va3")
                     {
@@ -3906,14 +3785,10 @@ void CScriptObject::serialize(CSer& ar)
             if (CSimFlavor::getBoolVal(18))
                 _detectDeprecated_old(this);
 
-            if (_threadedExecution_oldThreads && (!App::userSettings->keepOldThreadedScripts) &&
-                (ar.getCoppeliaSimVersionThatWroteThisFile() < 40200))
+            if (usingOldThreads_oldThread && (ar.getCoppeliaSimVersionThatWroteThisFile() < 40200))
             {
-                if (_convertThreadedScriptToCoroutine_old(this))
-                {
-                    _threadedExecution_oldThreads = false;
-                    _executeJustOnce_oldThreads = false;
-                }
+                if (!_convertThreadedScriptToCoroutine_old(this, execJustOnce_oldThread))
+                    App::logMsg(sim_verbosity_errors, "Attempting to instanciate a threaded script: threaded scripts are not supported anymore as of CoppeliaSim V4.10.0 rev2 and later. Convert those scripts. This scene/model will not run properly.");
             }
 
             if (getLang() == "python")
@@ -3951,12 +3826,8 @@ void CScriptObject::serialize(CSer& ar)
             }
 
             ar.xmlPushNewNode("switches");
-            if (exhaustiveXml || (_scriptType == sim_scripttype_simulation))
-                ar.xmlAddNode_bool("threadedExecution", _threadedExecution_oldThreads);
             ar.xmlAddNode_bool("enabled", !_scriptIsDisabled);
             ar.xmlAddNode_bool("parentIsProxy", _parentIsProxy);
-            if (exhaustiveXml || (_scriptType == sim_scripttype_simulation))
-                ar.xmlAddNode_bool("executeOnce", _executeJustOnce_oldThreads);
             ar.xmlPopNode();
 
             ar.xmlAddNode_comment(" 'executionOrder' tag: for backward compatibility only ", exhaustiveXml);
@@ -4003,15 +3874,11 @@ void CScriptObject::serialize(CSer& ar)
 
             if (ar.xmlPushChildNode("switches", exhaustiveXml))
             {
-                if (exhaustiveXml || (_scriptType == sim_scripttype_simulation))
-                    ar.xmlGetNode_bool("threadedExecution", _threadedExecution_oldThreads, exhaustiveXml);
                 if (ar.xmlGetNode_bool("enabled", _scriptIsDisabled, exhaustiveXml))
                     _scriptIsDisabled = !_scriptIsDisabled;
                 ar.xmlGetNode_bool("parentIsProxy", _parentIsProxy, exhaustiveXml);
                 if (exhaustiveXml)
                     ar.xmlGetNode_bool("isDefaultMainScript", _mainScriptIsDefaultMainScript_old, false);
-                if (exhaustiveXml || (_scriptType == sim_scripttype_simulation))
-                    ar.xmlGetNode_bool("executeOnce", _executeJustOnce_oldThreads, exhaustiveXml);
                 ar.xmlPopNode();
             }
 
@@ -4559,11 +4426,2264 @@ int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::st
     return retVal;
 }
 
+// OLD
+// **************************************************************
+// **************************************************************
+
+void CScriptObject::setRaiseErrors_backCompatibility(bool raise)
+{
+    _raiseErrors_backCompatibility = raise;
+}
+void CScriptObject::setExecutionPriority_old(int order)
+{
+    _executionPriority_old = tt::getLimitedInt(sim_scriptexecorder_first, sim_scriptexecorder_last, order);
+}
+int CScriptObject::getExecutionPriority_old() const
+{
+    return (_executionPriority_old);
+}
+bool CScriptObject::getRaiseErrors_backCompatibility() const
+{
+    return (_raiseErrors_backCompatibility);
+}
+void CScriptObject::setObjectCustomData_old(int header, const char* data, int dataLength)
+{
+    if (_customObjectData_old == nullptr)
+        _customObjectData_old = new CCustomData_old();
+    _customObjectData_old->setData(header, data, dataLength);
+}
+int CScriptObject::getObjectCustomDataLength_old(int header) const
+{
+    if (_customObjectData_old == nullptr)
+        return (0);
+    return (_customObjectData_old->getDataLength(header));
+}
+void CScriptObject::getObjectCustomData_old(int header, char* data) const
+{
+    if (_customObjectData_old == nullptr)
+        return;
+    _customObjectData_old->getData(header, data);
+}
+void CScriptObject::setObjectCustomData_tempData_old(int header, const char* data, int dataLength)
+{
+    if (_customObjectData_tempData_old == nullptr)
+        _customObjectData_tempData_old = new CCustomData_old();
+    _customObjectData_tempData_old->setData(header, data, dataLength);
+}
+int CScriptObject::getObjectCustomDataLength_tempData_old(int header) const
+{
+    if (_customObjectData_tempData_old == nullptr)
+        return (0);
+    return (_customObjectData_tempData_old->getDataLength(header));
+}
+void CScriptObject::getObjectCustomData_tempData_old(int header, char* data) const
+{
+    if (_customObjectData_tempData_old == nullptr)
+        return;
+    _customObjectData_tempData_old->getData(header, data);
+}
+
+void CScriptObject::setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled)
+{
+    _custScriptDisabledDSim_compatibilityMode_DEPRECATED = disabled;
+}
+bool CScriptObject::getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const
+{
+    return (_custScriptDisabledDSim_compatibilityMode_DEPRECATED);
+}
+void CScriptObject::setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt)
+{
+    _customizationScriptCleanupBeforeSave_DEPRECATED = doIt;
+}
+bool CScriptObject::getCustomizationScriptCleanupBeforeSave_DEPRECATED() const
+{
+    return (_customizationScriptCleanupBeforeSave_DEPRECATED);
+}
+void CScriptObject::_handleCallbackEx_old(int calltype)
+{
+    std::string e;
+    if (calltype == sim_syscb_cleanup)
+        e = "_S.sysCallEx_cleanup";
+    if (calltype == sim_syscb_beforeinstanceswitch)
+        e = "_S.sysCallEx_beforeInstanceSwitch";
+    if (calltype == sim_syscb_afterinstanceswitch)
+        e = "_S.sysCallEx_afterInstanceSwitch";
+    if (calltype == sim_syscb_aos_suspend)
+        e = "_S.sysCallEx_addOnScriptSuspend";
+    if (calltype == sim_syscb_aos_resume)
+        e = "_S.sysCallEx_addOnScriptResume";
+    if (e.size() > 0)
+    {
+        e = "if " + e + " then " + e + "() end";
+        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState, e.c_str());
+    }
+}
+int CScriptObject::_getScriptNameIndexNumber_old() const
+{
+    int retVal = -1;
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
+    {
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        if (it != nullptr)
+            retVal = tt::getNameSuffixNumber(it->getObjectName_old().c_str(), true);
+    }
+    return (retVal);
+}
+std::string CScriptObject::getScriptPseudoName_old() const
+{
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
+    {
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        if (it != nullptr)
+            return (it->getObjectName_old());
+    }
+    if ((_scriptType == sim_scripttype_addon) || (_scriptType == sim_scripttype_addonfunction))
+        return (_addOnMenuName);
+    return ("");
+}
+
+int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata)
+{                    // DEPRECATED
+    int retVal = -1; // means error
+
+    if (_scriptState != scriptState_initialized)
+        return (retVal);
+
+    changeOverallYieldingForbidLevel(1, false);
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
+    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
+
+    _execSimpleString_safe_lua(L, "sim_call_type=-1"); // for backward compatibility
+
+    // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
+    std::string func(functionName);
+    size_t ppos = func.find('.');
+    if (ppos == std::string::npos)
+        luaWrap_lua_getglobal(L, func.c_str()); // in case we have a global function:
+    else
+    { // in case we have a function that is not global
+        std::string globalVar(func.begin(), func.begin() + ppos);
+        luaWrap_lua_getglobal(L, globalVar.c_str());
+        func.assign(func.begin() + ppos + 1, func.end());
+        size_t ppos = func.find('.');
+        while (ppos != std::string::npos)
+        {
+            std::string var(func.begin(), func.begin() + ppos);
+            luaWrap_lua_getfield(L, -1, var.c_str());
+            luaWrap_lua_remove(L, -2);
+            func.erase(func.begin(), func.begin() + ppos + 1);
+            ppos = func.find('.');
+        }
+        luaWrap_lua_getfield(L, -1, func.c_str());
+        luaWrap_lua_remove(L, -2);
+    }
+
+    // Push the arguments onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
+    int inputArgs = pdata->inputArgCount;
+    if (inputArgs != 0)
+    {
+        int boolPt = 0;
+        int intPt = 0;
+        int floatPt = 0;
+        int doublePt = 0;
+        int stringPt = 0;
+        int stringBuffPt = 0;
+        for (int i = 0; i < pdata->inputArgCount; i++)
+            writeCustomFunctionDataOntoStack_old(
+                L, pdata->inputArgTypeAndSize[2 * i + 0], pdata->inputArgTypeAndSize[2 * i + 1], pdata->inputBool,
+                boolPt, pdata->inputInt, intPt, pdata->inputFloat, floatPt, pdata->inputDouble, doublePt,
+                pdata->inputChar, stringPt, pdata->inputCharBuff, stringBuffPt);
+    }
+
+    luaWrap_lua_getglobal(L, "debug");
+    luaWrap_lua_getfield(L, -1, "traceback");
+    luaWrap_lua_remove(L, -2);
+    int argCnt = inputArgs;
+    int errindex = -argCnt - 2;
+    luaWrap_lua_insert(L, errindex);
+
+    if (_executionDepth == 0)
+        _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
+    setExecutionDepth(_executionDepth + 1);
+    if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
+    { // a runtime error occurred!
+        setExecutionDepth(_executionDepth - 1);
+        if (_executionDepth == 0)
+            _timeOfScriptExecutionStart = -1;
+        std::string errMsg;
+        if (luaWrap_lua_isstring(L, -1))
+            errMsg = std::string(luaWrap_lua_tostring(L, -1));
+        else
+            errMsg = "(error unknown)";
+        luaWrap_lua_pop(L, 1); // pop error from stack
+        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
+
+        // Following probably not needed:
+        pdata->outputBool = new bool[0];
+        pdata->outputInt = new int[0];
+        pdata->outputFloat = new float[0];
+        pdata->outputDouble = new double[0];
+        pdata->outputChar = new char[0];
+        pdata->outputCharBuff = new char[0];
+    }
+    else
+    { // return values:
+        setExecutionDepth(_executionDepth - 1);
+        if (_executionDepth == 0)
+            _timeOfScriptExecutionStart = -1;
+        int currentTop = luaWrap_lua_gettop(L);
+
+        // Following line new since 7/3/2016:
+        int numberOfArgs = currentTop - oldTop - 1; // the first arg is linked to the debug mechanism
+
+        // We read all arguments from the stack
+        std::vector<char> outBoolVector;
+        std::vector<int> outIntVector;
+        std::vector<float> outFloatVector;
+        std::vector<double> outDoubleVector;
+        std::vector<std::string> outStringVector;
+        std::vector<std::string> outCharVector;
+        std::vector<int> outInfoVector;
+        for (int i = 0; i < numberOfArgs; i++)
+        {
+            // Following line new since 7/3/2016:
+            if (!readCustomFunctionDataFromStack_old(L, oldTop + i + 1 + 1, pdata->outputArgTypeAndSize[i * 2 + 0],
+                                                     outBoolVector, outIntVector, outFloatVector, outDoubleVector,
+                                                     outStringVector, outCharVector, outInfoVector))
+                break;
+        }
+
+        // Now we prepare the output buffers:
+        pdata->outputBool = new bool[outBoolVector.size()];
+        pdata->outputInt = new int[outIntVector.size()];
+        pdata->outputFloat = new float[outFloatVector.size()];
+        pdata->outputDouble = new double[outDoubleVector.size()];
+        int charCnt = 0;
+        for (size_t k = 0; k < outStringVector.size(); k++)
+            charCnt += (int)outStringVector[k].length() + 1; // terminal 0
+        pdata->outputChar = new char[charCnt];
+
+        int charBuffCnt = 0;
+        for (size_t k = 0; k < outCharVector.size(); k++)
+            charBuffCnt += (int)outCharVector[k].length();
+        pdata->outputCharBuff = new char[charBuffCnt];
+
+        pdata->outputArgCount = int(outInfoVector.size() / 2);
+        delete[] pdata->outputArgTypeAndSize;
+        pdata->outputArgTypeAndSize = new int[outInfoVector.size()];
+        // We fill the output buffers:
+        for (int k = 0; k < int(outBoolVector.size()); k++)
+            pdata->outputBool[k] = outBoolVector[k];
+        for (int k = 0; k < int(outIntVector.size()); k++)
+            pdata->outputInt[k] = outIntVector[k];
+        for (int k = 0; k < int(outFloatVector.size()); k++)
+            pdata->outputFloat[k] = outFloatVector[k];
+        for (int k = 0; k < int(outDoubleVector.size()); k++)
+            pdata->outputDouble[k] = outDoubleVector[k];
+        charCnt = 0;
+        for (size_t k = 0; k < outStringVector.size(); k++)
+        {
+            for (size_t l = 0; l < outStringVector[k].length(); l++)
+                pdata->outputChar[charCnt + l] = outStringVector[k][l];
+            charCnt += (int)outStringVector[k].length();
+            // terminal 0:
+            pdata->outputChar[charCnt] = 0;
+            charCnt++;
+        }
+
+        charBuffCnt = 0;
+        for (size_t k = 0; k < outCharVector.size(); k++)
+        {
+            for (size_t l = 0; l < outCharVector[k].length(); l++)
+                pdata->outputCharBuff[charBuffCnt + l] = outCharVector[k][l];
+            charBuffCnt += (int)outCharVector[k].length();
+        }
+
+        for (int k = 0; k < int(outInfoVector.size()); k++)
+            pdata->outputArgTypeAndSize[k] = outInfoVector[k];
+
+        retVal = 0;
+    }
+    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
+    changeOverallYieldingForbidLevel(-1, false);
+    return (retVal);
+}
+int CScriptObject::setScriptVariable_old(const char* variableName, CInterfaceStack* stack)
+{
+    int retVal = -1;
+    if (_scriptState != scriptState_initialized)
+        return (retVal);
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
+    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
+
+    std::string var(variableName);
+    size_t ppos = var.find('.');
+    if (ppos == std::string::npos)
+    { // in case we have a global variable
+        if (stack != nullptr)
+            buildOntoInterpreterStack_lua(L, stack, true);
+        else
+            luaWrap_lua_pushnil(L);
+        luaWrap_lua_setglobal(L, variableName);
+        retVal = 0;
+    }
+    else
+    { // in case we have a variable that is not global
+        std::string globalVar(var.begin(), var.begin() + ppos);
+        luaWrap_lua_getglobal(L, globalVar.c_str());
+        if (luaWrap_lua_isnonbuffertable(L, -1))
+        {
+            var.assign(var.begin() + ppos + 1, var.end());
+            size_t ppos = var.find('.');
+            bool badVar = false;
+            while (ppos != std::string::npos)
+            {
+                std::string vvar(var.begin(), var.begin() + ppos);
+                luaWrap_lua_getfield(L, -1, vvar.c_str());
+                luaWrap_lua_remove(L, -2);
+                var.erase(var.begin(), var.begin() + ppos + 1);
+                ppos = var.find('.');
+                if (!luaWrap_lua_isnonbuffertable(L, -1))
+                {
+                    badVar = true;
+                    break;
+                }
+            }
+            if (!badVar)
+            {
+                if (stack != nullptr)
+                    buildOntoInterpreterStack_lua(L, stack, true);
+                else
+                    luaWrap_lua_pushnil(L);
+                luaWrap_lua_setfield(L, -2, var.c_str());
+                retVal = 0;
+            }
+        }
+    }
+
+    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
+    return (retVal);
+}
+int CScriptObject::clearScriptVariable_DEPRECATED(const char* variableName)
+{ // deprecated
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
+    if (L == nullptr)
+        return (-1);
+
+    if (_scriptIsDisabled)
+        return (-1);
+
+    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
+
+    std::string var(variableName);
+    size_t ppos = var.find('.');
+    if (ppos == std::string::npos)
+    { // in case we have a global variable
+        luaWrap_lua_pushnil(L);
+        luaWrap_lua_setglobal(L, variableName);
+    }
+    else
+    { // in case we have a variable that is not global
+        std::string globalVar(var.begin(), var.begin() + ppos);
+        luaWrap_lua_getglobal(L, globalVar.c_str());
+        var.assign(var.begin() + ppos + 1, var.end());
+        size_t ppos = var.find('.');
+        while (ppos != std::string::npos)
+        {
+            std::string vvar(var.begin(), var.begin() + ppos);
+            luaWrap_lua_getfield(L, -1, vvar.c_str());
+            luaWrap_lua_remove(L, -2);
+            var.erase(var.begin(), var.begin() + ppos + 1);
+            ppos = var.find('.');
+        }
+        luaWrap_lua_pushnil(L);
+        luaWrap_lua_setfield(L, -2, var.c_str());
+    }
+
+    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
+    return (0);
+}
+CUserParameters* CScriptObject::getScriptParametersObject_backCompatibility()
+{
+    return (_scriptParameters_backCompatibility);
+}
+bool CScriptObject::_checkIfMixingOldAndNewCallMethods_old()
+{
+    return ((_scriptText.find("sim_call_type") != std::string::npos) &&
+            (_scriptText.find("sysCall_") != std::string::npos));
+}
+int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data,
+                                               const int what[2])
+{ // DEPRECATED since 23/2/2016
+    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
+
+    if ((_scriptIsDisabled) || (L == nullptr))
+        return (-1);
+
+    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
+
+    // First check if the table where we want to append a value exists. If not, or not a table, create it!
+    luaWrap_lua_getglobal(L, arrayName);
+    if (!luaWrap_lua_isnonbuffertable(L, -1))
+    { // the table is inexistant
+        luaWrap_lua_newtable(L);
+        luaWrap_lua_setglobal(L, arrayName);
+    }
+    luaWrap_lua_pop(L, 1);
+
+    // The table where we want to append a value:
+    luaWrap_lua_getglobal(L, arrayName);
+    int theTablePos = luaWrap_lua_gettop(L);
+    int theTableLength = int(luaWrap_lua_rawlen(L, theTablePos));
+
+    // Do we want to simply insert the value, or do we want to insert a keyed value?
+    if ((keyName == nullptr) || (strlen(keyName) == 0))
+    { // not keyed value:
+    }
+    else
+    { // keyed value:
+        luaWrap_lua_pushtext(L, keyName);
+    }
+
+    // Now push the value, which might itself be a table:
+    int w = what[0];
+    if ((w & sim_script_arg_table) != 0)
+    { // we have a table
+        w -= sim_script_arg_table;
+        luaWrap_lua_newtable(L);
+        int newTablePos = luaWrap_lua_gettop(L);
+        int stringOff = 0;
+        for (int i = 0; i < what[1]; i++)
+        {
+            if (w == sim_script_arg_null)
+                luaWrap_lua_pushnil(L);
+            if (w == sim_script_arg_bool)
+                luaWrap_lua_pushboolean(L, data[i]);
+            if (w == sim_script_arg_int32)
+                luaWrap_lua_pushinteger(L, ((int*)data)[i]);
+            if (w == sim_script_arg_float)
+                luaWrap_lua_pushnumber(L, ((double*)data)[i]);
+            if (w == sim_script_arg_double)
+                luaWrap_lua_pushnumber(L, ((double*)data)[i]);
+            if (w == sim_script_arg_string)
+            {
+                luaWrap_lua_pushtext(L, data + stringOff);
+                stringOff += int(strlen(data + stringOff)) + 1;
+            }
+            luaWrap_lua_rawseti(L, newTablePos, i + 1);
+        }
+    }
+    else
+    { // we don't have a table
+        if (w == sim_script_arg_null)
+            luaWrap_lua_pushnil(L);
+        if (w == sim_script_arg_bool)
+            luaWrap_lua_pushboolean(L, data[0]);
+        if (w == sim_script_arg_int32)
+            luaWrap_lua_pushinteger(L, ((int*)data)[0]);
+        if (w == sim_script_arg_float)
+            luaWrap_lua_pushnumber(L, ((double*)data)[0]);
+        if (w == sim_script_arg_double)
+            luaWrap_lua_pushnumber(L, ((double*)data)[0]);
+        if (w == sim_script_arg_string)
+            luaWrap_lua_pushtext(L, data);
+        if (w == sim_script_arg_charbuff)
+            luaWrap_lua_pushbinarystring(L, data, what[1]); // push binary string for backw. comp.
+    }
+
+    // Finally, insert the value in the table:
+    if ((keyName == nullptr) || (strlen(keyName) == 0))
+    { // not keyed value:
+        luaWrap_lua_rawseti(L, theTablePos, theTableLength + 1);
+    }
+    else
+    { // keyed value:
+        luaWrap_lua_settable(L, -3);
+    }
+
+    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
+    return (0);
+}
+void CScriptObject::setLastError_old(const char* err)
+{
+    _lastError_old = err;
+}
+std::string CScriptObject::getAndClearLastError_old()
+{
+    std::string retVal = _lastError_old;
+    _lastError_old.clear();
+    return (retVal);
+}
+void CScriptObject::setAutomaticCascadingCallsDisabled_old(bool disabled)
+{
+    _automaticCascadingCallsDisabled_old = disabled;
+}
+bool CScriptObject::getAutomaticCascadingCallsDisabled_old() const
+{
+    return (_automaticCascadingCallsDisabled_old);
+}
+bool CScriptObject::checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014()
+{
+    bool retVal = _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014;
+    _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014 = true;
+    return (retVal);
+}
+bool CScriptObject::checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014()
+{
+    bool retVal = _warning_simRMLPosition_oldCompatibility_30_8_2014;
+    _warning_simRMLPosition_oldCompatibility_30_8_2014 = true;
+    return (retVal);
+}
+bool CScriptObject::checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014()
+{
+    bool retVal = _warning_simRMLVelocity_oldCompatibility_30_8_2014;
+    _warning_simRMLVelocity_oldCompatibility_30_8_2014 = true;
+    return (retVal);
+}
+void CScriptObject::_insertScriptText_old(CScriptObject* scriptObject, bool toFront, const char* txt)
+{
+    std::string theScript(scriptObject->getScriptText());
+    if (toFront)
+        theScript = std::string(txt) + theScript;
+    else
+        theScript += txt;
+    scriptObject->setScriptText(theScript.c_str());
+}
+
+bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt, const char* newTxt)
+{
+    return scriptObject->replaceScriptText(oldTxt, newTxt);
+}
+
+bool CScriptObject::_replaceScriptTextKeepMiddleUnchanged_old(CScriptObject* scriptObject, const char* oldTxtStart,
+                                                              const char* oldTxtEnd, const char* newTxtStart,
+                                                              const char* newTxtEnd)
+{ // Will do following: oldTextStart*oldTextEnd --> nextTextStart*newTextEnd
+    std::string theScript(scriptObject->getScriptText());
+    size_t startPos = theScript.find(oldTxtStart, 0);
+    bool replacedSomething = false;
+    while (startPos != std::string::npos)
+    {
+        size_t startPos2 = theScript.find(oldTxtEnd, startPos + strlen(oldTxtStart));
+        if (startPos2 != std::string::npos)
+        {
+            // check if we have a line break in-between:
+            bool lineBreak = false;
+            for (size_t i = startPos; i < startPos2; i++)
+            {
+                if ((theScript[i] == (unsigned char)13) || (theScript[i] == (unsigned char)10))
+                {
+                    lineBreak = true;
+                    break;
+                }
+            }
+            if (!lineBreak)
+            {
+                theScript.replace(startPos2, strlen(oldTxtEnd), newTxtEnd);
+                theScript.replace(startPos, strlen(oldTxtStart), newTxtStart);
+                startPos = theScript.find(oldTxtStart,
+                                          startPos2 + strlen(newTxtEnd) + strlen(newTxtStart) - strlen(oldTxtStart));
+                replacedSomething = true;
+            }
+            else
+                startPos = theScript.find(oldTxtStart, startPos + 1);
+        }
+        else
+            startPos = theScript.find(oldTxtStart, startPos + 1);
+    }
+    if (replacedSomething)
+        scriptObject->setScriptText(theScript.c_str());
+    return (replacedSomething);
+}
+bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt1, const char* oldTxt2,
+                                           const char* oldTxt3, const char* newTxt)
+{ // there can be spaces between the 3 words
+    std::string theScript(scriptObject->getScriptText());
+    size_t l1 = strlen(oldTxt1);
+    size_t l2 = strlen(oldTxt2);
+    size_t l3 = strlen(oldTxt3);
+    bool replacedSomething = false;
+    size_t searchStart = 0;
+    while (searchStart < theScript.length())
+    {
+        size_t startPos1 = theScript.find(oldTxt1, searchStart);
+        if (startPos1 != std::string::npos)
+        {
+            searchStart = startPos1 + 1;
+            size_t startPos2 = theScript.find(oldTxt2, startPos1 + l1);
+            if (startPos2 != std::string::npos)
+            {
+                bool onlySpaces = true;
+                size_t p = startPos1 + l1;
+                while (p < startPos2)
+                {
+                    if (theScript[p] != ' ')
+                        onlySpaces = false;
+                    p++;
+                }
+                if (onlySpaces)
+                {
+                    size_t startPos3 = theScript.find(oldTxt3, startPos2 + l2);
+                    if (startPos3 != std::string::npos)
+                    {
+                        onlySpaces = true;
+                        p = startPos2 + l2;
+                        while (p < startPos3)
+                        {
+                            if (theScript[p] != ' ')
+                                onlySpaces = false;
+                            p++;
+                        }
+                        if (onlySpaces)
+                        { // ok!
+                            theScript.replace(startPos1, startPos3 - startPos1 + l3, newTxt);
+                            replacedSomething = true;
+                        }
+                    }
+                }
+            }
+        }
+        else
+            searchStart = theScript.length();
+    }
+    if (replacedSomething)
+        scriptObject->setScriptText(theScript.c_str());
+    return (replacedSomething);
+}
+bool CScriptObject::_containsScriptText_old(CScriptObject* scriptObject, const char* txt)
+{
+    const std::string theScript(scriptObject->getScriptText());
+    size_t startPos = theScript.find(txt);
+    /*
+    if (startPos != std::string::npos)
+    {
+        size_t newlinePos = theScript.rfind('\n', startPos - 1);
+        if (newlinePos == std::string::npos)
+            newlinePos = 0;
+        size_t newlinePos2 = theScript.find('\n', startPos );
+        if (newlinePos2 == std::string::npos)
+            newlinePos2 = theScript.size();
+        std::string str(theScript.begin() + newlinePos + 1, theScript.begin() + newlinePos2);
+        printf("** %s**\n", str.c_str());
+        return false;
+    }
+    //*/
+    return (startPos != std::string::npos);
+}
+void CScriptObject::_splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord,
+                                      std::string& afterPart)
+{
+    size_t endPos;
+    for (size_t i = pos; i < strlen(txt); i++)
+    {
+        char c = txt[i];
+        if (((c >= '0') && (c <= '9')) || ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || (c == '_') ||
+            (c == '.'))
+            endPos = i + 1;
+        else
+            break;
+    }
+    if (pos > 0)
+        beforePart.assign(txt, txt + pos);
+    else
+        beforePart.clear();
+    apiWord.assign(txt + pos, txt + endPos);
+    if (endPos < strlen(txt))
+        afterPart = txt + endPos;
+    else
+        afterPart.clear();
+}
+void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doIt, bool doIt2)
+{
+    if (!doIt)
+        return;
+    // here we have to adjust for the new script execution engine (since V3.1.3):
+    if ((scriptObject->getScriptType() == sim_scripttype_main) &&
+        (!scriptObject->_mainScriptIsDefaultMainScript_old))
+    {
+        std::string txt;
+        txt += DEFAULT_MAINSCRIPT_CODE;
+        txt += "\n";
+        txt += " \n";
+        txt += " \n";
+        txt += "------------------------------------------------------------------------------ \n";
+        txt += "-- Following main script automatically commented out by CoppeliaSim to guarantee \n";
+        txt += "-- compatibility with CoppeliaSim 3.1.3 and later: \n";
+        txt += " \n";
+        txt += "--[=[ \n";
+        txt += " \n";
+        _insertScriptText_old(scriptObject, true, txt.c_str());
+        txt = "";
+        txt += "\n";
+        txt += " \n";
+        txt += " \n";
+        txt += "--]=] \n";
+        txt += "------------------------------------------------------------------------------ \n";
+        _insertScriptText_old(scriptObject, false, txt.c_str());
+    }
+    if (scriptObject->getScriptType() == sim_scripttype_simulation)
+    {
+        _replaceScriptText_old(scriptObject, "\n", "\n\t"); // "\r\n" is also handled
+
+        std::string txt;
+        if (doIt2)
+        {
+            // Add text to the beginning:
+            txt += "------------------------------------------------------------------------------ \n";
+            txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+            txt += "-- with CoppeliaSim 3.1.3 and later: \n";
+            txt += "if (sim_call_type==sim.syscb_init) then \n";
+            txt += " \n";
+            txt += "end \n";
+            txt += "if (sim_call_type==sim.syscb_cleanup) then \n";
+            txt += " \n";
+            txt += "end \n";
+            txt += "if (sim_call_type==sim.syscb_sensing) then \n";
+            txt += "  if not firstTimeHere93846738 then \n";
+            txt += "      firstTimeHere93846738=0 \n";
+            txt += "  end \n";
+            txt +=
+                "  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,firstTimeHere93846738) "
+                "\n";
+            txt += "  firstTimeHere93846738=firstTimeHere93846738+1 \n";
+            txt += " \n";
+            txt += "------------------------------------------------------------------------------ \n";
+            txt += " \n";
+            txt += " \n";
+            _insertScriptText_old(scriptObject, true, txt.c_str());
+
+            // Add text to the end:
+            txt = "\n";
+            txt += " \n";
+            txt += " \n";
+            txt += "------------------------------------------------------------------------------ \n";
+            txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+            txt += "-- with CoppeliaSim 3.1.3 and later: \n";
+            txt += "end \n";
+            txt += "------------------------------------------------------------------------------ \n";
+            _insertScriptText_old(scriptObject, false, txt.c_str());
+
+            // Because in old sensing simulation scripts, simHandleChildScript didn't anyway have an effect:
+            _replaceScriptText_old(scriptObject, "simHandleChildScript(",
+                                   "-- commented by CoppeliaSim: s@imHandleChildScript(");
+            _replaceScriptText_old(scriptObject, "s@imHandleChildScript", "simHandleChildScript");
+        }
+        else
+        { // actuation simulation script
+            // Add text to the beginning:
+            txt += "------------------------------------------------------------------------------ \n";
+            txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+            txt += "-- with CoppeliaSim 3.1.3 and later: \n";
+            txt += "if (sim_call_type==sim.syscb_init) then \n";
+            txt +=
+                "  simSetScriptAttribute(sim_handle_self,sim_childscriptattribute_automaticcascadingcalls,false) "
+                "\n";
+            txt += "end \n";
+            txt += "if (sim_call_type==sim.syscb_cleanup) then \n";
+            txt += " \n";
+            txt += "end \n";
+            txt += "if (sim_call_type==sim.syscb_sensing) then \n";
+            txt += "  simHandleChildScripts(sim_call_type) \n";
+            txt += "end \n";
+            txt += "if (sim_call_type==sim.syscb_actuation) then \n";
+            txt += "  if not firstTimeHere93846738 then \n";
+            txt += "      firstTimeHere93846738=0 \n";
+            txt += "  end \n";
+            txt +=
+                "  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,firstTimeHere93846738) "
+                "\n";
+            txt += "  firstTimeHere93846738=firstTimeHere93846738+1 \n";
+            txt += " \n";
+            txt += "------------------------------------------------------------------------------ \n";
+            txt += " \n";
+            txt += " \n";
+            _insertScriptText_old(scriptObject, true, txt.c_str());
+
+            // Add text to the end:
+            txt = "\n";
+            txt += " \n";
+            txt += " \n";
+            txt += "------------------------------------------------------------------------------ \n";
+            txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+            txt += "-- with CoppeliaSim 3.1.3 and later: \n";
+            txt += "end \n";
+            txt += "------------------------------------------------------------------------------ \n";
+            _insertScriptText_old(scriptObject, false, txt.c_str());
+            _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all_except_explicit", ")",
+                                   "simHandleChildScripts(sim_call_type)");
+            _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all", ")",
+                                   "simHandleChildScripts(sim_call_type)");
+            _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all_except_explicit", ",",
+                                   "simHandleChildScripts(sim_call_type,");
+            _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all", ",",
+                                   "simHandleChildScripts(sim_call_type,");
+
+            if (_containsScriptText_old(scriptObject, "simHandleChildScript("))
+            { // output a warning
+                txt = "Compatibility issue with @@REPLACE@@\n";
+                txt += "  Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
+                txt += "  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
+                txt += "  and operates slightly differently. CoppeliaSim has tried to automatically adjust\n";
+                txt += "  the script, but failed. Please correct this issue yourself by editing the script.";
+                CWorld::appendLoadOperationIssue(sim_verbosity_warnings, txt.c_str(),
+                                                 scriptObject->getScriptHandle());
+            }
+        }
+    }
+    if (scriptObject->getScriptType() == sim_scripttype_customization)
+    {
+        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_firstaftersimulation",
+                               "sim.syscb_aftersimulation");
+        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_lastbeforesimulation",
+                               "sim.syscb_beforesimulation");
+        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_first", "sim.syscb_init");
+        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_last", "sim.syscb_cleanup");
+    }
+}
+void CScriptObject::_adjustScriptText2_old(CScriptObject* scriptObject, bool doIt)
+{
+}
+void CScriptObject::_adjustScriptText3_old(CScriptObject* scriptObject, bool doIt)
+{
+    if (!doIt)
+        return;
+    // 1. check if we haven't previously added the correction:
+    if (!_containsScriptText_old(scriptObject, "@backCompatibility1:"))
+    {
+        bool modifiedSomething = _replaceScriptTextKeepMiddleUnchanged_old(
+            scriptObject, "simSetShapeColor(", ",", "simSetShapeColor(colorCorrectionFunction(", "),");
+
+        if (modifiedSomething)
+        {
+            // Add text to the beginning:
+            std::string txt;
+            txt += "------------------------------------------------------------------------------ \n";
+            txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
+            txt += "-- with CoppeliaSim 3.1.3 and earlier: \n";
+            txt += "colorCorrectionFunction=function(_aShapeHandle_) \n";
+            txt += "  local version=simGetIntegerParameter(sim_intparam_program_version) \n";
+            txt += "  local revision=simGetIntegerParameter(sim_intparam_program_revision) \n";
+            txt += "  if (version==30103 and revision<3) or version<30103 then \n";
+            txt += "      return _aShapeHandle_ \n";
+            txt += "  end \n";
+            txt += "  return '@backCompatibility1:'.._aShapeHandle_ \n";
+            txt += "end \n";
+            txt += "------------------------------------------------------------------------------ \n";
+            txt += " \n";
+            txt += " \n";
+            _insertScriptText_old(scriptObject, true, txt.c_str());
+        }
+    }
+}
+void CScriptObject::_adjustScriptText4_old(CScriptObject* scriptObject, bool doIt)
+{
+    if (!doIt)
+        return;
+    _replaceScriptText_old(scriptObject, "res,err=pcall(threadFunction)",
+                           "res,err=xpcall(threadFunction,function(err) return debug.traceback(err) end)");
+}
+void CScriptObject::_adjustScriptText5_old(CScriptObject* scriptObject, bool doIt)
+{ // Following since 19/12/2015: not really needed, but better.
+    if (!doIt)
+        return;
+    _replaceScriptText_old(scriptObject, "simGetBooleanParameter", "simGetBoolParameter");
+    _replaceScriptText_old(scriptObject, "simSetBooleanParameter", "simSetBoolParameter");
+    _replaceScriptText_old(scriptObject, "simGetIntegerParameter", "simGetInt32Parameter");
+    _replaceScriptText_old(scriptObject, "simSetIntegerParameter", "simSetInt32Parameter");
+    _replaceScriptText_old(scriptObject, "simGetFloatingParameter", "simGetFloatParameter");
+    _replaceScriptText_old(scriptObject, "simSetFloatingParameter", "simSetFloatParameter");
+    _replaceScriptText_old(scriptObject, "simGetObjectIntParameter", "simGetObjectInt32Parameter");
+    _replaceScriptText_old(scriptObject, "simSetObjectIntParameter", "simSetObjectInt32Parameter");
+}
+void CScriptObject::_adjustScriptText6_old(CScriptObject* scriptObject, bool doIt)
+{ // since 19/1/2016 we don't use tabs anymore in embedded scripts:
+    if (!doIt)
+        return;
+    _replaceScriptText_old(scriptObject, "\t", "    "); // tab to 4 spaces
+}
+void CScriptObject::_adjustScriptText7_old(CScriptObject* scriptObject, bool doIt)
+{ // Following since 13/9/2016, but active only since V3.3.3 (or V3.4.0)
+    if (!doIt)
+        return;
+    _replaceScriptText_old(scriptObject, "simPackInts", "simPackInt32Table");
+    _replaceScriptText_old(scriptObject, "simPackUInts", "simPackUInt32Table");
+    _replaceScriptText_old(scriptObject, "simPackFloats", "simPackFloatTable");
+    _replaceScriptText_old(scriptObject, "simPackDoubles", "simPackDoubleTable");
+    _replaceScriptText_old(scriptObject, "simPackBytes", "simPackUInt8Table");
+    _replaceScriptText_old(scriptObject, "simPackWords", "simPackUInt16Table");
+    _replaceScriptText_old(scriptObject, "simUnpackInts", "simUnpackInt32Table");
+    _replaceScriptText_old(scriptObject, "simUnpackUInts", "simUnpackUInt32Table");
+    _replaceScriptText_old(scriptObject, "simUnpackFloats", "simUnpackFloatTable");
+    _replaceScriptText_old(scriptObject, "simUnpackDoubles", "simUnpackDoubleTable");
+    _replaceScriptText_old(scriptObject, "simUnpackBytes", "simUnpackUInt8Table");
+    _replaceScriptText_old(scriptObject, "simUnpackWords", "simUnpackUInt16Table");
+}
+void CScriptObject::_adjustScriptText10_old(CScriptObject* scriptObject, bool doIt)
+{ // some various small details:
+    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('/",".lua')","require('/","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"/",".lua\")","require('/","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('\\",".lua')","require('\\","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"\\",".lua\")","require('\\","')");
+    _replaceScriptText_old(scriptObject, "sim.include('/lua/graph_customization.lua')",
+                           "graph=require('graph_customization')");
+    _replaceScriptText_old(scriptObject, "require('/BlueWorkforce/", "require('/bwf/");
+    _replaceScriptText_old(scriptObject, "sim.include('/BlueWorkforce/", "sim.include('/bwf/");
+    if (!doIt)
+        return;
+    _replaceScriptText_old(scriptObject, " onclose=\"", " on-close=\"");
+    _replaceScriptText_old(scriptObject, " onchange=\"", " on-change=\"");
+    _replaceScriptText_old(scriptObject, " onclick=\"", " on-click=\"");
+}
+void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool doIt)
+{ // A subtle bug was corrected in below function in CoppeliaSim4.0.1. Below to keep old code working as previously
+    if (!doIt)
+        return;
+
+    std::string theScript;
+    bool addFunc = false;
+
+    theScript = (scriptObject->getScriptText());
+    utils::regexReplace(theScript, "sim.getObjectOrientation\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
+    scriptObject->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectOrientation(", "__getObjectOrientation__(");
+    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectOrientation");
+    if (addFunc)
+    {
+        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible
+        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        std::string txt;
+        txt += "function __getObjectOrientation__(a,b)\n";
+        txt +=
+            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt += "    if b==sim.handle_parent then\n";
+        txt += "        b=sim.getObjectParent(a)\n";
+        txt += "    end\n";
+        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
+               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
+        txt += "    end\n";
+        txt += "    return sim.getObjectOrientation(a,b)\n";
+        txt += "end\n\n";
+        _insertScriptText_old(scriptObject, true, txt.c_str());
+    }
+
+    theScript = scriptObject->getScriptText();
+    utils::regexReplace(theScript, "sim.setObjectOrientation\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
+    scriptObject->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectOrientation(", "__setObjectOrientation__(");
+    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectOrientation");
+    if (addFunc)
+    {
+        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible
+        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        std::string txt;
+        txt += "function __setObjectOrientation__(a,b,c)\n";
+        txt +=
+            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt += "    if b==sim.handle_parent then\n";
+        txt += "        b=sim.getObjectParent(a)\n";
+        txt += "    end\n";
+        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
+               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
+        txt += "    end\n";
+        txt += "    return sim.setObjectOrientation(a,b,c)\n";
+        txt += "end\n";
+        _insertScriptText_old(scriptObject, true, txt.c_str());
+    }
+
+    theScript = scriptObject->getScriptText();
+    utils::regexReplace(theScript, "sim.getObjectQuaternion\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
+    utils::regexReplace(theScript, "sim.getObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *)\\)",
+                        "blabliblotemp($1,sim.handle_parent)");
+    scriptObject->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectQuaternion(", "__getObjectQuaternion__(");
+    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectQuaternion");
+    if (addFunc)
+    {
+        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible
+        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        std::string txt;
+        txt += "function __getObjectQuaternion__(a,b)\n";
+        txt +=
+            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt += "    if b==sim.handle_parent then\n";
+        txt += "        b=sim.getObjectParent(a)\n";
+        txt += "    end\n";
+        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
+               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
+        txt += "    end\n";
+        txt += "    return sim.getObjectQuaternion(a,b)\n";
+        txt += "end\n";
+        _insertScriptText_old(scriptObject, true, txt.c_str());
+    }
+
+    theScript = scriptObject->getScriptText();
+    utils::regexReplace(theScript, "sim.setObjectQuaternion\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
+    utils::regexReplace(theScript, "sim.setObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *),",
+                        "blabliblotemp($1,sim.handle_parent,");
+    scriptObject->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectQuaternion(", "__setObjectQuaternion__(");
+    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectQuaternion");
+    if (addFunc)
+    {
+        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible
+        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        std::string txt;
+        txt += "function __setObjectQuaternion__(a,b,c)\n";
+        txt +=
+            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt += "    if b==sim.handle_parent then\n";
+        txt += "        b=sim.getObjectParent(a)\n";
+        txt += "    end\n";
+        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
+               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
+        txt += "    end\n";
+        txt += "    return sim.setObjectQuaternion(a,b,c)\n";
+        txt += "end\n";
+        _insertScriptText_old(scriptObject, true, txt.c_str());
+    }
+
+    theScript = scriptObject->getScriptText();
+    utils::regexReplace(theScript, "sim.getObjectPosition\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
+    utils::regexReplace(theScript, "sim.getObjectPosition\\(([^,]+),( *)sim.handle_parent( *)\\)",
+                        "blabliblotemp($1,sim.handle_parent)");
+    scriptObject->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectPosition(", "__getObjectPosition__(");
+    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectPosition");
+    if (addFunc)
+    {
+        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in
+        //        versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        std::string txt;
+        txt += "function __getObjectPosition__(a,b)\n";
+        txt +=
+            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt += "    if b==sim.handle_parent then\n";
+        txt += "        b=sim.getObjectParent(a)\n";
+        txt += "    end\n";
+        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
+               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
+        txt += "    end\n";
+        txt += "    return sim.getObjectPosition(a,b)\n";
+        txt += "end\n";
+        _insertScriptText_old(scriptObject, true, txt.c_str());
+    }
+
+    theScript = scriptObject->getScriptText();
+    utils::regexReplace(theScript, "sim.setObjectPosition\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
+    utils::regexReplace(theScript, "sim.setObjectPosition\\(([^,]+),( *)sim.handle_parent( *),",
+                        "blabliblotemp($1,sim.handle_parent,");
+    scriptObject->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectPosition(", "__setObjectPosition__(");
+    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectPosition");
+    if (addFunc)
+    {
+        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in
+        //        versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        std::string txt;
+        txt += "function __setObjectPosition__(a,b,c)\n";
+        txt +=
+            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
+        txt += "    if b==sim.handle_parent then\n";
+        txt += "        b=sim.getObjectParent(a)\n";
+        txt += "    end\n";
+        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
+               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
+        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
+        txt += "    end\n";
+        txt += "    return sim.setObjectPosition(a,b,c)\n";
+        txt += "end\n";
+        _insertScriptText_old(scriptObject, true, txt.c_str());
+    }
+}
+void CScriptObject::_adjustScriptText12_old(CScriptObject* scriptObject, bool doIt)
+{ // ROS2 functions:
+    if (!doIt)
+        return;
+    _replaceScriptText_old(scriptObject, "simROS2.serviceClientTreatUInt8ArrayAsString",
+                           "simROS2.clientTreatUInt8ArrayAsString");
+    _replaceScriptText_old(scriptObject, "simROS2.serviceServerTreatUInt8ArrayAsString",
+                           "simROS2.serviceTreatUInt8ArrayAsString");
+    _replaceScriptText_old(scriptObject, "simROS2.subscriberTreatUInt8ArrayAsString",
+                           "simROS2.subscriptionTreatUInt8ArrayAsString");
+    _replaceScriptText_old(scriptObject, "simROS2.imageTransportShutdownSubscriber",
+                           "simROS2.imageTransportShutdownSubscription");
+    _replaceScriptText_old(scriptObject, "simROS2.imageTransportSubscribe", "simROS2.imageTransportCreateSubscription");
+    _replaceScriptText_old(scriptObject, "simROS2.imageTransportAdvertise", "simROS2.imageTransportCreatePublisher");
+    _replaceScriptText_old(scriptObject, "simROS2.shutdownServiceServer", "simROS2.shutdownService");
+    _replaceScriptText_old(scriptObject, "simROS2.shutdownServiceClient", "simROS2.shutdownClient");
+    _replaceScriptText_old(scriptObject, "simROS2.shutdownSubscriber", "simROS2.shutdownSubscription");
+    _replaceScriptText_old(scriptObject, "simROS2.advertiseService", "simROS2.createService");
+    _replaceScriptText_old(scriptObject, "simROS2.serviceClient", "simROS2.createClient");
+    _replaceScriptText_old(scriptObject, "simROS2.subscribe", "simROS2.createSubscription");
+    _replaceScriptText_old(scriptObject, "simROS2.advertise", "simROS2.createPublisher");
+}
+void CScriptObject::_adjustScriptText13_old(CScriptObject* scriptObject, bool doIt)
+{ // for release 4.2.0:
+    if (!doIt)
+        return;
+    if (_scriptType != sim_scripttype_main)
+        _replaceScriptText_old(scriptObject, "sim.getSimulationState()~=sim.simulation_advancing_abouttostop", "true");
+    _replaceScriptText_old(scriptObject, "sim.getObjectAssociatedWithScript(sim.handle_self)",
+                           "sim.getObjectHandle(sim.handle_self)");
+
+    if (CSimFlavor::getBoolVal(18) && (_scriptType != sim_scripttype_main))
+    {
+        const char txt1[] = "function sysCall_actuation()\n\
+    if coroutine.status(corout)~='dead' then\n\
+        local ok,errorMsg=coroutine.resume(corout)\n\
+        if errorMsg then\n\
+            error(errorMsg)\n\
+        end\n";
+        const char txt2[] = "function sysCall_actuation()\n\
+    if coroutine.status(corout)~='dead' then\n\
+        local ok,errorMsg=coroutine.resume(corout)\n\
+        if errorMsg then\n\
+            error(debug.traceback(corout,errorMsg),2)\n\
+        end\n";
+        _replaceScriptText_old(scriptObject, txt1, txt2);
+    }
+}
+bool CScriptObject::_convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject, bool execJustOnce)
+{ // try to transform the threaded script into a non-threaded script with coroutines:
+    bool retVal = false;
+    if (_containsScriptText_old(scriptObject, "sysCall_threadmain"))
+    {
+        retVal = true;
+        _replaceScriptText_old(scriptObject, "sysCall_threadmain", "coroutineMain");
+        std::string txt = "function sysCall_init()\n\
+    corout=coroutine.create(coroutineMain)\n\
+end\n\
+\n\
+function sysCall_actuation()\n\
+    if coroutine.status(corout)~='dead' then\n\
+        local ok,errorMsg=coroutine.resume(corout)\n\
+        if errorMsg then\n\
+            error(debug.traceback(corout,errorMsg),2)\n\
+        end\n";
+        if (!execJustOnce)
+            txt += "    else\n        corout=coroutine.create(coroutineMain)\n";
+        txt += "    end\nend\n\n";
+        _insertScriptText_old(scriptObject, true, txt.c_str());
+    }
+    return retVal;
+}
+void CScriptObject::_adjustScriptText14_old(CScriptObject* scriptObject, bool doIt)
+{ // for release 4.2.1:
+    if (!doIt)
+        return;
+
+    _replaceScriptText_old(scriptObject, "sim.setObjectInt32Parameter", "sim.setObjectInt32Param");
+    _replaceScriptText_old(scriptObject, "sim.setObjectFloatParameter", "sim.setObjectFloatParam");
+    _replaceScriptText_old(scriptObject, "sim.getObjectStringParameter", "sim.getObjectStringParam");
+    _replaceScriptText_old(scriptObject, "sim.setObjectStringParameter", "sim.setObjectStringParam");
+
+    _replaceScriptText_old(scriptObject, "sim.setBoolParameter", "sim.setBoolParam");
+    _replaceScriptText_old(scriptObject, "sim.getBoolParameter", "sim.getBoolParam");
+    _replaceScriptText_old(scriptObject, "sim.setInt32Parameter", "sim.setInt32Param");
+    _replaceScriptText_old(scriptObject, "sim.getInt32Parameter", "sim.getInt32Param");
+    _replaceScriptText_old(scriptObject, "sim.setFloatParameter", "sim.setFloatParam");
+    _replaceScriptText_old(scriptObject, "sim.getFloatParameter", "sim.getFloatParam");
+    _replaceScriptText_old(scriptObject, "sim.setStringParameter", "sim.setStringParam");
+    _replaceScriptText_old(scriptObject, "sim.getStringParameter", "sim.getStringParam");
+    _replaceScriptText_old(scriptObject, "sim.setArrayParameter", "sim.setArrayParam");
+    _replaceScriptText_old(scriptObject, "sim.getArrayParameter", "sim.getArrayParam");
+
+    _replaceScriptText_old(scriptObject, "sim.getEngineBoolParameter", "sim.getEngineBoolParam_old");
+    _replaceScriptText_old(scriptObject, "sim.getEngineInt32Parameter", "sim.getEngineInt32Param");
+    _replaceScriptText_old(scriptObject, "sim.getEngineFloatParameter", "sim.getEngineFloatParam_old");
+    _replaceScriptText_old(scriptObject, "sim.setEngineBoolParameter", "sim.setEngineBoolParam_old");
+    _replaceScriptText_old(scriptObject, "sim.setEngineInt32Parameter", "sim.setEngineInt32Param");
+    _replaceScriptText_old(scriptObject, "sim.setEngineFloatParameter", "sim.setEngineFloatParam_old");
+
+    _replaceScriptText_old(scriptObject, "sim.setIntegerSignal", "sim.setInt32Signal");
+    _replaceScriptText_old(scriptObject, "sim.getIntegerSignal", "sim.getInt32Signal");
+    _replaceScriptText_old(scriptObject, "sim.clearIntegerSignal", "sim.clearInt32Signal");
+}
+
+void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject, bool doIt)
+{ // for release 4.3.0 and earlier:
+    if (!doIt)
+        return;
+
+    _replaceScriptText_old(scriptObject, "sim.rmlPos", "sim.ruckigPos");
+    _replaceScriptText_old(scriptObject, "sim.rmlVel", "sim.ruckigVel");
+    _replaceScriptText_old(scriptObject, "sim.rmlStep", "sim.ruckigStep");
+    _replaceScriptText_old(scriptObject, "sim.rmlRemove", "sim.ruckigRemove");
+
+    _replaceScriptText_old(scriptObject, "sim.rml_phase_sync_if_possible", "sim.ruckig_phasesync");
+    _replaceScriptText_old(scriptObject, "sim.rml_only_time_sync", "sim.ruckig_timesync");
+    _replaceScriptText_old(scriptObject, "sim.rml_only_phase_sync", "sim.ruckig_phasesync");
+    _replaceScriptText_old(scriptObject, "sim.rml_no_sync", "sim.ruckig_nosync");
+}
+
+void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject, bool doIt)
+{ // for release 4.4.0 and earlier:
+    if (!doIt)
+        return;
+
+    _replaceScriptText_old(scriptObject, "sim.getObjectSelection", "sim.getObjectSel");
+    _replaceScriptText_old(scriptObject, "sim.setObjectSelection", "sim.setObjectSel");
+    _replaceScriptText_old(scriptObject, "simIK.getJointIkWeight", "simIK.getJointWeight");
+    _replaceScriptText_old(scriptObject, "simIK.setJointIkWeight", "simIK.setJointWeight");
+    _replaceScriptText_old(scriptObject, "simIK.getIkGroupHandle", "simIK.getGroupHandle");
+    _replaceScriptText_old(scriptObject, "simIK.doesIkGroupExist", "simIK.doesGroupExist");
+    _replaceScriptText_old(scriptObject, "simIK.createIkGroup", "simIK.createGroup");
+    _replaceScriptText_old(scriptObject, "simIK.getIkGroupFlags", "simIK.getGroupFlags");
+    _replaceScriptText_old(scriptObject, "simIK.setIkGroupFlags", "simIK.setGroupFlags");
+    _replaceScriptText_old(scriptObject, "simIK.getIkGroupCalculation", "simIK.getGroupCalculation");
+    _replaceScriptText_old(scriptObject, "simIK.setIkGroupCalculation", "simIK.setGroupCalculation");
+    _replaceScriptText_old(scriptObject, "simIK.getIkGroupJointLimitHits", "simIK.getGroupJointLimitHits");
+    _replaceScriptText_old(scriptObject, "simIK.addIkElement", "simIK.addElement");
+    _replaceScriptText_old(scriptObject, "simIK.getIkElementFlags", "simIK.getElementFlags");
+    _replaceScriptText_old(scriptObject, "simIK.setIkElementFlags", "simIK.setElementFlags");
+    _replaceScriptText_old(scriptObject, "simIK.getIkElementBase", "simIK.getElementBase");
+    _replaceScriptText_old(scriptObject, "simIK.setIkElementBase", "simIK.setElementBase");
+    _replaceScriptText_old(scriptObject, "simIK.getIkElementConstraints", "simIK.getElementConstraints");
+    _replaceScriptText_old(scriptObject, "simIK.setIkElementConstraints", "simIK.setElementConstraints");
+    _replaceScriptText_old(scriptObject, "simIK.getIkElementPrecision", "simIK.getElementPrecision");
+    _replaceScriptText_old(scriptObject, "simIK.setIkElementPrecision", "simIK.setElementPrecision");
+    _replaceScriptText_old(scriptObject, "simIK.getIkElementWeights", "simIK.getElementWeights");
+    _replaceScriptText_old(scriptObject, "simIK.setIkElementWeights", "simIK.setElementWeights");
+    _replaceScriptText_old(scriptObject, "simIK.handleIkGroup", "simIK.handleGroup");
+    _replaceScriptText_old(scriptObject, "simIK.addIkElementFromScene", "simIK.addElementFromScene");
+}
+
+void CScriptObject::_adjustScriptText17_old(CScriptObject* scriptObject, bool doIt)
+{ // for release 4.5.1 and earlier:
+    if (!doIt)
+        return;
+
+    // _replaceScriptText_old(scriptObject,"sim.switchThread","sim.step");
+}
+
+void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
+{
+    /*
+    if (_containsScriptText_old(scriptObject, "sim.getStringSignal"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getStringSignal...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");
+    if (_containsScriptText_old(scriptObject, "sim.getNamedStringParam"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getNamedStringParam...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptStringParam"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptStringParam...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
+*/
+
+    /* Explicit requires:
+    std::string tmp;
+    _scriptText.insert(0,"\n");
+    if (_containsScriptText_old(scriptObject,"simROS2"))
+        tmp.insert(0,"simROS2=require'simROS2'\n");
+    if (_containsScriptText_old(scriptObject,"simROS"))
+        tmp.insert(0,"simROS=require'simROS'\n");
+    if (_containsScriptText_old(scriptObject,"simICP"))
+        tmp.insert(0,"simICP=require'simICP'\n");
+    if (_containsScriptText_old(scriptObject,"simIGL"))
+        tmp.insert(0,"simIGL=require'simIGL'\n");
+    if (_containsScriptText_old(scriptObject,"simEigen"))
+        tmp.insert(0,"simEigen=require'simEigen'\n");
+    if (_containsScriptText_old(scriptObject,"simIM"))
+        tmp.insert(0,"simIM=require'simIM'\n");
+    if (_containsScriptText_old(scriptObject,"simZMQ"))
+        tmp.insert(0,"simZMQ=require'simZMQ'\n");
+    if (_containsScriptText_old(scriptObject,"simWS"))
+        tmp.insert(0,"simWS=require'simWS'\n");
+    if (_containsScriptText_old(scriptObject,"simVision"))
+        tmp.insert(0,"simVision=require'simVision'\n");
+    if (_containsScriptText_old(scriptObject,"simURDF"))
+        tmp.insert(0,"simURDF=require'simURDF'\n");
+    if (_containsScriptText_old(scriptObject,"simSurfRec"))
+        tmp.insert(0,"simSurfRec=require'simSurfRec'\n");
+    if (_containsScriptText_old(scriptObject,"simSubprocess"))
+        tmp.insert(0,"simSubprocess=require'simSubprocess'\n");
+    if (_containsScriptText_old(scriptObject,"simSDF"))
+        tmp.insert(0,"simSDF=require'simSDF'\n");
+    if (_containsScriptText_old(scriptObject,"simRRS1"))
+        tmp.insert(0,"simRRS1=require'simRRS1'\n");
+    if (_containsScriptText_old(scriptObject,"simQHull"))
+        tmp.insert(0,"simQHull=require'simQHull'\n");
+    if (_containsScriptText_old(scriptObject,"simOpenMesh"))
+        tmp.insert(0,"simOpenMesh=require'simOpenMesh'\n");
+    if (_containsScriptText_old(scriptObject,"simOMPL"))
+        tmp.insert(0,"simOMPL=require'simOMPL'\n");
+    if (_containsScriptText_old(scriptObject,"simMTB"))
+        tmp.insert(0,"simMTB=require'simMTB'\n");
+    if (_containsScriptText_old(scriptObject,"simCHAI3D"))
+        tmp.insert(0,"simCHAI3D=require'simCHAI3D'\n");
+    if (_containsScriptText_old(scriptObject,"simBubble"))
+        tmp.insert(0,"simBubble=require'simBubble'\n");
+    if (_containsScriptText_old(scriptObject,"simGeom"))
+        tmp.insert(0,"simGeom=require'simGeom'\n");
+    if (_containsScriptText_old(scriptObject,"simAssimp"))
+        tmp.insert(0,"simAssimp=require'simAssimp'\n");
+    if (_containsScriptText_old(scriptObject,"simMujoco"))
+        tmp.insert(0,"simMujoco=require'simMujoco'\n");
+    if (_containsScriptText_old(scriptObject,"simUI"))
+        tmp.insert(0,"simUI=require'simUI'\n");
+    if (_containsScriptText_old(scriptObject,"simIK"))
+        tmp.insert(0,"simIK=require'simIK'\n");
+    tmp.insert(0,"sim=require'sim'\n");
+    printf("********************\n%s\n*********************\n",tmp.c_str());
+    _scriptText.insert(0,tmp);
+     // */
+
+    /*
+    std::smatch match;
+    std::regex regEx("sim.getObjectMatrix\\((.+),( *-1 *)\\)");
+    while (std::regex_search(_scriptText,match,regEx))
+    {
+        std::string nt(std::string("sim.getObjectMatrix(")+match.str(1)+",sim.handle_world)");
+        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
+    }
+    */
+    // if (getLanguage()==sim_lang_lua)
+    //    _scriptText.insert(0,"--lua\n\n");
+
+    //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
+    //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
+
+    std::smatch match;
+    std::regex regEx("sim.setInt32Signal\\('([^,]+),");
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.setFloatSignal\\('([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.setStringSignal\\('([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.getInt32Signal\\('([^']+)'";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.getFloatSignal\\('([^']+)'";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.getStringSignal\\('([^']+)'";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.clearInt32Signal\\('([^']+)'";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.clearFloatSignal\\('([^']+)'";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.clearStringSignal\\('([^']+)'";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.setInt32Signal\\(\"([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.setFloatSignal\\(\"([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.setStringSignal\\(\"([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.getInt32Signal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.getFloatSignal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.getStringSignal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.clearInt32Signal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.clearFloatSignal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.clearStringSignal\\(\"([^\"]+)\"";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomBufferData\\(([^,]+),'([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomBufferData\\(([^,]+), '([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomBufferData\\(([^,]+),\"([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomBufferData\\(([^,]+), \"([^,]+),";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ",");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.readCustomBufferData\\(([^,]+),'([^']+)'";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.readCustomBufferData\\(([^,]+), '([^']+)'";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + "', {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.readCustomBufferData\\(([^,]+),\"([^\"]+)\"";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.readCustomBufferData\\(([^,]+), \"([^\"]+)\"";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + "\", {noError = true}");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomTableData\\(([^,]+),'([^,]+),([^\\)]+)\\)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomTableData\\(([^,]+), '([^,]+),([^\\)]+)\\)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomTableData\\(([^,]+),\"([^,]+),([^\\)]+)\\)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "sim.writeCustomTableData\\(([^,]+), \"([^,]+),([^\\)]+)\\)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    std::string trueV = "true";
+    std::string falseV = "false";
+    if (scriptObject->getLang() == "python")
+    {
+        trueV = "True";
+        falseV = "False";
+    }
+
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_respondable\\s*,\\s*1\\s*\\)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'respondable', " + trueV + ")");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_respondable\\s*,\\s*0\\s*\\)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'respondable', " + falseV + ")");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.objintparam_visibility_layer";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setIntProperty(") + match.str(1) + ", 'layer'");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.getObjectInt32Param\\(([^,]+),\\s*sim.objintparam_visibility_layer";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.getIntProperty(") + match.str(1) + ", 'layer'");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_static\\s*,\\s*1\\s*\\)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'dynamic', " + falseV + ")");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_static\\s*,\\s*0\\s*\\)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'dynamic', " + trueV + ")");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "sim.getFloatParam\\(\\s*sim.floatparam_rand";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt("sim.getFloatProperty(sim.handle_app, 'randomFloat'");
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    if (_containsScriptText_old(scriptObject, "Int32Signal("))
+        App::logMsg(sim_verbosity_errors, "Contains Int32Signal(...");
+    if (_containsScriptText_old(scriptObject, "FloatSignal("))
+        App::logMsg(sim_verbosity_errors, "Contains FloatSignal(...");
+    if (_containsScriptText_old(scriptObject, "StringSignal("))
+        App::logMsg(sim_verbosity_errors, "Contains StringSignal(...");
+    if (_containsScriptText_old(scriptObject, "sim.getSignalName("))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getSignalName(...");
+    if (_containsScriptText_old(scriptObject, "BoolParam("))
+        App::logMsg(sim_verbosity_errors, "Contains BoolParam(...");
+    if (_containsScriptText_old(scriptObject, "Int32Param("))
+        App::logMsg(sim_verbosity_errors, "Contains Int32Param(...");
+    if (_containsScriptText_old(scriptObject, "FloatParam("))
+        App::logMsg(sim_verbosity_errors, "Contains FloatParam(...");
+    if (_containsScriptText_old(scriptObject, "StringParam("))
+        App::logMsg(sim_verbosity_errors, "Contains StringParam(...");
+    if (_containsScriptText_old(scriptObject, "ArrayParam("))
+        App::logMsg(sim_verbosity_errors, "Contains ArrayParam(...");
+    if (_containsScriptText_old(scriptObject, "ObjectProperty("))
+        App::logMsg(sim_verbosity_errors, "Contains ObjectProperty(...");
+    if (_containsScriptText_old(scriptObject, "ObjectSpecialProperty("))
+        App::logMsg(sim_verbosity_errors, "Contains ObjectSpecialProperty(...");
+    if (_containsScriptText_old(scriptObject, "ModelProperty("))
+        App::logMsg(sim_verbosity_errors, "Contains ModelProperty(...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomString"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomString...");
+    if (_containsScriptText_old(scriptObject, "sim.writeCustomString"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomString...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomBuffer"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomBuffer...");
+    if (_containsScriptText_old(scriptObject, "sim.writeCustomBuffer"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomBuffer...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomTable"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomTable...");
+    if (_containsScriptText_old(scriptObject, "sim.writeCustomTable"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomTable...");
+
+    if (_containsScriptText_old(scriptObject, "LightParameters"))
+        App::logMsg(sim_verbosity_errors, "Contains LightParameters...");
+
+    _replaceScriptText_old(scriptObject, "sim.light_omnidirectional_subtype", "sim.light_omnidirectional");
+    _replaceScriptText_old(scriptObject, "sim.light_spot_subtype", "sim.light_spot");
+    _replaceScriptText_old(scriptObject, "sim.light_directional_subtype", "sim.light_directional");
+    _replaceScriptText_old(scriptObject, "sim.joint_revolute_subtype", "sim.joint_revolute");
+    _replaceScriptText_old(scriptObject, "sim.joint_prismatic_subtype", "sim.joint_prismatic");
+    _replaceScriptText_old(scriptObject, "sim.joint_spherical_subtype", "sim.joint_spherical");
+    _replaceScriptText_old(scriptObject, "sim.shape_simpleshape_subtype", "sim.shape_simple");
+    _replaceScriptText_old(scriptObject, "sim.shape_multishape_subtype", "sim.shape_compound");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_pyramid_subtype", "sim.proximitysensor_pyramid");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_cylinder_subtype", "sim.proximitysensor_cylinder");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_disc_subtype", "sim.proximitysensor_disc");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_cone_subtype", "sim.proximitysensor_cone");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_ray_subtype", "sim.proximitysensor_ray");
+    _replaceScriptText_old(scriptObject, "sim.object_shape_type", "sim.sceneobject_shape");
+    _replaceScriptText_old(scriptObject, "sim.object_joint_type", "sim.sceneobject_joint");
+    _replaceScriptText_old(scriptObject, "sim.object_graph_type", "sim.sceneobject_graph");
+    _replaceScriptText_old(scriptObject, "sim.object_camera_type", "sim.sceneobject_camera");
+    _replaceScriptText_old(scriptObject, "sim.object_dummy_type", "sim.sceneobject_dummy");
+    _replaceScriptText_old(scriptObject, "sim.object_proximitysensor_type", "sim.sceneobject_proximitysensor");
+    _replaceScriptText_old(scriptObject, "sim.object_path_type", "sim.sceneobject_path");
+    _replaceScriptText_old(scriptObject, "sim.object_visionsensor_type", "sim.sceneobject_visionsensor");
+    _replaceScriptText_old(scriptObject, "sim.object_mill_type", "sim.sceneobject_mill");
+    _replaceScriptText_old(scriptObject, "sim.object_forcesensor_type", "sim.sceneobject_forcesensor");
+    _replaceScriptText_old(scriptObject, "sim.object_light_type", "sim.sceneobject_light");
+    _replaceScriptText_old(scriptObject, "sim.object_mirror_type", "sim.sceneobject_mirror");
+    _replaceScriptText_old(scriptObject, "sim.object_octree_type", "sim.sceneobject_octree");
+    _replaceScriptText_old(scriptObject, "sim.object_pointcloud_type", "sim.sceneobject_pointcloud");
+    _replaceScriptText_old(scriptObject, "sim.object_script_type", "sim.sceneobject_script");
+    _replaceScriptText_old(scriptObject, "sim.appobj_object_type", "sim.objecttype_sceneobject");
+    _replaceScriptText_old(scriptObject, "sim.appobj_collection_type", "sim.objecttype_collection");
+    _replaceScriptText_old(scriptObject, "sim.appobj_texture_type", "sim.objecttype_texture");
+
+    _replaceScriptText_old(scriptObject, "sim.scripttype_mainscript", "sim.scripttype_main");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_childscript", "sim.scripttype_simulation");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_addonscript", "sim.scripttype_addon");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_customizationscript", "sim.scripttype_customization");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_sandboxscript", "sim.scripttype_sandbox");
+
+    if (_containsScriptText_old(scriptObject, "sim.addScript"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.addScript...");
+    if (_containsScriptText_old(scriptObject, "sim.associateScriptWithObject"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.associateScriptWithObject...");
+    if (_containsScriptText_old(scriptObject, "sim.removeScript"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.removeScript...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptStringParam"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptStringParam...");
+    if (_containsScriptText_old(scriptObject, "sim.setScriptStringParam"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptStringParam...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptInt32Param"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptInt32Param...");
+    if (_containsScriptText_old(scriptObject, "sim.setScriptInt32Param"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptInt32Param...");
+    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_lang"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_lang...");
+    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_handle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_handle...");
+    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_objecthandle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_objecthandle...");
+
+    if (_containsScriptText_old(scriptObject, "sim.convexDecompose"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.convexDecompose...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getQHull"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getQHull...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getDecimatedMesh"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getDecimatedMesh...");
+
+    if (_containsScriptText_old(scriptObject, "sim.removeObject("))
+        App::logMsg(sim_verbosity_errors, "Contains sim.removeObject...");
+
+    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");
+    if (_containsScriptText_old(scriptObject, "sim.writeCustomDataBlock"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomDataBlock...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
+
+    if (_containsScriptText_old(scriptObject, "sim.dummyintparam_link_type"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.dummyintparam_link_type...");
+
+    if (_containsScriptText_old(scriptObject, "sim.dummylink_dynloopclosure"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.dummylink_dynloopclosure...");
+    if (_containsScriptText_old(scriptObject, "sim.dummylink_dyntendon"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.dummylink_dyntendon...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getThreadExitRequest"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getThreadExitRequest...");
+    if (_containsScriptText_old(scriptObject, "coroutine.create"))
+        App::logMsg(sim_verbosity_errors, "Contains coroutine.create...");
+
+    if (_containsScriptText_old(scriptObject, "sim.switchThread"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.switchThread...");
+    if (_containsScriptText_old(scriptObject, "sim.setThreadSwitchAllowed"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadSwitchAllowed...");
+    if (_containsScriptText_old(scriptObject, "sim.getThreadSwitchAllowed"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getThreadSwitchAllowed...");
+    if (_containsScriptText_old(scriptObject, "sim.setThreadAutomaticSwitch"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadAutomaticSwitch...");
+    if (_containsScriptText_old(scriptObject, "sim.getThreadAutomaticSwitch"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getThreadAutomaticSwitch...");
+    if (_containsScriptText_old(scriptObject, "sim.setThreadSwitchTiming"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadSwitchTiming...");
+    if (_containsScriptText_old(scriptObject, "sim.getThreadSwitchTiming"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getThreadSwitchTiming...");
+
+    if (_containsScriptText_old(scriptObject, "sim.shapestringparam_color_name"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.shapestringparam_color_name...");
+    if (_containsScriptText_old(scriptObject, "sim.invertMatrix"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.invertMatrix...");
+    if (_containsScriptText_old(scriptObject, "sim.invertPose"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.invertPose...");
+    if (_containsScriptText_old(scriptObject, "simIK.syncToIkWorld"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.syncToIkWorld...");
+    if (_containsScriptText_old(scriptObject, "simIK.syncFromIkWorld"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.syncFromIkWorld...");
+
+    if (_containsScriptText_old(scriptObject, "sim.reorientShapeBoundingBox"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.reorientShapeBoundingBox...");
+    if (_containsScriptText_old(scriptObject, "sim.createMeshShape"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.createMeshShape...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectSelection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectSelection...");
+    if (_containsScriptText_old(scriptObject, "sim.setObjectSelection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setObjectSelection...");
+    if (_containsScriptText_old(scriptObject, "simIK.getLinkedDummy"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.getLinkedDummy...");
+    if (_containsScriptText_old(scriptObject, "simIK.setLinkedDummy"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.setLinkedDummy...");
+
+    if (_containsScriptText_old(scriptObject, "simIK.result_not_performed"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.result_not_performed...");
+    if (_containsScriptText_old(scriptObject, "simIK.result_fail"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.result_fail...");
+
+    if (_containsScriptText_old(scriptObject, "simIK.applySceneToIkEnvironment"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.applySceneToIkEnvironment...");
+
+    if (_containsScriptText_old(scriptObject, "simIK.applyIkEnvironmentToScene"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.applyIkEnvironmentToScene...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getDoubleSignal"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getDoubleSignal...");
+    if (_containsScriptText_old(scriptObject, "sim.setDoubleSignal"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setDoubleSignal...");
+    if (_containsScriptText_old(scriptObject, "sim.clearDoubleSignal"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.clearDoubleSignal...");
+
+    if (_containsScriptText_old(scriptObject, "sysCall_jointCallback"))
+        App::logMsg(sim_verbosity_errors, "Contains sysCall_jointCallback...");
+    if (_containsScriptText_old(scriptObject, "sysCall_contactCallback"))
+        App::logMsg(sim_verbosity_errors, "Contains sysCall_contactCallback...");
+    if (_containsScriptText_old(scriptObject, "sysCall_dynCallback"))
+        App::logMsg(sim_verbosity_errors, "Contains sysCall_dynCallback...");
+
+    if (_containsScriptText_old(scriptObject, "sim.jointfloatparam_upper_limit"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.jointfloatparam_upper_limit...");
+
+    if (_containsScriptText_old(scriptObject, "sim.dummy_linktype"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.dummy_linktype...");
+
+    if (_containsScriptText_old(scriptObject, "sim.jointmode_passive"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.jointmode_passive...");
+    if (_containsScriptText_old(scriptObject, "sim.jointmode_force"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.jointmode_force...");
+
+    if (_containsScriptText_old(scriptObject, "sim.createPureShape"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.createPureShape...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorResolution"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorResolution...");
+    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorImage"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorImage...");
+    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorCharImage"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorCharImage...");
+    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorImage"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorImage...");
+    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorCharImage"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorCharImage...");
+    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorDepthBuffer"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorDepthBuffer...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getSystemTimeInMs"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getSystemTimeInMs...");
+
+    if (_containsScriptText_old(scriptObject, "sim.drawing_trianglepoints"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_trianglepoints...");
+    if (_containsScriptText_old(scriptObject, "sim.drawing_quadpoints"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_quadpoints...");
+    if (_containsScriptText_old(scriptObject, "sim.drawing_discpoints"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_discpoints...");
+    if (_containsScriptText_old(scriptObject, "sim.drawing_cubepoints"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_cubepoints...");
+    if (_containsScriptText_old(scriptObject, "sim.drawing_spherepoints"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_spherepoints...");
+    if (_containsScriptText_old(scriptObject, "sim.setJointMaxForce"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setJointMaxForce...");
+    if (_containsScriptText_old(scriptObject, "sim.getJointMaxForce"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getJointMaxForce...");
+    if (_containsScriptText_old(scriptObject, "sim.setScriptAttribute"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptAttribute...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptAttribute"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptAttribute...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectHandle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectHandle...");
+    if (_containsScriptText_old(scriptObject, "simIK.getConfigForTipPose"))
+        App::logMsg(sim_verbosity_errors, "Contains simIK.getConfigForTipPose...");
+    if (_containsScriptText_old(scriptObject, "sim.getJointMatrix"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getJointMatrix...");
+    if (_containsScriptText_old(scriptObject, "sim.setSphericalJointMatrix"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setSphericalJointMatrix...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectUniqueIdentifier"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectUniqueIdentifier...");
+    if (_containsScriptText_old(scriptObject, "sim.isObjectInSelection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.isObjectInSelection...");
+    if (_containsScriptText_old(scriptObject, "sim.addObjectToSelection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.addObjectToSelection...");
+    if (_containsScriptText_old(scriptObject, "sim.removeObjectFromSelection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.removeObjectFromSelection...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectLastSelection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectLastSelection...");
+    if (_containsScriptText_old(scriptObject, "sim.deleteSelectedObjects"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.deleteSelectedObjects...");
+    if (_containsScriptText_old(scriptObject, "sim.scaleSelectedObjects"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.scaleSelectedObjects...");
+    if (_containsScriptText_old(scriptObject, "sim.copyPasteSelectedObjects"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.copyPasteSelectedObjects...");
+    if (_containsScriptText_old(scriptObject, "sim.breakForceSensor"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.breakForceSensor...");
+
+    if (_containsScriptText_old(scriptObject, "sim.fileDlg"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.fileDlg...");
+    if (_containsScriptText_old(scriptObject, "sim.msgBox"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.msgBox...");
+    if (_containsScriptText_old(scriptObject, "sim.displayDialog"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.displayDialog...");
+
+    if (_containsScriptText_old(scriptObject, "Reflexxes"))
+        App::logMsg(sim_verbosity_errors, "Contains Reflexxes...");
+    if (_containsScriptText_old(scriptObject, "reflexxes"))
+        App::logMsg(sim_verbosity_errors, "Contains reflexxes...");
+    if (_containsScriptText_old(scriptObject, "sim.rml"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.rml*...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectHandle(sim.handle_self)"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectHandle(sim.handle_self)...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectName"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectName...");
+    if (_containsScriptText_old(scriptObject, "sim.setObjectName"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setObjectName...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptName"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptName...");
+    if (_containsScriptText_old(scriptObject, "sim.setScriptVariable"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptVariable...");
+    if (_containsScriptText_old(scriptObject, "sim.setSimilarName"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setSimilarName...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectAssociatedWithScript"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectAssociatedWithScript...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptAssociatedWithObject"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptAssociatedWithObject...");
+    if (_containsScriptText_old(scriptObject, "sim.getCustomizationScriptAssociatedWithObject"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getCustomizationScriptAssociatedWithObject...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectSizeValues"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectSizeValues...");
+    if (_containsScriptText_old(scriptObject, "sim.setObjectSizeValues"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setObjectSizeValues...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectConfiguration"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectConfiguration...");
+    if (_containsScriptText_old(scriptObject, "sim.setObjectConfiguration"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setObjectConfiguration...");
+    if (_containsScriptText_old(scriptObject, "sim.getConfigurationTree"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getConfigurationTree...");
+    if (_containsScriptText_old(scriptObject, "sim.setConfigurationTree"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setConfigurationTree...");
+
+    if (_containsScriptText_old(scriptObject, "__initFunctions"))
+        App::logMsg(sim_verbosity_errors, "Contains __initFunctions...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getObjectInt32Parameter"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectInt32Parameter...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectIntParameter"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectIntParameter...");
+    if (_containsScriptText_old(scriptObject, "sim.getObjectFloatParameter"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectFloatParameter...");
+    if (_containsScriptText_old(scriptObject, "sim.isHandleValid"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.isHandleValid...");
+    if (_containsScriptText_old(scriptObject, "sim.addPointCloud"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.addPointCloud...");
+
+    if (_containsScriptText_old(scriptObject, "sysCall_vision") &&
+        (scriptObject->_scriptType == sim_scripttype_customization))
+        App::logMsg(sim_verbosity_errors, "Contains a vision callback in a customization script");
+    if (_containsScriptText_old(scriptObject, "sysCall_trigger") &&
+        (scriptObject->_scriptType == sim_scripttype_customization))
+        App::logMsg(sim_verbosity_errors, "Contains a trigger callback in a customization script");
+
+    if (_containsScriptText_old(scriptObject, "sim.rmlMove"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.rmlMove...");
+    if (_containsScriptText_old(scriptObject, "sim.include"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.include...");
+    if (_containsScriptText_old(scriptObject, "sim.getIk"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getIk...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptSimulationParameter"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptSimulationParameter...");
+    if (_containsScriptText_old(scriptObject, "sim.setScriptSimulationParameter"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptSimulationParameter...");
+    if (_containsScriptText_old(scriptObject, "sim.tube"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.tube...");
+    if (_containsScriptText_old(scriptObject, "sim.addStatusbarMessage"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.addStatusbarMessage...");
+    if (_containsScriptText_old(scriptObject, "sim.getNameSuffix"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getNameSuffix...");
+    if (_containsScriptText_old(scriptObject, "sim.setNameSuffix"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setNameSuffix...");
+    if (_containsScriptText_old(scriptObject, "sim.resetMill"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.resetMill...");
+    if (_containsScriptText_old(scriptObject, "sim.handleMill"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.handleMill...");
+    if (_containsScriptText_old(scriptObject, "sim.resetMilling"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.resetMilling...");
+    if (_containsScriptText_old(scriptObject, "sim.openTextEditor"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.openTextEditor...");
+    if (_containsScriptText_old(scriptObject, "sim.closeTextEditor"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.closeTextEditor...");
+    if (_containsScriptText_old(scriptObject, "simGetMaterialId"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetMaterialId...");
+    if (_containsScriptText_old(scriptObject, "simGetShapeMaterial"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetShapeMaterial...");
+    if (_containsScriptText_old(scriptObject, "simHandleVarious"))
+        App::logMsg(sim_verbosity_errors, "Contains simHandleVarious...");
+    if (_containsScriptText_old(scriptObject, "simGetInstanceIndex"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetInstanceIndex...");
+    if (_containsScriptText_old(scriptObject, "simGetVisibleInstanceIndex"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetVisibleInstanceIndex...");
+    if (_containsScriptText_old(scriptObject, "simResetPath"))
+        App::logMsg(sim_verbosity_errors, "Contains simResetPath...");
+    if (_containsScriptText_old(scriptObject, "simHandlePath"))
+        App::logMsg(sim_verbosity_errors, "Contains simHandlePath...");
+    if (_containsScriptText_old(scriptObject, "simResetJoint"))
+        App::logMsg(sim_verbosity_errors, "Contains simResetJoint...");
+    if (_containsScriptText_old(scriptObject, "simHandleJoint"))
+        App::logMsg(sim_verbosity_errors, "Contains simHandleJoint...");
+    if (_containsScriptText_old(scriptObject, "simGetInvertedMatrix"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetInvertedMatrix...");
+    if (_containsScriptText_old(scriptObject, "simAddSceneCustomData"))
+        App::logMsg(sim_verbosity_errors, "Contains simAddSceneCustomData...");
+    if (_containsScriptText_old(scriptObject, "simGetSceneCustomData"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetSceneCustomData...");
+    if (_containsScriptText_old(scriptObject, "simAddObjectCustomData"))
+        App::logMsg(sim_verbosity_errors, "Contains simAddObjectCustomData...");
+    if (_containsScriptText_old(scriptObject, "simGetObjectCustomData"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetObjectCustomData...");
+    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorFilter"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorFilter...");
+    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorFilter"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorFilter...");
+    if (_containsScriptText_old(scriptObject, "sim.handleMechanism"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.handleMechanism...");
+    if (_containsScriptText_old(scriptObject, "sim.setPathTargetNominalVelocity"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setPathTargetNominalVelocity...");
+    if (_containsScriptText_old(scriptObject, "sim.setShapeMassAndInertia"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setShapeMassAndInertia...");
+    if (_containsScriptText_old(scriptObject, "sim.getShapeMassAndInertia"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getShapeMassAndInertia...");
+    if (_containsScriptText_old(scriptObject, "sim.checkIkGroup"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.checkIkGroup...");
+    if (_containsScriptText_old(scriptObject, "sim.handleIkGroup"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.handleIkGroup...");
+    if (_containsScriptText_old(scriptObject, "sim.createIkGroup"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.createIkGroup...");
+    if (_containsScriptText_old(scriptObject, "sim.removeIkGroup"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.removeIkGroup...");
+    if (_containsScriptText_old(scriptObject, "sim.createIkElement"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.createIkElement...");
+    if (_containsScriptText_old(scriptObject, "sim.exportIk"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.exportIk...");
+    if (_containsScriptText_old(scriptObject, "sim.computeJacobian"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.computeJacobian...");
+    if (_containsScriptText_old(scriptObject, "sim.getConfigForTipPose"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getConfigForTipPose...");
+    if (_containsScriptText_old(scriptObject, "sim.generateIkPath"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.generateIkPath...");
+    if (_containsScriptText_old(scriptObject, "sim.getIkGroupHandle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getIkGroupHandle...");
+    if (_containsScriptText_old(scriptObject, "sim.getIkGroupMatrix"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getIkGroupMatrix...");
+    if (_containsScriptText_old(scriptObject, "sim.setIkGroupProperties"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setIkGroupProperties...");
+    if (_containsScriptText_old(scriptObject, "sim.setIkElementProperties"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setIkElementProperties...");
+    if (_containsScriptText_old(scriptObject, "sim.setThreadIsFree"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadIsFree...");
+    if (_containsScriptText_old(scriptObject, "simSetUIPosition"))
+        App::logMsg(sim_verbosity_errors, "Contains simSetUIPosition...");
+    if (_containsScriptText_old(scriptObject, "simGetUIPosition"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetUIPosition...");
+    if (_containsScriptText_old(scriptObject, "simGetUIHandle"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetUIHandle...");
+    if (_containsScriptText_old(scriptObject, "simGetUIProperty"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetUIProperty...");
+    if (_containsScriptText_old(scriptObject, "simSetUIProperty"))
+        App::logMsg(sim_verbosity_errors, "Contains simSetUIProperty...");
+    if (_containsScriptText_old(scriptObject, "simGetUIEventButton"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetUIEventButton...");
+    if (_containsScriptText_old(scriptObject, "simGetUIButtonProperty"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonProperty...");
+    if (_containsScriptText_old(scriptObject, "simSetUIButtonProperty"))
+        App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonProperty...");
+    if (_containsScriptText_old(scriptObject, "simGetUIButtonSize"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonSize...");
+    if (_containsScriptText_old(scriptObject, "simSetUIButtonLabel"))
+        App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonLabel...");
+    if (_containsScriptText_old(scriptObject, "simGetUIButtonLabel"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonLabel...");
+    if (_containsScriptText_old(scriptObject, "simSetUISlider"))
+        App::logMsg(sim_verbosity_errors, "Contains simSetUISlider...");
+    if (_containsScriptText_old(scriptObject, "simGetUISlider"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetUISlider...");
+    if (_containsScriptText_old(scriptObject, "simCreateUIButtonArray"))
+        App::logMsg(sim_verbosity_errors, "Contains simCreateUIButtonArray...");
+    if (_containsScriptText_old(scriptObject, "simSetUIButtonArrayColor"))
+        App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonArrayColor...");
+    if (_containsScriptText_old(scriptObject, "simDeleteUIButtonArray"))
+        App::logMsg(sim_verbosity_errors, "Contains simDeleteUIButtonArray...");
+    if (_containsScriptText_old(scriptObject, "simCreateUI"))
+        App::logMsg(sim_verbosity_errors, "Contains simCreateUI...");
+    if (_containsScriptText_old(scriptObject, "simCreateUIButton"))
+        App::logMsg(sim_verbosity_errors, "Contains simCreateUIButton...");
+    if (_containsScriptText_old(scriptObject, "simLoadUI"))
+        App::logMsg(sim_verbosity_errors, "Contains simLoadUI...");
+    if (_containsScriptText_old(scriptObject, "simSaveUI"))
+        App::logMsg(sim_verbosity_errors, "Contains simSaveUI...");
+    if (_containsScriptText_old(scriptObject, "simRemoveUI"))
+        App::logMsg(sim_verbosity_errors, "Contains simRemoveUI...");
+    if (_containsScriptText_old(scriptObject, "simSetUIButtonColor"))
+        App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonColor...");
+    if (_containsScriptText_old(scriptObject, "simHandleChildScript"))
+        App::logMsg(sim_verbosity_errors, "Contains simHandleChildScript...");
+    if (_containsScriptText_old(scriptObject, "simSearchPath"))
+        App::logMsg(sim_verbosity_errors, "Contains simSearchPath...");
+    if (_containsScriptText_old(scriptObject, "simInitializePathSearch"))
+        App::logMsg(sim_verbosity_errors, "Contains simInitializePathSearch...");
+    if (_containsScriptText_old(scriptObject, "simPerformPathSearchStep"))
+        App::logMsg(sim_verbosity_errors, "Contains simPerformPathSearchStep...");
+    if (_containsScriptText_old(scriptObject, "sim.sendData"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.sendData...");
+    if (_containsScriptText_old(scriptObject, "sim.receiveData"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.receiveData...");
+    if (_containsScriptText_old(scriptObject, "simSerialPortOpen"))
+        App::logMsg(sim_verbosity_errors, "Contains simSerialPortOpen...");
+    if (_containsScriptText_old(scriptObject, "simSerialPortClose"))
+        App::logMsg(sim_verbosity_errors, "Contains simSerialPortClose...");
+    if (_containsScriptText_old(scriptObject, "simSerialPortSend"))
+        App::logMsg(sim_verbosity_errors, "Contains simSerialPortSend...");
+    if (_containsScriptText_old(scriptObject, "simSerialPortRead"))
+        App::logMsg(sim_verbosity_errors, "Contains simSerialPortRead...");
+    if (_containsScriptText_old(scriptObject, "sim.rmlMoveToJointPositions"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.rmlMoveToJointPositions...");
+    if (_containsScriptText_old(scriptObject, "simRMLMoveToJointPositions"))
+        App::logMsg(sim_verbosity_errors, "Contains simRMLMoveToJointPositions...");
+    if (_containsScriptText_old(scriptObject, "sim.rmlMoveToPosition"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.rmlMoveToPosition...");
+    if (_containsScriptText_old(scriptObject, "simRMLMoveToPosition"))
+        App::logMsg(sim_verbosity_errors, "Contains simRMLMoveToPosition...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getCollectionHandle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getCollectionHandle...");
+    if (_containsScriptText_old(scriptObject, "sim.addCollection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.addCollection...");
+    if (_containsScriptText_old(scriptObject, "sim.addObjectToCollection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.addObjectToCollection...");
+    if (_containsScriptText_old(scriptObject, "sim.emptyCollection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.emptyCollection...");
+    if (_containsScriptText_old(scriptObject, "sim.removeCollection"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.removeCollection...");
+    if (_containsScriptText_old(scriptObject, "sim.getCollectionName"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getCollectionName...");
+    if (_containsScriptText_old(scriptObject, "sim.setCollectionName"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setCollectionName...");
+    if (_containsScriptText_old(scriptObject, "sim.getCollisionHandle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getCollisionHandle...");
+    if (_containsScriptText_old(scriptObject, "sim.handleCollision"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.handleCollision...");
+    if (_containsScriptText_old(scriptObject, "sim.readCollision"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCollision...");
+    if (_containsScriptText_old(scriptObject, "sim.resetCollision"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.resetCollision...");
+    if (_containsScriptText_old(scriptObject, "sim.getDistanceHandle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getDistanceHandle...");
+    if (_containsScriptText_old(scriptObject, "sim.handleDistance"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.handleDistance...");
+    if (_containsScriptText_old(scriptObject, "sim.readDistance"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readDistance...");
+    if (_containsScriptText_old(scriptObject, "sim.resetDistance"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.resetDistance...");
+    if (_containsScriptText_old(scriptObject, "sim.boolAnd32"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.boolAnd32...");
+    if (_containsScriptText_old(scriptObject, "sim.boolOr32"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.boolOr32...");
+    if (_containsScriptText_old(scriptObject, "sim.boolXor32"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.boolXor32...");
+    if (_containsScriptText_old(scriptObject, "simBoolAnd32"))
+        App::logMsg(sim_verbosity_errors, "Contains simBoolAnd32...");
+    if (_containsScriptText_old(scriptObject, "simBoolOr32"))
+        App::logMsg(sim_verbosity_errors, "Contains simBoolOr32...");
+    if (_containsScriptText_old(scriptObject, "simBoolXor32"))
+        App::logMsg(sim_verbosity_errors, "Contains simBoolXo32...");
+    if (_containsScriptText_old(scriptObject, "simBoolAnd16"))
+        App::logMsg(sim_verbosity_errors, "Contains simBoolAnd16...");
+    if (_containsScriptText_old(scriptObject, "simBoolOr16"))
+        App::logMsg(sim_verbosity_errors, "Contains simBoolOr16...");
+    if (_containsScriptText_old(scriptObject, "simBoolXor16"))
+        App::logMsg(sim_verbosity_errors, "Contains simBoolXo16...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getScriptExecutionCount"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptExecutionCount...");
+    if (_containsScriptText_old(scriptObject, "sim.isScriptRunningInThread"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.isScriptRunningInThread...");
+    if (_containsScriptText_old(scriptObject, "sim.isScriptExecutionThreaded"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.isScriptExecutionThreaded...");
+    if (_containsScriptText_old(scriptObject, "sim.setThreadResumeLocation"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadResumeLocation...");
+    if (_containsScriptText_old(scriptObject, "sim.resumeThreads"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.resumeThreads...");
+    if (_containsScriptText_old(scriptObject, "sim.launchThreadedChildScripts"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.launchThreadedChildScripts...");
+    if (_containsScriptText_old(scriptObject, "simGetScriptExecutionCount"))
+        App::logMsg(sim_verbosity_errors, "Contains simGetScriptExecutionCount...");
+    if (_containsScriptText_old(scriptObject, "simIsScriptExecutionThreaded"))
+        App::logMsg(sim_verbosity_errors, "Contains simIsScriptExecutionThreaded...");
+    if (_containsScriptText_old(scriptObject, "simIsScriptRunningInThread"))
+        App::logMsg(sim_verbosity_errors, "Contains simIsScriptRunningInThread...");
+    if (_containsScriptText_old(scriptObject, "simSetThreadResumeLocation"))
+        App::logMsg(sim_verbosity_errors, "Contains simSetThreadResumeLocation...");
+    if (_containsScriptText_old(scriptObject, "sim.setJointForce"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setJointForce...");
+    if (_containsScriptText_old(scriptObject, "simResumeThreads"))
+        App::logMsg(sim_verbosity_errors, "Contains simResumeThreads...");
+    if (_containsScriptText_old(scriptObject, "simLaunchThreadedChildScripts"))
+        App::logMsg(sim_verbosity_errors, "Contains simLaunchThreadedChildScripts...");
+    if (_containsScriptText_old(scriptObject, "sim.copyMatrix"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.copyMatrix...");
+    if (_containsScriptText_old(scriptObject, "sim.getPathPosition"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getPathPosition...");
+    if (_containsScriptText_old(scriptObject, "sim.setPathPosition"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setPathPosition...");
+
+    if (_containsScriptText_old(scriptObject, "'utils'"))
+        App::logMsg(sim_verbosity_errors, "Contains 'utils'...");
+
+    //************************************************************
+    // Scripts containing following should remain handled in threaded mode:
+    if (_containsScriptText_old(scriptObject, "simMoveToPosition"))
+        App::logMsg(sim_verbosity_errors, "Contains simMoveToPosition...");
+    if (_containsScriptText_old(scriptObject, "sim.moveToPosition"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.moveToPosition...");
+    if (_containsScriptText_old(scriptObject, "simMoveToObject"))
+        App::logMsg(sim_verbosity_errors, "Contains simMoveToObject...");
+    if (_containsScriptText_old(scriptObject, "sim.moveToObject"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.moveToObject...");
+    if (_containsScriptText_old(scriptObject, "simFollowPath"))
+        App::logMsg(sim_verbosity_errors, "Contains simFollowPath...");
+    if (_containsScriptText_old(scriptObject, "sim.followPath"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.followPath...");
+    if (_containsScriptText_old(scriptObject, "simMoveToJointPositions"))
+        App::logMsg(sim_verbosity_errors, "Contains simMoveToJointPositions...");
+    if (_containsScriptText_old(scriptObject, "sim.moveToJointPositions"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.moveToJointPositions...");
+    //************************************************************
+}
+// **************************************************************
+// **************************************************************
+
 // Old
 // **************************************************************
 // **************************************************************
-VMutex CScriptObject::_globalMutex_oldThreads;
-std::vector<CScriptObject*> CScriptObject::toBeCalledByThread_oldThreads;
+std::string CScriptObject::_replaceOldApi(const char* txt, bool forwardAdjustment)
+{ // recursive
+    size_t p = std::string(txt).find("sim");
+    if (p != std::string::npos)
+    {
+        std::string beforePart;
+        std::string apiWord;
+        std::string afterPart;
+        _splitApiText_old(txt, p, beforePart, apiWord, afterPart);
+        std::map<std::string, std::string>::iterator it = _newApiMap_old.find(apiWord);
+        if (it != _newApiMap_old.end())
+        {
+            apiWord = it->second;
+            // Do a second stage replacement:
+            std::map<std::string, std::string>::iterator it2 = _newApiMap_old.find(apiWord);
+            if (it2 != _newApiMap_old.end())
+                apiWord = it2->second;
+        }
+        return (beforePart + apiWord + _replaceOldApi(afterPart.c_str(), forwardAdjustment));
+    }
+    return (std::string(txt));
+}
+void CScriptObject::_performNewApiAdjustments_old(CScriptObject* scriptObject, bool forwardAdjustment)
+{
+    std::vector<const SNewApiMapping*> all;
+    if (_newApiMap_old.begin() == _newApiMap_old.end())
+        all.push_back(_simApiMapping);
+    all.push_back(_simBubbleApiMapping);
+    all.push_back(_simK3ApiMapping);
+    all.push_back(_simMTBApiMapping);
+    all.push_back(_simOpenMeshApiMapping);
+    all.push_back(_simSkeletonApiMapping);
+    all.push_back(_simQHullApiMapping);
+    all.push_back(_simRemoteApiApiMapping);
+    all.push_back(_simRRS1ApiMapping);
+    all.push_back(_simVisionApiMapping);
+    all.push_back(_simCamApiMapping);
+    all.push_back(_simJoyApiMapping);
+    all.push_back(_simWiiApiMapping);
+    all.push_back(_simURDFApiMapping);
+    all.push_back(_simBWFApiMapping);
+    all.push_back(_simUIApiMapping);
+    all.push_back(_simROSApiMapping);
+    all.push_back(_simICPApiMapping);
+    all.push_back(_simOMPLApiMapping);
+    all.push_back(_simSDFApiMapping);
+    all.push_back(_simSurfRecApiMapping);
+    all.push_back(_simxApiMapping);
+
+    for (size_t j = 0; j < all.size(); j++)
+    {
+        const SNewApiMapping* aMapping = all[j];
+        for (int i = 0; aMapping[i].oldApi != ""; i++)
+        {
+            if (forwardAdjustment)
+                _newApiMap_old[aMapping[i].oldApi] = aMapping[i].newApi;
+            else
+                _newApiMap_old[aMapping[i].newApi] = aMapping[i].oldApi;
+        }
+    }
+
+    std::string theScript(scriptObject->getScriptText());
+    theScript = _replaceOldApi(theScript.c_str(), forwardAdjustment);
+    scriptObject->setScriptText(theScript.c_str());
+}
+
 std::map<std::string, std::string> CScriptObject::_newApiMap_old;
 const SNewApiMapping _simApiMapping[] = {
     "sim.mainscriptcall_initialization",
@@ -8215,2575 +10335,5 @@ const SNewApiMapping _simxApiMapping[] = {
     "",
     "",
 };
-void CScriptObject::setRaiseErrors_backCompatibility(bool raise)
-{
-    _raiseErrors_backCompatibility = raise;
-}
-void CScriptObject::setExecutionPriority_old(int order)
-{
-    _executionPriority_old = tt::getLimitedInt(sim_scriptexecorder_first, sim_scriptexecorder_last, order);
-}
-int CScriptObject::getExecutionPriority_old() const
-{
-    return (_executionPriority_old);
-}
-bool CScriptObject::getRaiseErrors_backCompatibility() const
-{
-    return (_raiseErrors_backCompatibility);
-}
-void CScriptObject::setObjectCustomData_old(int header, const char* data, int dataLength)
-{
-    if (_customObjectData_old == nullptr)
-        _customObjectData_old = new CCustomData_old();
-    _customObjectData_old->setData(header, data, dataLength);
-}
-int CScriptObject::getObjectCustomDataLength_old(int header) const
-{
-    if (_customObjectData_old == nullptr)
-        return (0);
-    return (_customObjectData_old->getDataLength(header));
-}
-void CScriptObject::getObjectCustomData_old(int header, char* data) const
-{
-    if (_customObjectData_old == nullptr)
-        return;
-    _customObjectData_old->getData(header, data);
-}
-void CScriptObject::setObjectCustomData_tempData_old(int header, const char* data, int dataLength)
-{
-    if (_customObjectData_tempData_old == nullptr)
-        _customObjectData_tempData_old = new CCustomData_old();
-    _customObjectData_tempData_old->setData(header, data, dataLength);
-}
-int CScriptObject::getObjectCustomDataLength_tempData_old(int header) const
-{
-    if (_customObjectData_tempData_old == nullptr)
-        return (0);
-    return (_customObjectData_tempData_old->getDataLength(header));
-}
-void CScriptObject::getObjectCustomData_tempData_old(int header, char* data) const
-{
-    if (_customObjectData_tempData_old == nullptr)
-        return;
-    _customObjectData_tempData_old->getData(header, data);
-}
-void CScriptObject::setExecuteJustOnce_oldThreads(bool justOnce)
-{
-    _executeJustOnce_oldThreads = justOnce;
-}
-bool CScriptObject::getExecuteJustOnce_oldThreads() const
-{
-    return (_executeJustOnce_oldThreads);
-}
-void CScriptObject::setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled)
-{
-    _custScriptDisabledDSim_compatibilityMode_DEPRECATED = disabled;
-}
-bool CScriptObject::getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const
-{
-    return (_custScriptDisabledDSim_compatibilityMode_DEPRECATED);
-}
-void CScriptObject::setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt)
-{
-    _customizationScriptCleanupBeforeSave_DEPRECATED = doIt;
-}
-bool CScriptObject::getCustomizationScriptCleanupBeforeSave_DEPRECATED() const
-{
-    return (_customizationScriptCleanupBeforeSave_DEPRECATED);
-}
-void CScriptObject::_handleCallbackEx_old(int calltype)
-{
-    std::string e;
-    if (calltype == sim_syscb_cleanup)
-        e = "_S.sysCallEx_cleanup";
-    if (calltype == sim_syscb_beforeinstanceswitch)
-        e = "_S.sysCallEx_beforeInstanceSwitch";
-    if (calltype == sim_syscb_afterinstanceswitch)
-        e = "_S.sysCallEx_afterInstanceSwitch";
-    if (calltype == sim_syscb_aos_suspend)
-        e = "_S.sysCallEx_addOnScriptSuspend";
-    if (calltype == sim_syscb_aos_resume)
-        e = "_S.sysCallEx_addOnScriptResume";
-    if (e.size() > 0)
-    {
-        e = "if " + e + " then " + e + "() end";
-        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState, e.c_str());
-    }
-}
-int CScriptObject::_getScriptNameIndexNumber_old() const
-{
-    int retVal = -1;
-    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
-    {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
-        if (it != nullptr)
-            retVal = tt::getNameSuffixNumber(it->getObjectName_old().c_str(), true);
-    }
-    return (retVal);
-}
-std::string CScriptObject::getScriptPseudoName_old() const
-{
-    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
-    {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
-        if (it != nullptr)
-            return (it->getObjectName_old());
-    }
-    if ((_scriptType == sim_scripttype_addon) || (_scriptType == sim_scripttype_addonfunction))
-        return (_addOnMenuName);
-    return ("");
-}
-void CScriptObject::setThreadedExecution_oldThreads(bool threadedExec)
-{
-    if (threadedExec)
-    {
-        if (_scriptType == sim_scripttype_simulation)
-            _threadedExecution_oldThreads = true;
-    }
-    else
-        _threadedExecution_oldThreads = false;
-}
-bool CScriptObject::getThreadedExecution_oldThreads() const
-{
-    return (_threadedExecution_oldThreads);
-}
-bool CScriptObject::getThreadedExecutionIsUnderWay_oldThreads() const
-{
-    return (_threadedExecutionUnderWay_oldThreads);
-}
-bool CScriptObject::launchThreadedChildScript_oldThreads()
-{
-    TRACE_INTERNAL;
-    if (_threadedExecutionUnderWay_oldThreads)
-        return (false); // this script is being executed by another thread!
-
-    if (_scriptTextExec.size() == 0)
-    {
-        fromFileToBuffer();
-        _scriptTextExec.assign(_scriptText.begin(), _scriptText.end());
-    }
-
-    if (_executeJustOnce_oldThreads && (_numberOfPasses > 0))
-        return (false);
-
-    if (CThreadPool_old::getSimulationStopRequested()) // will also return true in case of emergency stop request
-        return (false);
-
-    _threadedExecutionUnderWay_oldThreads = true;
-    _globalMutex_oldThreads.lock("CScriptObject::launchThreadedChildScript()");
-    toBeCalledByThread_oldThreads.push_back(this);
-    _globalMutex_oldThreads.unlock();
-    _threadedScript_associatedFiberOrThreadID_oldThreads =
-        CThreadPool_old::createNewThread(_startAddressForThreadedScripts_oldThreads);
-    _calledInThisSimulationStep = true;
-    CThreadPool_old::switchToThread(_threadedScript_associatedFiberOrThreadID_oldThreads);
-    return (true);
-}
-void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
-{
-    TRACE_INTERNAL;
-    if ((_scriptState & scriptState_error) != 0)
-        return;
-    setScriptState(scriptState_unloaded);
-
-    _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
-    _forbidOverallYieldingLevel = 0;
-
-    if (_interpreterState == nullptr)
-    {
-        if (_initInterpreterState(nullptr))
-            _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState, "_S.sysCallEx_init()");
-    }
-    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    _execSimpleString_safe_lua(L, "sim_call_type=-1"); // for backward compatibility
-
-    if (_loadBuffer_lua(_scriptTextExec.c_str(), _scriptTextExec.size(), getShortDescriptiveName().c_str()))
-    {
-        luaWrap_lua_getglobal(L, "debug");
-        luaWrap_lua_getfield(L, -1, "traceback");
-        luaWrap_lua_remove(L, -2);
-        int argCnt = 0;
-        int errindex = -argCnt - 2;
-        luaWrap_lua_insert(L, errindex);
-        if (_executionDepth == 0)
-            _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-        setExecutionDepth(_executionDepth + 1);
-        if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
-        { // a runtime error occurred!
-            setExecutionDepth(_executionDepth - 1);
-            if (_executionDepth == 0)
-                _timeOfScriptExecutionStart = -1;
-            setScriptState(_scriptState | scriptState_error);
-            // We have to exit the thread free mode if we are still in there (the instance should automatically be
-            // restored when this thread resumes):
-            if (CThreadPool_old::isThreadInFreeMode())
-                CThreadPool_old::setThreadFreeMode(false);
-
-            std::string errMsg;
-            if (luaWrap_lua_isstring(L, -1))
-                errMsg = std::string(luaWrap_lua_tostring(L, -1));
-            else
-                errMsg = "(error unknown)";
-            luaWrap_lua_pop(L, 1); // pop error from stack
-            _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
-        }
-        else
-        {
-            setExecutionDepth(_executionDepth - 1);
-            if (_executionDepth == 0)
-                _timeOfScriptExecutionStart = -1;
-            setScriptState(scriptState_initialized);
-            luaWrap_lua_getglobal(L, getSystemCallbackString(sim_syscb_vision, 0).c_str());
-            _containedSystemCallbacks[sim_syscb_vision] = luaWrap_lua_isfunction(L, -1);
-            luaWrap_lua_getglobal(L, getSystemCallbackString(sim_syscb_trigger, 0).c_str());
-            _containedSystemCallbacks[sim_syscb_trigger] = luaWrap_lua_isfunction(L, -1);
-
-            int calls[2] = {sim_syscb_threadmain, sim_syscb_cleanup};
-            for (size_t callIndex = 0; callIndex < 2; callIndex++)
-            {
-                // Push the function name onto the stack (will be automatically popped from stack after
-                // luaWrap_lua_pcall):
-                std::string funcName(getSystemCallbackString(calls[callIndex], 0));
-                luaWrap_lua_getglobal(L, funcName.c_str());
-                if (luaWrap_lua_isfunction(L, -1))
-                { // ok, the function exists!
-                    // Push the arguments onto the stack (will be automatically popped from stack after
-                    // luaWrap_lua_pcall):
-                    luaWrap_lua_getglobal(L, "debug");
-                    luaWrap_lua_getfield(L, -1, "traceback");
-                    luaWrap_lua_remove(L, -2);
-                    int argCnt = 0;
-                    int errindex = -argCnt - 2;
-                    luaWrap_lua_insert(L, errindex);
-                    if (_executionDepth == 0)
-                        _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-                    setExecutionDepth(_executionDepth + 1);
-                    if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(),
-                                          errindex) != 0)
-                    { // a runtime error occurred!
-                        setExecutionDepth(_executionDepth - 1);
-                        if (_executionDepth == 0)
-                            _timeOfScriptExecutionStart = -1;
-                        setScriptState(_scriptState | scriptState_error);
-                        if (CThreadPool_old::isThreadInFreeMode())
-                            CThreadPool_old::setThreadFreeMode(false);
-                        std::string errMsg;
-                        if (luaWrap_lua_isstring(L, -1))
-                            errMsg = std::string(luaWrap_lua_tostring(L, -1));
-                        else
-                            errMsg = "(error unknown)";
-                        luaWrap_lua_pop(L, 1); // pop error from stack
-                        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
-                    }
-                    else
-                    {
-                        if (calls[callIndex] == sim_syscb_cleanup)
-                            _handleCallbackEx_old(sim_syscb_cleanup);
-                        setExecutionDepth(_executionDepth - 1);
-                        if (_executionDepth == 0)
-                            _timeOfScriptExecutionStart = -1;
-                    }
-                }
-                else
-                    luaWrap_lua_pop(L, 1); // pop the function name
-            }
-            int ss = (_scriptState & scriptState_error); // keep the error flag
-            ss |= scriptState_ended;
-            setScriptState(ss);
-            if (CThreadPool_old::isThreadInFreeMode())
-                CThreadPool_old::setThreadFreeMode(false);
-        }
-    }
-    else
-    { // A compilation error occurred!
-        setScriptState(_scriptState | scriptState_error);
-        std::string errMsg;
-        if (luaWrap_lua_isstring(L, -1))
-            errMsg = std::string(luaWrap_lua_tostring(L, -1));
-        else
-            errMsg = "(error unknown)";
-        luaWrap_lua_pop(L, 1); // pop error from stack
-        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), false);
-    }
-    _killInterpreterState();
-    setNumberOfPasses(_numberOfPasses + 1);
-}
-int CScriptObject::resumeThreadedChildScriptIfLocationMatch_oldThreads(int resumeLocation)
-{ // returns 0 (not resumed) or 1
-    bool res = (CThreadPool_old::handleThread_ifHasResumeLocation(_threadedScript_associatedFiberOrThreadID_oldThreads,
-                                                                  false, resumeLocation) == 1);
-    _calledInThisSimulationStep = _calledInThisSimulationStep || res;
-    return (res);
-}
-bool CScriptObject::_callScriptChunk_old(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    if (!_compatibilityMode_oldLua)
-        return (false);
-    if ((_scriptState & 7) != scriptState_initialized)
-        return (false);
-    if ((_scriptState & scriptState_error) != 0)
-        return (false);
-
-    _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
-    _forbidOverallYieldingLevel = 0;
-
-    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
-    std::string tmp("sim_call_type=");
-    tmp += std::to_string(callType);
-    _execSimpleString_safe_lua(L, tmp.c_str());
-    if (_loadBuffer_lua(_scriptTextExec.c_str(), _scriptTextExec.size(), getShortDescriptiveName().c_str()))
-    {
-        int inputArgs = 0;
-        if (inStack != nullptr)
-        {
-            inputArgs = inStack->getStackSize();
-            if (inputArgs != 0)
-                buildOntoInterpreterStack_lua(L, inStack, false);
-        }
-        luaWrap_lua_getglobal(L, "debug");
-        luaWrap_lua_getfield(L, -1, "traceback");
-        luaWrap_lua_remove(L, -2);
-        int argCnt = inputArgs;
-        int errindex = -argCnt - 2;
-        luaWrap_lua_insert(L, errindex);
-        if (_executionDepth == 0)
-            _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-        setExecutionDepth(_executionDepth + 1);
-        if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
-        { // a runtime error occurred!
-            setExecutionDepth(_executionDepth - 1);
-            if (_executionDepth == 0)
-                _timeOfScriptExecutionStart = -1;
-            setScriptState(_scriptState | scriptState_error);
-            std::string errMsg;
-            if (luaWrap_lua_isstring(L, -1))
-                errMsg = std::string(luaWrap_lua_tostring(L, -1));
-            else
-                errMsg = "(error unknown)";
-            luaWrap_lua_pop(L, 1); // pop error from stack
-            _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
-        }
-        else
-        {
-            _handleCallbackEx_old(callType);
-            setExecutionDepth(_executionDepth - 1);
-            if (_executionDepth == 0)
-                _timeOfScriptExecutionStart = -1;
-            if (outStack != nullptr)
-            {
-                int currentTop = luaWrap_lua_gettop(L);
-                int numberOfArgs = currentTop - oldTop - 1; // the first arg is linked to the debug mechanism
-                buildFromInterpreterStack_lua(L, outStack, oldTop + 1 + 1,
-                                              numberOfArgs); // the first arg is linked to the debug mechanism
-            }
-        }
-        setNumberOfPasses(_numberOfPasses + 1);
-    }
-    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
-
-    if ((_scriptState & scriptState_error) != 0)
-        _killInterpreterState();
-
-    return ((_scriptState & scriptState_error) == 0);
-}
-VTHREAD_ID_TYPE CScriptObject::getThreadedScriptThreadId_old() const
-{
-    return (_threadedScript_associatedFiberOrThreadID_oldThreads);
-}
-VTHREAD_RETURN_TYPE CScriptObject::_startAddressForThreadedScripts_oldThreads(VTHREAD_ARGUMENT_TYPE lpData)
-{
-    TRACE_INTERNAL;
-    _globalMutex_oldThreads.lock("CScriptObject::_startAddressForThreadedScripts()");
-    CScriptObject* it = toBeCalledByThread_oldThreads[0];
-    toBeCalledByThread_oldThreads.erase(toBeCalledByThread_oldThreads.begin());
-    _globalMutex_oldThreads.unlock();
-
-    it->_launchThreadedChildScriptNow_oldThreads();
-
-    it->resetScript();
-    it->_threadedExecutionUnderWay_oldThreads = false;
-
-    return (VTHREAD_RETURN_VAL);
-}
-int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata)
-{                    // DEPRECATED
-    int retVal = -1; // means error
-
-    if (_scriptState != scriptState_initialized)
-        return (retVal);
-
-    changeOverallYieldingForbidLevel(1, false);
-    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
-
-    _execSimpleString_safe_lua(L, "sim_call_type=-1"); // for backward compatibility
-
-    // Push the function name onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
-    std::string func(functionName);
-    size_t ppos = func.find('.');
-    if (ppos == std::string::npos)
-        luaWrap_lua_getglobal(L, func.c_str()); // in case we have a global function:
-    else
-    { // in case we have a function that is not global
-        std::string globalVar(func.begin(), func.begin() + ppos);
-        luaWrap_lua_getglobal(L, globalVar.c_str());
-        func.assign(func.begin() + ppos + 1, func.end());
-        size_t ppos = func.find('.');
-        while (ppos != std::string::npos)
-        {
-            std::string var(func.begin(), func.begin() + ppos);
-            luaWrap_lua_getfield(L, -1, var.c_str());
-            luaWrap_lua_remove(L, -2);
-            func.erase(func.begin(), func.begin() + ppos + 1);
-            ppos = func.find('.');
-        }
-        luaWrap_lua_getfield(L, -1, func.c_str());
-        luaWrap_lua_remove(L, -2);
-    }
-
-    // Push the arguments onto the stack (will be automatically popped from stack after luaWrap_lua_pcall):
-    int inputArgs = pdata->inputArgCount;
-    if (inputArgs != 0)
-    {
-        int boolPt = 0;
-        int intPt = 0;
-        int floatPt = 0;
-        int doublePt = 0;
-        int stringPt = 0;
-        int stringBuffPt = 0;
-        for (int i = 0; i < pdata->inputArgCount; i++)
-            writeCustomFunctionDataOntoStack_old(
-                L, pdata->inputArgTypeAndSize[2 * i + 0], pdata->inputArgTypeAndSize[2 * i + 1], pdata->inputBool,
-                boolPt, pdata->inputInt, intPt, pdata->inputFloat, floatPt, pdata->inputDouble, doublePt,
-                pdata->inputChar, stringPt, pdata->inputCharBuff, stringBuffPt);
-    }
-
-    luaWrap_lua_getglobal(L, "debug");
-    luaWrap_lua_getfield(L, -1, "traceback");
-    luaWrap_lua_remove(L, -2);
-    int argCnt = inputArgs;
-    int errindex = -argCnt - 2;
-    luaWrap_lua_insert(L, errindex);
-
-    if (_executionDepth == 0)
-        _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-    setExecutionDepth(_executionDepth + 1);
-    if (luaWrap_lua_pcall((luaWrap_lua_State*)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
-    { // a runtime error occurred!
-        setExecutionDepth(_executionDepth - 1);
-        if (_executionDepth == 0)
-            _timeOfScriptExecutionStart = -1;
-        std::string errMsg;
-        if (luaWrap_lua_isstring(L, -1))
-            errMsg = std::string(luaWrap_lua_tostring(L, -1));
-        else
-            errMsg = "(error unknown)";
-        luaWrap_lua_pop(L, 1); // pop error from stack
-        _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
-
-        // Following probably not needed:
-        pdata->outputBool = new bool[0];
-        pdata->outputInt = new int[0];
-        pdata->outputFloat = new float[0];
-        pdata->outputDouble = new double[0];
-        pdata->outputChar = new char[0];
-        pdata->outputCharBuff = new char[0];
-    }
-    else
-    { // return values:
-        setExecutionDepth(_executionDepth - 1);
-        if (_executionDepth == 0)
-            _timeOfScriptExecutionStart = -1;
-        int currentTop = luaWrap_lua_gettop(L);
-
-        // Following line new since 7/3/2016:
-        int numberOfArgs = currentTop - oldTop - 1; // the first arg is linked to the debug mechanism
-
-        // We read all arguments from the stack
-        std::vector<char> outBoolVector;
-        std::vector<int> outIntVector;
-        std::vector<float> outFloatVector;
-        std::vector<double> outDoubleVector;
-        std::vector<std::string> outStringVector;
-        std::vector<std::string> outCharVector;
-        std::vector<int> outInfoVector;
-        for (int i = 0; i < numberOfArgs; i++)
-        {
-            // Following line new since 7/3/2016:
-            if (!readCustomFunctionDataFromStack_old(L, oldTop + i + 1 + 1, pdata->outputArgTypeAndSize[i * 2 + 0],
-                                                     outBoolVector, outIntVector, outFloatVector, outDoubleVector,
-                                                     outStringVector, outCharVector, outInfoVector))
-                break;
-        }
-
-        // Now we prepare the output buffers:
-        pdata->outputBool = new bool[outBoolVector.size()];
-        pdata->outputInt = new int[outIntVector.size()];
-        pdata->outputFloat = new float[outFloatVector.size()];
-        pdata->outputDouble = new double[outDoubleVector.size()];
-        int charCnt = 0;
-        for (size_t k = 0; k < outStringVector.size(); k++)
-            charCnt += (int)outStringVector[k].length() + 1; // terminal 0
-        pdata->outputChar = new char[charCnt];
-
-        int charBuffCnt = 0;
-        for (size_t k = 0; k < outCharVector.size(); k++)
-            charBuffCnt += (int)outCharVector[k].length();
-        pdata->outputCharBuff = new char[charBuffCnt];
-
-        pdata->outputArgCount = int(outInfoVector.size() / 2);
-        delete[] pdata->outputArgTypeAndSize;
-        pdata->outputArgTypeAndSize = new int[outInfoVector.size()];
-        // We fill the output buffers:
-        for (int k = 0; k < int(outBoolVector.size()); k++)
-            pdata->outputBool[k] = outBoolVector[k];
-        for (int k = 0; k < int(outIntVector.size()); k++)
-            pdata->outputInt[k] = outIntVector[k];
-        for (int k = 0; k < int(outFloatVector.size()); k++)
-            pdata->outputFloat[k] = outFloatVector[k];
-        for (int k = 0; k < int(outDoubleVector.size()); k++)
-            pdata->outputDouble[k] = outDoubleVector[k];
-        charCnt = 0;
-        for (size_t k = 0; k < outStringVector.size(); k++)
-        {
-            for (size_t l = 0; l < outStringVector[k].length(); l++)
-                pdata->outputChar[charCnt + l] = outStringVector[k][l];
-            charCnt += (int)outStringVector[k].length();
-            // terminal 0:
-            pdata->outputChar[charCnt] = 0;
-            charCnt++;
-        }
-
-        charBuffCnt = 0;
-        for (size_t k = 0; k < outCharVector.size(); k++)
-        {
-            for (size_t l = 0; l < outCharVector[k].length(); l++)
-                pdata->outputCharBuff[charBuffCnt + l] = outCharVector[k][l];
-            charBuffCnt += (int)outCharVector[k].length();
-        }
-
-        for (int k = 0; k < int(outInfoVector.size()); k++)
-            pdata->outputArgTypeAndSize[k] = outInfoVector[k];
-
-        retVal = 0;
-    }
-    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
-    changeOverallYieldingForbidLevel(-1, false);
-    return (retVal);
-}
-int CScriptObject::setScriptVariable_old(const char* variableName, CInterfaceStack* stack)
-{
-    int retVal = -1;
-    if (_scriptState != scriptState_initialized)
-        return (retVal);
-    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
-
-    std::string var(variableName);
-    size_t ppos = var.find('.');
-    if (ppos == std::string::npos)
-    { // in case we have a global variable
-        if (stack != nullptr)
-            buildOntoInterpreterStack_lua(L, stack, true);
-        else
-            luaWrap_lua_pushnil(L);
-        luaWrap_lua_setglobal(L, variableName);
-        retVal = 0;
-    }
-    else
-    { // in case we have a variable that is not global
-        std::string globalVar(var.begin(), var.begin() + ppos);
-        luaWrap_lua_getglobal(L, globalVar.c_str());
-        if (luaWrap_lua_isnonbuffertable(L, -1))
-        {
-            var.assign(var.begin() + ppos + 1, var.end());
-            size_t ppos = var.find('.');
-            bool badVar = false;
-            while (ppos != std::string::npos)
-            {
-                std::string vvar(var.begin(), var.begin() + ppos);
-                luaWrap_lua_getfield(L, -1, vvar.c_str());
-                luaWrap_lua_remove(L, -2);
-                var.erase(var.begin(), var.begin() + ppos + 1);
-                ppos = var.find('.');
-                if (!luaWrap_lua_isnonbuffertable(L, -1))
-                {
-                    badVar = true;
-                    break;
-                }
-            }
-            if (!badVar)
-            {
-                if (stack != nullptr)
-                    buildOntoInterpreterStack_lua(L, stack, true);
-                else
-                    luaWrap_lua_pushnil(L);
-                luaWrap_lua_setfield(L, -2, var.c_str());
-                retVal = 0;
-            }
-        }
-    }
-
-    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
-    return (retVal);
-}
-int CScriptObject::clearScriptVariable_DEPRECATED(const char* variableName)
-{ // deprecated
-    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    if (L == nullptr)
-        return (-1);
-
-    if (_threadedExecution_oldThreads)
-    {
-        if (!VThread::areThreadIdsSame(_threadedScript_associatedFiberOrThreadID_oldThreads,
-                                       VThread::getCurrentThreadId()))
-            return (-1); // only from the same thread when threaded!!
-    }
-
-    if (_scriptIsDisabled)
-        return (-1);
-
-    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
-
-    std::string var(variableName);
-    size_t ppos = var.find('.');
-    if (ppos == std::string::npos)
-    { // in case we have a global variable
-        luaWrap_lua_pushnil(L);
-        luaWrap_lua_setglobal(L, variableName);
-    }
-    else
-    { // in case we have a variable that is not global
-        std::string globalVar(var.begin(), var.begin() + ppos);
-        luaWrap_lua_getglobal(L, globalVar.c_str());
-        var.assign(var.begin() + ppos + 1, var.end());
-        size_t ppos = var.find('.');
-        while (ppos != std::string::npos)
-        {
-            std::string vvar(var.begin(), var.begin() + ppos);
-            luaWrap_lua_getfield(L, -1, vvar.c_str());
-            luaWrap_lua_remove(L, -2);
-            var.erase(var.begin(), var.begin() + ppos + 1);
-            ppos = var.find('.');
-        }
-        luaWrap_lua_pushnil(L);
-        luaWrap_lua_setfield(L, -2, var.c_str());
-    }
-
-    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
-    return (0);
-}
-CUserParameters* CScriptObject::getScriptParametersObject_backCompatibility()
-{
-    return (_scriptParameters_backCompatibility);
-}
-bool CScriptObject::_checkIfMixingOldAndNewCallMethods_old()
-{
-    return ((_scriptText.find("sim_call_type") != std::string::npos) &&
-            (_scriptText.find("sysCall_") != std::string::npos));
-}
-int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data,
-                                               const int what[2])
-{ // DEPRECATED since 23/2/2016
-    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    if ((L == nullptr) && _threadedExecution_oldThreads)
-        return (-1); // threaded scripts must be called from within!
-
-    if (_threadedExecution_oldThreads)
-    {
-        if (!VThread::areThreadIdsSame(_threadedScript_associatedFiberOrThreadID_oldThreads,
-                                       VThread::getCurrentThreadId()))
-            return (-1); // only from the same thread when threaded!!
-    }
-
-    if ((_scriptIsDisabled) || (L == nullptr))
-        return (-1);
-
-    int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
-
-    // First check if the table where we want to append a value exists. If not, or not a table, create it!
-    luaWrap_lua_getglobal(L, arrayName);
-    if (!luaWrap_lua_isnonbuffertable(L, -1))
-    { // the table is inexistant
-        luaWrap_lua_newtable(L);
-        luaWrap_lua_setglobal(L, arrayName);
-    }
-    luaWrap_lua_pop(L, 1);
-
-    // The table where we want to append a value:
-    luaWrap_lua_getglobal(L, arrayName);
-    int theTablePos = luaWrap_lua_gettop(L);
-    int theTableLength = int(luaWrap_lua_rawlen(L, theTablePos));
-
-    // Do we want to simply insert the value, or do we want to insert a keyed value?
-    if ((keyName == nullptr) || (strlen(keyName) == 0))
-    { // not keyed value:
-    }
-    else
-    { // keyed value:
-        luaWrap_lua_pushtext(L, keyName);
-    }
-
-    // Now push the value, which might itself be a table:
-    int w = what[0];
-    if ((w & sim_script_arg_table) != 0)
-    { // we have a table
-        w -= sim_script_arg_table;
-        luaWrap_lua_newtable(L);
-        int newTablePos = luaWrap_lua_gettop(L);
-        int stringOff = 0;
-        for (int i = 0; i < what[1]; i++)
-        {
-            if (w == sim_script_arg_null)
-                luaWrap_lua_pushnil(L);
-            if (w == sim_script_arg_bool)
-                luaWrap_lua_pushboolean(L, data[i]);
-            if (w == sim_script_arg_int32)
-                luaWrap_lua_pushinteger(L, ((int*)data)[i]);
-            if (w == sim_script_arg_float)
-                luaWrap_lua_pushnumber(L, ((double*)data)[i]);
-            if (w == sim_script_arg_double)
-                luaWrap_lua_pushnumber(L, ((double*)data)[i]);
-            if (w == sim_script_arg_string)
-            {
-                luaWrap_lua_pushtext(L, data + stringOff);
-                stringOff += int(strlen(data + stringOff)) + 1;
-            }
-            luaWrap_lua_rawseti(L, newTablePos, i + 1);
-        }
-    }
-    else
-    { // we don't have a table
-        if (w == sim_script_arg_null)
-            luaWrap_lua_pushnil(L);
-        if (w == sim_script_arg_bool)
-            luaWrap_lua_pushboolean(L, data[0]);
-        if (w == sim_script_arg_int32)
-            luaWrap_lua_pushinteger(L, ((int*)data)[0]);
-        if (w == sim_script_arg_float)
-            luaWrap_lua_pushnumber(L, ((double*)data)[0]);
-        if (w == sim_script_arg_double)
-            luaWrap_lua_pushnumber(L, ((double*)data)[0]);
-        if (w == sim_script_arg_string)
-            luaWrap_lua_pushtext(L, data);
-        if (w == sim_script_arg_charbuff)
-            luaWrap_lua_pushbinarystring(L, data, what[1]); // push binary string for backw. comp.
-    }
-
-    // Finally, insert the value in the table:
-    if ((keyName == nullptr) || (strlen(keyName) == 0))
-    { // not keyed value:
-        luaWrap_lua_rawseti(L, theTablePos, theTableLength + 1);
-    }
-    else
-    { // keyed value:
-        luaWrap_lua_settable(L, -3);
-    }
-
-    luaWrap_lua_settop(L, oldTop); // We restore lua's stack
-    return (0);
-}
-void CScriptObject::setLastError_old(const char* err)
-{
-    _lastError_old = err;
-}
-std::string CScriptObject::getAndClearLastError_old()
-{
-    std::string retVal = _lastError_old;
-    _lastError_old.clear();
-    return (retVal);
-}
-void CScriptObject::setAutomaticCascadingCallsDisabled_old(bool disabled)
-{
-    _automaticCascadingCallsDisabled_old = disabled;
-}
-bool CScriptObject::getAutomaticCascadingCallsDisabled_old() const
-{
-    return (_automaticCascadingCallsDisabled_old);
-}
-bool CScriptObject::checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014()
-{
-    bool retVal = _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014;
-    _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014 = true;
-    return (retVal);
-}
-bool CScriptObject::checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014()
-{
-    bool retVal = _warning_simRMLPosition_oldCompatibility_30_8_2014;
-    _warning_simRMLPosition_oldCompatibility_30_8_2014 = true;
-    return (retVal);
-}
-bool CScriptObject::checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014()
-{
-    bool retVal = _warning_simRMLVelocity_oldCompatibility_30_8_2014;
-    _warning_simRMLVelocity_oldCompatibility_30_8_2014 = true;
-    return (retVal);
-}
-void CScriptObject::_insertScriptText_old(CScriptObject* scriptObject, bool toFront, const char* txt)
-{
-    std::string theScript(scriptObject->getScriptText());
-    if (toFront)
-        theScript = std::string(txt) + theScript;
-    else
-        theScript += txt;
-    scriptObject->setScriptText(theScript.c_str());
-}
-std::string CScriptObject::_replaceOldApi(const char* txt, bool forwardAdjustment)
-{ // recursive
-    size_t p = std::string(txt).find("sim");
-    if (p != std::string::npos)
-    {
-        std::string beforePart;
-        std::string apiWord;
-        std::string afterPart;
-        _splitApiText_old(txt, p, beforePart, apiWord, afterPart);
-        std::map<std::string, std::string>::iterator it = _newApiMap_old.find(apiWord);
-        if (it != _newApiMap_old.end())
-        {
-            apiWord = it->second;
-            // Do a second stage replacement:
-            std::map<std::string, std::string>::iterator it2 = _newApiMap_old.find(apiWord);
-            if (it2 != _newApiMap_old.end())
-                apiWord = it2->second;
-        }
-        return (beforePart + apiWord + _replaceOldApi(afterPart.c_str(), forwardAdjustment));
-    }
-    return (std::string(txt));
-}
-void CScriptObject::_performNewApiAdjustments_old(CScriptObject* scriptObject, bool forwardAdjustment)
-{
-    std::vector<const SNewApiMapping*> all;
-    if (_newApiMap_old.begin() == _newApiMap_old.end())
-        all.push_back(_simApiMapping);
-    all.push_back(_simBubbleApiMapping);
-    all.push_back(_simK3ApiMapping);
-    all.push_back(_simMTBApiMapping);
-    all.push_back(_simOpenMeshApiMapping);
-    all.push_back(_simSkeletonApiMapping);
-    all.push_back(_simQHullApiMapping);
-    all.push_back(_simRemoteApiApiMapping);
-    all.push_back(_simRRS1ApiMapping);
-    all.push_back(_simVisionApiMapping);
-    all.push_back(_simCamApiMapping);
-    all.push_back(_simJoyApiMapping);
-    all.push_back(_simWiiApiMapping);
-    all.push_back(_simURDFApiMapping);
-    all.push_back(_simBWFApiMapping);
-    all.push_back(_simUIApiMapping);
-    all.push_back(_simROSApiMapping);
-    all.push_back(_simICPApiMapping);
-    all.push_back(_simOMPLApiMapping);
-    all.push_back(_simSDFApiMapping);
-    all.push_back(_simSurfRecApiMapping);
-    all.push_back(_simxApiMapping);
-
-    for (size_t j = 0; j < all.size(); j++)
-    {
-        const SNewApiMapping* aMapping = all[j];
-        for (int i = 0; aMapping[i].oldApi != ""; i++)
-        {
-            if (forwardAdjustment)
-                _newApiMap_old[aMapping[i].oldApi] = aMapping[i].newApi;
-            else
-                _newApiMap_old[aMapping[i].newApi] = aMapping[i].oldApi;
-        }
-    }
-
-    std::string theScript(scriptObject->getScriptText());
-    theScript = _replaceOldApi(theScript.c_str(), forwardAdjustment);
-    scriptObject->setScriptText(theScript.c_str());
-}
-
-bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt, const char* newTxt)
-{
-    return scriptObject->replaceScriptText(oldTxt, newTxt);
-}
-
-bool CScriptObject::_replaceScriptTextKeepMiddleUnchanged_old(CScriptObject* scriptObject, const char* oldTxtStart,
-                                                              const char* oldTxtEnd, const char* newTxtStart,
-                                                              const char* newTxtEnd)
-{ // Will do following: oldTextStart*oldTextEnd --> nextTextStart*newTextEnd
-    std::string theScript(scriptObject->getScriptText());
-    size_t startPos = theScript.find(oldTxtStart, 0);
-    bool replacedSomething = false;
-    while (startPos != std::string::npos)
-    {
-        size_t startPos2 = theScript.find(oldTxtEnd, startPos + strlen(oldTxtStart));
-        if (startPos2 != std::string::npos)
-        {
-            // check if we have a line break in-between:
-            bool lineBreak = false;
-            for (size_t i = startPos; i < startPos2; i++)
-            {
-                if ((theScript[i] == (unsigned char)13) || (theScript[i] == (unsigned char)10))
-                {
-                    lineBreak = true;
-                    break;
-                }
-            }
-            if (!lineBreak)
-            {
-                theScript.replace(startPos2, strlen(oldTxtEnd), newTxtEnd);
-                theScript.replace(startPos, strlen(oldTxtStart), newTxtStart);
-                startPos = theScript.find(oldTxtStart,
-                                          startPos2 + strlen(newTxtEnd) + strlen(newTxtStart) - strlen(oldTxtStart));
-                replacedSomething = true;
-            }
-            else
-                startPos = theScript.find(oldTxtStart, startPos + 1);
-        }
-        else
-            startPos = theScript.find(oldTxtStart, startPos + 1);
-    }
-    if (replacedSomething)
-        scriptObject->setScriptText(theScript.c_str());
-    return (replacedSomething);
-}
-bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt1, const char* oldTxt2,
-                                           const char* oldTxt3, const char* newTxt)
-{ // there can be spaces between the 3 words
-    std::string theScript(scriptObject->getScriptText());
-    size_t l1 = strlen(oldTxt1);
-    size_t l2 = strlen(oldTxt2);
-    size_t l3 = strlen(oldTxt3);
-    bool replacedSomething = false;
-    size_t searchStart = 0;
-    while (searchStart < theScript.length())
-    {
-        size_t startPos1 = theScript.find(oldTxt1, searchStart);
-        if (startPos1 != std::string::npos)
-        {
-            searchStart = startPos1 + 1;
-            size_t startPos2 = theScript.find(oldTxt2, startPos1 + l1);
-            if (startPos2 != std::string::npos)
-            {
-                bool onlySpaces = true;
-                size_t p = startPos1 + l1;
-                while (p < startPos2)
-                {
-                    if (theScript[p] != ' ')
-                        onlySpaces = false;
-                    p++;
-                }
-                if (onlySpaces)
-                {
-                    size_t startPos3 = theScript.find(oldTxt3, startPos2 + l2);
-                    if (startPos3 != std::string::npos)
-                    {
-                        onlySpaces = true;
-                        p = startPos2 + l2;
-                        while (p < startPos3)
-                        {
-                            if (theScript[p] != ' ')
-                                onlySpaces = false;
-                            p++;
-                        }
-                        if (onlySpaces)
-                        { // ok!
-                            theScript.replace(startPos1, startPos3 - startPos1 + l3, newTxt);
-                            replacedSomething = true;
-                        }
-                    }
-                }
-            }
-        }
-        else
-            searchStart = theScript.length();
-    }
-    if (replacedSomething)
-        scriptObject->setScriptText(theScript.c_str());
-    return (replacedSomething);
-}
-bool CScriptObject::_containsScriptText_old(CScriptObject* scriptObject, const char* txt)
-{
-    const std::string theScript(scriptObject->getScriptText());
-    size_t startPos = theScript.find(txt);
-    /*
-    if (startPos != std::string::npos)
-    {
-        size_t newlinePos = theScript.rfind('\n', startPos - 1);
-        if (newlinePos == std::string::npos)
-            newlinePos = 0;
-        size_t newlinePos2 = theScript.find('\n', startPos );
-        if (newlinePos2 == std::string::npos)
-            newlinePos2 = theScript.size();
-        std::string str(theScript.begin() + newlinePos + 1, theScript.begin() + newlinePos2);
-        printf("** %s**\n", str.c_str());
-        return false;
-    }
-    //*/
-    return (startPos != std::string::npos);
-}
-void CScriptObject::_splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord,
-                                      std::string& afterPart)
-{
-    size_t endPos;
-    for (size_t i = pos; i < strlen(txt); i++)
-    {
-        char c = txt[i];
-        if (((c >= '0') && (c <= '9')) || ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || (c == '_') ||
-            (c == '.'))
-            endPos = i + 1;
-        else
-            break;
-    }
-    if (pos > 0)
-        beforePart.assign(txt, txt + pos);
-    else
-        beforePart.clear();
-    apiWord.assign(txt + pos, txt + endPos);
-    if (endPos < strlen(txt))
-        afterPart = txt + endPos;
-    else
-        afterPart.clear();
-}
-void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doIt, bool doIt2)
-{
-    if (!doIt)
-        return;
-    // here we have to adjust for the new script execution engine (since V3.1.3):
-    if ((scriptObject->getScriptType() == sim_scripttype_main) &&
-        (!scriptObject->_mainScriptIsDefaultMainScript_old))
-    {
-        std::string txt;
-        txt += DEFAULT_MAINSCRIPT_CODE;
-        txt += "\n";
-        txt += " \n";
-        txt += " \n";
-        txt += "------------------------------------------------------------------------------ \n";
-        txt += "-- Following main script automatically commented out by CoppeliaSim to guarantee \n";
-        txt += "-- compatibility with CoppeliaSim 3.1.3 and later: \n";
-        txt += " \n";
-        txt += "--[=[ \n";
-        txt += " \n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
-        txt = "";
-        txt += "\n";
-        txt += " \n";
-        txt += " \n";
-        txt += "--]=] \n";
-        txt += "------------------------------------------------------------------------------ \n";
-        _insertScriptText_old(scriptObject, false, txt.c_str());
-    }
-    if (scriptObject->getScriptType() == sim_scripttype_simulation)
-    {
-        if (!scriptObject->getThreadedExecution_oldThreads())
-        {
-
-            _replaceScriptText_old(scriptObject, "\n", "\n\t"); // "\r\n" is also handled
-
-            std::string txt;
-            if (doIt2)
-            {
-                // Add text to the beginning:
-                txt += "------------------------------------------------------------------------------ \n";
-                txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
-                txt += "-- with CoppeliaSim 3.1.3 and later: \n";
-                txt += "if (sim_call_type==sim.syscb_init) then \n";
-                txt += " \n";
-                txt += "end \n";
-                txt += "if (sim_call_type==sim.syscb_cleanup) then \n";
-                txt += " \n";
-                txt += "end \n";
-                txt += "if (sim_call_type==sim.syscb_sensing) then \n";
-                txt += "  if not firstTimeHere93846738 then \n";
-                txt += "      firstTimeHere93846738=0 \n";
-                txt += "  end \n";
-                txt +=
-                    "  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,firstTimeHere93846738) "
-                    "\n";
-                txt += "  firstTimeHere93846738=firstTimeHere93846738+1 \n";
-                txt += " \n";
-                txt += "------------------------------------------------------------------------------ \n";
-                txt += " \n";
-                txt += " \n";
-                _insertScriptText_old(scriptObject, true, txt.c_str());
-
-                // Add text to the end:
-                txt = "\n";
-                txt += " \n";
-                txt += " \n";
-                txt += "------------------------------------------------------------------------------ \n";
-                txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
-                txt += "-- with CoppeliaSim 3.1.3 and later: \n";
-                txt += "end \n";
-                txt += "------------------------------------------------------------------------------ \n";
-                _insertScriptText_old(scriptObject, false, txt.c_str());
-
-                // Because in old sensing simulation scripts, simHandleChildScript didn't anyway have an effect:
-                _replaceScriptText_old(scriptObject, "simHandleChildScript(",
-                                       "-- commented by CoppeliaSim: s@imHandleChildScript(");
-                _replaceScriptText_old(scriptObject, "s@imHandleChildScript", "simHandleChildScript");
-            }
-            else
-            { // actuation simulation script
-                // Add text to the beginning:
-                txt += "------------------------------------------------------------------------------ \n";
-                txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
-                txt += "-- with CoppeliaSim 3.1.3 and later: \n";
-                txt += "if (sim_call_type==sim.syscb_init) then \n";
-                txt +=
-                    "  simSetScriptAttribute(sim_handle_self,sim_childscriptattribute_automaticcascadingcalls,false) "
-                    "\n";
-                txt += "end \n";
-                txt += "if (sim_call_type==sim.syscb_cleanup) then \n";
-                txt += " \n";
-                txt += "end \n";
-                txt += "if (sim_call_type==sim.syscb_sensing) then \n";
-                txt += "  simHandleChildScripts(sim_call_type) \n";
-                txt += "end \n";
-                txt += "if (sim_call_type==sim.syscb_actuation) then \n";
-                txt += "  if not firstTimeHere93846738 then \n";
-                txt += "      firstTimeHere93846738=0 \n";
-                txt += "  end \n";
-                txt +=
-                    "  simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,firstTimeHere93846738) "
-                    "\n";
-                txt += "  firstTimeHere93846738=firstTimeHere93846738+1 \n";
-                txt += " \n";
-                txt += "------------------------------------------------------------------------------ \n";
-                txt += " \n";
-                txt += " \n";
-                _insertScriptText_old(scriptObject, true, txt.c_str());
-
-                // Add text to the end:
-                txt = "\n";
-                txt += " \n";
-                txt += " \n";
-                txt += "------------------------------------------------------------------------------ \n";
-                txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
-                txt += "-- with CoppeliaSim 3.1.3 and later: \n";
-                txt += "end \n";
-                txt += "------------------------------------------------------------------------------ \n";
-                _insertScriptText_old(scriptObject, false, txt.c_str());
-                _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all_except_explicit", ")",
-                                       "simHandleChildScripts(sim_call_type)");
-                _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all", ")",
-                                       "simHandleChildScripts(sim_call_type)");
-                _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all_except_explicit", ",",
-                                       "simHandleChildScripts(sim_call_type,");
-                _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all", ",",
-                                       "simHandleChildScripts(sim_call_type,");
-
-                if (_containsScriptText_old(scriptObject, "simHandleChildScript("))
-                { // output a warning
-                    txt = "Compatibility issue with @@REPLACE@@\n";
-                    txt += "  Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
-                    txt += "  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
-                    txt += "  and operates slightly differently. CoppeliaSim has tried to automatically adjust\n";
-                    txt += "  the script, but failed. Please correct this issue yourself by editing the script.";
-                    CWorld::appendLoadOperationIssue(sim_verbosity_warnings, txt.c_str(),
-                                                     scriptObject->getScriptHandle());
-                }
-            }
-        }
-        else
-        {
-            if (_containsScriptText_old(scriptObject, "simHandleChildScript("))
-            { // output a warning
-                std::string txt = "compatibility issue with @@REPLACE@@\n";
-                txt += "  Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
-                txt += "  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
-                txt += "  and operates slightly differently. In addition to this, simhandleChildScripts\n";
-                txt += "  cannot be called from threaded simulation scripts anymore. Please correct this issue\n";
-                txt += "  yourself by editing the script.";
-                CWorld::appendLoadOperationIssue(sim_verbosity_warnings, txt.c_str(), scriptObject->getScriptHandle());
-            }
-        }
-    }
-    if (scriptObject->getScriptType() == sim_scripttype_customization)
-    {
-        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_firstaftersimulation",
-                               "sim.syscb_aftersimulation");
-        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_lastbeforesimulation",
-                               "sim.syscb_beforesimulation");
-        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_first", "sim.syscb_init");
-        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_last", "sim.syscb_cleanup");
-    }
-}
-void CScriptObject::_adjustScriptText2_old(CScriptObject* scriptObject, bool doIt)
-{
-    if (!doIt)
-        return;
-    if ((scriptObject->getScriptType() == sim_scripttype_simulation) &&
-        scriptObject->getThreadedExecution_oldThreads())
-    { // to correct for a forgotten thing. Happens only with files I modified between 11/8/2014 and 13/8/2014 (half of
-        // the demo scenes and models)
-        _replaceScriptText_old(scriptObject, "pcall(threadFunction)", "@@call(threadFunction)");
-        _replaceScriptText_old(scriptObject, "@@call(threadFunction)",
-                               "res,err=xpcall(threadFunction,function(err) return debug.traceback(err) end)\nif not "
-                               "res then\n\tsimAddStatusbarMessage('Lua runtime error: '..err)\nend");
-    }
-}
-void CScriptObject::_adjustScriptText3_old(CScriptObject* scriptObject, bool doIt)
-{
-    if (!doIt)
-        return;
-    // 1. check if we haven't previously added the correction:
-    if (!_containsScriptText_old(scriptObject, "@backCompatibility1:"))
-    {
-        bool modifiedSomething = _replaceScriptTextKeepMiddleUnchanged_old(
-            scriptObject, "simSetShapeColor(", ",", "simSetShapeColor(colorCorrectionFunction(", "),");
-
-        if (modifiedSomething)
-        {
-            // Add text to the beginning:
-            std::string txt;
-            txt += "------------------------------------------------------------------------------ \n";
-            txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
-            txt += "-- with CoppeliaSim 3.1.3 and earlier: \n";
-            txt += "colorCorrectionFunction=function(_aShapeHandle_) \n";
-            txt += "  local version=simGetIntegerParameter(sim_intparam_program_version) \n";
-            txt += "  local revision=simGetIntegerParameter(sim_intparam_program_revision) \n";
-            txt += "  if (version==30103 and revision<3) or version<30103 then \n";
-            txt += "      return _aShapeHandle_ \n";
-            txt += "  end \n";
-            txt += "  return '@backCompatibility1:'.._aShapeHandle_ \n";
-            txt += "end \n";
-            txt += "------------------------------------------------------------------------------ \n";
-            txt += " \n";
-            txt += " \n";
-            _insertScriptText_old(scriptObject, true, txt.c_str());
-        }
-    }
-}
-void CScriptObject::_adjustScriptText4_old(CScriptObject* scriptObject, bool doIt)
-{
-    if (!doIt)
-        return;
-    _replaceScriptText_old(scriptObject, "res,err=pcall(threadFunction)",
-                           "res,err=xpcall(threadFunction,function(err) return debug.traceback(err) end)");
-}
-void CScriptObject::_adjustScriptText5_old(CScriptObject* scriptObject, bool doIt)
-{ // Following since 19/12/2015: not really needed, but better.
-    if (!doIt)
-        return;
-    _replaceScriptText_old(scriptObject, "simGetBooleanParameter", "simGetBoolParameter");
-    _replaceScriptText_old(scriptObject, "simSetBooleanParameter", "simSetBoolParameter");
-    _replaceScriptText_old(scriptObject, "simGetIntegerParameter", "simGetInt32Parameter");
-    _replaceScriptText_old(scriptObject, "simSetIntegerParameter", "simSetInt32Parameter");
-    _replaceScriptText_old(scriptObject, "simGetFloatingParameter", "simGetFloatParameter");
-    _replaceScriptText_old(scriptObject, "simSetFloatingParameter", "simSetFloatParameter");
-    _replaceScriptText_old(scriptObject, "simGetObjectIntParameter", "simGetObjectInt32Parameter");
-    _replaceScriptText_old(scriptObject, "simSetObjectIntParameter", "simSetObjectInt32Parameter");
-}
-void CScriptObject::_adjustScriptText6_old(CScriptObject* scriptObject, bool doIt)
-{ // since 19/1/2016 we don't use tabs anymore in embedded scripts:
-    if (!doIt)
-        return;
-    _replaceScriptText_old(scriptObject, "\t", "    "); // tab to 4 spaces
-}
-void CScriptObject::_adjustScriptText7_old(CScriptObject* scriptObject, bool doIt)
-{ // Following since 13/9/2016, but active only since V3.3.3 (or V3.4.0)
-    if (!doIt)
-        return;
-    _replaceScriptText_old(scriptObject, "simPackInts", "simPackInt32Table");
-    _replaceScriptText_old(scriptObject, "simPackUInts", "simPackUInt32Table");
-    _replaceScriptText_old(scriptObject, "simPackFloats", "simPackFloatTable");
-    _replaceScriptText_old(scriptObject, "simPackDoubles", "simPackDoubleTable");
-    _replaceScriptText_old(scriptObject, "simPackBytes", "simPackUInt8Table");
-    _replaceScriptText_old(scriptObject, "simPackWords", "simPackUInt16Table");
-    _replaceScriptText_old(scriptObject, "simUnpackInts", "simUnpackInt32Table");
-    _replaceScriptText_old(scriptObject, "simUnpackUInts", "simUnpackUInt32Table");
-    _replaceScriptText_old(scriptObject, "simUnpackFloats", "simUnpackFloatTable");
-    _replaceScriptText_old(scriptObject, "simUnpackDoubles", "simUnpackDoubleTable");
-    _replaceScriptText_old(scriptObject, "simUnpackBytes", "simUnpackUInt8Table");
-    _replaceScriptText_old(scriptObject, "simUnpackWords", "simUnpackUInt16Table");
-}
-void CScriptObject::_adjustScriptText10_old(CScriptObject* scriptObject, bool doIt)
-{ // some various small details:
-    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('/",".lua')","require('/","')");
-    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"/",".lua\")","require('/","')");
-    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('\\",".lua')","require('\\","')");
-    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"\\",".lua\")","require('\\","')");
-    _replaceScriptText_old(scriptObject, "sim.include('/lua/graph_customization.lua')",
-                           "graph=require('graph_customization')");
-    _replaceScriptText_old(scriptObject, "require('/BlueWorkforce/", "require('/bwf/");
-    _replaceScriptText_old(scriptObject, "sim.include('/BlueWorkforce/", "sim.include('/bwf/");
-    if (!doIt)
-        return;
-    _replaceScriptText_old(scriptObject, " onclose=\"", " on-close=\"");
-    _replaceScriptText_old(scriptObject, " onchange=\"", " on-change=\"");
-    _replaceScriptText_old(scriptObject, " onclick=\"", " on-click=\"");
-}
-void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool doIt)
-{ // A subtle bug was corrected in below function in CoppeliaSim4.0.1. Below to keep old code working as previously
-    if (!doIt)
-        return;
-
-    std::string theScript;
-    bool addFunc = false;
-
-    theScript = (scriptObject->getScriptText());
-    utils::regexReplace(theScript, "sim.getObjectOrientation\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectOrientation(", "__getObjectOrientation__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectOrientation");
-    if (addFunc)
-    {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
-        //        replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible
-        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
-        std::string txt;
-        txt += "function __getObjectOrientation__(a,b)\n";
-        txt +=
-            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
-        txt += "    if b==sim.handle_parent then\n";
-        txt += "        b=sim.getObjectParent(a)\n";
-        txt += "    end\n";
-        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
-               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
-        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
-        txt += "    end\n";
-        txt += "    return sim.getObjectOrientation(a,b)\n";
-        txt += "end\n\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
-    }
-
-    theScript = scriptObject->getScriptText();
-    utils::regexReplace(theScript, "sim.setObjectOrientation\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectOrientation(", "__setObjectOrientation__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectOrientation");
-    if (addFunc)
-    {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
-        //        replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible
-        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
-        std::string txt;
-        txt += "function __setObjectOrientation__(a,b,c)\n";
-        txt +=
-            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
-        txt += "    if b==sim.handle_parent then\n";
-        txt += "        b=sim.getObjectParent(a)\n";
-        txt += "    end\n";
-        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
-               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
-        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
-        txt += "    end\n";
-        txt += "    return sim.setObjectOrientation(a,b,c)\n";
-        txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
-    }
-
-    theScript = scriptObject->getScriptText();
-    utils::regexReplace(theScript, "sim.getObjectQuaternion\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
-    utils::regexReplace(theScript, "sim.getObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *)\\)",
-                        "blabliblotemp($1,sim.handle_parent)");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectQuaternion(", "__getObjectQuaternion__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectQuaternion");
-    if (addFunc)
-    {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
-        //        replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible
-        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
-        std::string txt;
-        txt += "function __getObjectQuaternion__(a,b)\n";
-        txt +=
-            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
-        txt += "    if b==sim.handle_parent then\n";
-        txt += "        b=sim.getObjectParent(a)\n";
-        txt += "    end\n";
-        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
-               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
-        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
-        txt += "    end\n";
-        txt += "    return sim.getObjectQuaternion(a,b)\n";
-        txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
-    }
-
-    theScript = scriptObject->getScriptText();
-    utils::regexReplace(theScript, "sim.setObjectQuaternion\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
-    utils::regexReplace(theScript, "sim.setObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *),",
-                        "blabliblotemp($1,sim.handle_parent,");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectQuaternion(", "__setObjectQuaternion__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectQuaternion");
-    if (addFunc)
-    {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
-        //        replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible
-        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
-        std::string txt;
-        txt += "function __setObjectQuaternion__(a,b,c)\n";
-        txt +=
-            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
-        txt += "    if b==sim.handle_parent then\n";
-        txt += "        b=sim.getObjectParent(a)\n";
-        txt += "    end\n";
-        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
-               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
-        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
-        txt += "    end\n";
-        txt += "    return sim.setObjectQuaternion(a,b,c)\n";
-        txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
-    }
-
-    theScript = scriptObject->getScriptText();
-    utils::regexReplace(theScript, "sim.getObjectPosition\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
-    utils::regexReplace(theScript, "sim.getObjectPosition\\(([^,]+),( *)sim.handle_parent( *)\\)",
-                        "blabliblotemp($1,sim.handle_parent)");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectPosition(", "__getObjectPosition__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectPosition");
-    if (addFunc)
-    {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
-        //        replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in
-        //        versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
-        std::string txt;
-        txt += "function __getObjectPosition__(a,b)\n";
-        txt +=
-            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
-        txt += "    if b==sim.handle_parent then\n";
-        txt += "        b=sim.getObjectParent(a)\n";
-        txt += "    end\n";
-        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
-               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
-        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
-        txt += "    end\n";
-        txt += "    return sim.getObjectPosition(a,b)\n";
-        txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
-    }
-
-    theScript = scriptObject->getScriptText();
-    utils::regexReplace(theScript, "sim.setObjectPosition\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
-    utils::regexReplace(theScript, "sim.setObjectPosition\\(([^,]+),( *)sim.handle_parent( *),",
-                        "blabliblotemp($1,sim.handle_parent,");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectPosition(", "__setObjectPosition__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectPosition");
-    if (addFunc)
-    {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
-        //        replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in
-        //        versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
-        std::string txt;
-        txt += "function __setObjectPosition__(a,b,c)\n";
-        txt +=
-            "    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
-        txt += "    if b==sim.handle_parent then\n";
-        txt += "        b=sim.getObjectParent(a)\n";
-        txt += "    end\n";
-        txt += "    if (b~=-1) and (sim.getObjectType(b)==sim.object_joint_type) and "
-               "(sim.getInt32Parameter(sim.intparam_program_version)>=40001) then\n";
-        txt += "        a=a+sim.handleflag_reljointbaseframe\n";
-        txt += "    end\n";
-        txt += "    return sim.setObjectPosition(a,b,c)\n";
-        txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
-    }
-}
-void CScriptObject::_adjustScriptText12_old(CScriptObject* scriptObject, bool doIt)
-{ // ROS2 functions:
-    if (!doIt)
-        return;
-    _replaceScriptText_old(scriptObject, "simROS2.serviceClientTreatUInt8ArrayAsString",
-                           "simROS2.clientTreatUInt8ArrayAsString");
-    _replaceScriptText_old(scriptObject, "simROS2.serviceServerTreatUInt8ArrayAsString",
-                           "simROS2.serviceTreatUInt8ArrayAsString");
-    _replaceScriptText_old(scriptObject, "simROS2.subscriberTreatUInt8ArrayAsString",
-                           "simROS2.subscriptionTreatUInt8ArrayAsString");
-    _replaceScriptText_old(scriptObject, "simROS2.imageTransportShutdownSubscriber",
-                           "simROS2.imageTransportShutdownSubscription");
-    _replaceScriptText_old(scriptObject, "simROS2.imageTransportSubscribe", "simROS2.imageTransportCreateSubscription");
-    _replaceScriptText_old(scriptObject, "simROS2.imageTransportAdvertise", "simROS2.imageTransportCreatePublisher");
-    _replaceScriptText_old(scriptObject, "simROS2.shutdownServiceServer", "simROS2.shutdownService");
-    _replaceScriptText_old(scriptObject, "simROS2.shutdownServiceClient", "simROS2.shutdownClient");
-    _replaceScriptText_old(scriptObject, "simROS2.shutdownSubscriber", "simROS2.shutdownSubscription");
-    _replaceScriptText_old(scriptObject, "simROS2.advertiseService", "simROS2.createService");
-    _replaceScriptText_old(scriptObject, "simROS2.serviceClient", "simROS2.createClient");
-    _replaceScriptText_old(scriptObject, "simROS2.subscribe", "simROS2.createSubscription");
-    _replaceScriptText_old(scriptObject, "simROS2.advertise", "simROS2.createPublisher");
-}
-void CScriptObject::_adjustScriptText13_old(CScriptObject* scriptObject, bool doIt)
-{ // for release 4.2.0:
-    if (!doIt)
-        return;
-    if (_scriptType != sim_scripttype_main)
-        _replaceScriptText_old(scriptObject, "sim.getSimulationState()~=sim.simulation_advancing_abouttostop", "true");
-    _replaceScriptText_old(scriptObject, "sim.getObjectAssociatedWithScript(sim.handle_self)",
-                           "sim.getObjectHandle(sim.handle_self)");
-
-    if (CSimFlavor::getBoolVal(18) && (_scriptType != sim_scripttype_main))
-    {
-        const char txt1[] = "function sysCall_actuation()\n\
-    if coroutine.status(corout)~='dead' then\n\
-        local ok,errorMsg=coroutine.resume(corout)\n\
-        if errorMsg then\n\
-            error(errorMsg)\n\
-        end\n";
-        const char txt2[] = "function sysCall_actuation()\n\
-    if coroutine.status(corout)~='dead' then\n\
-        local ok,errorMsg=coroutine.resume(corout)\n\
-        if errorMsg then\n\
-            error(debug.traceback(corout,errorMsg),2)\n\
-        end\n";
-        _replaceScriptText_old(scriptObject, txt1, txt2);
-    }
-}
-bool CScriptObject::_convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject)
-{ // try to transform the threaded script into a non-threaded script with coroutines:
-    bool retVal = false;
-    if (_containsScriptText_old(scriptObject, "sysCall_threadmain"))
-    {
-        retVal = true;
-        _replaceScriptText_old(scriptObject, "sysCall_threadmain", "coroutineMain");
-        std::string txt = "function sysCall_init()\n\
-    corout=coroutine.create(coroutineMain)\n\
-end\n\
-\n\
-function sysCall_actuation()\n\
-    if coroutine.status(corout)~='dead' then\n\
-        local ok,errorMsg=coroutine.resume(corout)\n\
-        if errorMsg then\n\
-            error(debug.traceback(corout,errorMsg),2)\n\
-        end\n";
-        if (!_executeJustOnce_oldThreads)
-            txt += "    else\n        corout=coroutine.create(coroutineMain)\n";
-        txt += "    end\nend\n\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
-    }
-    return retVal;
-}
-void CScriptObject::_adjustScriptText14_old(CScriptObject* scriptObject, bool doIt)
-{ // for release 4.2.1:
-    if (!doIt)
-        return;
-
-    _replaceScriptText_old(scriptObject, "sim.setObjectInt32Parameter", "sim.setObjectInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.setObjectFloatParameter", "sim.setObjectFloatParam");
-    _replaceScriptText_old(scriptObject, "sim.getObjectStringParameter", "sim.getObjectStringParam");
-    _replaceScriptText_old(scriptObject, "sim.setObjectStringParameter", "sim.setObjectStringParam");
-
-    _replaceScriptText_old(scriptObject, "sim.setBoolParameter", "sim.setBoolParam");
-    _replaceScriptText_old(scriptObject, "sim.getBoolParameter", "sim.getBoolParam");
-    _replaceScriptText_old(scriptObject, "sim.setInt32Parameter", "sim.setInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.getInt32Parameter", "sim.getInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.setFloatParameter", "sim.setFloatParam");
-    _replaceScriptText_old(scriptObject, "sim.getFloatParameter", "sim.getFloatParam");
-    _replaceScriptText_old(scriptObject, "sim.setStringParameter", "sim.setStringParam");
-    _replaceScriptText_old(scriptObject, "sim.getStringParameter", "sim.getStringParam");
-    _replaceScriptText_old(scriptObject, "sim.setArrayParameter", "sim.setArrayParam");
-    _replaceScriptText_old(scriptObject, "sim.getArrayParameter", "sim.getArrayParam");
-
-    _replaceScriptText_old(scriptObject, "sim.getEngineBoolParameter", "sim.getEngineBoolParam_old");
-    _replaceScriptText_old(scriptObject, "sim.getEngineInt32Parameter", "sim.getEngineInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.getEngineFloatParameter", "sim.getEngineFloatParam_old");
-    _replaceScriptText_old(scriptObject, "sim.setEngineBoolParameter", "sim.setEngineBoolParam_old");
-    _replaceScriptText_old(scriptObject, "sim.setEngineInt32Parameter", "sim.setEngineInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.setEngineFloatParameter", "sim.setEngineFloatParam_old");
-
-    _replaceScriptText_old(scriptObject, "sim.setIntegerSignal", "sim.setInt32Signal");
-    _replaceScriptText_old(scriptObject, "sim.getIntegerSignal", "sim.getInt32Signal");
-    _replaceScriptText_old(scriptObject, "sim.clearIntegerSignal", "sim.clearInt32Signal");
-}
-
-void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject, bool doIt)
-{ // for release 4.3.0 and earlier:
-    if (!doIt)
-        return;
-
-    _replaceScriptText_old(scriptObject, "sim.rmlPos", "sim.ruckigPos");
-    _replaceScriptText_old(scriptObject, "sim.rmlVel", "sim.ruckigVel");
-    _replaceScriptText_old(scriptObject, "sim.rmlStep", "sim.ruckigStep");
-    _replaceScriptText_old(scriptObject, "sim.rmlRemove", "sim.ruckigRemove");
-
-    _replaceScriptText_old(scriptObject, "sim.rml_phase_sync_if_possible", "sim.ruckig_phasesync");
-    _replaceScriptText_old(scriptObject, "sim.rml_only_time_sync", "sim.ruckig_timesync");
-    _replaceScriptText_old(scriptObject, "sim.rml_only_phase_sync", "sim.ruckig_phasesync");
-    _replaceScriptText_old(scriptObject, "sim.rml_no_sync", "sim.ruckig_nosync");
-}
-
-void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject, bool doIt)
-{ // for release 4.4.0 and earlier:
-    if (!doIt)
-        return;
-
-    _replaceScriptText_old(scriptObject, "sim.getObjectSelection", "sim.getObjectSel");
-    _replaceScriptText_old(scriptObject, "sim.setObjectSelection", "sim.setObjectSel");
-    _replaceScriptText_old(scriptObject, "simIK.getJointIkWeight", "simIK.getJointWeight");
-    _replaceScriptText_old(scriptObject, "simIK.setJointIkWeight", "simIK.setJointWeight");
-    _replaceScriptText_old(scriptObject, "simIK.getIkGroupHandle", "simIK.getGroupHandle");
-    _replaceScriptText_old(scriptObject, "simIK.doesIkGroupExist", "simIK.doesGroupExist");
-    _replaceScriptText_old(scriptObject, "simIK.createIkGroup", "simIK.createGroup");
-    _replaceScriptText_old(scriptObject, "simIK.getIkGroupFlags", "simIK.getGroupFlags");
-    _replaceScriptText_old(scriptObject, "simIK.setIkGroupFlags", "simIK.setGroupFlags");
-    _replaceScriptText_old(scriptObject, "simIK.getIkGroupCalculation", "simIK.getGroupCalculation");
-    _replaceScriptText_old(scriptObject, "simIK.setIkGroupCalculation", "simIK.setGroupCalculation");
-    _replaceScriptText_old(scriptObject, "simIK.getIkGroupJointLimitHits", "simIK.getGroupJointLimitHits");
-    _replaceScriptText_old(scriptObject, "simIK.addIkElement", "simIK.addElement");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementFlags", "simIK.getElementFlags");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementFlags", "simIK.setElementFlags");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementBase", "simIK.getElementBase");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementBase", "simIK.setElementBase");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementConstraints", "simIK.getElementConstraints");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementConstraints", "simIK.setElementConstraints");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementPrecision", "simIK.getElementPrecision");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementPrecision", "simIK.setElementPrecision");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementWeights", "simIK.getElementWeights");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementWeights", "simIK.setElementWeights");
-    _replaceScriptText_old(scriptObject, "simIK.handleIkGroup", "simIK.handleGroup");
-    _replaceScriptText_old(scriptObject, "simIK.addIkElementFromScene", "simIK.addElementFromScene");
-}
-
-void CScriptObject::_adjustScriptText17_old(CScriptObject* scriptObject, bool doIt)
-{ // for release 4.5.1 and earlier:
-    if (!doIt)
-        return;
-
-    // _replaceScriptText_old(scriptObject,"sim.switchThread","sim.step");
-}
-
-void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
-{
-    /*
-    if (_containsScriptText_old(scriptObject, "sim.getStringSignal"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getStringSignal...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");
-    if (_containsScriptText_old(scriptObject, "sim.getNamedStringParam"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getNamedStringParam...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptStringParam"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptStringParam...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
-*/
-
-    /* Explicit requires:
-    std::string tmp;
-    _scriptText.insert(0,"\n");
-    if (_containsScriptText_old(scriptObject,"simROS2"))
-        tmp.insert(0,"simROS2=require'simROS2'\n");
-    if (_containsScriptText_old(scriptObject,"simROS"))
-        tmp.insert(0,"simROS=require'simROS'\n");
-    if (_containsScriptText_old(scriptObject,"simICP"))
-        tmp.insert(0,"simICP=require'simICP'\n");
-    if (_containsScriptText_old(scriptObject,"simIGL"))
-        tmp.insert(0,"simIGL=require'simIGL'\n");
-    if (_containsScriptText_old(scriptObject,"simEigen"))
-        tmp.insert(0,"simEigen=require'simEigen'\n");
-    if (_containsScriptText_old(scriptObject,"simIM"))
-        tmp.insert(0,"simIM=require'simIM'\n");
-    if (_containsScriptText_old(scriptObject,"simZMQ"))
-        tmp.insert(0,"simZMQ=require'simZMQ'\n");
-    if (_containsScriptText_old(scriptObject,"simWS"))
-        tmp.insert(0,"simWS=require'simWS'\n");
-    if (_containsScriptText_old(scriptObject,"simVision"))
-        tmp.insert(0,"simVision=require'simVision'\n");
-    if (_containsScriptText_old(scriptObject,"simURDF"))
-        tmp.insert(0,"simURDF=require'simURDF'\n");
-    if (_containsScriptText_old(scriptObject,"simSurfRec"))
-        tmp.insert(0,"simSurfRec=require'simSurfRec'\n");
-    if (_containsScriptText_old(scriptObject,"simSubprocess"))
-        tmp.insert(0,"simSubprocess=require'simSubprocess'\n");
-    if (_containsScriptText_old(scriptObject,"simSDF"))
-        tmp.insert(0,"simSDF=require'simSDF'\n");
-    if (_containsScriptText_old(scriptObject,"simRRS1"))
-        tmp.insert(0,"simRRS1=require'simRRS1'\n");
-    if (_containsScriptText_old(scriptObject,"simQHull"))
-        tmp.insert(0,"simQHull=require'simQHull'\n");
-    if (_containsScriptText_old(scriptObject,"simOpenMesh"))
-        tmp.insert(0,"simOpenMesh=require'simOpenMesh'\n");
-    if (_containsScriptText_old(scriptObject,"simOMPL"))
-        tmp.insert(0,"simOMPL=require'simOMPL'\n");
-    if (_containsScriptText_old(scriptObject,"simMTB"))
-        tmp.insert(0,"simMTB=require'simMTB'\n");
-    if (_containsScriptText_old(scriptObject,"simCHAI3D"))
-        tmp.insert(0,"simCHAI3D=require'simCHAI3D'\n");
-    if (_containsScriptText_old(scriptObject,"simBubble"))
-        tmp.insert(0,"simBubble=require'simBubble'\n");
-    if (_containsScriptText_old(scriptObject,"simGeom"))
-        tmp.insert(0,"simGeom=require'simGeom'\n");
-    if (_containsScriptText_old(scriptObject,"simAssimp"))
-        tmp.insert(0,"simAssimp=require'simAssimp'\n");
-    if (_containsScriptText_old(scriptObject,"simMujoco"))
-        tmp.insert(0,"simMujoco=require'simMujoco'\n");
-    if (_containsScriptText_old(scriptObject,"simUI"))
-        tmp.insert(0,"simUI=require'simUI'\n");
-    if (_containsScriptText_old(scriptObject,"simIK"))
-        tmp.insert(0,"simIK=require'simIK'\n");
-    tmp.insert(0,"sim=require'sim'\n");
-    printf("********************\n%s\n*********************\n",tmp.c_str());
-    _scriptText.insert(0,tmp);
-     // */
-
-    /*
-    std::smatch match;
-    std::regex regEx("sim.getObjectMatrix\\((.+),( *-1 *)\\)");
-    while (std::regex_search(_scriptText,match,regEx))
-    {
-        std::string nt(std::string("sim.getObjectMatrix(")+match.str(1)+",sim.handle_world)");
-        _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
-    }
-    */
-    // if (getLanguage()==sim_lang_lua)
-    //    _scriptText.insert(0,"--lua\n\n");
-
-    //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
-    //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
-
-    std::smatch match;
-    std::regex regEx("sim.setInt32Signal\\('([^,]+),");
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.setFloatSignal\\('([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.setStringSignal\\('([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.getInt32Signal\\('([^']+)'";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.getFloatSignal\\('([^']+)'";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.getStringSignal\\('([^']+)'";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.clearInt32Signal\\('([^']+)'";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.clearFloatSignal\\('([^']+)'";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.clearStringSignal\\('([^']+)'";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, 'signal.") + match.str(1) + "', {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.setInt32Signal\\(\"([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setIntProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.setFloatSignal\\(\"([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setFloatProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.setStringSignal\\(\"([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setStringProperty(sim.handle_scene, \"signal.") + match.str(1) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.getInt32Signal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getIntProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.getFloatSignal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getFloatProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.getStringSignal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getStringProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.clearInt32Signal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.clearFloatSignal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.clearStringSignal\\(\"([^\"]+)\"";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.removeProperty(sim.handle_scene, \"signal.") + match.str(1) + "\", {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.writeCustomBufferData\\(([^,]+),'([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.writeCustomBufferData\\(([^,]+), '([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.writeCustomBufferData\\(([^,]+),\"([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.writeCustomBufferData\\(([^,]+), \"([^,]+),";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ",");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.readCustomBufferData\\(([^,]+),'([^']+)'";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + "', {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.readCustomBufferData\\(([^,]+), '([^']+)'";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + "', {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.readCustomBufferData\\(([^,]+),\"([^\"]+)\"";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + "\", {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.readCustomBufferData\\(([^,]+), \"([^\"]+)\"";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + "\", {noError = true}");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.writeCustomTableData\\(([^,]+),'([^,]+),([^\\)]+)\\)";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.writeCustomTableData\\(([^,]+), '([^,]+),([^\\)]+)\\)";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", 'customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.writeCustomTableData\\(([^,]+),\"([^,]+),([^\\)]+)\\)";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    regEx = "sim.writeCustomTableData\\(([^,]+), \"([^,]+),([^\\)]+)\\)";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBufferProperty(" + match.str(1) + ", \"customData.") + match.str(2) + ", sim.packTable(" + match.str(3) + "))");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    std::string trueV = "true";
-    std::string falseV = "false";
-    if (scriptObject->getLang() == "python")
-    {
-        trueV = "True";
-        falseV = "False";
-    }
-
-    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_respondable\\s*,\\s*1\\s*\\)";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'respondable', " + trueV + ")");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_respondable\\s*,\\s*0\\s*\\)";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'respondable', " + falseV + ")");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.objintparam_visibility_layer";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setIntProperty(") + match.str(1) + ", 'layer'");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.getObjectInt32Param\\(([^,]+),\\s*sim.objintparam_visibility_layer";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.getIntProperty(") + match.str(1) + ", 'layer'");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_static\\s*,\\s*1\\s*\\)";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'dynamic', " + falseV + ")");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.setObjectInt32Param\\(([^,]+),\\s*sim.shapeintparam_static\\s*,\\s*0\\s*\\)";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt(std::string("sim.setBoolProperty(") + match.str(1) + ", 'dynamic', " + trueV + ")");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-    regEx = "sim.getFloatParam\\(\\s*sim.floatparam_rand";
-    while (std::regex_search(_scriptText, match, regEx))
-    {
-        std::string nt("sim.getFloatProperty(sim.handle_app, 'randomFloat'");
-        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
-    }
-
-    if (_containsScriptText_old(scriptObject, "Int32Signal("))
-        App::logMsg(sim_verbosity_errors, "Contains Int32Signal(...");
-    if (_containsScriptText_old(scriptObject, "FloatSignal("))
-        App::logMsg(sim_verbosity_errors, "Contains FloatSignal(...");
-    if (_containsScriptText_old(scriptObject, "StringSignal("))
-        App::logMsg(sim_verbosity_errors, "Contains StringSignal(...");
-    if (_containsScriptText_old(scriptObject, "sim.getSignalName("))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getSignalName(...");
-    if (_containsScriptText_old(scriptObject, "BoolParam("))
-        App::logMsg(sim_verbosity_errors, "Contains BoolParam(...");
-    if (_containsScriptText_old(scriptObject, "Int32Param("))
-        App::logMsg(sim_verbosity_errors, "Contains Int32Param(...");
-    if (_containsScriptText_old(scriptObject, "FloatParam("))
-        App::logMsg(sim_verbosity_errors, "Contains FloatParam(...");
-    if (_containsScriptText_old(scriptObject, "StringParam("))
-        App::logMsg(sim_verbosity_errors, "Contains StringParam(...");
-    if (_containsScriptText_old(scriptObject, "ArrayParam("))
-        App::logMsg(sim_verbosity_errors, "Contains ArrayParam(...");
-    if (_containsScriptText_old(scriptObject, "ObjectProperty("))
-        App::logMsg(sim_verbosity_errors, "Contains ObjectProperty(...");
-    if (_containsScriptText_old(scriptObject, "ObjectSpecialProperty("))
-        App::logMsg(sim_verbosity_errors, "Contains ObjectSpecialProperty(...");
-    if (_containsScriptText_old(scriptObject, "ModelProperty("))
-        App::logMsg(sim_verbosity_errors, "Contains ModelProperty(...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomString"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomString...");
-    if (_containsScriptText_old(scriptObject, "sim.writeCustomString"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomString...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomBuffer"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomBuffer...");
-    if (_containsScriptText_old(scriptObject, "sim.writeCustomBuffer"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomBuffer...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomTable"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomTable...");
-    if (_containsScriptText_old(scriptObject, "sim.writeCustomTable"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomTable...");
-
-    if (_containsScriptText_old(scriptObject, "LightParameters"))
-        App::logMsg(sim_verbosity_errors, "Contains LightParameters...");
-
-    _replaceScriptText_old(scriptObject, "sim.light_omnidirectional_subtype", "sim.light_omnidirectional");
-    _replaceScriptText_old(scriptObject, "sim.light_spot_subtype", "sim.light_spot");
-    _replaceScriptText_old(scriptObject, "sim.light_directional_subtype", "sim.light_directional");
-    _replaceScriptText_old(scriptObject, "sim.joint_revolute_subtype", "sim.joint_revolute");
-    _replaceScriptText_old(scriptObject, "sim.joint_prismatic_subtype", "sim.joint_prismatic");
-    _replaceScriptText_old(scriptObject, "sim.joint_spherical_subtype", "sim.joint_spherical");
-    _replaceScriptText_old(scriptObject, "sim.shape_simpleshape_subtype", "sim.shape_simple");
-    _replaceScriptText_old(scriptObject, "sim.shape_multishape_subtype", "sim.shape_compound");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_pyramid_subtype", "sim.proximitysensor_pyramid");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_cylinder_subtype", "sim.proximitysensor_cylinder");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_disc_subtype", "sim.proximitysensor_disc");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_cone_subtype", "sim.proximitysensor_cone");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_ray_subtype", "sim.proximitysensor_ray");
-    _replaceScriptText_old(scriptObject, "sim.object_shape_type", "sim.sceneobject_shape");
-    _replaceScriptText_old(scriptObject, "sim.object_joint_type", "sim.sceneobject_joint");
-    _replaceScriptText_old(scriptObject, "sim.object_graph_type", "sim.sceneobject_graph");
-    _replaceScriptText_old(scriptObject, "sim.object_camera_type", "sim.sceneobject_camera");
-    _replaceScriptText_old(scriptObject, "sim.object_dummy_type", "sim.sceneobject_dummy");
-    _replaceScriptText_old(scriptObject, "sim.object_proximitysensor_type", "sim.sceneobject_proximitysensor");
-    _replaceScriptText_old(scriptObject, "sim.object_path_type", "sim.sceneobject_path");
-    _replaceScriptText_old(scriptObject, "sim.object_visionsensor_type", "sim.sceneobject_visionsensor");
-    _replaceScriptText_old(scriptObject, "sim.object_mill_type", "sim.sceneobject_mill");
-    _replaceScriptText_old(scriptObject, "sim.object_forcesensor_type", "sim.sceneobject_forcesensor");
-    _replaceScriptText_old(scriptObject, "sim.object_light_type", "sim.sceneobject_light");
-    _replaceScriptText_old(scriptObject, "sim.object_mirror_type", "sim.sceneobject_mirror");
-    _replaceScriptText_old(scriptObject, "sim.object_octree_type", "sim.sceneobject_octree");
-    _replaceScriptText_old(scriptObject, "sim.object_pointcloud_type", "sim.sceneobject_pointcloud");
-    _replaceScriptText_old(scriptObject, "sim.object_script_type", "sim.sceneobject_script");
-    _replaceScriptText_old(scriptObject, "sim.appobj_object_type", "sim.objecttype_sceneobject");
-    _replaceScriptText_old(scriptObject, "sim.appobj_collection_type", "sim.objecttype_collection");
-    _replaceScriptText_old(scriptObject, "sim.appobj_texture_type", "sim.objecttype_texture");
-
-    _replaceScriptText_old(scriptObject, "sim.scripttype_mainscript", "sim.scripttype_main");
-    _replaceScriptText_old(scriptObject, "sim.scripttype_childscript", "sim.scripttype_simulation");
-    _replaceScriptText_old(scriptObject, "sim.scripttype_addonscript", "sim.scripttype_addon");
-    _replaceScriptText_old(scriptObject, "sim.scripttype_customizationscript", "sim.scripttype_customization");
-    _replaceScriptText_old(scriptObject, "sim.scripttype_sandboxscript", "sim.scripttype_sandbox");
-
-    if (_containsScriptText_old(scriptObject, "sim.addScript"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.addScript...");
-    if (_containsScriptText_old(scriptObject, "sim.associateScriptWithObject"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.associateScriptWithObject...");
-    if (_containsScriptText_old(scriptObject, "sim.removeScript"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.removeScript...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptStringParam"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptStringParam...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptStringParam"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptStringParam...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptInt32Param"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptInt32Param...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptInt32Param"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptInt32Param...");
-    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_lang"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_lang...");
-    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_handle"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_handle...");
-    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_objecthandle"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_objecthandle...");
-
-    if (_containsScriptText_old(scriptObject, "sim.convexDecompose"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.convexDecompose...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getQHull"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getQHull...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getDecimatedMesh"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getDecimatedMesh...");
-
-    if (_containsScriptText_old(scriptObject, "sim.removeObject("))
-        App::logMsg(sim_verbosity_errors, "Contains sim.removeObject...");
-
-    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");
-    if (_containsScriptText_old(scriptObject, "sim.writeCustomDataBlock"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomDataBlock...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
-
-    if (_containsScriptText_old(scriptObject, "sim.dummyintparam_link_type"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.dummyintparam_link_type...");
-
-    if (_containsScriptText_old(scriptObject, "sim.dummylink_dynloopclosure"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.dummylink_dynloopclosure...");
-    if (_containsScriptText_old(scriptObject, "sim.dummylink_dyntendon"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.dummylink_dyntendon...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getThreadExitRequest"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getThreadExitRequest...");
-    if (_containsScriptText_old(scriptObject, "coroutine.create"))
-        App::logMsg(sim_verbosity_errors, "Contains coroutine.create...");
-
-    if (_containsScriptText_old(scriptObject, "sim.switchThread"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.switchThread...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadSwitchAllowed"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadSwitchAllowed...");
-    if (_containsScriptText_old(scriptObject, "sim.getThreadSwitchAllowed"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getThreadSwitchAllowed...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadAutomaticSwitch"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadAutomaticSwitch...");
-    if (_containsScriptText_old(scriptObject, "sim.getThreadAutomaticSwitch"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getThreadAutomaticSwitch...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadSwitchTiming"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadSwitchTiming...");
-    if (_containsScriptText_old(scriptObject, "sim.getThreadSwitchTiming"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getThreadSwitchTiming...");
-
-    if (_containsScriptText_old(scriptObject, "sim.shapestringparam_color_name"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.shapestringparam_color_name...");
-    if (_containsScriptText_old(scriptObject, "sim.invertMatrix"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.invertMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.invertPose"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.invertPose...");
-    if (_containsScriptText_old(scriptObject, "simIK.syncToIkWorld"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.syncToIkWorld...");
-    if (_containsScriptText_old(scriptObject, "simIK.syncFromIkWorld"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.syncFromIkWorld...");
-
-    if (_containsScriptText_old(scriptObject, "sim.reorientShapeBoundingBox"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.reorientShapeBoundingBox...");
-    if (_containsScriptText_old(scriptObject, "sim.createMeshShape"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.createMeshShape...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectSelection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.setObjectSelection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setObjectSelection...");
-    if (_containsScriptText_old(scriptObject, "simIK.getLinkedDummy"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.getLinkedDummy...");
-    if (_containsScriptText_old(scriptObject, "simIK.setLinkedDummy"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.setLinkedDummy...");
-
-    if (_containsScriptText_old(scriptObject, "simIK.result_not_performed"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.result_not_performed...");
-    if (_containsScriptText_old(scriptObject, "simIK.result_fail"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.result_fail...");
-
-    if (_containsScriptText_old(scriptObject, "simIK.applySceneToIkEnvironment"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.applySceneToIkEnvironment...");
-
-    if (_containsScriptText_old(scriptObject, "simIK.applyIkEnvironmentToScene"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.applyIkEnvironmentToScene...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getDoubleSignal"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getDoubleSignal...");
-    if (_containsScriptText_old(scriptObject, "sim.setDoubleSignal"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setDoubleSignal...");
-    if (_containsScriptText_old(scriptObject, "sim.clearDoubleSignal"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.clearDoubleSignal...");
-
-    if (_containsScriptText_old(scriptObject, "sysCall_jointCallback"))
-        App::logMsg(sim_verbosity_errors, "Contains sysCall_jointCallback...");
-    if (_containsScriptText_old(scriptObject, "sysCall_contactCallback"))
-        App::logMsg(sim_verbosity_errors, "Contains sysCall_contactCallback...");
-    if (_containsScriptText_old(scriptObject, "sysCall_dynCallback"))
-        App::logMsg(sim_verbosity_errors, "Contains sysCall_dynCallback...");
-
-    if (_containsScriptText_old(scriptObject, "sim.jointfloatparam_upper_limit"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.jointfloatparam_upper_limit...");
-
-    if (_containsScriptText_old(scriptObject, "sim.dummy_linktype"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.dummy_linktype...");
-
-    if (_containsScriptText_old(scriptObject, "sim.jointmode_passive"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.jointmode_passive...");
-    if (_containsScriptText_old(scriptObject, "sim.jointmode_force"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.jointmode_force...");
-
-    if (_containsScriptText_old(scriptObject, "sim.createPureShape"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.createPureShape...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorResolution"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorResolution...");
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorImage"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorImage...");
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorCharImage"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorCharImage...");
-    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorImage"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorImage...");
-    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorCharImage"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorCharImage...");
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorDepthBuffer"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorDepthBuffer...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getSystemTimeInMs"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getSystemTimeInMs...");
-
-    if (_containsScriptText_old(scriptObject, "sim.drawing_trianglepoints"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_trianglepoints...");
-    if (_containsScriptText_old(scriptObject, "sim.drawing_quadpoints"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_quadpoints...");
-    if (_containsScriptText_old(scriptObject, "sim.drawing_discpoints"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_discpoints...");
-    if (_containsScriptText_old(scriptObject, "sim.drawing_cubepoints"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_cubepoints...");
-    if (_containsScriptText_old(scriptObject, "sim.drawing_spherepoints"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.drawing_spherepoints...");
-    if (_containsScriptText_old(scriptObject, "sim.setJointMaxForce"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setJointMaxForce...");
-    if (_containsScriptText_old(scriptObject, "sim.getJointMaxForce"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getJointMaxForce...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptAttribute"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptAttribute...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptAttribute"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptAttribute...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectHandle"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectHandle...");
-    if (_containsScriptText_old(scriptObject, "simIK.getConfigForTipPose"))
-        App::logMsg(sim_verbosity_errors, "Contains simIK.getConfigForTipPose...");
-    if (_containsScriptText_old(scriptObject, "sim.getJointMatrix"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getJointMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.setSphericalJointMatrix"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setSphericalJointMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectUniqueIdentifier"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectUniqueIdentifier...");
-    if (_containsScriptText_old(scriptObject, "sim.isObjectInSelection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.isObjectInSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.addObjectToSelection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.addObjectToSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.removeObjectFromSelection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.removeObjectFromSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectLastSelection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectLastSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.deleteSelectedObjects"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.deleteSelectedObjects...");
-    if (_containsScriptText_old(scriptObject, "sim.scaleSelectedObjects"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.scaleSelectedObjects...");
-    if (_containsScriptText_old(scriptObject, "sim.copyPasteSelectedObjects"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.copyPasteSelectedObjects...");
-    if (_containsScriptText_old(scriptObject, "sim.breakForceSensor"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.breakForceSensor...");
-
-    if (_containsScriptText_old(scriptObject, "sim.fileDlg"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.fileDlg...");
-    if (_containsScriptText_old(scriptObject, "sim.msgBox"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.msgBox...");
-    if (_containsScriptText_old(scriptObject, "sim.displayDialog"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.displayDialog...");
-
-    if (_containsScriptText_old(scriptObject, "Reflexxes"))
-        App::logMsg(sim_verbosity_errors, "Contains Reflexxes...");
-    if (_containsScriptText_old(scriptObject, "reflexxes"))
-        App::logMsg(sim_verbosity_errors, "Contains reflexxes...");
-    if (_containsScriptText_old(scriptObject, "sim.rml"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.rml*...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectHandle(sim.handle_self)"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectHandle(sim.handle_self)...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectName"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectName...");
-    if (_containsScriptText_old(scriptObject, "sim.setObjectName"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setObjectName...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptName"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptName...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptVariable"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptVariable...");
-    if (_containsScriptText_old(scriptObject, "sim.setSimilarName"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setSimilarName...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectAssociatedWithScript"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectAssociatedWithScript...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptAssociatedWithObject"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptAssociatedWithObject...");
-    if (_containsScriptText_old(scriptObject, "sim.getCustomizationScriptAssociatedWithObject"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getCustomizationScriptAssociatedWithObject...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectSizeValues"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectSizeValues...");
-    if (_containsScriptText_old(scriptObject, "sim.setObjectSizeValues"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setObjectSizeValues...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectConfiguration"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectConfiguration...");
-    if (_containsScriptText_old(scriptObject, "sim.setObjectConfiguration"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setObjectConfiguration...");
-    if (_containsScriptText_old(scriptObject, "sim.getConfigurationTree"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getConfigurationTree...");
-    if (_containsScriptText_old(scriptObject, "sim.setConfigurationTree"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setConfigurationTree...");
-
-    if (_containsScriptText_old(scriptObject, "__initFunctions"))
-        App::logMsg(sim_verbosity_errors, "Contains __initFunctions...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getObjectInt32Parameter"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectInt32Parameter...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectIntParameter"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectIntParameter...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectFloatParameter"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getObjectFloatParameter...");
-    if (_containsScriptText_old(scriptObject, "sim.isHandleValid"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.isHandleValid...");
-    if (_containsScriptText_old(scriptObject, "sim.addPointCloud"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.addPointCloud...");
-
-    if (_containsScriptText_old(scriptObject, "sysCall_vision") &&
-        (scriptObject->_scriptType == sim_scripttype_customization))
-        App::logMsg(sim_verbosity_errors, "Contains a vision callback in a customization script");
-    if (_containsScriptText_old(scriptObject, "sysCall_trigger") &&
-        (scriptObject->_scriptType == sim_scripttype_customization))
-        App::logMsg(sim_verbosity_errors, "Contains a trigger callback in a customization script");
-
-    if (_containsScriptText_old(scriptObject, "sim.rmlMove"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.rmlMove...");
-    if (_containsScriptText_old(scriptObject, "sim.include"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.include...");
-    if (_containsScriptText_old(scriptObject, "sim.getIk"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getIk...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptSimulationParameter"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptSimulationParameter...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptSimulationParameter"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptSimulationParameter...");
-    if (_containsScriptText_old(scriptObject, "sim.tube"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.tube...");
-    if (_containsScriptText_old(scriptObject, "sim.addStatusbarMessage"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.addStatusbarMessage...");
-    if (_containsScriptText_old(scriptObject, "sim.getNameSuffix"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getNameSuffix...");
-    if (_containsScriptText_old(scriptObject, "sim.setNameSuffix"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setNameSuffix...");
-    if (_containsScriptText_old(scriptObject, "sim.resetMill"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.resetMill...");
-    if (_containsScriptText_old(scriptObject, "sim.handleMill"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.handleMill...");
-    if (_containsScriptText_old(scriptObject, "sim.resetMilling"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.resetMilling...");
-    if (_containsScriptText_old(scriptObject, "sim.openTextEditor"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.openTextEditor...");
-    if (_containsScriptText_old(scriptObject, "sim.closeTextEditor"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.closeTextEditor...");
-    if (_containsScriptText_old(scriptObject, "simGetMaterialId"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetMaterialId...");
-    if (_containsScriptText_old(scriptObject, "simGetShapeMaterial"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetShapeMaterial...");
-    if (_containsScriptText_old(scriptObject, "simHandleVarious"))
-        App::logMsg(sim_verbosity_errors, "Contains simHandleVarious...");
-    if (_containsScriptText_old(scriptObject, "simGetInstanceIndex"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetInstanceIndex...");
-    if (_containsScriptText_old(scriptObject, "simGetVisibleInstanceIndex"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetVisibleInstanceIndex...");
-    if (_containsScriptText_old(scriptObject, "simResetPath"))
-        App::logMsg(sim_verbosity_errors, "Contains simResetPath...");
-    if (_containsScriptText_old(scriptObject, "simHandlePath"))
-        App::logMsg(sim_verbosity_errors, "Contains simHandlePath...");
-    if (_containsScriptText_old(scriptObject, "simResetJoint"))
-        App::logMsg(sim_verbosity_errors, "Contains simResetJoint...");
-    if (_containsScriptText_old(scriptObject, "simHandleJoint"))
-        App::logMsg(sim_verbosity_errors, "Contains simHandleJoint...");
-    if (_containsScriptText_old(scriptObject, "simGetInvertedMatrix"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetInvertedMatrix...");
-    if (_containsScriptText_old(scriptObject, "simAddSceneCustomData"))
-        App::logMsg(sim_verbosity_errors, "Contains simAddSceneCustomData...");
-    if (_containsScriptText_old(scriptObject, "simGetSceneCustomData"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetSceneCustomData...");
-    if (_containsScriptText_old(scriptObject, "simAddObjectCustomData"))
-        App::logMsg(sim_verbosity_errors, "Contains simAddObjectCustomData...");
-    if (_containsScriptText_old(scriptObject, "simGetObjectCustomData"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetObjectCustomData...");
-    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorFilter"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorFilter...");
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorFilter"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorFilter...");
-    if (_containsScriptText_old(scriptObject, "sim.handleMechanism"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.handleMechanism...");
-    if (_containsScriptText_old(scriptObject, "sim.setPathTargetNominalVelocity"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setPathTargetNominalVelocity...");
-    if (_containsScriptText_old(scriptObject, "sim.setShapeMassAndInertia"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setShapeMassAndInertia...");
-    if (_containsScriptText_old(scriptObject, "sim.getShapeMassAndInertia"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getShapeMassAndInertia...");
-    if (_containsScriptText_old(scriptObject, "sim.checkIkGroup"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.checkIkGroup...");
-    if (_containsScriptText_old(scriptObject, "sim.handleIkGroup"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.handleIkGroup...");
-    if (_containsScriptText_old(scriptObject, "sim.createIkGroup"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.createIkGroup...");
-    if (_containsScriptText_old(scriptObject, "sim.removeIkGroup"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.removeIkGroup...");
-    if (_containsScriptText_old(scriptObject, "sim.createIkElement"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.createIkElement...");
-    if (_containsScriptText_old(scriptObject, "sim.exportIk"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.exportIk...");
-    if (_containsScriptText_old(scriptObject, "sim.computeJacobian"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.computeJacobian...");
-    if (_containsScriptText_old(scriptObject, "sim.getConfigForTipPose"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getConfigForTipPose...");
-    if (_containsScriptText_old(scriptObject, "sim.generateIkPath"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.generateIkPath...");
-    if (_containsScriptText_old(scriptObject, "sim.getIkGroupHandle"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getIkGroupHandle...");
-    if (_containsScriptText_old(scriptObject, "sim.getIkGroupMatrix"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getIkGroupMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.setIkGroupProperties"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setIkGroupProperties...");
-    if (_containsScriptText_old(scriptObject, "sim.setIkElementProperties"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setIkElementProperties...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadIsFree"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadIsFree...");
-    if (_containsScriptText_old(scriptObject, "simSetUIPosition"))
-        App::logMsg(sim_verbosity_errors, "Contains simSetUIPosition...");
-    if (_containsScriptText_old(scriptObject, "simGetUIPosition"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetUIPosition...");
-    if (_containsScriptText_old(scriptObject, "simGetUIHandle"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetUIHandle...");
-    if (_containsScriptText_old(scriptObject, "simGetUIProperty"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetUIProperty...");
-    if (_containsScriptText_old(scriptObject, "simSetUIProperty"))
-        App::logMsg(sim_verbosity_errors, "Contains simSetUIProperty...");
-    if (_containsScriptText_old(scriptObject, "simGetUIEventButton"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetUIEventButton...");
-    if (_containsScriptText_old(scriptObject, "simGetUIButtonProperty"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonProperty...");
-    if (_containsScriptText_old(scriptObject, "simSetUIButtonProperty"))
-        App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonProperty...");
-    if (_containsScriptText_old(scriptObject, "simGetUIButtonSize"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonSize...");
-    if (_containsScriptText_old(scriptObject, "simSetUIButtonLabel"))
-        App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonLabel...");
-    if (_containsScriptText_old(scriptObject, "simGetUIButtonLabel"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonLabel...");
-    if (_containsScriptText_old(scriptObject, "simSetUISlider"))
-        App::logMsg(sim_verbosity_errors, "Contains simSetUISlider...");
-    if (_containsScriptText_old(scriptObject, "simGetUISlider"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetUISlider...");
-    if (_containsScriptText_old(scriptObject, "simCreateUIButtonArray"))
-        App::logMsg(sim_verbosity_errors, "Contains simCreateUIButtonArray...");
-    if (_containsScriptText_old(scriptObject, "simSetUIButtonArrayColor"))
-        App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonArrayColor...");
-    if (_containsScriptText_old(scriptObject, "simDeleteUIButtonArray"))
-        App::logMsg(sim_verbosity_errors, "Contains simDeleteUIButtonArray...");
-    if (_containsScriptText_old(scriptObject, "simCreateUI"))
-        App::logMsg(sim_verbosity_errors, "Contains simCreateUI...");
-    if (_containsScriptText_old(scriptObject, "simCreateUIButton"))
-        App::logMsg(sim_verbosity_errors, "Contains simCreateUIButton...");
-    if (_containsScriptText_old(scriptObject, "simLoadUI"))
-        App::logMsg(sim_verbosity_errors, "Contains simLoadUI...");
-    if (_containsScriptText_old(scriptObject, "simSaveUI"))
-        App::logMsg(sim_verbosity_errors, "Contains simSaveUI...");
-    if (_containsScriptText_old(scriptObject, "simRemoveUI"))
-        App::logMsg(sim_verbosity_errors, "Contains simRemoveUI...");
-    if (_containsScriptText_old(scriptObject, "simSetUIButtonColor"))
-        App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonColor...");
-    if (_containsScriptText_old(scriptObject, "simHandleChildScript"))
-        App::logMsg(sim_verbosity_errors, "Contains simHandleChildScript...");
-    if (_containsScriptText_old(scriptObject, "simSearchPath"))
-        App::logMsg(sim_verbosity_errors, "Contains simSearchPath...");
-    if (_containsScriptText_old(scriptObject, "simInitializePathSearch"))
-        App::logMsg(sim_verbosity_errors, "Contains simInitializePathSearch...");
-    if (_containsScriptText_old(scriptObject, "simPerformPathSearchStep"))
-        App::logMsg(sim_verbosity_errors, "Contains simPerformPathSearchStep...");
-    if (_containsScriptText_old(scriptObject, "sim.sendData"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.sendData...");
-    if (_containsScriptText_old(scriptObject, "sim.receiveData"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.receiveData...");
-    if (_containsScriptText_old(scriptObject, "simSerialPortOpen"))
-        App::logMsg(sim_verbosity_errors, "Contains simSerialPortOpen...");
-    if (_containsScriptText_old(scriptObject, "simSerialPortClose"))
-        App::logMsg(sim_verbosity_errors, "Contains simSerialPortClose...");
-    if (_containsScriptText_old(scriptObject, "simSerialPortSend"))
-        App::logMsg(sim_verbosity_errors, "Contains simSerialPortSend...");
-    if (_containsScriptText_old(scriptObject, "simSerialPortRead"))
-        App::logMsg(sim_verbosity_errors, "Contains simSerialPortRead...");
-    if (_containsScriptText_old(scriptObject, "sim.rmlMoveToJointPositions"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.rmlMoveToJointPositions...");
-    if (_containsScriptText_old(scriptObject, "simRMLMoveToJointPositions"))
-        App::logMsg(sim_verbosity_errors, "Contains simRMLMoveToJointPositions...");
-    if (_containsScriptText_old(scriptObject, "sim.rmlMoveToPosition"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.rmlMoveToPosition...");
-    if (_containsScriptText_old(scriptObject, "simRMLMoveToPosition"))
-        App::logMsg(sim_verbosity_errors, "Contains simRMLMoveToPosition...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getCollectionHandle"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getCollectionHandle...");
-    if (_containsScriptText_old(scriptObject, "sim.addCollection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.addCollection...");
-    if (_containsScriptText_old(scriptObject, "sim.addObjectToCollection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.addObjectToCollection...");
-    if (_containsScriptText_old(scriptObject, "sim.emptyCollection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.emptyCollection...");
-    if (_containsScriptText_old(scriptObject, "sim.removeCollection"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.removeCollection...");
-    if (_containsScriptText_old(scriptObject, "sim.getCollectionName"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getCollectionName...");
-    if (_containsScriptText_old(scriptObject, "sim.setCollectionName"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setCollectionName...");
-    if (_containsScriptText_old(scriptObject, "sim.getCollisionHandle"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getCollisionHandle...");
-    if (_containsScriptText_old(scriptObject, "sim.handleCollision"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.handleCollision...");
-    if (_containsScriptText_old(scriptObject, "sim.readCollision"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readCollision...");
-    if (_containsScriptText_old(scriptObject, "sim.resetCollision"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.resetCollision...");
-    if (_containsScriptText_old(scriptObject, "sim.getDistanceHandle"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getDistanceHandle...");
-    if (_containsScriptText_old(scriptObject, "sim.handleDistance"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.handleDistance...");
-    if (_containsScriptText_old(scriptObject, "sim.readDistance"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.readDistance...");
-    if (_containsScriptText_old(scriptObject, "sim.resetDistance"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.resetDistance...");
-    if (_containsScriptText_old(scriptObject, "sim.boolAnd32"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.boolAnd32...");
-    if (_containsScriptText_old(scriptObject, "sim.boolOr32"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.boolOr32...");
-    if (_containsScriptText_old(scriptObject, "sim.boolXor32"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.boolXor32...");
-    if (_containsScriptText_old(scriptObject, "simBoolAnd32"))
-        App::logMsg(sim_verbosity_errors, "Contains simBoolAnd32...");
-    if (_containsScriptText_old(scriptObject, "simBoolOr32"))
-        App::logMsg(sim_verbosity_errors, "Contains simBoolOr32...");
-    if (_containsScriptText_old(scriptObject, "simBoolXor32"))
-        App::logMsg(sim_verbosity_errors, "Contains simBoolXo32...");
-    if (_containsScriptText_old(scriptObject, "simBoolAnd16"))
-        App::logMsg(sim_verbosity_errors, "Contains simBoolAnd16...");
-    if (_containsScriptText_old(scriptObject, "simBoolOr16"))
-        App::logMsg(sim_verbosity_errors, "Contains simBoolOr16...");
-    if (_containsScriptText_old(scriptObject, "simBoolXor16"))
-        App::logMsg(sim_verbosity_errors, "Contains simBoolXo16...");
-
-    if (_containsScriptText_old(scriptObject, "sim.getScriptExecutionCount"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptExecutionCount...");
-    if (_containsScriptText_old(scriptObject, "sim.isScriptRunningInThread"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.isScriptRunningInThread...");
-    if (_containsScriptText_old(scriptObject, "sim.isScriptExecutionThreaded"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.isScriptExecutionThreaded...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadResumeLocation"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setThreadResumeLocation...");
-    if (_containsScriptText_old(scriptObject, "sim.resumeThreads"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.resumeThreads...");
-    if (_containsScriptText_old(scriptObject, "sim.launchThreadedChildScripts"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.launchThreadedChildScripts...");
-    if (_containsScriptText_old(scriptObject, "simGetScriptExecutionCount"))
-        App::logMsg(sim_verbosity_errors, "Contains simGetScriptExecutionCount...");
-    if (_containsScriptText_old(scriptObject, "simIsScriptExecutionThreaded"))
-        App::logMsg(sim_verbosity_errors, "Contains simIsScriptExecutionThreaded...");
-    if (_containsScriptText_old(scriptObject, "simIsScriptRunningInThread"))
-        App::logMsg(sim_verbosity_errors, "Contains simIsScriptRunningInThread...");
-    if (_containsScriptText_old(scriptObject, "simSetThreadResumeLocation"))
-        App::logMsg(sim_verbosity_errors, "Contains simSetThreadResumeLocation...");
-    if (_containsScriptText_old(scriptObject, "sim.setJointForce"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setJointForce...");
-    if (_containsScriptText_old(scriptObject, "simResumeThreads"))
-        App::logMsg(sim_verbosity_errors, "Contains simResumeThreads...");
-    if (_containsScriptText_old(scriptObject, "simLaunchThreadedChildScripts"))
-        App::logMsg(sim_verbosity_errors, "Contains simLaunchThreadedChildScripts...");
-    if (_containsScriptText_old(scriptObject, "sim.copyMatrix"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.copyMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.getPathPosition"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.getPathPosition...");
-    if (_containsScriptText_old(scriptObject, "sim.setPathPosition"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.setPathPosition...");
-
-    if (_containsScriptText_old(scriptObject, "'utils'"))
-        App::logMsg(sim_verbosity_errors, "Contains 'utils'...");
-
-    //************************************************************
-    // Scripts containing following should remain handled in threaded mode:
-    if (_containsScriptText_old(scriptObject, "simMoveToPosition"))
-        App::logMsg(sim_verbosity_errors, "Contains simMoveToPosition...");
-    if (_containsScriptText_old(scriptObject, "sim.moveToPosition"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.moveToPosition...");
-    if (_containsScriptText_old(scriptObject, "simMoveToObject"))
-        App::logMsg(sim_verbosity_errors, "Contains simMoveToObject...");
-    if (_containsScriptText_old(scriptObject, "sim.moveToObject"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.moveToObject...");
-    if (_containsScriptText_old(scriptObject, "simFollowPath"))
-        App::logMsg(sim_verbosity_errors, "Contains simFollowPath...");
-    if (_containsScriptText_old(scriptObject, "sim.followPath"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.followPath...");
-    if (_containsScriptText_old(scriptObject, "simMoveToJointPositions"))
-        App::logMsg(sim_verbosity_errors, "Contains simMoveToJointPositions...");
-    if (_containsScriptText_old(scriptObject, "sim.moveToJointPositions"))
-        App::logMsg(sim_verbosity_errors, "Contains sim.moveToJointPositions...");
-    //************************************************************
-}
 // **************************************************************
 // **************************************************************

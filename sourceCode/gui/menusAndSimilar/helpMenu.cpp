@@ -2,7 +2,6 @@
 #include <helpMenu.h>
 #include <oGL.h>
 #include <global.h>
-#include <threadPool_old.h>
 #include <algos.h>
 #include <tt.h>
 #include <app.h>

@@ -499,7 +499,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.cpp
     sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomFunction.cpp
     sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomVariable.cpp
-    sourceCode/backwardCompatibility/utils/threadPool_old.cpp
     sourceCode/backwardCompatibility/various/memorizedConf_old.cpp
     sourceCode/backwardCompatibility/various/ghostObject.cpp
 

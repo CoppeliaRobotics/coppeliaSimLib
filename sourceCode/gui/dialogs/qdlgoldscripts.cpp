@@ -68,10 +68,8 @@ void CQDlgOldScripts::refresh()
     ui->qqDisabled->setEnabled((theScript != nullptr) && noEditMode &&
                                ((theScript->getScriptType() == sim_scripttype_simulation) ||
                                 (theScript->getScriptType() == sim_scripttype_customization)));
-    ui->qqExecuteOnce->setEnabled((theScript != nullptr) && noEditModeAndNoSim &&
-                                  (theScript->getScriptType() == sim_scripttype_simulation) &&
-                                  theScript->getThreadedExecution_oldThreads());
-    ui->qqExecuteOnce->setVisible(App::userSettings->keepOldThreadedScripts);
+    ui->qqExecuteOnce->setEnabled(false);
+    ui->qqExecuteOnce->setVisible(false);
 
     if (theScript != nullptr)
     {
@@ -85,7 +83,7 @@ void CQDlgOldScripts::refresh()
 
         ui->qqDisabled->setChecked(theScript->getScriptIsDisabled());
 
-        ui->qqExecuteOnce->setChecked(theScript->getExecuteJustOnce_oldThreads());
+        ui->qqExecuteOnce->setChecked(false);
     }
     else
     {
@@ -124,10 +122,7 @@ void CQDlgOldScripts::updateObjectsInList()
                 QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole, QVariant(id));
                 itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-                if (it->getThreadedExecution_oldThreads())
-                    itm->setForeground(QColor(128, 205, 205)); // CYAN
-                else
-                    itm->setForeground(QColor(128, 128, 128)); // GREY
+                itm->setForeground(QColor(128, 128, 128)); // GREY
                 ui->qqScriptList->addItem(itm);
             }
         }
