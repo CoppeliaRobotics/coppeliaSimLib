@@ -102,9 +102,6 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const c
         App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
-    it->setLastError_old(errStr.c_str());
-    if (!it->getRaiseErrors_backCompatibility())
-        return;
     int lineNumber = -1;
     lineNumber = luaWrap_getCurrentCodeLine(L);
     std::string msg;

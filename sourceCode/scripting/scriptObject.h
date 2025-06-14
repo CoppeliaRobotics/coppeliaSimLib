@@ -20,8 +20,8 @@
 // Old:
 // **********************
 #include <userParameters.h>
-#include <vMutex.h>
-#include <vThread.h>
+//#include <vMutex.h>
+//#include <vThread.h>
 #include <customData_old.h>
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 // **********************
@@ -254,27 +254,16 @@ class CScriptObject
     void setObjectCustomData_old(int header, const char* data, int dataLength);
     int getObjectCustomDataLength_old(int header) const;
     void getObjectCustomData_old(int header, char* data) const;
-    void setObjectCustomData_tempData_old(int header, const char* data, int dataLength);
-    int getObjectCustomDataLength_tempData_old(int header) const;
-    void getObjectCustomData_tempData_old(int header, char* data) const;
-    void setRaiseErrors_backCompatibility(bool raise);
-    bool getRaiseErrors_backCompatibility() const;
     void setAutomaticCascadingCallsDisabled_old(bool disabled);
     bool getAutomaticCascadingCallsDisabled_old() const;
-    bool checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014();
-    bool checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014();
-    bool checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014();
     CUserParameters* getScriptParametersObject_backCompatibility();
     void setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled);
     bool getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const;
     void setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt);
     bool getCustomizationScriptCleanupBeforeSave_DEPRECATED() const;
-    int appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data,
-                                    const int what[2]); // deprecated
+    int appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data, const int what[2]); // deprecated
     int callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata);
     int clearScriptVariable_DEPRECATED(const char* variableName); // deprecated
-    void setLastError_old(const char* err);
-    std::string getAndClearLastError_old();
     void setExecutionPriority_old(int order);
     int getExecutionPriority_old() const;
     static void setScriptNameIndexToInterpreterState_lua_old(void* LL, int index);
@@ -384,10 +373,7 @@ class CScriptObject
     // *****************************************
     void _performNewApiAdjustments_old(CScriptObject* scriptObject, bool forwardAdjustment);
     std::string _replaceOldApi(const char* txt, bool forwardAdjustment);
-    void _handleCallbackEx_old(int calltype);
     int _getScriptNameIndexNumber_old() const;
-    bool _callScriptChunk_old(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-    bool _checkIfMixingOldAndNewCallMethods_old();
     bool _convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject, bool execJustOnce);
     void _adjustScriptText1_old(CScriptObject* scriptObject, bool doIt, bool doIt2);
     void _adjustScriptText2_old(CScriptObject* scriptObject, bool doIt);
@@ -407,27 +393,15 @@ class CScriptObject
     void _detectDeprecated_old(CScriptObject* scriptObject);
     void _insertScriptText_old(CScriptObject* scriptObject, bool toFront, const char* txt);
     bool _replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt, const char* newTxt);
-    bool _replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt1, const char* oldTxt2,
-                                const char* oldTxt3, const char* newTxt);
-    bool _replaceScriptTextKeepMiddleUnchanged_old(CScriptObject* scriptObject, const char* oldTxtStart,
-                                                   const char* oldTxtEnd, const char* newTxtStart,
-                                                   const char* newTxtEnd);
+    bool _replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt1, const char* oldTxt2, const char* oldTxt3, const char* newTxt);
+    bool _replaceScriptTextKeepMiddleUnchanged_old(CScriptObject* scriptObject, const char* oldTxtStart, const char* oldTxtEnd, const char* newTxtStart, const char* newTxtEnd);
     bool _containsScriptText_old(CScriptObject* scriptObject, const char* txt);
-    void _splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord,
-                           std::string& afterPart);
-    std::string _lastError_old;
+    void _splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord, std::string& afterPart);
     bool _custScriptDisabledDSim_compatibilityMode_DEPRECATED;
     bool _customizationScriptCleanupBeforeSave_DEPRECATED;
     bool _mainScriptIsDefaultMainScript_old; // 16.11.2020
-    bool _raiseErrors_backCompatibility;
     CUserParameters* _scriptParameters_backCompatibility;
     CCustomData_old* _customObjectData_old;
-    CCustomData_old* _customObjectData_tempData_old;
-    bool _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014;
-    bool _warning_simRMLPosition_oldCompatibility_30_8_2014;
-    bool _warning_simRMLVelocity_oldCompatibility_30_8_2014;
-    bool _warning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016;
-    bool _warning_simFindIkPath_oldCompatibility_2_2_2016;
     bool _automaticCascadingCallsDisabled_old; // reset to false at simulation start!
     int _executionPriority_old;
     static std::map<std::string, std::string> _newApiMap_old;

@@ -53,14 +53,8 @@ CScriptObject::CScriptObject(int scriptType)
     _mainScriptIsDefaultMainScript_old = false;
     _custScriptDisabledDSim_compatibilityMode_DEPRECATED = false;
     _customizationScriptCleanupBeforeSave_DEPRECATED = false;
-    _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014 = false;
-    _warning_simRMLPosition_oldCompatibility_30_8_2014 = false;
-    _warning_simRMLVelocity_oldCompatibility_30_8_2014 = false;
-    _warning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016 = false;
-    _warning_simFindIkPath_oldCompatibility_2_2_2016 = false;
     _scriptParameters_backCompatibility = new CUserParameters();
     _customObjectData_old = nullptr;
-    _customObjectData_tempData_old = nullptr;
     _executionPriority_old = sim_scriptexecorder_normal;
     // ***********************************************************
 
@@ -93,7 +87,6 @@ CScriptObject::~CScriptObject()
     // Old:
     delete _scriptParameters_backCompatibility;
     delete _customObjectData_old;
-    delete _customObjectData_tempData_old;
 }
 
 int CScriptObject::setHandle()
@@ -115,8 +108,7 @@ void CScriptObject::initSandbox()
     if (_scriptType == sim_scripttype_sandbox)
     {
         App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the sandbox script...");
-        if (_initInterpreterState(nullptr))
-            _raiseErrors_backCompatibility = true; // Old
+        _initInterpreterState(nullptr);
         if (App::userSettings->preferredSandboxLang == "bareLua")
         {
             _lang = "lua";
@@ -1215,11 +1207,6 @@ void CScriptObject::simulationAboutToStart()
         setNumberOfPasses(0);
         _automaticCascadingCallsDisabled_old = false;
         initializeInitialValues(false);
-        _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014 = false;
-        _warning_simRMLPosition_oldCompatibility_30_8_2014 = false;
-        _warning_simRMLVelocity_oldCompatibility_30_8_2014 = false;
-        _warning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016 = false;
-        _warning_simFindIkPath_oldCompatibility_2_2_2016 = false;
     }
 }
 
@@ -1875,15 +1862,6 @@ int CScriptObject::___loadCode(const char* code, const char* functionsToFind, st
                 "]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
     }
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    _raiseErrors_backCompatibility = true;
-    if (_checkIfMixingOldAndNewCallMethods_old())
-    {
-        std::string msg(getShortDescriptiveName().c_str());
-        msg += ": detected a possible attempt to mix the old and new calling methods, e.g.:";
-        msg += "\nwith the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
-        msg += "\nwith the new method: function sysCall_init() ... end";
-        App::logMsg(sim_verbosity_warnings, msg.c_str());
-    }
     int oldTop = luaWrap_lua_gettop(L);
     std::string tmp("sim_call_type="); // for backward compatibility
     tmp += std::to_string(sim_syscb_init);
@@ -2638,10 +2616,6 @@ CScriptObject* CScriptObject::copyYourself()
     it->_customObjectData_old = nullptr;
     if (_customObjectData_old != nullptr)
         it->_customObjectData_old = _customObjectData_old->copyYourself();
-    delete it->_customObjectData_tempData_old;
-    it->_customObjectData_tempData_old = nullptr;
-    if (_customObjectData_tempData_old != nullptr)
-        it->_customObjectData_tempData_old = _customObjectData_tempData_old->copyYourself();
     return (it);
 }
 
@@ -3018,8 +2992,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     else
     {
         // Following 3 for the old plugins:
-        registerPluginVariables(
-            true); // for now we do not react to a failed require("file"), for backward compatibility's sake. We report
+        registerPluginVariables(true); // for now we do not react to a failed require("file"), for backward compatibility's sake. We report
                    // a warning, and only to the console and for the sandbox script
         registerPluginFunctions();
         registerPluginVariables(false);
@@ -4430,10 +4403,6 @@ int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::st
 // **************************************************************
 // **************************************************************
 
-void CScriptObject::setRaiseErrors_backCompatibility(bool raise)
-{
-    _raiseErrors_backCompatibility = raise;
-}
 void CScriptObject::setExecutionPriority_old(int order)
 {
     _executionPriority_old = tt::getLimitedInt(sim_scriptexecorder_first, sim_scriptexecorder_last, order);
@@ -4441,10 +4410,6 @@ void CScriptObject::setExecutionPriority_old(int order)
 int CScriptObject::getExecutionPriority_old() const
 {
     return (_executionPriority_old);
-}
-bool CScriptObject::getRaiseErrors_backCompatibility() const
-{
-    return (_raiseErrors_backCompatibility);
 }
 void CScriptObject::setObjectCustomData_old(int header, const char* data, int dataLength)
 {
@@ -4464,25 +4429,6 @@ void CScriptObject::getObjectCustomData_old(int header, char* data) const
         return;
     _customObjectData_old->getData(header, data);
 }
-void CScriptObject::setObjectCustomData_tempData_old(int header, const char* data, int dataLength)
-{
-    if (_customObjectData_tempData_old == nullptr)
-        _customObjectData_tempData_old = new CCustomData_old();
-    _customObjectData_tempData_old->setData(header, data, dataLength);
-}
-int CScriptObject::getObjectCustomDataLength_tempData_old(int header) const
-{
-    if (_customObjectData_tempData_old == nullptr)
-        return (0);
-    return (_customObjectData_tempData_old->getDataLength(header));
-}
-void CScriptObject::getObjectCustomData_tempData_old(int header, char* data) const
-{
-    if (_customObjectData_tempData_old == nullptr)
-        return;
-    _customObjectData_tempData_old->getData(header, data);
-}
-
 void CScriptObject::setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled)
 {
     _custScriptDisabledDSim_compatibilityMode_DEPRECATED = disabled;
@@ -4498,25 +4444,6 @@ void CScriptObject::setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt
 bool CScriptObject::getCustomizationScriptCleanupBeforeSave_DEPRECATED() const
 {
     return (_customizationScriptCleanupBeforeSave_DEPRECATED);
-}
-void CScriptObject::_handleCallbackEx_old(int calltype)
-{
-    std::string e;
-    if (calltype == sim_syscb_cleanup)
-        e = "_S.sysCallEx_cleanup";
-    if (calltype == sim_syscb_beforeinstanceswitch)
-        e = "_S.sysCallEx_beforeInstanceSwitch";
-    if (calltype == sim_syscb_afterinstanceswitch)
-        e = "_S.sysCallEx_afterInstanceSwitch";
-    if (calltype == sim_syscb_aos_suspend)
-        e = "_S.sysCallEx_addOnScriptSuspend";
-    if (calltype == sim_syscb_aos_resume)
-        e = "_S.sysCallEx_addOnScriptResume";
-    if (e.size() > 0)
-    {
-        e = "if " + e + " then " + e + "() end";
-        _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState, e.c_str());
-    }
 }
 int CScriptObject::_getScriptNameIndexNumber_old() const
 {
@@ -4807,11 +4734,7 @@ CUserParameters* CScriptObject::getScriptParametersObject_backCompatibility()
 {
     return (_scriptParameters_backCompatibility);
 }
-bool CScriptObject::_checkIfMixingOldAndNewCallMethods_old()
-{
-    return ((_scriptText.find("sim_call_type") != std::string::npos) &&
-            (_scriptText.find("sysCall_") != std::string::npos));
-}
+
 int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data,
                                                const int what[2])
 { // DEPRECATED since 23/2/2016
@@ -4904,16 +4827,6 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName, const char
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
     return (0);
 }
-void CScriptObject::setLastError_old(const char* err)
-{
-    _lastError_old = err;
-}
-std::string CScriptObject::getAndClearLastError_old()
-{
-    std::string retVal = _lastError_old;
-    _lastError_old.clear();
-    return (retVal);
-}
 void CScriptObject::setAutomaticCascadingCallsDisabled_old(bool disabled)
 {
     _automaticCascadingCallsDisabled_old = disabled;
@@ -4921,24 +4834,6 @@ void CScriptObject::setAutomaticCascadingCallsDisabled_old(bool disabled)
 bool CScriptObject::getAutomaticCascadingCallsDisabled_old() const
 {
     return (_automaticCascadingCallsDisabled_old);
-}
-bool CScriptObject::checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014()
-{
-    bool retVal = _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014;
-    _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014 = true;
-    return (retVal);
-}
-bool CScriptObject::checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014()
-{
-    bool retVal = _warning_simRMLPosition_oldCompatibility_30_8_2014;
-    _warning_simRMLPosition_oldCompatibility_30_8_2014 = true;
-    return (retVal);
-}
-bool CScriptObject::checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014()
-{
-    bool retVal = _warning_simRMLVelocity_oldCompatibility_30_8_2014;
-    _warning_simRMLVelocity_oldCompatibility_30_8_2014 = true;
-    return (retVal);
 }
 void CScriptObject::_insertScriptText_old(CScriptObject* scriptObject, bool toFront, const char* txt)
 {

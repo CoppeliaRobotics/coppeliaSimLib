@@ -2079,20 +2079,7 @@ int _simHandleChildScript(luaWrap_lua_State* L)
 { // DEPRECATED
     TRACE_LUA_API;
     LUA_START("simHandleChildScript");
-
     warningString = "function is deprecated. Use simHandleSimulationScripts instead.";
-    int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-    if (!it->checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014())
-    {
-        std::string title("Compatibility issue with ");
-        title += it->getShortDescriptiveName();
-        std::string txt("The command simHandleChildScript is not supported anymore and was replaced ");
-        txt += "with sim.handleSimulationScripts, which operates in a slightly different manner. Make sure to ";
-        txt += "adjust this script manually.";
-        App::logMsg(sim_verbosity_errors, txt.c_str());
-    }
-
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
@@ -5448,7 +5435,7 @@ int _simGetLastError(luaWrap_lua_State* L)
     CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
     if (it != nullptr)
     {
-        luaWrap_lua_pushtext(L, it->getAndClearLastError_old().c_str());
+        luaWrap_lua_pushtext(L, "");
         LUA_END(1);
     }
 
@@ -7194,7 +7181,6 @@ int _simSetInt32Param(luaWrap_lua_State* L)
                 bool r = true; // default
                 if ((v & sim_api_error_report) == 0)
                     r = false;
-                it->setRaiseErrors_backCompatibility(r);
                 retVal = 1;
             }
         }
@@ -7222,8 +7208,6 @@ int _simGetInt32Param(luaWrap_lua_State* L)
             if (it != nullptr)
             {
                 int v = 1; // default
-                if (!it->getRaiseErrors_backCompatibility())
-                    v = 0;
                 luaWrap_lua_pushinteger(L, v);
                 LUA_END(1);
             }
