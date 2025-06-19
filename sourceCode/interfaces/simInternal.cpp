@@ -1236,6 +1236,7 @@ int simGetStringProperty_internal(long long int target, const char* ppName, char
                     for (size_t i = 0; i < s.size(); i++)
                         pState[0][i] = s[i];
                     pState[0][s.size()] = 0;
+                    retVal = 1;
                 }
                 else if (res == -2)
                 {
@@ -2331,6 +2332,7 @@ int simGetFloatArrayProperty_internal(long long int target, const char* ppName, 
                     for (size_t i = 0; i < vv.size(); i++)
                         v[0][i] = vv[i];
                     vL[0] = int(vv.size());
+                    retVal = 1;
                 }
                 else if (res == -2)
                 {
@@ -2455,6 +2457,7 @@ int simGetIntArrayProperty_internal(long long int target, const char* ppName, in
                     for (size_t i = 0; i < vv.size(); i++)
                         v[0][i] = vv[i];
                     vL[0] = int(vv.size());
+                    retVal = 1;
                 }
                 else if (res == -2)
                 {
