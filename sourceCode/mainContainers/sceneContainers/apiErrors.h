@@ -2,23 +2,9 @@
 
 #include <string>
 
-// Old:
-// ************************
-#include <vector>
-#ifndef WIN_SIM
-#include <pthread.h>
-#endif
-struct SThreadAndMsg_old
-{
-    VTHREAD_ID_TYPE threadId;
-    std::string message;
-};
-// ************************
-
 #define SIM_ERRROR_EDIT_MODE_ACTIVE "edit mode is active."
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_LAUNCH "cannot set/get parameter: simulator launch state is wrong."
-#define SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW \
-    "cannot set/get parameter: simulator window initialization state is wrong."
+#define SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW "cannot set/get parameter: simulator window initialization state is wrong."
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_SIM "cannot set/get parameter: simulation run state is wrong."
 #define SIM_ERROR_OBJECT_INEXISTANT "object does not exist."
 #define SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH "object does not exist, or alias/path is ill formatted."
@@ -199,23 +185,9 @@ class CApiErrors
     CApiErrors();
     virtual ~CApiErrors();
 
-    static void setLastWarningOrError(const char* functionName, const char* errMsg);
-    static std::string getAndClearLastWarningOrError();
-
-    // Old:
-    static void clearThreadBasedFirstCapiErrorAndWarning_old();
-    static void setThreadBasedFirstCapiWarning_old(const char* msg);
-    static std::string getAndClearThreadBasedFirstCapiWarning_old();
-    static void setThreadBasedFirstCapiError_old(const char* msg);
-    static std::string getAndClearThreadBasedFirstCapiError_old();
+    static void setLastError(const char* functionName, const char* errMsg);
+    static std::string getAndClearLastError();
 
   private:
-    static std::string _lastWarningOrError; // warnings start with "warning@"
-
-    // Old:
-    static void _clearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect);
-    static void _setThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect, const char* msg);
-    static std::string _getAndClearThreadBasedFirstCapiMsg_old(std::vector<SThreadAndMsg_old>& vect);
-    static std::vector<SThreadAndMsg_old> _threadBasedFirstCapiWarning_old;
-    static std::vector<SThreadAndMsg_old> _threadBasedFirstCapiError_old;
+    static std::string _lastError;
 };

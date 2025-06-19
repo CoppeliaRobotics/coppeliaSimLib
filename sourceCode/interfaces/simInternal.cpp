@@ -16,7 +16,6 @@
 #include <utils.h>
 #include <vVarious.h>
 #include <imgLoaderSaver.h>
-#include <apiErrors.h>
 #include <memorizedConf_old.h>
 #include <algorithm>
 #include <iostream>
@@ -38,6 +37,15 @@ bool waitingForTrigger = false;
 bool doNotRunMainScriptFromRosInterface = false;
 
 std::string lastInfoString;
+
+const int ERRCODE_UNKNOWNPROPERTY = 0;
+const int  ERRCODE_INVALIDPROPERTYNAME = -2;
+const int  ERRCODE_PROPERTYCANNOTBEREAD = -3;
+const int  ERRCODE_PROPERTYCANNOTBEWRITTEN = -4;
+const int  ERRCODE_PROPERTYCANNOTBEREMOVED = -5;
+const int  ERRCODE_PROPERTYTYPEMISMATCH = -6;
+const int  ERRCODE_PROPERTYISCORRUPT = -7;
+const int  ERRCODE_TARGETDOESNOTEXIST = -8;
 
 void setLastInfo(const char* infoStr)
 {
@@ -134,7 +142,7 @@ bool ifEditModeActiveGenerateErrorAndReturnTrue(const char* functionName)
 #ifdef SIM_WITH_GUI
     if (GuiApp::getEditModeType() != NO_EDIT_MODE)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERRROR_EDIT_MODE_ACTIVE);
+        CApiErrors::setLastError(functionName, SIM_ERRROR_EDIT_MODE_ACTIVE);
         return (true);
     }
 #endif
@@ -159,17 +167,17 @@ bool canBoolIntOrFloatParameterBeSetOrGet(const char* functionName, int when)
         st |= 32;
     if (((st & 3) & when) == 0)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_CANNOT_SET_GET_PARAM_LAUNCH);
+        CApiErrors::setLastError(functionName, SIM_ERROR_CANNOT_SET_GET_PARAM_LAUNCH);
         return (false);
     }
     if (((st & 12) & when) == 0)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW);
+        CApiErrors::setLastError(functionName, SIM_ERROR_CANNOT_SET_GET_PARAM_WINDOW);
         return (false);
     }
     if (((st & 48) & when) == 0)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_CANNOT_SET_GET_PARAM_SIM);
+        CApiErrors::setLastError(functionName, SIM_ERROR_CANNOT_SET_GET_PARAM_SIM);
         return (false);
     }
     return (true);
@@ -180,7 +188,7 @@ bool doesObjectExist(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else
@@ -195,7 +203,7 @@ bool doesObjectOrScriptExist(const char* functionName, int identifier)
     else
         retVal = (App::currentWorld->sceneObjects->getObjectFromHandle(identifier) != nullptr);
     if (!retVal)
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
     return retVal;
 }
 
@@ -205,7 +213,7 @@ bool doesEntityExist(const char* functionName, int identifier)
     {
         if (App::currentWorld->collections->getObjectFromHandle(identifier) == nullptr)
         {
-            CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_ENTITY_INEXISTANT);
+            CApiErrors::setLastError(functionName, SIM_ERROR_ENTITY_INEXISTANT);
             return (false);
         }
         return (true);
@@ -214,7 +222,7 @@ bool doesEntityExist(const char* functionName, int identifier)
     {
         if (App::currentWorld->sceneObjects->getObjectFromHandle(identifier) == nullptr)
         {
-            CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_ENTITY_INEXISTANT);
+            CApiErrors::setLastError(functionName, SIM_ERROR_ENTITY_INEXISTANT);
             return (false);
         }
         return (true);
@@ -225,7 +233,7 @@ bool doesCollectionExist(const char* functionName, int identifier)
 {
     if (App::currentWorld->collections->getObjectFromHandle(identifier) == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_COLLECTION_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_COLLECTION_INEXISTANT);
         return (false);
     }
     return (true);
@@ -235,7 +243,7 @@ bool doesCollisionObjectExist(const char* functionName, int identifier)
 {
     if (App::currentWorld->collisions_old->getObjectFromHandle(identifier) == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_COLLISION_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_COLLISION_INEXISTANT);
         return (false);
     }
     else
@@ -246,7 +254,7 @@ bool doesDistanceObjectExist(const char* functionName, int identifier)
 {
     if (App::currentWorld->distances_old->getObjectFromHandle(identifier) == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_DISTANCE_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_DISTANCE_INEXISTANT);
         return (false);
     }
     else
@@ -258,12 +266,12 @@ bool isJoint(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_joint)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_JOINT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_JOINT);
         return (false);
     }
     return (true);
@@ -273,12 +281,12 @@ bool isShape(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_shape)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_SHAPE);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_SHAPE);
         return (false);
     }
     return (true);
@@ -288,12 +296,12 @@ bool isSensor(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_proximitysensor)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_PROX_SENSOR);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_PROX_SENSOR);
         return (false);
     }
     return (true);
@@ -303,12 +311,12 @@ bool isMill(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_mill)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_MILL);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_MILL);
         return (false);
     }
     return (true);
@@ -318,12 +326,12 @@ bool isForceSensor(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_forcesensor)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_FORCE_SENSOR);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_FORCE_SENSOR);
         return (false);
     }
     return (true);
@@ -333,12 +341,12 @@ bool isVisionSensor(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_visionsensor)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_VISION_SENSOR);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_VISION_SENSOR);
         return (false);
     }
     return (true);
@@ -348,12 +356,12 @@ bool isCamera(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_camera)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_CAMERA);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_CAMERA);
         return (false);
     }
     return (true);
@@ -363,12 +371,12 @@ bool isGraph(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_graph)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_GRAPH);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_GRAPH);
         return (false);
     }
     return (true);
@@ -378,12 +386,12 @@ bool isPath(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_path)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_PATH);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_PATH);
         return (false);
     }
     return (true);
@@ -393,12 +401,12 @@ bool isLight(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_light)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_LIGHT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_LIGHT);
         return (false);
     }
     return (true);
@@ -408,12 +416,12 @@ bool isDummy(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_dummy)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_DUMMY);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_DUMMY);
         return (false);
     }
     return (true);
@@ -423,12 +431,12 @@ bool isOctree(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_octree)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_OCTREE);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_OCTREE);
         return (false);
     }
     return (true);
@@ -438,12 +446,12 @@ bool isPointCloud(const char* functionName, int identifier)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
     else if (it->getObjectType() != sim_sceneobject_pointcloud)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_POINTCLOUD);
+        CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_NOT_POINTCLOUD);
         return (false);
     }
     return (true);
@@ -453,7 +461,7 @@ bool doesUIExist(const char* functionName, int elementHandle)
     CButtonBlock* it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_UI_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_UI_INEXISTANT);
         return (false);
     }
     return (true);
@@ -464,12 +472,12 @@ bool doesUIButtonExist(const char* functionName, int elementHandle, int buttonHa
     CButtonBlock* it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_UI_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_UI_INEXISTANT);
         return (false);
     }
     else if (it->getButtonWithID(buttonHandle) == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_UI_BUTTON_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_UI_BUTTON_INEXISTANT);
         return (false);
     }
     return (true);
@@ -480,7 +488,7 @@ bool doesIKGroupExist(const char* functionName, int identifier)
     CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
-        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_IK_GROUP_INEXISTANT);
+        CApiErrors::setLastError(functionName, SIM_ERROR_IK_GROUP_INEXISTANT);
         return (false);
     }
     else
@@ -569,7 +577,7 @@ void* simGetMainWindow_internal(int type)
 #endif
         return (nullptr);
     }
-    //    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    //    CApiErrors::setLastError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -588,7 +596,7 @@ int simRefreshDialogs_internal(int refreshDegree)
 #endif
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -607,7 +615,7 @@ char* simGetLastInfo_internal()
         lastInfoString.clear();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -617,7 +625,7 @@ char* simGetLastError_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string lastErr(CApiErrors::getAndClearLastWarningOrError());
+        std::string lastErr(CApiErrors::getAndClearLastError());
         if (lastErr.size() == 0)
             return (nullptr);
         char* retVal = new char[lastErr.length() + 1];
@@ -626,7 +634,7 @@ char* simGetLastError_internal()
         retVal[lastErr.length()] = 0;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -639,13 +647,11 @@ int simSetLastError_internal(const char* setToNullptr, const char* errorMessage)
         std::string func;
         if (setToNullptr != nullptr)
             func = setToNullptr;
-        if (func.compare(0, 8, "warning@") == 0)
-            CApiErrors::setThreadBasedFirstCapiWarning_old(errorMessage);
-        else
-            CApiErrors::setThreadBasedFirstCapiError_old(errorMessage);
+        if (func.compare(0, 8, "warning@") != 0) // warnings from c++ are not reported anymore
+            CApiErrors::setLastError(__func__, errorMessage);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -656,7 +662,7 @@ bool isPropertyNameValid(const char* functionName, const char* pName)
         char c = *pName++;
         if (!(std::isalnum(c) || c == '_' || c == '.'))
         {
-            CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_INVALID_PROPERTY_NAME);
+            CApiErrors::setLastError(functionName, SIM_ERROR_INVALID_PROPERTY_NAME);
             return false;
         }
     }
@@ -681,24 +687,38 @@ int simSetBoolProperty_internal(long long int target, const char* ppName, int pS
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_bool)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -715,16 +735,17 @@ int simGetBoolProperty_internal(long long int target, const char* ppName, int* p
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_bool))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_bool))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == sizeof(int))
-                    {
                         pState[0] = ((int*)data)[0];
-                        retVal = 1;
-                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -738,24 +759,36 @@ int simGetBoolProperty_internal(long long int target, const char* ppName, int* p
                     retVal = 1;
                 }
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_bool)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -777,24 +810,38 @@ int simSetIntProperty_internal(long long int target, const char* ppName, int pSt
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_int)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -811,16 +858,17 @@ int simGetIntProperty_internal(long long int target, const char* ppName, int* pS
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_int))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_int))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == sizeof(int))
-                    {
                         pState[0] = ((int*)data)[0];
-                        retVal = 1;
-                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -830,24 +878,36 @@ int simGetIntProperty_internal(long long int target, const char* ppName, int* pS
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_int)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -869,24 +929,38 @@ int simSetLongProperty_internal(long long int target, const char* ppName, long l
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_long)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -903,16 +977,17 @@ int simGetLongProperty_internal(long long int target, const char* ppName, long l
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_long))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_long))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == sizeof(long long int))
-                    {
                         pState[0] = ((long long int*)data)[0];
-                        retVal = 1;
-                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -922,24 +997,36 @@ int simGetLongProperty_internal(long long int target, const char* ppName, long l
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_long)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -961,24 +1048,38 @@ int simSetFloatProperty_internal(long long int target, const char* ppName, doubl
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_float)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -995,16 +1096,17 @@ int simGetFloatProperty_internal(long long int target, const char* ppName, doubl
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_float))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_float))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == sizeof(double))
-                    {
                         pState[0] = ((double*)data)[0];
-                        retVal = 1;
-                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -1014,24 +1116,36 @@ int simGetFloatProperty_internal(long long int target, const char* ppName, doubl
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_float)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -1053,47 +1167,62 @@ int simSetStringProperty_internal(long long int target, const char* ppName, cons
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if ((p & 0xff) == sim_propertytype_string)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
-char* simGetStringProperty_internal(long long int target, const char* ppName)
+int simGetStringProperty_internal(long long int target, const char* ppName, char** pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        char* retVal = nullptr;
+        int retVal = -1;
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_string))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_string))))
             {
                 int l;
-                char* dat = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (dat != nullptr)
+                char* dat;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &dat, &l);
+                if (retVal > 0)
                 {
-                    retVal = new char[l + 1];
+                    pState[0] = new char[l + 1];
                     for (size_t i = 0; i < l; i++)
-                        retVal[i] = dat[i];
-                    retVal[l] = 0;
+                        pState[0][i] = dat[i];
+                    pState[0][l] = 0;
                     delete[] dat;
                 }
             }
@@ -1103,13 +1232,16 @@ char* simGetStringProperty_internal(long long int target, const char* ppName)
                 int res = App::getStringProperty(target, pName.c_str(), s);
                 if (res == 1)
                 {
-                    retVal = new char[s.size() + 1];
+                    pState[0] = new char[s.size() + 1];
                     for (size_t i = 0; i < s.size(); i++)
-                        retVal[i] = s[i];
-                    retVal[s.size()] = 0;
+                        pState[0][i] = s[i];
+                    pState[0][s.size()] = 0;
                 }
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
@@ -1117,20 +1249,26 @@ char* simGetStringProperty_internal(long long int target, const char* ppName)
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
                     {
-                        printf("unknown string: %s\n", ppName);
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
                     }
                     else if ((p & 0xff) == sim_propertytype_string)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return nullptr;
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
 }
 
 int simSetTableProperty_internal(long long int target, const char* ppName, const char* buffer, int bufferL)
@@ -1147,80 +1285,108 @@ int simSetTableProperty_internal(long long int target, const char* ppName, const
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), buffer, bufferL);
             else
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PROPERTY_NAME);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PROPERTY_NAME);
+                retVal = ERRCODE_INVALIDPROPERTYNAME;
                 /*
                 int res = App::setTableProperty(target, pName.c_str(), pState);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if ((p & 0xff) == sim_propertytype_table)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
                 */
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
-char* simGetTableProperty_internal(long long int target, const char* ppName, int* bufferL)
+int simGetTableProperty_internal(long long int target, const char* ppName, char** buffer, int* bufferL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        char* retVal = nullptr;
+        int retVal = -1;
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_table))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_table))))
-                retVal = simGetBufferProperty_internal(target, pName.c_str(), bufferL);
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), buffer, bufferL);
             else
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PROPERTY_NAME);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PROPERTY_NAME);
+                retVal = ERRCODE_INVALIDPROPERTYNAME;
                 /*
                 std::string s;
                 int res = App::getStringProperty(target, pName.c_str(), s);
                 if (res == 1)
                 {
-                    retVal = new char[s.size() + 1];
+                    buffer[0] = new char[s.size() + 1];
                     for (size_t i = 0; i < s.size(); i++)
-                        retVal[i] = s[i];
-                    retVal[s.size()] = 0;
+                        buffer[0][i] = s[i];
+                    buffer[0][s.size()] = 0;
                 }
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if ((p & 0xff) == sim_propertytype_string)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
                 */
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return nullptr;
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
 }
 
 int simSetBufferProperty_internal(long long int target, const char* ppName, const char* buffer, int bufferL)
@@ -1236,7 +1402,10 @@ int simSetBufferProperty_internal(long long int target, const char* ppName, cons
             if (res == 1)
                 retVal = 1;
             else if (res == -2)
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+            {
+                CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                retVal = ERRCODE_TARGETDOESNOTEXIST;
+            }
             else
             {
                 std::string pN(ppName);
@@ -1246,39 +1415,54 @@ int simSetBufferProperty_internal(long long int target, const char* ppName, cons
                 std::string infoTxt;
                 int p = App::getPropertyInfo(target, pN.c_str(), info, infoTxt, false);
                 if (p < 0)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    retVal = ERRCODE_UNKNOWNPROPERTY;
+                }
                 else if ((p & 0xff) == sim_propertytype_buffer)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                }
                 else
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
-char* simGetBufferProperty_internal(long long int target, const char* ppName, int* bufferL)
+int simGetBufferProperty_internal(long long int target, const char* ppName, char** buffer, int* bufferL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        char* retVal = nullptr;
+        int retVal = -1;
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string b;
             int res = App::getBufferProperty(target, ppName, b);
             if (res == 1)
             {
-                retVal = new char[b.size()];
+                buffer[0] = new char[b.size()];
                 for (size_t i = 0; i < b.size(); i++)
-                    retVal[i] = b[i];
+                    buffer[0][i] = b[i];
                 bufferL[0] = int(b.size());
+                retVal = 1;
             }
             else if (res == -2)
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+            {
+                CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                retVal = ERRCODE_TARGETDOESNOTEXIST;
+            }
             else
             {
                 std::string pN(ppName);
@@ -1288,17 +1472,26 @@ char* simGetBufferProperty_internal(long long int target, const char* ppName, in
                 std::string infoTxt;
                 int p = App::getPropertyInfo(target, pN.c_str(), info, infoTxt, false);
                 if (p < 0)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    retVal = ERRCODE_UNKNOWNPROPERTY;
+                }
                 else if ((p & 0xff) == sim_propertytype_buffer)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                }
                 else
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return nullptr;
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
 }
 
 int simSetIntArray2Property_internal(long long int target, const char* ppName, const int* pState)
@@ -1319,24 +1512,38 @@ int simSetIntArray2Property_internal(long long int target, const char* ppName, c
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_intarray2)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -1353,17 +1560,20 @@ int simGetIntArray2Property_internal(long long int target, const char* ppName, i
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_intarray2))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_intarray2))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == 2 * sizeof(int))
                     {
                         for (size_t i = 0; i < 2; i++)
                             pState[i] = ((int*)data)[i];
-                        retVal = 1;
                     }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -1373,24 +1583,36 @@ int simGetIntArray2Property_internal(long long int target, const char* ppName, i
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_intarray2)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -1412,24 +1634,38 @@ int simSetVector2Property_internal(long long int target, const char* ppName, con
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_vector2)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -1446,17 +1682,20 @@ int simGetVector2Property_internal(long long int target, const char* ppName, dou
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_vector2))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_vector2))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == 2 * sizeof(double))
                     {
                         for (size_t i = 0; i < 2; i++)
                             pState[i] = ((double*)data)[i];
-                        retVal = 1;
                     }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -1466,24 +1705,36 @@ int simGetVector2Property_internal(long long int target, const char* ppName, dou
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_vector2)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -1506,24 +1757,38 @@ int simSetVector3Property_internal(long long int target, const char* ppName, con
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_vector3)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -1540,17 +1805,20 @@ int simGetVector3Property_internal(long long int target, const char* ppName, dou
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_vector3))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_vector3))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == 3 * sizeof(double))
                     {
                         for (size_t i = 0; i < 3; i++)
                             pState[i] = ((double*)data)[i];
-                        retVal = 1;
                     }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -1564,24 +1832,36 @@ int simGetVector3Property_internal(long long int target, const char* ppName, dou
                     retVal = 1;
                 }
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_vector3)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -1604,24 +1884,38 @@ int simSetQuaternionProperty_internal(long long int target, const char* ppName, 
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_quaternion)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -1638,17 +1932,20 @@ int simGetQuaternionProperty_internal(long long int target, const char* ppName, 
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_quaternion))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_quaternion))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == 4 * sizeof(double))
                     {
                         for (size_t i = 0; i < 4; i++)
                             pState[i] = ((double*)data)[i];
-                        retVal = 1;
                     }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -1662,24 +1959,36 @@ int simGetQuaternionProperty_internal(long long int target, const char* ppName, 
                     retVal = 1;
                 }
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_quaternion)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -1703,24 +2012,38 @@ int simSetPoseProperty_internal(long long int target, const char* ppName, const 
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_pose)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -1737,17 +2060,20 @@ int simGetPoseProperty_internal(long long int target, const char* ppName, double
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_pose))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_pose))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == 7 * sizeof(double))
                     {
                         for (size_t i = 0; i < 7; i++)
                             pState[i] = ((double*)data)[i];
-                        retVal = 1;
                     }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -1761,24 +2087,36 @@ int simGetPoseProperty_internal(long long int target, const char* ppName, double
                     retVal = 1;
                 }
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_pose)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -1800,24 +2138,38 @@ int simSetColorProperty_internal(long long int target, const char* ppName, const
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_color)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
@@ -1834,17 +2186,20 @@ int simGetColorProperty_internal(long long int target, const char* ppName, float
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_color))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_color))))
             {
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (data != nullptr)
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
                 {
                     if (l == 3 * sizeof(float))
                     {
                         for (size_t i = 0; i < 3; i++)
                             pState[i] = ((float*)data)[i];
-                        retVal = 1;
                     }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
                     delete[] data;
                 }
             }
@@ -1854,24 +2209,36 @@ int simGetColorProperty_internal(long long int target, const char* ppName, float
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if (p == sim_propertytype_color)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -1895,78 +2262,108 @@ int simSetFloatArrayProperty_internal(long long int target, const char* ppName, 
                     if (res == 1)
                         retVal = 1;
                     else if (res == -2)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                        retVal = ERRCODE_TARGETDOESNOTEXIST;
+                    }
                     else
                     {
                         int info;
                         std::string infoTxt;
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                         if (p < 0)
-                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                            retVal = ERRCODE_UNKNOWNPROPERTY;
+                        }
                         else if ((p & 0xff) == sim_propertytype_floatarray)
-                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                            retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                        }
                         else
-                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                            retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                        }
                     }
                 }
             }
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_INVALID_SIZE);
+                CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_INVALID_SIZE);
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
-double* simGetFloatArrayProperty_internal(long long int target, const char* ppName, int* vL)
+int simGetFloatArrayProperty_internal(long long int target, const char* ppName, double** v, int* vL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        double* retVal = nullptr;
+        int retVal = -1;
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_floatarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_floatarray))))
             {
                 int l;
-                retVal = (double*)simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (retVal != nullptr)
+                char* buff;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &buff, &l);
+                if (retVal > 0)
+                {
+                    v[0] = (double*)buff;
                     vL[0] = l / sizeof(double);
+                }
             }
             else
             {
-                std::vector<double> v;
-                int res = App::getFloatArrayProperty(target, pName.c_str(), v);
+                std::vector<double> vv;
+                int res = App::getFloatArrayProperty(target, pName.c_str(), vv);
                 if (res == 1)
                 {
-                    retVal = new double[v.size()];
-                    for (size_t i = 0; i < v.size(); i++)
-                        retVal[i] = v[i];
-                    vL[0] = int(v.size());
+                    v[0] = new double[vv.size()];
+                    for (size_t i = 0; i < vv.size(); i++)
+                        v[0][i] = vv[i];
+                    vL[0] = int(vv.size());
                 }
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if ((p & 0xff) == sim_propertytype_floatarray)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return nullptr;
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
 }
 
 int simSetIntArrayProperty_internal(long long int target, const char* ppName, const int* v, int vL)
@@ -1989,78 +2386,108 @@ int simSetIntArrayProperty_internal(long long int target, const char* ppName, co
                     if (res == 1)
                         retVal = 1;
                     else if (res == -2)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                        retVal = ERRCODE_TARGETDOESNOTEXIST;
+                    }
                     else
                     {
                         int info;
                         std::string infoTxt;
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                         if (p < 0)
-                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                            retVal = ERRCODE_UNKNOWNPROPERTY;
+                        }
                         else if ((p & 0xff) == sim_propertytype_intarray)
-                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                            retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                        }
                         else
-                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                            retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                        }
                     }
                 }
             }
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_INVALID_SIZE);
+                CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_INVALID_SIZE);
         }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return -1;
 }
 
-int* simGetIntArrayProperty_internal(long long int target, const char* ppName, int* vL)
+int simGetIntArrayProperty_internal(long long int target, const char* ppName, int** v, int* vL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int* retVal = nullptr;
+        int retVal = -1;
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_intarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_intarray))))
             {
                 int l;
-                retVal = (int*)simGetBufferProperty_internal(target, pName.c_str(), &l);
-                if (retVal != nullptr)
+                char* buff;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &buff, &l);
+                if (retVal > 0)
+                {
+                    v[0] = (int*)buff;
                     vL[0] = l / sizeof(int);
+                }
             }
             else
             {
-                std::vector<int> v;
-                int res = App::getIntArrayProperty(target, pName.c_str(), v);
+                std::vector<int> vv;
+                int res = App::getIntArrayProperty(target, pName.c_str(), vv);
                 if (res == 1)
                 {
-                    retVal = new int[v.size()];
-                    for (size_t i = 0; i < v.size(); i++)
-                        retVal[i] = v[i];
-                    vL[0] = int(v.size());
+                    v[0] = new int[vv.size()];
+                    for (size_t i = 0; i < vv.size(); i++)
+                        v[0][i] = vv[i];
+                    vL[0] = int(vv.size());
                 }
                 else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else if ((p & 0xff) == sim_propertytype_intarray)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return nullptr;
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
 }
 
 int simRemoveProperty_internal(long long int target, const char* ppName)
@@ -2076,22 +2503,31 @@ int simRemoveProperty_internal(long long int target, const char* ppName)
             if (retVal != 1)
             {
                 if (retVal == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
                 else
                 {
                     int info;
                     std::string infoTxt;
                     int p = App::getPropertyInfo(target, ppName, info, infoTxt, false);
                     if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_REMOVED);
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_REMOVED);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREMOVED;
+                    }
                 }
             }
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -2117,7 +2553,7 @@ char* simGetPropertyName_internal(long long int target, int index, SPropertyOpti
         }
         int res = App::getPropertyName(target, index, pName, appartenance, staticParsing);
         if (res == -2)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+            CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
         else if ((res == 1) && (pName.size() > 0))
         {
             pName += ",";
@@ -2129,7 +2565,7 @@ char* simGetPropertyName_internal(long long int target, int index, SPropertyOpti
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return nullptr;
 }
 
@@ -2157,7 +2593,10 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
             }
             int res = App::getPropertyInfo(target, ppName, infos->flags, infoTxt, staticParsing);
             if (res == -2)
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+            {
+                CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                retVal = ERRCODE_TARGETDOESNOTEXIST;
+            }
             else if (res >= 0)
             {
                 infos->type = res;
@@ -2173,7 +2612,7 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
         }
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
 }
 
@@ -2191,7 +2630,7 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
             prox = App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
             if (prox == nullptr)
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PROXY_OBJECT);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PROXY_OBJECT);
                 return (-1);
             }
         }
@@ -2224,11 +2663,11 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
         else
         {
             if ((options & 1) == 0)
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
+                CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2243,7 +2682,7 @@ long long int simGetObjectUid_internal(int objectHandle)
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         return (it->getObjectUid());
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2257,10 +2696,10 @@ int simGetObjectFromUid_internal(long long int uid, int options)
         if (it != nullptr)
             return (it->getObjectHandle());
         if ((options & 1) == 0)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2327,7 +2766,7 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
             return (it->getScriptHandle());
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2347,10 +2786,10 @@ int simRemoveObjects_internal(const int* objectHandles, int count)
         if (App::currentWorld->sceneObjects->eraseObjects(&sel, true, delayed))
             return (1);
 
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_FOUND_INVALID_HANDLES);
+        CApiErrors::setLastError(__func__, SIM_ERROR_FOUND_INVALID_HANDLES);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -2367,12 +2806,12 @@ int simRemoveModel_internal(int objectHandle)
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (it == nullptr)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
             return (-1);
         }
         if (!it->getModelBase())
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_MODEL_BASE);
+            CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_MODEL_BASE);
             return (-1);
         }
 
@@ -2394,7 +2833,7 @@ int simRemoveModel_internal(int objectHandle)
 */
         return ((int)sel.size());
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -2448,7 +2887,7 @@ char* simGetObjectAlias_internal(int objectHandle, int options)
         retVal[nm.length()] = 0;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -2464,7 +2903,7 @@ int simSetObjectAlias_internal(int objectHandle, const char* objectAlias, int op
         App::currentWorld->sceneObjects->setObjectAlias(it, objectAlias, true);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -2515,7 +2954,7 @@ int simGetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, do
         tr.getMatrix().getData(matrix);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2531,7 +2970,7 @@ int simSetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, co
             return (-1);
         if (!isFloatArrayOk(matrix, 12))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -2575,7 +3014,7 @@ int simSetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, co
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2628,7 +3067,7 @@ int simGetObjectPose_internal(int objectHandle, int relativeToObjectHandle, doub
         tr.getData(pose, (handleFlags & sim_handleflag_wxyzquat) == 0);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2644,7 +3083,7 @@ int simSetObjectPose_internal(int objectHandle, int relativeToObjectHandle, cons
             return (-1);
         if (!isFloatArrayOk(pose, 7))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -2687,7 +3126,7 @@ int simSetObjectPose_internal(int objectHandle, int relativeToObjectHandle, cons
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2739,7 +3178,7 @@ int simGetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
         tr.X.getData(position);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2755,7 +3194,7 @@ int simSetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
             return (-1);
         if (!isFloatArrayOk(position, 3))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -2808,7 +3247,7 @@ int simSetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2863,7 +3302,7 @@ int simGetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
         C3Vector(tr.Q.getEulerAngles()).getData(eulerAngles);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2879,7 +3318,7 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
             return (-1);
         if (!isFloatArrayOk(eulerAngles, 3))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -2934,7 +3373,7 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2951,13 +3390,13 @@ int simGetJointPosition_internal(int objectHandle, double* position)
         CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
         }
         position[0] = it->getPosition();
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -2974,7 +3413,7 @@ int simSetJointPosition_internal(int objectHandle, double position)
         CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
         }
         // info: do not try to trigger a sysCall_jointCallback call for that function, it really doesn't make sense
@@ -2992,7 +3431,7 @@ int simSetJointPosition_internal(int objectHandle, double position)
 
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3009,7 +3448,7 @@ int simSetJointTargetPosition_internal(int objectHandle, double targetPosition)
         CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
         }
         if (it->getJointMode() == sim_jointmode_dynamic)
@@ -3029,7 +3468,7 @@ int simSetJointTargetPosition_internal(int objectHandle, double targetPosition)
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3046,13 +3485,13 @@ int simGetJointTargetPosition_internal(int objectHandle, double* targetPosition)
         CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
         }
         targetPosition[0] = it->getTargetPosition();
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3069,7 +3508,7 @@ int simSetJointTargetVelocity_internal(int objectHandle, double targetVelocity)
         CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
         }
         if (it->getJointMode() == sim_jointmode_dynamic)
@@ -3089,7 +3528,7 @@ int simSetJointTargetVelocity_internal(int objectHandle, double targetVelocity)
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3106,13 +3545,13 @@ int simGetJointTargetVelocity_internal(int objectHandle, double* targetVelocity)
         CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
         }
         targetVelocity[0] = it->getTargetVelocity();
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3134,7 +3573,7 @@ int simGetObjectChildPose_internal(int objectHandle, double* pose)
         tr.getData(pose, true);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3148,7 +3587,7 @@ int simSetObjectChildPose_internal(int objectHandle, const double* pose)
             return (-1);
         if (!isFloatArrayOk(pose, 7))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -3171,7 +3610,7 @@ int simSetObjectChildPose_internal(int objectHandle, const double* pose)
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3193,7 +3632,7 @@ int simGetJointInterval_internal(int objectHandle, bool* cyclic, double* interva
         interval[1] = interval[1] - interval[0];
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3209,7 +3648,7 @@ int simSetJointInterval_internal(int objectHandle, bool cyclic, const double* in
             return (-1);
         if (!isFloatArrayOk(interval, 2))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
@@ -3225,9 +3664,9 @@ int simSetJointInterval_internal(int objectHandle, bool cyclic, const double* in
             return (1);
         }
         //        return(-1);
-        //        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
+        //        CApiErrors::setLastError(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3247,7 +3686,7 @@ int simGetObjectParent_internal(int objectHandle)
             retVal = it->getParent()->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3275,7 +3714,7 @@ int simGetObjectChild_internal(int objectHandle, int index)
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3295,7 +3734,7 @@ int simGetObjectHierarchyOrder_internal(int objectHandle, int* totalSiblings)
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3312,11 +3751,11 @@ int simSetObjectHierarchyOrder_internal(int objectHandle, int order)
             if (App::currentWorld->sceneObjects->setObjectSequence(it, order))
                 retVal = 1;
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OPERATION_FAILED);
+                CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_FAILED);
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3346,7 +3785,7 @@ int simSetObjectParent_internal(int objectHandle, int parentObjectHandle, bool k
         {
             if (pp == it)
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_IS_ANCESTOR_OF_DESIRED_PARENT);
+                CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_IS_ANCESTOR_OF_DESIRED_PARENT);
                 return (-1);
             }
             pp = pp->getParent();
@@ -3361,13 +3800,13 @@ int simSetObjectParent_internal(int objectHandle, int parentObjectHandle, bool k
                 {
                     if (!App::assemble(parentIt->getObjectHandle(), it->getObjectHandle(), false))
                     {
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ASSEMBLY);
+                        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ASSEMBLY);
                         return (-1);
                     }
                 }
                 else
                 {
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ASSEMBLY);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ASSEMBLY);
                     return (-1);
                 }
             }
@@ -3376,7 +3815,7 @@ int simSetObjectParent_internal(int objectHandle, int parentObjectHandle, bool k
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -3392,7 +3831,7 @@ int simGetObjectType_internal(int objectHandle)
         int retVal = it->getObjectType();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3414,7 +3853,7 @@ int simGetJointType_internal(int objectHandle)
         int retVal = it->getJointType();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3433,7 +3872,7 @@ int simBuildMatrix_internal(const double* position, const double* eulerAngles, d
     C_API_START;
     if ((!isFloatArrayOk(position, 3)) || (!isFloatArrayOk(eulerAngles, 3)))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     C4X4Matrix m;
@@ -3450,7 +3889,7 @@ int simBuildPose_internal(const double* position, const double* eulerAngles, dou
     C_API_START;
     if ((!isFloatArrayOk(position, 3)) || (!isFloatArrayOk(eulerAngles, 3)))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     C7Vector tr(C4Vector(eulerAngles[0], eulerAngles[1], eulerAngles[2]), C3Vector(position));
@@ -3463,7 +3902,7 @@ int simGetEulerAnglesFromMatrix_internal(const double* matrix, double* eulerAngl
     C_API_START;
     if (!isFloatArrayOk(matrix, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     C4X4Matrix m;
@@ -3478,7 +3917,7 @@ int simInvertMatrix_internal(double* matrix)
     C_API_START;
     if (!isFloatArrayOk(matrix, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     C4X4Matrix m;
@@ -3494,7 +3933,7 @@ int simInvertPose_internal(double* pose)
     C_API_START;
     if (!isFloatArrayOk(pose, 7))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     C7Vector p;
@@ -3509,12 +3948,12 @@ int simMultiplyMatrices_internal(const double* matrixIn1, const double* matrixIn
     C_API_START;
     if (!isFloatArrayOk(matrixIn1, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     if (!isFloatArrayOk(matrixIn2, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -3533,12 +3972,12 @@ int simMultiplyPoses_internal(const double* poseIn1, const double* poseIn2, doub
     C_API_START;
     if (!isFloatArrayOk(poseIn1, 7))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     if (!isFloatArrayOk(poseIn2, 7))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -3557,7 +3996,7 @@ int simPoseToMatrix_internal(const double* poseIn, double* matrixOut)
     C_API_START;
     if (!isFloatArrayOk(poseIn, 7))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -3573,7 +4012,7 @@ int simMatrixToPose_internal(const double* matrixIn, double* poseOut)
     C_API_START;
     if (!isFloatArrayOk(matrixIn, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -3590,12 +4029,12 @@ int simInterpolateMatrices_internal(const double* matrixIn1, const double* matri
     C_API_START;
     if (!isFloatArrayOk(matrixIn1, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     if (!isFloatArrayOk(matrixIn2, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -3616,12 +4055,12 @@ int simInterpolatePoses_internal(const double* poseIn1, const double* poseIn2, d
     C_API_START;
     if (!isFloatArrayOk(poseIn1, 7))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     if (!isFloatArrayOk(poseIn2, 7))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -3642,7 +4081,7 @@ int simTransformVector_internal(const double* matrix, double* vect)
     C_API_START;
     if (!isFloatArrayOk(matrix, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -3675,7 +4114,7 @@ double simGetSimulationTime_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     return (App::currentWorld->simulation->getSimulationTime());
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1.0);
 }
 
@@ -3688,7 +4127,7 @@ int simGetSimulationState_internal()
         int retVal = App::currentWorld->simulation->getSimulationState();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -3705,7 +4144,7 @@ int simLoadScene_internal(const char* filename)
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
+            CApiErrors::setLastError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
             return (-1);
         }
 
@@ -3731,7 +4170,7 @@ int simLoadScene_internal(const char* filename)
             }
             else
             {
-                CApiErrors::setLastWarningOrError(__func__, errorStr.c_str());
+                CApiErrors::setLastError(__func__, errorStr.c_str());
                 return (-1);
             }
         }
@@ -3739,7 +4178,7 @@ int simLoadScene_internal(const char* filename)
             CFileOperations::createNewScene(keepCurrent);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -3751,13 +4190,13 @@ int simCloseScene_internal()
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
+            CApiErrors::setLastError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
             return (-1);
         }
         CFileOperations::closeScene();
         return (App::worldContainer->getCurrentWorldIndex());
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -3784,11 +4223,11 @@ int simLoadModel_internal(const char* filename)
         }
         else
         {
-            CApiErrors::setLastWarningOrError(__func__, errorStr.c_str());
+            CApiErrors::setLastError(__func__, errorStr.c_str());
             return (-1);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -3807,7 +4246,7 @@ int simSaveScene_internal(const char* filename)
 
     if (App::currentWorld->environment->getSceneLocked())
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCENE_LOCKED);
+        CApiErrors::setLastError(__func__, SIM_ERROR_SCENE_LOCKED);
         return (-1);
     }
 
@@ -3829,11 +4268,11 @@ int simSaveScene_internal(const char* filename)
         }
         else
         {
-            CApiErrors::setLastWarningOrError(__func__, errorStr.c_str());
+            CApiErrors::setLastError(__func__, errorStr.c_str());
             return (-1);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -3843,7 +4282,7 @@ int simSaveModel_internal(int baseOfModelHandle, const char* filename)
 
     if (App::currentWorld->environment->getSceneLocked())
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCENE_LOCKED);
+        CApiErrors::setLastError(__func__, SIM_ERROR_SCENE_LOCKED);
         return (-1);
     }
     if (!doesObjectExist(__func__, baseOfModelHandle))
@@ -3851,7 +4290,7 @@ int simSaveModel_internal(int baseOfModelHandle, const char* filename)
     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(baseOfModelHandle);
     if (!it->getModelBase())
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_MODEL_BASE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_MODEL_BASE);
         return (-1);
     }
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
@@ -3865,11 +4304,11 @@ int simSaveModel_internal(int baseOfModelHandle, const char* filename)
         }
         else
         {
-            CApiErrors::setLastWarningOrError(__func__, errorStr.c_str());
+            CApiErrors::setLastError(__func__, errorStr.c_str());
             return (-1);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -3895,7 +4334,7 @@ int* simGetObjectSel_internal(int* cnt)
         cnt[0] = int(handles->size());
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -3913,7 +4352,7 @@ int simSetObjectSel_internal(const int* handles, int cnt)
         }
         return (int(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()->size()));
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -3935,7 +4374,7 @@ int simHandleProximitySensor_internal(int sensorHandle, double* detectedPoint, i
             {
                 if (!it->getExplicitHandling())
                 {
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                     return (-1);
                 }
 
@@ -4019,7 +4458,7 @@ int simHandleProximitySensor_internal(int sensorHandle, double* detectedPoint, i
             return (retVal);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4051,7 +4490,7 @@ int simReadProximitySensor_internal(int sensorHandle, double* detectedPoint, int
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4062,7 +4501,7 @@ int simHandleDynamics_internal(double deltaTime)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         App::currentWorld->dynamicsContainer->handleDynamics(deltaTime);
-        CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();
+        CApiErrors::getAndClearLastError();
         if ((!App::currentWorld->dynamicsContainer->isWorldThere()) && App::currentWorld->dynamicsContainer->getDynamicsEnabled())
         {
             App::currentWorld->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();
@@ -4070,7 +4509,7 @@ int simHandleDynamics_internal(double deltaTime)
         }
         return (App::worldContainer->pluginContainer->dyn_getDynamicStepDivider());
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4088,13 +4527,13 @@ int simResetScript_internal(int scriptHandle)
         CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it == nullptr)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
             return (-1);
         }
         it->resetScript();
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -4119,7 +4558,7 @@ int simResetProximitySensor_internal(int sensorHandle)
                 it = (CProxSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(sensorHandle);
                 if (!it->getExplicitHandling())
                 {
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                     return (-1);
                 }
                 it->resetSensor(false);
@@ -4130,7 +4569,7 @@ int simResetProximitySensor_internal(int sensorHandle)
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4160,7 +4599,7 @@ int simCheckProximitySensor_internal(int sensorHandle, int entityHandle, double*
                                                         it->getAllowedNormal(), detectedPoint, nullptr, nullptr);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4227,7 +4666,7 @@ int simCheckProximitySensorEx_internal(int sensorHandle, int entityHandle, int d
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4286,7 +4725,7 @@ int simCheckProximitySensorEx2_internal(int sensorHandle, double* vertexPointer,
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4322,7 +4761,7 @@ int simRegisterScriptCallbackFunction_internal(const char* func, const char* res
                     printf("failed adding vhacd callback\n");
             }
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CALLBACK_IS_NULL);
+                CApiErrors::setLastError(__func__, SIM_ERROR_CALLBACK_IS_NULL);
         }
         else
         { // old plugins
@@ -4341,7 +4780,7 @@ int simRegisterScriptCallbackFunction_internal(const char* func, const char* res
             }
             if (pluginName.size() < 1)
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_MISSING_PLUGIN_NAME);
+                CApiErrors::setLastError(__func__, SIM_ERROR_MISSING_PLUGIN_NAME);
                 return (-1);
             }
 
@@ -4352,13 +4791,13 @@ int simRegisterScriptCallbackFunction_internal(const char* func, const char* res
             if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
             {
                 delete newFunction;
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
+                CApiErrors::setLastError(__func__, SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
                 retVal = -1;
             }
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4384,13 +4823,13 @@ int simRegisterScriptVariable_internal(const char* var, const char* val, int sta
                 retVal = 0; // that variable already existed. We remove it and replace it!
             if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(var, val, stackHandle))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CUSTOM_LUA_VAR_COULD_NOT_BE_REGISTERED);
+                CApiErrors::setLastError(__func__, SIM_ERROR_CUSTOM_LUA_VAR_COULD_NOT_BE_REGISTERED);
                 retVal = -1;
             }
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4406,10 +4845,10 @@ int simRegisterScriptFuncHook_internal(int scriptHandle, const char* funcToHook,
         if (it != nullptr)
             retVal = it->registerFunctionHook(funcToHook, userFunction, executeBefore);
         else
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4447,7 +4886,7 @@ int simCheckCollision_internal(int entity1Handle, int entity2Handle)
             CCollisionRoutine::doEntitiesCollide(entity1Handle, entity2Handle, nullptr, true, true, nullptr);
         return (returnValue);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4480,7 +4919,7 @@ int simCheckCollisionEx_internal(int entity1Handle, int entity2Handle, double** 
         }
         return ((int)intersect.size() / 6);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4512,7 +4951,7 @@ int simCheckDistance_internal(int entity1Handle, int entity2Handle, double thres
             return (1);
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4524,13 +4963,13 @@ int simSetSimulationTimeStep_internal(double timeStep)
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
+            CApiErrors::setLastError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
             return (-1);
         }
         App::currentWorld->simulation->setTimeStep(timeStep);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4540,7 +4979,7 @@ double simGetSimulationTimeStep_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     return (App::currentWorld->simulation->getTimeStep());
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1.0);
 }
 
@@ -4559,7 +4998,7 @@ int simGetRealTimeSimulation_internal()
             return (0);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4576,7 +5015,7 @@ int simStartSimulation_internal()
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4594,7 +5033,7 @@ int simStopSimulation_internal()
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -4611,7 +5050,7 @@ int simPauseSimulation_internal()
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4640,14 +5079,14 @@ int simHandleGraph_internal(int graphHandle, double simulationTime)
             CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
             if (!it->getExplicitHandling())
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                 return (-1);
             }
             it->addNextPoint(simulationTime);
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4676,14 +5115,14 @@ int simResetGraph_internal(int graphHandle)
             CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
             //            if (!it->getExplicitHandling())
             //            {
-            //                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+            //                CApiErrors::setLastError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
             //                return(-1);
             //            }
             it->resetGraph();
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4698,7 +5137,7 @@ int simAddGraphStream_internal(int graphHandle, const char* streamName, const ch
             return (-1);
         if (strlen(streamName) == 0)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
+            CApiErrors::setLastError(__func__, SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
             return (-1);
         }
         std::string nm(streamName);
@@ -4710,11 +5149,11 @@ int simAddGraphStream_internal(int graphHandle, const char* streamName, const ch
         if (retVal == -1)
         {
             delete str;
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
+            CApiErrors::setLastError(__func__, SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4740,10 +5179,10 @@ int simDestroyGraphCurve_internal(int graphHandle, int curveId)
             if (it->removeGraphDataStream(curveId))
                 return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_CURVE_ID);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_CURVE_ID);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4759,10 +5198,10 @@ int simSetGraphStreamTransformation_internal(int graphHandle, int streamId, int 
         CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         if (it->setDataStreamTransformation(streamId, trType, mult, off, movingAvgPeriod))
             return (1);
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_CURVE_ID);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_CURVE_ID);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4779,10 +5218,10 @@ int simDuplicateGraphCurveToStatic_internal(int graphHandle, int curveId, const 
         tt::removeIllegalCharacters(nm, false);
         int retVal = it->duplicateCurveToStatic(curveId, nm.c_str());
         if (retVal == -1)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_CURVE_ID);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_CURVE_ID);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4798,7 +5237,7 @@ int simAddGraphCurve_internal(int graphHandle, const char* curveName, int dim, c
             return (-1);
         if (strlen(curveName) == 0)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
+            CApiErrors::setLastError(__func__, SIM_ERROR_EMPTY_STRING_NOT_ALLOWED);
             return (-1);
         }
         std::string nm(curveName);
@@ -4810,11 +5249,11 @@ int simAddGraphCurve_internal(int graphHandle, const char* curveName, int dim, c
         if (retVal == -1)
         {
             delete curve;
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
+            CApiErrors::setLastError(__func__, SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE);
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4829,10 +5268,10 @@ int simSetGraphStreamValue_internal(int graphHandle, int streamId, double value)
         CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
         if (it->setNextValueToInsert(streamId, value))
             return (1);
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_CURVE_ID);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_CURVE_ID);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4853,7 +5292,7 @@ char* simGetPluginName_internal(int index, unsigned char* setToNull)
             setToNull[0] = (unsigned char)plug->getPluginVersion();
         return (name);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -4905,7 +5344,7 @@ int simSetPage_internal(int index)
 #endif
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -4922,7 +5361,7 @@ int simGetPage_internal()
         return (0);
 #endif
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5028,7 +5467,7 @@ int simCopyPasteObjects_internal(int* objectHandles, int objectCount, int option
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -5053,10 +5492,10 @@ int simScaleObjects_internal(const int* objectHandles, int objectCount, double s
             retVal = 1;
         }
         else
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INPUT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_INPUT);
         return retVal;
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -5091,7 +5530,7 @@ int simAddDrawingObject_internal(int objectType, double size, double duplicateTo
         int retVal = App::currentWorld->drawingCont->addObject(it);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -5119,13 +5558,13 @@ int simRemoveDrawingObject_internal(int objectHandle)
             else
             {
                 if (handleFlags != sim_handleflag_silenterror)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
                 return (-1);
             }
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -5138,14 +5577,14 @@ int simAddDrawingObjectItem_internal(int objectHandle, const double* itemData)
         CDrawingObject* it = App::currentWorld->drawingCont->getObject(objectHandle);
         if (it == nullptr)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
             return (-1);
         }
         if (it->addItem(itemData))
             return (1);
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5162,7 +5601,7 @@ double simGetObjectSizeFactor_internal(int objectHandle)
         double retVal = it->getSizeFactor();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5176,7 +5615,7 @@ int simAnnounceSceneContentChange_internal()
             return (1);
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5200,7 +5639,7 @@ int simReadForceSensor_internal(int objectHandle, double* forceVector, double* t
             return (-1);
         if (App::currentWorld->simulation->isSimulationStopped())
         {
-            //            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
+            //            CApiErrors::setLastError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return (0);
         }
         CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(handle);
@@ -5223,7 +5662,7 @@ int simReadForceSensor_internal(int objectHandle, double* forceVector, double* t
 
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5246,7 +5685,7 @@ int simGetVelocity_internal(int shapeHandle, double* linearVelocity, double* ang
             av.getData(angularVelocity);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5278,7 +5717,7 @@ int simGetObjectVelocity_internal(int objectHandle, double* linearVelocity, doub
             av.getData(angularVelocity);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5294,7 +5733,7 @@ int simGetJointVelocity_internal(int jointHandle, double* velocity)
         velocity[0] = it->getMeasuredJointVelocity();
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5324,7 +5763,7 @@ int simAddForceAndTorque_internal(int shapeHandle, const double* force, const do
         {
             if (!isFloatArrayOk(force, 3))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
                 return (-1);
             }
             f.setData(force);
@@ -5333,7 +5772,7 @@ int simAddForceAndTorque_internal(int shapeHandle, const double* force, const do
         {
             if (!isFloatArrayOk(torque, 3))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
                 return (-1);
             }
             t.setData(torque);
@@ -5347,7 +5786,7 @@ int simAddForceAndTorque_internal(int shapeHandle, const double* force, const do
         it->addAdditionalForceAndTorque(f, t);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5370,12 +5809,12 @@ int simAddForce_internal(int shapeHandle, const double* position, const double* 
             return (-1);
         if (!isFloatArrayOk(position, 3))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         if (!isFloatArrayOk(force, 3))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(handle);
@@ -5394,7 +5833,7 @@ int simAddForce_internal(int shapeHandle, const double* position, const double* 
         it->addAdditionalForceAndTorque(f, t);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5475,10 +5914,10 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
             return (1);
         }
         // -------------------------------------------------------
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENT);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENT);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5557,10 +5996,10 @@ int simGetExplicitHandling_internal(int objectHandle)
             return (exp);
         }
         // -------------------------------------------------------
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENT);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENT);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5578,7 +6017,7 @@ int simGetLinkDummy_internal(int dummyHandle)
         int retVal = it->getLinkedDummyHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5599,7 +6038,7 @@ int simSetLinkDummy_internal(int dummyHandle, int linkedDummyHandle)
         it->setLinkedDummyHandle(linkedDummyHandle, true);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5744,7 +6183,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5838,7 +6277,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5865,7 +6304,7 @@ int simSetShapeColor_internal(int shapeHandle, const char* colorName, int colorC
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5883,7 +6322,7 @@ int simGetShapeColor_internal(int shapeHandle, const char* colorName, int colorC
             retVal = 1;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5915,7 +6354,7 @@ int simResetDynamicObject_internal(int objectHandle)
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5932,7 +6371,7 @@ int simSetJointMode_internal(int jointHandle, int jointMode, int options)
         it->setHybridFunctionality_old(options & 1);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5951,7 +6390,7 @@ int simGetJointMode_internal(int jointHandle, int* options)
             options[0] |= 1;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5967,7 +6406,7 @@ int simSerialOpen_internal(const char* portString, int baudRate, void* reserved1
 #endif
         return (handle);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5982,11 +6421,11 @@ int simSerialClose_internal(int portHandle)
         if (App::worldContainer->serialPortContainer->serialPortClose(portHandle))
             retVal = 1;
         else
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -5999,7 +6438,7 @@ int simSerialSend_internal(int portHandle, const char* data, int dataLength)
     std::string dat(data, data + dataLength);
     retVal = App::worldContainer->serialPortContainer->serialPortSend(portHandle, dat);
     if (retVal == -1)
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
     return (retVal);
 }
@@ -6019,7 +6458,7 @@ int simSerialRead_internal(int portHandle, char* buffer, int dataLengthToRead)
             buffer[i] = data[i];
     }
     if (retVal == -1)
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
     return (retVal);
 }
@@ -6032,7 +6471,7 @@ int simSerialCheck_internal(int portHandle)
 #ifdef SIM_WITH_GUI
     retVal = App::worldContainer->serialPortContainer->serialPortCheck(portHandle);
     if (retVal == -1)
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
     return (retVal);
 }
@@ -6049,7 +6488,7 @@ int simGetContactInfo_internal(int dynamicPass, int objectHandle, int index, int
             retVal = 1;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -6074,13 +6513,12 @@ int simAuxiliaryConsoleOpen_internal(const char* title, int maxLines, int mode, 
                     bCol[i] = int(backgroundColor[i] * 255.1);
             }
             retVal = GuiApp::mainWindow->codeEditorContainer->openConsole(title, maxLines, mode, position, size, tCol, bCol, _currentScriptHandle);
-            CApiErrors::getAndClearLastWarningOrError();
-            CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();
+            CApiErrors::getAndClearLastError();
         }
 #endif
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6097,7 +6535,7 @@ int simAuxiliaryConsoleClose_internal(int consoleHandle)
 #endif
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6123,7 +6561,7 @@ int simAuxiliaryConsoleShow_internal(int consoleHandle, bool showState)
 #endif
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -6152,7 +6590,7 @@ int simAuxiliaryConsolePrint_internal(int consoleHandle, const char* text)
 #endif
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -6165,12 +6603,12 @@ int simImportShape_internal(int fileformat, const char* pathAndFilename, int opt
     {
         if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
+            CApiErrors::setLastError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return (-1);
         }
         if (!VFile::doesFileExist(pathAndFilename))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_FILE_NOT_FOUND);
+            CApiErrors::setLastError(__func__, SIM_ERROR_FILE_NOT_FOUND);
             return (-1);
         }
         int op = 32;
@@ -6196,7 +6634,7 @@ int simImportShape_internal(int fileformat, const char* pathAndFilename, int opt
         App::currentWorld->sceneObjects->deselectObjects();
         return (h);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6210,12 +6648,12 @@ int simImportMesh_internal(int fileformat, const char* pathAndFilename, int opti
     {
         if (!VFile::doesFileExist(pathAndFilename))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_FILE_NOT_FOUND);
+            CApiErrors::setLastError(__func__, SIM_ERROR_FILE_NOT_FOUND);
             return (-1);
         }
         if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
+            CApiErrors::setLastError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return (-1);
         }
         int op = 0;
@@ -6237,7 +6675,7 @@ int simImportMesh_internal(int fileformat, const char* pathAndFilename, int opti
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6251,12 +6689,12 @@ int simExportMesh_internal(int fileformat, const char* pathAndFilename, int opti
     {
         if (App::currentWorld->environment->getSceneLocked())
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCENE_LOCKED);
+            CApiErrors::setLastError(__func__, SIM_ERROR_SCENE_LOCKED);
             return (-1);
         }
         if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
+            CApiErrors::setLastError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return (-1);
         }
         std::string format;
@@ -6274,7 +6712,7 @@ int simExportMesh_internal(int fileformat, const char* pathAndFilename, int opti
             format = "plyb";
         if (format.size() == 0)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_FILE_FORMAT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_FILE_FORMAT);
             return (-1);
         }
         bool invalidValues = false;
@@ -6295,7 +6733,7 @@ int simExportMesh_internal(int fileformat, const char* pathAndFilename, int opti
         }
         if (invalidValues)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         int op = 0;
@@ -6304,7 +6742,7 @@ int simExportMesh_internal(int fileformat, const char* pathAndFilename, int opti
                                                                   scalingFactor, 1, op);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -6318,7 +6756,7 @@ int simCreateShape_internal(int options, double shadingAngle, const double* vert
     {
         if (!isFloatArrayOk(vertices, verticesSize))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         std::vector<double> vert(vertices, vertices + verticesSize);
@@ -6364,7 +6802,7 @@ int simCreateShape_internal(int options, double shadingAngle, const double* vert
         }
         return (h);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6377,7 +6815,7 @@ int simCreateMeshShape_internal(int options, double shadingAngle, const double* 
     {
         if (!isFloatArrayOk(vertices, verticesSize))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         if ((indicesSize >= 3) && ((indicesSize / 3) * 3 == indicesSize))
@@ -6408,14 +6846,14 @@ int simCreateMeshShape_internal(int options, double shadingAngle, const double* 
                     App::currentWorld->sceneObjects->addObjectToScene(shape, false, true);
                     return (shape->getObjectHandle());
                 }
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_BAD_VERTICES);
+                CApiErrors::setLastError(__func__, SIM_ERROR_BAD_VERTICES);
                 return (-1);
             }
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_BAD_INDICES);
+        CApiErrors::setLastError(__func__, SIM_ERROR_BAD_INDICES);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6450,7 +6888,7 @@ int simGetShapeMesh_internal(int shapeHandle, double** vertices, int* verticesSi
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -6462,7 +6900,7 @@ int simCreatePrimitiveShape_internal(int primitiveType, const double* sizes, int
     {
         if (!isFloatArrayOk(sizes, 3))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         C3Vector s(tt::getLimitedFloat(0.00001, 100000.0, sizes[0]), tt::getLimitedFloat(0.00001, 100000.0, sizes[1]),
@@ -6480,7 +6918,7 @@ int simCreatePrimitiveShape_internal(int primitiveType, const double* sizes, int
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6502,7 +6940,7 @@ int simCreateDummy_internal(double size, const float* reserved)
         int retVal = it->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6517,7 +6955,7 @@ int simCreateScript_internal(int scriptType, const char* scriptText, int options
         int retVal = it->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6592,7 +7030,7 @@ int simCreateProximitySensor_internal(int sensorType, int subType, int options, 
         int retVal = it->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6619,7 +7057,7 @@ int simCreateForceSensor_internal(int options, const int* intParams, const doubl
         int retVal = it->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6653,7 +7091,7 @@ int simCreateVisionSensor_internal(int options, const int* intParams, const doub
         int retVal = it->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6671,7 +7109,7 @@ int simCreateJoint_internal(int jointType, int jointMode, int options, const dou
         {
             if (!isFloatArrayOk(sizes, 2))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
                 return (-1);
             }
             it->setSize(sizes[0], sizes[1]);
@@ -6680,7 +7118,7 @@ int simCreateJoint_internal(int jointType, int jointMode, int options, const dou
         int retVal = it->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6695,7 +7133,7 @@ int simFloatingViewAdd_internal(double posX, double posY, double sizeX, double s
             App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
         if (page == nullptr)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PAGE_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_PAGE_INEXISTANT);
             return (-1);
         }
         CSView* theFloatingView = new CSView(-1);
@@ -6729,7 +7167,7 @@ int simFloatingViewAdd_internal(double posX, double posY, double sizeX, double s
         return (-1);
 #endif
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6758,7 +7196,7 @@ int simFloatingViewRemove_internal(int floatingViewHandle)
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6803,7 +7241,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
 #endif
                 if (page == nullptr)
                 {
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PAGE_INEXISTANT);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_PAGE_INEXISTANT);
                     return (-1);
                 }
                 else
@@ -6854,7 +7292,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
                                             view);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -6889,7 +7327,7 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
 #endif
             if (page == nullptr)
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PAGE_INEXISTANT);
+                CApiErrors::setLastError(__func__, SIM_ERROR_PAGE_INEXISTANT);
                 return (-1);
             }
             else
@@ -6918,7 +7356,7 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
             if ((objType != sim_sceneobject_camera) && (objType != sim_sceneobject_graph) &&
                 (objType != sim_sceneobject_visionsensor))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_IS_NOT_VIEWABLE);
+                CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_IS_NOT_VIEWABLE);
                 return (-1);
             }
         }
@@ -6934,7 +7372,7 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
             view->setAlternativeViewName(viewLabel);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -6947,7 +7385,7 @@ int simCreateHeightfieldShape_internal(int options, double shadingAngle, int xPo
     {
         if ((xPointCount < 2) || (xPointCount > 2048) || (yPointCount < 2) || (yPointCount > 2048) || (xSize < 0.00001))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
             return (-1);
         }
         std::vector<std::vector<double>*> allData;
@@ -6964,7 +7402,7 @@ int simCreateHeightfieldShape_internal(int options, double shadingAngle, int xPo
             delete allData[i];
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -6974,12 +7412,12 @@ int simGetRotationAxis_internal(const double* matrixStart, const double* matrixG
 
     if (!isFloatArrayOk(matrixStart, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     if (!isFloatArrayOk(matrixGoal, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     C4X4Matrix mStart;
@@ -7020,17 +7458,17 @@ int simRotateAroundAxis_internal(const double* matrixIn, const double* axis, con
 
     if (!isFloatArrayOk(matrixIn, 12))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     if (!isFloatArrayOk(axis, 3))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     if (!isFloatArrayOk(axisPos, 3))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     C4X4Matrix mIn;
@@ -7085,7 +7523,7 @@ int simGetJointForce_internal(int jointHandle, double* forceOrTorque)
         CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(handle);
         if (it->getJointType() == sim_joint_spherical)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
+            CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
         }
         double f;
@@ -7097,7 +7535,7 @@ int simGetJointForce_internal(int jointHandle, double* forceOrTorque)
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7115,7 +7553,7 @@ int simGetJointTargetForce_internal(int jointHandle, double* forceOrTorque)
         forceOrTorque[0] = it->getTargetForce(true);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7133,7 +7571,7 @@ int simSetJointTargetForce_internal(int objectHandle, double forceOrTorque, bool
         it->setTargetForce(forceOrTorque, signedValue);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7174,7 +7612,7 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
             return (1);
         return (0); // handle is not valid!
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7202,7 +7640,7 @@ int simHandleVisionSensor_internal(int visionSensorHandle, double** auxValues, i
                 it = (CVisionSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(visionSensorHandle);
                 if (!it->getExplicitHandling())
                 {
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                     return (-1);
                 }
                 retVal = it->handleSensor();
@@ -7233,7 +7671,7 @@ int simHandleVisionSensor_internal(int visionSensorHandle, double** auxValues, i
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7276,7 +7714,7 @@ int simReadVisionSensor_internal(int visionSensorHandle, double** auxValues, int
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7301,7 +7739,7 @@ int simResetVisionSensor_internal(int visionSensorHandle)
                 it = (CVisionSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(visionSensorHandle);
                 if (!it->getExplicitHandling())
                 {
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
                     return (-1);
                 }
                 it->resetSensor();
@@ -7315,7 +7753,7 @@ int simResetVisionSensor_internal(int visionSensorHandle)
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7365,7 +7803,7 @@ int simCheckVisionSensor_internal(int sensorHandle, int entityHandle, double** a
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7391,7 +7829,7 @@ float* simCheckVisionSensorEx_internal(int sensorHandle, int entityHandle, bool 
         float* retBuffer = it->checkSensorEx(entityHandle, returnImage != 0, false, false, true);
         return (retBuffer);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -7430,10 +7868,10 @@ unsigned char* simGetVisionSensorImg_internal(int sensorHandle, int options, dou
         }
         unsigned char* img = it->readPortionOfCharImage(posX, posY, sizeX, sizeY, rgbaCutOff, options);
         if (img == nullptr)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
         return (img);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -7467,12 +7905,12 @@ int simSetVisionSensorImg_internal(int sensorHandle, const unsigned char* img, i
         }
         if (!it->writePortionOfCharImage(img, posX, posY, sizeX, sizeY, options))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
             return (-1);
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -7520,11 +7958,11 @@ float* simGetVisionSensorDepth_internal(int sensorHandle, int options, const int
                 retBuff[i] = n + fmn * retBuff[i];
         }
         if (retBuff == nullptr)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
 
         return (retBuff);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -7542,7 +7980,7 @@ int _simSetVisionSensorDepth_internal(int sensorHandle, int options, const float
         it->writeImage(depth, 2);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7559,10 +7997,10 @@ int simRuckigPos_internal(int dofs, double baseCycleTime, int flags, const doubl
             _currentScriptHandle, dofs, baseCycleTime, flags, currentPos, currentVel, currentAccel, maxVel, maxAccel,
             maxJerk, selection, targetPos, targetVel);
         if (retVal == -2)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
+            CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7578,10 +8016,10 @@ int simRuckigVel_internal(int dofs, double baseCycleTime, int flags, const doubl
                                                                             flags, currentPos, currentVel, currentAccel,
                                                                             maxAccel, maxJerk, selection, targetVel);
         if (retVal == -2)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
+            CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7595,14 +8033,14 @@ int simRuckigStep_internal(int objHandle, double cycleTime, double* newPos, doub
         int retVal = App::worldContainer->pluginContainer->ruckigPlugin_step(objHandle, cycleTime, newPos, newVel,
                                                                              newAccel, syncTime);
         if (retVal == -3)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_RUCKIG_CYCLETIME_ERROR);
+            CApiErrors::setLastError(__func__, SIM_ERROR_RUCKIG_CYCLETIME_ERROR);
         if (retVal == -2)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
+            CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         if (retVal == -1)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_RUCKIG_OBJECT_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_RUCKIG_OBJECT_INEXISTANT);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7614,12 +8052,12 @@ int simRuckigRemove_internal(int objHandle)
     {
         int retVal = App::worldContainer->pluginContainer->ruckigPlugin_remove(objHandle);
         if (retVal == -2)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
+            CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         if (retVal == -1)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_RUCKIG_OBJECT_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_RUCKIG_OBJECT_INEXISTANT);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7682,7 +8120,7 @@ int simGetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
         tr.Q.getData(quaternion, (handleFlags & sim_handleflag_wxyzquat) == 0);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7701,7 +8139,7 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
             return (-1);
         if (!isFloatArrayOk(quaternion, 4))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -7766,7 +8204,7 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
         }
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7783,7 +8221,7 @@ int simGetShapeMass_internal(int shapeHandle, double* mass)
         mass[0] = it->getMesh()->getMass();
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7803,7 +8241,7 @@ int simSetShapeMass_internal(int shapeHandle, double mass)
         it->setDynamicsResetFlag(true, false);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7826,7 +8264,7 @@ int simGetShapeInertia_internal(int shapeHandle, double* inertiaMatrix, double* 
         m.getData(inertiaMatrix);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7840,12 +8278,12 @@ int simSetShapeInertia_internal(int shapeHandle, const double* inertiaMatrix, co
             return (-1);
         if (!isFloatArrayOk(inertiaMatrix, 9))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         if (!isFloatArrayOk(transformationMatrix, 12))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
@@ -7867,7 +8305,7 @@ int simSetShapeInertia_internal(int shapeHandle, const double* inertiaMatrix, co
         it->setDynamicsResetFlag(true, false);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7902,7 +8340,7 @@ int simIsDynamicallyEnabled_internal(int objectHandle)
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -7915,12 +8353,12 @@ int simGenerateShapeFromPath_internal(const double* pppath, int pathSize, const 
     {
         if (!isFloatArrayOk(pppath, pathSize))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         if (!isFloatArrayOk(section, sectionSize))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         // First make sure the points are not coincident:
@@ -8067,10 +8505,10 @@ int simGenerateShapeFromPath_internal(const double* pppath, int pathSize, const 
                                             int(indices.size()), nullptr, nullptr, nullptr, nullptr);
             return (h);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PATH);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PATH);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8121,11 +8559,11 @@ int simInitScript_internal(int scriptHandle)
         }
         else
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
             return (-1);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8155,10 +8593,10 @@ int simModuleEntry_internal(int handle, const char* label, int state)
             }
             return (handle);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8225,12 +8663,12 @@ int simCheckExecAuthorization_internal(const char* what, const char* args, int s
                 std::string tmp("function was hindered to execute for your safety. You can enable its execution and "
                                 "every other unsafe function with 'execUnsafe=true' in ");
                 tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
-                CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
+                CApiErrors::setLastError(__func__, tmp.c_str());
             }
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8252,7 +8690,7 @@ int simGroupShapes_internal(const int* shapeHandles, int shapeCount)
         }
         if (shapes.size() < 2)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_NOT_ENOUGH_SHAPES);
+            CApiErrors::setLastError(__func__, SIM_ERROR_NOT_ENOUGH_SHAPES);
             return (-1);
         }
         std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
@@ -8264,7 +8702,7 @@ int simGroupShapes_internal(const int* shapeHandles, int shapeCount)
         App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8312,7 +8750,7 @@ int* simUngroupShape_internal(int shapeHandle, int* shapeCount)
         {
             if (dividing)
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE);
+                CApiErrors::setLastError(__func__, SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE);
                 shapeCount[0] = 0;
                 return (nullptr);
             }
@@ -8329,7 +8767,7 @@ int* simUngroupShape_internal(int shapeHandle, int* shapeCount)
             }
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (nullptr);
 }
 
@@ -8386,7 +8824,7 @@ int simSetShapeMaterial_internal(int shapeHandle, int materialIdOrShapeHandle)
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8405,10 +8843,10 @@ int simGetTextureId_internal(const char* textureName, int* resolution)
                 to->getTextureSize(resolution[0], resolution[1]);
         }
         else
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TEXTURE_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_TEXTURE_INEXISTANT);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -8440,12 +8878,12 @@ unsigned char* simReadTexture_internal(int textureId, int options, int posX, int
                 return (retVal);
             }
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
         }
         else
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TEXTURE_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_TEXTURE_INEXISTANT);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -8480,12 +8918,12 @@ int simWriteTexture_internal(int textureId, int options, const char* data, int p
                 return (retVal);
             }
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
         }
         else
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TEXTURE_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_TEXTURE_INEXISTANT);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -8567,7 +9005,7 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                 }
             }
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_FILE_NOT_FOUND);
+                CApiErrors::setLastError(__func__, SIM_ERROR_FILE_NOT_FOUND);
         }
         else
         { // just creating a texture (not loading it)
@@ -8620,11 +9058,11 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                 return (shape->getObjectHandle());
             }
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
         }
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8671,7 +9109,7 @@ int simGetShapeGeomInfo_internal(int shapeHandle, int* intData, double* floatDat
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -8702,7 +9140,7 @@ int simGetObjects_internal(int index, int objectType)
         }
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -8765,7 +9203,7 @@ int* simGetObjectsInTree_internal(int treeBaseHandle, int objectType, int option
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -8781,11 +9219,11 @@ int simScaleObject_internal(int objectHandle, double xScale, double yScale, doub
 
             if ((xScale >= 0.0001) && (yScale >= 0.0001) && (zScale >= 0.0001) && obj->scaleObjectNonIsometrically(xScale, yScale, zScale))
                 return (1);
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INPUT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_INPUT);
             return (-1);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8811,7 +9249,7 @@ int simGetShapeTextureId_internal(int shapeHandle)
             return (-1);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -8867,7 +9305,7 @@ int simSetShapeTexture_internal(int shapeHandle, int textureId, int mappingMode,
         }
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8883,7 +9321,7 @@ int simCreateCollectionEx_internal(int options)
         it->setOverridesObjectMainProperties((options & 1) != 0);
         return (it->getCollectionHandle());
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8922,13 +9360,13 @@ int simAddItemToCollection_internal(int collectionHandle, int what, int objectHa
         }
         if (el == nullptr)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENT);
             return (-1);
         }
         it->addCollectionElement(el);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8941,13 +9379,13 @@ int simDestroyCollection_internal(int collectionHandle)
         CCollection* it = App::currentWorld->collections->getObjectFromHandle(collectionHandle);
         if (it == nullptr)
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COLLECTION_INEXISTANT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_COLLECTION_INEXISTANT);
             return (-1);
         }
         App::currentWorld->collections->removeCollection(collectionHandle);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -8967,7 +9405,7 @@ int* simGetCollectionObjects_internal(int collectionHandle, int* objectCount)
             return (retVal);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -8988,7 +9426,7 @@ int simAlignShapeBB_internal(int shapeHandle, const double* pose)
             {
                 if (!isFloatArrayOk(pose, 7))
                 {
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
                     return (-1);
                 }
                 C7Vector tr;
@@ -9005,7 +9443,7 @@ int simAlignShapeBB_internal(int shapeHandle, const double* pose)
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -9026,7 +9464,7 @@ int simRelocateShapeFrame_internal(int shapeHandle, const double* pose)
             {
                 if (!isFloatArrayOk(pose, 7))
                 {
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
                     return (-1);
                 }
                 C7Vector tr;
@@ -9047,7 +9485,7 @@ int simRelocateShapeFrame_internal(int shapeHandle, const double* pose)
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -9063,7 +9501,7 @@ int simSaveImage_internal(const unsigned char* image, const int* resolution, int
             retVal = 1;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9076,7 +9514,7 @@ unsigned char* simLoadImage_internal(int* resolution, int options, const char* f
         unsigned char* retVal = CImageLoaderSaver::load(resolution, options, filename, reserved);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -9090,7 +9528,7 @@ unsigned char* simGetScaledImage_internal(const unsigned char* imageIn, const in
         unsigned char* retVal = CImageLoaderSaver::getScaledImage(imageIn, resolutionIn, resolutionOut, options);
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -9105,7 +9543,7 @@ int simTransformImage_internal(unsigned char* image, const int* resolution, int 
             return (1);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9116,7 +9554,7 @@ int simGetQHull_internal(const double* inVertices, int inVerticesL, double** ver
 
     if (!isFloatArrayOk(inVertices, inVerticesL))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -9153,7 +9591,7 @@ int simGetQHull_internal(const double* inVertices, int inVerticesL, double** ver
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9165,7 +9603,7 @@ int simGetDecimatedMesh_internal(const double* inVertices, int inVerticesL, cons
 
     if (!isFloatArrayOk(inVertices, inVerticesL))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -9199,7 +9637,7 @@ int simGetDecimatedMesh_internal(const double* inVertices, int inVerticesL, cons
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9292,14 +9730,14 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
             }
             if (retVal == -1)
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION);
+                CApiErrors::setLastError(__func__, SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION);
                 tmp += SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
                 if ((handleFlags & sim_handleflag_silenterror) == 0)
                     App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
             }
             if (retVal == 0)
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
+                CApiErrors::setLastError(__func__, SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
                 tmp += SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                 if ((handleFlags & sim_handleflag_silenterror) == 0)
                     App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
@@ -9310,14 +9748,14 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
         }
         else
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
             tmp += SIM_ERROR_INVALID_HANDLE;
             if ((handleFlags & sim_handleflag_silenterror) == 0)
                 App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+    CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
     tmp += SIM_ERROR_SCRIPT_INEXISTANT;
     if ((handleFlags & sim_handleflag_silenterror) == 0)
         App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
@@ -9369,7 +9807,7 @@ char* simGetExtensionString_internal(int objectHandle, int index, const char* ke
         return (retVal);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -9389,7 +9827,7 @@ int simComputeMassAndInertia_internal(int shapeHandle, double density)
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9403,7 +9841,7 @@ int simCreateStack_internal()
         return (stack->getId());
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9418,7 +9856,7 @@ int simReleaseStack_internal(int stackHandle)
         return (0);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9431,11 +9869,11 @@ int simCopyStack_internal(int stackHandle)
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
             return (App::worldContainer->interfaceStackContainer->createStackCopy(stack)->getId());
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9451,11 +9889,11 @@ int simPushNullOntoStack_internal(int stackHandle)
             stack->pushNullOntoStack();
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9471,11 +9909,11 @@ int simPushBoolOntoStack_internal(int stackHandle, bool value)
             stack->pushBoolOntoStack(value);
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9491,11 +9929,11 @@ int simPushInt32OntoStack_internal(int stackHandle, int value)
             stack->pushInt32OntoStack(value);
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9511,11 +9949,11 @@ int simPushInt64OntoStack_internal(int stackHandle, long long int value)
             stack->pushInt64OntoStack(value);
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9531,11 +9969,11 @@ int simPushFloatOntoStack_internal(int stackHandle, float value)
             stack->pushFloatOntoStack(value);
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9551,11 +9989,11 @@ int simPushDoubleOntoStack_internal(int stackHandle, double value)
             stack->pushDoubleOntoStack(value);
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9571,11 +10009,11 @@ int simPushTextOntoStack_internal(int stackHandle, const char* value)
             stack->pushTextOntoStack(value);
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9594,11 +10032,11 @@ int simPushStringOntoStack_internal(int stackHandle, const char* value, int stri
                 stack->pushBinaryStringOntoStack(value, size_t(stringSize));
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9614,11 +10052,11 @@ int simPushBufferOntoStack_internal(int stackHandle, const char* value, int stri
             stack->pushBufferOntoStack(value, size_t(stringSize));
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9634,11 +10072,11 @@ int simPushUInt8TableOntoStack_internal(int stackHandle, const unsigned char* va
             stack->pushUCharArrayOntoStack(values, size_t(valueCnt));
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9654,11 +10092,11 @@ int simPushInt32TableOntoStack_internal(int stackHandle, const int* values, int 
             stack->pushInt32ArrayOntoStack(values, size_t(valueCnt));
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9674,11 +10112,11 @@ int simPushInt64TableOntoStack_internal(int stackHandle, const long long int* va
             stack->pushInt64ArrayOntoStack(values, size_t(valueCnt));
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9694,11 +10132,11 @@ int simPushFloatTableOntoStack_internal(int stackHandle, const float* values, in
             stack->pushFloatArrayOntoStack(values, size_t(valueCnt));
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9708,7 +10146,7 @@ int simPushDoubleTableOntoStack_internal(int stackHandle, const double* values, 
 
     if (!isFloatArrayOk(values, valueCnt))
     {
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
         return (-1);
     }
 
@@ -9720,11 +10158,11 @@ int simPushDoubleTableOntoStack_internal(int stackHandle, const double* values, 
             stack->pushDoubleArrayOntoStack(values, size_t(valueCnt));
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9740,11 +10178,11 @@ int simPushTableOntoStack_internal(int stackHandle)
             stack->pushTableOntoStack();
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9759,14 +10197,14 @@ int simInsertDataIntoStackTable_internal(int stackHandle)
         {
             if (stack->insertDataIntoStackTable())
                 return (1);
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9779,11 +10217,11 @@ int simGetStackSize_internal(int stackHandle)
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
             return (stack->getStackSize());
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9799,11 +10237,11 @@ int simPopStackItem_internal(int stackHandle, int count)
             stack->popStackValue(count);
             return (stack->getStackSize());
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9820,14 +10258,14 @@ int simMoveStackItemToTop_internal(int stackHandle, int cIndex)
                 cIndex = stack->getStackSize() + cIndex;
             if (stack->moveStackItemToTop(cIndex))
                 return (1);
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INDEX);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_INDEX);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9844,14 +10282,14 @@ int simGetStackItemType_internal(int stackHandle, int cIndex)
                 cIndex = stack->getStackSize() + cIndex;
             if ((cIndex >= 0) && (stack->getStackSize() > cIndex))
                 return (stack->getStackItemType(cIndex));
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INDEX);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_INDEX);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9870,17 +10308,17 @@ int simGetStackStringType_internal(int stackHandle, int cIndex)
             {
                 if (stack->getStackItemType(cIndex) == sim_stackitem_string)
                     return (stack->getStackStringType(cIndex));
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_NOT_A_STRING);
+                CApiErrors::setLastError(__func__, SIM_ERROR_NOT_A_STRING);
                 return (-1);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INDEX);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_INDEX);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9905,14 +10343,14 @@ int simGetStackBoolValue_internal(int stackHandle, bool* boolValue)
                 }
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9935,14 +10373,14 @@ int simGetStackInt32Value_internal(int stackHandle, int* numberValue)
                 }
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9965,14 +10403,14 @@ int simGetStackInt64Value_internal(int stackHandle, long long int* numberValue)
                 }
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -9995,14 +10433,14 @@ int simGetStackFloatValue_internal(int stackHandle, float* numberValue)
                 }
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10025,14 +10463,14 @@ int simGetStackDoubleValue_internal(int stackHandle, double* numberValue)
                 }
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10064,16 +10502,16 @@ char* simGetStackStringValue_internal(int stackHandle, int* stringSize)
             }
             if (stringSize != nullptr)
                 stringSize[0] = -1;
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (nullptr);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         if (stringSize != nullptr)
             stringSize[0] = -1;
         return (nullptr);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     if (stringSize != nullptr)
         stringSize[0] = -1;
     return (nullptr);
@@ -10093,14 +10531,14 @@ int simGetStackTableInfo_internal(int stackHandle, int infoType)
                 int retVal = stack->getStackTableInfo(infoType);
                 return (retVal);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10119,14 +10557,14 @@ int simGetStackUInt8Table_internal(int stackHandle, unsigned char* array, int co
                     return (1);
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10145,14 +10583,14 @@ int simGetStackInt32Table_internal(int stackHandle, int* array, int count)
                     return (1);
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10171,14 +10609,14 @@ int simGetStackInt64Table_internal(int stackHandle, long long int* array, int co
                     return (1);
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10197,14 +10635,14 @@ int simGetStackFloatTable_internal(int stackHandle, float* array, int count)
                     return (1);
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10223,14 +10661,14 @@ int simGetStackDoubleTable_internal(int stackHandle, double* array, int count)
                     return (1);
                 return (0);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10248,14 +10686,14 @@ int simUnfoldStackTable_internal(int stackHandle)
                 if (stack->unfoldStackTable())
                     return (1);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10273,11 +10711,11 @@ int simDebugStack_internal(int stackHandle, int cIndex)
             App::logMsg(sim_verbosity_none, buffer.c_str());
             return (1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10298,7 +10736,7 @@ int simCreateOctree_internal(double voxelSize, int options, double pointSize, vo
         int retVal = it->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10321,7 +10759,7 @@ int simCreatePointCloud_internal(double maxVoxelSize, int maxPtCntPerVoxel, int 
         int retVal = it->getObjectHandle();
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10344,7 +10782,7 @@ int simSetPointCloudOptions_internal(int pointCloudHandle, double maxVoxelSize, 
         it->setColorIsEmissive(options & 16);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10372,7 +10810,7 @@ int simGetPointCloudOptions_internal(int pointCloudHandle, double* maxVoxelSize,
             options[0] |= 16;
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10387,7 +10825,7 @@ int simInsertVoxelsIntoOctree_internal(int octreeHandle, int options, const doub
             return (-1);
         if (!isFloatArrayOk(pts, ptCnt * 3))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
@@ -10410,7 +10848,7 @@ int simInsertVoxelsIntoOctree_internal(int octreeHandle, int options, const doub
         int retVal = int(it->getCubePositions()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10429,7 +10867,7 @@ int simRemoveVoxelsFromOctree_internal(int octreeHandle, int options, const doub
         {
             if (!isFloatArrayOk(pts, ptCnt * 3))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
                 return (-1);
             }
             it->subtractPoints(pts, ptCnt, options & 1);
@@ -10437,7 +10875,7 @@ int simRemoveVoxelsFromOctree_internal(int octreeHandle, int options, const doub
         int retVal = int(it->getCubePositions()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10452,7 +10890,7 @@ int simInsertPointsIntoPointCloud_internal(int pointCloudHandle, int options, co
             return (-1);
         if (!isFloatArrayOk(pts, ptCnt * 3))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
@@ -10467,7 +10905,7 @@ int simInsertPointsIntoPointCloud_internal(int pointCloudHandle, int options, co
         int retVal = int(it->getPoints()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10487,7 +10925,7 @@ int simRemovePointsFromPointCloud_internal(int pointCloudHandle, int options, co
         {
             if (!isFloatArrayOk(pts, ptCnt * 3))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
                 return (-1);
             }
             it->removePoints(pts, ptCnt, options & 1, tolerance);
@@ -10495,7 +10933,7 @@ int simRemovePointsFromPointCloud_internal(int pointCloudHandle, int options, co
         int retVal = int(it->getPoints()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10515,7 +10953,7 @@ int simIntersectPointsWithPointCloud_internal(int pointCloudHandle, int options,
         {
             if (!isFloatArrayOk(pts, ptCnt * 3))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
                 return (-1);
             }
             it->intersectPoints(pts, ptCnt, options & 1, tolerance);
@@ -10523,7 +10961,7 @@ int simIntersectPointsWithPointCloud_internal(int pointCloudHandle, int options,
         int retVal = int(it->getPoints()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10545,7 +10983,7 @@ const double* simGetOctreeVoxels_internal(int octreeHandle, int* ptCnt, void* re
         ptCnt[0] = int(p->size()) / 3;
         return (&(p[0])[0]);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -10567,7 +11005,7 @@ const double* simGetPointCloudPoints_internal(int pointCloudHandle, int* ptCnt, 
         ptCnt[0] = int(p->size()) / 3;
         return (&(p[0])[0]);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -10600,7 +11038,7 @@ int simInsertObjectIntoOctree_internal(int octreeHandle, int objectHandle, int o
         int retVal = int(it->getCubePositions()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10619,7 +11057,7 @@ int simSubtractObjectFromOctree_internal(int octreeHandle, int objectHandle, int
         int retVal = int(it->getCubePositions()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10660,7 +11098,7 @@ int simInsertObjectIntoPointCloud_internal(int pointCloudHandle, int objectHandl
         int retVal = int(it->getPoints()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10680,7 +11118,7 @@ int simSubtractObjectFromPointCloud_internal(int pointCloudHandle, int objectHan
         int retVal = int(it->getPoints()->size()) / 3;
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10700,7 +11138,7 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle, int options, const d
             return (0);
         if (!isFloatArrayOk(points, ptCnt * 3))
         {
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
         const double* _pts = points;
@@ -10732,7 +11170,7 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle, int options, const d
         }
         return (0);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10775,13 +11213,13 @@ char* simPackTable_internal(int stackHandle, int* bufferSize)
                     return (bu);
                 }
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
             return (nullptr);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (nullptr);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -10796,13 +11234,13 @@ int simUnpackTable_internal(int stackHandle, const char* buffer, int bufferSize)
         {
             if (stack->pushTableFromBuffer(buffer, bufferSize))
                 return (0);
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10827,7 +11265,7 @@ int simSetReferencedHandles_internal(int objectHandle, int count, const int* ref
             it->setReferencedOriginalHandles(count, referencedHandles, ttag.c_str());
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -10868,7 +11306,7 @@ int simGetReferencedHandles_internal(int objectHandle, int** referencedHandles, 
         referencedHandles[0] = handles;
         return (cnt);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -10984,7 +11422,7 @@ int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo* in
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -11100,7 +11538,7 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof* 
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -11139,7 +11577,7 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
             CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
             if ((stack == nullptr) && (!noReturnDesired))
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
                 return (-1);
             }
             int retVal = -1; // error
@@ -11185,17 +11623,17 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
 
             if (retVal != 0)
             {
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OPERATION_FAILED);
+                CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_FAILED);
                 retVal = -1;
             }
             return (retVal);
         }
 
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+        CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -11241,7 +11679,7 @@ char* simGetApiFunc_internal(int scriptHandle, const char* apiWord)
         return (buff);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -11261,11 +11699,11 @@ char* simGetApiInfo_internal(int scriptHandle, const char* apiWord)
             strcpy(buff, tip.c_str());
             return (buff);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
         return (nullptr);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
 }
 
@@ -11310,14 +11748,14 @@ int simSetPluginInfo_internal(const char* pluginName, int infoType, const char* 
                 App::setStatusbarVerbosity(intInfo, pluginName);
                 return (1);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PLUGIN_NAME);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PLUGIN_NAME);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
@@ -11374,14 +11812,14 @@ int simGetPluginInfo_internal(const char* pluginName, int infoType, char** strin
                 intInfo[0] = App::getStatusbarVerbosity(pluginName);
                 return (1);
             }
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENT);
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENT);
             return (-1);
         }
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_PLUGIN_NAME);
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PLUGIN_NAME);
         return (-1);
     }
 
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
@@ -11447,7 +11885,7 @@ int simEventNotification_internal(const char* event)
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (retVal);
 }
 
@@ -11495,14 +11933,14 @@ int simApplyTexture_internal(int shapeHandle, const double* textureCoordinates, 
                     tp->setFixedCoordinates(&c);
                 }
                 else
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_BAD_TEXTURE_COORD_SIZE);
+                    CApiErrors::setLastError(__func__, SIM_ERROR_BAD_TEXTURE_COORD_SIZE);
             }
             else
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE);
+                CApiErrors::setLastError(__func__, SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE);
         }
         return (retVal);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (retVal);
 }
 
@@ -11528,7 +11966,7 @@ int simSetJointDependency_internal(int jointHandle, int masterJointHandle, doubl
             }
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (retVal);
 }
 
@@ -11548,7 +11986,7 @@ int simGetJointDependency_internal(int jointHandle, int* masterJointHandle, doub
             return (retVal);
         }
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (retVal);
 }
 
@@ -12330,7 +12768,7 @@ int simGetVisionSensorRes_internal(int sensorHandle, int* resolution)
         it->getResolution(resolution);
         return (1);
     }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 

@@ -3851,3 +3851,33 @@ SIM_DLLEXPORT int simGetObjectSpecialProperty(int objectHandle)
 {
     return (simGetObjectSpecialProperty_internal(objectHandle));
 }
+SIM_DLLEXPORT char* simGetStringProperty(long long int target, const char* pName)
+{
+    char* retVal = nullptr;
+    simGetStringProperty_internal(target, pName, &retVal);
+    return retVal;
+}
+SIM_DLLEXPORT char* simGetTableProperty(long long int target, const char* pName, int* bufferL)
+{
+    char* retVal = nullptr;
+    simGetTableProperty_internal(target, pName, &retVal, bufferL);
+    return retVal;
+}
+SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName, int* bufferL)
+{
+    char* retVal = nullptr;
+    simGetBufferProperty_internal(target, pName, &retVal, bufferL);
+    return retVal;
+}
+SIM_DLLEXPORT double* simGetFloatArrayProperty(long long int target, const char* pName, int* vL)
+{
+    double* retVal = nullptr;
+    simGetFloatArrayProperty_internal(target, pName, &retVal, vL);
+    return retVal;
+}
+SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pName, int* vL)
+{
+    int* retVal = nullptr;
+    simGetIntArrayProperty_internal(target, pName, &retVal, vL);
+    return retVal;
+}

@@ -5,6 +5,26 @@
 #include <simLib/simTypes.h>
 #include <string>
 #include <vector>
+#include <apiErrors.h>
+/*
+#define CALL_C_API(func, ...) ({ \
+    typeof(func(__VA_ARGS__)) result = func(__VA_ARGS__); \
+    CApiErrors::getAndClearLastError(); \
+    result; \
+})
+*/
+#define CALL_C_API_CLEAR_ERRORS(func, ...) \
+    ([&]() -> decltype(func##_internal(__VA_ARGS__)) { \
+        auto result = func##_internal(__VA_ARGS__); \
+        CApiErrors::getAndClearLastError(); \
+        return result; \
+    }())
+
+#define CALL_C_API(func, ...) \
+    ([&]() -> decltype(func##_internal(__VA_ARGS__)) { \
+        auto result = func##_internal(__VA_ARGS__); \
+        return result; \
+    }())
 
 void setCurrentScriptInfo_cSide(int scriptHandle, int scriptNameIndex);
 int getCurrentScriptNameIndex_cSide();
@@ -20,11 +40,11 @@ int simGetLongProperty_internal(long long int target, const char* pName, long lo
 int simSetFloatProperty_internal(long long int target, const char* pName, double pState);
 int simGetFloatProperty_internal(long long int target, const char* pName, double* pState);
 int simSetStringProperty_internal(long long int target, const char* pName, const char* pState);
-char* simGetStringProperty_internal(long long int target, const char* pName);
+int simGetStringProperty_internal(long long int target, const char* pName, char** pState);
 int simSetTableProperty_internal(long long int target, const char* pName, const char* buffer, int bufferL);
-char* simGetTableProperty_internal(long long int target, const char* pName, int* bufferL);
+int simGetTableProperty_internal(long long int target, const char* pName, char** buffer, int* bufferL);
 int simSetBufferProperty_internal(long long int target, const char* pName, const char* buffer, int bufferL);
-char* simGetBufferProperty_internal(long long int target, const char* pName, int* bufferL);
+int simGetBufferProperty_internal(long long int target, const char* pName, char** buffer, int* bufferL);
 int simSetIntArray2Property_internal(long long int target, const char* pName, const int* pState);
 int simGetIntArray2Property_internal(long long int target, const char* pName, int* pState);
 int simSetVector2Property_internal(long long int target, const char* pName, const double* pState);
@@ -38,9 +58,9 @@ int simGetPoseProperty_internal(long long int target, const char* pName, double*
 int simSetColorProperty_internal(long long int target, const char* pName, const float* pState);
 int simGetColorProperty_internal(long long int target, const char* pName, float* pState);
 int simSetFloatArrayProperty_internal(long long int target, const char* pName, const double* v, int vL);
-double* simGetFloatArrayProperty_internal(long long int target, const char* pName, int* vL);
+int simGetFloatArrayProperty_internal(long long int target, const char* pName, double** v, int* vL);
 int simSetIntArrayProperty_internal(long long int target, const char* pName, const int* v, int vL);
-int* simGetIntArrayProperty_internal(long long int target, const char* pName, int* vL);
+int simGetIntArrayProperty_internal(long long int target, const char* pName, int** v, int* vL);
 int simRemoveProperty_internal(long long int target, const char* pName);
 char* simGetPropertyName_internal(long long int target, int index, SPropertyOptions* options);
 int simGetPropertyInfo_internal(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options);

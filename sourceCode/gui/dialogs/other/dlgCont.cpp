@@ -344,7 +344,8 @@ void CDlgCont::addMenu(VMenu* menu)
         menu->appendMenuSeparator();
         menu->appendMenuItem(true, GuiApp::getShowInertias(), TOGGLE_SHOW_INERTIA_DLG_CMD, "Visualize inertias", true);
         int v = 0;
-        simGetIntProperty_internal(sim_handle_app, "signal.simIK.debug_world", &v);
+        CALL_C_API_CLEAR_ERRORS(simGetIntProperty, sim_handle_app, "signal.simIK.debug_world", &v);
+        CApiErrors::getAndClearLastError();
         menu->appendMenuItem(true, v & 1, TOGGLE_SHOW_IKWORLDS_DLG_CMD, "Visualize IK worlds", true);
         menu->appendMenuItem(true, v & 2, TOGGLE_SHOW_IKWORLDJACOBIANS_DLG_CMD, "Display IK world Jacobians", true);
     }
@@ -683,7 +684,7 @@ bool CDlgCont::processCommand(int commandID)
         if (commandID == TOGGLE_SHOW_IKWORLDS_DLG_CMD)
         {
             int v = 0;
-            simGetIntProperty_internal(sim_handle_app, "signal.simIK.debug_world", &v);
+            CALL_C_API_CLEAR_ERRORS(simGetIntProperty, sim_handle_app, "signal.simIK.debug_world", &v);
             if (v & 1)
             {
                 v = v - 1;
@@ -694,13 +695,13 @@ bool CDlgCont::processCommand(int commandID)
                 v = v | 1;
                 App::logMsg(sim_verbosity_msgs, "Visualizing IK worlds");
             }
-            simSetIntProperty_internal(sim_handle_app, "signal.simIK.debug_world", v);
+            CALL_C_API_CLEAR_ERRORS(simSetIntProperty, sim_handle_app, "signal.simIK.debug_world", v);
             return (true);
         }
         if (commandID == TOGGLE_SHOW_IKWORLDJACOBIANS_DLG_CMD)
         {
             int v = 0;
-            simGetIntProperty_internal(sim_handle_app, "signal.simIK.debug_world", &v);
+            CALL_C_API_CLEAR_ERRORS(simGetIntProperty, sim_handle_app, "signal.simIK.debug_world", &v);
             if (v & 2)
             {
                 v = v - 2;
@@ -711,7 +712,7 @@ bool CDlgCont::processCommand(int commandID)
                 v = v | 2;
                 App::logMsg(sim_verbosity_msgs, "Displaying IK world Jacobians");
             }
-            simSetIntProperty_internal(sim_handle_app, "signal.simIK.debug_world", v);
+            CALL_C_API_CLEAR_ERRORS(simSetIntProperty, sim_handle_app, "signal.simIK.debug_world", v);
             return (true);
         }
     }

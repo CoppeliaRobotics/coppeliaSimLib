@@ -34,16 +34,14 @@
 std::map<std::string, QSystemSemaphore*> _systemSemaphores;
 
 #define LUA_START(funcName)                                     \
-    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
-    CApiErrors::getAndClearLastWarningOrError();                \
+    CApiErrors::getAndClearLastError();                \
     std::string functionName(funcName);                         \
     std::string errorString;                                    \
     std::string warningString;                                  \
     bool cSideErrorOrWarningReporting = true;
 
 #define LUA_START_NO_CSIDE_ERROR(funcName)                      \
-    CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
-    CApiErrors::getAndClearLastWarningOrError();                \
+    CApiErrors::getAndClearLastError();                \
     std::string functionName(funcName);                         \
     std::string errorString;                                    \
     std::string warningString;                                  \
@@ -52,22 +50,16 @@ std::map<std::string, QSystemSemaphore*> _systemSemaphores;
 #define LUA_END(p)                                                                                             \
     do                                                                                                         \
     {                                                                                                          \
-        _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str(), cSideErrorOrWarningReporting); \
-        CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();                                            \
-        CApiErrors::getAndClearLastWarningOrError();                                                           \
+        _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str()); \
+        CApiErrors::getAndClearLastError();                                                           \
         return (p);                                                                                            \
     } while (0)
 
 typedef int (*_ccallback_t)(int);
 
-void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* warningString,
-                             bool cSideErrorOrWarningReporting)
+void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* warningString)
 {
-    std::string warnStr(warningString);
-    if ((warnStr.size() == 0) && cSideErrorOrWarningReporting)
-        warnStr = CApiErrors::getAndClearThreadBasedFirstCapiWarning_old(); // without old threads, use
-                                                                            // CApiErrors::getAndClearLastWarningOrError
-    if (warnStr.size() > 0)                                                 // without old threads, check and remove "warning@" in warnStr
+    if (strlen(warningString) > 0)
     {
         CScriptObject* it =
             App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
@@ -81,25 +73,21 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, con
             msg += ": in '";
             msg += functionName;
             msg += "' ";
-            msg += warnStr;
+            msg += warningString;
             App::logScriptMsg(it, verb, msg.c_str());
         }
     }
 }
 
-void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* errorString,
-                         bool cSideErrorOrWarningReporting)
+void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* errorString, bool cSideErrorOrWarningReporting)
 {
     std::string errStr(errorString);
     if ((errStr.size() == 0) && cSideErrorOrWarningReporting)
-        errStr = CApiErrors::getAndClearLastWarningOrError();
-//        errStr = CApiErrors::getAndClearThreadBasedFirstCapiError_old(); // without old threads, use
-                                                                         // CApiErrors::getAndClearLastWarningOrError
+        errStr = CApiErrors::getAndClearLastError();
     if (errStr.size() == 0)
         return;
-    // without old threads, filter out "warning@" in errStr
-    CScriptObject* it =
-        App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+
+    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
     int lineNumber = -1;
@@ -5133,7 +5121,7 @@ int _simSetBoolProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetBoolProperty_internal(target, pName.c_str(), pValue))
+        if (simSetBoolProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5175,7 +5163,7 @@ int _simGetBoolProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (simGetBoolProperty_internal(target, pName.c_str(), &pValue) != -1)
+        if (simGetBoolProperty_internal(target, pName.c_str(), &pValue) > 0)
         {
             luaWrap_lua_pushboolean(L, pValue != 0);
             LUA_END(1);
@@ -5211,7 +5199,7 @@ int _simSetIntProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetIntProperty_internal(target, pName.c_str(), pValue))
+        if (simSetIntProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5253,7 +5241,7 @@ int _simGetIntProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (simGetIntProperty_internal(target, pName.c_str(), &pValue) != -1)
+        if (simGetIntProperty_internal(target, pName.c_str(), &pValue) > 0)
         {
             luaWrap_lua_pushinteger(L, pValue);
             LUA_END(1);
@@ -5289,7 +5277,7 @@ int _simSetLongProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetLongProperty_internal(target, pName.c_str(), pValue))
+        if (simSetLongProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5331,7 +5319,7 @@ int _simGetLongProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (simGetLongProperty_internal(target, pName.c_str(), &pValue) != -1)
+        if (simGetLongProperty_internal(target, pName.c_str(), &pValue) > 0)
         {
             luaWrap_lua_pushinteger(L, pValue);
             LUA_END(1);
@@ -5367,7 +5355,7 @@ int _simSetFloatProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetFloatProperty_internal(target, pName.c_str(), pValue))
+        if (simSetFloatProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5409,7 +5397,7 @@ int _simGetFloatProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (simGetFloatProperty_internal(target, pName.c_str(), &pValue) != -1)
+        if (simGetFloatProperty_internal(target, pName.c_str(), &pValue) > 0)
         {
             luaWrap_lua_pushnumber(L, pValue);
             LUA_END(1);
@@ -5445,7 +5433,7 @@ int _simSetStringProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetStringProperty_internal(target, pName.c_str(), pValue.c_str()))
+        if (simSetStringProperty_internal(target, pName.c_str(), pValue.c_str()) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5486,8 +5474,9 @@ int _simGetStringProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        char* pValue = simGetStringProperty_internal(target, pName.c_str());
-        if (pValue != nullptr)
+        char* pValue = nullptr;
+        int res = simGetStringProperty_internal(target, pName.c_str(), &pValue);
+        if (res > 0)
         {
             luaWrap_lua_pushtext(L, pValue);
             delete[] pValue;
@@ -5525,7 +5514,7 @@ int _simSetTableProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetTableProperty_internal(target, pName.c_str(), pValue, pValueL))
+        if (simSetTableProperty_internal(target, pName.c_str(), pValue, pValueL) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5567,8 +5556,9 @@ int _simGetTableProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         int pValueL;
-        char* pValue = simGetTableProperty_internal(target, pName.c_str(), &pValueL);
-        if (pValue != nullptr)
+        char* pValue = nullptr;
+        int res = simGetTableProperty_internal(target, pName.c_str(), &pValue, &pValueL);
+        if (res > 0)
         {
             luaWrap_lua_pushbuffer(L, pValue, pValueL);
             delete[] pValue;
@@ -5606,7 +5596,7 @@ int _simSetBufferProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetBufferProperty_internal(target, pName.c_str(), pValue, int(pValueL)))
+        if (simSetBufferProperty_internal(target, pName.c_str(), pValue, int(pValueL)) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5648,8 +5638,9 @@ int _simGetBufferProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         int pValueL;
-        char* pValue = simGetBufferProperty_internal(target, pName.c_str(), &pValueL);
-        if (pValue != nullptr)
+        char* pValue;
+        int res = simGetBufferProperty_internal(target, pName.c_str(), &pValue, &pValueL);
+        if (res > 0)
         {
             luaWrap_lua_pushbuffer(L, pValue, size_t(pValueL));
             delete[] pValue;
@@ -5687,7 +5678,7 @@ int _simSetIntArray2Property(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetIntArray2Property_internal(target, pName.c_str(), pValue))
+        if (simSetIntArray2Property_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5729,7 +5720,7 @@ int _simGetIntArray2Property(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         int pValue[2];
-        if (simGetIntArray2Property_internal(target, pName.c_str(), pValue) != -1)
+        if (simGetIntArray2Property_internal(target, pName.c_str(), pValue) > 0)
         {
             pushIntTableOntoStack(L, 2, pValue);
             LUA_END(1);
@@ -5766,7 +5757,7 @@ int _simSetVector2Property(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetVector2Property_internal(target, pName.c_str(), pValue))
+        if (simSetVector2Property_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5808,7 +5799,7 @@ int _simGetVector2Property(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         double pValue[2];
-        if (simGetVector2Property_internal(target, pName.c_str(), pValue) != -1)
+        if (simGetVector2Property_internal(target, pName.c_str(), pValue) > 0)
         {
             pushDoubleTableOntoStack(L, 2, pValue);
             LUA_END(1);
@@ -5845,7 +5836,7 @@ int _simSetVector3Property(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetVector3Property_internal(target, pName.c_str(), pValue))
+        if (simSetVector3Property_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5887,7 +5878,7 @@ int _simGetVector3Property(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         double pValue[3];
-        if (simGetVector3Property_internal(target, pName.c_str(), pValue) != -1)
+        if (simGetVector3Property_internal(target, pName.c_str(), pValue) > 0)
         {
             pushDoubleTableOntoStack(L, 3, pValue);
             LUA_END(1);
@@ -5924,7 +5915,7 @@ int _simSetQuaternionProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetQuaternionProperty_internal(target, pName.c_str(), pValue))
+        if (simSetQuaternionProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -5966,7 +5957,7 @@ int _simGetQuaternionProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         double pValue[4];
-        if (simGetQuaternionProperty_internal(target, pName.c_str(), pValue) != -1)
+        if (simGetQuaternionProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             pushDoubleTableOntoStack(L, 4, pValue);
             LUA_END(1);
@@ -6003,7 +5994,7 @@ int _simSetPoseProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetPoseProperty_internal(target, pName.c_str(), pValue))
+        if (simSetPoseProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -6045,7 +6036,7 @@ int _simGetPoseProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         double pValue[7];
-        if (simGetPoseProperty_internal(target, pName.c_str(), pValue) != -1)
+        if (simGetPoseProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             pushDoubleTableOntoStack(L, 7, pValue);
             LUA_END(1);
@@ -6082,7 +6073,7 @@ int _simSetColorProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetColorProperty_internal(target, pName.c_str(), pValue))
+        if (simSetColorProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -6124,7 +6115,7 @@ int _simGetColorProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         float pValue[3];
-        if (simGetColorProperty_internal(target, pName.c_str(), pValue) != -1)
+        if (simGetColorProperty_internal(target, pName.c_str(), pValue) > 0)
         {
             pushFloatTableOntoStack(L, 3, pValue);
             LUA_END(1);
@@ -6163,7 +6154,7 @@ int _simSetFloatArrayProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetFloatArrayProperty_internal(target, pName.c_str(), v.data(), cnt))
+        if (simSetFloatArrayProperty_internal(target, pName.c_str(), v.data(), cnt) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -6205,8 +6196,9 @@ int _simGetFloatArrayProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         int pValueL;
-        double* pValue = simGetFloatArrayProperty_internal(target, pName.c_str(), &pValueL);
-        if (pValue != nullptr)
+        double* pValue = nullptr;
+        int res = simGetFloatArrayProperty_internal(target, pName.c_str(), &pValue, &pValueL);
+        if (res > 0)
         {
             pushDoubleTableOntoStack(L, pValueL, pValue);
             delete[] pValue;
@@ -6246,7 +6238,7 @@ int _simSetIntArrayProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (1 == simSetIntArrayProperty_internal(target, pName.c_str(), v.data(), cnt))
+        if (simSetIntArrayProperty_internal(target, pName.c_str(), v.data(), cnt) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -6288,8 +6280,9 @@ int _simGetIntArrayProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         int pValueL;
-        int* pValue = simGetIntArrayProperty_internal(target, pName.c_str(), &pValueL);
-        if (pValue != nullptr)
+        int* pValue = nullptr;
+        int res = simGetIntArrayProperty_internal(target, pName.c_str(), &pValue, &pValueL);
+        if (res > 0)
         {
             pushIntTableOntoStack(L, pValueL, pValue);
             delete[] pValue;

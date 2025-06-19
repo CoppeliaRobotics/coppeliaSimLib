@@ -3883,8 +3883,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             else
                 it->setLocalTransformation(cmd.transfParams[0]);
             if (!App::currentWorld->simulation->isSimulationStopped())
-                simResetDynamicObject_internal(it->getObjectHandle() |
-                                               sim_handleflag_model); // so that we can also manipulate dynamic objects
+                CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, it->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
         }
     }
     if (cmd.cmdId == APPLY_POS_POSITIONTRANSLATIONGUITRIGGEREDCMD)
@@ -3918,8 +3917,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 else
                     it->setLocalTransformation(trIt);
                 if (!App::currentWorld->simulation->isSimulationStopped())
-                    simResetDynamicObject_internal(
-                        it->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
+                    CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, it->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
             }
         }
     }
@@ -3992,8 +3990,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 tr = masterObj->getFullParentCumulativeTransformation().getInverse() * tr;
             masterObj->setLocalTransformation(tr);
             if (!App::currentWorld->simulation->isSimulationStopped())
-                simResetDynamicObject_internal(masterObj->getObjectHandle() |
-                                               sim_handleflag_model); // so that we can also manipulate dynamic objects
+                CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, masterObj->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
 
             // Now move the "slaves" appropriately:
             C7Vector newTr(masterObj->getCumulativeTransformation());
@@ -4005,9 +4002,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 C7Vector parentTr = obj->getFullParentCumulativeTransformation();
                 obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
                 if (!App::currentWorld->simulation->isSimulationStopped())
-                    simResetDynamicObject_internal(
-                        obj->getObjectHandle() |
-                        sim_handleflag_model); // so that we can also manipulate dynamic objects
+                    CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, obj->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
             }
         }
     }
@@ -4037,8 +4032,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 else
                     it->setLocalTransformation(trIt);
                 if (!App::currentWorld->simulation->isSimulationStopped())
-                    simResetDynamicObject_internal(
-                        it->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
+                    CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, it->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
             }
         }
     }
@@ -4095,8 +4089,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 tr = masterObj->getFullParentCumulativeTransformation().getInverse() * tr;
             masterObj->setLocalTransformation(tr);
             if (!App::currentWorld->simulation->isSimulationStopped())
-                simResetDynamicObject_internal(masterObj->getObjectHandle() |
-                                               sim_handleflag_model); // so that we can also manipulate dynamic objects
+                CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, masterObj->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
 
             // Now rotate the "slaves":
             C7Vector newTr(masterObj->getCumulativeTransformation());
@@ -4108,9 +4101,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 C7Vector parentTr = obj->getFullParentCumulativeTransformation();
                 obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
                 if (!App::currentWorld->simulation->isSimulationStopped())
-                    simResetDynamicObject_internal(
-                        obj->getObjectHandle() |
-                        sim_handleflag_model); // so that we can also manipulate dynamic objects
+                    CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, obj->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
             }
         }
     }
@@ -4700,10 +4691,9 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         int intParams[8] = {0, 0, 0, 0, 0, 0, 0, 0};
         double floatParams[15] = {nearClipp, 999999.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0};
-        int psh = simCreateProximitySensor_internal(
-            sim_proximitysensor_ray, sim_objectspecialproperty_detectable, 0, intParams, floatParams, nullptr);
-        simSetObjectPosition_internal(psh, cameraHandle, transf.X.data);
-        simSetObjectOrientation_internal(psh, cameraHandle, transf.Q.getEulerAngles().data);
+        int psh = CALL_C_API_CLEAR_ERRORS(simCreateProximitySensor, sim_proximitysensor_ray, sim_objectspecialproperty_detectable, 0, intParams, floatParams, nullptr);
+        CALL_C_API_CLEAR_ERRORS(simSetObjectPosition, psh, cameraHandle, transf.X.data);
+        CALL_C_API_CLEAR_ERRORS(simSetObjectOrientation, psh, cameraHandle, transf.Q.getEulerAngles().data);
         int displayAttrib = sim_displayattribute_renderpass;
         if (App::currentWorld->simulation->getDynamicContentVisualizationOnly())
             displayAttrib |= sim_displayattribute_dynamiccontentonly;
@@ -4727,7 +4717,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         C7Vector sensTr(prox->getFullCumulativeTransformation());
         pt *= sensTr;
         triNormal = sensTr.Q * triNormal;
-        simRemoveObject_internal(psh);
+        CALL_C_API_CLEAR_ERRORS(simRemoveObject, psh);
 
         // Now generate a script message:
         double ptdata[6] = {pt(0), pt(1), pt(2), triNormal(0), triNormal(1), triNormal(2)};

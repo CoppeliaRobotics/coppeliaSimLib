@@ -231,11 +231,11 @@ SIM_DLLEXPORT int simGetLongProperty(long long int target, const char* pName, lo
 SIM_DLLEXPORT int simSetFloatProperty(long long int target, const char* pName, double pState);
 SIM_DLLEXPORT int simGetFloatProperty(long long int target, const char* pName, double* pState);
 SIM_DLLEXPORT int simSetStringProperty(long long int target, const char* pName, const char* pState);
-SIM_DLLEXPORT char* simGetStringProperty(long long int target, const char* pName);
+SIM_DLLEXPORT int simGetStringProperty2(long long int target, const char* pName, char** pState);
 SIM_DLLEXPORT int simSetTableProperty(long long int target, const char* pName, const char* buffer, int bufferL);
-SIM_DLLEXPORT char* simGetTableProperty(long long int target, const char* pName, int* bufferL);
+SIM_DLLEXPORT int simGetTableProperty2(long long int target, const char* pName, char** buffer, int* bufferL);
 SIM_DLLEXPORT int simSetBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
-SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName, int* bufferL);
+SIM_DLLEXPORT int simGetBufferProperty2(long long int target, const char* pName, char** buffer, int* bufferL);
 SIM_DLLEXPORT int simSetIntArray2Property(long long int target, const char* pName, const int* pState);
 SIM_DLLEXPORT int simGetIntArray2Property(long long int target, const char* pName, int* pState);
 SIM_DLLEXPORT int simSetVector2Property(long long int target, const char* pName, const double* pState);
@@ -249,9 +249,9 @@ SIM_DLLEXPORT int simGetPoseProperty(long long int target, const char* pName, do
 SIM_DLLEXPORT int simSetColorProperty(long long int target, const char* pName, const float* pState);
 SIM_DLLEXPORT int simGetColorProperty(long long int target, const char* pName, float* pState);
 SIM_DLLEXPORT int simSetFloatArrayProperty(long long int target, const char* pName, const double* v, int vL);
-SIM_DLLEXPORT double* simGetFloatArrayProperty(long long int target, const char* pName, int* vL);
+SIM_DLLEXPORT int simGetFloatArrayProperty2(long long int target, const char* pName, double** v, int* vL);
 SIM_DLLEXPORT int simSetIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
-SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pName, int* vL);
+SIM_DLLEXPORT int simGetIntArrayProperty2(long long int target, const char* pName, int** v, int* vL);
 SIM_DLLEXPORT int simRemoveProperty(long long int target, const char* pName);
 SIM_DLLEXPORT char* simGetPropertyName(long long int target, int index, SPropertyOptions* options);
 SIM_DLLEXPORT int simGetPropertyInfo(long long int target, const char*, SPropertyInfo* infos, SPropertyOptions* options);

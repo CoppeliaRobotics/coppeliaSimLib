@@ -6732,7 +6732,7 @@ int _simRegisterScriptFunction(luaWrap_lua_State* L)
             if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
             {
                 delete newFunction;
-                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
+                CApiErrors::setLastError(__func__, SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
                 retVal = -1;
             }
         }

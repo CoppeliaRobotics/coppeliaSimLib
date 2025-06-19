@@ -326,7 +326,7 @@ void CPluginContainer::unloadLegacyPlugins()
     for (int i = int(_allPlugins.size()) - 1; i >= 0; i--)
     {
         if (_allPlugins[i]->isLegacyPlugin())
-            simUnloadModule_internal(_allPlugins[i]->getHandle());
+            CALL_C_API_CLEAR_ERRORS(simUnloadModule, _allPlugins[i]->getHandle());
     }
 }
 
@@ -3857,7 +3857,7 @@ bool CPluginContainer::customUi_fileDialog(int type, const char* title, const ch
                 files.assign(res);
                 retVal = true;
             }
-            simReleaseBuffer_internal(res);
+            CALL_C_API_CLEAR_ERRORS(simReleaseBuffer, res);
         }
     }
     return (retVal);

@@ -411,22 +411,22 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     int dataSize;
     while (messageID != -1)
     {
-        char* data = simGetSimulatorMessage_internal(&messageID, auxValues, &dataSize);
+        char* data = CALL_C_API_CLEAR_ERRORS(simGetSimulatorMessage, &messageID, auxValues, &dataSize);
         if (messageID != -1)
         {
             if (messageID == sim_message_simulation_start_resume_request)
-                simStartSimulation_internal();
+                CALL_C_API_CLEAR_ERRORS(simStartSimulation);
             if (messageID == sim_message_simulation_pause_request)
-                simPauseSimulation_internal();
+                CALL_C_API_CLEAR_ERRORS(simPauseSimulation);
             if (messageID == sim_message_simulation_stop_request)
-                simStopSimulation_internal();
+                CALL_C_API_CLEAR_ERRORS(simStopSimulation);
             if (data != NULL)
-                simReleaseBuffer_internal(data);
+                CALL_C_API_CLEAR_ERRORS(simReleaseBuffer, data);
         }
     }
 
     // Handle a running simulation:
-    if (stepIfRunning && (simGetSimulationState_internal() & sim_simulation_advancing) != 0)
+    if (stepIfRunning && (CALL_C_API_CLEAR_ERRORS(simGetSimulationState) & sim_simulation_advancing) != 0)
     {
         if ((!App::currentWorld->simulation->getIsRealTimeSimulation()) ||
             App::currentWorld->simulation->isRealTimeCalculationStepNeeded())

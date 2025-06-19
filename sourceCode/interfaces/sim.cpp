@@ -1129,9 +1129,9 @@ SIM_DLLEXPORT int simSetStringProperty(long long int target, const char* pName, 
     return simSetStringProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT char* simGetStringProperty(long long int target, const char* pName)
+SIM_DLLEXPORT int simGetStringProperty2(long long int target, const char* pName, char** pState)
 {
-    return simGetStringProperty_internal(target, pName);
+    return simGetStringProperty_internal(target, pName, pState);
 }
 
 SIM_DLLEXPORT int simSetTableProperty(long long int target, const char* pName, const char* buffer, int bufferL)
@@ -1139,9 +1139,9 @@ SIM_DLLEXPORT int simSetTableProperty(long long int target, const char* pName, c
     return simSetTableProperty_internal(target, pName, buffer, bufferL);
 }
 
-SIM_DLLEXPORT char* simGetTableProperty(long long int target, const char* pName, int* bufferL)
+SIM_DLLEXPORT int simGetTableProperty2(long long int target, const char* pName, char** buffer, int* bufferL)
 {
-    return simGetTableProperty_internal(target, pName, bufferL);
+    return simGetTableProperty_internal(target, pName, buffer, bufferL);
 }
 
 SIM_DLLEXPORT int simSetBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL)
@@ -1149,9 +1149,9 @@ SIM_DLLEXPORT int simSetBufferProperty(long long int target, const char* pName, 
     return simSetBufferProperty_internal(target, pName, buffer, bufferL);
 }
 
-SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName, int* bufferL)
+SIM_DLLEXPORT int simGetBufferProperty2(long long int target, const char* pName, char** buffer, int* bufferL)
 {
-    return simGetBufferProperty_internal(target, pName, bufferL);
+    return simGetBufferProperty_internal(target, pName, buffer, bufferL);
 }
 
 SIM_DLLEXPORT int simSetIntArray2Property(long long int target, const char* pName, const int* pState)
@@ -1219,9 +1219,9 @@ SIM_DLLEXPORT int simSetFloatArrayProperty(long long int target, const char* pNa
     return simSetFloatArrayProperty_internal(target, pName, v, vL);
 }
 
-SIM_DLLEXPORT double* simGetFloatArrayProperty(long long int target, const char* pName, int* vL)
+SIM_DLLEXPORT int simGetFloatArrayProperty2(long long int target, const char* pName, double** v, int* vL)
 {
-    return simGetFloatArrayProperty_internal(target, pName, vL);
+    return simGetFloatArrayProperty_internal(target, pName, v, vL);
 }
 
 SIM_DLLEXPORT int simSetIntArrayProperty(long long int target, const char* pName, const int* v, int vL)
@@ -1229,9 +1229,9 @@ SIM_DLLEXPORT int simSetIntArrayProperty(long long int target, const char* pName
     return simSetIntArrayProperty_internal(target, pName, v, vL);
 }
 
-SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pName, int* vL)
+SIM_DLLEXPORT int simGetIntArrayProperty2(long long int target, const char* pName, int** v, int* vL)
 {
-    return simGetIntArrayProperty_internal(target, pName, vL);
+    return simGetIntArrayProperty_internal(target, pName, v, vL);
 }
 
 SIM_DLLEXPORT int simRemoveProperty(long long int target, const char* pName)

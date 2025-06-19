@@ -481,7 +481,7 @@ void GuiApp::_loadLegacyPlugins()
     for (size_t i = 0; i < theNames.size(); i++)
     {
         if (theDirAndNames[i].compare("") != 0)
-            simLoadModule_internal(theDirAndNames[i].c_str(), theNames[i].c_str()); // not yet loaded
+            CALL_C_API_CLEAR_ERRORS(simLoadModule, theDirAndNames[i].c_str(), theNames[i].c_str()); // not yet loaded
     }
 }
 

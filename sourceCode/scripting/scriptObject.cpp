@@ -2589,7 +2589,7 @@ bool CScriptObject::_killInterpreterState()
         signalRemoved(nn.c_str());
         utils::replaceSubstringStart(nn, "app.", "");
         utils::replaceSubstringStart(nn, "obj.", "");
-        simRemoveProperty_internal(toRem[i].second, nn.c_str());
+        CALL_C_API_CLEAR_ERRORS(simRemoveProperty, toRem[i].second, nn.c_str());
     }
     _eventFilters.clear();
 
