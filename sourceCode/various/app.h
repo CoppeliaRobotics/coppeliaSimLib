@@ -35,6 +35,9 @@
     FUNCX(propApp_consoleVerbosityStr, "consoleVerbosityStr", sim_propertytype_string, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Console verbosity string", "Console verbosity string, only for client app")         \
     FUNCX(propApp_statusbarVerbosityStr, "statusbarVerbosityStr", sim_propertytype_string, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Statusbar verbosity string", "Statusbar verbosity string, only for client app") \
     FUNCX(propApp_dialogVerbosityStr, "dialogVerbosityStr", sim_propertytype_string, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Dialog verbosity string", "Dialog verbosity string, only for client app")             \
+    FUNCX(propApp_auxAddOn1, "auxAddOn1", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "Aux. add-on 1", "Auxiliary add-on 1")             \
+    FUNCX(propApp_auxAddOn2, "auxAddOn2", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "Aux. add-on 2", "Auxiliary add-on 2")             \
+    FUNCX(propApp_startupCode, "startupCode", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "Start-up code", "")             \
     FUNCX(propApp_defaultTranslationStepSize, "defaultTranslationStepSize", sim_propertytype_float, 0, "Translation step size", "Default translation step size")                                                                              \
     FUNCX(propApp_defaultRotationStepSize, "defaultRotationStepSize", sim_propertytype_float, 0, "Rotation step size", "Default rotation step size")                                                                                          \
     FUNCX(propApp_hierarchyEnabled, "hierarchyEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, "Hierarchy enabled", "")                                                                                                    \

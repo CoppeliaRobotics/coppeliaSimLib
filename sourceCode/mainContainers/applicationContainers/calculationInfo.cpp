@@ -284,9 +284,6 @@ void CCalculationInfo::printInformation()
                 App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                     "Last selected object alias:";
                 tmp = it->getObjectAlias_printPath();
-                tmp += "    (deprecated name:";
-                tmp += it->getObjectName_old();
-                tmp += ")";
                 App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
 
                 App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Last selected object type:";

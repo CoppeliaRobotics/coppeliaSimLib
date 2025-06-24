@@ -1898,6 +1898,21 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
                 setStringVerbosity(2, pState);
                 retVal = 1;
             }
+            else if (strcmp(pName, propApp_auxAddOn1.name) == 0)
+            {
+                setAdditionalAddOnScript1(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_auxAddOn2.name) == 0)
+            {
+                setAdditionalAddOnScript2(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_startupCode.name) == 0)
+            {
+                setStartupScriptString(pState);
+                retVal = 1;
+            }
             else if (strcmp(pName, propApp_appArg1.name) == 0)
             {
                 setApplicationArgument(0, pState);
@@ -2215,6 +2230,21 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
             else if (strcmp(pName, propApp_randomString.name) == 0)
             {
                 pState = utils::generateUniqueAlphaNumericString();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_auxAddOn1.name) == 0)
+            {
+                pState = getAdditionalAddOnScript1();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_auxAddOn2.name) == 0)
+            {
+                pState = getAdditionalAddOnScript2();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_startupCode.name) == 0)
+            {
+                pState = _startupScriptString;
                 retVal = 1;
             }
         }

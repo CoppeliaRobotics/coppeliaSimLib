@@ -6007,6 +6007,11 @@ int CSceneObject::setStringProperty(const char* ppName, const char* pState)
         App::currentWorld->sceneObjects->setObjectAlias(this, pState, false);
         retVal = 1;
     }
+    else if (_pName == propObject_deprecatedName.name)
+    {
+        setObjectName_direct_old(pState);
+        retVal = 1;
+    }
     else if (_pName == propObject_modelAcknowledgment.name)
     {
         setModelAcknowledgement(pState);
@@ -6026,6 +6031,11 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
     {
         retVal = 1;
         pState = _objectAlias;
+    }
+    else if (_pName == propObject_deprecatedName.name)
+    {
+        retVal = 1;
+        pState = getObjectName_old();
     }
     else if (_pName == propObject_objectType.name)
     {

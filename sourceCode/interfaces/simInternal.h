@@ -6,25 +6,31 @@
 #include <string>
 #include <vector>
 #include <apiErrors.h>
-/*
-#define CALL_C_API(func, ...) ({ \
-    typeof(func(__VA_ARGS__)) result = func(__VA_ARGS__); \
-    CApiErrors::getAndClearLastError(); \
-    result; \
-})
-*/
+
 #define CALL_C_API_CLEAR_ERRORS(func, ...) \
-    ([&]() -> decltype(func##_internal(__VA_ARGS__)) { \
-        auto result = func##_internal(__VA_ARGS__); \
-        CApiErrors::getAndClearLastError(); \
-        return result; \
-    }())
+    [&]() -> decltype(func##_internal(__VA_ARGS__)) { \
+        using ReturnType = decltype(func##_internal(__VA_ARGS__)); \
+        if constexpr (!std::is_void_v<ReturnType>) { \
+            auto result = func##_internal(__VA_ARGS__); \
+            CApiErrors::getAndClearLastError(); \
+            return result; \
+        } else { \
+            func##_internal(__VA_ARGS__); \
+            CApiErrors::getAndClearLastError(); \
+            return; \
+        } \
+    }()
 
 #define CALL_C_API(func, ...) \
-    ([&]() -> decltype(func##_internal(__VA_ARGS__)) { \
-        auto result = func##_internal(__VA_ARGS__); \
-        return result; \
-    }())
+    [&]() -> decltype(func##_internal(__VA_ARGS__)) { \
+        using ReturnType = decltype(func##_internal(__VA_ARGS__)); \
+        if constexpr (!std::is_void_v<ReturnType>) { \
+            return func##_internal(__VA_ARGS__); \
+        } else { \
+            func##_internal(__VA_ARGS__); \
+            return; \
+        } \
+    }()
 
 void setCurrentScriptInfo_cSide(int scriptHandle, int scriptNameIndex);
 int getCurrentScriptNameIndex_cSide();

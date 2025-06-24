@@ -425,7 +425,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
             if (res != 2)
             { // Modal dlg
                 int various[4];
-                char* outText = simOpenTextEditor_internal(initText.c_str(), _xml, various);
+                char* outText = CALL_C_API(simOpenTextEditor, initText.c_str(), _xml, various);
                 if (outText != nullptr)
                 {
                     luaWrap_lua_pushtext(L, outText);
@@ -506,7 +506,7 @@ int _simHandleVarious(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simHandleVarious");
 
-    int retVal = simHandleVarious_internal();
+    int retVal = CALL_C_API(simHandleVarious, );
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -530,7 +530,7 @@ int _simResetPath(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simResetPath_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simResetPath, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -544,7 +544,7 @@ int _simResetJoint(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simResetJoint_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simResetJoint, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1365,7 +1365,7 @@ int _simJointGetForce(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double jointF[1];
-        if (simGetJointForce_internal(luaToInt(L, 1), jointF) > 0)
+        if (CALL_C_API(simGetJointForce, luaToInt(L, 1), jointF) > 0)
         {
             luaWrap_lua_pushnumber(L, jointF[0]);
             LUA_END(1);
@@ -1381,7 +1381,7 @@ int _simCopyPasteSelectedObjects(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simCopyPasteSelectedObjects");
 
-    int retVal = simCopyPasteSelectedObjects_internal();
+    int retVal = CALL_C_API(simCopyPasteSelectedObjects, );
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1410,7 +1410,7 @@ int _simGetPathPlanningHandle(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simGetPathPlanningHandle_internal(name.c_str());
+        retVal = CALL_C_API(simGetPathPlanningHandle, name.c_str());
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -1475,7 +1475,7 @@ int _simInitializePathSearch(luaWrap_lua_State* L)
         int pathPlanningObjectHandle = luaToInt(L, 1);
         double maximumSearchTime = luaToDouble(L, 2);
         double searchTimeStep = luaToDouble(L, 3);
-        retVal = simInitializePathSearch_internal(pathPlanningObjectHandle, maximumSearchTime, searchTimeStep);
+        retVal = CALL_C_API(simInitializePathSearch, pathPlanningObjectHandle, maximumSearchTime, searchTimeStep);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -1493,7 +1493,7 @@ int _simPerformPathSearchStep(luaWrap_lua_State* L)
     {
         int temporaryPathSearchObjectHandle = luaToInt(L, 1);
         bool abortSearch = luaToBool(L, 2);
-        retVal = simPerformPathSearchStep_internal(temporaryPathSearchObjectHandle, abortSearch);
+        retVal = CALL_C_API(simPerformPathSearchStep, temporaryPathSearchObjectHandle, abortSearch);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -1525,7 +1525,7 @@ int _simGetInvertedMatrix(luaWrap_lua_State* L)
     {
         double arr[12];
         getDoublesFromTable(L, 1, 12, arr);
-        simInvertMatrix_internal(arr);
+        CALL_C_API(simInvertMatrix, arr);
         pushDoubleTableOntoStack(L, 12, arr);
         LUA_END(1);
     }
@@ -1545,7 +1545,7 @@ int _simAddSceneCustomData(luaWrap_lua_State* L)
         int headerNumber = luaToInt(L, 1);
         size_t dataLength;
         char* data = (char*)luaWrap_lua_tobuffer(L, 2, &dataLength);
-        retVal = simAddSceneCustomData_internal(headerNumber, data, (int)dataLength);
+        retVal = CALL_C_API(simAddSceneCustomData, headerNumber, data, (int)dataLength);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -1561,11 +1561,11 @@ int _simGetSceneCustomData(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int headerNumber = luaToInt(L, 1);
-        int dataLength = simGetSceneCustomDataLength_internal(headerNumber);
+        int dataLength = CALL_C_API(simGetSceneCustomDataLength, headerNumber);
         if (dataLength >= 0)
         {
             char* data = new char[dataLength];
-            int retVal = simGetSceneCustomData_internal(headerNumber, data);
+            int retVal = CALL_C_API(simGetSceneCustomData, headerNumber, data);
             if (retVal == -1)
                 delete[] data;
             else
@@ -1593,7 +1593,7 @@ int _simAddObjectCustomData(luaWrap_lua_State* L)
         int headerNumber = luaToInt(L, 2);
         size_t dataLength;
         char* data = (char*)luaWrap_lua_tobuffer(L, 3, &dataLength);
-        retVal = simAddObjectCustomData_internal(objectHandle, headerNumber, data, (int)dataLength);
+        retVal = CALL_C_API(simAddObjectCustomData, objectHandle, headerNumber, data, (int)dataLength);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -1610,11 +1610,11 @@ int _simGetObjectCustomData(luaWrap_lua_State* L)
     {
         int objectHandle = luaToInt(L, 1);
         int headerNumber = luaToInt(L, 2);
-        int dataLength = simGetObjectCustomDataLength_internal(objectHandle, headerNumber);
+        int dataLength = CALL_C_API(simGetObjectCustomDataLength, objectHandle, headerNumber);
         if (dataLength >= 0)
         {
             char* data = new char[dataLength];
-            int retVal = simGetObjectCustomData_internal(objectHandle, headerNumber, data);
+            int retVal = CALL_C_API(simGetObjectCustomData, objectHandle, headerNumber, data);
             if (retVal == -1)
                 delete[] data;
             else
@@ -1643,7 +1643,7 @@ int _simGetUIHandle(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simGetUIHandle_internal(name.c_str());
+        retVal = CALL_C_API(simGetUIHandle, name.c_str());
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -1659,7 +1659,7 @@ int _simGetUIProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetUIProperty_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simGetUIProperty, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1675,7 +1675,7 @@ int _simGetUIEventButton(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int auxVals[2];
-        retVal = simGetUIEventButton_internal(luaToInt(L, 1), auxVals);
+        retVal = CALL_C_API(simGetUIEventButton, luaToInt(L, 1), auxVals);
         luaWrap_lua_pushinteger(L, retVal);
         if (retVal == -1)
         {
@@ -1697,7 +1697,7 @@ int _simSetUIProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetUIProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simSetUIProperty, luaToInt(L, 1), luaToInt(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1712,7 +1712,7 @@ int _simGetUIButtonSize(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         int size[2];
-        if (simGetUIButtonSize_internal(luaToInt(L, 1), luaToInt(L, 2), size) == 1)
+        if (CALL_C_API(simGetUIButtonSize, luaToInt(L, 1), luaToInt(L, 2), size) == 1)
         {
             pushIntTableOntoStack(L, 2, size);
             LUA_END(1);
@@ -1730,7 +1730,7 @@ int _simGetUIButtonProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simGetUIButtonProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simGetUIButtonProperty, luaToInt(L, 1), luaToInt(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1744,7 +1744,7 @@ int _simSetUIButtonProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetUIButtonProperty_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3));
+        retVal = CALL_C_API(simSetUIButtonProperty, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1758,7 +1758,7 @@ int _simGetUISlider(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simGetUISlider_internal(luaToInt(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simGetUISlider, luaToInt(L, 1), luaToInt(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1772,7 +1772,7 @@ int _simSetUISlider(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetUISlider_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3));
+        retVal = CALL_C_API(simSetUISlider, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1807,7 +1807,7 @@ int _simSetUIButtonLabel(luaWrap_lua_State* L)
                     strb = luaWrap_lua_tostring(L, 4);
                     str2 = (char*)strb.c_str();
                 }
-                retVal = simSetUIButtonLabel_internal(luaToInt(L, 1), luaToInt(L, 2), str1, str2);
+                retVal = CALL_C_API(simSetUIButtonLabel, luaToInt(L, 1), luaToInt(L, 2), str1, str2);
             }
         }
     }
@@ -1824,11 +1824,11 @@ int _simGetUIButtonLabel(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
-        char* label = simGetUIButtonLabel_internal(luaToInt(L, 1), luaToInt(L, 2));
+        char* label = CALL_C_API(simGetUIButtonLabel, luaToInt(L, 1), luaToInt(L, 2));
         if (label != nullptr)
         {
             luaWrap_lua_pushtext(L, label);
-            simReleaseBuffer_internal(label);
+            CALL_C_API(simReleaseBuffer, label);
             LUA_END(1);
         }
     }
@@ -1844,7 +1844,7 @@ int _simCreateUIButtonArray(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simCreateUIButtonArray_internal(luaToInt(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simCreateUIButtonArray, luaToInt(L, 1), luaToInt(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1864,7 +1864,7 @@ int _simSetUIButtonArrayColor(luaWrap_lua_State* L)
         float col[3];
         getIntsFromTable(L, 3, 2, pos);
         getFloatsFromTable(L, 4, 3, col);
-        retVal = simSetUIButtonArrayColor_internal(luaToInt(L, 1), luaToInt(L, 2), pos, col);
+        retVal = CALL_C_API(simSetUIButtonArrayColor, luaToInt(L, 1), luaToInt(L, 2), pos, col);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -1879,7 +1879,7 @@ int _simDeleteUIButtonArray(luaWrap_lua_State* L)
     int retVal = -1; // error
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simDeleteUIButtonArray_internal(luaToInt(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simDeleteUIButtonArray, luaToInt(L, 1), luaToInt(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -1908,7 +1908,7 @@ int _simCreateUI(luaWrap_lua_State* L)
         }
         int* buttonHandles = new int[b];
         menuAttributes = (menuAttributes | sim_ui_menu_systemblock) - sim_ui_menu_systemblock;
-        retVal = simCreateUI_internal(luaWrap_lua_tostring(L, 1), menuAttributes, clientSize, cellSize, buttonHandles);
+        retVal = CALL_C_API(simCreateUI, luaWrap_lua_tostring(L, 1), menuAttributes, clientSize, cellSize, buttonHandles);
         if (retVal != -1)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -1937,7 +1937,7 @@ int _simCreateUIButton(luaWrap_lua_State* L)
         int size[2];
         getIntsFromTable(L, 2, 2, pos);
         getIntsFromTable(L, 3, 2, size);
-        retVal = simCreateUIButton_internal(luaToInt(L, 1), pos, size, luaToInt(L, 4));
+        retVal = CALL_C_API(simCreateUIButton, luaToInt(L, 1), pos, size, luaToInt(L, 4));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -1958,13 +1958,13 @@ int _simSaveUI(luaWrap_lua_State* L)
         if (res2 == 2)
         {
             if (res == 1)
-                retVal = simSaveUI_internal(0, nullptr, luaWrap_lua_tostring(L, 2));
+                retVal = CALL_C_API(simSaveUI, 0, nullptr, luaWrap_lua_tostring(L, 2));
             else
             {
                 int tl = int(luaWrap_lua_rawlen(L, 1));
                 int* tble = new int[tl];
                 getIntsFromTable(L, 1, tl, tble);
-                retVal = simSaveUI_internal(tl, tble, luaWrap_lua_tostring(L, 2));
+                retVal = CALL_C_API(simSaveUI, tl, tble, luaWrap_lua_tostring(L, 2));
                 delete[] tble;
             }
         }
@@ -1989,7 +1989,7 @@ int _simRemoveUI(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simRemoveUI_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simRemoveUI, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -2004,7 +2004,7 @@ int _simGetUIPosition(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int position[2];
-        if (simGetUIPosition_internal(luaToInt(L, 1), position) != -1)
+        if (CALL_C_API(simGetUIPosition, luaToInt(L, 1), position) != -1)
         {
             pushIntTableOntoStack(L, 2, position);
             LUA_END(1);
@@ -2025,7 +2025,7 @@ int _simSetUIPosition(luaWrap_lua_State* L)
     {
         int position[2];
         getIntsFromTable(L, 2, 2, position);
-        retVal = simSetUIPosition_internal(luaToInt(L, 1), position);
+        retVal = CALL_C_API(simSetUIPosition, luaToInt(L, 1), position);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -2064,7 +2064,7 @@ int _simSetUIButtonColor(luaWrap_lua_State* L)
                         if (acp[i] != nullptr)
                             getFloatsFromTable(L, 3 + i, 3, acp[i]);
                     }
-                    retVal = simSetUIButtonColor_internal(luaToInt(L, 1), luaToInt(L, 2), acp[0], acp[1], acp[2]);
+                    retVal = CALL_C_API(simSetUIButtonColor, luaToInt(L, 1), luaToInt(L, 2), acp[0], acp[1], acp[2]);
                 }
             }
         }
@@ -2100,7 +2100,7 @@ int _simScaleSelectedObjects(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_bool, 0))
-        retVal = simScaleSelectedObjects_internal(luaToDouble(L, 1), luaToBool(L, 2));
+        retVal = CALL_C_API(simScaleSelectedObjects, luaToDouble(L, 1), luaToBool(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -2112,7 +2112,7 @@ int _simDeleteSelectedObjects(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simDeleteSelectedObjects");
 
-    int retVal = simDeleteSelectedObjects_internal();
+    int retVal = CALL_C_API(simDeleteSelectedObjects, );
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -2137,7 +2137,7 @@ int _simGetShapeVertex(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
     {
         double relPos[3];
-        retVal = simGetShapeVertex_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), relPos);
+        retVal = CALL_C_API(simGetShapeVertex, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), relPos);
         if (retVal == 1)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -2161,7 +2161,7 @@ int _simGetShapeTriangle(luaWrap_lua_State* L)
     {
         int indices[3];
         double normals[9];
-        retVal = simGetShapeTriangle_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), indices, normals);
+        retVal = CALL_C_API(simGetShapeTriangle, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), indices, normals);
         if (retVal == 1)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -2185,7 +2185,7 @@ int _simGetMaterialId(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         std::string matName(luaWrap_lua_tostring(L, 1));
-        retVal = simGetMaterialId_internal(matName.c_str());
+        retVal = CALL_C_API(simGetMaterialId, matName.c_str());
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -2202,7 +2202,7 @@ int _simGetShapeMaterial(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int shapeHandle = luaToInt(L, 1);
-        retVal = simGetShapeMaterial_internal(shapeHandle);
+        retVal = CALL_C_API(simGetShapeMaterial, shapeHandle);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -2222,7 +2222,7 @@ int _simReleaseScriptRawBuffer(luaWrap_lua_State* L)
         if (handle == sim_handle_self)
             handle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         if ((handle != sim_handle_tree) && (handle != sim_handle_chain))
-            retVal = simReleaseScriptRawBuffer_internal(handle, luaToInt(L, 2));
+            retVal = CALL_C_API(simReleaseScriptRawBuffer, handle, luaToInt(L, 2));
         else
         {
             std::vector<int> scriptHandles;
@@ -2231,7 +2231,7 @@ int _simReleaseScriptRawBuffer(luaWrap_lua_State* L)
             else
                 getScriptChain_old(L, false, false, scriptHandles);
             for (int i = 0; i < int(scriptHandles.size()); i++)
-                retVal = simReleaseScriptRawBuffer_internal(scriptHandles[i], sim_handle_all);
+                retVal = CALL_C_API(simReleaseScriptRawBuffer, scriptHandles[i], sim_handle_all);
         }
     }
 
@@ -2245,7 +2245,7 @@ int _simGetObjectSelectionSize(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simGetObjectSelectionSize");
 
-    int retVal = simGetObjectSelectionSize_internal();
+    int retVal = CALL_C_API(simGetObjectSelectionSize, );
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -2257,7 +2257,7 @@ int _simGetObjectLastSelection(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("simGetObjectLastSelection");
 
-    int retVal = simGetObjectLastSelection_internal();
+    int retVal = CALL_C_API(simGetObjectLastSelection, );
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -2343,7 +2343,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                 if ((handle != sim_handle_tree) && (handle != sim_handle_chain) && (handle != sim_handle_all))
                 {
                     int l;
-                    char* p = simGetScriptSimulationParameter_internal(handle, parameterName.c_str(), &l);
+                    char* p = CALL_C_API(simGetScriptSimulationParameter, handle, parameterName.c_str(), &l);
                     if (p != nullptr)
                     {
                         std::string a;
@@ -2352,7 +2352,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                             luaWrap_lua_pushbinarystring(L, a.c_str(), a.length()); // push binary string for backw. comp.
                         else
                             pushCorrectTypeOntoLuaStack_old(L, a);
-                        simReleaseBuffer_internal(p);
+                        CALL_C_API(simReleaseBuffer, p);
                         LUA_END(1);
                     }
                 }
@@ -2421,7 +2421,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
             char* parameterValue = (char*)luaWrap_lua_tobuffer(L, 3, &parameterValueLength);
             if ((handle != sim_handle_tree) && (handle != sim_handle_chain))
             {
-                retVal = simSetScriptSimulationParameter_internal(handle, parameterName.c_str(), parameterValue,
+                retVal = CALL_C_API(simSetScriptSimulationParameter, handle, parameterName.c_str(), parameterValue,
                                                                   (int)parameterValueLength);
             }
             else
@@ -2434,7 +2434,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
                 retVal = 0;
                 for (size_t i = 0; i < scriptHandles.size(); i++)
                 {
-                    if (simSetScriptSimulationParameter_internal(scriptHandles[i], parameterName.c_str(),
+                    if (CALL_C_API(simSetScriptSimulationParameter, scriptHandles[i], parameterName.c_str(),
                                                                  parameterValue, (int)parameterValueLength) == 1)
                         retVal++;
                 }
@@ -2466,7 +2466,7 @@ int _simSetPathTargetNominalVelocity(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetPathTargetNominalVelocity_internal(luaToInt(L, 1), luaToDouble(L, 2));
+        retVal = CALL_C_API(simSetPathTargetNominalVelocity, luaToInt(L, 1), luaToDouble(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -2541,7 +2541,7 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L, &errorString, lua_arg_string, 0))
             {
-                // retVal=simAddStatusbarMessage_internal(luaWrap_lua_tostring(L,1));
+                // retVal=CALL_C_API(simAddStatusbarMessage, luaWrap_lua_tostring(L,1));
                 CScriptObject* it =
                     App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 if (it != nullptr)
@@ -2583,7 +2583,7 @@ int _simSetShapeMassAndInertia(luaWrap_lua_State* L)
                 getDoublesFromTable(L, 5, 12, transformation);
                 transf = transformation;
             }
-            result = simSetShapeMassAndInertia_internal(handle, mass, inertiaMatrix, centerOfMass, transf);
+            result = CALL_C_API(simSetShapeMassAndInertia, handle, mass, inertiaMatrix, centerOfMass, transf);
         }
     }
 
@@ -2613,7 +2613,7 @@ int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
             double mass;
             double inertiaMatrix[9];
             double centerOfMass[3];
-            int result = simGetShapeMassAndInertia_internal(handle, &mass, inertiaMatrix, centerOfMass, transf);
+            int result = CALL_C_API(simGetShapeMassAndInertia, handle, &mass, inertiaMatrix, centerOfMass, transf);
             if (result == -1)
                 luaWrap_lua_pushnil(L);
             luaWrap_lua_pushnumber(L, mass);
@@ -2894,7 +2894,7 @@ int _simCheckIkGroup(luaWrap_lua_State* L)
                     jointOptionsP = &jointOptions[0];
                 }
 
-                int retVal = simCheckIkGroup_internal(luaToInt(L, 1), jointCnt, handles, values, jointOptionsP);
+                int retVal = CALL_C_API(simCheckIkGroup, luaToInt(L, 1), jointCnt, handles, values, jointOptionsP);
                 luaWrap_lua_pushinteger(L, retVal);
                 pushDoubleTableOntoStack(L, jointCnt, values);
                 delete[] values;
@@ -2938,7 +2938,7 @@ int _simCreateIkGroup(luaWrap_lua_State* L)
                     getDoublesFromTable(L, 3, 4, floatParams);
                     floatP = floatParams;
                 }
-                retVal = simCreateIkGroup_internal(options, intP, floatP, nullptr);
+                retVal = CALL_C_API(simCreateIkGroup, options, intP, floatP, nullptr);
             }
         }
     }
@@ -2957,7 +2957,7 @@ int _simRemoveIkGroup(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int handle = luaToInt(L, 1);
-        retVal = simRemoveIkGroup_internal(handle);
+        retVal = CALL_C_API(simRemoveIkGroup, handle);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -2988,7 +2988,7 @@ int _simCreateIkElement(luaWrap_lua_State* L)
                 getDoublesFromTable(L, 4, 4, floatParams);
                 floatP = floatParams;
             }
-            retVal = simCreateIkElement_internal(ikGroup, options, intParams, floatP, nullptr);
+            retVal = CALL_C_API(simCreateIkElement, ikGroup, options, intParams, floatP, nullptr);
         }
     }
 
@@ -3006,7 +3006,7 @@ int _simExportIk(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         std::string pathAndFilename(luaWrap_lua_tostring(L, 1));
-        retVal = simExportIk_internal(pathAndFilename.c_str(), 0, nullptr);
+        retVal = CALL_C_API(simExportIk, pathAndFilename.c_str(), 0, nullptr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -3021,7 +3021,7 @@ int _simComputeJacobian(luaWrap_lua_State* L)
 
     int retVal = -1;
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simComputeJacobian_internal(luaToInt(L, 1), luaToInt(L, 2), nullptr);
+        retVal = CALL_C_API(simComputeJacobian, luaToInt(L, 1), luaToInt(L, 2), nullptr);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -3102,7 +3102,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                             }
                             std::vector<double> foundConfig;
                             foundConfig.resize(jointCnt);
-                            res = simGetConfigForTipPose_internal(
+                            res = CALL_C_API(simGetConfigForTipPose,
                                 ikGroupHandle, jointCnt, &jointHandles[0], thresholdDist, maxTimeInMs, &foundConfig[0],
                                 metric, collisionPairCnt, collisionPairs, jointOptions, lowLimits, ranges, nullptr);
                             if (res > 0)
@@ -3161,12 +3161,12 @@ int _simGenerateIkPath(luaWrap_lua_State* L)
                     getIntsFromTable(L, 5, jointCnt, &_jointOptions[0]);
                     jointOptions = &_jointOptions[0];
                 }
-                double* path = simGenerateIkPath_internal(ikGroupHandle, jointCnt, &jointHandles[0], ptCnt,
+                double* path = CALL_C_API(simGenerateIkPath, ikGroupHandle, jointCnt, &jointHandles[0], ptCnt,
                                                           collisionPairCnt, collisionPairs, jointOptions, nullptr);
                 if (path != nullptr)
                 {
                     pushDoubleTableOntoStack(L, jointCnt * ptCnt, path);
-                    simReleaseBuffer_internal((char*)path);
+                    CALL_C_API(simReleaseBuffer, (char*)path);
                     LUA_END(1);
                 }
             }
@@ -3190,7 +3190,7 @@ int _simGetIkGroupHandle(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simGetIkGroupHandle_internal(name.c_str());
+        retVal = CALL_C_API(simGetIkGroupHandle, name.c_str());
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -3209,7 +3209,7 @@ int _simGetIkGroupMatrix(luaWrap_lua_State* L)
         int ikGroupHandle = luaToInt(L, 1);
         int options = luaToInt(L, 2);
         int matrixSize[2];
-        double* data = simGetIkGroupMatrix_internal(ikGroupHandle, options, matrixSize);
+        double* data = CALL_C_API(simGetIkGroupMatrix, ikGroupHandle, options, matrixSize);
         if (data != nullptr)
         {
             pushDoubleTableOntoStack(L, matrixSize[0] * matrixSize[1], data);
@@ -3229,7 +3229,7 @@ int _simHandleIkGroup(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simHandleIkGroup_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simHandleIkGroup, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -3244,7 +3244,7 @@ int _simSetIkGroupProperties(luaWrap_lua_State* L)
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number,
                             0))
-        retVal = simSetIkGroupProperties_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), luaToDouble(L, 4),
+        retVal = CALL_C_API(simSetIkGroupProperties, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), luaToDouble(L, 4),
                                                   nullptr);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -3280,7 +3280,7 @@ int _simSetIkElementProperties(luaWrap_lua_State* L)
                     getDoublesFromTable(L, 5, 2, w);
                     weight = w;
                 }
-                retVal = simSetIkElementProperties_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), precision,
+                retVal = CALL_C_API(simSetIkElementProperties, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), precision,
                                                             weight, nullptr);
             }
         }
@@ -3310,7 +3310,7 @@ int _simTubeRead(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int dataLength;
-        char* data = simTubeRead_internal(luaToInt(L, 1), &dataLength);
+        char* data = CALL_C_API(simTubeRead, luaToInt(L, 1), &dataLength);
         if (data)
         {
             luaWrap_lua_pushbinarystring(L, (const char*)data, dataLength); // push binary string for backw. comp.
@@ -3352,7 +3352,7 @@ int _simTubeClose(luaWrap_lua_State* L)
 
     int retVal = -1; // Error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simTubeClose_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simTubeClose, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -3369,7 +3369,7 @@ int _simTubeWrite(luaWrap_lua_State* L)
     {
         size_t dataLength;
         char* data = (char*)luaWrap_lua_tobuffer(L, 2, &dataLength);
-        retVal = simTubeWrite_internal(luaToInt(L, 1), data, (int)dataLength);
+        retVal = CALL_C_API(simTubeWrite, luaToInt(L, 1), data, (int)dataLength);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -3386,7 +3386,7 @@ int _simTubeStatus(luaWrap_lua_State* L)
     {
         int readSize;
         int writeSize;
-        int status = simTubeStatus_internal(luaToInt(L, 1), &readSize, &writeSize);
+        int status = CALL_C_API(simTubeStatus, luaToInt(L, 1), &readSize, &writeSize);
         if (status >= 0)
         {
             luaWrap_lua_pushinteger(L, status);
@@ -3821,7 +3821,7 @@ int _simGetDataOnPath(luaWrap_lua_State* L)
     {
         int auxFlags;
         double auxChannels[4];
-        if (simGetDataOnPath_internal(luaToInt(L, 1), luaToDouble(L, 2), 0, &auxFlags, auxChannels) == 1)
+        if (CALL_C_API(simGetDataOnPath, luaToInt(L, 1), luaToDouble(L, 2), 0, &auxFlags, auxChannels) == 1)
         {
             luaWrap_lua_pushinteger(L, auxFlags);
             pushDoubleTableOntoStack(L, 4, auxChannels);
@@ -3841,7 +3841,7 @@ int _simGetPositionOnPath(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         double coord[3];
-        if (simGetPositionOnPath_internal(luaToInt(L, 1), luaToDouble(L, 2), coord) == 1)
+        if (CALL_C_API(simGetPositionOnPath, luaToInt(L, 1), luaToDouble(L, 2), coord) == 1)
         {
             pushDoubleTableOntoStack(L, 3, coord);
             LUA_END(1);
@@ -3860,7 +3860,7 @@ int _simGetOrientationOnPath(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         double coord[3];
-        if (simGetOrientationOnPath_internal(luaToInt(L, 1), luaToDouble(L, 2), coord) == 1)
+        if (CALL_C_API(simGetOrientationOnPath, luaToInt(L, 1), luaToDouble(L, 2), coord) == 1)
         {
             pushDoubleTableOntoStack(L, 3, coord);
             LUA_END(1);
@@ -3881,7 +3881,7 @@ int _simGetClosestPositionOnPath(luaWrap_lua_State* L)
         double coord[3];
         getDoublesFromTable(L, 2, 3, coord);
         double dist = 0.0;
-        if (simGetClosestPositionOnPath_internal(luaToInt(L, 1), coord, &dist) != -1)
+        if (CALL_C_API(simGetClosestPositionOnPath, luaToInt(L, 1), coord, &dist) != -1)
         {
             luaWrap_lua_pushnumber(L, dist);
             LUA_END(1);
@@ -3900,7 +3900,7 @@ int _simGetPathPosition(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double pathVal[1];
-        if (simGetPathPosition_internal(luaToInt(L, 1), pathVal) != -1)
+        if (CALL_C_API(simGetPathPosition, luaToInt(L, 1), pathVal) != -1)
         {
             luaWrap_lua_pushnumber(L, pathVal[0]);
             LUA_END(1);
@@ -3918,7 +3918,7 @@ int _simSetPathPosition(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetPathPosition_internal(luaToInt(L, 1), luaToDouble(L, 2));
+        retVal = CALL_C_API(simSetPathPosition, luaToInt(L, 1), luaToDouble(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -3933,7 +3933,7 @@ int _simGetPathLength(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double pathLen[1];
-        if (simGetPathLength_internal(luaToInt(L, 1), pathLen) != -1)
+        if (CALL_C_API(simGetPathLength, luaToInt(L, 1), pathLen) != -1)
         {
             luaWrap_lua_pushnumber(L, pathLen[0]);
             LUA_END(1);
@@ -3975,7 +3975,7 @@ int _simInsertPathCtrlPoints(luaWrap_lua_State* L)
                     ((int*)(data + floatOrIntCountPerPoint * i + 11))[0] =
                         int(data[floatOrIntCountPerPoint * i + 11] + 0.5);
             }
-            retVal = simInsertPathCtrlPoints_internal(pathHandle, options, startIndex, ptCnt, data);
+            retVal = CALL_C_API(simInsertPathCtrlPoints, pathHandle, options, startIndex, ptCnt, data);
             delete[] data;
         }
     }
@@ -3996,7 +3996,7 @@ int _simCutPathCtrlPoints(luaWrap_lua_State* L)
         int pathHandle = luaToInt(L, 1);
         int startIndex = luaToInt(L, 2);
         int ptCnt = luaToInt(L, 3);
-        retVal = simCutPathCtrlPoints_internal(pathHandle, startIndex, ptCnt);
+        retVal = CALL_C_API(simCutPathCtrlPoints, pathHandle, startIndex, ptCnt);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4043,7 +4043,7 @@ int _sim_CreatePath(luaWrap_lua_State* L)
                         getFloatsFromTable(L, 4, 12, c);
                         color = c;
                     }
-                    retVal = simCreatePath_internal(attribs, intP, floatP, color);
+                    retVal = CALL_C_API(simCreatePath, attribs, intP, floatP, color);
                 }
             }
         }
@@ -4112,7 +4112,7 @@ int _simGetThreadId(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getThreadId");
 
-    int retVal = simGetThreadId_internal();
+    int retVal = CALL_C_API(simGetThreadId, );
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -4154,7 +4154,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
                 returnString = luaToBool(L, 3);
             std::string parameterName(luaWrap_lua_tostring(L, 2));
             int l;
-            char* p = simGetUserParameter_internal(handle, parameterName.c_str(), &l);
+            char* p = CALL_C_API(simGetUserParameter, handle, parameterName.c_str(), &l);
             if (p != nullptr)
             {
                 std::string a;
@@ -4163,7 +4163,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
                     luaWrap_lua_pushbinarystring(L, a.c_str(), a.length()); // push binary string for backw. comp.
                 else
                     pushCorrectTypeOntoLuaStack_old(L, a);
-                simReleaseBuffer_internal(p);
+                CALL_C_API(simReleaseBuffer, p);
                 LUA_END(1);
             }
         }
@@ -4204,7 +4204,7 @@ int _simSetUserParameter(luaWrap_lua_State* L)
         std::string parameterName(luaWrap_lua_tostring(L, 2));
         size_t parameterValueLength;
         char* parameterValue = (char*)luaWrap_lua_tobuffer(L, 3, &parameterValueLength);
-        retVal = simSetUserParameter_internal(handle, parameterName.c_str(), parameterValue, (int)parameterValueLength);
+        retVal = CALL_C_API(simSetUserParameter, handle, parameterName.c_str(), parameterValue, (int)parameterValueLength);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4372,7 +4372,7 @@ int _simSetCollectionName(luaWrap_lua_State* L)
     int retVal = -1; // error
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
-        retVal = simSetCollectionName_internal(luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
+        retVal = CALL_C_API(simSetCollectionName, luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -4389,7 +4389,7 @@ int _sim_CreateCollection(luaWrap_lua_State* L)
     {
         std::string collName(luaWrap_lua_tostring(L, 1));
         int options = luaToInt(L, 2);
-        retVal = simCreateCollection_internal(collName.c_str(), options);
+        retVal = CALL_C_API(simCreateCollection, collName.c_str(), options);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4410,7 +4410,7 @@ int _simAddObjectToCollection(luaWrap_lua_State* L)
         int objHandle = luaToInt(L, 2);
         int what = luaToInt(L, 3);
         int options = luaToInt(L, 4);
-        retVal = simAddObjectToCollection_internal(collHandle, objHandle, what, options);
+        retVal = CALL_C_API(simAddObjectToCollection, collHandle, objHandle, what, options);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4431,7 +4431,7 @@ int _simGetCollectionHandle(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simGetCollectionHandle_internal(name.c_str());
+        retVal = CALL_C_API(simGetCollectionHandle, name.c_str());
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -4447,7 +4447,7 @@ int _simRemoveCollection(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simRemoveCollection_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simRemoveCollection, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -4461,7 +4461,7 @@ int _simEmptyCollection(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simEmptyCollection_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simEmptyCollection, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -4475,11 +4475,11 @@ int _simGetCollectionName(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        char* name = simGetCollectionName_internal(luaToInt(L, 1));
+        char* name = CALL_C_API(simGetCollectionName, luaToInt(L, 1));
         if (name != nullptr)
         {
             luaWrap_lua_pushtext(L, name);
-            simReleaseBuffer_internal(name);
+            CALL_C_API(simReleaseBuffer, name);
             LUA_END(1);
         }
     }
@@ -4497,7 +4497,7 @@ int _simHandleCollision(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int objHandle = luaToInt(L, 1);
-        retVal = simHandleCollision_internal(objHandle);
+        retVal = CALL_C_API(simHandleCollision, objHandle);
         if ((retVal > 0) && (objHandle >= 0))
         {
             int collObjHandles[2];
@@ -4526,7 +4526,7 @@ int _simReadCollision(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int objHandle = luaToInt(L, 1);
-        retVal = simReadCollision_internal(objHandle);
+        retVal = CALL_C_API(simReadCollision, objHandle);
         if (retVal > 0)
         {
             int collObjHandles[2];
@@ -4555,7 +4555,7 @@ int _simHandleDistance(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double d;
-        retVal = simHandleDistance_internal(luaToInt(L, 1), &d);
+        retVal = CALL_C_API(simHandleDistance, luaToInt(L, 1), &d);
         if (retVal == 1)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -4578,7 +4578,7 @@ int _simReadDistance(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double d;
-        retVal = simReadDistance_internal(luaToInt(L, 1), &d);
+        retVal = CALL_C_API(simReadDistance, luaToInt(L, 1), &d);
         if (retVal == 1)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -4605,7 +4605,7 @@ int _simGetCollisionHandle(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simGetCollisionHandle_internal(name.c_str());
+        retVal = CALL_C_API(simGetCollisionHandle, name.c_str());
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -4627,7 +4627,7 @@ int _simGetDistanceHandle(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simGetDistanceHandle_internal(name.c_str());
+        retVal = CALL_C_API(simGetDistanceHandle, name.c_str());
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -4643,7 +4643,7 @@ int _simResetCollision(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simResetCollision_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simResetCollision, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -4657,7 +4657,7 @@ int _simResetDistance(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simResetDistance_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simResetDistance, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -4734,7 +4734,7 @@ int _simAddBanner(luaWrap_lua_State* L)
             }
             if (okToGo)
             {
-                retVal = simAddBanner_internal(label.c_str(), size, options, positionAndEulerAngles, parentObjectHandle,
+                retVal = CALL_C_API(simAddBanner, label.c_str(), size, options, positionAndEulerAngles, parentObjectHandle,
                                                labelColors, backgroundColors);
                 if (retVal != -1)
                 { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++
@@ -4770,7 +4770,7 @@ int _simRemoveBanner(luaWrap_lua_State* L)
             retVal = 1;
         }
         else
-            retVal = simRemoveBanner_internal(objectHandle);
+            retVal = CALL_C_API(simRemoveBanner, objectHandle);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4803,9 +4803,9 @@ int _simAddGhost(luaWrap_lua_State* L)
                 getFloatsFromTable(L, 6, 12, color);
             }
             if (defaultColors)
-                retVal = simAddGhost_internal(ghostGroup, objectHandle, options, startTime, endTime, nullptr);
+                retVal = CALL_C_API(simAddGhost, ghostGroup, objectHandle, options, startTime, endTime, nullptr);
             else
-                retVal = simAddGhost_internal(ghostGroup, objectHandle, options, startTime, endTime, color);
+                retVal = CALL_C_API(simAddGhost, ghostGroup, objectHandle, options, startTime, endTime, color);
         }
     }
 
@@ -4857,7 +4857,7 @@ int _simModifyGhost(luaWrap_lua_State* L)
                     double colorOrTransfData[12];
                     if ((res == 2) && (operation >= 11) && (operation <= 13))
                         getDoublesFromTable(L, 7, floatCnt, colorOrTransfData);
-                    retVal = simModifyGhost_internal(ghostGroup, ghostId, operation, floatValue, options, optionsMask,
+                    retVal = CALL_C_API(simModifyGhost, ghostGroup, ghostId, operation, floatValue, options, optionsMask,
                                                      colorOrTransfData);
                 }
             }
@@ -4880,7 +4880,7 @@ int _simSetGraphUserData(luaWrap_lua_State* L)
         int graphHandle = luaToInt(L, 1);
         std::string dataName(luaWrap_lua_tostring(L, 2));
         double data = luaToDouble(L, 3);
-        retVal = simSetGraphUserData_internal(graphHandle, dataName.c_str(), data);
+        retVal = CALL_C_API(simSetGraphUserData, graphHandle, dataName.c_str(), data);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4949,7 +4949,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
                         getDoublesFromTable(L, 9, pointCnt * 3, &_pointNormals[0]);
                         pointNormals = &_pointNormals[0];
                     }
-                    retVal = simAddPointCloud_internal(pageMask, layerMask, objectHandle, options, pointSize,
+                    retVal = CALL_C_API(simAddPointCloud, pageMask, layerMask, objectHandle, options, pointSize,
                                                        (int)pointCoordinates.size() / 3, &pointCoordinates[0],
                                                        (char*)defaultColors, (char*)pointColors, pointNormals);
                 }
@@ -4972,7 +4972,7 @@ int _simModifyPointCloud(luaWrap_lua_State* L)
     {
         int pointCloudHandle = luaToInt(L, 1);
         int operation = luaToInt(L, 2);
-        retVal = simModifyPointCloud_internal(pointCloudHandle, operation, nullptr, nullptr);
+        retVal = CALL_C_API(simModifyPointCloud, pointCloudHandle, operation, nullptr, nullptr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5006,7 +5006,7 @@ int _simGetObjectInt32Parameter(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         int param;
-        retVal = simGetObjectInt32Param_internal(luaToInt(L, 1), luaToInt(L, 2), &param);
+        retVal = CALL_C_API(simGetObjectInt32Param, luaToInt(L, 1), luaToInt(L, 2), &param);
         if (retVal > 0)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -5029,7 +5029,7 @@ int _simGetObjectFloatParameter(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         double param;
-        retVal = simGetObjectFloatParam_internal(luaToInt(L, 1), luaToInt(L, 2), &param);
+        retVal = CALL_C_API(simGetObjectFloatParam, luaToInt(L, 1), luaToInt(L, 2), &param);
         if (retVal > 0)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -5057,7 +5057,7 @@ int _simIsHandleValid(luaWrap_lua_State* L)
         {
             if (res == 2)
                 objType = luaToInt(L, 2);
-            retVal = simIsHandle_internal(luaToInt(L, 1), objType);
+            retVal = CALL_C_API(simIsHandle, luaToInt(L, 1), objType);
         }
     }
 
@@ -5073,11 +5073,11 @@ int _simGetObjectName(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        char* name = simGetObjectName_internal(luaToInt(L, 1));
+        char* name = CALL_C_API(simGetObjectName, luaToInt(L, 1));
         if (name != nullptr)
         {
             luaWrap_lua_pushtext(L, name);
-            simReleaseBuffer_internal(name);
+            CALL_C_API(simReleaseBuffer, name);
             LUA_END(1);
         }
     }
@@ -5093,7 +5093,7 @@ int _simSetObjectName(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
-        retVal = simSetObjectName_internal(luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
+        retVal = CALL_C_API(simSetObjectName, luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -5110,11 +5110,11 @@ int _simGetScriptName(luaWrap_lua_State* L)
         int a = luaToInt(L, 1);
         if (a == sim_handle_self)
             a = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        char* name = simGetScriptName_internal(a);
+        char* name = CALL_C_API(simGetScriptName, a);
         if (name != nullptr)
         {
             luaWrap_lua_pushtext(L, name);
-            simReleaseBuffer_internal(name);
+            CALL_C_API(simReleaseBuffer, name);
             LUA_END(1);
         }
     }
@@ -5138,7 +5138,7 @@ int _simSetScriptVariable(luaWrap_lua_State* L)
         {
             CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
-            retVal = simSetScriptVariable_internal(scriptHandleOrType, varAndScriptName.c_str(), stack->getId());
+            retVal = CALL_C_API(simSetScriptVariable, scriptHandleOrType, varAndScriptName.c_str(), stack->getId());
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         else
@@ -5161,7 +5161,7 @@ int _simGetObjectAssociatedWithScript(luaWrap_lua_State* L)
         int a = luaToInt(L, 1);
         if (a == sim_handle_self)
             a = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        retVal = simGetObjectAssociatedWithScript_internal(a);
+        retVal = CALL_C_API(simGetObjectAssociatedWithScript, a);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5176,7 +5176,7 @@ int _simGetScriptAssociatedWithObject(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetScriptAssociatedWithObject_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simGetScriptAssociatedWithObject, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -5190,7 +5190,7 @@ int _simGetCustomizationScriptAssociatedWithObject(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetCustomizationScriptAssociatedWithObject_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simGetCustomizationScriptAssociatedWithObject, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -5204,7 +5204,7 @@ int _simGetObjectConfiguration(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        char* data = simGetObjectConfiguration_internal(luaToInt(L, 1));
+        char* data = CALL_C_API(simGetObjectConfiguration, luaToInt(L, 1));
         if (data != nullptr)
         {
             int dataSize = ((int*)data)[0] + 4;
@@ -5228,7 +5228,7 @@ int _simSetObjectConfiguration(luaWrap_lua_State* L)
     {
         size_t l;
         const char* data = luaWrap_lua_tobuffer(L, 1, &l);
-        retVal = simSetObjectConfiguration_internal(data);
+        retVal = CALL_C_API(simSetObjectConfiguration, data);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5270,7 +5270,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
         }
         if (id != -1)
         {
-            char* data = simGetConfigurationTree_internal(id);
+            char* data = CALL_C_API(simGetConfigurationTree, id);
             if (data != nullptr)
             {
                 int dataSize = ((int*)data)[0] + 4;
@@ -5295,7 +5295,7 @@ int _simSetConfigurationTree(luaWrap_lua_State* L)
     {
         size_t l;
         const char* data = luaWrap_lua_tobuffer(L, 1, &l);
-        retVal = simSetConfigurationTree_internal(data);
+        retVal = CALL_C_API(simSetConfigurationTree, data);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5314,7 +5314,7 @@ int _simSetObjectSizeValues(luaWrap_lua_State* L)
         int handle = luaToInt(L, 1);
         double s[3];
         getDoublesFromTable(L, 2, 3, s);
-        retVal = simSetObjectSizeValues_internal(handle, s);
+        retVal = CALL_C_API(simSetObjectSizeValues, handle, s);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5331,7 +5331,7 @@ int _simGetObjectSizeValues(luaWrap_lua_State* L)
     {
         int handle = luaToInt(L, 1);
         double s[3];
-        if (simGetObjectSizeValues_internal(handle, s) != -1)
+        if (CALL_C_API(simGetObjectSizeValues, handle, s) != -1)
         {
             pushDoubleTableOntoStack(L, 3, s);
             LUA_END(1);
@@ -5462,12 +5462,12 @@ int _simFileDialog(luaWrap_lua_State* L)
         std::string initName(luaWrap_lua_tostring(L, 4));
         std::string extName(luaWrap_lua_tostring(L, 5));
         std::string ext(luaWrap_lua_tostring(L, 6));
-        char* pathAndName = simFileDialog_internal(mode, title.c_str(), startPath.c_str(), initName.c_str(),
+        char* pathAndName = CALL_C_API(simFileDialog, mode, title.c_str(), startPath.c_str(), initName.c_str(),
                                                    extName.c_str(), ext.c_str());
         if (pathAndName != nullptr)
         {
             luaWrap_lua_pushtext(L, pathAndName);
-            simReleaseBuffer_internal(pathAndName);
+            CALL_C_API(simReleaseBuffer, pathAndName);
             LUA_END(1);
         }
     }
@@ -5486,7 +5486,7 @@ int _simMsgBox(luaWrap_lua_State* L)
         int dlgButtons = luaToInt(L, 2);
         std::string title(luaWrap_lua_tostring(L, 3));
         std::string message(luaWrap_lua_tostring(L, 4));
-        retVal = simMsgBox_internal(dlgType, dlgButtons, title.c_str(), message.c_str());
+        retVal = CALL_C_API(simMsgBox, dlgType, dlgButtons, title.c_str(), message.c_str());
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -5500,7 +5500,7 @@ int _simIsObjectInSelection(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simIsObjectInSelection_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simIsObjectInSelection, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -5525,7 +5525,7 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
         if (!luaWrap_lua_isnonbuffertable(L, 1))
         {                                                                              // It is not a table!
             if (checkInputArguments(L, nullptr, lua_arg_number, 0, lua_arg_number, 0)) // we don't generate an error
-                retVal = simAddObjectToSelection_internal(luaToInt(L, 1), luaToInt(L, 2));
+                retVal = CALL_C_API(simAddObjectToSelection, luaToInt(L, 1), luaToInt(L, 2));
             else
             { // Maybe we have a special case with one argument only?
                 // nil is a valid argument!
@@ -5536,7 +5536,7 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
                     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
                     {
                         if (luaToInt(L, 1) == sim_handle_all)
-                            retVal = simAddObjectToSelection_internal(luaToInt(L, 1), -1);
+                            retVal = CALL_C_API(simAddObjectToSelection, luaToInt(L, 1), -1);
                         else
                             checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number,
                                                 0); // we just generate an error
@@ -5584,13 +5584,13 @@ int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
         if (!luaWrap_lua_isnonbuffertable(L, 1))
         {                                                                              // It is not a table!
             if (checkInputArguments(L, nullptr, lua_arg_number, 0, lua_arg_number, 0)) // we don't generate an error
-                retVal = simRemoveObjectFromSelection_internal(luaToInt(L, 1), luaToInt(L, 2));
+                retVal = CALL_C_API(simRemoveObjectFromSelection, luaToInt(L, 1), luaToInt(L, 2));
             else
             {
                 if (checkInputArguments(L, &errorString, lua_arg_number, 0))
                 {
                     if (luaToInt(L, 1) == sim_handle_all)
-                        retVal = simRemoveObjectFromSelection_internal(luaToInt(L, 1), -1);
+                        retVal = CALL_C_API(simRemoveObjectFromSelection, luaToInt(L, 1), -1);
                     else
                         checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number,
                                             0); // we just generate an error
@@ -5604,7 +5604,7 @@ int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
             if (getIntsFromTable(L, 1, tableLen, buffer))
             {
                 for (int i = 0; i < tableLen; i++)
-                    retVal = simRemoveObjectFromSelection_internal(sim_handle_single, buffer[i]);
+                    retVal = CALL_C_API(simRemoveObjectFromSelection, sim_handle_single, buffer[i]);
             }
             else
                 errorString = SIM_ERROR_TABLE_CONTAINS_INVALID_TYPES;
@@ -5628,7 +5628,7 @@ int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
         if (handle != sim_handle_all)
         {
             int retVal;
-            if (simGetObjectUniqueIdentifier_internal(handle, &retVal) != -1)
+            if (CALL_C_API(simGetObjectUniqueIdentifier, handle, &retVal) != -1)
             {
                 luaWrap_lua_pushinteger(L, retVal);
                 LUA_END(1);
@@ -5638,7 +5638,7 @@ int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
         { // for backward compatibility
             int cnt = int(App::currentWorld->sceneObjects->getObjectCount());
             int* buffer = new int[cnt];
-            if (simGetObjectUniqueIdentifier_internal(handle, buffer) != -1)
+            if (CALL_C_API(simGetObjectUniqueIdentifier, handle, buffer) != -1)
             {
                 pushIntTableOntoStack(L, cnt, buffer);
                 delete[] buffer;
@@ -5659,7 +5659,7 @@ int _simBreakForceSensor(luaWrap_lua_State* L)
 
     int retVal = -1;
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simBreakForceSensor_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simBreakForceSensor, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -5676,7 +5676,7 @@ int _simSetSphericalJointMatrix(luaWrap_lua_State* L)
     {
         double arr[12];
         getDoublesFromTable(L, 2, 12, arr);
-        retVal = simSetSphericalJointMatrix_internal(luaToInt(L, 1), arr);
+        retVal = CALL_C_API(simSetSphericalJointMatrix, luaToInt(L, 1), arr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5692,7 +5692,7 @@ int _simGetJointMatrix(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double arr[12];
-        if (simGetJointMatrix_internal(luaToInt(L, 1), arr) == 1)
+        if (CALL_C_API(simGetJointMatrix, luaToInt(L, 1), arr) == 1)
         {
             pushDoubleTableOntoStack(L, 12, arr); // Success
             LUA_END(1);
@@ -5733,7 +5733,7 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
                     retVal = a;
             }
             else
-                retVal = simGetObjectAssociatedWithScript_internal(a);
+                retVal = CALL_C_API(simGetObjectAssociatedWithScript, a);
         }
     }
     if (checkWithString)
@@ -5765,7 +5765,7 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
                             CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                 L)); // for transmitting to the master function additional info (e.g.for autom. name
                                      // adjustment, or for autom. object deletion when script ends)
-                        retVal = simGetObjectHandleEx_internal(name.c_str(), index, proxyForSearch, options);
+                        retVal = CALL_C_API(simGetObjectHandleEx, name.c_str(), index, proxyForSearch, options);
                         setCurrentScriptInfo_cSide(-1, -1);
                     }
                 }
@@ -5806,10 +5806,10 @@ int _simSetScriptAttribute(luaWrap_lua_State* L)
                 (attribID == sim_childscriptattribute_automaticcascadingcalls) ||
                 (attribID == sim_scriptattribute_enabled) ||
                 (attribID == sim_customizationscriptattribute_cleanupbeforesave))
-                retVal = simSetScriptAttribute_internal(scriptID, attribID, 0.0, luaToBool(L, 3));
+                retVal = CALL_C_API(simSetScriptAttribute, scriptID, attribID, 0.0, luaToBool(L, 3));
             if ((attribID == sim_scriptattribute_executionorder) || (attribID == sim_scriptattribute_executioncount) ||
                 (attribID == sim_scriptattribute_debuglevel))
-                retVal = simSetScriptAttribute_internal(scriptID, attribID, 0.0, luaToInt(L, 3));
+                retVal = CALL_C_API(simSetScriptAttribute, scriptID, attribID, 0.0, luaToInt(L, 3));
         }
     }
 
@@ -5831,7 +5831,7 @@ int _simGetScriptAttribute(luaWrap_lua_State* L)
         int attribID = luaToInt(L, 2);
         int intVal;
         double floatVal;
-        int result = simGetScriptAttribute_internal(scriptID, attribID, &floatVal, &intVal);
+        int result = CALL_C_API(simGetScriptAttribute, scriptID, attribID, &floatVal, &intVal);
         if (result != -1)
         {
             if ((attribID == sim_customizationscriptattribute_activeduringsimulation) ||
@@ -5860,7 +5860,7 @@ int _simSetScriptText(luaWrap_lua_State* L)
     {
         int scriptHandle = luaToInt(L, 1);
         std::string scriptText(luaWrap_lua_tostring(L, 2));
-        retVal = simSetScriptText_internal(scriptHandle, scriptText.c_str());
+        retVal = CALL_C_API(simSetScriptText, scriptHandle, scriptText.c_str());
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5876,7 +5876,7 @@ int _simGetJointMaxForce(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double jointF[1];
-        if (simGetJointMaxForce_internal(luaToInt(L, 1), jointF) > 0)
+        if (CALL_C_API(simGetJointMaxForce, luaToInt(L, 1), jointF) > 0)
         {
             luaWrap_lua_pushnumber(L, jointF[0]);
             LUA_END(1);
@@ -5894,7 +5894,7 @@ int _simSetJointMaxForce(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetJointMaxForce_internal(luaToInt(L, 1), luaToDouble(L, 2));
+        retVal = CALL_C_API(simSetJointMaxForce, luaToInt(L, 1), luaToDouble(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -5912,7 +5912,7 @@ int _simRemoveObject(luaWrap_lua_State* L)
         int objId = luaToInt(L, 1);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-        retVal = simRemoveObject_internal(objId);
+        retVal = CALL_C_API(simRemoveObject, objId);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5928,7 +5928,7 @@ int _simGetSystemTimeInMs(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int lastTime = luaToInt(L, 1);
-        luaWrap_lua_pushinteger(L, simGetSystemTimeInMs_internal(lastTime));
+        luaWrap_lua_pushinteger(L, CALL_C_API(simGetSystemTimeInMs, lastTime));
         LUA_END(1);
     }
 
@@ -5944,7 +5944,7 @@ int _simGetVisionSensorResolution(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int resolution[2];
-        if (simGetVisionSensorRes_internal(luaToInt(L, 1), resolution) == 1)
+        if (CALL_C_API(simGetVisionSensorRes, luaToInt(L, 1), resolution) == 1)
         {
             pushIntTableOntoStack(L, 2, resolution);
             LUA_END(1);
@@ -6412,7 +6412,7 @@ int _simCreatePureShape(luaWrap_lua_State* L)
                 getIntsFromTable(L, 5, 2, prec);
                 precision = prec;
             }
-            retVal = simCreatePureShape_internal(primitiveType, options, sizes, mass, precision);
+            retVal = CALL_C_API(simCreatePureShape, primitiveType, options, sizes, mass, precision);
         }
     }
 
@@ -6475,7 +6475,7 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
                             CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                 L)); // for transmitting to the master function additional info (e.g.for autom. name
                                      // adjustment, or for autom. object deletion when script ends)
-                        retVal = simGetScriptHandleEx_internal(scriptType, objectHandle, scriptName.c_str());
+                        retVal = CALL_C_API(simGetScriptHandleEx, scriptType, objectHandle, scriptName.c_str());
                         setCurrentScriptInfo_cSide(-1, -1);
                     }
                 }
@@ -6492,7 +6492,7 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
                         CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                             L));                                        // for transmitting to the master function additional info (e.g.for autom. name
                                                                         // adjustment, or for autom. object deletion when script ends)
-                    retVal = simGetScriptHandle_internal(name.c_str()); // deprecated func.
+                    retVal = CALL_C_API(simGetScriptHandle, name.c_str()); // deprecated func.
                     setCurrentScriptInfo_cSide(-1, -1);
                 }
                 else
@@ -6551,7 +6551,7 @@ int _simSetDoubleSignal(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simSetDoubleSignalOld_internal(luaWrap_lua_tostring(L, 1), luaToDouble(L, 2));
+        retVal = CALL_C_API(simSetDoubleSignalOld, luaWrap_lua_tostring(L, 1), luaToDouble(L, 2));
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -6568,7 +6568,7 @@ int _simGetDoubleSignal(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         double doubleVal;
-        if (simGetDoubleSignalOld_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &doubleVal) == 1)
+        if (CALL_C_API(simGetDoubleSignalOld, std::string(luaWrap_lua_tostring(L, 1)).c_str(), &doubleVal) == 1)
         {
             luaWrap_lua_pushnumber(L, doubleVal);
             LUA_END(1);
@@ -6589,9 +6589,9 @@ int _simClearDoubleSignal(luaWrap_lua_State* L)
     if (res >= 0)
     {
         if (res != 2)
-            retVal = simClearDoubleSignalOld_internal(nullptr); // actually deprecated. No need for that
+            retVal = CALL_C_API(simClearDoubleSignalOld, nullptr); // actually deprecated. No need for that
         else
-            retVal = simClearDoubleSignalOld_internal(luaWrap_lua_tostring(L, 1));
+            retVal = CALL_C_API(simClearDoubleSignalOld, luaWrap_lua_tostring(L, 1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6609,7 +6609,7 @@ int _simReorientShapeBoundingBox(luaWrap_lua_State* L)
     {
         int shapeHandle = luaToInt(L, 1);
         int relativeToHandle = luaToInt(L, 2);
-        retVal = simReorientShapeBoundingBox_internal(shapeHandle, relativeToHandle, 0);
+        retVal = CALL_C_API(simReorientShapeBoundingBox, shapeHandle, relativeToHandle, 0);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6645,7 +6645,7 @@ int _simCreateMeshShape(luaWrap_lua_State* L)
                 int* indices = new int[il];
                 getDoublesFromTable(L, 3, vl, vertices);
                 getIntsFromTable(L, 4, il, indices);
-                retVal = simCreateMeshShape_internal(options, shadingAngle, vertices, vl, indices, il, nullptr);
+                retVal = CALL_C_API(simCreateMeshShape, options, shadingAngle, vertices, vl, indices, il, nullptr);
                 delete[] indices;
                 delete[] vertices;
             }
@@ -6666,7 +6666,7 @@ int _simInvertMatrix(luaWrap_lua_State* L)
     {
         double arr[12];
         getDoublesFromTable(L, 1, 12, arr);
-        retVal = simInvertMatrix_internal(arr);
+        retVal = CALL_C_API(simInvertMatrix, arr);
         for (int i = 0; i < 12; i++)
         {
             luaWrap_lua_pushnumber(L, arr[i]);
@@ -6688,7 +6688,7 @@ int _simInvertPose(luaWrap_lua_State* L)
     {
         double arr[7];
         getDoublesFromTable(L, 1, 7, arr);
-        retVal = simInvertPose_internal(arr);
+        retVal = CALL_C_API(simInvertPose, arr);
         for (int i = 0; i < 7; i++)
         {
             luaWrap_lua_pushnumber(L, arr[i]);
@@ -6795,7 +6795,7 @@ int _simLoadModule(luaWrap_lua_State* L)
     {
         std::string fileAndPath(luaWrap_lua_tostring(L, 1));
         std::string pluginName(luaWrap_lua_tostring(L, 2));
-        retVal = simLoadModule_internal(fileAndPath.c_str(), pluginName.c_str());
+        retVal = CALL_C_API(simLoadModule, fileAndPath.c_str(), pluginName.c_str());
         if (retVal >= 0)
         {
             CScriptObject* it =
@@ -6818,7 +6818,7 @@ int _simUnloadModule(luaWrap_lua_State* L)
 
     int retVal = 0; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simUnloadModule_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simUnloadModule, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -6871,7 +6871,7 @@ int _simConvexDecompose(luaWrap_lua_State* L)
         floatParams[3] = 0.0;
         floatParams[4] = 0.0;
         if (goOn)
-            retVal = simConvexDecompose_internal(shapeHandle, options, intParams, floatParams);
+            retVal = CALL_C_API(simConvexDecompose, shapeHandle, options, intParams, floatParams);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6899,7 +6899,7 @@ int _simGetDecimatedMesh(luaWrap_lua_State* L)
             int vertOutL;
             int* indOut;
             int indOutL;
-            if (simGetDecimatedMesh_internal(vertices, vl, indices, il, &vertOut, &vertOutL, &indOut, &indOutL,
+            if (CALL_C_API(simGetDecimatedMesh, vertices, vl, indices, il, &vertOut, &vertOutL, &indOut, &indOutL,
                                              percentage, 0, nullptr))
             {
                 pushDoubleTableOntoStack(L, vertOutL, vertOut);
@@ -6925,7 +6925,7 @@ int _simAddScript(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int scriptType = luaToInt(L, 1);
-        retVal = simAddScript_internal(scriptType);
+        retVal = CALL_C_API(simAddScript, scriptType);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6943,7 +6943,7 @@ int _simAssociateScriptWithObject(luaWrap_lua_State* L)
     {
         int scriptHandle = luaToInt(L, 1);
         int objectHandle = luaToInt(L, 2);
-        retVal = simAssociateScriptWithObject_internal(scriptHandle, objectHandle);
+        retVal = CALL_C_API(simAssociateScriptWithObject, scriptHandle, objectHandle);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6963,7 +6963,7 @@ int _simRemoveScript(luaWrap_lua_State* L)
         if (handle == sim_handle_self)
             handle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         if (sim_handle_all != handle)
-            retVal = simRemoveScript_internal(handle);
+            retVal = CALL_C_API(simRemoveScript, handle);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -6982,7 +6982,7 @@ int _simGetScriptInt32Param(luaWrap_lua_State* L)
         int scriptID = luaToInt(L, 1);
         if (scriptID == sim_handle_self)
             scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        int retVal = simGetScriptInt32Param_internal(scriptID, luaToInt(L, 2), &param);
+        int retVal = CALL_C_API(simGetScriptInt32Param, scriptID, luaToInt(L, 2), &param);
         if (retVal > 0)
         {
             luaWrap_lua_pushinteger(L, param);
@@ -7005,7 +7005,7 @@ int _simSetScriptInt32Param(luaWrap_lua_State* L)
         int scriptID = luaToInt(L, 1);
         if (scriptID == sim_handle_self)
             scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        retVal = simSetScriptInt32Param_internal(scriptID, luaToInt(L, 2), luaToInt(L, 3));
+        retVal = CALL_C_API(simSetScriptInt32Param, scriptID, luaToInt(L, 2), luaToInt(L, 3));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7024,7 +7024,7 @@ int _simGetScriptStringParam(luaWrap_lua_State* L)
         int scriptID = luaToInt(L, 1);
         if (scriptID == sim_handle_self)
             scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        char* strBuff = simGetScriptStringParam_internal(scriptID, luaToInt(L, 2), &paramLength);
+        char* strBuff = CALL_C_API(simGetScriptStringParam, scriptID, luaToInt(L, 2), &paramLength);
         if (strBuff != nullptr)
         {
             luaWrap_lua_pushbinarystring(L, strBuff, paramLength);
@@ -7050,7 +7050,7 @@ int _simSetScriptStringParam(luaWrap_lua_State* L)
             scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         size_t dataLength;
         char* data = (char*)luaWrap_lua_tobuffer(L, 3, &dataLength);
-        retVal = simSetScriptStringParam_internal(scriptID, luaToInt(L, 2), data, (int)dataLength);
+        retVal = CALL_C_API(simSetScriptStringParam, scriptID, luaToInt(L, 2), data, (int)dataLength);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7074,7 +7074,7 @@ int _simPersistentDataWrite(luaWrap_lua_State* L)
                 options = luaToInt(L, 3);
             size_t dataLength;
             char* data = (char*)luaWrap_lua_tobuffer(L, 2, &dataLength);
-            retVal = simPersistentDataWrite_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), data, (int)dataLength, options);
+            retVal = CALL_C_API(simPersistentDataWrite, std::string(luaWrap_lua_tostring(L, 1)).c_str(), data, (int)dataLength, options);
         }
     }
 
@@ -7091,12 +7091,12 @@ int _simPersistentDataRead(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         int stringLength;
-        char* str = simPersistentDataRead_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
+        char* str = CALL_C_API(simPersistentDataRead, std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
 
         if (str != nullptr)
         {
             luaWrap_lua_pushbuffer(L, str, stringLength);
-            simReleaseBuffer_internal(str);
+            CALL_C_API(simReleaseBuffer, str);
             LUA_END(1);
         }
     }
@@ -7111,7 +7111,7 @@ int _simGetPersistentDataTags(luaWrap_lua_State* L)
     LUA_START("sim.getPersistentDataTags");
 
     int tagCount;
-    char* data = simGetPersistentDataTags_internal(&tagCount);
+    char* data = CALL_C_API(simGetPersistentDataTags, &tagCount);
     if (data != nullptr)
     {
         std::vector<std::string> stringTable;
@@ -7122,7 +7122,7 @@ int _simGetPersistentDataTags(luaWrap_lua_State* L)
             off += strlen(data + off) + 1;
         }
         pushStringTableOntoStack(L, stringTable);
-        simReleaseBuffer_internal(data);
+        CALL_C_API(simReleaseBuffer, data);
         LUA_END(1);
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7136,7 +7136,7 @@ int _simSetBoolParam(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_bool, 0))
-        retVal = simSetBoolParam_internal(luaToInt(L, 1), luaToBool(L, 2));
+        retVal = CALL_C_API(simSetBoolParam, luaToInt(L, 1), luaToBool(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -7150,7 +7150,7 @@ int _simGetBoolParam(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        int retVal = simGetBoolParam_internal(luaToInt(L, 1));
+        int retVal = CALL_C_API(simGetBoolParam, luaToInt(L, 1));
         if (retVal != -1)
         {
             luaWrap_lua_pushboolean(L, retVal != 0);
@@ -7185,7 +7185,7 @@ int _simSetInt32Param(luaWrap_lua_State* L)
             }
         }
         else
-            retVal = simSetInt32Param_internal(paramIndex, v);
+            retVal = CALL_C_API(simSetInt32Param, paramIndex, v);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7215,7 +7215,7 @@ int _simGetInt32Param(luaWrap_lua_State* L)
         else
         {
             int v;
-            int retVal = simGetInt32Param_internal(paramIndex, &v);
+            int retVal = CALL_C_API(simGetInt32Param, paramIndex, &v);
             if (retVal != -1)
             {
                 luaWrap_lua_pushinteger(L, v);
@@ -7235,7 +7235,7 @@ int _simSetFloatParam(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetFloatParam_internal(luaToInt(L, 1), luaToDouble(L, 2));
+        retVal = CALL_C_API(simSetFloatParam, luaToInt(L, 1), luaToDouble(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -7250,7 +7250,7 @@ int _simGetFloatParam(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         double v;
-        int retVal = simGetFloatParam_internal(luaToInt(L, 1), &v);
+        int retVal = CALL_C_API(simGetFloatParam, luaToInt(L, 1), &v);
         if (retVal != -1)
         {
             luaWrap_lua_pushnumber(L, v);
@@ -7269,7 +7269,7 @@ int _simSetStringParam(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
-        retVal = simSetStringParam_internal(luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
+        retVal = CALL_C_API(simSetStringParam, luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -7295,7 +7295,7 @@ int _simGetStringParam(luaWrap_lua_State* L)
         }
         else
         {
-            char* s = simGetStringParam_internal(param);
+            char* s = CALL_C_API(simGetStringParam, param);
             if (s != nullptr)
             {
                 luaWrap_lua_pushtext(L, s);
@@ -7322,7 +7322,7 @@ int _simSetArrayParam(luaWrap_lua_State* L)
         { // for now all array parameters are tables of 3 floats
             double theArray[3];
             getDoublesFromTable(L, 2, 3, theArray);
-            retVal = simSetArrayParam_internal(parameter, theArray);
+            retVal = CALL_C_API(simSetArrayParam, parameter, theArray);
         }
     }
 
@@ -7342,7 +7342,7 @@ int _simGetArrayParam(luaWrap_lua_State* L)
         if (true)
         { // for now all parameters are tables of 3 floats
             double theArray[3];
-            int retVal = simGetArrayParam_internal(parameter, theArray);
+            int retVal = CALL_C_API(simGetArrayParam, parameter, theArray);
             if (retVal != -1)
             {
                 pushDoubleTableOntoStack(L, 3, theArray);
@@ -7365,7 +7365,7 @@ int _simSetNamedStringParam(luaWrap_lua_State* L)
         std::string paramName(luaWrap_lua_tostring(L, 1));
         size_t l;
         const char* data = ((char*)luaWrap_lua_tobuffer(L, 2, &l));
-        retVal = simSetNamedStringParam_internal(paramName.c_str(), data, int(l));
+        retVal = CALL_C_API(simSetNamedStringParam, paramName.c_str(), data, int(l));
         if (retVal >= 0)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -7384,7 +7384,7 @@ int _simGetNamedStringParam(luaWrap_lua_State* L)
     {
         std::string paramName(luaWrap_lua_tostring(L, 1));
         int l;
-        char* stringParam = simGetNamedStringParam_internal(paramName.c_str(), &l);
+        char* stringParam = CALL_C_API(simGetNamedStringParam, paramName.c_str(), &l);
         if (stringParam != nullptr)
         {
             luaWrap_lua_pushbinarystring(L, stringParam, l);
@@ -7409,7 +7409,7 @@ int _simSetInt32Signal(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simSetInt32Signal_internal(luaWrap_lua_tostring(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simSetInt32Signal, luaWrap_lua_tostring(L, 1), luaToInt(L, 2));
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -7426,7 +7426,7 @@ int _simGetInt32Signal(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         int intVal;
-        if (simGetInt32Signal_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &intVal) == 1)
+        if (CALL_C_API(simGetInt32Signal, std::string(luaWrap_lua_tostring(L, 1)).c_str(), &intVal) == 1)
         {
             luaWrap_lua_pushinteger(L, intVal);
             LUA_END(1);
@@ -7447,9 +7447,9 @@ int _simClearInt32Signal(luaWrap_lua_State* L)
     if (res >= 0)
     {
         if (res != 2)
-            retVal = simClearInt32Signal_internal(nullptr); // actually deprecated. No need for that
+            retVal = CALL_C_API(simClearInt32Signal, nullptr); // actually deprecated. No need for that
         else
-            retVal = simClearInt32Signal_internal(luaWrap_lua_tostring(L, 1));
+            retVal = CALL_C_API(simClearInt32Signal, luaWrap_lua_tostring(L, 1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7469,7 +7469,7 @@ int _simSetFloatSignal(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simSetFloatSignal_internal(luaWrap_lua_tostring(L, 1), luaToDouble(L, 2));
+        retVal = CALL_C_API(simSetFloatSignal, luaWrap_lua_tostring(L, 1), luaToDouble(L, 2));
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -7486,7 +7486,7 @@ int _simGetFloatSignal(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         double floatVal;
-        if (simGetFloatSignal_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &floatVal) == 1)
+        if (CALL_C_API(simGetFloatSignal, std::string(luaWrap_lua_tostring(L, 1)).c_str(), &floatVal) == 1)
         {
             luaWrap_lua_pushnumber(L, floatVal);
             LUA_END(1);
@@ -7507,9 +7507,9 @@ int _simClearFloatSignal(luaWrap_lua_State* L)
     if (res >= 0)
     {
         if (res != 2)
-            retVal = simClearFloatSignal_internal(nullptr); // actually deprecated. No need for that
+            retVal = CALL_C_API(simClearFloatSignal, nullptr); // actually deprecated. No need for that
         else
-            retVal = simClearFloatSignal_internal(luaWrap_lua_tostring(L, 1));
+            retVal = CALL_C_API(simClearFloatSignal, luaWrap_lua_tostring(L, 1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7531,7 +7531,7 @@ int _simSetStringSignal(luaWrap_lua_State* L)
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
-        retVal = simSetStringSignal_internal(luaWrap_lua_tostring(L, 1), data, int(dataLength));
+        retVal = CALL_C_API(simSetStringSignal, luaWrap_lua_tostring(L, 1), data, int(dataLength));
         setCurrentScriptInfo_cSide(-1, -1);
     }
 
@@ -7548,11 +7548,11 @@ int _simGetStringSignal(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         int stringLength;
-        char* str = simGetStringSignal_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
+        char* str = CALL_C_API(simGetStringSignal, std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
         if (str != nullptr)
         {
             luaWrap_lua_pushbinarystring(L, str, stringLength);
-            simReleaseBuffer_internal(str);
+            CALL_C_API(simReleaseBuffer, str);
             LUA_END(1);
         }
     }
@@ -7571,9 +7571,9 @@ int _simClearStringSignal(luaWrap_lua_State* L)
     if (res >= 0)
     {
         if (res != 2)
-            retVal = simClearStringSignal_internal(nullptr);
+            retVal = CALL_C_API(simClearStringSignal, nullptr);
         else
-            retVal = simClearStringSignal_internal(luaWrap_lua_tostring(L, 1));
+            retVal = CALL_C_API(simClearStringSignal, luaWrap_lua_tostring(L, 1));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7588,11 +7588,11 @@ int _simGetSignalName(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
-        char* str = simGetSignalName_internal(luaToInt(L, 1), luaToInt(L, 2));
+        char* str = CALL_C_API(simGetSignalName, luaToInt(L, 1), luaToInt(L, 2));
         if (str != nullptr)
         {
             luaWrap_lua_pushtext(L, str);
-            simReleaseBuffer_internal(str);
+            CALL_C_API(simReleaseBuffer, str);
             LUA_END(1);
         }
     }
@@ -7611,7 +7611,7 @@ int _simGetLightParameters(luaWrap_lua_State* L)
     double diffuse[3] = {0.0, 0.0, 0.0};
     double specular[3] = {0.0, 0.0, 0.0};
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetLightParameters_internal(luaToInt(L, 1), nullptr, diffuse, specular);
+        retVal = CALL_C_API(simGetLightParameters, luaToInt(L, 1), nullptr, diffuse, specular);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -7654,7 +7654,7 @@ int _simSetLightParameters(luaWrap_lua_State* L)
                         getFloatsFromTable(L, 5, 3, specular_);
                         specularP = specular_;
                     }
-                    retVal = simSetLightParameters_internal(objHandle, state, nullptr, diffuseP, specularP);
+                    retVal = CALL_C_API(simSetLightParameters, objHandle, state, nullptr, diffuseP, specularP);
                 }
             }
         }
@@ -7673,7 +7673,7 @@ int _simGetObjectInt32Param(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         int param;
-        int retVal = simGetObjectInt32Param_internal(luaToInt(L, 1), luaToInt(L, 2), &param);
+        int retVal = CALL_C_API(simGetObjectInt32Param, luaToInt(L, 1), luaToInt(L, 2), &param);
         if (retVal > 0)
         {
             luaWrap_lua_pushinteger(L, param);
@@ -7692,7 +7692,7 @@ int _simSetObjectInt32Param(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetObjectInt32Param_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3));
+        retVal = CALL_C_API(simSetObjectInt32Param, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -7707,7 +7707,7 @@ int _simGetObjectFloatParam(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         double param;
-        int retVal = simGetObjectFloatParam_internal(luaToInt(L, 1), luaToInt(L, 2), &param);
+        int retVal = CALL_C_API(simGetObjectFloatParam, luaToInt(L, 1), luaToInt(L, 2), &param);
         if (retVal > 0)
         {
             luaWrap_lua_pushnumber(L, param);
@@ -7726,7 +7726,7 @@ int _simSetObjectFloatParam(luaWrap_lua_State* L)
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetObjectFloatParam_internal(luaToInt(L, 1), luaToInt(L, 2), luaToDouble(L, 3));
+        retVal = CALL_C_API(simSetObjectFloatParam, luaToInt(L, 1), luaToInt(L, 2), luaToDouble(L, 3));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -7741,7 +7741,7 @@ int _simGetObjectFloatArrayParam(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         int s;
-        double* params = simGetObjectFloatArrayParam_internal(luaToInt(L, 1), luaToInt(L, 2), &s);
+        double* params = CALL_C_API(simGetObjectFloatArrayParam, luaToInt(L, 1), luaToInt(L, 2), &s);
         if (params != nullptr)
         {
             pushDoubleTableOntoStack(L, s, params);
@@ -7766,7 +7766,7 @@ int _simSetObjectFloatArrayParam(luaWrap_lua_State* L)
         std::vector<double> arr;
         arr.resize(cnt);
         getDoublesFromTable(L, 3, cnt, &arr[0]);
-        retVal = simSetObjectFloatArrayParam_internal(luaToInt(L, 1), luaToInt(L, 2), &arr[0], int(cnt));
+        retVal = CALL_C_API(simSetObjectFloatArrayParam, luaToInt(L, 1), luaToInt(L, 2), &arr[0], int(cnt));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7782,7 +7782,7 @@ int _simGetObjectStringParam(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         int paramLength;
-        char* strBuff = simGetObjectStringParam_internal(luaToInt(L, 1), luaToInt(L, 2), &paramLength);
+        char* strBuff = CALL_C_API(simGetObjectStringParam, luaToInt(L, 1), luaToInt(L, 2), &paramLength);
         if (strBuff != nullptr)
         {
             luaWrap_lua_pushbuffer(L, strBuff, paramLength);
@@ -7805,7 +7805,7 @@ int _simSetObjectStringParam(luaWrap_lua_State* L)
     {
         size_t dataLength;
         char* data = (char*)luaWrap_lua_tobuffer(L, 3, &dataLength);
-        retVal = simSetObjectStringParam_internal(luaToInt(L, 1), luaToInt(L, 2), data, (int)dataLength);
+        retVal = CALL_C_API(simSetObjectStringParam, luaToInt(L, 1), luaToInt(L, 2), data, (int)dataLength);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7831,7 +7831,7 @@ int _simWriteCustomStringData(luaWrap_lua_State* L)
             char* data = nullptr;
             if (res == 2)
                 data = (char*)luaWrap_lua_tobuffer(L, 3, &dataLength);
-            retVal = simWriteCustomDataBlock_internal(objectHandle, dataName.c_str(), data, (int)dataLength);
+            retVal = CALL_C_API(simWriteCustomDataBlock, objectHandle, dataName.c_str(), data, (int)dataLength);
         }
     }
 
@@ -7850,11 +7850,11 @@ int _simReadCustomStringData(luaWrap_lua_State* L)
         int objectHandle = luaToInt(L, 1);
         std::string dataName(luaWrap_lua_tostring(L, 2));
         int dataLength;
-        char* data = simReadCustomDataBlock_internal(objectHandle, dataName.c_str(), &dataLength);
+        char* data = CALL_C_API(simReadCustomDataBlock, objectHandle, dataName.c_str(), &dataLength);
         if (data != nullptr)
         {
             luaWrap_lua_pushbinarystring(L, (const char*)data, dataLength);
-            simReleaseBuffer_internal(data);
+            CALL_C_API(simReleaseBuffer, data);
         }
         else
             luaWrap_lua_pushnil(L);
@@ -7875,7 +7875,7 @@ int _simReadCustomDataTags(luaWrap_lua_State* L)
     {
         int objectHandle = luaToInt(L, 1);
         int tagCount;
-        char* data = simReadCustomDataBlockTags_internal(objectHandle, &tagCount);
+        char* data = CALL_C_API(simReadCustomDataBlockTags, objectHandle, &tagCount);
         if (data != nullptr)
         {
             size_t off = 0;
@@ -7884,7 +7884,7 @@ int _simReadCustomDataTags(luaWrap_lua_State* L)
                 stringTable.push_back(data + off);
                 off += strlen(data + off) + 1;
             }
-            simReleaseBuffer_internal(data);
+            CALL_C_API(simReleaseBuffer, data);
         }
     }
 
@@ -7903,7 +7903,7 @@ int _simGetEngineFloatParam(luaWrap_lua_State* L)
         int paramId = luaToInt(L, 1);
         int objectHandle = luaToInt(L, 2);
         bool ok;
-        double paramVal = simGetEngineFloatParam_internal(paramId, objectHandle, nullptr, &ok);
+        double paramVal = CALL_C_API(simGetEngineFloatParam, paramId, objectHandle, nullptr, &ok);
         if (ok)
         {
             luaWrap_lua_pushnumber(L, paramVal);
@@ -7925,7 +7925,7 @@ int _simGetEngineInt32Param(luaWrap_lua_State* L)
         int paramId = luaToInt(L, 1);
         int objectHandle = luaToInt(L, 2);
         bool ok;
-        int paramVal = simGetEngineInt32Param_internal(paramId, objectHandle, nullptr, &ok);
+        int paramVal = CALL_C_API(simGetEngineInt32Param, paramId, objectHandle, nullptr, &ok);
         if (ok)
         {
             luaWrap_lua_pushinteger(L, paramVal);
@@ -7947,7 +7947,7 @@ int _simGetEngineBoolParam(luaWrap_lua_State* L)
         int paramId = luaToInt(L, 1);
         int objectHandle = luaToInt(L, 2);
         bool ok;
-        bool paramVal = simGetEngineBoolParam_internal(paramId, objectHandle, nullptr, &ok);
+        bool paramVal = CALL_C_API(simGetEngineBoolParam, paramId, objectHandle, nullptr, &ok);
         if (ok)
         {
             luaWrap_lua_pushboolean(L, paramVal);
@@ -7970,7 +7970,7 @@ int _simSetEngineFloatParam(luaWrap_lua_State* L)
         int paramId = luaToInt(L, 1);
         int objectHandle = luaToInt(L, 2);
         double paramVal = luaToDouble(L, 3);
-        retVal = simSetEngineFloatParam_internal(paramId, objectHandle, nullptr, paramVal);
+        retVal = CALL_C_API(simSetEngineFloatParam, paramId, objectHandle, nullptr, paramVal);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7989,7 +7989,7 @@ int _simSetEngineInt32Param(luaWrap_lua_State* L)
         int paramId = luaToInt(L, 1);
         int objectHandle = luaToInt(L, 2);
         int paramVal = luaToInt(L, 3);
-        retVal = simSetEngineInt32Param_internal(paramId, objectHandle, nullptr, paramVal);
+        retVal = CALL_C_API(simSetEngineInt32Param, paramId, objectHandle, nullptr, paramVal);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -8008,7 +8008,7 @@ int _simSetEngineBoolParam(luaWrap_lua_State* L)
         int paramId = luaToInt(L, 1);
         int objectHandle = luaToInt(L, 2);
         bool paramVal = luaToBool(L, 3);
-        retVal = simSetEngineBoolParam_internal(paramId, objectHandle, nullptr, paramVal);
+        retVal = CALL_C_API(simSetEngineBoolParam, paramId, objectHandle, nullptr, paramVal);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -8023,7 +8023,7 @@ int _simGetObjectProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetObjectProperty_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simGetObjectProperty, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -8037,7 +8037,7 @@ int _simSetObjectProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetObjectProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simSetObjectProperty, luaToInt(L, 1), luaToInt(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -8051,7 +8051,7 @@ int _simGetObjectSpecialProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetObjectSpecialProperty_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simGetObjectSpecialProperty, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -8065,7 +8065,7 @@ int _simSetObjectSpecialProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetObjectSpecialProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simSetObjectSpecialProperty, luaToInt(L, 1), luaToInt(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -8079,7 +8079,7 @@ int _simGetModelProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetModelProperty_internal(luaToInt(L, 1));
+        retVal = CALL_C_API(simGetModelProperty, luaToInt(L, 1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -8093,7 +8093,7 @@ int _simSetModelProperty(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetModelProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
+        retVal = CALL_C_API(simSetModelProperty, luaToInt(L, 1), luaToInt(L, 2));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -8105,7 +8105,7 @@ int _simGetRealTimeSimulation(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getRealTimeSimulation");
 
-    int retVal = simGetRealTimeSimulation_internal();
+    int retVal = CALL_C_API(simGetRealTimeSimulation, );
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushboolean(L, retVal);
@@ -8124,7 +8124,7 @@ int _simBuildMatrixQ(luaWrap_lua_State* L)
         double quaternion[4];
         getDoublesFromTable(L, 1, 3, pos);
         getDoublesFromTable(L, 2, 4, quaternion);
-        if (simBuildMatrixQ_internal(pos, quaternion, arr) == 1)
+        if (CALL_C_API(simBuildMatrixQ, pos, quaternion, arr) == 1)
         {
             pushDoubleTableOntoStack(L, 12, arr);
             LUA_END(1);
@@ -8144,12 +8144,12 @@ int _simCheckCollisionEx(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         double* intersections[1];
-        retVal = simCheckCollisionEx_internal(luaToInt(L, 1), luaToInt(L, 2), intersections);
+        retVal = CALL_C_API(simCheckCollisionEx, luaToInt(L, 1), luaToInt(L, 2), intersections);
         if (retVal > 0)
         {
             luaWrap_lua_pushinteger(L, retVal);
             pushDoubleTableOntoStack(L, retVal * 6, (*intersections));
-            simReleaseBuffer_internal((char*)(*intersections));
+            CALL_C_API(simReleaseBuffer, (char*)(*intersections));
             LUA_END(2);
         }
     }
@@ -8172,7 +8172,7 @@ int _simCheckProximitySensorEx(luaWrap_lua_State* L)
         double detPt[4];
         int detObj;
         double normVect[3];
-        retVal = simCheckProximitySensorEx_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), luaToDouble(L, 4),
+        retVal = CALL_C_API(simCheckProximitySensorEx, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), luaToDouble(L, 4),
                                                     luaToDouble(L, 5), detPt, &detObj, normVect);
         if (retVal == 1)
         {
@@ -8223,7 +8223,7 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
 
                     double detPt[4];
                     double normVect[3];
-                    retVal = simCheckProximitySensorEx2_internal(sensorID, vertices, itemType, itemCount, mode,
+                    retVal = CALL_C_API(simCheckProximitySensorEx2, sensorID, vertices, itemType, itemCount, mode,
                                                                  threshold, maxAngle, detPt, normVect);
                     delete[] vertices;
                     if (retVal == 1)
