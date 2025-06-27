@@ -4,7 +4,30 @@
 #ifdef __cplusplus
 
 #include "simConfig.h"
-#include <stdio.h>
+
+#define STRINGIFY(x) #x
+#define TOSTR(x) STRINGIFY(x)
+
+#if defined(_MSC_VER)
+#if _MSC_VER == 1920
+#define SIM_COMPILER_STR "MSVC2019"
+#elif _MSC_VER == 1910
+#define SIM_COMPILER_STR "MSVC2017"
+#elif _MSC_VER == 1900
+#define SIM_COMPILER_STR "MSVC2015"
+#elif _MSC_VER >= 1930
+#define SIM_COMPILER_STR "MSVC2022"
+#else
+#define SIM_COMPILER_STR "MSVC(unknown)"
+#endif
+#elif defined(__GNUC__)
+#define SIM_COMPILER_STR "GCC " TOSTR(__GNUC__) "." TOSTR(__GNUC_MINOR__) "." TOSTR(__GNUC_PATCHLEVEL__)
+#elif defined(__clang__)
+#define SIM_COMPILER_STR "Clang " TOSTR(__clang_major__) "." TOSTR(__clang_minor__) "." TOSTR(__clang_patchlevel__)
+#else
+#define SIM_COMPILER_STR "UnknownCompiler"
+#endif
+
 
 #ifdef SIM_WITH_GUI
 // If the GUI wants to write to shared resources, use following:

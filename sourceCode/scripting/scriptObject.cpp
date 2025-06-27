@@ -2792,7 +2792,7 @@ std::string CScriptObject::getSearchPath_lua()
     // backw. compatibility:
     retVal += App::folders->getInterpretersRootPath() + "/bwf/?.lua;";
 
-    retVal += App::folders->getInterpretersRootPath() + "/luarocks/share/lua/5.3/?.lua";
+    retVal += App::folders->getInterpretersRootPath() + "/luarocks/share/lua/5.4/?.lua";
 
     if (App::currentWorld->environment->getScenePathAndName().compare("") != 0)
     {
@@ -2815,9 +2815,9 @@ std::string CScriptObject::getSearchCPath_lua()
 {
     std::string retVal(App::folders->getInterpretersRootPath());
 #ifdef WIN_SIM
-    retVal += "/luarocks/lib/lua/5.3/?.dll";
+    retVal += "/luarocks/lib/lua/5.4/?.dll";
 #else
-    retVal += "/luarocks/lib/lua/5.3/?.so";
+    retVal += "/luarocks/lib/lua/5.4/?.so";
 #endif
     return (retVal);
 }

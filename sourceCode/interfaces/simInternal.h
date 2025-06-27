@@ -6,31 +6,39 @@
 #include <string>
 #include <vector>
 #include <apiErrors.h>
+#include <type_traits>
+#include <utility>
 
-#define CALL_C_API_CLEAR_ERRORS(func, ...) \
-    [&]() -> decltype(func##_internal(__VA_ARGS__)) { \
-        using ReturnType = decltype(func##_internal(__VA_ARGS__)); \
-        if constexpr (!std::is_void_v<ReturnType>) { \
-            auto result = func##_internal(__VA_ARGS__); \
-            CApiErrors::getAndClearLastError(); \
-            return result; \
-        } else { \
-            func##_internal(__VA_ARGS__); \
-            CApiErrors::getAndClearLastError(); \
-            return; \
-        } \
-    }()
+namespace CApiUtils {
 
-#define CALL_C_API(func, ...) \
-    [&]() -> decltype(func##_internal(__VA_ARGS__)) { \
-        using ReturnType = decltype(func##_internal(__VA_ARGS__)); \
-        if constexpr (!std::is_void_v<ReturnType>) { \
-            return func##_internal(__VA_ARGS__); \
-        } else { \
-            func##_internal(__VA_ARGS__); \
-            return; \
-        } \
-    }()
+template <typename Func>
+decltype(auto) callCapiAndClearErrors(Func&& f) {
+    using ReturnType = decltype(f());
+
+    if constexpr (std::is_void_v<ReturnType>) {
+        std::forward<Func>(f)();
+        CApiErrors::getAndClearLastError();
+    } else {
+        auto result = std::forward<Func>(f)();
+        CApiErrors::getAndClearLastError();
+        return result;
+    }
+}
+
+template <typename Func>
+decltype(auto) callCapi(Func&& f) {
+    using ReturnType = decltype(f());
+
+    if constexpr (std::is_void_v<ReturnType>) {
+        std::forward<Func>(f)();
+    } else {
+        return std::forward<Func>(f)();
+    }
+}
+} // namespace CApiUtils
+
+#define CALL_C_API_CLEAR_ERRORS(func, ...) CApiUtils::callCapiAndClearErrors([&]() { return func##_internal(__VA_ARGS__); })
+#define CALL_C_API(func, ...) CApiUtils::callCapi([&]() { return func##_internal(__VA_ARGS__); })
 
 void setCurrentScriptInfo_cSide(int scriptHandle, int scriptNameIndex);
 int getCurrentScriptNameIndex_cSide();

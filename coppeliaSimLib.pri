@@ -68,20 +68,6 @@ WITH_GUI {
     QMAKE_CXXFLAGS_WARN_ON += /wd4100 # "unreferenced formal parameter"
     QMAKE_CXXFLAGS_WARN_ON += /wd4996 # "function or variable may be unsafe..."
     QMAKE_CXXFLAGS_WARN_ON += /wd4101 # "unreferenced local variable"
-
-    MSVC_VER = $$(VisualStudioVersion)
-    equals(MSVC_VER,14.0){
-        DEFINES += SIM_COMPILER_STR=\\\"MSVC2015\\\"
-    }
-    equals(MSVC_VER,15.0){
-        DEFINES += SIM_COMPILER_STR=\\\"MSVC2017\\\"
-    }
-    equals(MSVC_VER,16.0){
-        DEFINES += SIM_COMPILER_STR=\\\"MSVC2019\\\"
-    }
-    equals(MSVC_VER,17.0){
-        DEFINES += SIM_COMPILER_STR=\\\"MSVC2022\\\"
-    }
 }
 
 *-g++* { #includes MinGW
@@ -110,8 +96,6 @@ WITH_GUI {
     QMAKE_CXXFLAGS_WARN_ON += -Wsuggest-override
     QMAKE_CXXFLAGS_WARN_ON += -Werror=suggest-override
     QMAKE_CXXFLAGS += -Werror=return-type
-
-    DEFINES += SIM_COMPILER_STR=\\\"GCC\\\"
 }
 
 clang* {
@@ -142,8 +126,6 @@ clang* {
     QMAKE_CXXFLAGS += -Werror=return-type
     QMAKE_CFLAGS += -mmacosx-version-min=10.7
     QMAKE_CXXFLAGS += -mmacosx-version-min=10.7
-
-    DEFINES += SIM_COMPILER_STR=\\\"Clang\\\"
 }
 
 win32 {
