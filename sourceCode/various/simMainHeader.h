@@ -20,10 +20,10 @@
 #else
 #define SIM_COMPILER_STR "MSVC(unknown)"
 #endif
-#elif defined(__GNUC__)
-#define SIM_COMPILER_STR "GCC " TOSTR(__GNUC__) "." TOSTR(__GNUC_MINOR__) "." TOSTR(__GNUC_PATCHLEVEL__)
 #elif defined(__clang__)
 #define SIM_COMPILER_STR "Clang " TOSTR(__clang_major__) "." TOSTR(__clang_minor__) "." TOSTR(__clang_patchlevel__)
+#elif defined(__GNUC__)
+#define SIM_COMPILER_STR "GCC " TOSTR(__GNUC__) "." TOSTR(__GNUC_MINOR__) "." TOSTR(__GNUC_PATCHLEVEL__)
 #else
 #define SIM_COMPILER_STR "UnknownCompiler"
 #endif
