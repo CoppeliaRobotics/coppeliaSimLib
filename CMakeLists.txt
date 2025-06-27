@@ -171,7 +171,6 @@ else()
         set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -mmacosx-version-min=10.7")
         target_compile_definitions(coppeliaSim PRIVATE GL_SILENCE_DEPRECATION)
     endif()
-    # XXX: why don't we simply use CMAKE_CXX_COMPILER_ID?
 endif()
 
 if(WIN32)
