@@ -12058,15 +12058,15 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.callScriptFunction");
 
-    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
     {
         CScriptObject* script = nullptr;
         std::string funcName;
-        int scriptHandleOrType = luaToInt(L, 2);
+        int scriptHandleOrType = luaToInt(L, 1);
         if (scriptHandleOrType == sim_handle_self)
             scriptHandleOrType = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
 
-        funcName = luaWrap_lua_tostring(L, 1);
+        funcName = luaWrap_lua_tostring(L, 2);
         script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
 
         if (script != nullptr)
