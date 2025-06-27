@@ -79,6 +79,9 @@ WITH_GUI {
     equals(MSVC_VER,16.0){
         DEFINES += SIM_COMPILER_STR=\\\"MSVC2019\\\"
     }
+    equals(MSVC_VER,17.0){
+        DEFINES += SIM_COMPILER_STR=\\\"MSVC2022\\\"
+    }
 }
 
 *-g++* { #includes MinGW
