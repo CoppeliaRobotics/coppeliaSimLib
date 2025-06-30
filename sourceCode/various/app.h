@@ -335,6 +335,7 @@ class App
     static std::string _startupScriptString;
     static std::map<std::string /*originName*/, std::map<int /*verbosityLevel*/, std::map<std::string /*msg*/, bool>>> _logOnceMessages;
     static std::string _applicationDir;
+    static CPersistentDataContainer* _appStorage;
 #ifdef USE_LONG_LONG_HANDLES
     static long long int _nextHandle_object;
     static long long int _nextHandle_collection;

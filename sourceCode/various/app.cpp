@@ -51,6 +51,7 @@ std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
 std::map<std::string, std::map<int, std::map<std::string, bool>>> App::_logOnceMessages;
 std::string App::_applicationDir;
+CPersistentDataContainer* App::_appStorage = nullptr;
 std::vector<std::string> App::_applicationArguments;
 std::map<std::string, std::string> App::_applicationNamedParams;
 std::string App::_additionalAddOnScript1;
@@ -156,6 +157,7 @@ void App::setAppStage(int s)
 
 void App::init(const char* appDir, int)
 {
+    _appStorage = new CPersistentDataContainer("appStorage.dat");
     instancesList = new InstancesList();
     CSimFlavor::run(13);
     gm = new CGm();
@@ -357,6 +359,7 @@ void App::cleanup()
 #ifdef WIN_SIM
     timeEndPeriod(1);
 #endif
+    delete _appStorage;
     logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "CoppeliaSim ended.");
 }
 
@@ -2272,13 +2275,13 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
             if (pN.size() > 0)
             {
                 pN += "&customData"; // we add a suffix to separate user and system data
-                CPersistentDataContainer cont("appStorage.dat");
-                if (cont.writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true))
+                // CPersistentDataContainer cont("appStorage.dat");
+                if (_appStorage->writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true))
                 {
                     if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
                     {
                         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
-                        cont.appendEventData(pN.c_str(), ev);
+                        _appStorage->appendEventData(pN.c_str(), ev);
                         App::worldContainer->pushEvent();
                     }
                 }
@@ -2326,8 +2329,8 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
             pN += "&customData"; // we add a suffix to separate user and system data
             if (pN.size() > 0)
             {
-                CPersistentDataContainer cont("appStorage.dat");
-                if (cont.readData(pN.c_str(), pState))
+                //CPersistentDataContainer cont("appStorage.dat");
+                if (_appStorage->readData(pN.c_str(), pState))
                     retVal = 1;
             }
         }
@@ -2628,16 +2631,16 @@ int App::removeProperty(long long int target, const char* ppName)
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
             pN += "&customData"; // we add a suffix to separate user and system data
-            CPersistentDataContainer cont("appStorage.dat");
-            int tp = cont.hasData(pN.c_str(), true);
+            //CPersistentDataContainer cont("appStorage.dat");
+            int tp = _appStorage->hasData(pN.c_str(), true);
             if (tp >= 0)
             {
-                if (cont.clearData((propertyStrings[tp] + pN).c_str(), true))
+                if (_appStorage->clearData((propertyStrings[tp] + pN).c_str(), true))
                 {
                     if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
                     {
                         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
-                        cont.appendEventData(pN.c_str(), ev, true);
+                        _appStorage->appendEventData(pN.c_str(), ev, true);
                         App::worldContainer->pushEvent();
                     }
                 }
@@ -2710,8 +2713,8 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         {
             if (retVal == -1)
             {
-                CPersistentDataContainer cont("appStorage.dat");
-                if (cont.getPropertyName(index, pName))
+                //CPersistentDataContainer cont("appStorage.dat");
+                if (_appStorage->getPropertyName(index, pName))
                 {
                     pName = CUSTOMDATAPREFIX + pName;
                     retVal = 1;
@@ -2784,9 +2787,9 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                 if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
                 {
                     pN += "&customData";
-                    CPersistentDataContainer cont("appStorage.dat");
+                    //CPersistentDataContainer cont("appStorage.dat");
                     int s;
-                    retVal = cont.hasData(pN.c_str(), true, &s);
+                    retVal = _appStorage->hasData(pN.c_str(), true, &s);
                     if (retVal >= 0)
                     {
                         info = sim_propertyinfo_removable;
@@ -3056,8 +3059,8 @@ void App::pushGenesisEvents()
         worldContainer->pushEvent();
 
         ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
-        CPersistentDataContainer cont("appStorage.dat");
-        cont.appendEventData(nullptr, ev);
+        //CPersistentDataContainer cont("appStorage.dat");
+        _appStorage->appendEventData(nullptr, ev);
         worldContainer->pushEvent();
 
         if (worldContainer->sandboxScript != nullptr)
