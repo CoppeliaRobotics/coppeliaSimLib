@@ -10,7 +10,7 @@ set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 
 if(NOT LUA_INCLUDE_DIR OR NOT LUA_LIBRARIES)
-    find_package(Lua 5.3 EXACT REQUIRED)
+    find_package(Lua 5.4 EXACT REQUIRED)
 endif()
 
 if(UNIX AND NOT APPLE)
@@ -171,7 +171,6 @@ else()
         set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -mmacosx-version-min=10.7")
         target_compile_definitions(coppeliaSim PRIVATE GL_SILENCE_DEPRECATION)
     endif()
-    # XXX: why don't we simply use CMAKE_CXX_COMPILER_ID?
 endif()
 
 if(WIN32)
