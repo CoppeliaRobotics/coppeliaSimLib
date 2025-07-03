@@ -648,7 +648,12 @@ int simSetLastError_internal(const char* setToNullptr, const char* errorMessage)
         if (setToNullptr != nullptr)
             func = setToNullptr;
         if (func.compare(0, 8, "warning@") != 0) // warnings from c++ are not reported anymore
-            CApiErrors::setLastError(__func__, errorMessage);
+        {
+            if ((errorMessage == nullptr) || (strlen(errorMessage) == 0))
+                CApiErrors::setLastError(__func__, "error msg is invalid.");
+            else
+                CApiErrors::setLastError(__func__, errorMessage);
+        }
         return (1);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

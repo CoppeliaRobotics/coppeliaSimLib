@@ -18,6 +18,7 @@ USES_QGLWIDGET {
 }
 
 CONFIG += shared plugin debug_and_release
+CONFIG += c++17
 
 !HEADLESS {
    CONFIG += WITH_GUI
@@ -48,12 +49,9 @@ WITH_GUI {
 }
 
 *-msvc* {
-    CONFIG += c++17
     QMAKE_CXXFLAGS += /std:c++17
-    QMAKE_CFLAGS += /O2
-    QMAKE_CFLAGS += /fp:precise
-    QMAKE_CXXFLAGS += /O2
-    QMAKE_CXXFLAGS += /fp:precise
+    QMAKE_CFLAGS += /O2 /fp:precise
+    QMAKE_CXXFLAGS += /O2 /fp:precise
     QMAKE_CXXFLAGS += /we4715 # "error when no return value"
 
     #QMAKE_CXXFLAGS += /Zi
@@ -77,7 +75,6 @@ WITH_GUI {
         QMAKE_CFLAGS += -O3
         QMAKE_CXXFLAGS += -O3
     }
-    CONFIG += c++17
     QMAKE_CFLAGS_WARN_ON = -Wall
     QMAKE_CFLAGS_WARN_ON += -Wno-strict-aliasing
     QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter
@@ -106,7 +103,6 @@ clang* {
         QMAKE_CXXFLAGS += -O3
     }
 
-    CONFIG += c++17
     QMAKE_CFLAGS_WARN_ON = -Wall
     QMAKE_CFLAGS_WARN_ON += -Wno-strict-aliasing
     QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter

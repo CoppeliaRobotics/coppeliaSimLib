@@ -431,18 +431,15 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     // Handle a running simulation:
     if (stepIfRunning && (CALL_C_API_CLEAR_ERRORS(simGetSimulationState) & sim_simulation_advancing) != 0)
     {
-        if ((!App::currentWorld->simulation->getIsRealTimeSimulation()) ||
-            App::currentWorld->simulation->isRealTimeCalculationStepNeeded())
+        if ((!App::currentWorld->simulation->getIsRealTimeSimulation()) || App::currentWorld->simulation->isRealTimeCalculationStepNeeded())
         {
-            if ((!worldContainer->shouldTemporarilySuspendMainScript()) ||
-                App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart())
+            if ((!worldContainer->shouldTemporarilySuspendMainScript()) || App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart())
             {
                 CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
                 if (it != nullptr)
                 {
                     worldContainer->calcInfo->simulationPassStart();
-                    App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(
-                        App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
+                    App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
                     it->systemCallMainScript(-1, nullptr, nullptr);
                     worldContainer->calcInfo->simulationPassEnd();
                 }

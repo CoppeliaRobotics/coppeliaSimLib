@@ -42,7 +42,6 @@ void CSimulation::setUpDefaultValues()
     _simulationTimeToPause = 10.0;
     _pauseAtSpecificTime = false;
     _pauseAtError = true;
-    _pauseOnErrorRequested = false;
     _hierarchyWasEnabledBeforeSimulation = false;
     _initialValuesInitialized = false;
     _removeNewObjectsAtSimulationEnd = true;
@@ -213,44 +212,37 @@ bool CSimulation::getSettingsAreDefault() const
     return (fabs(dt - 0.05) < 0.0001);
 }
 
-bool CSimulation::startOrResumeSimulation()
+void CSimulation::startOrResumeSimulation()
 {
     TRACE_INTERNAL;
+    _requestToPause = false;
+    _requestToStop = false;
     if (isSimulationStopped())
     {
 #ifdef SIM_WITH_GUI
         GuiApp::setFullScreen(_fullscreenAtSimulationStart);
 #endif
         App::worldContainer->simulationAboutToStart();
-        _pauseOnErrorRequested = false;
         _realTimeCorrection = 0.0;
         _setSimulationTime(0.0);
         simulationTime_real = 0.0;
         simulationTime_real_noCatchUp = 0.0;
         _clearSimulationTimeHistory();
-        _requestToStop = false;
-        _requestToPause = false;
         simulationTime_real_lastInMs = (int)VDateTime::getTimeInMs();
         setSimulationStepCount(0);
         setSimulationState(sim_simulation_advancing_firstafterstop);
-        return (true);
     }
     else if (isSimulationPaused())
     {
         App::worldContainer->simulationAboutToResume();
-
         _realTimeCorrection = 0.0;
-        setSimulationState(sim_simulation_advancing_firstafterpause);
+        setSimulationState(sim_simulation_advancing_running);
         simulationTime_real_lastInMs = (int)VDateTime::getTimeInMs();
-        _requestToPause = false;
-        return (true);
+        advanceSimulationByOneStep();
     }
-    // Following not used anymore??
-    _requestToPause = false;
-    return (false);
 }
 
-bool CSimulation::stopSimulation()
+void CSimulation::stopSimulation()
 {
     TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
@@ -258,50 +250,40 @@ bool CSimulation::stopSimulation()
         GuiApp::setFullScreen(false);
 #endif
 
-    if ((getSimulationState() == sim_simulation_advancing_abouttostop) ||
-        (getSimulationState() == sim_simulation_advancing_lastbeforestop))
-        return (true); // in this situation, we are stopping anyway!!
-    if (getSimulationState() == sim_simulation_paused)
+    if ((getSimulationState() != sim_simulation_advancing_abouttostop) && (getSimulationState() != sim_simulation_advancing_lastbeforestop))
     {
-        App::worldContainer->simulationAboutToResume();
-
-        // Special case here: we have to change the state directly here (and not automatically in
-        // "advanceSimulationByOneStep")
-        setSimulationState(sim_simulation_advancing_firstafterpause);
+        if (getSimulationState() == sim_simulation_paused)
+        {
+            App::worldContainer->simulationAboutToResume();
+            setSimulationState(sim_simulation_advancing_running);
+            advanceSimulationByOneStep(); // we paused in last simulation step. So we need to step here
+        }
+        if (!_requestToStop)
+        {
+            timeInMsWhenStopWasPressed = (int)VDateTime::getTimeInMs();
+            _requestToStop = true;
+        }
     }
-    if (!_requestToStop)
-    {
-        timeInMsWhenStopWasPressed = (int)VDateTime::getTimeInMs();
-        _requestToStop = true;
-    }
-    return (true);
 }
 
-bool CSimulation::pauseSimulation()
+void CSimulation::pauseSimulation()
 {
-    if ((getSimulationState() != sim_simulation_advancing_firstafterstop) &&
-        (getSimulationState() != sim_simulation_advancing_running) &&
-        (getSimulationState() != sim_simulation_advancing_firstafterpause))
-        return (false); // in these situations, we are already about to pause or stopping anyway!!
-    if (_requestToStop)
-        return (false);
-    _requestToPause = true;
-    return (true);
+    _requestToPause = ((_simulationState != sim_simulation_stopped) && (_simulationState != sim_simulation_paused) && (!_requestToStop));
 }
 
 bool CSimulation::isSimulationRunning() const
 {
-    return ((getSimulationState() & sim_simulation_advancing) != 0);
+    return ((_simulationState & sim_simulation_advancing) != 0);
 }
 
 bool CSimulation::isSimulationStopped() const
 {
-    return (getSimulationState() == sim_simulation_stopped);
+    return (_simulationState == sim_simulation_stopped);
 }
 
 bool CSimulation::isSimulationPaused() const
 {
-    return (getSimulationState() == sim_simulation_paused);
+    return (_simulationState == sim_simulation_paused);
 }
 
 void CSimulation::adjustRealTimeTimer(double deltaTime)
@@ -312,86 +294,69 @@ void CSimulation::adjustRealTimeTimer(double deltaTime)
 void CSimulation::advanceSimulationByOneStep()
 {
     TRACE_INTERNAL;
-    if (!isSimulationRunning())
-        return;
-
-    if (_pauseAtError && _pauseOnErrorRequested)
-    {
-        pauseSimulation();
-        _pauseOnErrorRequested = false;
-    }
-    else
+    if (isSimulationRunning())
     {
         if (_pauseAtSpecificTime && (getSimulationTime() >= _simulationTimeToPause))
         {
-            pauseSimulation();
+            _requestToPause = true;
             setPauseAtSpecificTime(false);
         }
-    }
-
-    App::worldContainer->simulationAboutToStep();
-
-    setSimulationStepCount(_simulationStepCount + 1);
-    if (_simulationStepCount == 1)
-        _realTimeCorrection = 0.0;
-
-    _setSimulationTime(getSimulationTime() + getTimeStep());
-
-    int ct = (int)VDateTime::getTimeInMs();
-    double drt = (double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs)) / 1000.0 + _realTimeCorrection) *
-                 getRealTimeCoeff();
-    simulationTime_real += drt;
-    simulationTime_real_noCatchUp += drt;
-    if (simulationTime_real_noCatchUp > getSimulationTime() + getTimeStep())
-        simulationTime_real_noCatchUp = getSimulationTime() + getTimeStep();
-    _realTimeCorrection = 0.0;
-    simulationTime_real_lastInMs = ct;
-    _addToSimulationTimeHistory(getSimulationTime(), simulationTime_real);
-
-    if (getSimulationState() == sim_simulation_advancing_firstafterstop)
-        setSimulationState(sim_simulation_advancing_running);
-    else if (getSimulationState() == sim_simulation_advancing_running)
-    {
-        if (_requestToStop)
+        if (_requestToPause)
         {
-            setSimulationState(sim_simulation_advancing_abouttostop);
-            _requestToStop = false;
+            setSimulationState(sim_simulation_paused);
+            App::worldContainer->simulationPaused(); // calls sim_syscb_suspend
+            _requestToPause = false;
         }
         else
         {
-            if (_requestToPause)
+            App::worldContainer->simulationAboutToStep();
+
+            setSimulationStepCount(_simulationStepCount + 1);
+            if (_simulationStepCount == 1)
+                _realTimeCorrection = 0.0;
+
+            _setSimulationTime(getSimulationTime() + getTimeStep());
+
+            int ct = (int)VDateTime::getTimeInMs();
+            double drt = (double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs)) / 1000.0 + _realTimeCorrection) *
+                         getRealTimeCoeff();
+            simulationTime_real += drt;
+            simulationTime_real_noCatchUp += drt;
+            if (simulationTime_real_noCatchUp > getSimulationTime() + getTimeStep())
+                simulationTime_real_noCatchUp = getSimulationTime() + getTimeStep();
+            _realTimeCorrection = 0.0;
+            simulationTime_real_lastInMs = ct;
+            _addToSimulationTimeHistory(getSimulationTime(), simulationTime_real);
+
+            if (getSimulationState() == sim_simulation_advancing_firstafterstop)
+                setSimulationState(sim_simulation_advancing_running);
+            else if (getSimulationState() == sim_simulation_advancing_running)
             {
-                setSimulationState(sim_simulation_advancing_lastbeforepause);
-                _requestToPause = false;
+                if (_requestToStop)
+                {
+                    setSimulationState(sim_simulation_advancing_abouttostop);
+                    _requestToStop = false;
+                }
+            }
+            else if (getSimulationState() == sim_simulation_advancing_abouttostop)
+                setSimulationState(sim_simulation_advancing_lastbeforestop);
+            else if (getSimulationState() == sim_simulation_advancing_lastbeforestop)
+            {
+                App::worldContainer->simulationAboutToEnd();
+                setSimulationState(sim_simulation_stopped);
+                App::worldContainer->simulationEnded(_removeNewObjectsAtSimulationEnd);
+            }
+            while (_desiredFasterOrSlowerSpeed > 0)
+            {
+                _goFasterOrSlower(1);
+                _desiredFasterOrSlowerSpeed--;
+            }
+            while (_desiredFasterOrSlowerSpeed < 0)
+            {
+                _goFasterOrSlower(-1);
+                _desiredFasterOrSlowerSpeed++;
             }
         }
-    }
-    else if (getSimulationState() == sim_simulation_advancing_lastbeforepause)
-    {
-        setSimulationState(sim_simulation_paused);
-        App::worldContainer->simulationPaused();
-    }
-    else if (getSimulationState() == sim_simulation_advancing_firstafterpause)
-    {
-        setSimulationState(sim_simulation_advancing_running);
-    }
-    else if (getSimulationState() == sim_simulation_advancing_abouttostop)
-        setSimulationState(sim_simulation_advancing_lastbeforestop);
-    else if (getSimulationState() == sim_simulation_advancing_lastbeforestop)
-    {
-        App::worldContainer->simulationAboutToEnd();
-        setSimulationState(sim_simulation_stopped);
-        App::worldContainer->simulationEnded(_removeNewObjectsAtSimulationEnd);
-    }
-    while (_desiredFasterOrSlowerSpeed > 0)
-    {
-        _goFasterOrSlower(1);
-        _desiredFasterOrSlowerSpeed--;
-    }
-    while (_desiredFasterOrSlowerSpeed < 0)
-    {
-        _goFasterOrSlower(-1);
-        _desiredFasterOrSlowerSpeed++;
     }
 }
 
@@ -633,7 +598,7 @@ void CSimulation::pauseOnErrorRequested()
     if (isSimulationRunning())
     {
         if (_pauseAtError && (!_requestToStop))
-            _pauseOnErrorRequested = true;
+            _requestToPause = true;
     }
 }
 

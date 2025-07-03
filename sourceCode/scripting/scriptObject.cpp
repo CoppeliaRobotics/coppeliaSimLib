@@ -2068,8 +2068,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
     if (_executionDepth == 0)
         _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
     setExecutionDepth(_executionDepth + 1);
-    int retVal =
-        _callScriptFunction(callType, getSystemCallbackString(callType, 0).c_str(), inStack, outStack, &errMsg);
+    int retVal = _callScriptFunction(callType, getSystemCallbackString(callType, 0).c_str(), inStack, outStack, &errMsg);
     setExecutionDepth(_executionDepth - 1);
     if (_executionDepth == 0)
         _timeOfScriptExecutionStart = -1;
@@ -2147,8 +2146,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
     return (retVal);
 }
 
-int CScriptObject::_callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack,
-                                       CInterfaceStack* outStack, std::string* errorMsg)
+int CScriptObject::_callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg)
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     // This will also execute function hooks
     int retVal = 1;
@@ -2323,8 +2321,7 @@ int CScriptObject::_callScriptFunc(const char* functionName, const CInterfaceSta
             int currentTop = luaWrap_lua_gettop(L);
             int numberOfArgs = currentTop - oldTop - 1; // the first arg is linked to the debug mechanism
             if (outStack != nullptr)
-                buildFromInterpreterStack_lua(L, outStack, oldTop + 1 + 1,
-                                              numberOfArgs); // the first arg is linked to the debug mechanism
+                buildFromInterpreterStack_lua(L, outStack, oldTop + 1 + 1, numberOfArgs); // the first arg is linked to the debug mechanism
         }
     }
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
@@ -2716,8 +2713,7 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
     if ((errM.find("attempt to yield across metamethod/C-call boundary") == std::string::npos) &&
         (errM.find("attempt to yield from outside a coroutine") == std::string::npos))
     { // silent error when breaking out of a threaded simulation script at simulation end
-        if ((_scriptType == sim_scripttype_main) || (_scriptType == sim_scripttype_simulation) ||
-            (_scriptType == sim_scripttype_customization))
+        if ((_scriptType == sim_scripttype_main) || (_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
             App::currentWorld->simulation->pauseOnErrorRequested();
         App::logScriptMsg(this, sim_verbosity_scripterrors, errM.c_str());
         _lastStackTraceback = errM;

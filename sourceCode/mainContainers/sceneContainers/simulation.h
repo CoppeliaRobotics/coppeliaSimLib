@@ -40,9 +40,9 @@ class CSimulation
     void simulationAboutToStart();
     void simulationEnded();
     void setUpDefaultValues();
-    bool startOrResumeSimulation();
-    bool stopSimulation();
-    bool pauseSimulation();
+    void startOrResumeSimulation();
+    void stopSimulation();
+    void pauseSimulation();
     bool isSimulationRunning() const;
     bool isSimulationPaused() const;
     bool isSimulationStopped() const;
@@ -157,12 +157,10 @@ class CSimulation
     double _simulationTimeToPause;
     bool _pauseAtSpecificTime;
     bool _pauseAtError;
-    bool _pauseOnErrorRequested;
     bool _hierarchyWasEnabledBeforeSimulation;
 
     int _simulationState;
-    bool _requestToStop;  // Indicates a passage from paused to stop (but through running!). Check the simulation state
-                          // diagram!!
+    bool _requestToStop;  // Indicates a passage from paused to stop (but through running!). Check the simulation state diagram!!
     bool _requestToPause; // added on 2010/01/13 (simPauseSimulation didn't work in the first simulation pass)
 
     // Following is needed to determine if we are really in real-time mode

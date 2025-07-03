@@ -259,7 +259,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Pause when simulation time higher than</string>
+     <string>Pause at simulation time</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="qqPauseOnScriptError">
