@@ -926,7 +926,19 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
             if (commandID == ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
                 opt += 2;
             txt += std::to_string(opt) + ",100)\nsim.setObjectSel({path})";
-            App::worldContainer->sandboxScript->executeScriptString(txt.c_str(), nullptr);
+
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            if (App::worldContainer->sandboxScript->executeScriptString(txt.c_str(), stack) == -1)
+            {
+                App::logMsg(sim_verbosity_errors, "internal 'executeScriptString' in sandbox produced an error:");
+                std::string err;
+                stack->getStackStringValue(err);
+                App::logMsg(sim_verbosity_errors, err.c_str());
+            }
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+
+
+
             if ((sel != nullptr) && (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1))
             {
                 CSceneObject* path = App::currentWorld->sceneObjects->getLastSelectionObject();
