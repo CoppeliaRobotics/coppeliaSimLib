@@ -230,7 +230,7 @@ void CSimulation::startOrResumeSimulation()
         _clearSimulationTimeHistory();
         simulationTime_real_lastInMs = (int)VDateTime::getTimeInMs();
         setSimulationStepCount(0);
-        setSimulationState(sim_simulation_advancing_firstafterstop);
+        setSimulationState(sim_simulation_advancing_running);
     }
     else if (isSimulationPaused())
     {
@@ -250,7 +250,7 @@ void CSimulation::stopSimulation()
         GuiApp::setFullScreen(false);
 #endif
 
-    if ((getSimulationState() != sim_simulation_advancing_abouttostop) && (getSimulationState() != sim_simulation_advancing_lastbeforestop))
+    if (getSimulationState() != sim_simulation_advancing_lastbeforestop)
     {
         if (getSimulationState() == sim_simulation_paused)
         {
@@ -328,18 +328,14 @@ void CSimulation::advanceSimulationByOneStep()
             simulationTime_real_lastInMs = ct;
             _addToSimulationTimeHistory(getSimulationTime(), simulationTime_real);
 
-            if (getSimulationState() == sim_simulation_advancing_firstafterstop)
-                setSimulationState(sim_simulation_advancing_running);
-            else if (getSimulationState() == sim_simulation_advancing_running)
+            if (getSimulationState() == sim_simulation_advancing_running)
             {
                 if (_requestToStop)
                 {
-                    setSimulationState(sim_simulation_advancing_abouttostop);
+                    setSimulationState(sim_simulation_advancing_lastbeforestop);
                     _requestToStop = false;
                 }
             }
-            else if (getSimulationState() == sim_simulation_advancing_abouttostop)
-                setSimulationState(sim_simulation_advancing_lastbeforestop);
             else if (getSimulationState() == sim_simulation_advancing_lastbeforestop)
             {
                 App::worldContainer->simulationAboutToEnd();

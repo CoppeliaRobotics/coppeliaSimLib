@@ -1604,7 +1604,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceSt
         App::currentWorld->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
         int startT = int(VDateTime::getTimeInMs());
 
-        if (App::currentWorld->simulation->getSimulationState() == sim_simulation_advancing_firstafterstop)
+        if (_scriptState < scriptState_initialized)
             retVal = systemCallScript(sim_syscb_init, inStack, outStack);
 
         retVal = systemCallScript(sim_syscb_actuation, inStack, outStack);

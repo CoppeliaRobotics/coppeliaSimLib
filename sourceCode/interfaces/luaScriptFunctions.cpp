@@ -726,11 +726,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.simulation_stopped", sim_simulation_stopped},
     {"sim.simulation_paused", sim_simulation_paused},
     {"sim.simulation_advancing", sim_simulation_advancing},
-    {"sim.simulation_advancing_firstafterstop", sim_simulation_advancing_firstafterstop},
     {"sim.simulation_advancing_running", sim_simulation_advancing_running},
-    {"sim.simulation_advancing_lastbeforepause", sim_simulation_advancing_lastbeforepause},
-    {"sim.simulation_advancing_firstafterpause", sim_simulation_advancing_firstafterpause},
-    {"sim.simulation_advancing_abouttostop", sim_simulation_advancing_abouttostop},
     {"sim.simulation_advancing_lastbeforestop", sim_simulation_advancing_lastbeforestop},
     // Texture mapping modes:
     {"sim.texturemap_plane", sim_texturemap_plane},
