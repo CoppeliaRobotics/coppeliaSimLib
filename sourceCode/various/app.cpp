@@ -1042,15 +1042,18 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
 
         {
             std::string message(msg);
-            // For backward compatibility with messages that already have HTML tags:
+            bool html = false;
+
             size_t p = message.rfind("@html");
             if ((p != std::string::npos) && (p == message.size() - 5))
-            { // strip HTML stuff off
+            {
                 message.assign(message.c_str(), message.c_str() + message.size() - 5);
-                QTextDocument doc;
-                doc.setHtml(message.c_str());
-                message = doc.toPlainText().toStdString();
+                html = true;
             }
+
+            if(!html)
+                message = _getHtmlEscapedString(message.c_str());
+
             vars["message"] = message;
         }
 
@@ -1098,7 +1101,6 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
         if ((statusbarVerbosity >= realVerbosityLevel) && (GuiApp::uiThread != nullptr) &&
             ((verbosityLevel & sim_verbosity_onlyterminal) == 0))
         {
-            vars["message"] = _getHtmlEscapedString(vars["message"].c_str());
             std::string statusbarTxt =
                 replaceVars(decorateMsg ? statusbarLogFormat : statusbarLogFormatUndecorated, vars);
             GuiApp::logMsgToStatusbar(statusbarTxt.c_str(), true);
