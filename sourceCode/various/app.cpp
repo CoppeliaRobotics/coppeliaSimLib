@@ -1042,29 +1042,20 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
 
         {
             std::string message(msg);
-            bool html = false;
-
+            // For backward compatibility with messages that already have HTML tags:
             size_t p = message.rfind("@html");
             if ((p != std::string::npos) && (p == message.size() - 5))
-            {
+            { // strip HTML stuff off
                 message.assign(message.c_str(), message.c_str() + message.size() - 5);
-                html = true;
+                QTextDocument doc;
+                doc.setHtml(message.c_str());
+                message = doc.toPlainText().toStdString();
             }
-
-            vars["messageText"] = message;
-            QTextDocument doc;
-            doc.setHtml(vars["messageText"].c_str());
-            vars["messageText"] = doc.toPlainText().toStdString();
-
-            if(!html)
-                message = _getHtmlEscapedString(message.c_str());
-
-            vars["messageHTML"] = message;
+            vars["message"] = message;
         }
 
         //   boost::replace_all(vars["message"],"\n","\n    ");
 
-        vars["message"] = vars["messageText"];
         std::string consoleTxt(replaceVars(consoleLogFormat, vars) + "\n");
         if (userSettings == nullptr)
             consoleLogFormat.clear();
@@ -1107,7 +1098,7 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
         if ((statusbarVerbosity >= realVerbosityLevel) && (GuiApp::uiThread != nullptr) &&
             ((verbosityLevel & sim_verbosity_onlyterminal) == 0))
         {
-            vars["message"] = vars["messageHTML"];
+            vars["message"] = _getHtmlEscapedString(vars["message"].c_str());
             std::string statusbarTxt =
                 replaceVars(decorateMsg ? statusbarLogFormat : statusbarLogFormatUndecorated, vars);
             GuiApp::logMsgToStatusbar(statusbarTxt.c_str(), true);
