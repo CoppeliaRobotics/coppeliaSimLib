@@ -4,6 +4,12 @@
 #include <tt.h>
 #include <app.h>
 #include <simFlavor.h>
+#include <interfaceStackBool.h>
+#include <interfaceStackNumber.h>
+#include <interfaceStackInteger.h>
+#include <interfaceStackString.h>
+#include <interfaceStackTable.h>
+#include <interfaceStackMatrix.h>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
 #endif
@@ -2637,6 +2643,75 @@ int CWorld::getWorldHandle() const
     return (_worldHandle);
 }
 
+bool CWorld::_getStackLocation_write(const char* ppName, int& ind, std::string& key, CInterfaceStack* stack)
+{
+    int retVal = -2;
+    if (stack != nullptr)
+    {
+        std::string ll(ppName);
+        size_t p = ll.find(".");
+        if (p != std::string::npos)
+        {
+            key.assign(ll.begin() + p + 1, ll.end());
+            if (key.size() == 0)
+                key = "@arrayAppend@";
+            ll.resize(p);
+        }
+        retVal = -1;
+        if ((ll.size() == 0) || tt::stringToInt(ll.c_str(), ind))
+        {
+            if (ll.size() == 0)
+            { // append item to stack
+                if (key.size() != 0)
+                    stack->pushTableOntoStack(); // in order to later be able to append an array or map item
+                else
+                    stack->pushNullOntoStack(); // doesn't matter what we push, will be overwritten later
+                ind = stack->getStackSize() - 1;
+                retVal = 0;
+            }
+            else
+            {
+                if (ind < 0)
+                    ind += stack->getStackSize();
+                if (ind < stack->getStackSize())
+                    retVal = 0;
+            }
+        }
+    }
+    return retVal;
+}
+
+bool CWorld::_getStackLocation_read(const char* ppName, int& ind, std::string& key, int& arrIndex, CInterfaceStack* stack)
+{
+    int retVal = -2; // error, target does not exist
+    if (stack != nullptr)
+    {
+        std::string ll(ppName);
+        size_t p = ll.find(".");
+        if (p != std::string::npos)
+        {
+            key.assign(ll.begin() + p + 1, ll.end());
+            if (key.size() == 0)
+                ll.clear(); // index/key not specified: error
+            else
+            {
+                ll.resize(p);
+                if (!tt::stringToInt(key.c_str(), arrIndex))
+                    arrIndex = -1; // key is a map key
+            }
+        }
+        retVal = -1; // error
+        if (tt::stringToInt(ll.c_str(), ind))
+        {
+            if (ind < 0)
+                ind += stack->getStackSize();
+            if (ind < stack->getStackSize())
+                retVal = 0;
+        }
+    }
+    return retVal;
+}
+
 int CWorld::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
     if (target == sim_handle_mainscript)
@@ -2679,6 +2754,46 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             retVal = script->setBoolProperty(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackBool(pState));
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            tbl->appendArrayObject_bool(pState);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            tbl->appendMapObject_bool(key.c_str(), pState);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -2730,6 +2845,45 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
             retVal = script->getBoolProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
+                {
+                    pState = ((CInterfaceStackBool*)it)->getValue();
+                    retVal = 1;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
+                    {
+                        pState = ((CInterfaceStackBool*)it)->getValue();
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -2779,6 +2933,46 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
             retVal = script->setIntProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackInteger(pState));
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            tbl->appendArrayObject_int32(pState);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            tbl->appendMapObject_int32(key.c_str(), pState);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -2826,6 +3020,45 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             retVal = script->getIntProperty(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
+                {
+                    pState = int(((CInterfaceStackInteger*)it)->getValue());
+                    retVal = 1;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
+                    {
+                        pState = int(((CInterfaceStackInteger*)it)->getValue());
+                        retVal = 1;
+                    }
+                }
+            }
         }
     }
     else
@@ -2879,6 +3112,46 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
             retVal = script->setLongProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackInteger(pState));
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            tbl->appendArrayObject_int64(pState);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            tbl->appendMapObject_int64(key.c_str(), pState);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -2930,6 +3203,45 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
             retVal = script->getLongProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
+                {
+                    pState = ((CInterfaceStackInteger*)it)->getValue();
+                    retVal = 1;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
+                    {
+                        pState = ((CInterfaceStackInteger*)it)->getValue();
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -2975,6 +3287,46 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //   retVal = script->setFloatProperty(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackNumber(pState));
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            tbl->appendArrayObject_double(pState);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            tbl->appendMapObject_double(key.c_str(), pState);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -3024,6 +3376,45 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
             //    retVal = script->getFloatProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_double) )
+                {
+                    pState = ((CInterfaceStackNumber*)it)->getValue();
+                    retVal = 1;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_double) )
+                    {
+                        pState = ((CInterfaceStackNumber*)it)->getValue();
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3071,6 +3462,46 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
             retVal = script->setStringProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(pState));
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            tbl->appendArrayObject_text(pState);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            tbl->appendMapObject_text(key.c_str(), pState);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3116,6 +3547,45 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             retVal = script->getStringProperty(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
+                {
+                    pState = ((CInterfaceStackString*)it)->getValue(nullptr);
+                    retVal = 1;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
+                    {
+                        pState = ((CInterfaceStackString*)it)->getValue(nullptr);
+                        retVal = 1;
+                    }
+                }
+            }
         }
     }
     else
@@ -3178,6 +3648,46 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
             //    retVal = script->setBufferProperty(pName, buffer, bufferL);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(buffer, bufferL, true));
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            tbl->appendArrayObject_buffer(buffer, bufferL);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            tbl->appendMapObject_buffer(key.c_str(), buffer, bufferL);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3233,6 +3743,50 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
             //    retVal = script->getBufferProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && (!((CInterfaceStackString*)it)->isText()) )
+                {
+                    size_t l;
+                    const char* val = ((CInterfaceStackString*)it)->getValue(&l);
+                    pState.assign(val, val + l);
+                    retVal = 1;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && (!((CInterfaceStackString*)it)->isText()) )
+                    {
+                        size_t l;
+                        const char* val = ((CInterfaceStackString*)it)->getValue(&l);
+                        pState.assign(val, val + l);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3276,6 +3830,52 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //    retVal = script->setIntArray2Property(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackTable* tbl = new CInterfaceStackTable();
+                tbl->setInt32Array(pState, 2);
+                stack->replaceStackObjectFromIndex(stackIndex, tbl);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setInt32Array(pState, 2);
+                            tbl->appendArrayObject(tbl2);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setInt32Array(pState, 2);
+                            tbl->appendMapObject_object(key.c_str(), tbl2);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -3323,6 +3923,55 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
             //    retVal = script->getIntArray2Property(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_integer, true) && (arrSize == 2))
+                    {
+                        tbl->getInt32Array(pState, int(arrSize));
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_integer, true) && (arrSize == 2))
+                        {
+                            tbl->getInt32Array(pState, int(arrSize));
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3366,6 +4015,49 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //    retVal = script->setVector2Property(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState, 2, 1);
+                stack->replaceStackObjectFromIndex(stackIndex, m);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState, 2, 1);
+                            tbl->appendArrayObject(m);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState, 2, 1);
+                            tbl->appendMapObject_object(key.c_str(), m);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -3413,6 +4105,59 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
             //    retVal = script->getVector2Property(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                {
+                    CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                    size_t r, c;
+                    const double* w = m->getValue(r, c);
+                    if ((r == 2) && (c == 1))
+                    {
+                        for (size_t i = 0; i < 2; i++)
+                            pState[i] = w[i];
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                    {
+                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                        size_t r, c;
+                        const double* w = m->getValue(r, c);
+                        if ((r == 2) && (c == 1))
+                        {
+                            for (size_t i = 0; i < 2; i++)
+                                pState[i] = w[i];
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3456,6 +4201,49 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //    retVal = script->setVector3Property(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
+                stack->replaceStackObjectFromIndex(stackIndex, m);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
+                            tbl->appendArrayObject(m);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
+                            tbl->appendMapObject_object(key.c_str(), m);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -3503,6 +4291,57 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
             //    retVal = script->getVector3Property(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                {
+                    CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                    size_t r, c;
+                    const double* w = m->getValue(r, c);
+                    if ((r == 3) && (c == 1))
+                    {
+                        pState.setData(w);
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                    {
+                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                        size_t r, c;
+                        const double* w = m->getValue(r, c);
+                        if ((r == 3) && (c == 1))
+                        {
+                            pState.setData(w);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3544,6 +4383,49 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //    retVal = script->setQuaternionProperty(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 4, 1);
+                stack->replaceStackObjectFromIndex(stackIndex, m);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 4, 1);
+                            tbl->appendArrayObject(m);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 4, 1);
+                            tbl->appendMapObject_object(key.c_str(), m);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -3589,6 +4471,57 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
             //    retVal = script->getQuaternionProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                {
+                    CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                    size_t r, c;
+                    const double* w = m->getValue(r, c);
+                    if ((r == 4) && (c == 1))
+                    {
+                        pState.setData(w);
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                    {
+                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                        size_t r, c;
+                        const double* w = m->getValue(r, c);
+                        if ((r == 4) && (c == 1))
+                        {
+                            pState.setData(w);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3632,6 +4565,51 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
             //    retVal = script->setPoseProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            double poseData[7];
+            pState.getData(poseData);
+            if (key.size() == 0)
+            {
+                CInterfaceStackMatrix* m = new CInterfaceStackMatrix(poseData, 7, 1);
+                stack->replaceStackObjectFromIndex(stackIndex, m);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(poseData, 7, 1);
+                            tbl->appendArrayObject(m);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(poseData, 7, 1);
+                            tbl->appendMapObject_object(key.c_str(), m);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3673,6 +4651,57 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //    retVal = script->getPoseProperty(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                {
+                    CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                    size_t r, c;
+                    const double* w = m->getValue(r, c);
+                    if ((r == 7) && (c == 1))
+                    {
+                        pState.setData(w);
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                    {
+                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                        size_t r, c;
+                        const double* w = m->getValue(r, c);
+                        if ((r == 7) && (c == 1))
+                        {
+                            pState.setData(w);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -3720,6 +4749,52 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
             //    retVal = script->setColorProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackTable* tbl = new CInterfaceStackTable();
+                tbl->setFloatArray(pState, 3);
+                stack->replaceStackObjectFromIndex(stackIndex, tbl);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setFloatArray(pState, 3);
+                            tbl->appendArrayObject(tbl2);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setFloatArray(pState, 3);
+                            tbl->appendMapObject_object(key.c_str(), tbl2);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3765,6 +4840,55 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
             //    retVal = script->getColorProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 3))
+                    {
+                        tbl->getFloatArray(pState, int(arrSize));
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 3))
+                        {
+                            tbl->getFloatArray(pState, int(arrSize));
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3808,6 +4932,52 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //    retVal = script->setFloatArrayProperty(pName, v, vL);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackTable* tbl = new CInterfaceStackTable();
+                tbl->setDoubleArray(v, vL);
+                stack->replaceStackObjectFromIndex(stackIndex, tbl);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setDoubleArray(v, vL);
+                            tbl->appendArrayObject(tbl2);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setDoubleArray(v, vL);
+                            tbl->appendMapObject_object(key.c_str(), tbl2);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -3856,6 +5026,57 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
             //    retVal = script->getFloatArrayProperty(pName, pState);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_double, true))
+                    {
+                        pState.resize(arrSize);
+                        tbl->getDoubleArray(pState.data(), int(arrSize));
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_double, true))
+                        {
+                            pState.resize(arrSize);
+                            tbl->getDoubleArray(pState.data(), int(arrSize));
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3899,6 +5120,52 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //    retVal = script->setIntArrayProperty(pName, v, vL);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackTable* tbl = new CInterfaceStackTable();
+                tbl->setInt32Array(v, vL);
+                stack->replaceStackObjectFromIndex(stackIndex, tbl);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setInt32Array(v, vL);
+                            tbl->appendArrayObject(tbl2);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setInt32Array(v, vL);
+                            tbl->appendMapObject_object(key.c_str(), tbl2);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -3945,6 +5212,57 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             //    retVal = script->getIntArrayProperty(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_integer, true))
+                    {
+                        pState.resize(arrSize);
+                        tbl->getInt32Array(pState.data(), int(arrSize));
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_integer, true))
+                        {
+                            pState.resize(arrSize);
+                            tbl->getInt32Array(pState.data(), int(arrSize));
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
         }
     }
     else
@@ -4022,6 +5340,30 @@ int CWorld::removeProperty(long long int target, const char* ppName)
             //    retVal = script->removeProperty(pName);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+        {
+            int stackIndex;
+            if (tt::stringToInt(ppName, stackIndex))
+            {
+                if (stackIndex < 0)
+                    stackIndex += stack->getStackSize();
+                if (stackIndex < stack->getStackSize())
+                {
+                    CInterfaceStackObject* obj = stack->detachStackObjectFromIndex(stackIndex);
+                    if (obj != nullptr)
+                    {
+                        delete obj;
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+        else
+            retVal = -2; // target does not exist
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4088,8 +5430,186 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
             retVal = script->getPropertyName(index, pName, &appartenance);
         }
     }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+        {
+            for (size_t i = 0; i < stack->getStackSize(); i++)
+            {
+                if (pName.size() == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = std::to_string(i);
+                        retVal = 1;
+                        appartenance += ".stack";
+                        break;
+                    }
+                }
+            }
+        }
+        else
+            retVal = -2; // target does not exist
+    }
     else
         retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::_getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::string& str, bool firstCall /*= true*/)
+{
+    int retVal = -1;
+    str.clear();
+    if (obj != nullptr)
+    {
+        int t = obj->getObjectType();
+        if (t == sim_stackitem_null)
+        {
+            retVal = sim_propertytype_null;
+            str = "null";
+        }
+        else if (t == sim_stackitem_bool)
+        {
+            retVal = sim_propertytype_bool;
+            str = "bool";
+        }
+        else if (t == sim_stackitem_integer)
+        {
+            retVal = sim_propertytype_long;
+            str = "long";
+        }
+        else if (t == sim_stackitem_double)
+        {
+            retVal = sim_propertytype_float;
+            str = "float";
+        }
+        else if (t == sim_stackitem_string)
+        {
+            CInterfaceStackString* stritem = (CInterfaceStackString*)obj;
+            if (stritem->isText())
+            {
+                retVal = sim_propertytype_string;
+                str = "string";
+            }
+            else
+            {
+                retVal = sim_propertytype_buffer;
+                str = "buffer";
+            }
+        }
+        else if (t == sim_stackitem_matrix)
+        {
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            size_t r, c;
+            m->getValue(r, c);
+            if (c == 1)
+            {
+                if (r == 2)
+                {
+                    retVal = sim_propertytype_vector2;
+                    str = "vector2";
+                }
+                else if (r == 3)
+                {
+                    retVal = sim_propertytype_vector3;
+                    str = "vector3";
+                }
+                else if (r == 4)
+                {
+                    retVal = sim_propertytype_quaternion;
+                    str = "quaternion";
+                }
+                else if (r == 7)
+                {
+                    retVal = sim_propertytype_pose;
+                    str = "pose";
+                }
+            }
+            else
+            {
+                if ((c == 3) && (r == 3))
+                {
+                    retVal = sim_propertytype_matrix3x3;
+                    str = "matrix3x3";
+                }
+                else if ((c == 4) && (r == 4))
+                {
+                    retVal = sim_propertytype_matrix4x4;
+                    str = "matrix4x4";
+                }
+            }
+            if (retVal == -1)
+            {
+                retVal = sim_propertytype_matrix;
+                str = "matrix" + std::to_string(r) + "x" + std::to_string(c);
+            }
+        }
+        else if (t == sim_stackitem_table)
+        {
+            CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+            if (tbl->isTableArray())
+            {
+                if (tbl->areAllValuesThis(sim_stackitem_integer, false))
+                {
+                    retVal = sim_propertytype_intarray;
+                    str = "intarray" + tbl->getArraySize();
+                }
+                else if (tbl->areAllValuesThis(sim_stackitem_double, true))
+                {
+                    retVal = sim_propertytype_floatarray;
+                    str = "floatarray" + tbl->getArraySize();
+                }
+                else
+                { // we have a random array
+                    retVal = sim_propertytype_array;
+                    if (firstCall)
+                    {
+                        for (size_t i = 0; i < tbl->getArraySize(); i++)
+                        {
+                            if (i != 0)
+                                str += ";";
+                            std::string str2;
+                            _getPropertyTypeForStackItem(tbl->getArrayItemAtIndex(i), str2, false);
+                            str += std::to_string(i) + ":" + str2;
+                        }
+                    }
+                    else
+                        str = "array" + tbl->getArraySize();
+                }
+            }
+            else
+            { // we have a map
+                retVal = sim_propertytype_map;
+                if (firstCall)
+                {
+                    size_t i = 0;
+                    while (true)
+                    {
+                        std::string key;
+                        double numberKey;
+                        long long int integerKey;
+                        bool boolKey;
+                        int keyType;
+                        CInterfaceStackObject* it = tbl->getMapItemAtIndex(i, key, numberKey, integerKey, boolKey, keyType);
+                        if (it == nullptr)
+                            break;
+                        if (keyType != sim_stackitem_string)
+                            key = "*";
+                        if (i != 0)
+                            str += ";";
+                        std::string str2;
+                        _getPropertyTypeForStackItem(it, str2, false);
+                        str += key + ":" + str2;
+                        i++;
+                    }
+                }
+                else
+                    str = "map" + tbl->getMapEntryCount();
+            }
+        }
+    }
     return retVal;
 }
 
@@ -4181,6 +5701,30 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
             const char* pName = _pName.c_str();
             retVal = script->getPropertyInfo(pName, info, infoTxt, true);
         }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+        {
+            int stackIndex;
+            if (tt::stringToInt(ppName, stackIndex))
+            {
+                if (stackIndex < 0)
+                    stackIndex += stack->getStackSize();
+                if (stackIndex < stack->getStackSize())
+                {
+                    CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                    if (obj != nullptr)
+                    {
+                        info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
+                        retVal = _getPropertyTypeForStackItem(obj, infoTxt);
+                    }
+                }
+            }
+        }
+        else
+            retVal = -2; // target does not exist
     }
     else
         retVal = -2; // target does not exist

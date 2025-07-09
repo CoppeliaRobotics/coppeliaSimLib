@@ -35,6 +35,7 @@ class CInterfaceStack
     void pushInt64ArrayOntoStack(const long long int* arr, size_t l, bool toFront = false);
     void pushFloatArrayOntoStack(const float* arr, size_t l, bool toFront = false);
     void pushDoubleArrayOntoStack(const double* arr, size_t l, bool toFront = false);
+    void pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront = false);
 
     void insertKeyNullIntoStackTable(const char* key);
     void insertKeyBoolIntoStackTable(const char* key, bool value);
@@ -49,6 +50,7 @@ class CInterfaceStack
     void insertKeyInt64ArrayIntoStackTable(const char* key, const long long int* arr, size_t l);
     void insertKeyFloatArrayIntoStackTable(const char* key, const float* arr, size_t l);
     void insertKeyDoubleArrayIntoStackTable(const char* key, const double* arr, size_t l);
+    void insertKeyMatrixIntoStackTable(const char* key, const double* matrix, size_t rows, size_t cols);
 
     void pushTableOntoStack();
     bool insertDataIntoStackTable();
@@ -61,6 +63,7 @@ class CInterfaceStack
     int getStackItemType(int cIndex);
     int getStackStringType(int cIndex);
     CInterfaceStackObject* getStackObjectFromIndex(size_t index) const;
+    bool replaceStackObjectFromIndex(size_t index, CInterfaceStackObject* obj);
     CInterfaceStackObject* detachStackObjectFromIndex(size_t index);
     bool getStackBoolValue(bool& theValue) const;
     bool getStackStrictDoubleValue(double& theValue) const;
@@ -77,6 +80,7 @@ class CInterfaceStack
     bool getStackInt64Array(long long int* array, int count) const;
     bool getStackFloatArray(float* array, int count) const;
     bool getStackDoubleArray(double* array, int count) const;
+    bool getStackMatrix(double* matrix = nullptr, size_t* rows = nullptr, size_t* cols = nullptr) const;
     bool unfoldStackTable();
     CInterfaceStackObject* getStackMapObject(const char* fieldName) const;
     CInterfaceStackObject* getStackIntMapObject(long long int key) const;
@@ -91,6 +95,7 @@ class CInterfaceStack
     bool getStackMapStringValue(const char* fieldName, std::string& val) const;
     bool getStackMapFloatArray(const char* fieldName, float* array, int count) const;
     bool getStackMapDoubleArray(const char* fieldName, double* array, int count) const;
+    bool getStackMapMatrix(const char* fieldName, double* matrix = nullptr, size_t* rows = nullptr, size_t* cols = nullptr) const;
     std::string getBufferFromTable() const;
     std::string getCborEncodedBuffer(int options) const;
 

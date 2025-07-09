@@ -6,6 +6,7 @@
 #include <interfaceStackInteger.h>
 #include <interfaceStackString.h>
 #include <interfaceStackTable.h>
+#include <interfaceStackMatrix.h>
 #include <cbor.h>
 #include <algorithm>
 
@@ -120,21 +121,33 @@ int CInterfaceStack::getStackStringType(int cIndex)
 }
 
 CInterfaceStackObject* CInterfaceStack::getStackObjectFromIndex(size_t index) const
-{
+{ // zero-based index
     if ((_stackObjects.size() != 0) && (index < _stackObjects.size()))
         return (_stackObjects[index]);
-    return (nullptr);
+    return nullptr;
+}
+
+bool CInterfaceStack::replaceStackObjectFromIndex(size_t index, CInterfaceStackObject* obj)
+{
+    bool retVal = false;
+    if ((_stackObjects.size() != 0) && (index < _stackObjects.size()))
+    {
+        delete _stackObjects[index];
+        _stackObjects[index] = obj;
+        retVal = true;
+    }
+    return retVal;
 }
 
 CInterfaceStackObject* CInterfaceStack::detachStackObjectFromIndex(size_t index)
-{
+{ // zero-based index
     CInterfaceStackObject* retVal = nullptr;
     if ((_stackObjects.size() != 0) && (index < _stackObjects.size()))
     {
         retVal = _stackObjects[index];
         _stackObjects.erase(_stackObjects.begin() + index);
     }
-    return (retVal);
+    return retVal;
 }
 
 bool CInterfaceStack::getStackBoolValue(bool& theValue) const
@@ -448,6 +461,32 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
     return retVal;
 }
 
+bool CInterfaceStack::getStackMatrix(double* matrix /*= nullptr*/, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/) const
+{
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            CInterfaceStackMatrix* matr = (CInterfaceStackMatrix*)obj;
+            size_t r, c;
+            const double* m = matr->getValue(r, c);
+            if (matrix != nullptr)
+            {
+                for (size_t i = 0; i < r * c; i++)
+                    matrix[i] = m[i];
+            }
+            if (rows != nullptr)
+                rows[0] = r;
+            if (cols != nullptr)
+                cols[0] = c;
+            retVal = true;
+        }
+    }
+    return retVal;
+}
+
 bool CInterfaceStack::getStackMapFloatArray(const char* fieldName, float* array, int count) const
 {
     const CInterfaceStackObject* obj = getStackMapObject(fieldName);
@@ -476,6 +515,33 @@ bool CInterfaceStack::getStackMapDoubleArray(const char* fieldName, double* arra
         }
     }
     return (false);
+}
+
+bool CInterfaceStack::getStackMapMatrix(const char* fieldName, double* matrix /*= nullptr*/, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/) const
+{
+    bool retVal = false;
+    const CInterfaceStackObject* obj = getStackMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            CInterfaceStackMatrix* matr = (CInterfaceStackMatrix*)obj;
+            size_t r, c;
+            const double* m = matr->getValue(r, c);
+            if (matrix != nullptr)
+            {
+                for (size_t i = 0; i < r * c; i++)
+                    matrix[i] = m[i];
+            }
+            if (rows != nullptr)
+                rows[0] = r;
+            if (cols != nullptr)
+                cols[0] = c;
+            retVal = true;
+
+        }
+    }
+    return retVal;
 }
 
 CInterfaceStackObject* CInterfaceStack::getStackMapObject(const char* fieldName) const
@@ -793,6 +859,14 @@ void CInterfaceStack::pushDoubleArrayOntoStack(const double* arr, size_t l, bool
         _stackObjects.push_back(table);
 }
 
+void CInterfaceStack::pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront /*= false*/)
+{
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackMatrix(matrix, rows, cols));
+    else
+        _stackObjects.push_back(new CInterfaceStackMatrix(matrix, rows, cols));
+}
+
 void CInterfaceStack::insertKeyNullIntoStackTable(const char* key)
 {
     pushTextOntoStack(key);
@@ -881,6 +955,13 @@ void CInterfaceStack::insertKeyDoubleArrayIntoStackTable(const char* key, const 
 {
     pushTextOntoStack(key);
     pushDoubleArrayOntoStack(arr, l);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyMatrixIntoStackTable(const char* key, const double* matrix, size_t rows, size_t cols)
+{
+    pushTextOntoStack(key);
+    pushMatrixOntoStack(matrix, rows, cols);
     insertDataIntoStackTable();
 }
 

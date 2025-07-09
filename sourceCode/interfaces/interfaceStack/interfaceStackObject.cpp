@@ -5,6 +5,7 @@
 #include <interfaceStackBool.h>
 #include <interfaceStackString.h>
 #include <interfaceStackTable.h>
+#include <interfaceStackMatrix.h>
 
 CInterfaceStackObject::CInterfaceStackObject()
 {
@@ -82,6 +83,11 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
     if (t == sim_stackitem_table)
     {
         obj = new CInterfaceStackTable();
+        retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
+    }
+    if (t == sim_stackitem_matrix)
+    {
+        obj = new CInterfaceStackMatrix(nullptr, 0, 0);
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
     }
     return (obj);

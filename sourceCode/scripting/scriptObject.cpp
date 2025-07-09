@@ -10,6 +10,7 @@
 #include <interfaceStackInteger.h>
 #include <interfaceStackString.h>
 #include <interfaceStackTable.h>
+#include <interfaceStackMatrix.h>
 #include <simFlavor.h>
 #include <luaScriptFunctions.h>
 #include <luaWrapper.h>
@@ -4050,11 +4051,17 @@ CInterfaceStackObject* CScriptObject::_generateObjectFromInterpreterStack_lua(vo
     }
     else if (t == sim_stackitem_table)
     { // this part is more tricky:
+        size_t rows, cols;
+        std::vector<double> matrix;
         if (luaWrap_lua_isbuffer(L, index))
         { // this is a buffer
             size_t l;
             const char* c = luaWrap_lua_tobuffer(L, index, &l);
             return (new CInterfaceStackString(c, l, true));
+        }
+        else if (luaWrap_lua_isMatrix(L, index, &rows, &cols, &matrix, -1))
+        { // this is a matrix
+            return new CInterfaceStackMatrix(matrix.data(), rows, cols);
         }
         else
         { // Following to avoid getting trapped in circular references:
@@ -4132,6 +4139,12 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObjec
             else
                 luaWrap_lua_pushbinarystring(L, str, l);
         }
+    }
+    else if (t == sim_stackitem_matrix)
+    {
+        size_t r, c;
+        const double* matr = ((CInterfaceStackMatrix*)obj)->getValue(r, c);
+        luaWrap_lua_pushmatrix(L, matr, r, c);
     }
     else if (t == sim_stackitem_table)
     {

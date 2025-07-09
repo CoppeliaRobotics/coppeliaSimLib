@@ -114,6 +114,10 @@ const std::vector<SProperty> allProps_app = {DEFINE_PROPERTIES};
 #define proptypetag_floatarray "&vect&."
 #define proptypetag_intarray "&ivect&."
 #define proptypetag_table "&tbl&."
+#define proptypetag_matrix "&mtrxXX&."
+#define proptypetag_array "&arr&."
+#define proptypetag_map "&map&."
+#define proptypetag_null "&nul&."
 
 static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_bool, proptypetag_bool},
@@ -132,6 +136,10 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_floatarray, proptypetag_floatarray},
     {sim_propertytype_intarray, proptypetag_intarray},
     {sim_propertytype_table, proptypetag_table},
+    {sim_propertytype_matrix, proptypetag_matrix},
+    {sim_propertytype_null, proptypetag_null},
+    {sim_propertytype_array, proptypetag_array},
+    {sim_propertytype_map, proptypetag_map},
 
     {sim_propertytype_buffer, proptypetag_buffer}, // keep always at the end
 };
@@ -153,6 +161,10 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_floatarray, proptypetag_floatarray},
     {sim_propertytype_intarray, proptypetag_intarray},
     {sim_propertytype_table, proptypetag_table},
+    {sim_propertytype_matrix, proptypetag_matrix},
+    {sim_propertytype_null, proptypetag_null},
+    {sim_propertytype_array, proptypetag_array},
+    {sim_propertytype_map, proptypetag_map},
 
     {sim_propertytype_buffer, proptypetag_buffer},
 };

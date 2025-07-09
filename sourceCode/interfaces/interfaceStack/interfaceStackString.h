@@ -6,7 +6,7 @@
 class CInterfaceStackString : public CInterfaceStackObject
 {
   public:
-    CInterfaceStackString(const char* str);                                  // text string
+    CInterfaceStackString(const char* str); // text string
     CInterfaceStackString(const char* str, size_t strLength, bool isBuffer); // binary string or buffer
     virtual ~CInterfaceStackString();
 
@@ -20,6 +20,8 @@ class CInterfaceStackString : public CInterfaceStackObject
     static bool checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version);
 
     const char* getValue(size_t* l) const;
+    void setValue(const char* str); // text string
+    void setValue(const char* str, size_t strLength, bool isBuffer); // binary string or buffer
     bool isBuffer() const;
     bool isText() const;
 

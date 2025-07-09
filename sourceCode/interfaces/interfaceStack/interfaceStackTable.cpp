@@ -5,6 +5,7 @@
 #include <interfaceStackInteger.h>
 #include <interfaceStackString.h>
 #include <interfaceStackTable.h>
+#include <interfaceStackMatrix.h>
 #include <algorithm> // std::sort, etc.
 
 CInterfaceStackTable::CInterfaceStackTable()
@@ -27,7 +28,12 @@ bool CInterfaceStackTable::isEmpty() const
 
 bool CInterfaceStackTable::isTableArray() const
 {
-    return (_isTableArray);
+    return _isTableArray;
+}
+
+bool CInterfaceStackTable::isTableMap() const
+{
+    return (!isTableArray()) || isEmpty();
 }
 
 size_t CInterfaceStackTable::getArraySize() const
@@ -538,6 +544,12 @@ void CInterfaceStackTable::appendArrayObject_doubleArray(const double* arr, size
     appendArrayObject(newObj);
 }
 
+void CInterfaceStackTable::appendArrayObject_matrix(const double* matrix, size_t rows, size_t cols)
+{
+    CInterfaceStackMatrix* newObj = new CInterfaceStackMatrix(matrix, rows, cols);
+    appendArrayObject(newObj);
+}
+
 void CInterfaceStackTable::appendMapObject_null(const char* key)
 {
     appendArrayOrMapObject(new CInterfaceStackString(key), new CInterfaceStackNull());
@@ -618,6 +630,12 @@ void CInterfaceStackTable::appendMapObject_doubleArray(const char* key, const do
     appendArrayOrMapObject(new CInterfaceStackString(key), obj);
 }
 
+void CInterfaceStackTable::appendMapObject_matrix(const char* key, const double* matrix, size_t rows, size_t cols)
+{
+    CInterfaceStackMatrix* obj = new CInterfaceStackMatrix(matrix, rows, cols);
+    appendArrayOrMapObject(new CInterfaceStackString(key), obj);
+}
+
 void CInterfaceStackTable::removeArrayItemAtIndex(size_t ind)
 {
     delete _tableObjects[ind];
@@ -631,9 +649,7 @@ CInterfaceStackObject* CInterfaceStackTable::getArrayItemAtIndex(size_t ind) con
     return (_tableObjects[ind]);
 }
 
-CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(size_t ind, std::string& stringKey, double& numberKey,
-                                                               long long int& integerKey, bool& boolKey,
-                                                               int& keyType) const
+CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(size_t ind, std::string& stringKey, double& numberKey, long long int& integerKey, bool& boolKey, int& keyType) const
 {
     if ((_isTableArray) || (ind >= _tableObjects.size() / 2))
         return (nullptr);
@@ -738,23 +754,25 @@ int CInterfaceStackTable::getTableInfo(int infoType) const
         return (sim_stack_table_map);
     }
     int retVal = 0;
-    if ((infoType == 1) && _areAllValueThis(sim_stackitem_null, false))
+    if ((infoType == 1) && areAllValuesThis(sim_stackitem_null, false))
         retVal = 1;
-    if ((infoType == 2) && _areAllValueThis(sim_stackitem_double, true))
+    if ((infoType == 2) && areAllValuesThis(sim_stackitem_double, true))
         retVal = 1;
-    if ((infoType == 3) && _areAllValueThis(sim_stackitem_bool, false))
+    if ((infoType == 3) && areAllValuesThis(sim_stackitem_bool, false))
         retVal = 1;
-    if ((infoType == 4) && _areAllValueThis(sim_stackitem_string, false))
+    if ((infoType == 4) && areAllValuesThis(sim_stackitem_string, false))
         retVal = 1;
-    if ((infoType == 5) && _areAllValueThis(sim_stackitem_table, false))
+    if ((infoType == 5) && areAllValuesThis(sim_stackitem_table, false))
+        retVal = 1;
+    if ((infoType == 6) && areAllValuesThis(sim_stackitem_matrix, false))
         retVal = 1;
     return (retVal);
 }
 
-bool CInterfaceStackTable::_areAllValueThis(int what, bool integerAndDoubleTolerant) const
+bool CInterfaceStackTable::areAllValuesThis(int what, bool integerAndDoubleTolerant) const
 {
     if (_tableObjects.size() == 0)
-        return (true);
+        return true;
     if (_isTableArray)
     {
         for (size_t i = 0; i < _tableObjects.size(); i++)
@@ -1073,6 +1091,8 @@ bool CInterfaceStackTable::checkCreateFromData(const char* data, unsigned int& w
             res = CInterfaceStackString::checkCreateFromData(data + w, v, l - w, version);
         if (t == sim_stackitem_table)
             res = CInterfaceStackTable::checkCreateFromData(data + w, v, l - w, version);
+        if (t == sim_stackitem_matrix)
+            res = CInterfaceStackMatrix::checkCreateFromData(data + w, v, l - w, version);
         if (!res)
             return (false);
         w += v;

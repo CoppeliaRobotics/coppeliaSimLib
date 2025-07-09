@@ -177,6 +177,9 @@ class CWorld
                                               std::vector<CScriptObject*>* loadedLuaScriptList) const;
     bool _canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
     void _setSuffix1ToSuffix2(int suffix1, int suffix2);
+    static bool _getStackLocation_write(const char* ppName, int& ind, std::string& key, CInterfaceStack* stack);
+    static bool _getStackLocation_read(const char* ppName, int& ind, std::string& key, int& arrIndex, CInterfaceStack* stack);
+    static int _getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::string& str, bool firstCall = true);
 
     int _worldHandle;
     int _savedMouseMode;

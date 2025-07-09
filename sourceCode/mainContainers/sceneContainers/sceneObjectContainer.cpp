@@ -6322,6 +6322,42 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                             dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
                             break;
                         }
+                        case sim_propertytype_matrix3x3: {
+                            std::vector<double> state;
+                            //result = obj->getFloatArrayProperty(name.c_str(), state);
+                            //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                            break;
+                        }
+                        case sim_propertytype_matrix4x4: {
+                            std::vector<double> state;
+                            //result = obj->getFloatArrayProperty(name.c_str(), state);
+                            //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                            break;
+                        }
+                        case sim_propertytype_matrix: {
+                            std::vector<double> state;
+                            //result = obj->getFloatArrayProperty(name.c_str(), state);
+                            //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                            break;
+                        }
+                        case sim_propertytype_array: {
+                            std::vector<double> state;
+                            //result = obj->getFloatArrayProperty(name.c_str(), state);
+                            //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                            break;
+                        }
+                        case sim_propertytype_map: {
+                            std::vector<double> state;
+                            //result = obj->getFloatArrayProperty(name.c_str(), state);
+                            //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                            break;
+                        }
+                        case sim_propertytype_null: {
+                            std::vector<double> state;
+                            //result = obj->getFloatArrayProperty(name.c_str(), state);
+                            //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                            break;
+                        }
                         default:
                             break;
                         }

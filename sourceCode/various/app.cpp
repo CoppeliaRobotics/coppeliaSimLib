@@ -963,8 +963,7 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
         if (statusbarLogFormat.empty())
         {
             auto f = std::getenv("COPPELIASIM_STATUSBAR_LOG_FORMAT");
-            statusbarLogFormat =
-                f ? f : "<font color='grey'>[{origin}:{verbosity}]</font>    <font color='{color}'>{message}</font>";
+            statusbarLogFormat = f ? f : "<font color='grey'>[{origin}:{verbosity}]</font>    <font color='{color}'>{message}</font>";
         }
         if (statusbarLogFormatUndecorated.empty())
         {
@@ -992,9 +991,7 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
         else
 #endif
             vars["color"] = "#383838";
-        int64_t t =
-            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
-                .count();
+        int64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         std::stringstream ss;
         ss << std::fixed << std::setprecision(3) << 0.001 * t;
         vars["time"] = ss.str();

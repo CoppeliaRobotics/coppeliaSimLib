@@ -2,20 +2,30 @@
 
 CInterfaceStackString::CInterfaceStackString(const char* str)
 {
-    _isBuffer = false;
-    _isText = true;
     _objectType = sim_stackitem_string;
     _cborCoded = false;
-    if (str != nullptr)
-        _value.assign(str);
+    setValue(str);
 }
 
 CInterfaceStackString::CInterfaceStackString(const char* str, size_t strLength, bool isBuffer)
 {
-    _isText = false;
-    _isBuffer = isBuffer;
     _objectType = sim_stackitem_string;
     _cborCoded = false;
+    setValue(str, strLength, isBuffer);
+}
+
+void CInterfaceStackString::setValue(const char* str)
+{
+    _isBuffer = false;
+    _isText = true;
+    if (str != nullptr)
+        _value.assign(str);
+}
+
+void CInterfaceStackString::setValue(const char* str, size_t strLength, bool isBuffer)
+{
+    _isText = false;
+    _isBuffer = isBuffer;
     if (str != nullptr)
         _value.assign(str, str + strLength);
 }

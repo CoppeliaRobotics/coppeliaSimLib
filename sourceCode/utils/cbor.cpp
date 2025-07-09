@@ -219,6 +219,18 @@ void CCbor::appendDoubleArray(const double* v, size_t cnt)
     closeArrayOrMap();
 }
 
+void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
+{
+    _handleDataField();
+    _buff.push_back(216); // major type 6, tag
+    _buff.push_back(40); // tag 40 for matrices
+    _buff.push_back(82); // array of 2 values (dims + data)
+    _buff.push_back(82); // array of 2 values (rows and cols)
+    _appendItemTypeAndLength(0, rows);
+    _appendItemTypeAndLength(0, cols);
+    appendDoubleArray(v, rows * cols);
+}
+
 void CCbor::appendNull()
 {
     _handleDataField();

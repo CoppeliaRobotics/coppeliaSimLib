@@ -2,11 +2,11 @@
 
 #include <interfaceStackObject.h>
 
-class CInterfaceStackBool : public CInterfaceStackObject
+class CInterfaceStackMatrix : public CInterfaceStackObject
 {
   public:
-    CInterfaceStackBool(bool theValue);
-    virtual ~CInterfaceStackBool();
+    CInterfaceStackMatrix(const double* matrix, size_t rows, size_t cols);
+    virtual ~CInterfaceStackMatrix();
 
     CInterfaceStackObject* copyYourself() const override;
     void printContent(int spaces, std::string& buffer) const override;
@@ -15,9 +15,11 @@ class CInterfaceStackBool : public CInterfaceStackObject
     unsigned int createFromData(const char* data, unsigned char version, std::vector<CInterfaceStackObject*>& allCreatedObjects) override;
     static bool checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version);
 
-    bool getValue() const;
-    void setValue(bool theValue);
+    const double* getValue(size_t& rows, size_t& cols) const;
+    void setValue(const double* matrix, size_t rows, size_t cols);
 
   protected:
-    bool _value;
+    std::vector<double> _data;
+    size_t _rows;
+    size_t _cols;
 };

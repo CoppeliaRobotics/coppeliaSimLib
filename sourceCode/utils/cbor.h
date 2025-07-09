@@ -33,6 +33,7 @@ class CCbor
     void appendFloatArray(const float* v, size_t cnt);
     void appendDouble(double v);
     void appendDoubleArray(const double* v, size_t cnt);
+    void appendMatrix(const double* v, size_t rows, size_t cols);
     void appendNull();
     void appendBool(bool v);
     void appendBuff(const unsigned char* v, size_t l);

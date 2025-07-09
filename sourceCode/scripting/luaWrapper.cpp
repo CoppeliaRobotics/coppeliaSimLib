@@ -280,6 +280,11 @@ int luaWrap_luaL_loadbuffer(luaWrap_lua_State* L, const char* buff, size_t sz, c
     return (luaL_loadbuffer((lua_State*)L, buff, sz, name));
 }
 
+int luaWrap_luaL_callmeta(luaWrap_lua_State *L, int obj, const char *func)
+{
+    return luaL_callmeta((lua_State*)L, obj, func);
+}
+
 void luaWrap_lua_remove(luaWrap_lua_State* L, int idx)
 {
     lua_remove((lua_State*)L, idx);
@@ -422,6 +427,66 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx)
     return retVal;
 }
 
+bool luaWrap_lua_isMatrix(luaWrap_lua_State* L, int idx, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
+{
+    bool retVal = false;
+    int abs_idx = lua_absindex((lua_State*)L, idx);
+    if ( (matrixType != 0) && (luaL_callmeta((lua_State*)L, abs_idx, "ismatrix") == 1) )
+    { // simEigen matrices
+        retVal = lua_toboolean((lua_State*)L, -1);
+        lua_pop((lua_State*)L,1);
+    }
+    else if ( (matrixType != 1) && (lua_getmetatable((lua_State*)L, abs_idx)) )
+    { // old matrices
+        lua_getglobal((lua_State*)L, "Matrix");
+        retVal = lua_rawequal((lua_State*)L, -2, -1) != 0;
+        lua_pop((lua_State*)L, 2);
+    }
+    if (retVal)
+    {
+        if (rows != nullptr)
+        {
+            rows[0] = 0;
+            if (luaL_callmeta((lua_State*)L, abs_idx, "rows") == 1)
+            {
+                rows[0] = (size_t)lua_tointeger((lua_State*)L, -1);
+                lua_pop((lua_State*)L,1);
+            }
+        }
+        if (cols != nullptr)
+        {
+            cols[0] = 0;
+            if (luaL_callmeta((lua_State*)L, abs_idx, "cols") == 1)
+            {
+                cols[0] = (size_t)lua_tointeger((lua_State*)L, -1);
+                lua_pop((lua_State*)L,1);
+            }
+        }
+        if (matrixData != nullptr)
+        {
+            if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
+            {
+                size_t n = lua_rawlen((lua_State*)L, -1);
+                matrixData->clear();
+                for (size_t i = 1; i <= n; i++)
+                {
+                    lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
+                    matrixData->push_back(lua_tonumber((lua_State*)L, -1));
+                    lua_pop((lua_State*)L, 1);
+                }
+            }
+            lua_pop((lua_State*)L, 1);
+        }
+    }
+    return retVal;
+}
+
+//bool luaWrap_lua_isVector3(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
+//bool luaWrap_lua_isQuaternion(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
+//bool luaWrap_lua_isPose(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
+//bool luaWrap_lua_isMatrix3x3(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
+//bool luaWrap_lua_isMatrix4x4(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
+
 const char* luaWrap_lua_tobuffer(luaWrap_lua_State* L, int idx, size_t* len)
 {
     const char* retVal = nullptr;
@@ -470,6 +535,32 @@ void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l)
     }
     else
         luaWrap_lua_pushbinarystring(L, str, l); // old, no difference between strings and buffers
+}
+
+void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols)
+{
+    lua_getglobal((lua_State*)L, "require");
+    lua_pushstring((lua_State*)L, "simEigen");
+    if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+    {
+        lua_getfield((lua_State*)L,-1,"Matrix");
+        lua_pushinteger((lua_State*)L, rows);
+        lua_pushinteger((lua_State*)L, cols);
+        lua_createtable((lua_State*)L, int(rows * cols), 0);
+        for (size_t i = 0; i < rows * cols; i++)
+        {
+            lua_pushnumber((lua_State*)L, matrix[i]);
+            lua_rawseti((lua_State*)L, -2, i+1);
+        }
+        lua_pcall((lua_State*)L, 3, 1, 0);
+        lua_remove((lua_State*)L, -2); // simEigen module
+    }
+    else
+    {
+        lua_pop((lua_State*)L, 1);
+        App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushmatrix.");
+        lua_pushnil((lua_State*)L);
+    }
 }
 
 void luaWrap_lua_pushbinarystring(luaWrap_lua_State* L, const char* str, size_t l)

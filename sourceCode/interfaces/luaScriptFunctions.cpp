@@ -938,6 +938,10 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_floatarray", sim_propertytype_floatarray},
     {"sim.propertytype_intarray", sim_propertytype_intarray},
     {"sim.propertytype_table", sim_propertytype_table},
+    {"sim.propertytype_null", sim_propertytype_null},
+    {"sim.propertytype_matrix", sim_propertytype_matrix},
+    {"sim.propertytype_array", sim_propertytype_array},
+    {"sim.propertytype_map", sim_propertytype_map},
     // property info
     {"sim.propertyinfo_notwritable", sim_propertyinfo_notwritable},
     {"sim.propertyinfo_notreadable", sim_propertyinfo_notreadable},
@@ -5510,7 +5514,7 @@ int _simSetTableProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
-        if (CALL_C_API(simSetTableProperty, target, pName.c_str(), pValue, pValueL) > 0)
+        if (CALL_C_API(simSetTableProperty, target, pName.c_str(), pValue, int(pValueL)) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
@@ -7114,6 +7118,22 @@ int _simTest(luaWrap_lua_State* L)
             std::string state = App::currentWorld->sceneObjects->getModelState(h, p);
             luaWrap_lua_pushbuffer(L, state.c_str(), state.size());
             LUA_END(1);
+        }
+        if (cmd.compare("createStack") == 0)
+        {
+            int stack = CALL_C_API(simCreateStack);
+            luaWrap_lua_pushinteger(L, stack);
+            LUA_END(1);
+        }
+        if (cmd.compare("printStack") == 0)
+        {
+            int stackHandle = luaToInt(L, 2);
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+            std::string str;
+            stack->printContent(-1, str);
+            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            App::logScriptMsg(it, sim_verbosity_msgs, str.c_str());
+            LUA_END(0);
         }
         if ((cmd.compare("sim.recomputeInertia1KeepMass") == 0) ||
             (cmd.compare("sim.recomputeInertia2KeepMass") == 0) || (cmd.compare("sim.recomputeInertia4KeepMass") == 0))

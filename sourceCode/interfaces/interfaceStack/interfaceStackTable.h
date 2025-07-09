@@ -18,14 +18,14 @@ class CInterfaceStackTable : public CInterfaceStackObject
 
     bool isEmpty() const;
     bool isTableArray() const;
+    bool isTableMap() const;
     size_t getArraySize() const;
     size_t getMapEntryCount() const;
     bool isCircularRef() const;
     void setCircularRef();
 
     CInterfaceStackObject* getArrayItemAtIndex(size_t ind) const;
-    CInterfaceStackObject* getMapItemAtIndex(size_t ind, std::string& stringKey, double& numberKey,
-                                             long long int& integerKey, bool& boolKey, int& keyType) const;
+    CInterfaceStackObject* getMapItemAtIndex(size_t ind, std::string& stringKey, double& numberKey, long long int& integerKey, bool& boolKey, int& keyType) const;
     void removeArrayItemAtIndex(size_t ind);
     void getAllObjectsAndClearTable(std::vector<CInterfaceStackObject*>& allObjs);
 
@@ -48,6 +48,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void appendArrayObject_int64Array(const long long int* arr, size_t l);
     void appendArrayObject_floatArray(const float* arr, size_t l);
     void appendArrayObject_doubleArray(const double* arr, size_t l);
+    void appendArrayObject_matrix(const double* matrix, size_t rows, size_t cols);
     void appendArrayObject(CInterfaceStackObject* obj);
     void insertArrayObject(CInterfaceStackObject* obj, size_t pos);
 
@@ -64,6 +65,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void appendMapObject_int64Array(const char* key, const long long int* arr, size_t l);
     void appendMapObject_floatArray(const char* key, const float* arr, size_t l);
     void appendMapObject_doubleArray(const char* key, const double* arr, size_t l);
+    void appendMapObject_matrix(const char* key, const double* matrix, size_t rows, size_t cols);
     void appendMapObject_object(const char* key, CInterfaceStackObject* obj);
     void appendMapObject_object(long long int key, CInterfaceStackObject* obj);
     void appendMapObject_object(double key, CInterfaceStackObject* obj);
@@ -85,9 +87,9 @@ class CInterfaceStackTable : public CInterfaceStackObject
     bool removeFromKey(const CInterfaceStackObject* keyToRemove);
 
     int getTableInfo(int infoType) const;
+    bool areAllValuesThis(int what, bool integerAndDoubleTolerant) const;
 
   protected:
-    bool _areAllValueThis(int what, bool integerAndDoubleTolerant) const;
 
     std::vector<CInterfaceStackObject*> _tableObjects;
     bool _isTableArray;

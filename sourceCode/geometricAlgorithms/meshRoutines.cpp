@@ -1589,7 +1589,7 @@ double CMeshRoutines::getGeodesicDistanceOnConvexMesh(const C3Vector& pt1, const
         std::vector<SGeodVertNode*> allNodes;
         CMeshManip::reduceTriangleSize(vert, ind, nullptr, nullptr, maxEdgeLength);
         if (debugShape != nullptr)
-            debugShape[0] = CALL_C_API_CLEAR_ERRORS(simCreateShape, 0, 0.0, vert.data(), vert.size(), ind.data(), ind.size(), nullptr, nullptr, nullptr, nullptr);
+            debugShape[0] = CALL_C_API_CLEAR_ERRORS(simCreateShape, 0, 0.0, vert.data(), int(vert.size()), ind.data(), int(ind.size()), nullptr, nullptr, nullptr, nullptr);
         // Prepare data structure for dijkstra algo:
         for (size_t i = 0; i < vert.size() / 3; i++)
         {
