@@ -12100,12 +12100,6 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                         CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
                         int ss = stack->getStackSize();
                         App::worldContainer->interfaceStackContainer->destroyStack(stack);
-                        if (ss == 0)
-                        {
-                            luaWrap_lua_pushnil(L);
-                            // pushIntTableOntoStack(L,0,nullptr);
-                            ss++;
-                        }
                         LUA_END(ss);
                     }
                     else
