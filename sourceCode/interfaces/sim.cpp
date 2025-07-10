@@ -353,6 +353,11 @@ SIM_DLLEXPORT int simPushBufferOntoStack_L(UID stackHandle, const char* value, i
     return (simPushBufferOntoStack_internal(stackHandle, value, stringSize));
 }
 
+SIM_DLLEXPORT int simPushMatrixOntoStack_L(UID stackHandle, const double* value, int rows, int cols)
+{
+    return (simPushMatrixOntoStack_internal(stackHandle, value, rows, cols));
+}
+
 SIM_DLLEXPORT int simPushUInt8TableOntoStack_L(UID stackHandle, const unsigned char* values, int valueCnt)
 {
     return (simPushUInt8TableOntoStack_internal(stackHandle, values, valueCnt));
@@ -441,6 +446,11 @@ SIM_DLLEXPORT int simGetStackDoubleValue_L(UID stackHandle, double* numberValue)
 SIM_DLLEXPORT char* simGetStackStringValue_L(UID stackHandle, int* stringSize)
 {
     return (simGetStackStringValue_internal(stackHandle, stringSize));
+}
+
+SIM_DLLEXPORT double* simGetStackMatrix_L(UID stackHandle, int* rows, int* cols)
+{
+    return (simGetStackMatrix_internal(stackHandle, rows, cols));
 }
 
 SIM_DLLEXPORT int simGetStackTableInfo_L(UID stackHandle, int infoType)
@@ -1880,6 +1890,11 @@ SIM_DLLEXPORT int simPushBufferOntoStack(int stackHandle, const char* value, int
     return simPushBufferOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value, stringSize);
 }
 
+SIM_DLLEXPORT int simPushMatrixOntoStack(int stackHandle, const double* value, int rows, int cols)
+{ // backw. compatibility version
+    return simPushMatrixOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value, rows, cols);
+}
+
 SIM_DLLEXPORT int simPushUInt8TableOntoStack(int stackHandle, const unsigned char* values, int valueCnt)
 { // backw. compatibility version
     return simPushUInt8TableOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), values, valueCnt);
@@ -1968,6 +1983,11 @@ SIM_DLLEXPORT int simGetStackDoubleValue(int stackHandle, double* numberValue)
 SIM_DLLEXPORT char* simGetStackStringValue(int stackHandle, int* stringSize)
 { // backw. compatibility version
     return simGetStackStringValue_internal(App::getNewHandleFromOldHandle(stackHandle), stringSize);
+}
+
+SIM_DLLEXPORT double* simGetStackMatrix(int stackHandle, int* rows, int* cols)
+{ // backw. compatibility version
+    return simGetStackMatrix_internal(App::getNewHandleFromOldHandle(stackHandle), rows, cols);
 }
 
 SIM_DLLEXPORT int simGetStackTableInfo(int stackHandle, int infoType)

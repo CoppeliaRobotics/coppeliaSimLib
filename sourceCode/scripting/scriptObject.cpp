@@ -4059,7 +4059,7 @@ CInterfaceStackObject* CScriptObject::_generateObjectFromInterpreterStack_lua(vo
             const char* c = luaWrap_lua_tobuffer(L, index, &l);
             return (new CInterfaceStackString(c, l, true));
         }
-        else if (luaWrap_lua_isMatrix(L, index, &rows, &cols, &matrix, -1))
+        else if (luaWrap_lua_isMatrix(L, index, &rows, &cols, &matrix))
         { // this is a matrix
             return new CInterfaceStackMatrix(matrix.data(), rows, cols);
         }

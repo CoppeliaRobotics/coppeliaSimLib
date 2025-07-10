@@ -75,12 +75,7 @@ bool luaWrap_lua_isboolean(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isgeneraltable(luaWrap_lua_State* L, int idx);   // a random table, including metatable or 'buffer' metatable
 bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State* L, int idx); // a table that is not a 'buffer' metatable
 bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx);         // a buffer (a 'buffer' metatable)
-bool luaWrap_lua_isMatrix(luaWrap_lua_State* L, int idx, size_t* rows = nullptr, size_t* cols = nullptr, std::vector<double>* matrixData = nullptr, int matrixType = 1); // 0:old, 1:simEigen, -1: both
-//bool luaWrap_lua_isVector3(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData = nullptr, int matrixType = 1); // 0:old, 1:simEigen, -1: both
-//bool luaWrap_lua_isQuaternion(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData = nullptr, int matrixType = 1); // 0:old, 1:simEigen, -1: both
-//bool luaWrap_lua_isPose(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData = nullptr, int matrixType = 1); // 0:old, 1:simEigen, -1: both
-//bool luaWrap_lua_isMatrix3x3(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData = nullptr, int matrixType = 1); // 0:old, 1:simEigen, -1: both
-//bool luaWrap_lua_isMatrix4x4(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData = nullptr, int matrixType = 1); // 0:old, 1:simEigen, -1: both
+bool luaWrap_lua_isMatrix(luaWrap_lua_State* L, int idx, size_t* rows = nullptr, size_t* cols = nullptr, std::vector<double>* matrixData = nullptr);
 int luaWrap_lua_getmetatable(luaWrap_lua_State* L, int idx);
 int luaWrap_lua_rawequal(luaWrap_lua_State* L, int idx1, int idx2);
 bool luaWrap_lua_isfunction(luaWrap_lua_State* L, int idx);

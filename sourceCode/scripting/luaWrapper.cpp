@@ -427,65 +427,53 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx)
     return retVal;
 }
 
-bool luaWrap_lua_isMatrix(luaWrap_lua_State* L, int idx, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
+bool luaWrap_lua_isMatrix(luaWrap_lua_State* L, int idx, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/, std::vector<double>* matrixData /*= nullptr*/)
 {
     bool retVal = false;
     int abs_idx = lua_absindex((lua_State*)L, idx);
-    if ( (matrixType != 0) && (luaL_callmeta((lua_State*)L, abs_idx, "ismatrix") == 1) )
-    { // simEigen matrices
+    if (luaL_callmeta((lua_State*)L, abs_idx, "__ismatrix") == 1)
+    {
         retVal = lua_toboolean((lua_State*)L, -1);
         lua_pop((lua_State*)L,1);
-    }
-    else if ( (matrixType != 1) && (lua_getmetatable((lua_State*)L, abs_idx)) )
-    { // old matrices
-        lua_getglobal((lua_State*)L, "Matrix");
-        retVal = lua_rawequal((lua_State*)L, -2, -1) != 0;
-        lua_pop((lua_State*)L, 2);
-    }
-    if (retVal)
-    {
-        if (rows != nullptr)
+        if (retVal)
         {
-            rows[0] = 0;
-            if (luaL_callmeta((lua_State*)L, abs_idx, "rows") == 1)
+            if (rows != nullptr)
             {
-                rows[0] = (size_t)lua_tointeger((lua_State*)L, -1);
-                lua_pop((lua_State*)L,1);
-            }
-        }
-        if (cols != nullptr)
-        {
-            cols[0] = 0;
-            if (luaL_callmeta((lua_State*)L, abs_idx, "cols") == 1)
-            {
-                cols[0] = (size_t)lua_tointeger((lua_State*)L, -1);
-                lua_pop((lua_State*)L,1);
-            }
-        }
-        if (matrixData != nullptr)
-        {
-            if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
-            {
-                size_t n = lua_rawlen((lua_State*)L, -1);
-                matrixData->clear();
-                for (size_t i = 1; i <= n; i++)
+                rows[0] = 0;
+                if (luaL_callmeta((lua_State*)L, abs_idx, "rows") == 1)
                 {
-                    lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
-                    matrixData->push_back(lua_tonumber((lua_State*)L, -1));
-                    lua_pop((lua_State*)L, 1);
+                    rows[0] = (size_t)lua_tointeger((lua_State*)L, -1);
+                    lua_pop((lua_State*)L,1);
                 }
             }
-            lua_pop((lua_State*)L, 1);
+            if (cols != nullptr)
+            {
+                cols[0] = 0;
+                if (luaL_callmeta((lua_State*)L, abs_idx, "cols") == 1)
+                {
+                    cols[0] = (size_t)lua_tointeger((lua_State*)L, -1);
+                    lua_pop((lua_State*)L,1);
+                }
+            }
+            if (matrixData != nullptr)
+            {
+                if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
+                {
+                    size_t n = lua_rawlen((lua_State*)L, -1);
+                    matrixData->clear();
+                    for (size_t i = 1; i <= n; i++)
+                    {
+                        lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
+                        matrixData->push_back(lua_tonumber((lua_State*)L, -1));
+                        lua_pop((lua_State*)L, 1);
+                    }
+                }
+                lua_pop((lua_State*)L, 1);
+            }
         }
     }
     return retVal;
 }
-
-//bool luaWrap_lua_isVector3(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
-//bool luaWrap_lua_isQuaternion(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
-//bool luaWrap_lua_isPose(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
-//bool luaWrap_lua_isMatrix3x3(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
-//bool luaWrap_lua_isMatrix4x4(luaWrap_lua_State* L, int idx, std::vector<double>* matrixData /*= nullptr*/, int matrixType /*= 1*/)
 
 const char* luaWrap_lua_tobuffer(luaWrap_lua_State* L, int idx, size_t* len)
 {

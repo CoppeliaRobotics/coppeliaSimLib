@@ -13790,6 +13790,7 @@ int _simPackTable(luaWrap_lua_State* L)
                 std::string s;
                 if (scheme == 0)
                     s = stack->getBufferFromTable();
+                // (Since 10.07.2025 a Lua wrapper handles CBOR encoding)
                 if (scheme == 1)
                     s = stack->getCborEncodedBuffer(1);
                 if (scheme == 2)
