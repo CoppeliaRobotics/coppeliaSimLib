@@ -21,20 +21,7 @@ else()
     find_package(TinyXML2 REQUIRED COMPONENTS shared)
 endif()
 
-find_package(Eigen3)
-if(NOT EIGEN_FOUND)
-    include(FetchContent)
-    FetchContent_Declare(eigen3src
-        URL https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
-        SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/eigen3
-    )
-    if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/eigen3/Eigen/Sparse")
-        message(STATUS "Downloading eigen-3.3.8 source...")
-        FetchContent_Populate(eigen3src)
-    endif()
-    set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/eigen3)
-endif()
-
+find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 
 set(WITH_QSCINTILLA true CACHE BOOL "Link QScintilla library (you'll need to set QSCINTILLA_DIR and QSCINTILLA_LIBRARY variables)")
@@ -67,7 +54,6 @@ set(WITH_GUI true CACHE BOOL "Enable gui")
 
 target_compile_features(coppeliaSim PRIVATE cxx_std_17)
 target_include_directories(coppeliaSim PRIVATE ${LUA_INCLUDE_DIR})
-target_include_directories(coppeliaSim PRIVATE ${EIGEN_INCLUDE_DIR})
 
 if(WITH_QSCINTILLA)
     target_include_directories(coppeliaSim PRIVATE ${QSCINTILLA_DIR}/Qt4Qt5)
@@ -666,6 +652,7 @@ endif()
 
 
 target_link_libraries(coppeliaSim Boost::boost)
+target_link_libraries(coppeliaSim Eigen3::Eigen)
 target_link_libraries(coppeliaSim tinyxml2::tinyxml2)
 target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
 if(WITH_QSCINTILLA)
