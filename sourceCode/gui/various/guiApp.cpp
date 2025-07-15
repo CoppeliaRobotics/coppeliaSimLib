@@ -674,6 +674,19 @@ void GuiApp::setShowInertias(bool show)
 
 void GuiApp::logMsgToStatusbar(const char* msg, bool html)
 {
+    static bool redirectStatusbarToConsole = !!std::getenv("COPPELIASIM_STATUSBAR_LOG_TO_CONSOLE");
+    auto logMsgToConsole = [] (const char *msg, bool html)
+    {
+        QString s(msg);
+        if (html)
+        {
+            QTextDocument doc;
+            doc.setHtml(s);
+            s = doc.toPlainText();
+        }
+        printf("%s\n", s.toUtf8().data());
+    };
+
     if (!VThread::isUiThread())
     { // we are NOT in the UI thread. We execute the command in a delayed manner:
         SUIThreadCommand cmdIn;
@@ -681,6 +694,10 @@ void GuiApp::logMsgToStatusbar(const char* msg, bool html)
         cmdIn.stringParams.push_back(msg);
         cmdIn.boolParams.push_back(html);
         uiThread->executeCommandViaUiThread(&cmdIn, nullptr);
+
+#ifndef SIM_WITH_GUI
+        if (redirectStatusbarToConsole) logMsgToConsole(msg, html);
+#endif
     }
 #ifdef SIM_WITH_GUI
     else
@@ -705,6 +722,8 @@ void GuiApp::logMsgToStatusbar(const char* msg, bool html)
                 mainWindow->statusBar->ensureCursorVisible();
             }
         }
+
+        if (redirectStatusbarToConsole) logMsgToConsole(msg, html);
     }
 #endif
 }
