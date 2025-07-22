@@ -296,6 +296,7 @@ class App
     static bool canSave();
     static int getHeadlessMode();
     static int getPlatform();
+    static void asyncResetScript(int scriptHandle);
 
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
@@ -348,6 +349,7 @@ class App
     static std::map<std::string /*originName*/, std::map<int /*verbosityLevel*/, std::map<std::string /*msg*/, bool>>> _logOnceMessages;
     static std::string _applicationDir;
     static CPersistentDataContainer* _appStorage;
+    static std::vector<int> _scriptsToReset;
 #ifdef USE_LONG_LONG_HANDLES
     static long long int _nextHandle_object;
     static long long int _nextHandle_collection;

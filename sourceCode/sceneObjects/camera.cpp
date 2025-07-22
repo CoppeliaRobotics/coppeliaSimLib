@@ -669,7 +669,7 @@ void CCamera::commonInit()
 
     _viewAngle = 60.0 * degToRad;
     _orthoViewSize = 2.0;
-    _showFogIfAvailable = true;
+    _hideFog = false;
     _useLocalLights = false;
     _allowPicking = true;
     if (_extensionString.size() != 0)
@@ -1002,7 +1002,7 @@ CSceneObject* CCamera::copyYourself()
     newCamera->_farClippingPlane = _farClippingPlane;
     newCamera->_volumeVectorNear = _volumeVectorNear;
     newCamera->_volumeVectorFar = _volumeVectorFar;
-    newCamera->_showFogIfAvailable = _showFogIfAvailable;
+    newCamera->_hideFog = _hideFog;
     newCamera->_trackedObjectHandle = _trackedObjectHandle;
     newCamera->_useParentObjectAsManipulationProxy = _useParentObjectAsManipulationProxy;
     newCamera->_allowTranslation = _allowTranslation;
@@ -1277,7 +1277,7 @@ void CCamera::serialize(CSer& ar)
             ar.storeDataName("Ca2");
             unsigned char nothing = 0;
             SIM_SET_CLEAR_BIT(nothing, 0, _useParentObjectAsManipulationProxy);
-            SIM_SET_CLEAR_BIT(nothing, 1, !_showFogIfAvailable);
+            SIM_SET_CLEAR_BIT(nothing, 1, _hideFog);
             SIM_SET_CLEAR_BIT(nothing, 2, _useLocalLights);
             SIM_SET_CLEAR_BIT(nothing, 3, !_allowPicking);
             // SIM_SET_CLEAR_BIT(nothing,4,!_perspective);
@@ -1390,7 +1390,7 @@ void CCamera::serialize(CSer& ar)
                         unsigned char nothing;
                         ar >> nothing;
                         _useParentObjectAsManipulationProxy = SIM_IS_BIT_SET(nothing, 0);
-                        _showFogIfAvailable = !SIM_IS_BIT_SET(nothing, 1);
+                        _hideFog = SIM_IS_BIT_SET(nothing, 1);
                         _useLocalLights = SIM_IS_BIT_SET(nothing, 2);
                         _allowPicking = !SIM_IS_BIT_SET(nothing, 3);
                         //_perspective=!SIM_IS_BIT_SET(nothing,4);
@@ -1483,7 +1483,7 @@ void CCamera::serialize(CSer& ar)
                 if ((_objectName_old.compare("DefaultXViewCamera") == 0) ||
                     (_objectName_old.compare("DefaultYViewCamera") == 0) ||
                     (_objectName_old.compare("DefaultZViewCamera") == 0))
-                    _showFogIfAvailable = false;
+                    _hideFog = true;
             }
 
             if (ar.getSerializationVersionThatWroteThisFile() < 17)

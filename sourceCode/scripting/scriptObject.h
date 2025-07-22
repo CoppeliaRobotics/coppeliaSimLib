@@ -111,7 +111,6 @@ class CScriptObject
     int callCustomScriptFunction(const char* functionName, CInterfaceStack* inOutStack);
     bool shouldTemporarilySuspendMainScript();
 
-    void initSandbox();
     int executeScriptString(const char* scriptString, CInterfaceStack* outStack);
 
     int setBoolProperty(const char* pName, bool pState);
@@ -131,7 +130,7 @@ class CScriptObject
 
     void setIsSceneObjectScript(bool s);
     bool resetScript();
-    bool initScript();
+    void initScript();
     bool hasInterpreterState() const;
     bool getIsUpToDate();
     bool isSimulationOrMainScript() const;

@@ -994,7 +994,7 @@ void CEnvironment::activateFogIfEnabled(CViewableBase* viewable, bool forDynamic
 #ifdef SIM_WITH_GUI
     editMode = GuiApp::getEditModeType();
 #endif
-    if (fogEnabled && viewable->getShowFogIfAvailable() && (!forDynamicContentOnly) && (editMode == NO_EDIT_MODE))
+    if (fogEnabled && (!viewable->getHideFog()) && (!forDynamicContentOnly) && (editMode == NO_EDIT_MODE))
     {
         double np, fp;
         viewable->getClippingPlanes(np, fp);

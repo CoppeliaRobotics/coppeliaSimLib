@@ -78,7 +78,7 @@ void CQDlgVisionSensors::refresh()
     {
         CVisionSensor* s = App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
 
-        ui->qqShowFog->setChecked(s->getShowFogIfAvailable());
+        ui->qqShowFog->setChecked(!s->getHideFog());
 
         double np, fp;
         s->getClippingPlanes(np, fp);

@@ -223,14 +223,14 @@ double CViewableBase::getOrthoViewSize() const
     return _orthoViewSize;
 }
 
-void CViewableBase::setShowFogIfAvailable(bool showFog)
+void CViewableBase::setHideFog(bool hideFog)
 {
-    _showFogIfAvailable = showFog;
+    _hideFog = hideFog;
 }
 
-bool CViewableBase::getShowFogIfAvailable() const
+bool CViewableBase::getHideFog() const
 {
-    return (_showFogIfAvailable);
+    return _hideFog;
 }
 
 void CViewableBase::setFogTimer(double seconds)

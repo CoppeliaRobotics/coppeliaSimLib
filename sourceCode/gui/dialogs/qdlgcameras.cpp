@@ -75,7 +75,7 @@ void CQDlgCameras::refresh()
         it->getClippingPlanes(np, fp);
         ui->qqNearClipping->setText(utils::getSizeString(false, np).c_str());
         ui->qqFarClipping->setText(utils::getSizeString(false, fp).c_str());
-        ui->qqShowFog->setChecked(it->getShowFogIfAvailable());
+        ui->qqShowFog->setChecked(!it->getHideFog());
         ui->qqLocalLights->setChecked(it->getuseLocalLights());
         ui->qqAllowPicking->setChecked(it->getAllowPicking());
 

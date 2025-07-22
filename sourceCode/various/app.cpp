@@ -64,6 +64,7 @@ SignalHandler* App::_sigHandler = nullptr;
 CGm* App::gm = nullptr;
 std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
+std::vector<int> App::_scriptsToReset;
 long long int App::_nextUniqueId = SIM_UIDSTART;
 #ifdef USE_LONG_LONG_HANDLES
 long long int App::_nextHandle_object = SIM_IDSTART_SCENEOBJECT;
@@ -235,7 +236,7 @@ void App::init(const char* appDir, int)
 
     // Some items below require the GUI to be initialized (e.g. the Commander plugin):
     worldContainer->sandboxScript = new CScriptObject(sim_scripttype_sandbox);
-    worldContainer->sandboxScript->initSandbox();
+    worldContainer->sandboxScript->initScript();
 
     if (App::userSettings->runAddOns)
     {
@@ -457,9 +458,17 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_simulation);
     currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
 
+    // Async reset some scripts:
+    for (size_t i = 0; i < _scriptsToReset.size(); i++)
+    {
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(_scriptsToReset[i]);
+        if (it != nullptr)
+            it->initScript();
+    }
+    _scriptsToReset.clear();
+
     // Keep for backward compatibility:
-    if (!currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts
-                                                          // after the main script was called
+    if (!currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
         worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old, nullptr, nullptr);
 
     simThread->executeMessages(); // rendering, queued command execution, etc.
@@ -2916,6 +2925,11 @@ bool App::canSave()
 #endif
     }
     return retVal;
+}
+
+void App::asyncResetScript(int scriptHandle)
+{
+    _scriptsToReset.push_back(scriptHandle);
 }
 
 int App::getPlatform()

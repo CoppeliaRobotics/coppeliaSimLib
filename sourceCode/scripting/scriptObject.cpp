@@ -104,55 +104,6 @@ int CScriptObject::setHandle()
     return _scriptHandle;
 }
 
-void CScriptObject::initSandbox()
-{
-    if (_scriptType == sim_scripttype_sandbox)
-    {
-        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the sandbox script...");
-        _initInterpreterState(nullptr);
-        if (App::userSettings->preferredSandboxLang == "bareLua")
-        {
-            _lang = "lua";
-            if (setScriptTextFromFile((App::folders->getLuaPath() + "/" + BASE_SANDBOX_SCRIPT).c_str()))
-            {
-                if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized.");
-            }
-            else
-            {
-                _scriptIsDisabled = true;
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string(BASE_SANDBOX_SCRIPT) + " was not found.").c_str());
-            }
-        }
-        else
-        {
-            _lang = "python";
-            if (setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str()))
-            {
-                if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox script initialized.");
-                else
-                { // we revert to bareLua
-                    _lang = "lua";
-                    if (setScriptTextFromFile((App::folders->getLuaPath() + "/" + BASE_SANDBOX_SCRIPT).c_str()))
-                    {
-                        resetScript();
-                        if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized (Python sandbox failed).");
-                    }
-                    else
-                    {
-                        _scriptIsDisabled = true;
-                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string(BASE_SANDBOX_SCRIPT) + " was not found (Python sandbox failed).").c_str());
-                    }
-                }
-            }
-            else
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.py was not found.");
-        }
-    }
-}
-
 void CScriptObject::destroy(CScriptObject* obj, bool registeredObject, bool announceScriptDestruction /*= true*/)
 {
     if (registeredObject)
@@ -2506,17 +2457,62 @@ bool CScriptObject::resetScript()
     bool retVal = _killInterpreterState();
     fromFileToBuffer();
     setScriptState(scriptState_unloaded);
-    return (retVal);
+    return retVal;
 }
 
-bool CScriptObject::initScript()
-{ // add-on scripts, and the main script cannot be initialized via this function
-    bool retVal = false;
-    if (_scriptType == sim_scripttype_sandbox)
-        retVal = systemCallScript(sim_syscb_init, nullptr, nullptr) == 1;
-    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
-        retVal = systemCallScript(sim_syscb_init, nullptr, nullptr) == 1;
-    return (retVal);
+void CScriptObject::initScript()
+{ // add-on scripts won't reload, just reinitialize
+    resetScript();
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_sandbox))
+    {
+        if (_scriptType == sim_scripttype_sandbox)
+        {
+            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the sandbox script...");
+            _initInterpreterState(nullptr);
+            if (App::userSettings->preferredSandboxLang == "bareLua")
+            {
+                _lang = "lua";
+                if (setScriptTextFromFile((App::folders->getLuaPath() + "/" + BASE_SANDBOX_SCRIPT).c_str()))
+                {
+                    if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized.");
+                }
+                else
+                {
+                    _scriptIsDisabled = true;
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string(BASE_SANDBOX_SCRIPT) + " was not found.").c_str());
+                }
+            }
+            else
+            {
+                _lang = "python";
+                if (setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str()))
+                {
+                    if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox script initialized.");
+                    else
+                    { // we revert to bareLua
+                        _lang = "lua";
+                        if (setScriptTextFromFile((App::folders->getLuaPath() + "/" + BASE_SANDBOX_SCRIPT).c_str()))
+                        {
+                            resetScript();
+                            if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized (Python sandbox failed).");
+                        }
+                        else
+                        {
+                            _scriptIsDisabled = true;
+                            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string(BASE_SANDBOX_SCRIPT) + " was not found (Python sandbox failed).").c_str());
+                        }
+                    }
+                }
+                else
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.py was not found.");
+            }
+        }
+        else
+            systemCallScript(sim_syscb_init, nullptr, nullptr);
+    }
 }
 
 bool CScriptObject::getIsUpToDate()
@@ -5660,7 +5656,66 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
 
     std::smatch match;
-    std::regex regEx("sim.setInt32Signal\\('([^,]+),");
+    std::regex regEx;
+    /*
+    if (_containsScriptText_old(scriptObject, "org.conman.cbor"))
+    {
+        _replaceScriptText_old(scriptObject, "org.conman.cbor", "simCBOR");
+        App::logMsg(sim_verbosity_errors, "Contains org.conman.cbor...");
+    }
+
+    regEx = "(^|[^A-Za-z0-9_\\.\\-])Matrix\\(";
+    bool oldMatrices = false;
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        oldMatrices = true;
+        std::string nt(match.str(1) + std::string("simEigen.Matrix("));
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "(^|[^A-Za-z0-9_\\.\\-])Matrix\\{";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        oldMatrices = true;
+        std::string nt(match.str(1) + std::string("simEigen.Matrix{"));
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "(^|[^A-Za-z0-9_\\.\\-])Vector3\\(";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        oldMatrices = true;
+        std::string nt(match.str(1) + std::string("simEigen.Vector("));
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "(^|[^A-Za-z0-9_\\.\\-])Vector3\\{";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        oldMatrices = true;
+        std::string nt(match.str(1) + std::string("simEigen.Vector{"));
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+
+    regEx = "(^|[^A-Za-z0-9_\\.\\-])Vector\\(";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        oldMatrices = true;
+        std::string nt(match.str(1) + std::string("simEigen.Vector("));
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    regEx = "(^|[^A-Za-z0-9_\\.\\-])Vector\\{";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        oldMatrices = true;
+        std::string nt(match.str(1) + std::string("simEigen.Vector{"));
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    if (oldMatrices)
+    {
+        _scriptText = "local simEigen = require('simEigen')\n" + _scriptText;
+        App::logMsg(sim_verbosity_errors, "Replaced old Matrices with simEigen Matrices...");
+    }
+//*/
+    regEx = "sim.setInt32Signal\\('([^,]+),";
     while (std::regex_search(_scriptText, match, regEx))
     {
         std::string nt(std::string("sim.setIntProperty(sim.handle_scene, 'signal.") + match.str(1) + ",");
@@ -7622,16 +7677,8 @@ const SNewApiMapping _simApiMapping[] = {
     "sim.simulation_paused",
     "sim_simulation_advancing",
     "sim.simulation_advancing",
-    "sim_simulation_advancing_firstafterstop",
-    "sim.simulation_advancing_firstafterstop",
     "sim_simulation_advancing_running",
     "sim.simulation_advancing_running",
-    "sim_simulation_advancing_lastbeforepause",
-    "sim.simulation_advancing_lastbeforepause",
-    "sim_simulation_advancing_firstafterpause",
-    "sim.simulation_advancing_firstafterpause",
-    "sim_simulation_advancing_abouttostop",
-    "sim.simulation_advancing_abouttostop",
     "sim_simulation_advancing_lastbeforestop",
     "sim.simulation_advancing_lastbeforestop",
     "sim_texturemap_plane",

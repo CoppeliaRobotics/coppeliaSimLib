@@ -409,10 +409,7 @@ void CScript::reinitAfterSimulationIfNeeded()
         if (scriptObject->getScriptType() == sim_scripttype_customization)
         {
             if ((scriptObject->getScriptState() & CScriptObject::scriptState_error) && _resetAfterSimError)
-            {
-                scriptObject->resetScript();
                 scriptObject->initScript();
-            }
         }
     }
 }

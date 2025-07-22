@@ -7082,7 +7082,7 @@ int simCreateVisionSensor_internal(int options, const int* intParams, const doub
         it->setShowVolume((options & 4) == 0);
         it->setUseExternalImage((options & 16) != 0);
         it->setUseLocalLights((options & 32) != 0);
-        it->setShowFogIfAvailable((options & 64) == 0);
+        it->setHideFog((options & 64) != 0);
         it->setUseEnvironmentBackgroundColor((options & 128) == 0);
         it->setResolution(intParams);
 
@@ -7092,7 +7092,7 @@ int simCreateVisionSensor_internal(int options, const int* intParams, const doub
         else
             it->setOrthoViewSize(floatParams[2]);
         it->setVisionSensorSize(floatParams[3]);
-        float w[3] = {(float)floatParams[6], (float)floatParams[6], (float)floatParams[6]};
+        float w[3] = {(float)floatParams[6], (float)floatParams[7], (float)floatParams[8]};
         it->setDefaultBufferValues(w);
 
         App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
@@ -8561,8 +8561,7 @@ int simInitScript_internal(int scriptHandle)
         CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it != nullptr)
         {
-            it->resetScript();
-            it->initScript();
+            App::asyncResetScript(scriptHandle);
             return (1);
         }
         else

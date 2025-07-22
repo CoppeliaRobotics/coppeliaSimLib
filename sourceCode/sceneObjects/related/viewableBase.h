@@ -82,8 +82,8 @@ class CViewableBase : public CSceneObject
     void setOrthoViewSize(double theSize);
     double getOrthoViewSize() const;
 
-    void setShowFogIfAvailable(bool showFog);
-    bool getShowFogIfAvailable() const;
+    void setHideFog(bool hideFog);
+    bool getHideFog() const;
 
     bool isObjectInsideView(const C7Vector& objectM, const C3Vector& maxBB);
     void computeViewFrustumIfNeeded();
@@ -130,7 +130,7 @@ class CViewableBase : public CSceneObject
     C3Vector _volumeVectorNear;
     C3Vector _volumeVectorFar;
 
-    bool _showFogIfAvailable;
+    bool _hideFog;
     bool _useLocalLights;
 
     bool _planesCalculated;

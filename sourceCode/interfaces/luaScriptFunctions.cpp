@@ -12304,11 +12304,14 @@ int _simInitScript(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.initScript");
 
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-    {
-        int scriptHandle = luaToInt(L, 1);
-        CALL_C_API(simInitScript, scriptHandle);
-    }
+    int scriptHandle = sim_handle_self;
+    int res = checkOneGeneralInputArgument(L, 1, lua_arg_number, 0, true, false, &errorString);
+    if (res == 2)
+        scriptHandle = luaToInt(L, 1);
+    if (scriptHandle == sim_handle_self)
+        scriptHandle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    if ((res == 0) || (res == 2))
+        CALL_C_API(simInitScript, scriptHandle); // executes asynchronously
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);

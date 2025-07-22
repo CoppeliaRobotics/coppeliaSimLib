@@ -682,7 +682,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
-            cam->setShowFogIfAvailable(!cam->getShowFogIfAvailable());
+            cam->setHideFog(!cam->getHideFog());
     }
     if (cmd.cmdId == TOGGLE_SHOWVOLUME_CAMERAGUITRIGGEREDCMD)
     {
@@ -866,7 +866,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setShowFogIfAvailable(!it->getShowFogIfAvailable());
+            it->setHideFog(!it->getHideFog());
     }
     if (cmd.cmdId == SET_NEARCLIPPING_VISIONSENSORGUITRIGGEREDCMD)
     {
@@ -939,7 +939,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     it->setExplicitHandling(last->getExplicitHandling());
                     it->setUseExternalImage(last->getUseExternalImage());
                     it->setPerspective(last->getPerspective());
-                    it->setShowFogIfAvailable(last->getShowFogIfAvailable());
+                    it->setHideFog(last->getHideFog());
                     it->setIgnoreRGBInfo(last->getIgnoreRGBInfo());
                     it->setIgnoreDepthInfo(last->getIgnoreDepthInfo());
                     it->setComputeImageBasicStats(last->getComputeImageBasicStats());

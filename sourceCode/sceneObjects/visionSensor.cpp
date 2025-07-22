@@ -352,7 +352,7 @@ void CVisionSensor::commonInit()
     _farClippingPlane = 10.0;
     _viewAngle = 60.0 * degToRad;
     _orthoViewSize = 0.1;
-    _showFogIfAvailable = true;
+    _hideFog = false;
     _useLocalLights = false;
     _inApplyFilterRoutine = false;
     _rayTracingTextureName = (unsigned int)-1;
@@ -2115,7 +2115,7 @@ CSceneObject* CVisionSensor::copyYourself()
     newVisionSensor->_orthoViewSize = _orthoViewSize;
     newVisionSensor->_nearClippingPlane = _nearClippingPlane;
     newVisionSensor->_farClippingPlane = _farClippingPlane;
-    newVisionSensor->_showFogIfAvailable = _showFogIfAvailable;
+    newVisionSensor->_hideFog = _hideFog;
     newVisionSensor->_useLocalLights = _useLocalLights;
 
     newVisionSensor->_resolution[0] = _resolution[0];
@@ -2558,7 +2558,7 @@ void CVisionSensor::serialize(CSer& ar)
             unsigned char nothing = 0;
             SIM_SET_CLEAR_BIT(nothing, 0, _perspective);
             SIM_SET_CLEAR_BIT(nothing, 1, _explicitHandling);
-            SIM_SET_CLEAR_BIT(nothing, 2, !_showFogIfAvailable);
+            SIM_SET_CLEAR_BIT(nothing, 2, _hideFog);
             // 12/12/2011        SIM_SET_CLEAR_BIT(nothing,3,_detectAllDetectable);
             SIM_SET_CLEAR_BIT(nothing, 4, _showVolume);
             SIM_SET_CLEAR_BIT(nothing, 5, false); //_showVolumeWhenDetecting);
@@ -2695,7 +2695,7 @@ void CVisionSensor::serialize(CSer& ar)
                         ar >> nothing;
                         _perspective = SIM_IS_BIT_SET(nothing, 0);
                         _explicitHandling = SIM_IS_BIT_SET(nothing, 1);
-                        _showFogIfAvailable = !SIM_IS_BIT_SET(nothing, 2);
+                        _hideFog = SIM_IS_BIT_SET(nothing, 2);
                         _showVolume = SIM_IS_BIT_SET(nothing, 4);
                         //_showVolumeWhenDetecting=SIM_IS_BIT_SET(nothing,5);
                         _useLocalLights = SIM_IS_BIT_SET(nothing, 6);
@@ -2827,7 +2827,7 @@ void CVisionSensor::serialize(CSer& ar)
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("perspectiveMode", _perspective);
             ar.xmlAddNode_bool("explicitHandling", _explicitHandling);
-            ar.xmlAddNode_bool("showFog", _showFogIfAvailable);
+            ar.xmlAddNode_bool("showFog", !_hideFog);
             ar.xmlAddNode_bool("showVolume", _showVolume);
             if (exhaustiveXml)
                 ar.xmlAddNode_bool("useLocalLights", _useLocalLights);
@@ -2911,7 +2911,8 @@ void CVisionSensor::serialize(CSer& ar)
             {
                 ar.xmlGetNode_bool("perspectiveMode", _perspective, exhaustiveXml);
                 ar.xmlGetNode_bool("explicitHandling", _explicitHandling, exhaustiveXml);
-                ar.xmlGetNode_bool("showFog", _showFogIfAvailable, exhaustiveXml);
+                if (ar.xmlGetNode_bool("showFog", _hideFog, exhaustiveXml))
+                    _hideFog = !_hideFog;
                 ar.xmlGetNode_bool("showVolumeWhenNotDetecting", _showVolume, false);
                 ar.xmlGetNode_bool("showVolume", _showVolume, exhaustiveXml);
                 if (exhaustiveXml)
