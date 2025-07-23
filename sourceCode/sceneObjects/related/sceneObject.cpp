@@ -5840,6 +5840,16 @@ int CSceneObject::setIntProperty(const char* ppName, int pState)
         retVal = 1;
         setVisibilityLayer(pState);
     }
+    else if (strcmp(pName, propObject_parentHandle.name) == 0)
+    {
+        retVal = 0;
+        CSceneObject* newParent = App::currentWorld->sceneObjects->getObjectFromHandle(pState);
+        if ( (newParent != nullptr) || (pState == -1) )
+        {
+            if (App::currentWorld->sceneObjects->setObjectParent(this, newParent, false))
+                retVal = 1;
+        }
+    }
     else if (strcmp(pName, propObject_objectProperty.name) == 0)
     {
         retVal = 1;
