@@ -29,6 +29,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                   \
+    FUNCX(propScriptObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")             \
     FUNCX(propScriptObj_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0, "Enabled", "Script is enabled")                                                         \
     FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0, "Restart", "Restart on error")                                                          \
     FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0, "Execution priority", "")                                                                    \

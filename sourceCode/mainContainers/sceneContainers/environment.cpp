@@ -155,6 +155,7 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyInt(propScene_sceneUid.name, _sceneUniqueID);
     ev->appendKeyInt(propScene_visibilityLayers.name, _activeLayers);
     ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
+    ev->appendKeyText(propScene_objectType.name, "scene");
     ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
     ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
     ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
@@ -1171,6 +1172,11 @@ int CEnvironment::getStringProperty(const char* pName, std::string& pState) cons
     if (strcmp(pName, propScene_scenePath.name) == 0)
     {
         pState = _scenePathAndName;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propScene_objectType.name) == 0)
+    {
+        pState = "scene";
         retVal = 1;
     }
     else if (strcmp(pName, propScene_acknowledgment.name) == 0)

@@ -3551,38 +3551,46 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
     }
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
+        if (strcmp(ppName, "objectType") == 0)
         {
-            retVal = -1;
-            if (key.size() == 0)
+            pState = "stack";
+            retVal = 1;
+        }
+        else
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+            std::string key;
+            int arrIndex;
+            int stackIndex;
+            retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+            if (retVal == 0)
             {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
+                retVal = -1;
+                if (key.size() == 0)
                 {
-                    pState = ((CInterfaceStackString*)it)->getValue(nullptr);
-                    retVal = 1;
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
+                    CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
                     if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
                     {
                         pState = ((CInterfaceStackString*)it)->getValue(nullptr);
                         retVal = 1;
+                    }
+                }
+                else
+                { // we want to read a specific array/map item
+                    CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                    if (obj->getObjectType() == sim_stackitem_table)
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                        CInterfaceStackObject* it = nullptr;
+                        if (arrIndex >= 0)
+                            it = tbl->getArrayItemAtIndex(arrIndex);
+                        else
+                            it = tbl->getMapObject(key.c_str());
+                        if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
+                        {
+                            pState = ((CInterfaceStackString*)it)->getValue(nullptr);
+                            retVal = 1;
+                        }
                     }
                 }
             }

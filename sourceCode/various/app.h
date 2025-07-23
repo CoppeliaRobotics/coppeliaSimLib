@@ -20,6 +20,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                                     \
+    FUNCX(propApp_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                                                                                        \
     FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Session ID", "")                                                                                        \
     FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, sim_propertyinfo_notwritable, "Protocol", "Protocol version")                                                                                                     \
     FUNCX(propApp_productVersion, "productVersion", sim_propertytype_string, sim_propertyinfo_notwritable, "Product string", "Product version (string)")                                                                                      \

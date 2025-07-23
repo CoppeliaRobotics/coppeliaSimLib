@@ -1058,8 +1058,7 @@ int CScriptObject::getScriptState() const
 
 void CScriptObject::addSpecializedObjectEventData(CCbor* ev)
 {
-    if (_scriptHandle >= SIM_IDSTART_LUASCRIPT)
-        ev->appendKeyText(propObject_objectType.name, "detachedScript");
+    ev->appendKeyText(propScriptObj_objectType.name, "script");
     ev->appendKeyBool(propScriptObj_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propScriptObj_restartOnError.name, _autoRestartOnError);
     ev->appendKeyInt(propScriptObj_execPriority.name, getScriptExecPriority());
@@ -4317,6 +4316,11 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     {
         retVal = 1;
         pState = _lang;
+    }
+    else if (strcmp(propScriptObj_objectType.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = "script";
     }
     else if (strcmp(propScriptObj_scriptName.name, pName) == 0)
     {

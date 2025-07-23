@@ -2000,6 +2000,11 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = "";
                 retVal = 1;
             }
+            else if (strcmp(pName, propApp_objectType.name) == 0)
+            {
+                pState = "app";
+                retVal = 1;
+            }
             else if (strcmp(pName, propApp_productVersion.name) == 0)
             {
                 pState = SIM_VERSION_STR_SHORT;
@@ -2961,6 +2966,7 @@ void App::pushGenesisEvents()
         ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
 #endif
         ev->appendKeyText(propApp_sessionId.name, worldContainer->getSessionId().c_str());
+        ev->appendKeyText(propApp_objectType.name, "app");
         ev->appendKeyInt(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
         ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
         ev->appendKeyInt(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);
