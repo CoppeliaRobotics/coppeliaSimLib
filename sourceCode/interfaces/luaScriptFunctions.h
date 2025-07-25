@@ -219,7 +219,7 @@ extern int _simSerialSend(luaWrap_lua_State* L);
 extern int _simSerialRead(luaWrap_lua_State* L);
 extern int _simSerialCheck(luaWrap_lua_State* L);
 extern int _simGetObjectSizeFactor(luaWrap_lua_State* L);
-extern int _simCheckForceSensor(luaWrap_lua_State* L);
+extern int _simReadForceSensor(luaWrap_lua_State* L);
 extern int _simGetShapeVertex(luaWrap_lua_State* L);
 extern int _simGetShapeTriangle(luaWrap_lua_State* L);
 extern int _simSetObjectColor(luaWrap_lua_State* L);

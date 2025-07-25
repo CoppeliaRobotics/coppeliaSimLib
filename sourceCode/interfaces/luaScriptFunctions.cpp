@@ -241,7 +241,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.removeParticleObject", _simRemoveParticleObject},
     {"sim.addParticleObjectItem", _simAddParticleObjectItem},
     {"sim.getObjectSizeFactor", _simGetObjectSizeFactor},
-    {"sim.checkForceSensor", _simCheckForceSensor},
+    {"sim.readForceSensor", _simReadForceSensor},
     {"sim.getLinkDummy", _simGetLinkDummy},
     {"sim.setLinkDummy", _simSetLinkDummy},
     {"sim.setObjectColor", _simSetObjectColor},
@@ -10126,10 +10126,10 @@ int _simGetObjectSizeFactor(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simCheckForceSensor(luaWrap_lua_State* L)
+int _simReadForceSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.checkForceSensor");
+    LUA_START("sim.readForceSensor");
 
     int retVal = -1;
     double force[3] = {0.0, 0.0, 0.0};
