@@ -163,6 +163,8 @@ void COcTree::_updateOctreeEvent() const
         ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
         ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
         ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+        ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
+        ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
 #endif
         App::worldContainer->pushEvent();
     }
@@ -465,10 +467,18 @@ bool COcTree::getUseRandomColors() const
 
 void COcTree::setUseRandomColors(bool r)
 {
-    if (r != _useRandomColors)
+    bool diff = (_useRandomColors != r);
+    if (diff)
     {
         _useRandomColors = r;
         _readPositionsAndColorsAndSetDimensions();
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = propOctree_randomColors.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _useRandomColors);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -489,7 +499,18 @@ bool COcTree::getUsePointsInsteadOfCubes() const
 
 void COcTree::setUsePointsInsteadOfCubes(bool r)
 {
-    _usePointsInsteadOfCubes = r;
+    bool diff = (_usePointsInsteadOfCubes != r);
+    if (diff)
+    {
+        _usePointsInsteadOfCubes = r;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = propOctree_showPoints.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _usePointsInsteadOfCubes);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 int COcTree::getPointSize() const
@@ -1138,6 +1159,50 @@ void COcTree::display(CViewableBase* renderingObject, int displayAttrib)
     displayOctree(this, renderingObject, displayAttrib);
 }
 #endif
+
+int COcTree::setBoolProperty(const char* ppName, bool pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propOctree_randomColors.name)
+        {
+            setUseRandomColors(pState);
+            retVal = 1;
+        }
+        else if (_pName == propOctree_showPoints.name)
+        {
+            setUsePointsInsteadOfCubes(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int COcTree::getBoolProperty(const char* ppName, bool& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propOctree_randomColors.name)
+        {
+            pState = _useRandomColors;
+            retVal = 1;
+        }
+        else if (_pName == propOctree_showPoints.name)
+        {
+            pState = _usePointsInsteadOfCubes;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
 
 int COcTree::setFloatProperty(const char* ppName, double pState)
 {

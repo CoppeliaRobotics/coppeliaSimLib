@@ -278,3 +278,7 @@ extern int _simBuildMatrixQ(luaWrap_lua_State* L);
 extern int _simCheckCollisionEx(luaWrap_lua_State* L);
 extern int _simCheckProximitySensorEx(luaWrap_lua_State* L);
 extern int _simCheckProximitySensorEx2(luaWrap_lua_State* L);
+extern int _simGetObjectMatrix(luaWrap_lua_State* L);
+extern int _simSetObjectMatrix(luaWrap_lua_State* L);
+extern int _simGetObjectOrientation(luaWrap_lua_State* L);
+extern int _simSetObjectOrientation(luaWrap_lua_State* L);

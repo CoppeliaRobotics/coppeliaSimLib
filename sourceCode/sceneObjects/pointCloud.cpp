@@ -702,6 +702,7 @@ void CPointCloud::addSpecializedObjectEventData(CCbor* ev)
 #else
     color.addGenesisEventData(ev);
     ev->appendKeyBool(propPointCloud_ocTreeStruct.name, !_doNotUseOctreeStructure);
+    ev->appendKeyBool(propPointCloud_randomColors.name, _useRandomColors);
     ev->appendKeyInt(propPointCloud_pointSize.name, _pointSize);
     ev->appendKeyInt(propPointCloud_maxPtsInCell.name, _maxPointCountPerCell);
     ev->appendKeyDouble(propPointCloud_cellSize.name, _cellSize);
@@ -874,10 +875,18 @@ bool CPointCloud::getUseRandomColors() const
 
 void CPointCloud::setUseRandomColors(bool r)
 {
-    if (r != _useRandomColors)
+    bool diff = (_useRandomColors != r);
+    if (diff)
     {
         _useRandomColors = r;
         _readPositionsAndColorsAndSetDimensions();
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = propPointCloud_randomColors.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _useRandomColors);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -1532,6 +1541,11 @@ int CPointCloud::setBoolProperty(const char* ppName, bool pState)
             retVal = 1;
             setDoNotUseCalculationStructure(!pState);
         }
+        else if (_pName == propPointCloud_randomColors.name)
+        {
+            retVal = 1;
+            setUseRandomColors(pState);
+        }
     }
 
     return retVal;
@@ -1548,6 +1562,11 @@ int CPointCloud::getBoolProperty(const char* ppName, bool& pState) const
         {
             retVal = 1;
             pState = !_doNotUseOctreeStructure;
+        }
+        else if (_pName == propPointCloud_randomColors.name)
+        {
+            retVal = 1;
+            pState = _useRandomColors;
         }
     }
 

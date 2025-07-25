@@ -136,9 +136,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim._getObjectFromUid", _sim_getObjectFromUid},
     {"sim.getScript", _simGetScript},
     {"sim.getObjectPosition", _simGetObjectPosition},
-    {"sim.getObjectOrientation", _simGetObjectOrientation},
     {"sim.setObjectPosition", _simSetObjectPosition},
-    {"sim.setObjectOrientation", _simSetObjectOrientation},
     {"sim.getJointPosition", _simGetJointPosition},
     {"sim.setJointPosition", _simSetJointPosition},
     {"sim.setJointTargetPosition", _simSetJointTargetPosition},
@@ -168,8 +166,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.stopSimulation", _simStopSimulation},
     {"sim.pauseSimulation", _simPauseSimulation},
     {"sim.startSimulation", _simStartSimulation},
-    {"sim.getObjectMatrix", _simGetObjectMatrix},
-    {"sim.setObjectMatrix", _simSetObjectMatrix},
     {"sim.getObjectPose", _simGetObjectPose},
     {"sim.setObjectPose", _simSetObjectPose},
     {"sim.getObjectChildPose", _simGetObjectChildPose},
@@ -245,7 +241,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.removeParticleObject", _simRemoveParticleObject},
     {"sim.addParticleObjectItem", _simAddParticleObjectItem},
     {"sim.getObjectSizeFactor", _simGetObjectSizeFactor},
-    {"sim.readForceSensor", _simReadForceSensor},
+    {"sim.checkForceSensor", _simCheckForceSensor},
     {"sim.getLinkDummy", _simGetLinkDummy},
     {"sim.setLinkDummy", _simSetLinkDummy},
     {"sim.setObjectColor", _simSetObjectColor},
@@ -424,6 +420,10 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim1.getObjectOrientation", _simGetObjectOrientation},
+    {"sim1.setObjectOrientation", _simSetObjectOrientation},
+    {"sim1.getObjectMatrix", _simGetObjectMatrix},
+    {"sim1.setObjectMatrix", _simSetObjectMatrix},
     {"sim1.checkProximitySensorEx", _simCheckProximitySensorEx},
     {"sim1.checkProximitySensorEx2", _simCheckProximitySensorEx2},
     {"sim1.checkCollisionEx", _simCheckCollisionEx},
@@ -3703,28 +3703,6 @@ int _simGetObjectPosition(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetObjectOrientation(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectOrientation");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_integer | lua_arg_optional, 0))
-    {
-        int rel = sim_handle_world;
-        if (luaWrap_lua_isinteger(L, 2))
-            rel = luaToInt(L, 2);
-        double coord[3];
-        if (CALL_C_API(simGetObjectOrientation, luaToInt(L, 1), rel, coord) == 1)
-        {
-            pushDoubleTableOntoStack(L, 3, coord);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simSetObjectPosition(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -3750,38 +3728,6 @@ int _simSetObjectPosition(luaWrap_lua_State* L)
             double coord[3];
             getDoublesFromTable(L, 3, 3, coord);
             CALL_C_API(simSetObjectPosition, luaToInt(L, 1), luaToInt(L, 2), coord);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetObjectOrientation(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setObjectOrientation");
-
-    if (luaWrap_lua_isnonbuffertable(L, 2))
-    {
-        if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_number, 3,
-                                lua_arg_integer | lua_arg_optional, 0))
-        {
-            double coord[3];
-            getDoublesFromTable(L, 2, 3, coord);
-            int rel = sim_handle_world;
-            if (luaWrap_lua_isinteger(L, 3))
-                rel = luaToInt(L, 3);
-            CALL_C_API(simSetObjectOrientation, luaToInt(L, 1), rel, coord);
-        }
-    }
-    else
-    { // old
-        if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 3))
-        {
-            double coord[3];
-            getDoublesFromTable(L, 3, 3, coord);
-            CALL_C_API(simSetObjectOrientation, luaToInt(L, 1), luaToInt(L, 2), coord);
         }
     }
 
@@ -4473,60 +4419,6 @@ int _simStartSimulation(luaWrap_lua_State* L)
 
     int retVal = -1; // error
     retVal = CALL_C_API(simStartSimulation, );
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetObjectMatrix(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectMatrix");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_integer | lua_arg_optional, 0))
-    {
-        double arr[12];
-        int rel = sim_handle_world;
-        if (luaWrap_lua_isinteger(L, 2))
-            rel = luaToInt(L, 2);
-        if (CALL_C_API(simGetObjectMatrix, luaToInt(L, 1), rel, arr) == 1)
-        {
-            pushDoubleTableOntoStack(L, 12, arr); // Success
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetObjectMatrix(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setObjectMatrix");
-
-    if (luaWrap_lua_isnonbuffertable(L, 2))
-    {
-        if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_number, 12,
-                                lua_arg_integer | lua_arg_optional, 0))
-        {
-            double arr[12];
-            getDoublesFromTable(L, 2, 12, arr);
-            int rel = sim_handle_world;
-            if (luaWrap_lua_isinteger(L, 3))
-                rel = luaToInt(L, 3);
-            CALL_C_API(simSetObjectMatrix, luaToInt(L, 1), rel, arr);
-        }
-    }
-    else
-    { // old
-        if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 12))
-        {
-            double arr[12];
-            getDoublesFromTable(L, 3, 12, arr);
-            CALL_C_API(simSetObjectMatrix, luaToInt(L, 1), luaToInt(L, 2), arr);
-        }
-    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -10234,10 +10126,10 @@ int _simGetObjectSizeFactor(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simReadForceSensor(luaWrap_lua_State* L)
+int _simCheckForceSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.readForceSensor");
+    LUA_START("sim.checkForceSensor");
 
     int retVal = -1;
     double force[3] = {0.0, 0.0, 0.0};
