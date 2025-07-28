@@ -8,8 +8,7 @@
 #include <plugin.h>
 #include <random>
 
-#define DEFAULT_MAINSCRIPT_CODE \
-    "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
+#define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
 #define DEFAULT_NONTHREADEDCHILDSCRIPT "simulationScript"
 #define DEFAULT_THREADEDCHILDSCRIPT "simulationScript-threaded"
 #define DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT "customizationScript"
@@ -18,13 +17,9 @@
 #define SIM_PLUGIN_NAMESPACES "sim_plugin_namespaces" // keep this global, e.g. not _S.sim_plugin_handles
 
 // Old:
-// **********************
 #include <userParameters.h>
-//#include <vMutex.h>
-//#include <vThread.h>
 #include <customData_old.h>
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
-// **********************
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable

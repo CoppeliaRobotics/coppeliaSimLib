@@ -746,8 +746,7 @@ std::string CScriptObject::getFunctionCalltip(const char* txt, const CScriptObje
     { // Check old plugin functions' calltips:
         for (size_t j = 0; j < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); j++)
         {
-            CScriptCustomFunction* it =
-                App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
+            CScriptCustomFunction* it = App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
             std::string n = it->getFunctionName();
             if (n.compare(txt) == 0)
             {

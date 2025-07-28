@@ -91,15 +91,44 @@ void CCodeEditorInfos::insertWhatStartsSame(const char* txt, std::set<std::strin
 
 std::string CCodeEditorInfos::getFunctionCalltip(const char* txt, const CScriptObject* requestOrigin) const
 {
-    std::string retVal;
+    std::vector<std::pair<std::string, std::string>> callTipsAndModuleNames;
+    std::set<std::string> uniqueTips;
     for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
         if ((requestOrigin == nullptr) || (requestOrigin->wasModulePreviouslyUsed(it->first.c_str())) || (it->first == ""))
         { // only if that item was previously required by that script
-            retVal = it->second.funcs->getFunctionCalltip(txt);
-            if (retVal.size() != 0)
-                break;
+            std::string tip = it->second.funcs->getFunctionCalltip(txt);
+            if (tip.size() != 0)
+            {
+                std::string suffix;
+                if (it->first != "")
+                    suffix = "[" + it->first + "]";
+                callTipsAndModuleNames.push_back(std::make_pair(tip, suffix));
+                uniqueTips.insert(tip);
+            }
         }
     }
-    return (retVal);
+    if (uniqueTips.size() > 1)
+    {
+        std::sort(callTipsAndModuleNames.begin(), callTipsAndModuleNames.end(), [](auto const& a, auto const& b)
+        {
+            return a.second < b.second;
+        });
+    }
+    std::string retVal;
+    for (size_t i = 0; i < callTipsAndModuleNames.size(); i++)
+    {
+        if (uniqueTips.size() == 1)
+        {
+            retVal += callTipsAndModuleNames[i].first;
+            break;
+        }
+        else
+        {
+            if (i != 0)
+                retVal += "\n";
+            retVal += callTipsAndModuleNames[i].second + "       " + callTipsAndModuleNames[i].first;
+        }
+    }
+    return retVal;
 }
