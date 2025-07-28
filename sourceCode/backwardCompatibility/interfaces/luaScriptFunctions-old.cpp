@@ -8356,3 +8356,514 @@ int _simSetObjectOrientation(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simGetRotationAxis(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getRotationAxis");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 7, lua_arg_number, 7))
+    {
+        double inM0[12];
+        double inM1[12];
+
+        C4X4Matrix mStart;
+        C4X4Matrix mGoal;
+        if (luaWrap_lua_rawlen(L, 1) >= 12)
+        { // we have a matrix
+            getDoublesFromTable(L, 1, 12, inM0);
+            getDoublesFromTable(L, 2, 12, inM1);
+            mStart.setData(inM0);
+            mGoal.setData(inM1);
+        }
+        else
+        { // we have a pose
+            getDoublesFromTable(L, 1, 7, inM0);
+            getDoublesFromTable(L, 2, 7, inM1);
+            C7Vector p;
+            p.setData(inM0, true);
+            mStart = p.getMatrix();
+            p.setData(inM1, true);
+            mGoal = p.getMatrix();
+        }
+
+        // Following few lines taken from the quaternion interpolation part:
+        C4Vector AA(mStart.M.getQuaternion());
+        C4Vector BB(mGoal.M.getQuaternion());
+        if (AA(0) * BB(0) + AA(1) * BB(1) + AA(2) * BB(2) + AA(3) * BB(3) < 0.0)
+            AA = AA * -1.0;
+        C4Vector r((AA.getInverse() * BB).getAngleAndAxis());
+
+        C3Vector v(r(1), r(2), r(3));
+        v = AA * v;
+
+        double axis[3];
+        axis[0] = v(0);
+        axis[1] = v(1);
+        axis[2] = v(2);
+        double l = sqrt(v(0) * v(0) + v(1) * v(1) + v(2) * v(2));
+        if (l != 0.0)
+        {
+            axis[0] /= l;
+            axis[1] /= l;
+            axis[2] /= l;
+        }
+
+        pushDoubleTableOntoStack(L, 3, axis);
+        luaWrap_lua_pushnumber(L, r(0));
+        LUA_END(2);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simRotateAroundAxis(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.rotateAroundAxis");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 7, lua_arg_number, 3, lua_arg_number, 3, lua_arg_number,
+                            0))
+    {
+        double inM[12];
+        double axis[3];
+        double ppos[3];
+        double outM[12];
+        getDoublesFromTable(L, 2, 3, axis);
+        getDoublesFromTable(L, 3, 3, ppos);
+
+        C7Vector tr;
+        if (luaWrap_lua_rawlen(L, 1) >= 12)
+        { // we have a matrix
+            getDoublesFromTable(L, 1, 12, inM);
+            C4X4Matrix m;
+            m.setData(inM);
+            tr = m.getTransformation();
+        }
+        else
+        { // we have a pose
+            getDoublesFromTable(L, 1, 7, inM);
+            tr.setData(inM, true);
+        }
+        C3Vector ax(axis);
+        C3Vector pos(ppos);
+
+        double alpha = -atan2(ax(1), ax(0));
+        double beta = atan2(-sqrt(ax(0) * ax(0) + ax(1) * ax(1)), ax(2));
+        tr.X -= pos;
+        C7Vector r;
+        r.X.clear();
+        r.Q.setEulerAngles(0.0, 0.0, alpha);
+        tr = r * tr;
+        r.Q.setEulerAngles(0.0, beta, 0.0);
+        tr = r * tr;
+        r.Q.setEulerAngles(0.0, 0.0, luaToDouble(L, 4));
+        tr = r * tr;
+        r.Q.setEulerAngles(0.0, -beta, 0.0);
+        tr = r * tr;
+        r.Q.setEulerAngles(0.0, 0.0, -alpha);
+        tr = r * tr;
+        tr.X += pos;
+        if (luaWrap_lua_rawlen(L, 1) >= 12)
+        { // we have a matrix
+            tr.getMatrix().getData(outM);
+            pushDoubleTableOntoStack(L, 12, outM);
+        }
+        else
+        { // we have a pose
+            tr.getData(outM, true);
+            pushDoubleTableOntoStack(L, 7, outM);
+        }
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simBuildIdentityMatrix(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.buildIdentityMatrix");
+
+    double arr[12];
+    CALL_C_API(simBuildIdentityMatrix, arr);
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    pushDoubleTableOntoStack(L, 12, arr);
+    LUA_END(1);
+}
+
+int _simBuildMatrix(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.buildMatrix");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 3, lua_arg_number, 3))
+    {
+        double arr[12];
+        double pos[3];
+        double euler[3];
+        getDoublesFromTable(L, 1, 3, pos);
+        getDoublesFromTable(L, 2, 3, euler);
+        if (CALL_C_API(simBuildMatrix, pos, euler, arr) == 1)
+        {
+            pushDoubleTableOntoStack(L, 12, arr);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simBuildPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.buildPose");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 3, lua_arg_number, 3))
+    {
+        double tr[7];
+        double pos[3];
+        double axis1[3];
+        double axis2[3];
+        int mode = 0;
+        getDoublesFromTable(L, 1, 3, pos);
+        getDoublesFromTable(L, 2, 3, axis1);
+        int res = checkOneGeneralInputArgument(L, 3, lua_arg_integer, 0, true, false, &errorString);
+        if (res >= 0)
+        {
+            if (res == 2)
+                mode = luaToInt(L, 3);
+            if (mode == 0)
+            {
+                if (CALL_C_API(simBuildPose, pos, axis1, tr) == 1)
+                {
+                    pushDoubleTableOntoStack(L, 7, tr);
+                    LUA_END(1);
+                }
+            }
+            else
+            {
+                res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 3, mode < 4, false, &errorString);
+                if (res >= 0)
+                {
+                    if (res == 2)
+                        getDoublesFromTable(L, 4, 3, axis2);
+                    C3X3Matrix m;
+                    C3Vector a1(axis1);
+                    a1.normalize();
+                    if (mode < 4)
+                    {
+                        int i1 = mode - 1;
+                        int i2 = i1 + 1;
+                        if (i2 > 2)
+                            i2 = 0;
+                        int i3 = i2 + 1;
+                        if (i3 > 2)
+                            i3 = 0;
+                        C3Vector a2;
+                        if (a1(2) < 0.8)
+                            a2.setData(0.0, 0.0, 1.0);
+                        else
+                            a2.setData(1.0, 0.0, 0.0);
+                        m.axis[i1] = a1;
+                        m.axis[i3] = (a1 ^ a2).getNormalized();
+                        m.axis[i2] = m.axis[i3] ^ a1;
+                    }
+                    else
+                    {
+                        int i1 = mode - 4;
+                        if (mode >= 7)
+                            i1 = mode - 7;
+                        int i2 = i1 + 1;
+                        if (i2 > 2)
+                            i2 = 0;
+                        int i3 = i2 + 1;
+                        if (i3 > 2)
+                            i3 = 0;
+                        C3Vector a2(axis2);
+                        a2.normalize();
+                        m.axis[i1] = a1;
+                        if (mode < 7)
+                        {
+                            m.axis[i3] = (a1 ^ a2).getNormalized();
+                            m.axis[i2] = m.axis[i3] ^ a1;
+                        }
+                        else
+                        {
+                            m.axis[i2] = (a2 ^ a1).getNormalized();
+                            m.axis[i3] = a1 ^ m.axis[i2];
+                        }
+                    }
+                    tr[0] = pos[0];
+                    tr[1] = pos[1];
+                    tr[2] = pos[2];
+                    m.getQuaternion().getData(tr + 3, true);
+                    pushDoubleTableOntoStack(L, 7, tr);
+                    LUA_END(1);
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getEulerAnglesFromMatrix");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 12))
+    {
+        double arr[12];
+        double euler[3];
+        getDoublesFromTable(L, 1, 12, arr);
+        if (CALL_C_API(simGetEulerAnglesFromMatrix, arr, euler) == 1)
+        {
+            pushDoubleTableOntoStack(L, 3, euler);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetMatrixInverse(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getMatrixInverse");
+    int retVal = -1;
+    if (checkInputArguments(L, &errorString, lua_arg_number, 12))
+    {
+        double arr[12];
+        getDoublesFromTable(L, 1, 12, arr);
+        retVal = CALL_C_API(simInvertMatrix, arr);
+        if (retVal >= 0)
+        {
+            pushDoubleTableOntoStack(L, 12, arr); // Success
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetPoseInverse(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getPoseInverse");
+    int retVal = -1;
+    if (checkInputArguments(L, &errorString, lua_arg_number, 7))
+    {
+        double arr[7];
+        getDoublesFromTable(L, 1, 7, arr);
+        retVal = CALL_C_API(simInvertPose, arr);
+        if (retVal >= 0)
+        {
+            pushDoubleTableOntoStack(L, 7, arr); // Success
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simMultiplyMatrices(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.multiplyMatrices");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 12, lua_arg_number, 12))
+    {
+        double inM0[12];
+        double inM1[12];
+        double outM[12];
+        getDoublesFromTable(L, 1, 12, inM0);
+        getDoublesFromTable(L, 2, 12, inM1);
+        if (CALL_C_API(simMultiplyMatrices, inM0, inM1, outM) != -1)
+        {
+            pushDoubleTableOntoStack(L, 12, outM);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simMultiplyPoses(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.multiplyPoses");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 7, lua_arg_number, 7))
+    {
+        double inP0[7];
+        double inP1[7];
+        double outP[7];
+        getDoublesFromTable(L, 1, 7, inP0);
+        getDoublesFromTable(L, 2, 7, inP1);
+        if (CALL_C_API(simMultiplyPoses, inP0, inP1, outP) != -1)
+        {
+            pushDoubleTableOntoStack(L, 7, outP);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simInterpolateMatrices(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.interpolateMatrices");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 12, lua_arg_number, 12, lua_arg_number, 0))
+    {
+        double inM0[12];
+        double inM1[12];
+        double outM[12];
+        getDoublesFromTable(L, 1, 12, inM0);
+        getDoublesFromTable(L, 2, 12, inM1);
+        if (CALL_C_API(simInterpolateMatrices, inM0, inM1, luaToDouble(L, 3), outM) != -1)
+        {
+            pushDoubleTableOntoStack(L, 12, outM);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simInterpolatePoses(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.interpolatePoses");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 7, lua_arg_number, 7, lua_arg_number, 0))
+    {
+        double inP0[7];
+        double inP1[7];
+        double outP[7];
+        getDoublesFromTable(L, 1, 7, inP0);
+        getDoublesFromTable(L, 2, 7, inP1);
+        if (CALL_C_API(simInterpolatePoses, inP0, inP1, luaToDouble(L, 3), outP) != -1)
+        {
+            pushDoubleTableOntoStack(L, 7, outP);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simPoseToMatrix(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.poseToMatrix");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 7))
+    {
+        double inP[7];
+        double outM[12];
+        getDoublesFromTable(L, 1, 7, inP);
+        if (CALL_C_API(simPoseToMatrix, inP, outM) != -1)
+        {
+            pushDoubleTableOntoStack(L, 12, outM);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simMatrixToPose(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.matrixToPose");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 12))
+    {
+        double inM[12];
+        double outP[7];
+        getDoublesFromTable(L, 1, 12, inM);
+        if (CALL_C_API(simMatrixToPose, inM, outP) != -1)
+        {
+            pushDoubleTableOntoStack(L, 7, outP);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simMultiplyVector(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.multiplyVector");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 4, lua_arg_number, 3))
+    {
+        double matr[12];
+        std::vector<double> vect;
+        size_t cnt = luaWrap_lua_rawlen(L, 2) / 3;
+        vect.resize(cnt * 3);
+        getDoublesFromTable(L, 2, cnt * 3, &vect[0]);
+
+        if (luaWrap_lua_rawlen(L, 1) >= 12)
+        { // we have a matrix
+            getDoublesFromTable(L, 1, 12, matr);
+            C4X4Matrix m;
+            m.setData(matr);
+            for (size_t i = 0; i < cnt; i++)
+            {
+                C3Vector v(&vect[3 * i]);
+                (m * v).getData(&vect[3 * i]);
+            }
+        }
+        else if (luaWrap_lua_rawlen(L, 1) == 7)
+        { // we have a pose
+            getDoublesFromTable(L, 1, 7, matr);
+            C7Vector tr;
+            tr.X.setData(matr);
+            tr.Q.setData(matr + 3, true);
+            for (size_t i = 0; i < cnt; i++)
+            {
+                C3Vector v(&vect[3 * i]);
+                (tr * v).getData(&vect[3 * i]);
+            }
+        }
+        else if (luaWrap_lua_rawlen(L, 1) == 4)
+        { // we have a quaternion
+            getDoublesFromTable(L, 1, 4, matr);
+            C4Vector q;
+            q.setData(matr, true);
+            for (size_t i = 0; i < cnt; i++)
+            {
+                C3Vector v(&vect[3 * i]);
+                (q * v).getData(&vect[3 * i]);
+            }
+        }
+
+        pushDoubleTableOntoStack(L, 3 * cnt, &vect[0]);
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+

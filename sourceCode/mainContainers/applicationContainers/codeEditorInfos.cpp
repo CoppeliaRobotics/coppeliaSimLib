@@ -127,7 +127,7 @@ std::string CCodeEditorInfos::getFunctionCalltip(const char* txt, const CScriptO
         {
             if (i != 0)
                 retVal += "\n";
-            retVal += callTipsAndModuleNames[i].second + "       " + callTipsAndModuleNames[i].first;
+            retVal += callTipsAndModuleNames[i].second + "  " + callTipsAndModuleNames[i].first;
         }
     }
     return retVal;
