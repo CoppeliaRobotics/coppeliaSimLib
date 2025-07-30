@@ -90,44 +90,63 @@ void CCodeEditorInfos::insertWhatStartsSame(const char* txt, std::set<std::strin
 }
 
 std::string CCodeEditorInfos::getFunctionCalltip(const char* txt, const CScriptObject* requestOrigin) const
-{
+{ // txt: e.g. "sim.getObject", "sim-2.getObject", "sim-*.getObject", "getAsString"
+    std::string txtNoVer(txt); // e.g. "sim.getObject", "getAsString"
+    bool allVers = false;
+    std::string verNs = ""; // e.g. "" (for latest version), "sim-2" (for specific version)
+    auto pos1 = txtNoVer.find('.');
+    if (pos1 != std::string::npos)
+    {
+        std::string n1(txtNoVer.substr(0, pos1)); // e.g. "sim", "sim-2", "sim-*"
+        std::string n2(txtNoVer.substr(pos1 + 1)); // e.g. "getObject"
+        auto pos2 = n1.find('-');
+        if (pos2 != std::string::npos)
+        {
+            std::string sn(n1.substr(0, pos2)); // e.g. "sim"
+            txtNoVer = sn + "." + n2;
+            if (n1[n1.size() - 1] == '*')
+            {
+                allVers = true;
+                n1 = sn;
+            }
+            else
+                verNs = n1;
+        }
+    }
     std::vector<std::pair<std::string, std::string>> callTipsAndModuleNames;
-    std::set<std::string> uniqueTips;
     for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
         if ((requestOrigin == nullptr) || (requestOrigin->wasModulePreviouslyUsed(it->first.c_str())) || (it->first == ""))
         { // only if that item was previously required by that script
-            std::string tip = it->second.funcs->getFunctionCalltip(txt);
+            std::string tip = it->second.funcs->getFunctionCalltip(txtNoVer.c_str());
             if (tip.size() != 0)
             {
-                std::string suffix;
+                std::string modName;
                 if (it->first != "")
-                    suffix = "[" + it->first + "]";
-                callTipsAndModuleNames.push_back(std::make_pair(tip, suffix));
-                uniqueTips.insert(tip);
+                    modName = it->first;
+                callTipsAndModuleNames.push_back(std::make_pair(tip, modName));
             }
         }
     }
-    if (uniqueTips.size() > 1)
+    std::sort(callTipsAndModuleNames.begin(), callTipsAndModuleNames.end(), [](auto const& a, auto const& b)
     {
-        std::sort(callTipsAndModuleNames.begin(), callTipsAndModuleNames.end(), [](auto const& a, auto const& b)
-        {
-            return a.second < b.second;
-        });
-    }
+        return a.second < b.second;
+    });
     std::string retVal;
     for (size_t i = 0; i < callTipsAndModuleNames.size(); i++)
     {
-        if (uniqueTips.size() == 1)
-        {
-            retVal += callTipsAndModuleNames[i].first;
-            break;
-        }
-        else
+        if (allVers)
         {
             if (i != 0)
                 retVal += "\n";
-            retVal += callTipsAndModuleNames[i].second + "  " + callTipsAndModuleNames[i].first;
+            retVal += "[" + callTipsAndModuleNames[i].second + "]  " + callTipsAndModuleNames[i].first;
+        }
+        else
+        {
+            if ( (verNs.size() == 0) && (i == callTipsAndModuleNames.size() - 1) )
+                retVal += callTipsAndModuleNames[i].first; // latest version
+            if (verNs == callTipsAndModuleNames[i].second)
+                retVal += callTipsAndModuleNames[i].first; // specific version
         }
     }
     return retVal;
