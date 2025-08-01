@@ -145,7 +145,7 @@ std::string CCodeEditorInfos::getFunctionCalltip(const char* txt, const CScriptO
         {
             if ( (verNs.size() == 0) && (i == callTipsAndModuleNames.size() - 1) )
                 retVal += callTipsAndModuleNames[i].first; // latest version
-            if (verNs == callTipsAndModuleNames[i].second)
+            else if (verNs == callTipsAndModuleNames[i].second)
                 retVal += callTipsAndModuleNames[i].first; // specific version
         }
     }
