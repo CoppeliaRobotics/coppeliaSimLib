@@ -153,8 +153,7 @@ void CDynamicsContainer::addWorldIfNotThere()
         intParams[intIndex++] = SIM_IDSTART_SCENEOBJECT;
         intParams[intIndex++] = SIM_IDEND_SCENEOBJECT;
 
-        App::worldContainer->pluginContainer->dyn_startSimulation(_dynamicEngineToUse, _dynamicEngineVersionToUse,
-                                                                  floatParams, intParams);
+        App::worldContainer->pluginContainer->dyn_startSimulation(_dynamicEngineToUse, _dynamicEngineVersionToUse, floatParams, intParams);
     }
 }
 

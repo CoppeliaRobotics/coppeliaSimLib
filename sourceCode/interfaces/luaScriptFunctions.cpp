@@ -4009,8 +4009,7 @@ int _simCheckCollision(luaWrap_lua_State* L)
 
                 if (App::currentWorld->mainSettings_old->collisionDetectionEnabled)
                 {
-                    if (CCollisionRoutine::doEntitiesCollide(entity1Handle, entity2Handle, nullptr, true, true,
-                                                             collidingIds))
+                    if (CCollisionRoutine::doEntitiesCollide(entity1Handle, entity2Handle, nullptr, true, true, collidingIds))
                         retVal = 1;
                 }
             }
@@ -4053,8 +4052,7 @@ int _simCheckDistance(luaWrap_lua_State* L)
                         App::currentWorld->cacheData->getCacheDataDist(entity1Handle, entity2Handle, buffer);
                         if (threshold <= 0.0)
                             threshold = DBL_MAX;
-                        bool result = CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(
-                            entity1Handle, entity2Handle, threshold, distanceData, buffer, buffer + 2, true, true);
+                        bool result = CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(entity1Handle, entity2Handle, threshold, distanceData, buffer, buffer + 2, true, true);
                         App::currentWorld->cacheData->setCacheDataDist(entity1Handle, entity2Handle, buffer);
                         if (result)
                         {
@@ -6557,6 +6555,12 @@ int _simTest(luaWrap_lua_State* L)
     if (checkInputArguments(L, nullptr, lua_arg_string, 0))
     {
         std::string cmd = luaWrap_lua_tostring(L, 1);
+        if (cmd.compare("mjcf") == 0)
+        {
+            std::string r = App::worldContainer->pluginContainer->dyn_generateMjcfFile();
+            luaWrap_lua_pushtext(L, r.c_str());
+            LUA_END(1);
+        }
         if (cmd.compare("showSimpleDlg") == 0)
         {
 #ifdef SIM_WITH_GUI

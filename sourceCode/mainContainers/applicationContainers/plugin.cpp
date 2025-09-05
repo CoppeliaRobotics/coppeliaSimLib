@@ -537,37 +537,23 @@ void CPlugin::_loadAuxEntryPoints()
         App::worldContainer->pluginContainer->currentMeshDecimationPlugin = this;
 
     // For the dynamic plugins:
-    dynPlugin_startSimulation =
-        (ptr_dynPlugin_startSimulation_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_startSimulation_D"));
-    dynPlugin_endSimulation =
-        (ptr_dynPlugin_endSimulation)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_endSimulation"));
+    dynPlugin_startSimulation = (ptr_dynPlugin_startSimulation_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_startSimulation_D"));
+    dynPlugin_endSimulation = (ptr_dynPlugin_endSimulation)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_endSimulation"));
     dynPlugin_step = (ptr_dynPlugin_step_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_step_D"));
-    dynPlugin_isDynamicContentAvailable = (ptr_dynPlugin_isDynamicContentAvailable)(
-        VVarious::resolveLibraryFuncName(instance, "dynPlugin_isDynamicContentAvailable"));
-    dynPlugin_serializeDynamicContent = (ptr_dynPlugin_serializeDynamicContent)(
-        VVarious::resolveLibraryFuncName(instance, "dynPlugin_serializeDynamicContent"));
-    dynPlugin_addParticleObject = (ptr_dynPlugin_addParticleObject_D)(
-        VVarious::resolveLibraryFuncName(instance, "dynPlugin_addParticleObject_D"));
-    dynPlugin_removeParticleObject = (ptr_dynPlugin_removeParticleObject)(
-        VVarious::resolveLibraryFuncName(instance, "dynPlugin_removeParticleObject"));
-    dynPlugin_addParticleObjectItem = (ptr_dynPlugin_addParticleObjectItem_D)(
-        VVarious::resolveLibraryFuncName(instance, "dynPlugin_addParticleObjectItem_D"));
-    dynPlugin_getParticleObjectOtherFloatsPerItem = (ptr_dynPlugin_getParticleObjectOtherFloatsPerItem)(
-        VVarious::resolveLibraryFuncName(instance, "dynPlugin_getParticleObjectOtherFloatsPerItem"));
-    dynPlugin_getContactPoints =
-        (ptr_dynPlugin_getContactPoints_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getContactPoints_D"));
-    dynPlugin_getParticles =
-        (ptr_dynPlugin_getParticles)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getParticles"));
-    dynPlugin_getParticleData =
-        (ptr_dynPlugin_getParticleData_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getParticleData_D"));
-    dynPlugin_getContactForce =
-        (ptr_dynPlugin_getContactForce_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getContactForce_D"));
-    dynPlugin_getDynamicStepDivider = (ptr_dynPlugin_getDynamicStepDivider)(
-        VVarious::resolveLibraryFuncName(instance, "dynPlugin_getDynamicStepDivider"));
-    mujocoPlugin_computeInertia =
-        (ptr_mujocoPlugin_computeInertia)(VVarious::resolveLibraryFuncName(instance, "mujocoPlugin_computeInertia"));
-    mujocoPlugin_computePMI =
-        (ptr_mujocoPlugin_computePMI)(VVarious::resolveLibraryFuncName(instance, "mujocoPlugin_computePMI"));
+    dynPlugin_isDynamicContentAvailable = (ptr_dynPlugin_isDynamicContentAvailable)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_isDynamicContentAvailable"));
+    dynPlugin_serializeDynamicContent = (ptr_dynPlugin_serializeDynamicContent)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_serializeDynamicContent"));
+    dynPlugin_addParticleObject = (ptr_dynPlugin_addParticleObject_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_addParticleObject_D"));
+    dynPlugin_removeParticleObject = (ptr_dynPlugin_removeParticleObject)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_removeParticleObject"));
+    dynPlugin_addParticleObjectItem = (ptr_dynPlugin_addParticleObjectItem_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_addParticleObjectItem_D"));
+    dynPlugin_getParticleObjectOtherFloatsPerItem = (ptr_dynPlugin_getParticleObjectOtherFloatsPerItem)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getParticleObjectOtherFloatsPerItem"));
+    dynPlugin_getContactPoints = (ptr_dynPlugin_getContactPoints_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getContactPoints_D"));
+    dynPlugin_getParticles = (ptr_dynPlugin_getParticles)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getParticles"));
+    dynPlugin_getParticleData = (ptr_dynPlugin_getParticleData_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getParticleData_D"));
+    dynPlugin_getContactForce = (ptr_dynPlugin_getContactForce_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getContactForce_D"));
+    dynPlugin_getDynamicStepDivider = (ptr_dynPlugin_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_getDynamicStepDivider"));
+    mujocoPlugin_computeInertia = (ptr_mujocoPlugin_computeInertia)(VVarious::resolveLibraryFuncName(instance, "mujocoPlugin_computeInertia"));
+    mujocoPlugin_computePMI = (ptr_mujocoPlugin_computePMI)(VVarious::resolveLibraryFuncName(instance, "mujocoPlugin_computePMI"));
+    mujocoPlugin_generateMjcfFile = (ptr_mujocoPlugin_generateMjcfFile)(VVarious::resolveLibraryFuncName(instance, "mujocoPlugin_generateMjcfFile"));
     bullet278_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_bullet278"));
     bullet283_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_bullet283"));
     ode_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_ode"));

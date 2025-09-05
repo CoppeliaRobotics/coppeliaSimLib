@@ -554,8 +554,34 @@ bool CPluginContainer::meshDecimator(void* data)
     return (retVal);
 }
 
-bool CPluginContainer::dyn_startSimulation(int engine, int version, const double floatParams[20],
-                                           const int intParams[20])
+std::string CPluginContainer::dyn_generateMjcfFile()
+{
+    std::string retVal;
+    if ((mujocoEngine == nullptr) || (currentDynEngine != mujocoEngine))
+    {
+        _tryToLoadPluginOnce(SIMMUJOCO_DEFAULT);
+        mujocoEngine->pushCurrentPlugin();
+        if (mujocoEngine->mujocoPlugin_generateMjcfFile() > 0)
+        {
+            std::string p;
+            App::getStringProperty(sim_handle_app, "mujocoPath", p);
+            if (VFile::doesFileExist((p + "/coppeliaSim.xml").c_str()))
+            {
+                retVal = p + "/coppeliaSim.xml";
+                if (VFile::doesFileExist((p + "/coppeliaSimEx1.xml").c_str()))
+                {
+                    retVal += ";" + p + "/coppeliaSim.xml";
+                    if (VFile::doesFileExist((p + "/coppeliaSimEx2.xml").c_str()))
+                        retVal += ";" + p + "/coppeliaSim.xml";
+                }
+            }
+        }
+        mujocoEngine->popCurrentPlugin();
+    }
+    return retVal;
+}
+
+bool CPluginContainer::dyn_startSimulation(int engine, int version, const double floatParams[20], const int intParams[20])
 {
     currentDynEngine = nullptr;
     if (engine == sim_physics_bullet)

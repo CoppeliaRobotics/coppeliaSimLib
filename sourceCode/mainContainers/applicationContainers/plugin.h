@@ -30,8 +30,7 @@ typedef void(__cdecl* ptr_dynPlugin_step_D)(double, double);
 typedef char(__cdecl* ptr_dynPlugin_isInitialized)(void);
 typedef char(__cdecl* ptr_dynPlugin_isDynamicContentAvailable)(void);
 typedef void(__cdecl* ptr_dynPlugin_serializeDynamicContent)(const char*, int);
-typedef int(__cdecl* ptr_dynPlugin_addParticleObject_D)(int, double, double, const void*, double, int, const float*,
-                                                        const float*, const float*, const float*);
+typedef int(__cdecl* ptr_dynPlugin_addParticleObject_D)(int, double, double, const void*, double, int, const float*, const float*, const float*, const float*);
 typedef char(__cdecl* ptr_dynPlugin_removeParticleObject)(int);
 typedef char(__cdecl* ptr_dynPlugin_addParticleObjectItem_D)(int, const double*, double);
 typedef int(__cdecl* ptr_dynPlugin_getParticleObjectOtherFloatsPerItem)(int);
@@ -41,8 +40,8 @@ typedef char(__cdecl* ptr_dynPlugin_getParticleData_D)(const void*, double*, dou
 typedef char(__cdecl* ptr_dynPlugin_getContactForce_D)(int, int, int, int*, double*);
 typedef int(__cdecl* ptr_dynPlugin_getDynamicStepDivider)(void);
 typedef double(__cdecl* ptr_mujocoPlugin_computeInertia)(int, double*, double*, double*);
-typedef double(__cdecl* ptr_mujocoPlugin_computePMI)(const double*, int, const int*, int, double*, double*,
-                                                     double*);
+typedef double(__cdecl* ptr_mujocoPlugin_computePMI)(const double*, int, const int*, int, double*, double*, double*);
+typedef char(__cdecl* ptr_mujocoPlugin_generateMjcfFile)(void);
 typedef void(__cdecl* ptr_dynPlugin_engine)(void);
 
 typedef void(__cdecl* ptr_geomPlugin_releaseBuffer)(void* buff);
@@ -500,6 +499,7 @@ class CPlugin
     ptr_dynPlugin_getDynamicStepDivider dynPlugin_getDynamicStepDivider;
     ptr_mujocoPlugin_computePMI mujocoPlugin_computePMI;
     ptr_mujocoPlugin_computeInertia mujocoPlugin_computeInertia;
+    ptr_mujocoPlugin_generateMjcfFile mujocoPlugin_generateMjcfFile;
     ptr_dynPlugin_engine bullet278_engine;
     ptr_dynPlugin_engine bullet283_engine;
     ptr_dynPlugin_engine ode_engine;

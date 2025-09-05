@@ -59,6 +59,7 @@ class CPluginContainer
     CPlugin* newtonEngine;
     CPlugin* mujocoEngine;
     CPlugin* drakeEngine;
+    std::string dyn_generateMjcfFile();
     bool dyn_startSimulation(int engine, int version, const double floatParams[20], const int intParams[20]);
     bool dyn_isInitialized();
     bool dyn_isDynamicContentAvailable();
