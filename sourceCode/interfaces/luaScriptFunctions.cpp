@@ -11695,8 +11695,10 @@ int _simInitScript(luaWrap_lua_State* L)
         scriptHandle = luaToInt(L, 1);
     if (scriptHandle == sim_handle_self)
         scriptHandle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+    if (scriptHandle == CScriptObject::getScriptHandleFromInterpreterState_lua(L))
+        scriptHandle = -scriptHandle - 1;
     if ((res == 0) || (res == 2))
-        CALL_C_API(simInitScript, scriptHandle); // executes asynchronously
+        CALL_C_API(simInitScript, scriptHandle); // executes asynchronously if script handle is negative
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);

@@ -8558,10 +8558,16 @@ int simInitScript_internal(int scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        int h = scriptHandle;
+        if (h < 0)
+            h = - h - 1;
+        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(h);
         if (it != nullptr)
         {
-            App::asyncResetScript(scriptHandle);
+            if (scriptHandle < 0)
+                App::asyncResetScript(h);
+            else
+                it->initScript();
             return (1);
         }
         else
