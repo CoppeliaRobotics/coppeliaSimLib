@@ -290,27 +290,24 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
             _delayedDestructionObjects.insert(_delayedDestructionObjects.end(), objectHandles->begin(), objectHandles->end());
         else
         {
-            // make sure handles are valid:
+            // Check what can be effectively destroyed. Some objects might already have been destroyed in-between. So that does not constitute an error!
             std::unordered_set<CSceneObject*> visited;
-            for (size_t i = 0; i < objectHandles->size(); i++)
-            {
-                CSceneObject* it = getObjectFromHandle(objectHandles->at(i));
-                if ((it != nullptr) && (visited.find(it) == visited.end()))
-                    visited.insert(it);
-                else
-                    return false;
-            }
-
-            // Check what can be effectively destroyed
             std::vector<int> toDestroy;
             std::vector<CSceneObject*> toDestroyPtr;
+            bool itemsFailed = false;
             for (size_t i = 0; i < objectHandles->size(); i++)
             {
                 CSceneObject* it = getObjectFromHandle(objectHandles->at(i));
-                if ((it != nullptr) && it->canDestroyNow())
+                if ( (it != nullptr) && (visited.find(it) == visited.end()) )
                 {
-                    toDestroy.push_back(objectHandles->at(i));
-                    toDestroyPtr.push_back(it);
+                    visited.insert(it);
+                    if  (it->canDestroyNow())
+                    {
+                        toDestroy.push_back(objectHandles->at(i));
+                        toDestroyPtr.push_back(it);
+                    }
+                    else
+                        itemsFailed = true;
                 }
             }
 
@@ -378,7 +375,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
 
                 App::worldContainer->setModificationFlag(1); // object erased
             }
-            if (toDestroy.size() != objectHandles->size())
+            if (itemsFailed)
                 App::logMsg(sim_verbosity_errors, "object removal can't be triggered from within the object itself: some objects were not removed.");
         }
     }

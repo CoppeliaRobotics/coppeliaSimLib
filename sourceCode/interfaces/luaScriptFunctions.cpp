@@ -6067,8 +6067,6 @@ int _simRemoveModel(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int objId = luaToInt(L, 1);
-        int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
         bool delayed = false;
         int res = checkOneGeneralInputArgument(L, 2, lua_arg_bool, 0, true, true, &errorString);
         if (res >= 0)
