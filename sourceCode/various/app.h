@@ -87,7 +87,8 @@
     FUNCX(propApp_machineID0, "machineID0", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")                                                                                                \
     FUNCX(propApp_machineID1, "machineID1", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")                                                                                                \
     FUNCX(propApp_machineID2, "machineID2", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")                                                                                                \
-    FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")
+    FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")                                                                                                \
+    FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "PID", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -307,6 +308,7 @@ class App
     static CGm* gm;
     static std::vector<void*> callbacks;
     static InstancesList* instancesList;
+    static qint64 pid;
 
 #ifndef SIM_WITH_GUI
     static CSimQApp* qtApp;

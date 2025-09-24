@@ -64,6 +64,7 @@ SignalHandler* App::_sigHandler = nullptr;
 CGm* App::gm = nullptr;
 std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
+qint64 App::pid = -1;
 std::vector<int> App::_scriptsToReset;
 long long int App::_nextUniqueId = SIM_UIDSTART;
 #ifdef USE_LONG_LONG_HANDLES
@@ -169,6 +170,7 @@ void App::init(const char* appDir, int)
         QFileInfo pathInfo(QCoreApplication::applicationFilePath());
         _applicationDir = pathInfo.path().toStdString();
     }
+    pid = QCoreApplication::applicationPid();
     QDir ad(_applicationDir.c_str());
     _applicationDir = ad.absolutePath().toStdString();
 
@@ -1779,6 +1781,11 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
     const char* pName = _pName.c_str();
     if (target == sim_handle_app)
     {
+        if (strcmp(pName, propApp_pid.name) == 0)
+        {
+            pState = pid;
+            retVal = 1;
+        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getLongProperty(target, pName, pState);
@@ -3066,6 +3073,7 @@ void App::pushGenesisEvents()
         ev->appendKeyText(propApp_appArg7.name, getApplicationArgument(6).c_str());
         ev->appendKeyText(propApp_appArg8.name, getApplicationArgument(7).c_str());
         ev->appendKeyText(propApp_appArg9.name, getApplicationArgument(8).c_str());
+        ev->appendKeyInt(propApp_pid.name, pid);
 
         if (userSettings != nullptr)
             ev->appendKeyInt(propApp_idleFps.name, userSettings->getIdleFps());
