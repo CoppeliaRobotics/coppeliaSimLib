@@ -463,59 +463,30 @@ int CFileOperations::createHeightfield(int xSize, double pointSpacing,
 #ifdef SIM_WITH_GUI
 void CFileOperations::_addToRecentlyOpenedScenes(std::string filenameAndPath)
 {
-    CPersistentDataContainer cont;
-    std::string recentScenes[10];
-    int sameIndex = -1;
-    for (int i = 0; i < 10; i++)
-    {
-        std::string tmp("SIMSETTINGS_RECENTSCENE0");
-        tmp[23] = 48 + i;
-        cont.readData(tmp.c_str(), recentScenes[i]);
-        if (recentScenes[i].compare(filenameAndPath) == 0)
-            sameIndex = i;
-    }
-    if (sameIndex == -1)
-    {
-        for (int i = 8; i >= 0; i--)
-            recentScenes[i + 1] = recentScenes[i];
-    }
-    else
-    {
-        for (int i = sameIndex; i > 0; i--)
-            recentScenes[i] = recentScenes[i - 1];
-    }
-    recentScenes[0] = filenameAndPath;
-    int cnt = 0;
-    for (int i = 0; i < 10; i++)
-    {
-        if (recentScenes[i].length() > 3)
+    if (App::getHeadlessMode() == 0)
+    { // remember we could run with -h (GUI binary with suppressed GUI) instead of -H
+        CPersistentDataContainer cont;
+        std::string recentScenes[10];
+        int sameIndex = -1;
+        for (int i = 0; i < 10; i++)
         {
             std::string tmp("SIMSETTINGS_RECENTSCENE0");
-            tmp[23] = 48 + cnt;
-            cont.writeData(tmp.c_str(), recentScenes[i], !App::userSettings->doNotWritePersistentData, false);
-            cnt++;
+            tmp[23] = 48 + i;
+            cont.readData(tmp.c_str(), recentScenes[i]);
+            if (recentScenes[i].compare(filenameAndPath) == 0)
+                sameIndex = i;
         }
-    }
-}
-
-void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPath)
-{
-    CPersistentDataContainer cont;
-    std::string recentScenes[10];
-    int sameIndex = -1;
-    for (int i = 0; i < 10; i++)
-    {
-        std::string tmp("SIMSETTINGS_RECENTSCENE0");
-        tmp[23] = 48 + i;
-        cont.readData(tmp.c_str(), recentScenes[i]);
-        if (recentScenes[i].compare(filenameAndPath) == 0)
-            sameIndex = i;
-    }
-    if (sameIndex != -1)
-    {
-        for (int i = sameIndex; i < 9; i++)
-            recentScenes[i] = recentScenes[i + 1];
-        recentScenes[9] = "";
+        if (sameIndex == -1)
+        {
+            for (int i = 8; i >= 0; i--)
+                recentScenes[i + 1] = recentScenes[i];
+        }
+        else
+        {
+            for (int i = sameIndex; i > 0; i--)
+                recentScenes[i] = recentScenes[i - 1];
+        }
+        recentScenes[0] = filenameAndPath;
         int cnt = 0;
         for (int i = 0; i < 10; i++)
         {
@@ -527,11 +498,46 @@ void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPat
                 cnt++;
             }
         }
-        for (int i = cnt; i < 10; i++)
+    }
+}
+
+void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPath)
+{
+    if (App::getHeadlessMode() == 0)
+    { // remember we could run with -h (GUI binary with suppressed GUI) instead of -H
+        CPersistentDataContainer cont;
+        std::string recentScenes[10];
+        int sameIndex = -1;
+        for (int i = 0; i < 10; i++)
         {
             std::string tmp("SIMSETTINGS_RECENTSCENE0");
             tmp[23] = 48 + i;
-            cont.writeData(tmp.c_str(), "", !App::userSettings->doNotWritePersistentData, false);
+            cont.readData(tmp.c_str(), recentScenes[i]);
+            if (recentScenes[i].compare(filenameAndPath) == 0)
+                sameIndex = i;
+        }
+        if (sameIndex != -1)
+        {
+            for (int i = sameIndex; i < 9; i++)
+                recentScenes[i] = recentScenes[i + 1];
+            recentScenes[9] = "";
+            int cnt = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                if (recentScenes[i].length() > 3)
+                {
+                    std::string tmp("SIMSETTINGS_RECENTSCENE0");
+                    tmp[23] = 48 + cnt;
+                    cont.writeData(tmp.c_str(), recentScenes[i], !App::userSettings->doNotWritePersistentData, false);
+                    cnt++;
+                }
+            }
+            for (int i = cnt; i < 10; i++)
+            {
+                std::string tmp("SIMSETTINGS_RECENTSCENE0");
+                tmp[23] = 48 + i;
+                cont.writeData(tmp.c_str(), "", !App::userSettings->doNotWritePersistentData, false);
+            }
         }
     }
 }

@@ -4269,8 +4269,6 @@ int simSaveScene_internal(const char* filename)
 #ifdef SIM_WITH_GUI
             GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
 #endif
-            // 21.07.2023
-            // CFileOperations::_addToRecentlyOpenedScenes(App::currentWorld->mainSettings_old->getScenePathAndName());
             App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
             return (1);
         }
