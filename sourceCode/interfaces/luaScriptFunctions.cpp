@@ -13521,6 +13521,8 @@ int _simSetReferencedHandles(luaWrap_lua_State* L)
         if (luaWrap_lua_isnonbuffertable(L, 2))
         {
             int cnt = (int)luaWrap_lua_rawlen(L, 2);
+            if (cnt == 0)
+                cnt = -1; // so that checkInputArguments doesn't fail with arg 2
             std::string tag("");
             if (checkInputArguments(L, nullptr, lua_arg_number, 0, lua_arg_integer, cnt, lua_arg_string, 0))
                 tag = luaWrap_lua_tostring(L, 3);
