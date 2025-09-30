@@ -805,6 +805,8 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
     _initialMaxVelAccelJerk[0] = _maxVelAccelJerk[0];
     _initialMaxVelAccelJerk[1] = _maxVelAccelJerk[1];
     _initialMaxVelAccelJerk[2] = _maxVelAccelJerk[2];
+
+    warningAboutMujocoLoopClosureProblemsIssued = false;
 }
 
 void CJoint::simulationAboutToStart()
@@ -1402,11 +1404,12 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
 { // constant callback for every dynamically enabled joint, except for spherical joints. retVal: bit0 set: motor on,
     // bit1 set: motor locked
     // Called before a dyn step. After the step, setDynamicMotorReflectedPosition_useOnlyFromDynamicPart is called
-    // flags: bit0: init (first time called), bit1: currentPosVelAccel[1] is valid, bit2: currentPosVelAccel[2] is valid
+    // flags: bit0: init (first time called), bit1: currentPosVelAccel[1] is valid, bit2: currentPosVelAccel[2] is valid, bit3: Mujoco world contains loop closures
     int loopCnt = intVals[0];
     int totalLoops = intVals[1];
     int rk4 = intVals[2];
     int retVal = 1;
+    bool outputWarningAboutPossibleLoopClosureProblemsWithMujoco = false;
     if (_dynCtrlMode == sim_jointdynctrl_free)
         retVal = 0;
     else if (_dynCtrlMode == sim_jointdynctrl_force)
@@ -1418,6 +1421,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
     }
     else if (_dynCtrlMode == sim_jointdynctrl_velocity)
     {
+        outputWarningAboutPossibleLoopClosureProblemsWithMujoco = (flags & 8);
         if (_dynVelocityCtrlType == 0)
         { // engine internal velocity ctrl
             velAndForce[0] = _targetVel;
@@ -1489,6 +1493,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
         if ((_dynCtrlMode == sim_jointdynctrl_position) || (_dynCtrlMode == sim_jointdynctrl_spring) ||
             (_dynCtrlMode == sim_jointdynctrl_positioncb) || (_dynCtrlMode == sim_jointdynctrl_springcb))
         { // we have the built-in control (position or spring-damper KC)
+            outputWarningAboutPossibleLoopClosureProblemsWithMujoco = (flags & 8);
             if (dynStepSize != 0.0)
             {
                 if ((_dynPositionCtrlType == 1) && (_dynCtrlMode == sim_jointdynctrl_position))
@@ -1759,6 +1764,14 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
         }
+    }
+    if (outputWarningAboutPossibleLoopClosureProblemsWithMujoco && (!warningAboutMujocoLoopClosureProblemsIssued))
+    {
+        std::string txt("Joint ");
+        txt += getObjectAlias_printPath();
+        txt += ": your scene contains at least one loop closure constraint. This usually does not work well with Mujoco, when your joint is in velocity, position or spring/damper control mode, which is the case for this joint. It is recommended that you instead run a custom controller for this joint.";
+        App::logMsg(sim_verbosity_warnings, txt.c_str());
+        warningAboutMujocoLoopClosureProblemsIssued = true;
     }
     // Joint position and velocity is updated later, via _simSetJointPosition and _simSetJointVelocity from the physics
     // engine

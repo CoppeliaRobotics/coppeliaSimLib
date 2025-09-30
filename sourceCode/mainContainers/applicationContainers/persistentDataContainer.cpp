@@ -3,6 +3,7 @@
 #include <app.h>
 #include <vVarious.h>
 #include <utils.h>
+#include <QSystemSemaphore>
 
 CPersistentDataContainer::CPersistentDataContainer()
 {
@@ -43,6 +44,9 @@ bool CPersistentDataContainer::clearData(const char* dataName, bool toFile)
 
 bool CPersistentDataContainer::writeData(const char* dataName, const std::string& value, bool toFile, bool allowEmptyString)
 {
+    QSystemSemaphore* semaphore = new QSystemSemaphore("__READING_PERSISTENT_DATA__", 1, QSystemSemaphore::Open);
+    semaphore->acquire();
+
     bool diff = _writeData(dataName, value, allowEmptyString);
     if ((_filename.size() > 0) && toFile)
     {
@@ -56,6 +60,8 @@ bool CPersistentDataContainer::writeData(const char* dataName, const std::string
         _dataValues.swap(_dataValuesAux);
         _writeToFile(_dataNamesAux, _dataValuesAux);
     }
+    semaphore->release();
+    delete semaphore;
     return diff;
 }
 

@@ -463,10 +463,8 @@ int CFileOperations::createHeightfield(int xSize, double pointSpacing,
 #ifdef SIM_WITH_GUI
 void CFileOperations::_addToRecentlyOpenedScenes(std::string filenameAndPath)
 {
-    int processIndex;
-    App::getIntProperty(sim_handle_app, "processId", processIndex);
-    if ( (App::getHeadlessMode() == 0) && (processIndex == 0) )
-    { // remember we could run with -h (GUI binary with suppressed GUI) instead of -H, and several instances at the same time
+    if (App::getHeadlessMode() == 0)
+    { // remember we could run with -h (GUI binary with suppressed GUI) instead of -H
         CPersistentDataContainer cont;
         std::string recentScenes[10];
         int sameIndex = -1;
@@ -505,10 +503,8 @@ void CFileOperations::_addToRecentlyOpenedScenes(std::string filenameAndPath)
 
 void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPath)
 {
-    int processIndex;
-    App::getIntProperty(sim_handle_app, "processId", processIndex);
-    if ( (App::getHeadlessMode() == 0) && (processIndex == 0) )
-    { // remember we could run with -h (GUI binary with suppressed GUI) instead of -H, and several instances at the same time
+    if (App::getHeadlessMode() == 0)
+    { // remember we could run with -h (GUI binary with suppressed GUI) instead of -H
         CPersistentDataContainer cont;
         std::string recentScenes[10];
         int sameIndex = -1;

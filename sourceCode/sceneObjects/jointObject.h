@@ -560,6 +560,8 @@ class CJoint : public CSceneObject
 
     C7Vector _intrinsicTransformationError; // from physics engine
 
+    bool warningAboutMujocoLoopClosureProblemsIssued;
+
     // Following is the force/torque acquired during a single dyn. calculation step:
     double _lastForceOrTorque_dynStep;
     bool _lastForceOrTorqueValid_dynStep;
