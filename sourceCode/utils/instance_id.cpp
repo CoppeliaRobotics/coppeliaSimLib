@@ -15,7 +15,6 @@
 #include <QBuffer>
 #include <QDataStream>
 #include <QDebug>
-#include <QSystemSemaphore>
 #include <QThread>
 #include <app.h>
 
@@ -61,14 +60,11 @@ static int thisInstancePid()
 #endif
 }
 
-InstancesList::InstancesList()
-    : sharedMemory(SHAREDMEM_KEY)
+InstancesList::InstancesList() : sharedMemory(SHAREDMEM_KEY)
 {
     int pid = thisInstancePid();
 
     //qDebug() << "InstancesList::InstancesList: this pid:" << pid;
-
-    QSystemSemaphore semaphore(SEMAPHORE_KEY, 1);
 
     if (!sharedMemory.attach())
     {
@@ -80,7 +76,7 @@ InstancesList::InstancesList()
         }
     }
 
-    semaphore.acquire();
+    App::systemSemaphore(SEMAPHORE_KEY, true);
 
     QMap<int, int> instances = readInstancesList();
     if (!instances.contains(pid))
@@ -91,7 +87,7 @@ InstancesList::InstancesList()
         writeInstancesList(instances);
     }
 
-    semaphore.release();
+    App::systemSemaphore(SEMAPHORE_KEY, false);
 }
 
 InstancesList::~InstancesList()

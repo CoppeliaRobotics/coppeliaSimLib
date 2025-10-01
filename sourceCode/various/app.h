@@ -7,6 +7,7 @@
 #include <simThread.h>
 #include <gm.h>
 #include <instance_id.h>
+#include <QSystemSemaphore>
 #ifndef SIM_WITH_GUI
 #include <simQApp.h>
 #endif
@@ -171,6 +172,12 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_buffer, proptypetag_buffer},
 };
 
+struct SSysSemaphore
+{
+    QSystemSemaphore* semaphore;
+    int cnt;
+};
+
 class App
 {
   public:
@@ -299,6 +306,7 @@ class App
     static int getHeadlessMode();
     static int getPlatform();
     static void asyncResetScript(int scriptHandle);
+    static bool systemSemaphore(const char* key, bool acquire);
 
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
@@ -353,6 +361,8 @@ class App
     static std::string _applicationDir;
     static CPersistentDataContainer* _appStorage;
     static std::vector<int> _scriptsToReset;
+    static std::map<std::string, SSysSemaphore> _systemSemaphores;
+
 #ifdef USE_LONG_LONG_HANDLES
     static long long int _nextHandle_object;
     static long long int _nextHandle_collection;

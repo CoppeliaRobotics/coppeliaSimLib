@@ -20,7 +20,6 @@
 #include <meshRoutines.h>
 #include <vFileFinder.h>
 #include <simFlavor.h>
-#include <QSystemSemaphore>
 #ifdef SIM_WITH_GUI
 #include <QScreen>
 #ifdef USES_QGLWIDGET
@@ -30,8 +29,6 @@
 #endif
 #include <guiApp.h>
 #endif
-
-std::map<std::string, QSystemSemaphore*> _systemSemaphores;
 
 #define LUA_START(funcName)                                     \
     CApiErrors::getAndClearLastError();                \
@@ -4583,22 +4580,7 @@ int _simSystemSemaphore(luaWrap_lua_State* L)
     {
         std::string key(luaWrap_lua_tostring(L, 1));
         bool acquire = luaToBool(L, 2);
-        if (acquire)
-        {
-            QSystemSemaphore* semaphore = new QSystemSemaphore(key.c_str(), 1, QSystemSemaphore::Open);
-            semaphore->acquire();
-            _systemSemaphores[key] = semaphore;
-        }
-        else
-        {
-            if (_systemSemaphores.find(key) != _systemSemaphores.end())
-            {
-                QSystemSemaphore* semaphore = _systemSemaphores[key];
-                semaphore->release();
-                delete semaphore;
-                _systemSemaphores.erase(key);
-            }
-        }
+        App::systemSemaphore(key.c_str(), acquire);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

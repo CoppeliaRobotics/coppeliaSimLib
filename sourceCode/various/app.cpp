@@ -66,6 +66,8 @@ std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
 qint64 App::pid = -1;
 std::vector<int> App::_scriptsToReset;
+std::map<std::string, SSysSemaphore> App::_systemSemaphores;
+
 long long int App::_nextUniqueId = SIM_UIDSTART;
 #ifdef USE_LONG_LONG_HANDLES
 long long int App::_nextHandle_object = SIM_IDSTART_SCENEOBJECT;
@@ -363,6 +365,7 @@ void App::cleanup()
     timeEndPeriod(1);
 #endif
     delete _appStorage;
+    systemSemaphore(nullptr, false);
     logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "CoppeliaSim ended.");
 }
 
@@ -2942,6 +2945,62 @@ bool App::canSave()
 void App::asyncResetScript(int scriptHandle)
 {
     _scriptsToReset.push_back(scriptHandle);
+}
+
+bool App::systemSemaphore(const char* key, bool acquire)
+{
+    bool retVal = true;
+    if (key == nullptr)
+    {
+        if (acquire)
+            retVal = false;
+        else
+        {
+            for (auto sem = _systemSemaphores.begin(); sem != _systemSemaphores.end(); ++sem)
+            {
+                QSystemSemaphore* semaphore = sem->second.semaphore;
+                semaphore->release();
+                delete semaphore;
+            }
+            _systemSemaphores.clear();
+        }
+    }
+    else
+    {
+        auto sem = _systemSemaphores.find(key);
+        if (acquire)
+        {
+            if (sem == _systemSemaphores.end())
+            {
+                QSystemSemaphore* semaphore = new QSystemSemaphore(key, 1, QSystemSemaphore::Open);
+                semaphore->acquire();
+                SSysSemaphore s;
+                s.semaphore = semaphore;
+                s.cnt = 1;
+                _systemSemaphores[key] = s;
+            }
+            else
+                sem->second.cnt++;
+        }
+        else
+        {
+            if (sem != _systemSemaphores.end())
+            {
+                if (sem->second.cnt > 1)
+                    sem->second.cnt--;
+                else
+                {
+                    QSystemSemaphore* semaphore = sem->second.semaphore;
+                    semaphore->release();
+                    delete semaphore;
+                    _systemSemaphores.erase(key);
+                }
+            }
+            else
+                retVal = false;
+        }
+    }
+    return retVal;
 }
 
 int App::getPlatform()

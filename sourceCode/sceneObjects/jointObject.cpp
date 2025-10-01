@@ -1769,7 +1769,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
     {
         std::string txt("Joint ");
         txt += getObjectAlias_printPath();
-        txt += ": your scene contains at least one loop closure constraint. This usually does not work well with Mujoco, when your joint is in velocity, position or spring/damper control mode, which is the case for this joint. It is recommended that you instead run a custom controller for this joint.";
+        txt += ": with the MuJoCo engine, and when the hierarchy tree (starting at the given joint) contains at least one loop closure constraint, the joint might not behave as expected when in position, velocity or spring-damper control mode. In that case, it is recommended to instead run a custom controller for that joint.";
         App::logMsg(sim_verbosity_warnings, txt.c_str());
         warningAboutMujocoLoopClosureProblemsIssued = true;
     }

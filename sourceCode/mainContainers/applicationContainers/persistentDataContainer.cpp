@@ -3,7 +3,8 @@
 #include <app.h>
 #include <vVarious.h>
 #include <utils.h>
-#include <QSystemSemaphore>
+
+#define PERSISTENT_DATA_SEMAPHORE_TAG "__READING_PERSISTENT_DATA__"
 
 CPersistentDataContainer::CPersistentDataContainer()
 {
@@ -44,8 +45,7 @@ bool CPersistentDataContainer::clearData(const char* dataName, bool toFile)
 
 bool CPersistentDataContainer::writeData(const char* dataName, const std::string& value, bool toFile, bool allowEmptyString)
 {
-    QSystemSemaphore* semaphore = new QSystemSemaphore("__READING_PERSISTENT_DATA__", 1, QSystemSemaphore::Open);
-    semaphore->acquire();
+    App::systemSemaphore(PERSISTENT_DATA_SEMAPHORE_TAG, true);
 
     bool diff = _writeData(dataName, value, allowEmptyString);
     if ((_filename.size() > 0) && toFile)
@@ -60,8 +60,9 @@ bool CPersistentDataContainer::writeData(const char* dataName, const std::string
         _dataValues.swap(_dataValuesAux);
         _writeToFile(_dataNamesAux, _dataValuesAux);
     }
-    semaphore->release();
-    delete semaphore;
+
+    App::systemSemaphore(PERSISTENT_DATA_SEMAPHORE_TAG, false);
+
     return diff;
 }
 
@@ -203,6 +204,8 @@ void CPersistentDataContainer::initializeWithDataFromFile()
 
 void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames, std::vector<std::string>& dataValues)
 {
+    App::systemSemaphore(PERSISTENT_DATA_SEMAPHORE_TAG, true);
+
     dataNames.clear();
     dataValues.clear();
 
@@ -230,6 +233,8 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
             }
         }
     }
+
+    App::systemSemaphore(PERSISTENT_DATA_SEMAPHORE_TAG, false);
 }
 
 void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames, std::vector<std::string>& dataValues)
