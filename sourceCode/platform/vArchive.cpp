@@ -1,10 +1,14 @@
+#include <app.h>
 #include <vArchive.h>
 
 unsigned short VArchive::LOAD = 0;
 unsigned short VArchive::STORE = 1;
 
+#define ARCHIVE_SEMAPHORE_TAG "__ACCESSING_ARCHIVE_DATA__"
+
 VArchive::VArchive(VFile* file, unsigned short flag)
 {
+    App::systemSemaphore(ARCHIVE_SEMAPHORE_TAG, true);
     _theFile = file;
     _loading = ((flag & 1) == 0);
     _theArchive = new QDataStream(file->getFile());
@@ -16,6 +20,7 @@ VArchive::VArchive(VFile* file, unsigned short flag)
 VArchive::~VArchive()
 {
     delete _theArchive;
+    App::systemSemaphore(ARCHIVE_SEMAPHORE_TAG, false);
 }
 
 void VArchive::writeString(const std::string& str)

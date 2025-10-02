@@ -1,3 +1,4 @@
+#include <app.h>
 #include <vFile.h>
 #include <simStringTable.h>
 #include <app.h>
@@ -12,6 +13,8 @@ unsigned short VFile::CREATE_WRITE = 1;
 unsigned short VFile::SHARE_EXCLUSIVE = 2;
 unsigned short VFile::READ = 4;
 unsigned short VFile::SHARE_DENY_NONE = 8;
+
+#define FILE_SEMAPHORE_TAG "__ACCESSING_FILE_DATA__"
 
 VFile::VFile(const char* filename, unsigned short flags, bool dontThrow)
 {
@@ -48,6 +51,7 @@ VFile::VFile(const char* filename, unsigned short flags, bool dontThrow)
         if (flags & CREATE_WRITE)
             _theFile->resize(0);
     }
+    App::systemSemaphore(FILE_SEMAPHORE_TAG, true);
 }
 
 VFile::VFile(const char* filename)
@@ -58,11 +62,13 @@ VFile::VFile(const char* filename)
     {
         throw dummyException;
     }
+    App::systemSemaphore(FILE_SEMAPHORE_TAG, true);
 }
 
 VFile::~VFile()
 {
     delete _theFile;
+    App::systemSemaphore(FILE_SEMAPHORE_TAG, false);
 }
 
 void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
@@ -72,6 +78,7 @@ void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
 
 void VFile::eraseFile(const char* filenameAndPath)
 {
+    App::systemSemaphore(FILE_SEMAPHORE_TAG, true);
     try
     {
         QFile::remove(filenameAndPath);
@@ -80,6 +87,7 @@ void VFile::eraseFile(const char* filenameAndPath)
     {
         VFile::reportAndHandleFileExceptionError(e);
     }
+    App::systemSemaphore(FILE_SEMAPHORE_TAG, false);
 }
 
 bool VFile::doesFileExist(const char* filenameAndPath)

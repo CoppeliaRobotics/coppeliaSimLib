@@ -902,7 +902,7 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
             _linkedDummyHandle = -1;
         }
         else if (_linkedDummyHandle != handle)
-        { // We link this dummy to another dummy
+        { // We link this dummy to another dummy (and unlink its partner)
             CDummy* newLinkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(handle);
             if (linkedDummy != nullptr)
                 linkedDummy->setLinkedDummyHandle(-1, false); // we first detach it from its old partner
@@ -946,6 +946,7 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
 
 bool CDummy::setDummyType(int lt, bool check)
 {
+    CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
     bool diff = (_linkType != lt);
     if (diff)
     {
@@ -960,17 +961,24 @@ bool CDummy::setDummyType(int lt, bool check)
         _setLinkType_sendOldIk(lt);
         _dummyColor.setDefaultValues();
         if (lt == sim_dummytype_default)
+        {
+            if (it != nullptr)
+                it->setLinkedDummyHandle(-1, check);
             _dummyColor.setColor(1.0f, 0.8f, 0.55f, sim_colorcomponent_ambient_diffuse);
+        }
         if (lt == sim_dummytype_dynloopclosure)
             _dummyColor.setColor(0.0f, 1.0f, 1.0f, sim_colorcomponent_ambient_diffuse);
         if (lt == sim_dummytype_dyntendon)
             _dummyColor.setColor(0.0f, 0.5f, 1.0f, sim_colorcomponent_ambient_diffuse);
         if (lt == sim_dummytype_assembly)
+        {
+            if (it != nullptr)
+                it->setLinkedDummyHandle(-1, check);
             _dummyColor.setColor(1.0f, 0.0f, 0.0f, sim_colorcomponent_ambient_diffuse);
+        }
     }
     if ((_linkedDummyHandle != -1) && check)
     {
-        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
         CDummy* thisObject = App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
         if ((thisObject == this) && (it != nullptr))
         { // dummy is in the scene
