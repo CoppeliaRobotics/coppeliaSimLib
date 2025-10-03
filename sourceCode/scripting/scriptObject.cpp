@@ -2509,7 +2509,10 @@ void CScriptObject::initScript()
             }
         }
         else
-            systemCallScript(sim_syscb_init, nullptr, nullptr);
+        {
+            if ( ((_scriptType != sim_scripttype_simulation) && (_scriptType != sim_scripttype_main)) || (!App::currentWorld->simulation->isSimulationStopped()) )
+                systemCallScript(sim_syscb_init, nullptr, nullptr);
+        }
     }
 }
 

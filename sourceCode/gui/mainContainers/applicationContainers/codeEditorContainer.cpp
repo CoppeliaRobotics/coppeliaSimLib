@@ -872,7 +872,8 @@ void CCodeEditorContainer::restartScript(int handle) const
                 if (it != nullptr)
                 {
                     applyChanges(_allEditors[i].handle);
-                    if (it->resetScript())
+//                    if (it->resetScript())
+                    it->initScript();
                     {
                         std::string msg(it->getDescriptiveName());
                         msg += " was reset.";
