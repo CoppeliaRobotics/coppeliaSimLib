@@ -66,6 +66,7 @@ std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
 qint64 App::pid = -1;
 std::vector<int> App::_scriptsToReset;
+VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 
 long long int App::_nextUniqueId = SIM_UIDSTART;
@@ -2945,6 +2946,23 @@ bool App::canSave()
 void App::asyncResetScript(int scriptHandle)
 {
     _scriptsToReset.push_back(scriptHandle);
+}
+
+bool App::appSemaphore(bool acquire, bool block /*= true*/)
+{
+    bool retVal = true;
+    /*
+    if (acquire)
+    {
+        if (block)
+            _appSemaphore.lock();
+        else
+            retVal = _appSemaphore.tryLock();
+    }
+    else
+        _appSemaphore.unlock();
+*/
+    return retVal;
 }
 
 bool App::systemSemaphore(const char* key, bool acquire)

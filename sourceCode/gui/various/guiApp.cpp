@@ -166,9 +166,7 @@ void GuiApp::runGui(int options)
         QScreen* scr = tempApp->primaryScreen();
         if (scr != nullptr)
         {
-            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal,
-                        "primary screen physical dots per inch: %s",
-                        std::to_string(int(scr->physicalDotsPerInch() + 0.5)).c_str());
+            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "primary screen physical dots per inch: %s", std::to_string(int(scr->physicalDotsPerInch() + 0.5)).c_str());
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             QDesktopWidget* dw = tempApp->desktop();
             if (dw != nullptr)
@@ -182,8 +180,7 @@ void GuiApp::runGui(int options)
 #else
                 double val = (primaryScreen->logicalDotsPerInchX() / 96.0) * 100.0;
 #endif
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "display scaling (guessed): %s",
-                            std::to_string(int(val + 0.5)).c_str());
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "display scaling (guessed): %s", std::to_string(int(val + 0.5)).c_str());
 #ifndef MAC_SIM
                 if (val >= App::userSettings->guessedDisplayScalingThresholdFor2xOpenGl)
                     highResDisplayDefault = 2;

@@ -306,6 +306,7 @@ class App
     static int getHeadlessMode();
     static int getPlatform();
     static void asyncResetScript(int scriptHandle);
+    static bool appSemaphore(bool acquire, bool block = true);
     static bool systemSemaphore(const char* key, bool acquire);
 
     static CFolderSystem* folders;
@@ -323,7 +324,6 @@ class App
 #endif
 
   private:
-    static void _simulatorLoop(bool stepIfRunning = true);
     static void _logMsg(const char* originName, int verbosityLevel, const char* msg, const char* subStr1,
                         const char* subStr2 = nullptr, const char* subStr3 = nullptr);
     static void _logMsg(const char* originName, int verbosityLevel, const char* msg, int int1, int int2 = 0,
@@ -362,6 +362,7 @@ class App
     static CPersistentDataContainer* _appStorage;
     static std::vector<int> _scriptsToReset;
     static std::map<std::string, SSysSemaphore> _systemSemaphores;
+    static VMutex _appSemaphore;
 
 #ifdef USE_LONG_LONG_HANDLES
     static long long int _nextHandle_object;

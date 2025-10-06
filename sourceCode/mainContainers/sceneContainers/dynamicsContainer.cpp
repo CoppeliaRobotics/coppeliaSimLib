@@ -68,7 +68,6 @@ void CDynamicsContainer::simulationAboutToStart()
 void CDynamicsContainer::simulationEnded()
 {
     removeWorld();
-
     _resetWarningFlags();
     _tempDisabledWarnings = 0;
 }

@@ -32,9 +32,8 @@ CSimThread::~CSimThread()
 void CSimThread::executeMessages()
 {
 #ifdef SIM_WITH_GUI
-    if (_renderRequired() && (GuiApp::mainWindow != nullptr))
-    { // we always enter here, unless we skip display frames during simulation. In idle mode, _renderRequired will sleep
-        // appropriately
+    if (_idleSleepAndCheckIfRenderRequired() && (GuiApp::mainWindow != nullptr))
+    { // we always enter here, unless we skip display frames during simulation. In idle mode, _idleSleepAndCheckIfRenderRequired will sleep appropriately
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
@@ -53,10 +52,20 @@ void CSimThread::executeMessages()
             }
         }
 
-        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
-            sim_message_eventcallback_beforerendering);
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_beforerendering);
         SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
         GuiApp::uiThread->renderScene(); // will render via the UI thread
+    }
+#else
+    if (App::currentWorld->simulation->isSimulationStopped())
+    {
+        VThread::sleep(250);
+        // OLD:
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
+        {
+            CPath_old* it = App::currentWorld->sceneObjects->getPathFromIndex(i);
+            it->resetPath();
+        }
     }
 #endif
 
@@ -1854,7 +1863,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CDummy* it2 = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[1]);
             if (it2 != nullptr)
             {
-                bool n = (it->getLinkedDummyHandle() == -1);
+                //bool n = (it->getLinkedDummyHandle() == -1);
                 it->setLinkedDummyHandle(it2->getObjectHandle(), true);
 
                 int tp = it->getDummyType();
@@ -4642,24 +4651,27 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
 #endif
     if (CSimFlavor::getBoolVal(16) && (App::userSettings->autoSaveDelay > 0) && (!App::currentWorld->environment->getSceneLocked()) && App::currentWorld->simulation->isSimulationStopped() && noEditMode)
     {
+        bool okToGoOn = App::appSemaphore(true, false);
         // First repost a same command:
         App::appendSimulationThreadCommand(cmd, 1.0);
-        if (VDateTime::getSecondsSince1970() > (App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970 +
-                                                App::userSettings->autoSaveDelay * 60))
+        if (okToGoOn)
         {
-            std::string savedLoc = App::currentWorld->environment->getScenePathAndName();
-            std::string testScene = App::folders->getAutoSavedScenesPath() + "/";
-            testScene += std::to_string(App::worldContainer->getCurrentWorldIndex() + 1) + "-" +
-                         App::currentWorld->environment->getUniquePersistentIdString() + ".";
-            testScene += SIM_SCENE_EXTENSION;
-            CFileOperations::saveScene(testScene.c_str(), false, false, nullptr, nullptr, nullptr, true);
+            if (VDateTime::getSecondsSince1970() > (App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970 + App::userSettings->autoSaveDelay * 60))
+            {
+                std::string savedLoc = App::currentWorld->environment->getScenePathAndName();
+                std::string testScene = App::folders->getAutoSavedScenesPath() + "/";
+                testScene += std::to_string(App::worldContainer->getCurrentWorldIndex() + 1) + "-" + App::currentWorld->environment->getUniquePersistentIdString() + ".";
+                testScene += SIM_SCENE_EXTENSION;
+                CFileOperations::saveScene(testScene.c_str(), false, false, nullptr, nullptr, nullptr, true);
+                App::currentWorld->environment->setScenePathAndName(savedLoc.c_str());
+                App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970 = VDateTime::getSecondsSince1970();
 #ifdef SIM_WITH_GUI
-            GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
+                GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
 #endif
-            App::currentWorld->environment->setScenePathAndName(savedLoc.c_str());
-            App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970 = VDateTime::getSecondsSince1970();
+            }
+            App::appSemaphore(false);
         }
-    }
+   }
     else
         App::appendSimulationThreadCommand(cmd, 1.0); // repost the same message a bit later
 }
@@ -4731,7 +4743,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
     }
 }
 
-bool CSimThread::_renderRequired()
+bool CSimThread::_idleSleepAndCheckIfRenderRequired()
 {
     static int lastRenderingTime = 0;
     static int frameCount = 1000;

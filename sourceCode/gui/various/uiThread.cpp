@@ -32,8 +32,7 @@
 
 CUiThread::CUiThread()
 {
-    connect(this, SIGNAL(_executeCommandViaUiThread(SUIThreadCommand*, SUIThreadCommand*)), this,
-            SLOT(__executeCommandViaUiThread(SUIThreadCommand*, SUIThreadCommand*)), Qt::BlockingQueuedConnection);
+    connect(this, SIGNAL(_executeCommandViaUiThread(SUIThreadCommand*, SUIThreadCommand*)), this, SLOT(__executeCommandViaUiThread(SUIThreadCommand*, SUIThreadCommand*)), Qt::BlockingQueuedConnection);
     connect(this, SIGNAL(_renderScene()), this, SLOT(__renderScene()), Qt::QueuedConnection);
 }
 
@@ -60,8 +59,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCo
     if ((cmdIn->cmdId > PLUGIN_START_PLUGUITHREADCMD) && (cmdIn->cmdId < PLUGIN_END_PLUGUITHREADCMD))
     {
         if (cmdIn->cmdId == PLUGIN_LOAD_AND_START_PLUGUITHREADCMD)
-            cmdOut->intParams.push_back(App::worldContainer->pluginContainer->addAndInitPlugin_old(
-                cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str()));
+            cmdOut->intParams.push_back(App::worldContainer->pluginContainer->addAndInitPlugin_old(cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str()));
         if (cmdIn->cmdId == PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD)
             cmdOut->boolParams.push_back(App::worldContainer->pluginContainer->unloadPlugin_old(cmdIn->intParams[0]));
     }
@@ -74,10 +72,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCo
             ->createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(cmdIn->boolParams[0]);
 
     if (cmdIn->cmdId == DETECT_VISION_SENSOR_ENTITY_UITHREADCMD)
-        cmdOut->boolParams.push_back(((CVisionSensor*)cmdIn->objectParams[0])
-                                         ->detectVisionSensorEntity_executedViaUiThread(
-                                             cmdIn->intParams[0], cmdIn->boolParams[0], cmdIn->boolParams[1],
-                                             cmdIn->boolParams[2], cmdIn->boolParams[3]));
+        cmdOut->boolParams.push_back(((CVisionSensor*)cmdIn->objectParams[0])->detectVisionSensorEntity_executedViaUiThread(cmdIn->intParams[0], cmdIn->boolParams[0], cmdIn->boolParams[1], cmdIn->boolParams[2], cmdIn->boolParams[3]));
 
     if (cmdIn->cmdId == KY_UITHREADCMD)
     {

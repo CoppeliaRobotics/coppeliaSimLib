@@ -2979,8 +2979,7 @@ int _simHandleDynamics(luaWrap_lua_State* L)
     int retVal = -1; // means error
     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
     CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-    if ((itScrObj->getScriptType() == sim_scripttype_main) ||
-        (itScrObj->getScriptType() == sim_scripttype_simulation))
+    if ( (itScrObj->getScriptType() == sim_scripttype_main) || (itScrObj->getScriptType() == sim_scripttype_simulation) )
     {
         if (checkInputArguments(L, &errorString, lua_arg_number, 0))
             retVal = CALL_C_API(simHandleDynamics, luaToDouble(L, 1));

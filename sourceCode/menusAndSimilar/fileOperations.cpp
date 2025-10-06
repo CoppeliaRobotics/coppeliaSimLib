@@ -26,6 +26,7 @@
 void CFileOperations::createNewScene(bool keepCurrentScene)
 {
     TRACE_INTERNAL;
+    App::appSemaphore(true);
     if (keepCurrentScene)
         App::worldContainer->createNewWorld();
     else
@@ -38,10 +39,12 @@ void CFileOperations::createNewScene(bool keepCurrentScene)
     App::currentWorld->environment->generateNewUniquePersistentIdString();
     App::currentWorld->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
     App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+    App::appSemaphore(false);
 }
 
 void CFileOperations::closeScene()
 {
+    App::appSemaphore(true);
     App::currentWorld->simulation->stopSimulation();
     App::currentWorld->clearScene(true);
     if (App::worldContainer->getWorldCount() > 1)
@@ -64,13 +67,13 @@ void CFileOperations::closeScene()
                                                  // correct dimensions
     GuiApp::setRebuildHierarchyFlag();
 #endif
+    App::appSemaphore(false);
 }
 
-bool CFileOperations::loadScene(const char* pathAndFilename, bool setCurrentDir,
-                                std::vector<char>* loadBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/,
-                                std::string* errorStr /*=nullptr*/)
+bool CFileOperations::loadScene(const char* pathAndFilename, bool setCurrentDir, std::vector<char>* loadBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/, std::string* errorStr /*=nullptr*/)
 { // empty pathAndFilename to create the default scene
     bool retVal = false;
+    App::appSemaphore(true);
     TRACE_INTERNAL;
     if ((pathAndFilename == nullptr) || (strlen(pathAndFilename) != 0))
     {
@@ -153,15 +156,15 @@ bool CFileOperations::loadScene(const char* pathAndFilename, bool setCurrentDir,
                                                  // correct dimensions
     GuiApp::setRebuildHierarchyFlag();
 #endif
+    App::appSemaphore(false);
     return retVal;
 }
 
-bool CFileOperations::loadModel(const char* pathAndFilename, bool setCurrentDir, bool doUndoThingInHere,
-                                std::vector<char>* loadBuffer, bool onlyThumbnail, bool forceModelAsCopy,
-                                std::string* infoStr /*=nullptr*/, std::string* errorStr /*=nullptr*/)
+bool CFileOperations::loadModel(const char* pathAndFilename, bool setCurrentDir, bool doUndoThingInHere, std::vector<char>* loadBuffer, bool onlyThumbnail, bool forceModelAsCopy, std::string* infoStr /*=nullptr*/, std::string* errorStr /*=nullptr*/)
 {
     TRACE_INTERNAL;
     int result = -3;
+    App::appSemaphore(true);
     if ((pathAndFilename == nullptr) || VFile::doesFileExist(pathAndFilename))
     {
         App::currentWorld->sceneObjects->deselectObjects();
@@ -231,14 +234,14 @@ bool CFileOperations::loadModel(const char* pathAndFilename, bool setCurrentDir,
         if (errorStr != nullptr)
             errorStr[0] = "file does not exist.";
     }
+    App::appSemaphore(false);
     return (result == 1);
 }
 
-bool CFileOperations::saveScene(const char* pathAndFilename, bool setCurrentDir, bool changeSceneUniqueId,
-                                std::vector<char>* saveBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/,
-                                std::string* errorStr /*=nullptr*/, bool autoSaveMechanism /*= false*/)
+bool CFileOperations::saveScene(const char* pathAndFilename, bool setCurrentDir, bool changeSceneUniqueId, std::vector<char>* saveBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/, std::string* errorStr /*=nullptr*/, bool autoSaveMechanism /*= false*/)
 {
     bool retVal = false;
+    App::appSemaphore(true);
     if (CSimFlavor::getBoolVal(16))
     {
 #ifdef SIM_WITH_GUI
@@ -317,14 +320,14 @@ bool CFileOperations::saveScene(const char* pathAndFilename, bool setCurrentDir,
     }
     if ((!retVal) && (errorStr != nullptr))
         errorStr[0] = "Failed to save scene.";
-    return (retVal);
+    App::appSemaphore(false);
+    return retVal;
 }
 
-bool CFileOperations::saveModel(int modelBaseDummyID, const char* pathAndFilename, bool setCurrentDir,
-                                std::vector<char>* saveBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/,
-                                std::string* errorStr /*=nullptr*/)
+bool CFileOperations::saveModel(int modelBaseDummyID, const char* pathAndFilename, bool setCurrentDir, std::vector<char>* saveBuffer /*=nullptr*/, std::string* infoStr /*=nullptr*/, std::string* errorStr /*=nullptr*/)
 {
     bool retVal = false;
+    App::appSemaphore(true);
     if (CSimFlavor::getBoolVal(16) || (saveBuffer != nullptr))
     {
         App::currentWorld->sceneObjects->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(modelBaseDummyID);
@@ -410,12 +413,11 @@ bool CFileOperations::saveModel(int modelBaseDummyID, const char* pathAndFilenam
         if (errorStr != nullptr)
             errorStr[0] = "Model could not be saved.";
     }
-    return (retVal);
+    App::appSemaphore(false);
+    return retVal;
 }
 
-int CFileOperations::createHeightfield(int xSize, double pointSpacing,
-                                       const std::vector<std::vector<double>*>& readData, double shadingAngle,
-                                       int options)
+int CFileOperations::createHeightfield(int xSize, double pointSpacing, const std::vector<std::vector<double>*>& readData, double shadingAngle, int options)
 { // options bits:
     // 0 set --> backfaces are culled
     // 1 set --> edges are visible
@@ -465,6 +467,7 @@ void CFileOperations::_addToRecentlyOpenedScenes(std::string filenameAndPath)
 {
     if (App::getHeadlessMode() == 0)
     { // remember we could run with -h (GUI binary with suppressed GUI) instead of -H
+        App::appSemaphore(true);
         CPersistentDataContainer cont;
         std::string recentScenes[10];
         int sameIndex = -1;
@@ -498,6 +501,7 @@ void CFileOperations::_addToRecentlyOpenedScenes(std::string filenameAndPath)
                 cnt++;
             }
         }
+        App::appSemaphore(false);
     }
 }
 
@@ -505,6 +509,7 @@ void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPat
 {
     if (App::getHeadlessMode() == 0)
     { // remember we could run with -h (GUI binary with suppressed GUI) instead of -H
+        App::appSemaphore(true);
         CPersistentDataContainer cont;
         std::string recentScenes[10];
         int sameIndex = -1;
@@ -539,6 +544,7 @@ void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPat
                 cont.writeData(tmp.c_str(), "", !App::userSettings->doNotWritePersistentData, false);
             }
         }
+        App::appSemaphore(false);
     }
 }
 
@@ -645,6 +651,7 @@ void CFileOperations::addMenu(VMenu* menu)
 bool CFileOperations::_saveSceneWithDialogAndEverything()
 { // SHOULD ONLY BE CALLED BY THE MAIN SIMULATION THREAD!
     bool retVal = false;
+    App::appSemaphore(true);
     if (!App::currentWorld->environment->getSceneLocked())
     {
         if (App::currentWorld->environment->getScenePathAndName() == "")
@@ -685,20 +692,19 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
         }
     }
     else
-        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SCENE, IDS_SCENE_IS_LOCKED_WARNING,
-                                             VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
-    return (retVal);
+        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SCENE, IDS_SCENE_IS_LOCKED_WARNING, VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
+    App::appSemaphore(false);
+    return retVal;
 }
 
 bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
 {
     bool retVal = false;
+    App::appSemaphore(true);
     if (!App::currentWorld->environment->getSceneLocked())
     {
         if ((!App::currentWorld->environment->getRequestFinalSave()) ||
-            (VMESSAGEBOX_REPLY_YES == GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SAVE,
-                                                                           IDS_FINAL_SCENE_SAVE_WARNING,
-                                                                           VMESSAGEBOX_YES_NO, VMESSAGEBOX_REPLY_YES)))
+            (VMESSAGEBOX_REPLY_YES == GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SAVE, IDS_FINAL_SCENE_SAVE_WARNING, VMESSAGEBOX_YES_NO, VMESSAGEBOX_REPLY_YES)))
         {
             if (App::currentWorld->environment->getRequestFinalSave())
                 App::currentWorld->environment->setSceneLocked();
@@ -805,8 +811,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                         if (infoStr.size() > 0)
                             App::logMsg(sim_verbosity_msgs, infoStr.c_str());
                         App::logMsg(sim_verbosity_msgs, IDSNS_SCENE_WAS_SAVED);
-                        GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to
-                                                           // reflect it
+                        GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
                         _addToRecentlyOpenedScenes(App::currentWorld->environment->getScenePathAndName());
                         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
                         retVal = true;
@@ -826,9 +831,9 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
         }
     }
     else
-        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SCENE, IDS_SCENE_IS_LOCKED_WARNING,
-                                             VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
-    return (retVal);
+        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SCENE, IDS_SCENE_IS_LOCKED_WARNING, VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
+    App::appSemaphore(false);
+    return retVal;
 }
 
 bool CFileOperations::processCommand(int commandID)
@@ -1689,6 +1694,8 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
 bool CFileOperations::_heightfieldImportRoutine(const char* pathName)
 {
+    bool retVal = false;
+    App::appSemaphore(true);
     if (VFile::doesFileExist(pathName))
     {
         try
@@ -1801,14 +1808,14 @@ bool CFileOperations::_heightfieldImportRoutine(const char* pathName)
             }
             for (int i = 0; i < int(readData.size()); i++)
                 delete readData[i];
-            return (readData.size() != 0);
+            retVal = (readData.size() != 0);
         }
         catch (VFILE_EXCEPTION_TYPE e)
         {
             VFile::reportAndHandleFileExceptionError(e);
-            return (false);
         }
     }
-    return (false);
+    App::appSemaphore(false);
+    return retVal;
 }
 #endif

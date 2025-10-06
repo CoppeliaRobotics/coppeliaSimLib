@@ -47,7 +47,7 @@ class CSimThread : public QObject
     void _handleAutoSaveSceneCommand(SSimulationThreadCommand cmd);
 #ifdef SIM_WITH_GUI
     void _handleClickRayIntersection_old(SSimulationThreadCommand cmd);
-    bool _renderRequired();
+    bool _idleSleepAndCheckIfRenderRequired();
 
     VMutex _mutex;
 #endif
