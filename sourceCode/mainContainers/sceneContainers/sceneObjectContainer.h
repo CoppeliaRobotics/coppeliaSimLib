@@ -127,10 +127,11 @@ class CSceneObjectContainer
     int getObjectHandleFromSelectionIndex(size_t index) const;
     const std::vector<int>* getSelectedObjectHandlesPtr() const;
     bool isObjectSelected(int objectHandle) const;
-    void getSelectedObjects(std::vector<CSceneObject*>& selection, int objectType = -1,
-                            bool includeModelObjects = false, bool onlyVisibleModelObjects = false) const;
-    void getSelectedObjectHandles(std::vector<int>& selection, int objectType = -1, bool includeModelObjects = false,
-                                  bool onlyVisibleModelObjects = false) const;
+    void getSelectedObjects(std::vector<CSceneObject*>& selection, int objectType = -1, bool includeModelObjects = false, bool onlyVisibleModelObjects = false) const;
+    void getSelectedObjectHandles(std::vector<int>& selection, int objectType = -1, bool includeModelObjects = false, bool onlyVisibleModelObjects = false) const;
+    void getSelectedModels(std::vector<CSceneObject*>& selection, int objectType = -1, bool includeModelObjects = false) const;
+    void getSelectedModelObjectHandles(std::vector<int>& selection, int objectType = -1, bool includeModelObjects = false) const;
+    void removeOrAddSpecificObjects(std::vector<CSceneObject*>& selection, int objectType /*=-1*/, bool includeModelObjects /*=false*/, bool onlyVisibleModelObjects /*=false*/) const;
     int getLastSelectionHandle(const std::vector<int>* selection = nullptr) const;
     bool isObjectInSelection(int objectHandle, const std::vector<int>* selection = nullptr) const;
     void popLastSelection();

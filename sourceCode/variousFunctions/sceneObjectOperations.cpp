@@ -220,12 +220,15 @@ bool CSceneObjectOperations::processCommand(int commandID)
         return (true);
     }
 
-    if (commandID == SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD)
+    if ( (commandID == SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD) || (commandID == SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_MODEL_SOOCMD) )
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
-            App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, false);
+            if (commandID == SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD)
+                App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
+            else
+                App::currentWorld->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
             double density = 0.0;
@@ -260,12 +263,15 @@ bool CSceneObjectOperations::processCommand(int commandID)
         return (true);
     }
 
-    if (commandID == SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD)
+    if ( (commandID == SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD) || (commandID == SCENE_OBJECT_OPERATION_SCALE_MASS_MODEL_SOOCMD) )
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
-            App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, false);
+            if (commandID == SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD)
+                App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
+            else
+                App::currentWorld->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
             double fact = 0.0;
@@ -298,17 +304,19 @@ bool CSceneObjectOperations::processCommand(int commandID)
         return (true);
     }
 
-    if (commandID == SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD)
+    if ( (commandID == SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD) || (commandID == SCENE_OBJECT_OPERATION_SCALE_INERTIA_MODEL_SOOCMD) )
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
-            App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, false);
+            if (commandID == SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD)
+                App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
+            else
+                App::currentWorld->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
             double fact = 0.0;
-            ok = GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow, "Inertia scaling", "Scaling factor", 2.0,
-                                                       0.1, 10.0, 2, &fact);
+            ok = GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow, "Inertia scaling", "Scaling factor", 2.0, 0.1, 10.0, 2, &fact);
             if (ok)
             {
                 App::logMsg(sim_verbosity_msgs, "Scaling inertia...");
@@ -541,35 +549,40 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
-            App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, true);
-            if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
-                App::logMsg(sim_verbosity_msgs, "Relocating reference frame to world origin...");
-            if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD)
-                App::logMsg(sim_verbosity_msgs, "Relocating reference frame to parent origin...");
-            if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
-                App::logMsg(sim_verbosity_msgs, "relocating reference frame to mesh center...");
-            bool success = true;
-            std::vector<int> toSelect;
-            for (size_t i = 0; i < sel.size(); i++)
+            App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false, false);
+            if (sel.size() > 0)
             {
-                CShape* theShape = (CShape*)sel[i];
-                bool r = false;
                 if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
-                    r = theShape->relocateFrame("world");
+                    App::logMsg(sim_verbosity_msgs, "Relocating reference frame to world origin...");
                 if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD)
-                    r = theShape->relocateFrame("parent");
+                    App::logMsg(sim_verbosity_msgs, "Relocating reference frame to parent origin...");
                 if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
-                    r = theShape->relocateFrame("mesh");
-                if (r)
-                    toSelect.push_back(theShape->getObjectHandle());
-                success = r && success;
+                    App::logMsg(sim_verbosity_msgs, "relocating reference frame to mesh center...");
+                bool success = true;
+                std::vector<int> toSelect;
+                for (size_t i = 0; i < sel.size(); i++)
+                {
+                    CShape* theShape = (CShape*)sel[i];
+                    bool r = false;
+                    if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
+                        r = theShape->relocateFrame("world");
+                    if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD)
+                        r = theShape->relocateFrame("parent");
+                    if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD)
+                        r = theShape->relocateFrame("mesh");
+                    if (r)
+                        toSelect.push_back(theShape->getObjectHandle());
+                    success = r && success;
+                }
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
+                App::undoRedo_sceneChanged("");
+                if (success)
+                    App::logMsg(sim_verbosity_msgs, "done.");
+                else
+                    App::logMsg(sim_verbosity_warnings, "One or more reference frames could not be relocated.");
             }
-            App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
-            App::undoRedo_sceneChanged("");
-            if (success)
-                App::logMsg(sim_verbosity_msgs, "done.");
             else
-                App::logMsg(sim_verbosity_warnings, "One or more reference frames could not be relocated.");
+                App::logMsg(sim_verbosity_msgs, "invalid selection. Operation aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -586,31 +599,36 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
-            App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, true);
-            if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
-                App::logMsg(sim_verbosity_msgs, "aligning bounding box with mesh...");
-            if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
-                App::logMsg(sim_verbosity_msgs, "aligning bounding box with world...");
-            bool success = true;
-            std::vector<int> toSelect;
-            for (size_t i = 0; i < sel.size(); i++)
+            App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false, false);
+            if (sel.size() > 0)
             {
-                CShape* theShape = (CShape*)sel[i];
-                bool r = false;
                 if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
-                    r = theShape->alignBB("mesh");
+                    App::logMsg(sim_verbosity_msgs, "aligning bounding box with mesh...");
                 if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
-                    r = theShape->alignBB("world");
-                if (r)
-                    toSelect.push_back(theShape->getObjectHandle());
-                success = r && success;
+                    App::logMsg(sim_verbosity_msgs, "aligning bounding box with world...");
+                bool success = true;
+                std::vector<int> toSelect;
+                for (size_t i = 0; i < sel.size(); i++)
+                {
+                    CShape* theShape = (CShape*)sel[i];
+                    bool r = false;
+                    if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
+                        r = theShape->alignBB("mesh");
+                    if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD)
+                        r = theShape->alignBB("world");
+                    if (r)
+                        toSelect.push_back(theShape->getObjectHandle());
+                    success = r && success;
+                }
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
+                App::undoRedo_sceneChanged("");
+                if (success)
+                    App::logMsg(sim_verbosity_msgs, "done.");
+                else
+                    App::logMsg(sim_verbosity_warnings, "One or more bounding boxes could not be reoriented.");
             }
-            App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
-            App::undoRedo_sceneChanged("");
-            if (success)
-                App::logMsg(sim_verbosity_msgs, "done.");
             else
-                App::logMsg(sim_verbosity_warnings, "One or more bounding boxes could not be reoriented.");
+                App::logMsg(sim_verbosity_msgs, "invalid selection. Operation aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -626,11 +644,16 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, true, true);
-            App::logMsg(sim_verbosity_msgs, "Grouping shapes...");
-            groupSelection(&sel);
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs, "done.");
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
+            if (sel.size() > 1)
+            {
+                App::logMsg(sim_verbosity_msgs, "Grouping shapes...");
+                groupSelection(&sel);
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs, "done.");
+            }
+            else
+                App::logMsg(sim_verbosity_msgs, "invalid selection. Operation aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -646,11 +669,26 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, true, true);
-            App::logMsg(sim_verbosity_msgs, "Ungrouping shapes...");
-            ungroupSelection(&sel);
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs, "done.");
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
+            bool hasCompound = false;
+            for (size_t i = 0; i < sel.size(); i++)
+            {
+                CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(sel[i]);
+                if ( (it != nullptr) && it->isCompound() )
+                {
+                    hasCompound = true;
+                    break;
+                }
+            }
+            if (hasCompound)
+            {
+                App::logMsg(sim_verbosity_msgs, "Ungrouping shapes...");
+                ungroupSelection(&sel);
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs, "done.");
+            }
+            else
+                App::logMsg(sim_verbosity_msgs, "invalid selection. Operation aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -666,11 +704,16 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, true, true);
-            App::logMsg(sim_verbosity_msgs, "Merging shapes...");
-            mergeSelection(&sel);
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs, "done.");
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
+            if (sel.size() > 1)
+            {
+                App::logMsg(sim_verbosity_msgs, "Merging shapes...");
+                mergeSelection(&sel);
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs, "done.");
+            }
+            else
+                App::logMsg(sim_verbosity_msgs, "invalid selection. Operation aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -685,11 +728,16 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, true, true);
-            App::logMsg(sim_verbosity_msgs, "Dividing shapes...");
-            divideSelection(&sel);
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs, "done.");
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
+            if (sel.size() > 0)
+            {
+                App::logMsg(sim_verbosity_msgs, "Dividing shapes...");
+                divideSelection(&sel);
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs, "done.");
+            }
+            else
+                App::logMsg(sim_verbosity_msgs, "invalid selection. Operation aborted.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1309,78 +1357,57 @@ int CSceneObjectOperations::convexDecompose(int shapeHandle, int options, const 
 #ifdef SIM_WITH_GUI
 void CSceneObjectOperations::addMenu(VMenu* menu)
 {
-    std::vector<CSceneObject*> sel;
-    App::currentWorld->sceneObjects->getSelectedObjects(sel, -1, true, true);
-    int shapeCnt = 0;
-    int compoundCnt = 0;
-    for (size_t i = 0; i < sel.size(); i++)
+    std::vector<CSceneObject*> objectSel;
+    App::currentWorld->sceneObjects->getSelectedObjects(objectSel, -1, false);
+    int objectSel_shapeCnt = 0;
+    int objectSel_compoundCnt = 0;
+    int objectSel_dynShapeCnt = 0;
+    for (size_t i = 0; i < objectSel.size(); i++)
     {
-        int t = sel[i]->getObjectType();
+        int t = objectSel[i]->getObjectType();
         if (t == sim_sceneobject_shape)
         {
-            CShape* it = (CShape*)sel[i];
-            shapeCnt++;
-            if (it->getSingleMesh() == nullptr)
-                compoundCnt++;
+            CShape* it = (CShape*)objectSel[i];
+            objectSel_shapeCnt++;
+            if (it->isCompound())
+                objectSel_compoundCnt++;
+            if (!it->getStatic())
+                objectSel_dynShapeCnt++;
         }
     }
-    int dynShapeCnt = 0;
-    sel.clear();
-    App::currentWorld->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, true, false);
-    for (size_t i = 0; i < sel.size(); i++)
+
+    std::vector<CSceneObject*> modelSel;
+    App::currentWorld->sceneObjects->getSelectedModels(modelSel, -1, true);
+    int modelSel_dynShapeCnt = 0;
+    for (size_t i = 0; i < modelSel.size(); i++)
     {
-        CShape* it = (CShape*)sel[i];
-        if (!it->getStatic())
-            dynShapeCnt++;
+        printf("Alias: %s\n", modelSel[i]->getObjectAlias().c_str());
+        int t = modelSel[i]->getObjectType();
+        if (t == sim_sceneobject_shape)
+        {
+            CShape* it = (CShape*)modelSel[i];
+            if (!it->getStatic())
+                modelSel_dynShapeCnt++;
+        }
     }
 
     size_t selItems = App::currentWorld->sceneObjects->getSelectionCount();
-    size_t selDummies = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_dummy);
-    size_t shapeNumber = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_shape);
-    size_t pathNumber = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_path);
-    size_t simpleShapeNumber = 0;
-    std::vector<CSceneObject*> objects;
-    App::currentWorld->sceneObjects->getSelectedObjects(objects);
-    for (size_t i = 0; i < objects.size(); i++)
-    {
-        if (objects[i]->getObjectType() == sim_sceneobject_shape)
-        {
-            CShape* it = (CShape*)objects[i];
-            if (it->getMesh()->isMesh())
-                simpleShapeNumber++;
-        }
-    }
 
     bool noSim = App::currentWorld->simulation->isSimulationStopped();
-    bool lastSelIsShape = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape);
-    bool lastSelIsNonPureShape = false;
-    bool lastSelIsNonGrouping = false;
-    if (lastSelIsShape)
-    {
-        CShape* sh = App::currentWorld->sceneObjects->getLastSelectionShape();
-        lastSelIsNonPureShape = !sh->getMesh()->isPure();
-        lastSelIsNonGrouping = !sh->isCompound();
-    }
-
-    bool lastSelIsPath = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_path);
 
     if (GuiApp::getEditModeType() == NO_EDIT_MODE)
     {
-        menu->appendMenuItem(App::currentWorld->undoBufferContainer->canUndo(), false,
-                             SCENE_OBJECT_OPERATION_UNDO_SOOCMD, IDSN_UNDO);
-        menu->appendMenuItem(App::currentWorld->undoBufferContainer->canRedo(), false,
-                             SCENE_OBJECT_OPERATION_REDO_SOOCMD, IDSN_REDO);
+        menu->appendMenuItem(App::currentWorld->undoBufferContainer->canUndo(), false, SCENE_OBJECT_OPERATION_UNDO_SOOCMD, IDSN_UNDO);
+        menu->appendMenuItem(App::currentWorld->undoBufferContainer->canRedo(), false, SCENE_OBJECT_OPERATION_REDO_SOOCMD, IDSN_REDO);
         menu->appendMenuSeparator();
-        menu->appendMenuItem(selItems > 1, false, SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD,
-                             "Set parent, keep pose(s)");
-        menu->appendMenuItem(selItems > 1, false, SCENE_OBJECT_OPERATION_MAKE_PARENT_AND_MOVE_SOOCMD, "Set parent");
-        menu->appendMenuItem(selItems > 0, false, SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD, "Set parent-less");
+        menu->appendMenuItem(objectSel.size() > 1, false, SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD, "Set parent, keep pose(s)");
+        menu->appendMenuItem(objectSel.size() > 1, false, SCENE_OBJECT_OPERATION_MAKE_PARENT_AND_MOVE_SOOCMD, "Set parent");
+        menu->appendMenuItem(objectSel.size() > 0, false, SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD, "Set parent-less");
         menu->appendMenuSeparator();
-        menu->appendMenuItem(selItems > 0, false, SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD, "Copy object(s)");
-        menu->appendMenuItem(!App::worldContainer->copyBuffer->isBufferEmpty(), false,
-                             SCENE_OBJECT_OPERATION_PASTE_OBJECTS_SOOCMD, "Paste buffer");
-        menu->appendMenuItem(selItems > 0, false, SCENE_OBJECT_OPERATION_DELETE_OBJECTS_SOOCMD, "Delete object(s)");
-        menu->appendMenuItem(selItems > 0, false, SCENE_OBJECT_OPERATION_OBJECT_FULL_CUT_SOOCMD, "Cut object(s)");
+        menu->appendMenuItem(objectSel.size() > 0, false, SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD, "Copy object(s)/model(s)");
+        menu->appendMenuItem(!App::worldContainer->copyBuffer->isBufferEmpty(), false, SCENE_OBJECT_OPERATION_PASTE_OBJECTS_SOOCMD, "Paste buffer");
+        menu->appendMenuItem(objectSel.size() > 0, false, SCENE_OBJECT_OPERATION_DELETE_OBJECTS_SOOCMD, "Delete object(s)/model(s)");
+        menu->appendMenuItem(objectSel.size() > 0, false, SCENE_OBJECT_OPERATION_OBJECT_FULL_CUT_SOOCMD, "Cut object(s)/model(s)");
         menu->appendMenuSeparator();
         menu->appendMenuItem(true, false, SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD, "Select all");
         menu->appendMenuSeparator();
@@ -1393,68 +1420,56 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             bool hasCustomizationScriptAttached = false;
             if (selItems == 1)
             {
-                hasChildScriptAttached =
-                    (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                         sim_scripttype_simulation, App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) !=
-                     nullptr);
-                hasCustomizationScriptAttached =
-                    (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                         sim_scripttype_customization,
-                         App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
+                hasChildScriptAttached = (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
+                hasCustomizationScriptAttached = (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo( sim_scripttype_customization, App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
             }
 
             if (hasChildScriptAttached || hasCustomizationScriptAttached)
             {
                 VMenu* removing = new VMenu();
-                removing->appendMenuItem(hasChildScriptAttached && noSim, false,
-                                         SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CHILD_SCRIPT_SOOCMD,
-                                         "Associated simulation script");
-                removing->appendMenuItem(hasCustomizationScriptAttached && noSim, false,
-                                         SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CUSTOMIZATION_SCRIPT_SOOCMD,
-                                         "Associated customization script");
+                removing->appendMenuItem(hasChildScriptAttached && noSim, false, SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CHILD_SCRIPT_SOOCMD, "Associated simulation script");
+                removing->appendMenuItem(hasCustomizationScriptAttached && noSim, false, SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CUSTOMIZATION_SCRIPT_SOOCMD, "Associated customization script");
                 menu->appendMenuAndDetach(removing, noSim, "Remove");
                 menu->appendMenuSeparator();
             }
             // ------------------------
 
             VMenu* grouping = new VMenu();
-            grouping->appendMenuItem((shapeCnt > 1) && noSim, false, SCENE_OBJECT_OPERATION_GROUP_SHAPES_SOOCMD,
-                                     "group");
-            grouping->appendMenuItem((compoundCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_UNGROUP_SHAPES_SOOCMD,
-                                     "ungroup");
+            grouping->appendMenuItem((objectSel_shapeCnt > 1) && noSim, false, SCENE_OBJECT_OPERATION_GROUP_SHAPES_SOOCMD, "group");
+            grouping->appendMenuItem((objectSel_compoundCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_UNGROUP_SHAPES_SOOCMD, "ungroup");
             grouping->appendMenuSeparator();
-            grouping->appendMenuItem((shapeCnt > 1) && noSim, false, SCENE_OBJECT_OPERATION_MERGE_SHAPES_SOOCMD,
-                                     "merge");
-            grouping->appendMenuItem((shapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD,
-                                     "divide");
+            grouping->appendMenuItem((objectSel_shapeCnt > 1) && noSim, false, SCENE_OBJECT_OPERATION_MERGE_SHAPES_SOOCMD, "merge");
+            grouping->appendMenuItem((objectSel_shapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD, "divide");
             menu->appendMenuAndDetach(grouping, true, "Shape grouping / merging");
 
             VMenu* relocate = new VMenu();
-            relocate->appendMenuItem((shapeCnt > 0) && noSim, false,
-                                     SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD,
-                                     "relocate to world origin");
-            relocate->appendMenuItem((shapeCnt > 0) && noSim, false,
-                                     SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD,
-                                     "relocate to parent origin");
-            relocate->appendMenuItem((shapeCnt > 0) && noSim, false,
-                                     SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD, "relocate to mesh center");
+            relocate->appendMenuItem((objectSel_shapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD, "relocate to world origin");
+            relocate->appendMenuItem((objectSel_shapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD, "relocate to parent origin");
+            relocate->appendMenuItem((objectSel_shapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD, "relocate to mesh center");
             menu->appendMenuAndDetach(relocate, true, "Shape reference frame");
 
             VMenu* align = new VMenu();
-            align->appendMenuItem((shapeCnt > 0) && noSim, false,
-                                  SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD, "align with world");
-            align->appendMenuItem((shapeCnt > 0) && noSim, false,
-                                  SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD, "align with mesh");
+            align->appendMenuItem((objectSel_shapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD, "align with world");
+            align->appendMenuItem((objectSel_shapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD, "align with mesh");
             menu->appendMenuAndDetach(align, true, "Shape bounding box");
 
             VMenu* minertia = new VMenu();
-            minertia->appendMenuItem((dynShapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD,
-                                     "compute from uniform density...");
-            minertia->appendMenuItem((dynShapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD,
-                                     "scale mass...");
-            minertia->appendMenuItem((dynShapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD,
-                                     "scale inertia...");
+            minertia->appendMenuItem((objectSel_dynShapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD, "compute from uniform density...");
+            minertia->appendMenuItem((objectSel_dynShapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD, "scale mass...");
+            minertia->appendMenuItem((objectSel_dynShapeCnt > 0) && noSim, false, SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD, "scale inertia...");
             menu->appendMenuAndDetach(minertia, true, "Shape mass and inertia");
+
+            if (modelSel_dynShapeCnt > 0)
+            {
+                menu->appendMenuSeparator();
+                VMenu* minertia = new VMenu();
+                minertia->appendMenuItem(noSim, false, SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_MODEL_SOOCMD, "compute from uniform density...");
+                minertia->appendMenuItem(noSim, false, SCENE_OBJECT_OPERATION_SCALE_MASS_MODEL_SOOCMD, "scale mass...");
+                minertia->appendMenuItem(noSim, false, SCENE_OBJECT_OPERATION_SCALE_INERTIA_MODEL_SOOCMD, "scale inertia...");
+                VMenu* modelOperations = new VMenu();
+                modelOperations->appendMenuAndDetach(minertia, true, "Shape mass and inertia");
+                menu->appendMenuAndDetach(modelOperations, true, "Model operations");
+            }
         }
     }
 }

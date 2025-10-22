@@ -3925,9 +3925,20 @@ bool CSceneObjectContainer::isObjectSelected(int objectHandle) const
     return (retVal);
 }
 
-void CSceneObjectContainer::getSelectedObjectHandles(std::vector<int>& selection, int objectType /*=-1*/,
-                                                     bool includeModelObjects /*=false*/,
-                                                     bool onlyVisibleModelObjects /*=false*/) const
+void CSceneObjectContainer::getSelectedObjects(std::vector<CSceneObject*>& selection, int objectType /*=-1*/, bool includeModelObjects /*=false*/, bool onlyVisibleModelObjects /*=false*/) const
+{
+    const std::vector<int>* sel = getSelectedObjectHandlesPtr();
+    selection.clear();
+    for (size_t i = 0; i < sel->size(); i++)
+    {
+        CSceneObject* it = getObjectFromHandle(sel->at(i));
+        selection.push_back(it);
+    }
+
+    removeOrAddSpecificObjects(selection, objectType, includeModelObjects, onlyVisibleModelObjects);
+}
+
+void CSceneObjectContainer::getSelectedObjectHandles(std::vector<int>& selection, int objectType /*=-1*/, bool includeModelObjects /*=false*/, bool onlyVisibleModelObjects /*=false*/) const
 {
     std::vector<CSceneObject*> sel;
     getSelectedObjects(sel, objectType, includeModelObjects, onlyVisibleModelObjects);
@@ -3936,87 +3947,65 @@ void CSceneObjectContainer::getSelectedObjectHandles(std::vector<int>& selection
         selection.push_back(sel[i]->getObjectHandle());
 }
 
-void CSceneObjectContainer::getSelectedObjects(std::vector<CSceneObject*>& selection, int objectType /*=-1*/,
-                                               bool includeModelObjects /*=false*/,
-                                               bool onlyVisibleModelObjects /*=false*/) const
+void CSceneObjectContainer::getSelectedModels(std::vector<CSceneObject*>& selection, int objectType /*=-1*/, bool includeModelObjects /*=false*/) const
 {
-    std::unordered_set<int> objectsInInputList;
-    std::unordered_set<int> objectsInOutputList;
+    const std::vector<int>* sel = getSelectedObjectHandlesPtr();
     selection.clear();
-    const std::vector<int>* smallSel = getSelectedObjectHandlesPtr();
-
-    std::vector<CSceneObject*> models;
-    for (size_t i = 0; i < smallSel->size(); i++)
+    for (size_t i = 0; i < sel->size(); i++)
     {
-        int h = smallSel->at(i);
-        CSceneObject* it = getObjectFromHandle(smallSel->at(i));
-        objectsInInputList.insert(h);
-        if (includeModelObjects)
-        { // We split the task in 2: first non-model objects, later we add model objects.
-            if (!it->getModelBase())
-            {
-                if ((objectType == -1) || (objectType == it->getObjectType()))
-                {
-                    selection.push_back(it);
-                    objectsInOutputList.insert(h);
-                }
-            }
-            else
-                models.push_back(it);
-        }
-        else
-        { // only objects of the desired type
-            if ((objectType == -1) || (objectType == it->getObjectType()))
-            {
-                selection.push_back(it);
-                objectsInOutputList.insert(h);
-            }
-        }
+        CSceneObject* it = getObjectFromHandle(sel->at(i));
+        if (it->getModelBase())
+            selection.push_back(it);
     }
 
-    if (includeModelObjects)
+    removeOrAddSpecificObjects(selection, objectType, includeModelObjects, false);
+}
+
+void CSceneObjectContainer::getSelectedModelObjectHandles(std::vector<int>& selection, int objectType /*=-1*/, bool includeModelObjects /*=false*/) const
+{
+    std::vector<CSceneObject*> sel;
+    getSelectedModels(sel, objectType, includeModelObjects);
+    selection.clear();
+    for (size_t i = 0; i < sel.size(); i++)
+        selection.push_back(sel[i]->getObjectHandle());
+}
+
+void CSceneObjectContainer::removeOrAddSpecificObjects(std::vector<CSceneObject*>& selection, int objectType /*=-1*/, bool includeModelObjects /*=false*/, bool onlyVisibleModelObjects /*=false*/) const
+{ // selection is input and output
+    std::vector<CSceneObject*> originalInput(selection);
+    selection.clear();
+    std::unordered_set<CSceneObject*> objectsInOutputList;
+    for (size_t i = 0; i < originalInput.size(); i++)
     {
-        for (size_t i = 0; i < models.size(); i++)
+        CSceneObject* it = originalInput[i];
+        if (it->getModelBase() && includeModelObjects)
         {
-            CSceneObject* it = models[i];
             std::vector<CSceneObject*> newObjs;
-            it->getAllObjectsRecursive(&newObjs, false, true);
-            size_t inSelCnt = 0;
-            for (size_t j = 0; j < newObjs.size(); j++)
+            it->getAllObjectsRecursive(&newObjs, true);
+            for (size_t i = 0; i < newObjs.size(); i++)
             {
-                CSceneObject* nit = newObjs[j];
-                if (objectsInInputList.find(nit->getObjectHandle()) != objectsInInputList.end())
-                    inSelCnt++; // that model child was anyways selected
-                if ((objectType == -1) || (objectType == nit->getObjectType()))
+                CSceneObject* it2 = newObjs[i];
+                if ((objectType == -1) || (objectType == it2->getObjectType()))
                 {
-                    if (objectsInOutputList.find(nit->getObjectHandle()) == objectsInOutputList.end())
+                    if ( (!onlyVisibleModelObjects) || ( (!it2->isObjectPartOfInvisibleModel()) && (App::currentWorld->environment->getActiveLayers() & it2->getVisibilityLayer()) ) )
                     {
-                        if ((!onlyVisibleModelObjects) ||
-                            ((!nit->isObjectPartOfInvisibleModel()) &&
-                             (App::currentWorld->environment->getActiveLayers() & nit->getVisibilityLayer())))
+                        if (objectsInOutputList.find(it2) == objectsInOutputList.end())
                         {
-                            objectsInOutputList.insert(nit->getObjectHandle());
-                            selection.insert(selection.begin(),
-                                             nit); // to the front, to preserve somewhat the selection order
+                            objectsInOutputList.insert(it2);
+                            selection.push_back(it2);
                         }
                     }
                 }
             }
-            // Now handle the model object itself. It is added, if correct type and visible, and not yet present.
-            // If it is not visible, then we only add it, if all of its children were anyway selected initially:
-            bool allModelChildrenInitiallySelected = (newObjs.size() == inSelCnt);
+        }
+        else
+        {
             if ((objectType == -1) || (objectType == it->getObjectType()))
             {
-                if (objectsInOutputList.find(it->getObjectHandle()) == objectsInOutputList.end())
+                if (objectsInOutputList.find(it) == objectsInOutputList.end())
                 {
-                    if (allModelChildrenInitiallySelected || (!onlyVisibleModelObjects) ||
-                        ((!it->isObjectPartOfInvisibleModel()) &&
-                         (App::currentWorld->environment->getActiveLayers() & it->getVisibilityLayer())))
-                    {
-                        objectsInOutputList.insert(it->getObjectHandle());
-                        selection.insert(selection.begin(),
-                                         it); // to the front, to preserve somewhat the selection order
-                    }
+                    objectsInOutputList.insert(it);
+                    selection.push_back(it);
                 }
             }
         }

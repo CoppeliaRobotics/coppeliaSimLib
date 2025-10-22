@@ -2951,7 +2951,6 @@ void App::asyncResetScript(int scriptHandle)
 bool App::appSemaphore(bool acquire, bool block /*= true*/)
 {
     bool retVal = true;
-    /*
     if (acquire)
     {
         if (block)
@@ -2961,7 +2960,6 @@ bool App::appSemaphore(bool acquire, bool block /*= true*/)
     }
     else
         _appSemaphore.unlock();
-*/
     return retVal;
 }
 

@@ -3575,11 +3575,7 @@ int _sim_getObject(luaWrap_lua_State* L)
                     if (res == 2)
                         options = luaToInt(L, 4);
                     std::string name(luaWrap_lua_tostring(L, 1));
-                    setCurrentScriptInfo_cSide(
-                        CScriptObject::getScriptHandleFromInterpreterState_lua(L),
-                        CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
-                            L)); // for transmitting to the master function additional info (e.g.for autom. name
-                                 // adjustment, or for autom. object deletion when script ends)
+                    setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L), CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                     retVal = CALL_C_API(simGetObject, name.c_str(), index, proxyForSearch, options);
                     setCurrentScriptInfo_cSide(-1, -1);
                 }

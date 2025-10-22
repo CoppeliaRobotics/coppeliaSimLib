@@ -2671,7 +2671,12 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
         else
         {
             if ((options & 1) == 0)
-                CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH);
+            {
+                std::string tmp("object does not exist, or alias/path ('");
+                tmp += objectPath;
+                tmp += "') is ill formatted.";
+                CApiErrors::setLastError(__func__, tmp.c_str());
+            }
         }
         return (retVal);
     }
