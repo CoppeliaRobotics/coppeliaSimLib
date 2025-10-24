@@ -1476,6 +1476,10 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyText(propObject_objectType.name, getObjectTypeInfo().c_str());
     ev->appendKeyInt(propObject_layer.name, _visibilityLayer);
     ev->appendKeyInt(propObject_childOrder.name, _childOrder);
+    std::vector<int> ch;
+    for (size_t i = 0; i < _childList.size(); i++)
+        ch.push_back(_childList[i]->getObjectHandle());
+    ev->appendKeyIntArray(propObject_childHandles.name, ch.data(), ch.size());
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
@@ -5347,7 +5351,7 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
 
 size_t CSceneObject::getChildCount() const
 {
-    return (_childList.size());
+    return _childList.size();
 }
 
 CSceneObject* CSceneObject::getChildFromIndex(size_t index) const
@@ -5360,35 +5364,81 @@ CSceneObject* CSceneObject::getChildFromIndex(size_t index) const
 
 const std::vector<CSceneObject*>* CSceneObject::getChildren() const
 {
-    return (&_childList);
+    return &_childList;
 }
 
 void CSceneObject::addChild(CSceneObject* child)
 {
     if (child == nullptr)
-        _childList.clear();
+        _setChildren(nullptr); // clear all children
     else
     {
-        _childList.push_back(child);
-        handleOrderIndexOfChildren();
+        std::vector<CSceneObject*> c(_childList.begin(), _childList.end());
+        c.push_back(child);
+        _setChildren(&c);
     }
 }
 
 bool CSceneObject::removeChild(const CSceneObject* child)
 {
     bool retVal = false;
-    for (size_t i = 0; i < _childList.size(); i++)
+    std::vector<CSceneObject*> c(_childList.begin(), _childList.end());
+    for (size_t i = 0; i < c.size(); i++)
     {
-        if (_childList[i] == child)
+        if (c[i] == child)
         {
-            _childList.erase(_childList.begin() + i);
+            c.erase(c.begin() + i);
             retVal = true;
             break;
         }
     }
     if (retVal)
+        _setChildren(&c);
+    return retVal;
+}
+
+bool CSceneObject::_setChildren(std::vector<CSceneObject*>* children)
+{
+    bool diff = false;
+    if (children != nullptr)
+    {
+        diff = (children->size() != _childList.size());
+        if (!diff)
+        {
+            for (size_t i = 0; i < children->size(); i++)
+            {
+                if (children->at(i) != _childList[i])
+                {
+                    diff = true;
+                    break;
+                }
+            }
+        }
+    }
+    else
+        diff = (_childList.size() == 0);
+    if (diff)
+    {
+        if (children != nullptr)
+            _childList.assign(children->begin(), children->end());
+        else
+            _childList.clear();
         handleOrderIndexOfChildren();
-    return (retVal);
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = propObject_childHandles.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            std::vector<int> ch;
+            for (size_t i = 0; i < _childList.size(); i++)
+                ch.push_back(_childList[i]->getObjectHandle());
+            ev->appendKeyIntArray(cmd, ch.data(), ch.size());
+            App::worldContainer->pushEvent();
+        }
+#ifdef SIM_WITH_GUI
+        GuiApp::setRefreshHierarchyViewFlag();
+#endif
+    }
+    return diff;
 }
 
 void CSceneObject::handleOrderIndexOfChildren()
@@ -5410,7 +5460,7 @@ void CSceneObject::handleOrderIndexOfChildren()
     {
         CSceneObject* child = _childList[i];
         std::string hn(child->getObjectAlias());
-        std::map<std::string, int>::iterator it = nameMap.find(hn);
+    //    std::map<std::string, int>::iterator it = nameMap.find(hn);
         if (nameMap[hn] == 0)
             co[i] = -1; // means unique with that name, with that parent
         child->setChildOrder(co[i]);
@@ -5435,25 +5485,26 @@ int CSceneObject::getChildSequence(const CSceneObject* child, int* totalSiblings
 
 bool CSceneObject::setChildSequence(CSceneObject* child, int order)
 {
-    if ((order < int(_childList.size())) && (order >= -int(_childList.size())))
+    std::vector<CSceneObject*> c(_childList.begin(), _childList.end());
+    if ((order < int(c.size())) && (order >= -int(c.size())))
     {
         if (order < 0)
-            order += int(_childList.size()); // neg. value: from back
-        for (size_t i = 0; i < _childList.size(); i++)
+            order += int(c.size()); // neg. value: from back
+        for (size_t i = 0; i < c.size(); i++)
         {
-            if (_childList[i] == child)
+            if (c[i] == child)
             {
                 if (order != i)
                 {
-                    _childList.erase(_childList.begin() + i);
-                    _childList.insert(_childList.begin() + order, child);
-                    handleOrderIndexOfChildren();
+                    c.erase(c.begin() + i);
+                    c.insert(c.begin() + order, child);
+                    _setChildren(&c);
                 }
-                return (true);
+                return true;
             }
         }
     }
-    return (false);
+    return false;
 }
 
 int CSceneObject::setBoolProperty(const char* ppName, bool pState)
@@ -6373,6 +6424,12 @@ int CSceneObject::getIntArrayProperty(const char* ppName, std::vector<int>& pSta
     {
         pState.push_back(_objectMovementRelativity[0]);
         pState.push_back(_objectMovementRelativity[1]);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propObject_childHandles.name) == 0)
+    {
+        for (size_t i = 0; i < _childList.size(); i++)
+            pState.push_back(_childList[i]->getObjectHandle());
         retVal = 1;
     }
 

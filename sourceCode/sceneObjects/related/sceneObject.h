@@ -101,8 +101,9 @@
     FUNCX(propObject_movPrefRotX, "mov.prefRotX", sim_propertytype_bool, 0, "Preferred X-axis rotation", "")                                                                                                                     \
     FUNCX(propObject_movPrefRotY, "mov.prefRotY", sim_propertytype_bool, 0, "Preferred Y-axis rotation", "")                                                                                                                     \
     FUNCX(propObject_movPrefRotZ, "mov.prefRotZ", sim_propertytype_bool, 0, "Preferred Z-axis rotation", "")                                                                                                                     \
-    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "Scene object type")                                                          \
-    FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Visible", "Whether the scene object is currently visible")                                   \
+    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "Scene object type")                                                    \
+    FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Visible", "Whether the scene object is currently visible")                                    \
+    FUNCX(propObject_childHandles, "childHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Children handles", "")                                                    \
     FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Model hash", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -453,6 +454,7 @@ class CSceneObject
     CCustomData customObjectData_volatile; // this one is not serialized (but copied)! (object-level signals)
 
   protected:
+    bool _setChildren(std::vector<CSceneObject*>* children);
     void _setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang, const C3Vector& rotAxis, double angle);
     void _setModelInvisible(bool inv);
     void _setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize);
