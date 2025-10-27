@@ -57,6 +57,15 @@ bool luaToBool(luaWrap_lua_State* L, int pos);
 void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* warningString);
 void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* errorString, bool cSideErrorReporting);
 bool doesEntityExist(std::string* errStr, int identifier);
+int fetchBoolArg(luaWrap_lua_State* L, int index, bool defaultValue = false);
+int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue = -1);
+double fetchDoubleArg(luaWrap_lua_State* L, int index, double defaultValue = 0.0);
+std::string fetchTextArg(luaWrap_lua_State* L, int index, const char* txt = "");
+std::string fetchBufferArg(luaWrap_lua_State* L, int index);
+void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::initializer_list<int> arr = {});
+void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::initializer_list<float> arr = {});
+void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::initializer_list<double> arr = {});
+bool isArgNilOrMissing(luaWrap_lua_State* L, int index);
 bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int type1 = lua_arg_empty,
                          int type1Cnt_zeroIfNotTable = -2, int type2 = lua_arg_empty, int type2Cnt_zeroIfNotTable = -2,
                          int type3 = lua_arg_empty, int type3Cnt_zeroIfNotTable = -2, int type4 = lua_arg_empty,

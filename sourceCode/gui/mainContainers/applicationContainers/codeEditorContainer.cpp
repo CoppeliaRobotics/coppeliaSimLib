@@ -578,9 +578,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle)
     return (retVal);
 }
 
-int CCodeEditorContainer::openConsole(const char* title, int maxLines, int mode, const int position[2],
-                                      const int size[2], const int textColor[3], const int backColor[3],
-                                      int callingScriptHandle)
+int CCodeEditorContainer::openConsole(const char* title, int maxLines, int mode, const int position[2], const int size[2], const int textColor[3], const int backColor[3], int callingScriptHandle)
 {
     int retVal = -1;
     if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())

@@ -5526,8 +5526,7 @@ int simAddDrawingObject_internal(int objectType, double size, double duplicateTo
         int creatorHandle = -1;
         if ((objectType & sim_drawing_persistent) == 0)
             creatorHandle = _currentScriptHandle;
-        CDrawingObject* it =
-            new CDrawingObject(objectType, size, duplicateTolerance, parentObjectHandle, maxItemCount, creatorHandle);
+        CDrawingObject* it = new CDrawingObject(objectType, size, duplicateTolerance, parentObjectHandle, maxItemCount, creatorHandle);
         if (color != nullptr)
             it->color.setColor(color, sim_colorcomponent_ambient_diffuse);
         if (setToNULL2 != nullptr)
@@ -6503,8 +6502,7 @@ int simGetContactInfo_internal(int dynamicPass, int objectHandle, int index, int
     return (-1);
 }
 
-int simAuxiliaryConsoleOpen_internal(const char* title, int maxLines, int mode, const int* position, const int* size,
-                                     const float* textColor, const float* backgroundColor)
+int simAuxiliaryConsoleOpen_internal(const char* title, int maxLines, int mode, const int* position, const int* size, const float* textColor, const float* backgroundColor)
 {
     C_API_START;
 
@@ -6587,7 +6585,7 @@ int simAuxiliaryConsolePrint_internal(int consoleHandle, const char* text)
         if (GuiApp::mainWindow != nullptr)
         {
             retVal = 0;
-            if (text == nullptr)
+            if ( (text == nullptr) || (strcmp(text, "") == 0) )
             {
                 if (GuiApp::mainWindow->codeEditorContainer->setText(consoleHandle, ""))
                     retVal = 1;

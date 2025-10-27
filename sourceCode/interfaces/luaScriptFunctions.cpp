@@ -2223,9 +2223,6 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L, int index, int type, int 
             return (2);
         if (nilInsteadOfTypeAndCountAllowed)
             return (1);
-        if (errStr != nullptr)
-            errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
-        return (-1);
     }
     // 3. we check if we expect a table:
     if (cnt_orZeroIfNotTable != 0) // was >=1 until 18/2/2016
@@ -2234,14 +2231,24 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L, int index, int type, int 
         if (!luaWrap_lua_isnonbuffertable(L, index))
         {
             if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (expecting a table).";
+                errStr->assign(msg.c_str());
+            }
             return (-1);
         }
         // we check the table size:
         if (int(luaWrap_lua_rawlen(L, index)) < cnt_orZeroIfNotTable)
         { // the size is not correct
             if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG);
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (wrong table size).";
+                errStr->assign(msg.c_str());
+            }
             return (-1);
         }
         else
@@ -2250,8 +2257,17 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L, int index, int type, int 
             for (int i = 0; i < cnt_orZeroIfNotTable; i++)
             {
                 luaWrap_lua_rawgeti(L, index, i + 1);
-                if (!checkOneInputArgument(L, -1, type, errStr))
+                if (!checkOneInputArgument(L, -1, type, nullptr))
+                {
+                    if (errStr != nullptr)
+                    {
+                        std::string msg("bad argument #");
+                        msg += std::to_string(index);
+                        msg += " (wrong table content).";
+                        errStr->assign(msg.c_str());
+                    }
                     return (-1);
+                }
                 luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
             }
             // Everything went fine:
@@ -2272,7 +2288,11 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
     if (luaWrap_lua_gettop(L) < index)
     { // That data is missing:
         if (errStr != nullptr)
-            errStr->assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
+        {
+            std::string msg("missing argument #");
+            msg += std::to_string(index);
+            errStr->assign(msg.c_str());
+        }
         return (false);
     }
     if (type == lua_arg_number)
@@ -2281,9 +2301,10 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
         {
             if (errStr != nullptr)
             {
-                std::ostringstream oss;
-                oss << "argument " << index << " is not a number.";
-                errStr[0] = oss.str();
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (expecting a number).";
+                errStr->assign(msg.c_str());
             }
             return (false); // error
         }
@@ -2295,9 +2316,10 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
         {
             if (errStr != nullptr)
             {
-                std::ostringstream oss;
-                oss << "argument " << index << " is not an integer.";
-                errStr[0] = oss.str();
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (expecting an integer).";
+                errStr->assign(msg.c_str());
             }
             return (false); // error
         }
@@ -2313,9 +2335,10 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
         {
             if (errStr != nullptr)
             {
-                std::ostringstream oss;
-                oss << "argument " << index << " is expected to be nil.";
-                errStr[0] = oss.str();
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (expecting nil).";
+                errStr->assign(msg.c_str());
             }
             return (false);
         }
@@ -2331,9 +2354,10 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
             retVal = luaWrap_lua_isbuffer(L, index);
             if ((!retVal) && (errStr != nullptr))
             {
-                std::ostringstream oss;
-                oss << "argument " << index << " is not a string/buffer.";
-                errStr[0] = oss.str();
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (expecting a string/buffer).";
+                errStr->assign(msg.c_str());
             }
         }
         return retVal;
@@ -2344,9 +2368,10 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
         {
             if (errStr != nullptr)
             {
-                std::ostringstream oss;
-                oss << "argument " << index << " is not a table.";
-                errStr[0] = oss.str();
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (expecting a table).";
+                errStr->assign(msg.c_str());
             }
             return (false); // error
         }
@@ -2358,9 +2383,10 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
         {
             if (errStr != nullptr)
             {
-                std::ostringstream oss;
-                oss << "argument " << index << " is not a function.";
-                errStr[0] = oss.str();
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (expecting a function).";
+                errStr->assign(msg.c_str());
             }
             return (false); // error
         }
@@ -2372,15 +2398,116 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
         {
             if (errStr != nullptr)
             {
-                std::ostringstream oss;
-                oss << "argument " << index << " is not userdata.";
-                errStr[0] = oss.str();
+                std::string msg("bad argument #");
+                msg += std::to_string(index);
+                msg += " (expecting a user data).";
+                errStr->assign(msg.c_str());
             }
             return (false); // error
         }
         return (true);
     }
     return (false);
+}
+
+int fetchBoolArg(luaWrap_lua_State* L, int index, bool defaultValue /*= false*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    bool retVal = defaultValue;
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+        retVal = luaWrap_lua_toboolean(L, index);
+    return retVal;
+}
+
+int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue /*= -1*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    int retVal = defaultValue;
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+        retVal = luaWrap_lua_tointeger(L, index);
+    return retVal;
+}
+
+double fetchDoubleArg(luaWrap_lua_State* L, int index, double defaultValue /*= 0.0*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    double retVal = defaultValue;
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+        retVal = luaWrap_lua_tonumber(L, index);
+    return retVal;
+}
+
+std::string fetchTextArg(luaWrap_lua_State* L, int index, const char* txt /*= ""*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    std::string retVal = txt;
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+        retVal = luaWrap_lua_tostring(L, index);
+    return retVal;
+}
+
+std::string fetchBufferArg(luaWrap_lua_State* L, int index)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    std::string retVal;
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+    {
+        size_t s;
+        const char* b = luaWrap_lua_tobuffer(L, index, &s);
+        retVal.assign(b, b + s);
+    }
+    return retVal;
+}
+
+void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::initializer_list<int> arr /*= {}*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    outArr.clear();
+    if (arr.size() != 0)
+        for (int x : arr) outArr.push_back(x);
+    int argCnt = luaWrap_lua_gettop(L);
+    if ( (argCnt >= index) && (luaWrap_lua_isnonbuffertable(L, index)) )
+    {
+        int cnt = int(luaWrap_lua_rawlen(L, index));
+        outArr.resize(cnt);
+        getIntsFromTable(L, index, cnt, outArr.data());
+    }
+}
+
+void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::initializer_list<float> arr /*= {}*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    outArr.clear();
+    if (arr.size() != 0)
+        for (float x : arr) outArr.push_back(x);
+    int argCnt = luaWrap_lua_gettop(L);
+    if ( (argCnt >= index) && (luaWrap_lua_isnonbuffertable(L, index)) )
+    {
+        int cnt = int(luaWrap_lua_rawlen(L, index));
+        outArr.resize(cnt);
+        getFloatsFromTable(L, index, cnt, outArr.data());
+    }
+}
+
+void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::initializer_list<double> arr /*= {}*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    outArr.clear();
+    if (arr.size() != 0)
+        for (double x : arr) outArr.push_back(x);
+    int argCnt = luaWrap_lua_gettop(L);
+    if ( (argCnt >= index) && (luaWrap_lua_isnonbuffertable(L, index)) )
+    {
+        int cnt = int(luaWrap_lua_rawlen(L, index));
+        outArr.resize(cnt);
+        getDoublesFromTable(L, index, cnt, outArr.data());
+    }
+}
+
+bool isArgNilOrMissing(luaWrap_lua_State* L, int index)
+{
+    bool retVal = true;
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+        retVal = luaWrap_lua_isnil(L, index);
+    return retVal;
 }
 
 bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int type1, int type1Cnt_zeroIfNotTable, int type2,
@@ -2395,45 +2522,37 @@ bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int type1, i
     // if typeXCnt_zeroIfNotTable is =-1 then we are expecting a table that can have any number of elements
     bool retVal = true;
     int inArgs[11] = {type1, type2, type3, type4, type5, type6, type7, type8, type9, type10, type11};
-    int inArgsCnt_zeroIfNotTable[11] = {type1Cnt_zeroIfNotTable, type2Cnt_zeroIfNotTable, type3Cnt_zeroIfNotTable,
-                                        type4Cnt_zeroIfNotTable, type5Cnt_zeroIfNotTable, type6Cnt_zeroIfNotTable,
-                                        type7Cnt_zeroIfNotTable, type8Cnt_zeroIfNotTable, type9Cnt_zeroIfNotTable,
-                                        type10Cnt_zeroIfNotTable, type11Cnt_zeroIfNotTable};
-    int totArgs = 0;
-    int totReqArgs = 0;
-    bool opt = false;
+    int inArgsCnt_zeroIfNotTable[11] = {type1Cnt_zeroIfNotTable, type2Cnt_zeroIfNotTable, type3Cnt_zeroIfNotTable, type4Cnt_zeroIfNotTable, type5Cnt_zeroIfNotTable, type6Cnt_zeroIfNotTable, type7Cnt_zeroIfNotTable, type8Cnt_zeroIfNotTable, type9Cnt_zeroIfNotTable, type10Cnt_zeroIfNotTable, type11Cnt_zeroIfNotTable};
+    int argCnt = luaWrap_lua_gettop(L);
     for (int i = 0; i < 11; i++)
     {
-        if (inArgs[i] == lua_arg_empty)
+        int arg = inArgs[i];
+        bool optional = ((arg & lua_arg_optional) != 0);
+        if (optional)
+            arg -= lua_arg_optional;
+        int argItemCnt = inArgsCnt_zeroIfNotTable[i];
+        if (arg == lua_arg_empty)
             break;
-        if ((inArgs[i] & lua_arg_optional) != 0)
+        if (i >= argCnt)
         {
-            inArgs[i] -= lua_arg_optional;
-            opt = true;
+            if (!optional)
+            { // not enough args
+                if (errStr != nullptr)
+                    errStr->assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
+                retVal = false;
+            }
+            break;
         }
-        if (!opt)
-            totReqArgs++;
-        totArgs++;
-    }
-    int actualArgs = luaWrap_lua_gettop(L);
-    if (actualArgs >= totReqArgs)
-    { // enough args
-        for (int i = 0; i < std::min<int>(actualArgs, totArgs); i++)
+        else
         {
-            if (checkOneGeneralInputArgument(L, i + 1, inArgs[i], inArgsCnt_zeroIfNotTable[i], false, false, errStr) != 2)
+            if (checkOneGeneralInputArgument(L, i + 1, arg, argItemCnt, optional, optional, errStr) < 1)
             {
                 retVal = false;
                 break;
             }
         }
     }
-    else
-    { // not enough args
-        if (errStr != nullptr)
-            errStr->assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
-        retVal = false;
-    }
-    return (retVal);
+    return retVal;
 }
 
 bool doesEntityExist(std::string* errStr, int identifier)
@@ -5948,7 +6067,7 @@ int _simSetEventFilters(luaWrap_lua_State* L)
         it->setEventFilters(filters);
     }
     else
-        errorString = SIM_ERROR_INVALID_ARGUMENT;
+        errorString = "bad argument #1 (expecting a table)";
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -6422,7 +6541,7 @@ int _simSetObjectSel(luaWrap_lua_State* L)
             }
         }
         else
-            errorString = SIM_ERROR_INVALID_ARGUMENT;
+            errorString = "bad argument #1 (expecting a table)";
     }
     else
         errorString = SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
@@ -7138,7 +7257,7 @@ int _simSaveImage(luaWrap_lua_State* L)
                         errorString = SIM_ERROR_OPERATION_FAILED;
                 }
                 else
-                    errorString = SIM_ERROR_INVALID_ARGUMENT;
+                    errorString = "bad argument #4 (expecting a valid filename)";
             }
             else
                 errorString = SIM_ERROR_INVALID_RESOLUTION;
@@ -9307,88 +9426,22 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
     LUA_START("sim.addDrawingObject");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0,
-                            lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 3, lua_arg_number | lua_arg_optional, 3, lua_arg_number | lua_arg_optional, 3))
     {
-        int objType = luaToInt(L, 1);
-        double size = luaToDouble(L, 2);
-        double duplicateTolerance = luaToDouble(L, 3);
-        int parentID = luaToInt(L, 4);
-        int maxItemCount = luaToInt(L, 5);
-        float* ambient = nullptr;
-        float* specular = nullptr;
-        float* emission = nullptr;
-        int res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 3, true, true, &errorString);
-        int okToGo = (res != -1);
-        if (okToGo)
-        {
-            float ambientC[3];
-            float specularC[3];
-            float emissionC[6];
-            if (res > 0)
-            {
-                if (res == 2)
-                {
-                    getFloatsFromTable(L, 6, 3, ambientC);
-                    ambient = ambientC;
-                }
-                res = checkOneGeneralInputArgument(L, 7, lua_arg_number, 3, true, true, &errorString);
-                okToGo = (res != -1);
-                if (okToGo)
-                {
-                    if (res > 0)
-                    {
-                        res = checkOneGeneralInputArgument(L, 8, lua_arg_number, 3, true, true, &errorString);
-                        okToGo = (res != -1);
-                        if (okToGo)
-                        {
-                            if (res > 0)
-                            {
-                                if (res == 2)
-                                {
-                                    getFloatsFromTable(L, 8, 3, specularC);
-                                    specular = specularC;
-                                }
-                                res = checkOneGeneralInputArgument(L, 9, lua_arg_number, 3, true, true, &errorString);
-                                okToGo = (res != -1);
-                                if (okToGo)
-                                {
-                                    if (res > 0)
-                                    {
-                                        if (res == 2)
-                                        {
-                                            // following 3 are default aux colors:
-                                            emissionC[3] = 0.5;
-                                            emissionC[4] = 0.0;
-                                            emissionC[5] = 0.0;
-                                            if (int(luaWrap_lua_rawlen(L, 9)) < 6)
-                                                getFloatsFromTable(L, 9, 3, emissionC);
-                                            else
-                                            {
-                                                objType |= sim_drawing_auxchannelcolor1;
-                                                getFloatsFromTable(L, 9, 6, emissionC);
-                                            }
-                                            emission = emissionC;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (okToGo)
-            {
-                setCurrentScriptInfo_cSide(
-                    CScriptObject::getScriptHandleFromInterpreterState_lua(L),
-                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
-                        L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment,
-                             // or for autom. object deletion when script ends)
-                retVal = CALL_C_API(simAddDrawingObject, objType, size, duplicateTolerance, parentID, maxItemCount,
-                                                      ambient, nullptr, specular, emission);
-                setCurrentScriptInfo_cSide(-1, -1);
-            }
-        }
+        int objType = fetchIntArg(L, 1);
+        double size = fetchDoubleArg(L, 2, 1.0);
+        double duplicateTolerance = fetchDoubleArg(L, 3, 0.0);
+        int parentID = fetchIntArg(L, 4, -1);
+        int maxItemCount = fetchIntArg(L, 5, 1000);
+        std::vector<float> ambient;
+        fetchFloatArrayArg(L, 6, ambient, {0.0f, 0.0f, 0.0f});
+        std::vector<float> specular;
+        fetchFloatArrayArg(L, 6, specular, {0.25f, 0.25f, 0.25f});
+        std::vector<float> emission;
+        fetchFloatArrayArg(L, 6, emission, {0.0f, 0.0f, 0.0f});
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L), CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal = CALL_C_API(simAddDrawingObject, objType, size, duplicateTolerance, parentID, maxItemCount, ambient.data(), nullptr, specular.data(), emission.data());
+        setCurrentScriptInfo_cSide(-1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -9438,31 +9491,28 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         if (it != nullptr)
         {
             d = size_t(it->getExpectedFloatsPerItem());
-            if ((handleFlags & (sim_handleflag_addmultiple | sim_handleflag_codedstring)) ==
-                (sim_handleflag_addmultiple | sim_handleflag_codedstring))
+            if ((handleFlags & (sim_handleflag_addmultiple | sim_handleflag_codedstring)) == (sim_handleflag_addmultiple | sim_handleflag_codedstring))
             { // data provided as coded string
-                int res = checkOneGeneralInputArgument(L, 2, lua_arg_string, 0, true, true, &errorString);
-                if (res == 2)
-                { // append data from string
-                    size_t dataLength;
-                    const char* data = luaWrap_lua_tobuffer(L, 2, &dataLength);
-                    size_t itemCnt = (dataLength / sizeof(float)) / d;
-                    if (itemCnt > 0)
+                if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_buffer | lua_arg_optional, 0))
+                {
+                    if (!isArgNilOrMissing(L, 2))
                     {
-                        std::vector<double> vertices;
-                        vertices.resize(itemCnt * d);
-                        for (size_t i = 0; i < itemCnt * d; i++)
-                            vertices[i] = double(((float*)data)[i]);
-                        it->addItems(vertices.data(), itemCnt);
-                        retVal = 1;
+                        std::string data = fetchBufferArg(L, 2);
+                        size_t itemCnt = (data.size() / sizeof(float)) / d;
+                        if (itemCnt > 0)
+                        {
+                            std::vector<double> vertices;
+                            vertices.resize(itemCnt * d);
+                            for (size_t i = 0; i < itemCnt * d; i++)
+                                vertices[i] = double(((float*)data.data())[i]);
+                            it->addItems(vertices.data(), itemCnt);
+                            retVal = 1;
+                        }
+                        else
+                            errorString = "bad argument #2 (invalid buffer size)";
                     }
                     else
-                        errorString = SIM_ERROR_INVALID_BUFFER_SIZE;
-                }
-                else
-                { // old. back compatibility: clear the drawing object
-                    if (res >= 0)
-                    {
+                    { // old. back compatibility: clear the drawing object
                         if (it->addItem(nullptr))
                             retVal = 1;
                         else
@@ -9472,47 +9522,41 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
             }
             else
             { // data provided as table
-                int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, -1, true, true, &errorString);
-                if (res == 2)
+                if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_table | lua_arg_optional, 0))
                 {
-                    if (int(d) <= luaWrap_lua_rawlen(L, 2))
-                    { // append data from table
+                    if (!isArgNilOrMissing(L, 2))
+                    {
                         std::vector<double> vertices;
-                        if ((((handleFlags & sim_handleflag_setmultiple) != 0) ||
-                             ((handleFlags & sim_handleflag_addmultiple) != 0)))
-                        { // append multiple
-                            size_t itemCnt = luaWrap_lua_rawlen(L, 2) / d;
-                            vertices.resize(itemCnt * d);
-                            getDoublesFromTable(L, 2, int(itemCnt * d), &vertices[0]);
-                            if ((handleFlags & sim_handleflag_addmultiple) != 0)
-                                it->addItems(&vertices[0], itemCnt);
+                        fetchDoubleArrayArg(L, 2, vertices);
+                        if (int(d) <= vertices.size())
+                        { // append data from table
+                            if ((((handleFlags & sim_handleflag_setmultiple) != 0) || ((handleFlags & sim_handleflag_addmultiple) != 0)))
+                            { // append multiple
+                                size_t itemCnt = vertices.size() / d;
+                                if ((handleFlags & sim_handleflag_addmultiple) != 0)
+                                    it->addItems(&vertices[0], itemCnt);
+                                else
+                                    it->setItems(&vertices[0], itemCnt); // old. Previously setmultiple, which is now deprecated
+                                retVal = 1;
+                            }
                             else
-                                it->setItems(&vertices[0],
-                                             itemCnt); // old. Previously setmultiple, which is now deprecated
-                            retVal = 1;
+                            { // append single
+                                if (it->addItem(vertices.data()))
+                                    retVal = 1;
+                                else
+                                    retVal = 0;
+                            }
                         }
                         else
-                        { // append single
-                            vertices.resize(d);
-                            getDoublesFromTable(L, 2, int(d), &vertices[0]);
-                            if (it->addItem(vertices.data()))
+                        { // empty table: we clear the drawing object
+                            if (it->addItem(nullptr))
                                 retVal = 1;
                             else
                                 retVal = 0;
                         }
                     }
                     else
-                    { // empty table: we clear the drawing object
-                        if (it->addItem(nullptr))
-                            retVal = 1;
-                        else
-                            retVal = 0;
-                    }
-                }
-                else
-                { // old. Back compatibility: clear the drawing object
-                    if (res >= 0)
-                    {
+                    { // old. Back compatibility: clear the drawing object
                         if (it->addItem(nullptr))
                             retVal = 1;
                         else
@@ -10271,74 +10315,32 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
     LUA_START("sim.auxiliaryConsoleOpen");
 
     int retVal = -1; // Error
-    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 2, lua_arg_integer | lua_arg_optional, 2, lua_arg_number | lua_arg_optional, 3, lua_arg_number | lua_arg_optional, 3))
     {
-        int mode = luaToInt(L, 3);
+        std::string title = fetchTextArg(L, 1, "");
+        int maxLines = fetchIntArg(L, 2, 50);
+        int mode = fetchIntArg(L, 3, 0);
+        std::vector<int> pos;
+        fetchIntArrayArg(L, 4, pos, {100, 100});
+        std::vector<int> size;
+        fetchIntArrayArg(L, 5, size, {640, 200});
+        std::vector<float> textCol;
+        fetchFloatArrayArg(L, 6, textCol, {0.0, 0.0, 0.0});
+        std::vector<float> bgCol;
+        fetchFloatArrayArg(L, 7, bgCol, {1.0, 1.0, 1.0});
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-        if ((itScrObj->getScriptType() == sim_scripttype_main) ||
-            (itScrObj->getScriptType() == sim_scripttype_simulation))
-        { // Add-ons and customization scripts do not have this restriction
-            mode |= 1;
-        }
-        if ((itScrObj->getScriptType() != sim_scripttype_sandbox) &&
-            (itScrObj->getScriptType() != sim_scripttype_addon))
+        if ((itScrObj->getScriptType() == sim_scripttype_main) || (itScrObj->getScriptType() == sim_scripttype_simulation))
+            mode |= 1; // Add-ons and customization scripts do not have this restriction
+        if ((itScrObj->getScriptType() != sim_scripttype_sandbox) && (itScrObj->getScriptType() != sim_scripttype_addon))
         { // Add-ons and sandbox scripts do not have this restriction
             mode |= 16;
             mode -= 16;
         }
-        int* p = nullptr;
-        int* s = nullptr;
-        float* tc = nullptr;
-        float* bc = nullptr;
-        int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 2, true, true, &errorString);
-        if (res >= 0)
-        {
-            int pp[2] = {0, 0};
-            if (res == 2)
-            {
-                getIntsFromTable(L, 4, 2, pp);
-                p = pp;
-            }
-            res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 2, true, true, &errorString);
-            if (res >= 0)
-            {
-                int ss[2] = {0, 0};
-                if (res == 2)
-                {
-                    getIntsFromTable(L, 5, 2, ss);
-                    s = ss;
-                }
-                res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 3, true, true, &errorString);
-                if (res >= 0)
-                {
-                    float tc_[3] = {0.0, 0.0, 0.0};
-                    if (res == 2)
-                    {
-                        getFloatsFromTable(L, 6, 3, tc_);
-                        tc = tc_;
-                    }
-                    res = checkOneGeneralInputArgument(L, 7, lua_arg_number, 3, true, true, &errorString);
-                    if (res >= 0)
-                    {
-                        float bc_[3] = {0.0, 0.0, 0.0};
-                        if (res == 2)
-                        {
-                            getFloatsFromTable(L, 7, 3, bc_);
-                            bc = bc_;
-                        }
-                        std::string name(luaWrap_lua_tostring(L, 1));
-                        setCurrentScriptInfo_cSide(
-                            CScriptObject::getScriptHandleFromInterpreterState_lua(L),
-                            -1); // for transmitting to the master function additional info (e.g.for autom. name
-                                 // adjustment, or for autom. object deletion when script ends)
-                        retVal = CALL_C_API(simAuxiliaryConsoleOpen, luaWrap_lua_tostring(L, 1), luaToInt(L, 2), mode, p,
-                                                                  s, tc, bc);
-                        setCurrentScriptInfo_cSide(-1, -1);
-                    }
-                }
-            }
-        }
+        std::string name(luaWrap_lua_tostring(L, 1));
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L), -1); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal = CALL_C_API(simAuxiliaryConsoleOpen, title.c_str(), maxLines, mode, pos.data(), size.data(), textCol.data(), bgCol.data());
+        setCurrentScriptInfo_cSide(-1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10380,13 +10382,11 @@ int _simAuxiliaryConsolePrint(luaWrap_lua_State* L)
     LUA_START("sim.auxiliaryConsolePrint");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string | lua_arg_optional, 0))
     {
-        int res = checkOneGeneralInputArgument(L, 2, lua_arg_string, 0, false, true, &errorString);
-        if (res == 1)
-            retVal = CALL_C_API(simAuxiliaryConsolePrint, luaToInt(L, 1), nullptr);
-        if (res == 2)
-            retVal = CALL_C_API(simAuxiliaryConsolePrint, luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
+        int h = fetchIntArg(L, 1);
+        std::string txt = fetchTextArg(L, 2, "");
+        retVal = CALL_C_API(simAuxiliaryConsolePrint, h, txt.c_str());
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -12004,7 +12004,7 @@ int _simReadTexture(luaWrap_lua_State* L)
                                 }
                             }
                             else
-                                errorString = SIM_ERROR_INVALID_ARGUMENTS;
+                                errorString = "bad argument combination (arguments #3, #4, #5 and #6)";
                         }
                         else
                             errorString = SIM_ERROR_TEXTURE_INEXISTANT;
@@ -12099,7 +12099,7 @@ int _simWriteTexture(luaWrap_lua_State* L)
                                                                               sizeX, sizeY, interpol);
                                     }
                                     else
-                                        errorString = SIM_ERROR_INVALID_ARGUMENTS;
+                                        errorString = "bad argument #6 and/or #7";
                                 }
                                 else
                                     errorString = SIM_ERROR_TEXTURE_INEXISTANT;
@@ -13512,14 +13512,12 @@ int _simSetReferencedHandles(luaWrap_lua_State* L)
                     getIntsFromTable(L, 2, cnt, &handles[0]);
                     retVal = CALL_C_API(simSetReferencedHandles, objHandle, cnt, &handles[0], tag.c_str(), nullptr);
                 }
-                else
-                    errorString = SIM_ERROR_INVALID_ARGUMENT;
             }
             else
                 retVal = CALL_C_API(simSetReferencedHandles, objHandle, 0, nullptr, tag.c_str(), nullptr);
         }
         else
-            errorString = SIM_ERROR_INVALID_ARGUMENT;
+            errorString = "bad argument #2 (expecting a table)";
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
