@@ -10616,10 +10616,10 @@ int _simCreateShape(luaWrap_lua_State* L)
     LUA_START("sim.createShape");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_number, 0))
     {
-        int options = luaToInt(L, 1);
-        double shadingAngle = luaToDouble(L, 2);
+        int options = fetchIntArg(L, 1);
+        double shadingAngle = fetchDoubleArg(L, 2);
 
         int vl = 2;
         int il = 2;
@@ -10972,26 +10972,17 @@ int _simCreateVisionSensor(luaWrap_lua_State* L)
     LUA_START("sim.createVisionSensor");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 4, lua_arg_number, 11))
+    if (checkInputArguments(L, &errorString, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 4, lua_arg_number | lua_arg_optional, 11))
     {
-        int options = luaToInt(L, 1);
-        int intParams[4];
-        double floatParams[11];
-        getIntsFromTable(L, 2, 4, intParams);
-        getDoublesFromTable(L, 3, 11, floatParams);
-
-        double* color = nullptr;
-        double c[48];
-        int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 48, true, true, &errorString);
-        if (res >= 0)
-        {
-            if (res == 2)
-            {
-                getDoublesFromTable(L, 4, 48, c);
-                color = c;
-            }
-            retVal = CALL_C_API(simCreateVisionSensor, options, intParams, floatParams, color);
-        }
+        int options = fetchIntArg(L, 1, 0);
+        std::vector<int> intParams;
+        fetchIntArrayArg(L, 2, intParams, {256, 256, 0, 0});
+        std::vector<double> doubleParams;
+        std::vector<double> doubleParamsDef = {0.01, 10.0, 0.1, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        if (options & 2)
+            doubleParamsDef[2] = 60.0 * degToRad; // perspective. View angle
+        fetchDoubleArrayArg(L, 2, doubleParams, doubleParamsDef);
+        retVal = CALL_C_API(simCreateVisionSensor, options, intParams.data(), doubleParams.data(), nullptr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -12100,82 +12091,27 @@ int _simCreateTexture(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.createTexture");
 
-    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 2, lua_arg_number | lua_arg_optional, 2, lua_arg_number | lua_arg_optional, 3, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 2))
     {
-        std::string fileName(luaWrap_lua_tostring(L, 1));
-        int options = luaToInt(L, 2);
-        double* planeSizesP = nullptr;
-        double planeSizes[2];
-        double* scalingUVP = nullptr;
-        double scalingUV[2];
-        double* xy_gP = nullptr;
-        double xy_g[3];
-        int resolution[2] = {0, 0}; // means: just any!
-
-        // Now check the optional arguments:
-        int res;
-        res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 2, true, true, &errorString);
-        if (res >= 0)
+        std::string fileName(fetchTextArg(L, 1));
+        int options = fetchIntArg(L, 2, 0);
+        std::vector<double> planeSizes;
+        fetchDoubleArrayArg(L, 3, planeSizes, {0.1, 0.1});
+        std::vector<double> scalingUV;
+        fetchDoubleArrayArg(L, 4, scalingUV, planeSizes);
+        std::vector<double> xy_g;
+        fetchDoubleArrayArg(L, 5, xy_g, {0.0, 0.0, 0.0});
+        int fixedResolution = fetchIntArg(L, 6, 0);
+        std::vector<int> resolution;
+        fetchIntArrayArg(L, 7, resolution, {512, 512});
+        int textureId;
+        int shapeHandle = CALL_C_API(simCreateTexture, fileName.c_str(), options, planeSizes.data(), scalingUV.data(), xy_g.data(), fixedResolution, &textureId, resolution.data(), nullptr);
+        if (shapeHandle >= 0)
         {
-            if (res == 2)
-            {
-                getDoublesFromTable(L, 3, 2, planeSizes);
-                planeSizesP = planeSizes;
-            }
-
-            res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 2, true, true, &errorString);
-            if (res >= 0)
-            {
-                if (res == 2)
-                {
-                    getDoublesFromTable(L, 4, 2, scalingUV);
-                    scalingUVP = scalingUV;
-                }
-
-                res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 3, true, true, &errorString);
-                if (res >= 0)
-                {
-                    if (res == 2)
-                    {
-                        getDoublesFromTable(L, 5, 3, xy_g);
-                        xy_gP = xy_g;
-                    }
-
-                    res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 0, true, true, &errorString);
-                    if (res >= 0)
-                    {
-                        int maxTextureSize = 0; // just the original
-                        if (res == 2)
-                            maxTextureSize = luaToInt(L, 6);
-
-                        res = checkOneGeneralInputArgument(L, 7, lua_arg_number, 2, fileName.length() != 0,
-                                                           fileName.length() != 0, &errorString);
-                        if (res >= 0)
-                        {
-                            if (res == 2)
-                                getIntsFromTable(L, 7, 2, resolution);
-
-                            if (fileName.length() == 0)
-                            { // we are not loading a texture, but creating it!
-                                resolution[0] = tt::getLimitedInt(1, 4096, resolution[0]);
-                                resolution[1] = tt::getLimitedInt(1, 4096, resolution[1]);
-                            }
-
-                            int textureId;
-                            int shapeHandle =
-                                CALL_C_API(simCreateTexture, fileName.c_str(), options, planeSizesP, scalingUVP, xy_gP,
-                                                          maxTextureSize, &textureId, resolution, nullptr);
-                            if (shapeHandle >= 0)
-                            {
-                                luaWrap_lua_pushinteger(L, shapeHandle);
-                                luaWrap_lua_pushinteger(L, textureId);
-                                pushIntTableOntoStack(L, 2, resolution);
-                                LUA_END(3);
-                            }
-                        }
-                    }
-                }
-            }
+            luaWrap_lua_pushinteger(L, shapeHandle);
+            luaWrap_lua_pushinteger(L, textureId);
+            pushIntTableOntoStack(L, 2, resolution.data());
+            LUA_END(3);
         }
     }
 

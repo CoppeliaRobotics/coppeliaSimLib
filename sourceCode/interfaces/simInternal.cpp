@@ -8964,8 +8964,7 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                 {
                     C3Vector s(0.1, 0.1, 0.00001);
                     if (planeSizes != nullptr)
-                        s = C3Vector(tt::getLimitedFloat(0.00001, 100000.0, planeSizes[0]),
-                                     tt::getLimitedFloat(0.00001, 100000.0, planeSizes[1]), 0.00001);
+                        s = C3Vector(tt::getLimitedFloat(0.00001, 100000.0, planeSizes[0]), tt::getLimitedFloat(0.00001, 100000.0, planeSizes[1]), 0.00001);
                     CShape* shape = CAddOperations::addPrimitiveShape(sim_primitiveshape_plane, s);
 
                     C7Vector identity;
