@@ -2461,6 +2461,14 @@ std::string fetchBufferArg(luaWrap_lua_State* L, int index)
 
 void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::initializer_list<int> arr /*= {}*/)
 { // make sure you have verified for correct args with checkInputArguments previously
+    std::vector<int> def;
+    if (arr.size() != 0)
+        for (int x : arr) def.push_back(x);
+    fetchIntArrayArg(L, index, outArr, def);
+}
+
+void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::vector<int>& arr)
+{ // make sure you have verified for correct args with checkInputArguments previously
     outArr.clear();
     if (arr.size() != 0)
         for (int x : arr) outArr.push_back(x);
@@ -2475,6 +2483,14 @@ void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr,
 
 void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::initializer_list<float> arr /*= {}*/)
 { // make sure you have verified for correct args with checkInputArguments previously
+    std::vector<float> def;
+    if (arr.size() != 0)
+        for (float x : arr) def.push_back(x);
+    fetchFloatArrayArg(L, index, outArr, def);
+}
+
+void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::vector<float>& arr)
+{ // make sure you have verified for correct args with checkInputArguments previously
     outArr.clear();
     if (arr.size() != 0)
         for (float x : arr) outArr.push_back(x);
@@ -2488,6 +2504,14 @@ void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& out
 }
 
 void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::initializer_list<double> arr /*= {}*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    std::vector<double> def;
+    if (arr.size() != 0)
+        for (double x : arr) def.push_back(x);
+    fetchDoubleArrayArg(L, index, outArr, def);
+}
+
+void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::vector<double>& arr)
 { // make sure you have verified for correct args with checkInputArguments previously
     outArr.clear();
     if (arr.size() != 0)
@@ -7016,23 +7040,15 @@ int _simCopyPasteObjects(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.copyPasteObjects");
 
-    if (checkInputArguments(L, &errorString, lua_arg_integer, 1))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 1, lua_arg_integer | lua_arg_optional,0))
     {
-        int objCnt = (int)luaWrap_lua_rawlen(L, 1);
-        int options = 0;
-        int res = checkOneGeneralInputArgument(L, 2, lua_arg_integer, 0, true, false, &errorString);
-        if (res >= 0)
+        std::vector<int> objectHandles;
+        fetchIntArrayArg(L, 1, objectHandles);
+        int options = fetchIntArg(L, 2, 0);
+        if (CALL_C_API(simCopyPasteObjects, &objectHandles[0], objectHandles.size(), options) > 0)
         {
-            if (res == 2)
-                options = luaToInt(L, 2);
-            std::vector<int> objectHandles;
-            objectHandles.resize(objCnt, 0);
-            getIntsFromTable(L, 1, objCnt, &objectHandles[0]);
-            if (CALL_C_API(simCopyPasteObjects, &objectHandles[0], objCnt, options) > 0)
-            {
-                pushIntTableOntoStack(L, objCnt, &objectHandles[0]);
-                LUA_END(1);
-            }
+            pushIntTableOntoStack(L, objectHandles.size(), &objectHandles[0]);
+            LUA_END(1);
         }
     }
 
@@ -10790,45 +10806,14 @@ int _simCreateJoint(luaWrap_lua_State* L)
     LUA_START("sim.createJoint");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 2))
     {
-        int jointType = luaToInt(L, 1);
-        int jointMode = luaToInt(L, 2);
-        int options = luaToInt(L, 3);
-        double* sizes = nullptr;
-        double* colorA = nullptr;
-        double* colorB = nullptr;
-        double s[2];
-        double cA[12];
-        double cB[12];
-        int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 2, true, true, &errorString);
-        if (res >= 0)
-        {
-            if (res == 2)
-            {
-                getDoublesFromTable(L, 4, 2, s);
-                sizes = s;
-            }
-            res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 12, true, true, &errorString);
-            if (res >= 0)
-            {
-                if (res == 2)
-                {
-                    getDoublesFromTable(L, 5, 12, cA);
-                    colorA = cA;
-                }
-                res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 12, true, true, &errorString);
-                if (res >= 0)
-                {
-                    if (res == 2)
-                    {
-                        getDoublesFromTable(L, 6, 12, cB);
-                        colorB = cB;
-                    }
-                    retVal = CALL_C_API(simCreateJoint, jointType, jointMode, options, sizes, colorA, colorB);
-                }
-            }
-        }
+        int jointType = fetchIntArg(L, 1);
+        int jointMode = fetchIntArg(L, 2, sim_jointmode_dynamic);
+        int options = fetchIntArg(L, 3, 0);
+        std::vector<double> sizes;
+        fetchDoubleArrayArg(L, 4, sizes, {0.15, 0.02});
+        retVal = CALL_C_API(simCreateJoint, jointType, jointMode, options, sizes.data(), nullptr, nullptr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10842,21 +10827,16 @@ int _simCreateDummy(luaWrap_lua_State* L)
     LUA_START("sim.createDummy");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 3))
     {
-        double size = luaToDouble(L, 1);
-        float* color = nullptr;
-        float c[12] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.25, 0.25, 0.0, 0.0, 0.0};
-        int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 3, true, true, &errorString);
-        if (res >= 0)
-        {
-            if (res == 2)
-            {
-                getFloatsFromTable(L, 2, 3, c);
-                color = c;
-            }
-            retVal = CALL_C_API(simCreateDummy, size, color);
-        }
+        double size = fetchDoubleArg(L, 1, 0.005);
+        std::vector<float> col;
+        fetchFloatArrayArg(L, 2, col, {1.0f, 0.8f, 0.55f});
+        float c[12] = {1.0f, 0.8f, 0.55f, 0.0f, 0.0f, 0.0f, 0.25f, 0.25f, 0.25f, 0.0f, 0.0f, 0.0f};
+        c[0] = col[0];
+        c[1] = col[1];
+        c[2] = col[2];
+        retVal = CALL_C_API(simCreateDummy, size, c);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10903,29 +10883,61 @@ int _simCreateProximitySensor(luaWrap_lua_State* L)
     LUA_START("sim.createProximitySensor");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 8,
-                            lua_arg_number, 15))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 8, lua_arg_number | lua_arg_optional, 15))
     {
-        int sensorType = luaToInt(L, 1);
-        int subType = luaToInt(L, 2);
-        int options = luaToInt(L, 3);
-        int intParams[8];
-        double floatParams[15];
-        getIntsFromTable(L, 4, 8, intParams);
-        getDoublesFromTable(L, 5, 15, floatParams);
-
-        double* color = nullptr;
-        double c[48];
-        int res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 48, true, true, &errorString);
-        if (res >= 0)
+        int sensorType = fetchIntArg(L, 1);
+        int subType = fetchIntArg(L, 2, 16);
+        int options = fetchIntArg(L, 3, 0);
+        std::vector<int> intParamsDef = {32, 32, 1, 16, 1, 1, 0, 0};
+        std::vector<double> doubleParamsDef = {0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        if (sensorType == sim_proximitysensor_cylinder)
         {
-            if (res == 2)
-            {
-                getDoublesFromTable(L, 6, 48, c);
-                color = c;
-            }
-            retVal = CALL_C_API(simCreateProximitySensor, sensorType, subType, options, intParams, floatParams, color);
+            doubleParamsDef[0] = 0.1;
+            doubleParamsDef[1] = 0.2;
+            doubleParamsDef[7] = 0.1;
+            doubleParamsDef[8] = 0.2;
+            intParamsDef[0] = 32;
         }
+        if (sensorType == sim_proximitysensor_disc)
+        {
+            doubleParamsDef[0] = 0.0;
+            doubleParamsDef[1] = 0.2;
+            doubleParamsDef[7] = 0.1;
+            doubleParamsDef[9] = piValD2;
+            doubleParamsDef[3] = 0.05;
+            doubleParamsDef[5] = 0.1;
+            intParamsDef[0] = 16;
+            intParamsDef[1] = 32;
+        }
+        if (sensorType == sim_proximitysensor_pyramid)
+        {
+            doubleParamsDef[0] = 0.1;
+            doubleParamsDef[1] = 0.2;
+            doubleParamsDef[2] = 0.2;
+            doubleParamsDef[3] = 0.1;
+            doubleParamsDef[4] = 0.4;
+            doubleParamsDef[5] = 0.2;
+        }
+        if (sensorType == sim_proximitysensor_ray)
+        {
+            doubleParamsDef[0] = 0.1;
+            doubleParamsDef[1] = 0.4;
+        }
+        if (sensorType == sim_proximitysensor_cone)
+        {
+            doubleParamsDef[0] = 0.0;
+            doubleParamsDef[7] = 0.1;
+            doubleParamsDef[1] = 0.3 -  doubleParamsDef[7];
+            doubleParamsDef[9] = piValD2;
+            intParamsDef[0] = 32;
+            intParamsDef[2] = 1;
+            intParamsDef[3] = 16;
+        }
+        std::vector<int> intParams;
+        fetchIntArrayArg(L, 4, intParams, intParamsDef);
+        std::vector<double> doubleParams;
+        fetchDoubleArrayArg(L, 5, doubleParams, doubleParamsDef);
+        retVal = CALL_C_API(simCreateProximitySensor, sensorType, subType, options, intParams.data(), doubleParams.data(), nullptr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -10939,26 +10951,14 @@ int _simCreateForceSensor(luaWrap_lua_State* L)
     LUA_START("sim.createForceSensor");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 5, lua_arg_number, 5))
+    if (checkInputArguments(L, &errorString, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 5, lua_arg_number | lua_arg_optional, 5))
     {
-        int options = luaToInt(L, 1);
-        int intParams[5];
-        double floatParams[5];
-        getIntsFromTable(L, 2, 5, intParams);
-        getDoublesFromTable(L, 3, 5, floatParams);
-
-        double* color = nullptr;
-        double c[24];
-        int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 24, true, true, &errorString);
-        if (res >= 0)
-        {
-            if (res == 2)
-            {
-                getDoublesFromTable(L, 4, 24, c);
-                color = c;
-            }
-            retVal = CALL_C_API(simCreateForceSensor, options, intParams, floatParams, color);
-        }
+        int options = fetchIntArg(L, 1, 0);
+        std::vector<int> intArgs;
+        fetchIntArrayArg(L, 2, intArgs, {0, 1, 10, 0, 0});
+        std::vector<double> doubleArgs;
+        fetchDoubleArrayArg(L, 3, doubleArgs, {0.05, 100.0, 10.0, 0.0, 0.0});
+        retVal = CALL_C_API(simCreateForceSensor, options, intArgs.data(), doubleArgs.data(), nullptr);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -11061,37 +11061,14 @@ int _simCameraFitToView(luaWrap_lua_State* L)
     LUA_START("sim.cameraFitToView");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer | lua_arg_optional, -1, lua_arg_integer | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0))
     {
-        int* objPtr = nullptr;
-        int options = 0;
-        double scaling = 1.0;
-        int tableLen = 2;
-        if (luaWrap_lua_isnonbuffertable(L, 2))
-        {
-            tableLen = int(luaWrap_lua_rawlen(L, 2));
-            int* buffer = new int[tableLen];
-            objPtr = buffer;
-            getIntsFromTable(L, 2, tableLen, buffer);
-        }
-        int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, tableLen, true, true, &errorString);
-        if (res >= 0)
-        {
-            res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, false, &errorString);
-            if (res >= 0)
-            {
-                if (res == 2)
-                    options = luaToInt(L, 3);
-                res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 0, true, false, &errorString);
-                if (res >= 0)
-                {
-                    if (res == 2)
-                        scaling = luaToDouble(L, 4);
-                    retVal = CALL_C_API(simCameraFitToView, luaToInt(L, 1), tableLen, objPtr, options, scaling);
-                }
-            }
-        }
-        delete[] objPtr;
+        int viewIndex = fetchIntArg(L, 1);
+        std::vector<int> handles;
+        fetchIntArrayArg(L, 2, handles);
+        int options = fetchIntArg(L, 3, 0);
+        double scaling = fetchIntArg(L, 4, 1.0);
+        retVal = CALL_C_API(simCameraFitToView, viewIndex, handles.size(), handles.data(), options, scaling);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -12394,13 +12371,12 @@ int _simAddItemToCollection(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.addItemToCollection");
 
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number,
-                            0))
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number | lua_arg_optional, 0))
     {
-        int collHandle = luaToInt(L, 1);
-        int what = luaToInt(L, 2);
-        int objHandle = luaToInt(L, 3);
-        int options = luaToInt(L, 4);
+        int collHandle = fetchIntArg(L, 1);
+        int what = fetchIntArg(L, 2);
+        int objHandle = fetchIntArg(L, 3);
+        int options = fetchIntArg(L, 4, 0);
         CALL_C_API(simAddItemToCollection, collHandle, what, objHandle, options);
     }
 
@@ -12540,11 +12516,11 @@ int _simCreateOctree(luaWrap_lua_State* L)
     LUA_START("sim.createOctree");
 
     int retVal = -1;
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_number | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0))
     {
-        double voxelSize = luaToDouble(L, 1);
-        int options = luaToInt(L, 2);
-        double pointSize = luaToDouble(L, 3);
+        double voxelSize = fetchDoubleArg(L, 1, 0.025);
+        int options = fetchIntArg(L, 2, 0);
+        double pointSize = fetchDoubleArg(L, 3, 2.0);
         retVal = CALL_C_API(simCreateOctree, voxelSize, options, pointSize, nullptr);
     }
 
@@ -12559,13 +12535,12 @@ int _simCreatePointCloud(luaWrap_lua_State* L)
     LUA_START("sim.createPointCloud");
 
     int retVal = -1;
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number,
-                            0))
+    if (checkInputArguments(L, &errorString, lua_arg_number | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0))
     {
-        double maxVoxelSize = luaToDouble(L, 1);
-        int maxPtCntPerVoxel = luaToInt(L, 2);
-        int options = luaToInt(L, 3);
-        double pointSize = luaToDouble(L, 4);
+        double maxVoxelSize = fetchDoubleArg(L, 1, 0.02);
+        int maxPtCntPerVoxel = fetchIntArg(L, 2, 20);
+        int options = fetchIntArg(L, 3, 0);
+        double pointSize = fetchDoubleArg(L, 4, 4.0);
         retVal = CALL_C_API(simCreatePointCloud, maxVoxelSize, maxPtCntPerVoxel, options, pointSize, nullptr);
     }
 

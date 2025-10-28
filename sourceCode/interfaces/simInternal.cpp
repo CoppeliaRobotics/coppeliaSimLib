@@ -7104,8 +7104,7 @@ int simCreateVisionSensor_internal(int options, const int* intParams, const doub
     return (-1);
 }
 
-int simCreateJoint_internal(int jointType, int jointMode, int options, const double* sizes, const double* reservedA,
-                            const double* reservedB)
+int simCreateJoint_internal(int jointType, int jointMode, int options, const double* sizes, const double* reservedA, const double* reservedB)
 {
     C_API_START;
 
@@ -10813,8 +10812,7 @@ int simCreateOctree_internal(double voxelSize, int options, double pointSize, vo
     return (-1);
 }
 
-int simCreatePointCloud_internal(double maxVoxelSize, int maxPtCntPerVoxel, int options, double pointSize,
-                                 void* reserved)
+int simCreatePointCloud_internal(double maxVoxelSize, int maxPtCntPerVoxel, int options, double pointSize, void* reserved)
 {
     C_API_START;
 

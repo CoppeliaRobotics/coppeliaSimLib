@@ -63,8 +63,11 @@ double fetchDoubleArg(luaWrap_lua_State* L, int index, double defaultValue = 0.0
 std::string fetchTextArg(luaWrap_lua_State* L, int index, const char* txt = "");
 std::string fetchBufferArg(luaWrap_lua_State* L, int index);
 void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::initializer_list<int> arr = {});
+void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::vector<int>& arr);
 void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::initializer_list<float> arr = {});
+void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::vector<float>& arr);
 void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::initializer_list<double> arr = {});
+void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::vector<double>& arr);
 bool isArgNilOrMissing(luaWrap_lua_State* L, int index);
 bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int type1 = lua_arg_empty,
                          int type1Cnt_zeroIfNotTable = -2, int type2 = lua_arg_empty, int type2Cnt_zeroIfNotTable = -2,
