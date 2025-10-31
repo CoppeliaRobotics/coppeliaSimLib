@@ -1796,6 +1796,38 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
     return retVal;
 }
 
+int App::setHandleProperty(long long int target, const char* ppName, long long int pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setHandleProperty(target, pName, pState);
+    return retVal;
+}
+
+int App::getHandleProperty(long long int target, const char* ppName, long long int& pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getHandleProperty(target, pName, pState);
+    return retVal;
+}
+
 int App::setFloatProperty(long long int target, const char* ppName, double pState)
 {
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
@@ -2633,6 +2665,39 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getIntArrayProperty(target, pName, pState);
+    return retVal;
+}
+
+int App::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setHandleArrayProperty(target, pName, v, vL);
+    return retVal;
+}
+
+int App::getHandleArrayProperty(long long int target, const char* ppName, std::vector<long long int>& pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    pState.clear();
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getHandleArrayProperty(target, pName, pState);
     return retVal;
 }
 

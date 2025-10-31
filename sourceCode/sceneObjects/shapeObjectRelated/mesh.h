@@ -144,6 +144,7 @@ class CMesh : public CMeshWrapper
     int setIntProperty(const char* pName, int pState, const C7Vector& shapeRelTr);
     int getIntProperty(const char* pName, int& pState, const C7Vector& shapeRelTr) const;
     int getLongProperty(const char* pName, long long int& pState, const C7Vector& shapeRelTr) const;
+    int getHandleProperty(const char* pName, long long int& pState, const C7Vector& shapeRelTr) const;
     int setFloatProperty(const char* pName, double pState, const C7Vector& shapeRelTr);
     int getFloatProperty(const char* pName, double& pState, const C7Vector& shapeRelTr) const;
     int setStringProperty(const char* pName, const char* pState, const C7Vector& shapeRelTr);

@@ -370,6 +370,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getIntProperty", _simGetIntProperty},
     {"sim.setLongProperty", _simSetLongProperty},
     {"sim.getLongProperty", _simGetLongProperty},
+    {"sim.setHandleProperty", _simSetHandleProperty},
+    {"sim.getHandleProperty", _simGetHandleProperty},
     {"sim.setFloatProperty", _simSetFloatProperty},
     {"sim.getFloatProperty", _simGetFloatProperty},
     {"sim.setStringProperty", _simSetStringProperty},
@@ -394,6 +396,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getFloatArrayProperty", _simGetFloatArrayProperty},
     {"sim.setIntArrayProperty", _simSetIntArrayProperty},
     {"sim.getIntArrayProperty", _simGetIntArrayProperty},
+    {"sim.setHandleArrayProperty", _simSetHandleArrayProperty},
+    {"sim.getHandleArrayProperty", _simGetHandleArrayProperty},
     {"sim.removeProperty", _simRemoveProperty},
     {"sim.getPropertyName", _simGetPropertyName},
     {"sim.getPropertyInfo", _simGetPropertyInfo},
@@ -939,6 +943,8 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_matrix", sim_propertytype_matrix},
     {"sim.propertytype_array", sim_propertytype_array},
     {"sim.propertytype_map", sim_propertytype_map},
+    {"sim.propertytype_handle", sim_propertytype_handle},
+    {"sim.propertytype_handlearray", sim_propertytype_handlearray},
     // property info
     {"sim.propertyinfo_notwritable", sim_propertyinfo_notwritable},
     {"sim.propertyinfo_notreadable", sim_propertyinfo_notreadable},
@@ -2066,6 +2072,22 @@ bool getIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* 
     return (true);
 }
 
+bool getLongsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, long long int* arrayField)
+{
+    for (size_t i = 0; i < intCount; i++)
+    {
+        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
+        if (!luaWrap_lua_isnumber(L, -1))
+        {
+            luaWrap_lua_pop(L, 1); // we pop one element from the stack;
+            return (false);        // Not a number!!
+        }
+        arrayField[i] = luaWrap_lua_tointeger(L, -1);
+        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
+    }
+    return (true);
+}
+
 bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField)
 {
     for (size_t i = 0; i < intCount; i++)
@@ -2131,6 +2153,17 @@ void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const do
 }
 
 void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
+{
+    luaWrap_lua_newtable(L);
+    int newTablePos = luaWrap_lua_gettop(L);
+    for (size_t i = 0; i < intCount; i++)
+    {
+        luaWrap_lua_pushinteger(L, arrayField[i]);
+        luaWrap_lua_rawseti(L, newTablePos, int(i + 1));
+    }
+}
+
+void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
@@ -4884,7 +4917,7 @@ int _simGetIntProperty(luaWrap_lua_State* L)
 int _simSetLongProperty(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setIntProperty");
+    LUA_START("sim.setLongProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
     {
@@ -4944,6 +4977,84 @@ int _simGetLongProperty(luaWrap_lua_State* L)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         if (CALL_C_API(simGetLongProperty, target, pName.c_str(), &pValue) > 0)
+        {
+            luaWrap_lua_pushinteger(L, pValue);
+            LUA_END(1);
+        }
+        if (noError)
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetHandleProperty(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setHandleProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        long long int pValue = luaWrap_lua_tointeger(L, 3);
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 4))
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 4, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        if (CALL_C_API(simSetHandleProperty, target, pName.c_str(), pValue) > 0)
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
+            }
+        }
+        if (noError)
+            LUA_END(0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetHandleProperty(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getHandleProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        long long int pValue;
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 3))
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        if (CALL_C_API(simGetHandleProperty, target, pName.c_str(), &pValue) > 0)
         {
             luaWrap_lua_pushinteger(L, pValue);
             LUA_END(1);
@@ -5909,6 +6020,90 @@ int _simGetIntArrayProperty(luaWrap_lua_State* L)
         if (res > 0)
         {
             pushIntTableOntoStack(L, pValueL, pValue);
+            delete[] pValue;
+            LUA_END(1);
+        }
+        if (noError)
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetHandleArrayProperty(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setHandleArrayProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, -1))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int cnt = int(luaWrap_lua_rawlen(L, 3));
+        std::vector<long long int> v;
+        v.resize(cnt);
+        getLongsFromTable(L, 3, cnt, v.data());
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 4))
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 4, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        if (CALL_C_API(simSetHandleArrayProperty, target, pName.c_str(), v.data(), cnt) > 0)
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
+            }
+        }
+        if (noError)
+            LUA_END(0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetHandleArrayProperty(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getHandleArrayProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 3))
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        int pValueL;
+        long long int* pValue = nullptr;
+        int res = CALL_C_API(simGetHandleArrayProperty, target, pName.c_str(), &pValue, &pValueL);
+        if (res > 0)
+        {
+            pushLongTableOntoStack(L, pValueL, pValue);
             delete[] pValue;
             LUA_END(1);
         }

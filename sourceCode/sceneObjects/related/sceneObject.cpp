@@ -1479,7 +1479,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     std::vector<int> ch;
     for (size_t i = 0; i < _childList.size(); i++)
         ch.push_back(_childList[i]->getObjectHandle());
-    ev->appendKeyIntArray(propObject_childHandles.name, ch.data(), ch.size());
+    ev->appendKeyIntArray(propObject_children.name, ch.data(), ch.size());
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
@@ -5426,7 +5426,7 @@ bool CSceneObject::_setChildren(std::vector<CSceneObject*>* children)
         handleOrderIndexOfChildren();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propObject_childHandles.name;
+            const char* cmd = propObject_children.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             std::vector<int> ch;
             for (size_t i = 0; i < _childList.size(); i++)
@@ -6033,6 +6033,39 @@ int CSceneObject::getLongProperty(const char* ppName, long long int& pState) con
     return retVal;
 }
 
+int CSceneObject::setHandleProperty(const char* ppName, long long int pState)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getHandleProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    /*
+    if (strcmp(pName, propObject_parentUid.name) == 0)
+    {
+        retVal = 1;
+        pState = -1;
+        if (_parentObject != nullptr)
+            pState = _parentObject->getObjectUid();
+    }
+    else if (strcmp(pName, propObject_objectUid.name) == 0)
+    {
+        retVal = 1;
+        pState = _objectUid;
+    }
+    */
+
+    return retVal;
+}
+
 int CSceneObject::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
@@ -6426,7 +6459,29 @@ int CSceneObject::getIntArrayProperty(const char* ppName, std::vector<int>& pSta
         pState.push_back(_objectMovementRelativity[1]);
         retVal = 1;
     }
-    else if (strcmp(pName, propObject_childHandles.name) == 0)
+
+    return retVal;
+}
+
+int CSceneObject::setHandleArrayProperty(const char* ppName, const long long int* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    if (v == nullptr)
+        vL = 0;
+
+    return retVal;
+}
+
+int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    pState.clear();
+
+    if (strcmp(pName, propObject_children.name) == 0)
     {
         for (size_t i = 0; i < _childList.size(); i++)
             pState.push_back(_childList[i]->getObjectHandle());

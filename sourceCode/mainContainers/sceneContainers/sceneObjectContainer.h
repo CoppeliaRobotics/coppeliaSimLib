@@ -21,9 +21,12 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                               \
-    FUNCX(propObjCont_objectHandles, "objectHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects")                                                                               \
-    FUNCX(propObjCont_orphanHandles, "orphanHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects")                                                                 \
-    FUNCX(propObjCont_selectionHandles, "selectionHandles", sim_propertytype_intarray, sim_propertyinfo_modelhashexclude, "Selected objects", "Handles of selected scene objects")                                                      \
+    FUNCX(propObjCont_objectHandles, "objectHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, "", "")                                                                               \
+    FUNCX(propObjCont_orphanHandles, "orphanHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, "", "")                                                                 \
+    FUNCX(propObjCont_selectionHandles, "selectionHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, "", "")                                                      \
+    FUNCX(propObjCont_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects")                                                                               \
+    FUNCX(propObjCont_orphans, "orphans", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects")                                                                 \
+    FUNCX(propObjCont_selection, "selection", sim_propertytype_handlearray, sim_propertyinfo_modelhashexclude, "Selected objects", "Handles of selected scene objects")                                                      \
     FUNCX(propObjCont_objectCreationCounter, "objectCreationCounter", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object creation counter", "Counter of created scene objects")            \
     FUNCX(propObjCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object destruction counter", "Counter of destroyed scene objects") \
     FUNCX(propObjCont_hierarchyChangeCounter, "hierarchyChangeCounter", sim_propertytype_int, sim_propertyinfo_notwritable, "Hierarchy change counter", "Counter of scene hierarchy changes")
@@ -210,6 +213,8 @@ class CSceneObjectContainer
     int getIntProperty(long long int target, const char* pName, int& pState) const;
     int setLongProperty(long long int target, const char* pName, long long int pState);
     int getLongProperty(long long int target, const char* pName, long long int& pState) const;
+    int setHandleProperty(long long int target, const char* pName, long long int pState);
+    int getHandleProperty(long long int target, const char* pName, long long int& pState) const;
     int setFloatProperty(long long int target, const char* pName, double pState);
     int getFloatProperty(long long int target, const char* pName, double& pState) const;
     int setStringProperty(long long int target, const char* pName, const char* pState);
@@ -232,6 +237,8 @@ class CSceneObjectContainer
     int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
     int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const;
+    int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL);
+    int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
     int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CSceneObjectContainer* targetObject);

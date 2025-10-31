@@ -7,7 +7,8 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                                        \
-    FUNCX(propShape_meshes, "meshes", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Meshes", "Mesh handles")                                                                                     \
+    FUNCX(propShape_meshes, "meshes", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")                                                                                     \
+    FUNCX(propShape_meshList, "meshList", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Meshes", "Mesh handles")                                                                                     \
     FUNCX(propShape_applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply culling", "Enables/disables culling for all contained meshes")                                 \
     FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply shading", "Applies a shading angle to all contained meshes")                        \
     FUNCX(propShape_applyShowEdges, "applyShowEdges", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply edges", "Enables/disables edges for all contained meshes")                                 \
@@ -112,6 +113,7 @@ class CShape : public CSceneObject
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     int setIntArrayProperty(const char* pName, const int* v, int vL) override;
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
+    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const override;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;

@@ -103,7 +103,7 @@
     FUNCX(propObject_movPrefRotZ, "mov.prefRotZ", sim_propertytype_bool, 0, "Preferred Z-axis rotation", "")                                                                                                                     \
     FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "Scene object type")                                                    \
     FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Visible", "Whether the scene object is currently visible")                                    \
-    FUNCX(propObject_childHandles, "childHandles", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Children handles", "")                                                    \
+    FUNCX(propObject_children, "children", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Children handles", "")                                                    \
     FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Model hash", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -205,6 +205,8 @@ class CSceneObject
     virtual int getIntProperty(const char* pName, int& pState) const;
     virtual int setLongProperty(const char* pName, long long int pState);
     virtual int getLongProperty(const char* pName, long long int& pState) const;
+    virtual int setHandleProperty(const char* pName, long long int pState);
+    virtual int getHandleProperty(const char* pName, long long int& pState) const;
     virtual int setFloatProperty(const char* pName, double pState);
     virtual int getFloatProperty(const char* pName, double& pState) const;
     virtual int setStringProperty(const char* pName, const char* pState);
@@ -227,6 +229,8 @@ class CSceneObject
     virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
     virtual int setIntArrayProperty(const char* pName, const int* v, int vL);
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
+    virtual int setHandleArrayProperty(const char* pName, const long long int* v, int vL);
+    virtual int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);

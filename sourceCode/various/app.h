@@ -121,6 +121,8 @@ const std::vector<SProperty> allProps_app = {DEFINE_PROPERTIES};
 #define proptypetag_array "&arr&."
 #define proptypetag_map "&map&."
 #define proptypetag_null "&nul&."
+#define proptypetag_handle "&han&."
+#define proptypetag_handlearray "&hanvect&."
 
 static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_bool, proptypetag_bool},
@@ -143,6 +145,8 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_null, proptypetag_null},
     {sim_propertytype_array, proptypetag_array},
     {sim_propertytype_map, proptypetag_map},
+    {sim_propertytype_handle, proptypetag_handle},
+    {sim_propertytype_handlearray, proptypetag_handlearray},
 
     {sim_propertytype_buffer, proptypetag_buffer}, // keep always at the end
 };
@@ -168,6 +172,8 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_null, proptypetag_null},
     {sim_propertytype_array, proptypetag_array},
     {sim_propertytype_map, proptypetag_map},
+    {sim_propertytype_handle, proptypetag_handle},
+    {sim_propertytype_handlearray, proptypetag_handlearray},
 
     {sim_propertytype_buffer, proptypetag_buffer},
 };
@@ -271,6 +277,8 @@ class App
     static int getLongProperty(long long int target, const char* pName, long long int& pState);
     static int setFloatProperty(long long int target, const char* pName, double pState);
     static int getFloatProperty(long long int target, const char* pName, double& pState);
+    static int setHandleProperty(long long int target, const char* pName, long long int pState);
+    static int getHandleProperty(long long int target, const char* pName, long long int& pState);
     static int setStringProperty(long long int target, const char* pName, const char* pState);
     static int getStringProperty(long long int target, const char* pName, std::string& pState);
     static int setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
@@ -291,6 +299,8 @@ class App
     static int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState);
     static int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
     static int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState);
+    static int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL);
+    static int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState);
     static int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, bool staticParsing);

@@ -91,6 +91,8 @@ class CWorld
     int getLongProperty(long long int target, const char* pName, long long int& pState) const;
     int setFloatProperty(long long int target, const char* pName, double pState);
     int getFloatProperty(long long int target, const char* pName, double& pState) const;
+    int setHandleProperty(long long int target, const char* pName, long long int pState);
+    int getHandleProperty(long long int target, const char* pName, long long int& pState) const;
     int setStringProperty(long long int target, const char* pName, const char* pState);
     int getStringProperty(long long int target, const char* pName, std::string& pState) const;
     int setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
@@ -111,6 +113,8 @@ class CWorld
     int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
     int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const;
+    int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL);
+    int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
     int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CWorld* targetObject);

@@ -675,17 +675,30 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
 
         // We need to "fake" adding that object:
         f_objectHandles.push_back(obj->getObjectHandle());
-        const char* cmd = propObjCont_objectHandles.name;
+        const char* cmd = propObjCont_objects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         ev->appendKeyIntArray(cmd, f_objectHandles.data(), f_objectHandles.size());
         App::worldContainer->pushEvent();
+        // --- For backward compatibility ---
+        cmd = propObjCont_objectHandles.name;
+        ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyIntArray(cmd, f_objectHandles.data(), f_objectHandles.size());
+        // ----------------------------------
+        App::worldContainer->pushEvent();
+
         if (obj->getParent() == nullptr)
         { // We need to "fake" adding that orphan:
             f_orphanHandles.push_back(obj->getObjectHandle());
-            cmd = propObjCont_orphanHandles.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            cmd = propObjCont_orphans.name;
+            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyIntArray(cmd, f_orphanHandles.data(), f_orphanHandles.size());
             App::worldContainer->pushEvent();
+            // --- For backward compatibility ---
+            cmd = propObjCont_orphanHandles.name;
+            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            ev->appendKeyIntArray(cmd, f_orphanHandles.data(), f_orphanHandles.size());
+            App::worldContainer->pushEvent();
+            // ----------------------------------
         }
     }
 
@@ -693,25 +706,44 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     std::vector<int> arr;
     for (size_t i = 0; i < _allObjects.size(); i++)
         arr.push_back(_allObjects[i]->getObjectHandle());
-    const char* cmd = propObjCont_objectHandles.name;
+    const char* cmd = propObjCont_objects.name;
     CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, arr.data(), arr.size());
     App::worldContainer->pushEvent();
+    // --- For backward compatibility ---
+    cmd = propObjCont_objectHandles.name;
+    ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+    ev->appendKeyIntArray(cmd, arr.data(), arr.size());
+    App::worldContainer->pushEvent();
+    // ----------------------------------
 
     // Make sure the orphan list has the same order:
     arr.clear();
     for (size_t i = 0; i < _orphanObjects.size(); i++)
         arr.push_back(_orphanObjects[i]->getObjectHandle());
+    cmd = propObjCont_orphans.name;
+    ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+    ev->appendKeyIntArray(cmd, arr.data(), arr.size());
+    App::worldContainer->pushEvent();
+    // --- For backward compatibility ---
     cmd = propObjCont_orphanHandles.name;
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, arr.data(), arr.size());
     App::worldContainer->pushEvent();
+    // ----------------------------------
+
 
     // Update the selection list:
+    cmd = propObjCont_selection.name;
+    ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+    ev->appendKeyIntArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
+    App::worldContainer->pushEvent();
+    // --- For backward compatibility ---
     cmd = propObjCont_selectionHandles.name;
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
     App::worldContainer->pushEvent();
+    // ----------------------------------
 
     // Handle the main script and old associated scripts:
     embeddedScriptContainer->pushObjectGenesisEvents();
@@ -720,11 +752,18 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
 void CSceneObjectContainer::appendNonObjectGenesisData(CCbor* ev) const
 { // Append data as for an empty scene:
     std::vector<int> arr;
+    ev->appendKeyIntArray(propObjCont_objects.name, arr.data(), arr.size());
+    ev->appendKeyIntArray(propObjCont_orphans.name, arr.data(), arr.size());
+    ev->appendText(propObjCont_selection.name);
+    ev->openArray();
+    ev->closeArrayOrMap();
+    // --- For backward compatibility ---
     ev->appendKeyIntArray(propObjCont_objectHandles.name, arr.data(), arr.size());
     ev->appendKeyIntArray(propObjCont_orphanHandles.name, arr.data(), arr.size());
     ev->appendText(propObjCont_selectionHandles.name);
     ev->openArray();
     ev->closeArrayOrMap();
+    // ----------------------------------
 }
 
 void CSceneObjectContainer::getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,
@@ -4664,6 +4703,118 @@ int CSceneObjectContainer::getLongProperty(long long int target, const char* pNa
     return retVal;
 }
 
+int CSceneObjectContainer::setHandleProperty(long long int target, const char* pName, long long int pState)
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->setHandleProperty(pName, pState);
+        }
+        else
+        {
+            /*
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return mesh->setHandleProperty(pName, pState, shapeRelTr);
+                */
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::getHandleProperty(long long int target, const char* pName, long long int& pState) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getHandleProperty(pName, pState);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return mesh->getHandleProperty(pName, pState, shapeRelTr);
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
 int CSceneObjectContainer::setFloatProperty(long long int target, const char* pName, double pState)
 {
     int retVal = -1;
@@ -5770,11 +5921,13 @@ int CSceneObjectContainer::setIntArrayProperty(long long int target, const char*
     int retVal = -1;
     if (target == -1)
     {
+        // --- For backward compatibility ---
         if (strcmp(pName, propObjCont_selectionHandles.name) == 0)
         {
             setSelectedObjectHandles(v, vL);
             retVal = 1;
         }
+        // -----------------------------------
     }
     else
     {
@@ -5831,6 +5984,7 @@ int CSceneObjectContainer::getIntArrayProperty(long long int target, const char*
     pState.clear();
     if (target == -1)
     {
+        // --- For backward compatibility ---
         if (strcmp(pName, propObjCont_objectHandles.name) == 0)
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
@@ -5848,6 +6002,7 @@ int CSceneObjectContainer::getIntArrayProperty(long long int target, const char*
             pState.assign(_selectedObjectHandles.begin(), _selectedObjectHandles.end());
             retVal = 1;
         }
+        // ------------------------------------
     }
     else
     {
@@ -5892,6 +6047,143 @@ int CSceneObjectContainer::getIntArrayProperty(long long int target, const char*
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getIntArrayProperty(pName, pState, shapeRelTr);
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL)
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+        if (strcmp(pName, propObjCont_selection.name) == 0)
+        {
+            std::vector<int> hh;
+            for (int i = 0; i < vL; i++)
+                hh.push_back((int)v[i]);
+            setSelectedObjectHandles(hh.data(), vL);
+            retVal = 1;
+        }
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->setHandleArrayProperty(pName, v, vL);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            //if (mesh != nullptr)
+            //    return mesh->setHandleArrayProperty(pName, v, vL, shapeRelTr);
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const
+{
+    int retVal = -1;
+    pState.clear();
+    if (target == -1)
+    {
+        if (strcmp(pName, propObjCont_objects.name) == 0)
+        {
+            for (size_t i = 0; i < _allObjects.size(); i++)
+                pState.push_back(_allObjects[i]->getObjectHandle());
+            retVal = 1;
+        }
+        else if (strcmp(pName, propObjCont_orphans.name) == 0)
+        {
+            for (size_t i = 0; i < _orphanObjects.size(); i++)
+                pState.push_back(_orphanObjects[i]->getObjectHandle());
+            retVal = 1;
+        }
+        else if (strcmp(pName, propObjCont_selection.name) == 0)
+        {
+            for (size_t i = 0; i < _selectedObjectHandles.size(); i++)
+                pState.push_back(_selectedObjectHandles[i]);
+            retVal = 1;
+        }
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getHandleArrayProperty(pName, pState);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            //if (mesh != nullptr)
+            //    return mesh->getHandleArrayProperty(pName, pState, shapeRelTr);
         }
         retVal = -2; // object does not exist
     }
@@ -6235,6 +6527,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                             dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
                             break;
                         }
+                        case sim_propertytype_handle: {
+                            long long int state;
+                            result = obj->getHandleProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
+                            break;
+                        }
                         case sim_propertytype_long: {
                             long long int state;
                             result = obj->getLongProperty(name.c_str(), state);
@@ -6306,6 +6604,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                             std::vector<double> state;
                             result = obj->getFloatArrayProperty(name.c_str(), state);
                             dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                            break;
+                        }
+                        case sim_propertytype_handlearray: {
+                            std::vector<long long int> state;
+                            result = obj->getHandleArrayProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(long long int));
                             break;
                         }
                         case sim_propertytype_matrix3x3: {

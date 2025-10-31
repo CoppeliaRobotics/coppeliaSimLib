@@ -3012,6 +3012,15 @@ int CMesh::getLongProperty(const char* ppName, long long int& pState, const C7Ve
     return retVal;
 }
 
+int CMesh::getHandleProperty(const char* ppName, long long int& pState, const C7Vector& shapeRelTr) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    return retVal;
+}
+
 int CMesh::setFloatProperty(const char* ppName, double pState, const C7Vector& shapeRelTr)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
