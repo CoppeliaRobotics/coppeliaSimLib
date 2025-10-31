@@ -19,7 +19,8 @@ struct SDummyProperty
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                                                         \
     FUNCX(propDummy_size, "dummySize", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "Size", "Dummy size")                                                                                                                                                       \
-    FUNCX(propDummy_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "Linked dummy", "Handle of the linked dummy")                                                                            \
+    FUNCX(propDummy_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "", "")                                                                            \
+    FUNCX(propDummy_linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "Linked dummy", "Handle of the linked dummy")                                                                            \
     FUNCX(propDummy_dummyType, "dummyType", sim_propertytype_int, 0, -1, -1, -1, -1, -1, "Type", "Dummy type")                                                                                                                                                    \
     FUNCX(propDummy_assemblyTag, "assemblyTag", sim_propertytype_string, 0, -1, -1, -1, -1, -1, "Assembly tag", "")                                                                                                                                               \
     FUNCX(propDummy_engineProperties, "engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text")                                                                  \
@@ -123,6 +124,8 @@ class CDummy : public CSceneObject
     int getBoolProperty(const char* pName, bool& pState) const override;
     int setIntProperty(const char* pName, int pState, CCbor* eev = nullptr);
     int getIntProperty(const char* pName, int& pState) const override;
+    int setHandleProperty(const char* pName, long long int pState, CCbor* eev = nullptr);
+    int getHandleProperty(const char* pName, long long int& pState) const override;
     int setFloatProperty(const char* pName, double pState, CCbor* eev = nullptr);
     int getFloatProperty(const char* pName, double& pState) const override;
     int setStringProperty(const char* pName, const char* pState) override;

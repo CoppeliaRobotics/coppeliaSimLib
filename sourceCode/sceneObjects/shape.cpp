@@ -1518,19 +1518,10 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
     _dynMaterial->setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->sendEngineString(ev);
-    ev->openKeyArray(propShape_meshList.name);
+    ev->openKeyArray(propShape_meshes.name);
     std::vector<CMesh*> all;
     std::vector<C7Vector> allTr;
     getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
-    for (size_t i = 0; i < all.size(); i++)
-    {
-        CMesh* geom = all[i];
-        ev->appendInt(geom->getUniqueID());
-    }
-    ev->closeArrayOrMap(); // meshList
-
-    // --- Deprecated, for backward compatibility ---
-    ev->openKeyArray(propShape_meshes.name);
     for (size_t i = 0; i < all.size(); i++)
     {
         CMesh* geom = all[i];
@@ -1624,7 +1615,6 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
 #endif
     }
     ev->closeArrayOrMap(); // meshes
-    // -------------------------------------------
 
     ev->appendKeyInt(propShape_respondableMask.name, _respondableMask);
     ev->appendKeyBool(propShape_startInDynSleepMode.name, _startInDynamicSleeping);
@@ -2189,7 +2179,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
     int retVal = CSceneObject::getIntArrayProperty(pName, pState);
     if (retVal == -1)
     {
-        if (strcmp(pName, propShape_meshes.name) == 0)
+        if (strcmp(pName, "meshes") == 0)
         {
             std::vector<CMesh*> all;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
@@ -2210,7 +2200,7 @@ int CShape::getHandleArrayProperty(const char* ppName, std::vector<long long int
     int retVal = CSceneObject::getHandleArrayProperty(pName, pState);
     if (retVal == -1)
     {
-        if (strcmp(pName, propShape_meshList.name) == 0)
+        if (strcmp(pName, propShape_meshes.name) == 0)
         {
             std::vector<CMesh*> all;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);

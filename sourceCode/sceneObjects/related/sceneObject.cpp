@@ -1525,7 +1525,8 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
         pH = _parentObject->getObjectHandle();
     }
     ev->appendKeyInt(propObject_parentUid.name, pUid);
-    ev->appendKeyInt(propObject_parentHandle.name, pH);
+    ev->appendKeyInt(propObject_parentHandle.name, pH); // for backw. compatibility
+    ev->appendKeyInt(propObject_parent.name, pH);
     ev->appendKeyBool(propObject_selected.name, _selected);
     ev->appendKeyInt(propObject_hierarchyColor.name, _hierarchyColorIndex);
     ev->appendKeyInt(propObject_collectionSelfCollInd.name, _collectionSelfCollisionIndicator);
@@ -2466,7 +2467,8 @@ bool CSceneObject::setParent(CSceneObject* parent)
             const char* cmd = propObject_parentUid.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt(cmd, pUid);
-            ev->appendKeyInt(propObject_parentHandle.name, pH);
+            ev->appendKeyInt(propObject_parent.name, pH);
+            ev->appendKeyInt(propObject_parentHandle.name, pH); // for backward compatibility
             App::worldContainer->pushEvent();
         }
         _setParent_send(pH);
@@ -6039,6 +6041,17 @@ int CSceneObject::setHandleProperty(const char* ppName, long long int pState)
     const char* pName = _pName.c_str();
     int retVal = -1;
 
+    if (strcmp(pName, propObject_parent.name) == 0)
+    {
+        retVal = 0;
+        CSceneObject* newParent = App::currentWorld->sceneObjects->getObjectFromHandle(pState);
+        if ( (newParent != nullptr) || (pState == -1) )
+        {
+            if (App::currentWorld->sceneObjects->setObjectParent(this, newParent, false))
+                retVal = 1;
+        }
+    }
+
     return retVal;
 }
 
@@ -6048,20 +6061,13 @@ int CSceneObject::getHandleProperty(const char* ppName, long long int& pState) c
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    /*
-    if (strcmp(pName, propObject_parentUid.name) == 0)
+    if (strcmp(pName, propObject_parent.name) == 0)
     {
         retVal = 1;
         pState = -1;
         if (_parentObject != nullptr)
-            pState = _parentObject->getObjectUid();
+            pState = _parentObject->getObjectHandle();
     }
-    else if (strcmp(pName, propObject_objectUid.name) == 0)
-    {
-        retVal = 1;
-        pState = _objectUid;
-    }
-    */
 
     return retVal;
 }

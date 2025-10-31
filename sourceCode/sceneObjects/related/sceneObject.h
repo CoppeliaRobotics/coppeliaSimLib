@@ -19,7 +19,8 @@
     FUNCX(propObject_childOrder, "childOrder", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Child order", "")                                                                       \
     FUNCX(propObject_parentUid, "parentUid", sim_propertytype_long, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Parent UID", "Parent scene object unique identifier")                                    \
     FUNCX(propObject_objectUid, "objectUid", sim_propertytype_long, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object UID", "Scene object unique identifier")                                           \
-    FUNCX(propObject_parentHandle, "parentHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, "Parent", "Parent scene object handle")                                              \
+    FUNCX(propObject_parentHandle, "parentHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, "", "")                                              \
+    FUNCX(propObject_parent, "parent", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, "Parent", "Parent scene object handle")                                              \
     FUNCX(propObject_selected, "selected", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, "Selected", "Selection state")                                                                                             \
     FUNCX(propObject_hierarchyColor, "hierarchyColor", sim_propertytype_int, 0, "Hierarchy color", "Hierarchy color index")                                                                                                     \
     FUNCX(propObject_collectionSelfCollInd, "collectionSelfCollisionIndicator", sim_propertytype_int, 0, "Collection self collision indicator", "")                                                                             \

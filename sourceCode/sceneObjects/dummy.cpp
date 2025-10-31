@@ -284,7 +284,8 @@ void CDummy::addSpecializedObjectEventData(CCbor* ev)
     _dummyColor.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
-    ev->appendKeyInt(propDummy_linkedDummyHandle.name, _linkedDummyHandle);
+    ev->appendKeyInt(propDummy_linkedDummy.name, _linkedDummyHandle);
+    ev->appendKeyInt(propDummy_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
     ev->appendKeyInt(propDummy_dummyType.name, _linkType);
     ev->appendKeyText(propDummy_assemblyTag.name, _assemblyTag.c_str());
 
@@ -930,10 +931,16 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
     {
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propDummy_linkedDummyHandle.name;
+            const char* cmd = propDummy_linkedDummy.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt(cmd, _linkedDummyHandle);
             App::worldContainer->pushEvent();
+            // --- for backw. compatibility ---
+            cmd = propDummy_linkedDummyHandle.name;
+            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _linkedDummyHandle);
+            App::worldContainer->pushEvent();
+            // -----------------------------
         }
         _reflectPropToLinkedDummy();
         _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
@@ -1342,6 +1349,101 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
             pState = _mujocoIntParams[simi_mujoco_dummy_proxyjointid];
         }
         // ------------------------
+    }
+
+    return retVal;
+}
+
+int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* eev /* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ((eev == nullptr) && (pName != nullptr))
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setHandleProperty(pName, pState);
+        if (retVal == -1)
+        {
+            if (_pName == propDummy_linkedDummy.name)
+            {
+                setLinkedDummyHandle(pState, true);
+                retVal = 1;
+            }
+        }
+    }
+
+    if (retVal == -1)
+    {
+        /*
+        // Following only for engine properties:
+        // -------------------------------------
+        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex) {
+            if ((pName == nullptr) || (propertyName == pName))
+            {
+                retVal = 1;
+                if ((pState != arr[simiIndex]) || (pName == nullptr))
+                {
+                    if (pName != nullptr)
+                        arr[simiIndex] = pState;
+                    if (_isInScene && App::worldContainer->getEventsEnabled())
+                    {
+                        if (ev == nullptr)
+                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                        ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                        if (pName != nullptr)
+                            _sendEngineString(ev);
+                    }
+                }
+            }
+        };
+
+        handleProp(propDummy_mujocoJointProxyHandle.name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
+
+        if ((ev != nullptr) && (eev == nullptr))
+            App::worldContainer->pushEvent();
+        // -------------------------------------
+*/
+    }
+
+    return retVal;
+}
+
+int CDummy::getHandleProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getHandleProperty(pName, pState);
+    if (retVal == -1)
+    {
+        // First non-engine properties:
+        if (_pName == propDummy_linkedDummy.name)
+        {
+            pState = _linkedDummyHandle;
+            retVal = 1;
+        }
+    }
+    if (retVal == -1)
+    {
+        /*
+        // Engine-only properties:
+        // ------------------------
+        if (_pName == propDummy_mujocoJointProxyHandle.name)
+        {
+            retVal = 1;
+            pState = _mujocoIntParams[simi_mujoco_dummy_proxyjointid];
+        }
+        // ------------------------
+        */
     }
 
     return retVal;
