@@ -5905,12 +5905,12 @@ int CWorld::_getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::
                 if (tbl->areAllValuesThis(sim_stackitem_integer, false))
                 {
                     retVal = sim_propertytype_intarray;
-                    str = "intarray" + tbl->getArraySize();
+                    str = "intarray" + std::to_string(tbl->getArraySize());
                 }
                 else if (tbl->areAllValuesThis(sim_stackitem_double, true))
                 {
                     retVal = sim_propertytype_floatarray;
-                    str = "floatarray" + tbl->getArraySize();
+                    str = "floatarray" + std::to_string(tbl->getArraySize());
                 }
                 else
                 { // we have a random array
@@ -5927,7 +5927,7 @@ int CWorld::_getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::
                         }
                     }
                     else
-                        str = "array" + tbl->getArraySize();
+                        str = "array" + std::to_string(tbl->getArraySize());
                 }
             }
             else
@@ -5957,7 +5957,7 @@ int CWorld::_getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::
                     }
                 }
                 else
-                    str = "map" + tbl->getMapEntryCount();
+                    str = "map" + std::to_string(tbl->getMapEntryCount());
             }
         }
     }
