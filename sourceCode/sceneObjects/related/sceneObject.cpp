@@ -6274,6 +6274,35 @@ int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
     const char* pName = _pName.c_str();
     int retVal = -1;
 
+    if (strcmp(pName, propObject_position.name) == 0)
+    {
+        retVal = 1;
+        C7Vector tr(_localTransformation);
+        tr.X = pState;
+        setLocalTransformation(tr);
+    }
+    else if (strcmp(pName, propObject_eulerAngles.name) == 0)
+    {
+        retVal = 1;
+        C7Vector tr(_localTransformation);
+        tr.Q = C4Vector(pState);
+        setLocalTransformation(tr);
+    }
+    else if (strcmp(pName, propObject_absPosition.name) == 0)
+    {
+        retVal = 1;
+        C7Vector tr(getCumulativeTransformation());
+        tr.X = pState;
+        setAbsoluteTransformation(tr);
+    }
+    else if (strcmp(pName, propObject_absEulerAngles.name) == 0)
+    {
+        retVal = 1;
+        C7Vector tr(getCumulativeTransformation());
+        tr.Q = C4Vector(pState);
+        setAbsoluteTransformation(tr);
+    }
+
     return retVal;
 }
 
@@ -6314,6 +6343,26 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
                 pState = (maxV + minV) * 0.5;
         }
     }
+    else if (strcmp(pName, propObject_position.name) == 0)
+    {
+        retVal = 1;
+        pState = _localTransformation.X;
+    }
+    else if (strcmp(pName, propObject_eulerAngles.name) == 0)
+    {
+        retVal = 1;
+        pState = _localTransformation.Q.getEulerAngles();
+    }
+    else if (strcmp(pName, propObject_absPosition.name) == 0)
+    {
+        retVal = 1;
+        pState = getCumulativeTransformation().X;
+    }
+    else if (strcmp(pName, propObject_absEulerAngles.name) == 0)
+    {
+        retVal = 1;
+        pState = getCumulativeTransformation().Q.getEulerAngles();
+    }
 
     return retVal;
 }
@@ -6324,6 +6373,21 @@ int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pSta
     const char* pName = _pName.c_str();
     int retVal = -1;
 
+    if (strcmp(pName, propObject_quaternion.name) == 0)
+    {
+        retVal = 1;
+        C7Vector tr(_localTransformation);
+        tr.Q = pState;
+        setLocalTransformation(tr);
+    }
+    else if (strcmp(pName, propObject_absQuaternion.name) == 0)
+    {
+        retVal = 1;
+        C7Vector tr(getCumulativeTransformation());
+        tr.Q = pState;
+        setAbsoluteTransformation(tr);
+    }
+
     return retVal;
 }
 
@@ -6332,6 +6396,17 @@ int CSceneObject::getQuaternionProperty(const char* ppName, C4Vector& pState) co
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+
+    if (strcmp(pName, propObject_quaternion.name) == 0)
+    {
+        retVal = 1;
+        pState = _localTransformation.Q;
+    }
+    else if (strcmp(pName, propObject_absQuaternion.name) == 0)
+    {
+        retVal = 1;
+        pState = getCumulativeTransformation().Q;
+    }
 
     return retVal;
 }
@@ -6346,6 +6421,11 @@ int CSceneObject::setPoseProperty(const char* ppName, const C7Vector& pState)
     {
         retVal = 1;
         setLocalTransformation(pState);
+    }
+    else if (strcmp(pName, propObject_absPose.name) == 0)
+    {
+        retVal = 1;
+        setAbsoluteTransformation(pState);
     }
 
     return retVal;
@@ -6362,7 +6442,12 @@ int CSceneObject::getPoseProperty(const char* ppName, C7Vector& pState) const
         retVal = 1;
         pState = _localTransformation;
     }
-    if (strcmp(pName, propObject_bbPose.name) == 0)
+    else if (strcmp(pName, propObject_absPose.name) == 0)
+    {
+        retVal = 1;
+        pState = getCumulativeTransformation();
+    }
+    else if (strcmp(pName, propObject_bbPose.name) == 0)
     {
         retVal = 1;
         pState = _bbFrame;
