@@ -102,6 +102,7 @@ CMesh::~CMesh()
 void CMesh::_commonInit()
 {
     _isInSceneShapeUid = -1;
+    _isInSceneShapeHandle = -1;
     _uniqueID = App::getFreshUniqueId(-1);
     color.setDefaultValues();
     color.setColor(0.9f, 0.9f, 0.9f, sim_colorcomponent_ambient_diffuse);
@@ -472,7 +473,7 @@ void CMesh::setConvex_raw(bool c)
     if (_convex != c)
     {
         _convex = c;
-        if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_convex.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
@@ -500,17 +501,21 @@ CMesh* CMesh::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulT
 
 void CMesh::pushObjectRemoveEvent()
 {
+    _isInSceneShapeHandle = -1;
     _isInSceneShapeUid = -1;
     App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _uniqueID, _uniqueID, nullptr, false);
     App::worldContainer->pushEvent();
 }
 
-void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
+void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vector& shapeRelTr)
 {
+    _isInSceneShapeHandle = shapeHandle;
     _isInSceneShapeUid = shapeUid;
     CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, nullptr, false);
 
+    ev->appendKeyInt(propMesh_shape.name, _isInSceneShapeHandle);
     ev->appendKeyInt(propMesh_shapeUid.name, _isInSceneShapeUid);
+    ev->appendKeyInt(propMesh_primitiveType.name, _purePrimitive);
     ev->appendKeyText(propMesh_objectType.name, "mesh");
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
@@ -1048,7 +1053,7 @@ void CMesh::setVisibleEdges(bool v)
     if (diff)
     {
         _visibleEdges = v;
-        if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_showEdges.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
@@ -1094,7 +1099,7 @@ void CMesh::setCulling(bool c)
     if (diff)
     {
         _culling = c;
-        if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_culling.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
@@ -1165,7 +1170,7 @@ void CMesh::setShadingAngle(double angle)
     if (diff)
     {
         _shadingAngle = angle;
-        if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_shadingAngle.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
@@ -2788,7 +2793,7 @@ void CMesh::setTextureRepeatU(bool r)
         if (diff)
         {
             _textureProperty->setRepeatU(r);
-            if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureRepeatU.name;
                 CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
@@ -2815,7 +2820,7 @@ void CMesh::setTextureRepeatV(bool r)
         if (diff)
         {
             _textureProperty->setRepeatV(r);
-            if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureRepeatV.name;
                 CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
@@ -2842,7 +2847,7 @@ void CMesh::setTextureInterpolate(bool r)
         if (diff)
         {
             _textureProperty->setInterpolateColors(r);
-            if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureInterpolate.name;
                 CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
@@ -2869,7 +2874,7 @@ void CMesh::setTextureApplyMode(int m)
         if (diff)
         {
             _textureProperty->setApplyMode(m);
-            if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureApplyMode.name;
                 CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
@@ -2999,6 +3004,11 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
         retVal = 1;
         pState = _isInSceneShapeUid;
     }
+    else if (strcmp(pName, propMesh_primitiveType.name) == 0)
+    {
+        retVal = 1;
+        pState = _purePrimitive;
+    }
 
     return retVal;
 }
@@ -3017,6 +3027,12 @@ int CMesh::getHandleProperty(const char* ppName, long long int& pState, const C7
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+
+    if (strcmp(pName, propMesh_shape.name) == 0)
+    {
+        retVal = 1;
+        pState = _isInSceneShapeHandle;
+    }
 
     return retVal;
 }

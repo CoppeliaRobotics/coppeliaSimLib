@@ -1455,7 +1455,7 @@ void CSceneObject::pushObjectCreationEvent()
             std::vector<C7Vector> allTr;
             ((CShape*)this)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
             for (size_t i = 0; i < all.size(); i++)
-                all[i]->pushObjectCreationEvent(_objectUid, allTr[i]);
+                all[i]->pushObjectCreationEvent(_objectHandle, _objectUid, allTr[i]);
         }
     }
 }

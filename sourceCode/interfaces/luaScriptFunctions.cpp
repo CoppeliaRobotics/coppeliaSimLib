@@ -128,9 +128,9 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.readProximitySensor", _simReadProximitySensor},
     {"sim.resetProximitySensor", _simResetProximitySensor},
     {"sim.checkProximitySensor", _simCheckProximitySensor},
-    {"sim._getObject", _sim_getObject},
+    {"sim.getObject", _simGetObject},
     {"sim.getObjectUid", _simGetObjectUid},
-    {"sim._getObjectFromUid", _sim_getObjectFromUid},
+    {"sim.getObjectFromUid", _simGetObjectFromUid},
     {"sim.getScript", _simGetScript},
     {"sim.getObjectPosition", _simGetObjectPosition},
     {"sim.setObjectPosition", _simSetObjectPosition},
@@ -2452,13 +2452,18 @@ int fetchBoolArg(luaWrap_lua_State* L, int index, bool defaultValue /*= false*/)
     return retVal;
 }
 
-int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue /*= -1*/)
+long long int fetchLongArg(luaWrap_lua_State* L, int index, long long int defaultValue /*= -1*/)
 { // make sure you have verified for correct args with checkInputArguments previously
-    int retVal = defaultValue;
+    long long int retVal = defaultValue;
     int argCnt = luaWrap_lua_gettop(L);
     if (argCnt >= index)
         retVal = luaWrap_lua_tointeger(L, index);
     return retVal;
+}
+
+int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue /*= -1*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    return int(fetchLongArg(L, index, defaultValue));
 }
 
 double fetchDoubleArg(luaWrap_lua_State* L, int index, double defaultValue /*= 0.0*/)
@@ -3722,41 +3727,22 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _sim_getObject(luaWrap_lua_State* L)
+int _simGetObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim._getObject");
+    LUA_START("sim.getObject");
 
     int retVal = -1; // means error
 
-    if (checkInputArguments(L, &errorString, lua_arg_string, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_integer, 0, lua_arg_integer, 0, lua_arg_integer, 0))
     {
-        int index = -1;
-        int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 0, true, false, &errorString);
-        if (res >= 0)
-        {
-            if (res == 2)
-                index = luaToInt(L, 2);
-            int proxyForSearch = -1;
-            res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, false, &errorString);
-            if (res >= 0)
-            {
-                if (res == 2)
-                    proxyForSearch = luaToInt(L, 3);
-
-                int options = 0;
-                res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 0, true, false, &errorString);
-                if (res >= 0)
-                {
-                    if (res == 2)
-                        options = luaToInt(L, 4);
-                    std::string name(luaWrap_lua_tostring(L, 1));
-                    setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L), CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-                    retVal = CALL_C_API(simGetObject, name.c_str(), index, proxyForSearch, options);
-                    setCurrentScriptInfo_cSide(-1, -1);
-                }
-            }
-        }
+        std::string name = fetchTextArg(L, 1);
+        int index = fetchIntArg(L, 2, -1);
+        int proxyForSearch = fetchIntArg(L, 3, -1);
+        int options = fetchIntArg(L, 4, 0);
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L), CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        retVal = CALL_C_API(simGetObject, name.c_str(), index, proxyForSearch, options);
+        setCurrentScriptInfo_cSide(-1, -1);
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -3777,24 +3763,18 @@ int _simGetObjectUid(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _sim_getObjectFromUid(luaWrap_lua_State* L)
+int _simGetObjectFromUid(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim._getObjectFromUid");
+    LUA_START("sim.getObjectFromUid");
 
     int retVal = -1; // means error
 
-    if (checkInputArguments(L, &errorString, lua_arg_integer, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer, 0))
     {
-        long long int uid = luaWrap_lua_tointeger(L, 1);
-        int options = 0;
-        int res = checkOneGeneralInputArgument(L, 2, lua_arg_integer, 0, true, false, &errorString);
-        if (res >= 0)
-        {
-            if (res == 2)
-                options = luaToInt(L, 2);
-            retVal = CALL_C_API(simGetObjectFromUid, uid, options);
-        }
+        long long int uid = fetchLongArg(L, 1);
+        int options = fetchIntArg(L, 2, 0);
+        retVal = CALL_C_API(simGetObjectFromUid, uid, options);
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
@@ -6408,21 +6388,16 @@ int _simGetObjectAlias(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectAlias");
 
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer | lua_arg_optional, 0))
     {
-        int options = -1;
-        int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 0, true, false, &errorString);
-        if (res >= 0)
+        int h = fetchIntArg(L, 1);
+        int options = fetchIntArg(L, 2, -1);
+        char* name = CALL_C_API(simGetObjectAlias, h, options);
+        if (name != nullptr)
         {
-            if (res == 2)
-                options = luaToInt(L, 2);
-            char* name = CALL_C_API(simGetObjectAlias, luaToInt(L, 1), options);
-            if (name != nullptr)
-            {
-                luaWrap_lua_pushtext(L, name);
-                CALL_C_API(simReleaseBuffer, name);
-                LUA_END(1);
-            }
+            luaWrap_lua_pushtext(L, name);
+            CALL_C_API(simReleaseBuffer, name);
+            LUA_END(1);
         }
     }
 
