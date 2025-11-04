@@ -8895,3 +8895,22 @@ int _simGetObjectParent(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simGetCollectionObjects(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getCollectionObjects");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int handle = luaToInt(L, 1);
+        int cnt;
+        int* objHandles = CALL_C_API(simGetCollectionObjects, handle, &cnt);
+        pushIntTableOntoStack(L, cnt, objHandles);
+        delete[] objHandles;
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+

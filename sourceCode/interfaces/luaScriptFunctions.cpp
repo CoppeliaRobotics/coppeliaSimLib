@@ -283,8 +283,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.setShapeTexture", _simSetShapeTexture},
     {"sim.getShapeTextureId", _simGetShapeTextureId},
     {"sim.destroyCollection", _simDestroyCollection},
-    {"sim.addItemToCollection", _simAddItemToCollection},
-    {"sim.getCollectionObjects", _simGetCollectionObjects},
+    {"sim.addToCollection", _simAddToCollection},
     {"sim.handleAddOnScripts", _simHandleAddOnScripts},
     {"sim.handleSandboxScript", _simHandleSandboxScript},
     {"sim.handleSimulationScripts", _simHandleSimulationScripts},
@@ -458,6 +457,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim1.rmlVel", _simRuckigVel},
     {"sim1.rmlStep", _simRuckigStep},
     {"sim1.rmlRemove", _simRuckigRemove},
+    {"sim1.getCollectionObjects", _simGetCollectionObjects},
     {"sim1.addStatusbarMessage", _simAddStatusbarMessage},
     {"sim1.getNameSuffix", _simGetNameSuffix},
     {"sim1.setNameSuffix", _simSetNameSuffix},
@@ -12444,16 +12444,16 @@ int _simCreateCollectionEx(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simAddItemToCollection(luaWrap_lua_State* L)
+int _simAddToCollection(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.addItemToCollection");
+    LUA_START("sim.addToCollection");
 
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number | lua_arg_optional, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0))
     {
         int collHandle = fetchIntArg(L, 1);
-        int what = fetchIntArg(L, 2);
-        int objHandle = fetchIntArg(L, 3);
+        int objHandle = fetchIntArg(L, 2);
+        int what = fetchIntArg(L, 3, sim_handle_single);
         int options = fetchIntArg(L, 4, 0);
         CALL_C_API(simAddItemToCollection, collHandle, what, objHandle, options);
     }
@@ -12463,31 +12463,12 @@ int _simAddItemToCollection(luaWrap_lua_State* L)
 }
 
 int _simDestroyCollection(luaWrap_lua_State* L)
-{
+{ // wrapped to sim.removeCollection in sim-2
     TRACE_LUA_API;
-    LUA_START("sim.destroyCollection");
+    LUA_START("sim.removeCollection");
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
         CALL_C_API(simDestroyCollection, luaToInt(L, 1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetCollectionObjects(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getCollectionObjects");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-    {
-        int handle = luaToInt(L, 1);
-        int cnt;
-        int* objHandles = CALL_C_API(simGetCollectionObjects, handle, &cnt);
-        pushIntTableOntoStack(L, cnt, objHandles);
-        delete[] objHandles;
-        LUA_END(1);
-    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
