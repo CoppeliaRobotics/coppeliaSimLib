@@ -129,12 +129,22 @@ struct SCustomRefs
     int generalObjectHandle;
 };
 
+inline bool operator==(const SCustomRefs& lhs, const SCustomRefs& rhs)
+{
+    return lhs.generalObjectType == rhs.generalObjectType && lhs.generalObjectHandle == rhs.generalObjectHandle;
+}
+
 struct SCustomOriginalRefs
 {
     int generalObjectType; // e.g. sim_objecttype_sceneobject, sim_appobj_collision_type
     int generalObjectHandle;
     std::string uniquePersistentIdString;
 };
+
+inline bool operator==(const SCustomOriginalRefs& lhs, const SCustomOriginalRefs& rhs)
+{
+    return lhs.generalObjectType == rhs.generalObjectType && lhs.generalObjectHandle == rhs.generalObjectHandle && lhs.uniquePersistentIdString == rhs.uniquePersistentIdString;
+}
 
 struct SScriptInfo
 {

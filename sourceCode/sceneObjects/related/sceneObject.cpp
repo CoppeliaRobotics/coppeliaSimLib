@@ -4123,6 +4123,7 @@ void CSceneObject::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
 
 void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const char* tag)
 {
+    auto cpy = _customReferencedHandles;
     if (tag == nullptr)
         _customReferencedHandles.clear();
     else
@@ -4177,6 +4178,17 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const ch
             }
         }
     }
+    /*
+    if (cpy != _customReferencedHandles)
+    {
+        std::vector<std::string> tags;
+        getReferencedHandlesTags(tags);
+        for (size_t i = 0; i < tags.size(); i++)
+        {
+
+        }
+    }
+    */
 }
 
 size_t CSceneObject::getReferencedHandlesCount(const char* tag) const
@@ -6724,13 +6736,14 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
             getReferencedHandlesTags(tags);
             for (size_t i = 0; i < tags.size(); i++)
             {
-
-                if ( (tags[i].size() > 0) && ((pName.size() == 0) || utils::startsWith(tags[i].c_str(), pName.c_str())) )
+                std::string tag(tags[i]);
+                std::string decoratedTag(REFSPREFIX + tag);
+                if ( (tag.size() > 0) && ((pName.size() == 0) || utils::startsWith(decoratedTag.c_str(), pName.c_str())) )
                 {
                     index--;
                     if (index == -1)
                     {
-                        pName = REFSPREFIX + tags[i];
+                        pName = decoratedTag;
                         retVal = 1;
                         break;
                     }
@@ -6742,13 +6755,14 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
                 getReferencedOriginalHandlesTags(tags);
                 for (size_t i = 0; i < tags.size(); i++)
                 {
-
-                    if ( (tags[i].size() > 0) && ((pName.size() == 0) || utils::startsWith(tags[i].c_str(), pName.c_str())) )
+                    std::string tag(tags[i]);
+                    std::string decoratedTag(ORIGREFSPREFIX + tag);
+                    if ( (tag.size() > 0) && ((pName.size() == 0) || utils::startsWith(decoratedTag.c_str(), pName.c_str())) )
                     {
                         index--;
                         if (index == -1)
                         {
-                            pName = ORIGREFSPREFIX + tags[i];
+                            pName = decoratedTag;
                             retVal = 1;
                             break;
                         }
