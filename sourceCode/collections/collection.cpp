@@ -272,6 +272,81 @@ int CCollection::getSceneObjectHandleFromIndex(size_t index) const
     return (retVal);
 }
 
+int CCollection::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "collection."));
+    int retVal = -1;
+
+    if (_pName == propCollection_objectType.name)
+    {
+        retVal = 1;
+        pState = "collection";
+    }
+
+    return retVal;
+}
+
+int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "collection."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    pState.clear();
+
+    if (strcmp(pName, propCollection_objects.name) == 0)
+    {
+        for (size_t i = 0; i < _collectionObjects.size(); i++)
+            pState.push_back(_collectionObjects[i]);
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CCollection::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_collection.size(); i++)
+    {
+        if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
+        {
+            if ((allProps_collection[i].flags & sim_propertyinfo_deprecated) == 0)
+            {
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_collection[i].name;
+                    //pName = "collection." + pName;
+                    retVal = 1;
+                    break;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CCollection::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "collection."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_collection.size(); i++)
+    {
+        if (strcmp(allProps_collection[i].name, pName) == 0)
+        {
+            retVal = allProps_collection[i].type;
+            info = allProps_collection[i].flags;
+            if ((infoTxt == "") && (strcmp(allProps_collection[i].infoTxt, "") != 0))
+                infoTxt = allProps_collection[i].infoTxt;
+            else
+                infoTxt = allProps_collection[i].shortInfoTxt;
+            break;
+        }
+    }
+    return retVal;
+}
+
 void CCollection::serialize(CSer& ar)
 {
     if (ar.isBinary())

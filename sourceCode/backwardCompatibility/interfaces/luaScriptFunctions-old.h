@@ -297,3 +297,6 @@ extern int _simInterpolateMatrices(luaWrap_lua_State* L);
 extern int _simMultiplyVector(luaWrap_lua_State* L);
 extern int _simGetMatrixInverse(luaWrap_lua_State* L);
 extern int _simGetPoseInverse(luaWrap_lua_State* L);
+extern int _simGetObjectChild(luaWrap_lua_State* L);
+extern int _simGetObjectParent(luaWrap_lua_State* L);
+

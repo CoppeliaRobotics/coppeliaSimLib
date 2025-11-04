@@ -1,6 +1,22 @@
 #pragma once
 
+#include <simLib/simConst.h>
 #include <collectionElement.h>
+
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES                                                                                                                                                                                                       \
+    FUNCX(propCollection_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "Scene object type")                                                    \
+    FUNCX(propCollection_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Children handles", "")
+
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
+    DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, t1, t2) name,
+    const std::vector<SProperty> allProps_collection = {DEFINE_PROPERTIES};
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
 
 class CCollection
 {
@@ -41,6 +57,11 @@ class CCollection
 
     size_t getSceneObjectCountInCollection() const;
     int getSceneObjectHandleFromIndex(size_t index) const;
+
+    int getStringProperty(const char* pName, std::string& pState) const;
+    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
+    static int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
 
   protected:
     void _addCollectionElement(CCollectionElement* collectionElement);

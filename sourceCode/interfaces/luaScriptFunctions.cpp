@@ -167,8 +167,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.setObjectPose", _simSetObjectPose},
     {"sim.getObjectChildPose", _simGetObjectChildPose},
     {"sim.setObjectChildPose", _simSetObjectChildPose},
-    {"sim.getObjectChild", _simGetObjectChild},
-    {"sim.getObjectParent", _simGetObjectParent},
     {"sim.setObjectParent", _simSetObjectParent},
     {"sim.getObjectType", _simGetObjectType},
     {"sim.getJointType", _simGetJointType},
@@ -419,6 +417,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim1.poseToMatrix", _simPoseToMatrix},
     {"sim1.matrixToPose", _simMatrixToPose},
     {"sim1.multiplyVector", _simMultiplyVector},
+    {"sim1.getObjectChild", _simGetObjectChild},
     {"sim1.getRotationAxis", _simGetRotationAxis},
     {"sim1.rotateAroundAxis", _simRotateAroundAxis},
     {"sim1.getObjectOrientation", _simGetObjectOrientation},
@@ -488,6 +487,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim1.setIkGroupProperties", _simSetIkGroupProperties},
     {"sim1.setIkElementProperties", _simSetIkElementProperties},
     {"sim1.setThreadIsFree", _simSetThreadIsFree},
+    {"sim1.getObjectParent", _simGetObjectParent},
     {"sim1._tubeRead", _simTubeRead},
     {"sim1.tubeOpen", _simTubeOpen},
     {"sim1.tubeClose", _simTubeClose},
@@ -4657,34 +4657,6 @@ int _simSetObjectChildPose(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simGetObjectParent(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectParent");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = CALL_C_API(simGetObjectParent, luaToInt(L, 1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simGetObjectChild(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectChild");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = CALL_C_API(simGetObjectChild, luaToInt(L, 1), luaToInt(L, 2));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
 }
 
 int _simGetObjectHierarchyOrder(luaWrap_lua_State* L)

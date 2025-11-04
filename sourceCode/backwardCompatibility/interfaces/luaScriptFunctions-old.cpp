@@ -8867,3 +8867,31 @@ int _simMultiplyVector(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simGetObjectChild(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectChild");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+        retVal = CALL_C_API(simGetObjectChild, luaToInt(L, 1), luaToInt(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectParent(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectParent");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+        retVal = CALL_C_API(simGetObjectParent, luaToInt(L, 1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+

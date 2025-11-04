@@ -1,6 +1,7 @@
 #include <collectionContainer.h>
 #include <app.h>
 #include <tt.h>
+#include <utils.h>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
 #endif
@@ -264,6 +265,109 @@ void CCollectionContainer::addCollectionToSelection(int collectionHandle) const
         for (size_t i = 0; i < it->getSceneObjectCountInCollection(); i++)
             App::currentWorld->sceneObjects->addObjectToSelection(it->getSceneObjectHandleFromIndex(i));
     }
+}
+
+int CCollectionContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CCollection* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getStringProperty(pName, pState);
+        retVal = -2; // collection does not exist
+    }
+    return retVal;
+}
+
+int CCollectionContainer::getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const
+{
+    int retVal = -1;
+    pState.clear();
+    if (target == -1)
+    {
+        if (strcmp(pName, propCollCont_collections.name) == 0)
+        {
+            for (size_t i = 0; i < _allCollections.size(); i++)
+                pState.push_back(_allCollections[i]->getCollectionHandle());
+            retVal = 1;
+        }
+    }
+    else
+    {
+        CCollection* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getHandleArrayProperty(pName, pState);
+        retVal = -2; // collection does not exist
+    }
+    return retVal;
+}
+
+int CCollectionContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+        for (size_t i = 0; i < allProps_collCont.size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(allProps_collCont[i].name, pName.c_str()))
+            {
+                if ((allProps_collCont[i].flags & sim_propertyinfo_deprecated) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_collCont[i].name;
+                        retVal = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        CCollection* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            appartenance += ".collection";
+            return it->getPropertyName(index, pName, appartenance);
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
+int CCollectionContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+        for (size_t i = 0; i < allProps_collCont.size(); i++)
+        {
+            if (strcmp(allProps_collCont[i].name, pName) == 0)
+            {
+                retVal = allProps_collCont[i].type;
+                info = allProps_collCont[i].flags;
+                if ((infoTxt == "") && (strcmp(allProps_collCont[i].infoTxt, "") != 0))
+                    infoTxt = allProps_collCont[i].infoTxt;
+                else
+                    infoTxt = allProps_collCont[i].shortInfoTxt;
+                break;
+            }
+        }
+    }
+    else
+    {
+        CCollection* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getPropertyInfo(pName, info, infoTxt);
+        retVal = -2; // object does not exist
+    }
+    return retVal;
 }
 
 void CCollectionContainer::performObjectLoadingMapping(const std::map<int, int>* map)

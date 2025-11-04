@@ -4,6 +4,20 @@
 #include <shape.h>
 #include <dummy.h>
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES                                                                                                                                                                                                               \
+    FUNCX(propCollCont_collections, "collections", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Collections", "Handles of all collections")
+
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
+    DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, t1, t2) name,
+    const std::vector<SProperty> allProps_collCont = {DEFINE_PROPERTIES};
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CCollectionContainer
 {
   public:
@@ -38,6 +52,11 @@ class CCollectionContainer
     void performObjectLoadingMapping(const std::map<int, int>* map);
 
     void addCollectionToSelection(int collectionHandle) const;
+
+    int getStringProperty(long long int target, const char* pName, std::string& pState) const;
+    int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
+    int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance) const;
+    int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;
 
   protected:
     void _addCollection(CCollection* collection);
