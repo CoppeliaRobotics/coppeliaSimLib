@@ -1555,6 +1555,34 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
 
     customObjectData.appendEventData(nullptr, ev);
     customObjectData_volatile.appendEventData(nullptr, ev);
+
+    std::vector<std::string> tags;
+    getReferencedHandlesTags(tags);
+    for (size_t i = 0; i < tags.size(); i++)
+    {
+        if (tags[i].size() > 0)
+        {
+            std::vector<int> handles;
+            auto it = _customReferencedHandles.find(tags[i]);
+            for (size_t j = 0; j < it->second.size(); j++)
+                handles.push_back(it->second[j].generalObjectHandle);
+            ev->appendKeyIntArray((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+        }
+    }
+    tags.clear();
+    getReferencedOriginalHandlesTags(tags);
+    for (size_t i = 0; i < tags.size(); i++)
+    {
+        if (tags[i].size() > 0)
+        {
+            std::vector<int> handles;
+            auto it = _customReferencedOriginalHandles.find(tags[i]);
+            for (size_t j = 0; j < it->second.size(); j++)
+                handles.push_back(it->second[j].generalObjectHandle);
+            ev->appendKeyIntArray((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+        }
+    }
+
     //    ev->openKeyMap("customData");
     //    customObjectData.appendEventData(ev);
     //    customObjectData_volatile.appendEventData(ev);
@@ -4123,6 +4151,8 @@ void CSceneObject::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
 
 void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const char* tag)
 {
+    std::vector<std::string> initTags;
+    getReferencedHandlesTags(initTags);
     auto cpy = _customReferencedHandles;
     if (tag == nullptr)
         _customReferencedHandles.clear();
@@ -4178,17 +4208,35 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const ch
             }
         }
     }
-    /*
+
     if (cpy != _customReferencedHandles)
     {
-        std::vector<std::string> tags;
-        getReferencedHandlesTags(tags);
-        for (size_t i = 0; i < tags.size(); i++)
+        if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+            std::vector<std::string> tags;
+            getReferencedHandlesTags(tags);
+            std::set<std::string> usedTags;
+            for (size_t i = 0; i < tags.size(); i++)
+            {
+                if (tags[i].size() > 0)
+                {
+                    std::vector<int> handles;
+                    auto it = _customReferencedHandles.find(tags[i]);
+                    for (size_t j = 0; j < it->second.size(); j++)
+                        handles.push_back(it->second[j].generalObjectHandle);
+                    ev->appendKeyIntArray((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+                    usedTags.insert(tags[i]);
+                }
+            }
+            for (size_t i = 0; i < initTags.size(); i++)
+            { // take care of cleared tags
+                if ( (initTags[i].size() > 0) && (usedTags.find(initTags[i]) == usedTags.end()) )
+                    ev->appendKeyNull((REFSPREFIX + initTags[i]).c_str());
+            }
+            App::worldContainer->pushEvent();
         }
     }
-    */
 }
 
 size_t CSceneObject::getReferencedHandlesCount(const char* tag) const
@@ -4224,6 +4272,9 @@ void CSceneObject::getReferencedHandlesTags(std::vector<std::string>& tags) cons
 
 void CSceneObject::setReferencedOriginalHandles(int cnt, const int* handles, const char* tag)
 {
+    std::vector<std::string> initTags;
+    getReferencedOriginalHandlesTags(initTags);
+    auto cpy = _customReferencedOriginalHandles;
     if (tag == nullptr)
         _customReferencedOriginalHandles.clear();
     else
@@ -4288,6 +4339,35 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int* handles, con
                 }
                 it->second.push_back(r);
             }
+        }
+    }
+
+    if (cpy != _customReferencedOriginalHandles)
+    {
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+            std::vector<std::string> tags;
+            getReferencedOriginalHandlesTags(tags);
+            std::set<std::string> usedTags;
+            for (size_t i = 0; i < tags.size(); i++)
+            {
+                if (tags[i].size() > 0)
+                {
+                    std::vector<int> handles;
+                    auto it = _customReferencedOriginalHandles.find(tags[i]);
+                    for (size_t j = 0; j < it->second.size(); j++)
+                        handles.push_back(it->second[j].generalObjectHandle);
+                    ev->appendKeyIntArray((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+                    usedTags.insert(tags[i]);
+                }
+            }
+            for (size_t i = 0; i < initTags.size(); i++)
+            { // take care of cleared tags
+                if ( (initTags[i].size() > 0) && (usedTags.find(initTags[i]) == usedTags.end()) )
+                    ev->appendKeyNull((ORIGREFSPREFIX + initTags[i]).c_str());
+            }
+            App::worldContainer->pushEvent();
         }
     }
 }
