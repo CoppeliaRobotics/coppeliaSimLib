@@ -15,6 +15,8 @@
 #define CUSTOMDATAPREFIX "customData."
 #define SIGNALPREFIX "signal."
 #define NAMEDPARAMPREFIX "namedParam."
+#define REFSPREFIX "refs."
+#define ORIGREFSPREFIX "origRefs."
 #define COLORPREFIX "color."
 #define COLORPREFIX_CAP "Color."
 

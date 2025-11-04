@@ -6562,6 +6562,24 @@ int CSceneObject::setHandleArrayProperty(const char* ppName, const long long int
     if (v == nullptr)
         vL = 0;
 
+    std::string pN(pName);
+    if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+    {
+        std::vector<int> v2;
+        for (int i = 0; i < vL; i++)
+            v2.push_back(int(v[i]));
+        setReferencedHandles(v2.size(), v2.data(), pN.c_str());
+        retVal = 1;
+    }
+    else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+    {
+        std::vector<int> v2;
+        for (int i = 0; i < vL; i++)
+            v2.push_back(int(v[i]));
+        setReferencedOriginalHandles(v2.size(), v2.data(), pN.c_str());
+        retVal = 1;
+    }
+
     return retVal;
 }
 
@@ -6577,6 +6595,37 @@ int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long lo
         for (size_t i = 0; i < _childList.size(); i++)
             pState.push_back(_childList[i]->getObjectHandle());
         retVal = 1;
+    }
+
+    if (retVal == -1)
+    {
+        std::string pN(pName);
+        if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+        {
+            size_t cnt = getReferencedHandlesCount(pN.c_str());
+            std::vector<int> v2;
+            if (cnt > 0)
+            {
+                v2.resize(cnt);
+                getReferencedHandles(v2.data(), pN.c_str());
+            }
+            for (size_t i = 0; i < v2.size(); i++)
+                pState.push_back(v2[i]);
+            retVal = 1;
+        }
+        else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+        {
+            size_t cnt = getReferencedOriginalHandlesCount(pN.c_str());
+            std::vector<int> v2;
+            if (cnt > 0)
+            {
+                v2.resize(cnt);
+                getReferencedOriginalHandles(v2.data(), pN.c_str());
+            }
+            for (size_t i = 0; i < v2.size(); i++)
+                pState.push_back(v2[i]);
+            retVal = 1;
+        }
     }
 
     return retVal;
@@ -6608,6 +6657,25 @@ int CSceneObject::removeProperty(const char* ppName)
                     customDataPtr->appendEventData(pN.c_str(), ev, true);
                     App::worldContainer->pushEvent();
                 }
+                retVal = 1;
+            }
+        }
+    }
+    else
+    {
+        if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+        {
+            if (getReferencedHandlesCount(pN.c_str()) > 0)
+            {
+                setReferencedHandles(0, nullptr, pN.c_str());
+                retVal = 1;
+            }
+        }
+        else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+        {
+            if (getReferencedOriginalHandlesCount(pN.c_str()) > 0)
+            {
+                setReferencedOriginalHandles(0, nullptr, pN.c_str());
                 retVal = 1;
             }
         }
@@ -6644,11 +6712,49 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
             //pName = "object." + pName;
             retVal = 1;
         }
-        if (customObjectData_volatile.getPropertyName(index, pName))
+        else if (customObjectData_volatile.getPropertyName(index, pName))
         {
             pName = SIGNALPREFIX + pName;
             //pName = "object." + pName;
             retVal = 1;
+        }
+        else
+        {
+            std::vector<std::string> tags;
+            getReferencedHandlesTags(tags);
+            for (size_t i = 0; i < tags.size(); i++)
+            {
+
+                if ( (tags[i].size() > 0) && ((pName.size() == 0) || utils::startsWith(tags[i].c_str(), pName.c_str())) )
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = REFSPREFIX + tags[i];
+                        retVal = 1;
+                        break;
+                    }
+                }
+            }
+            if (retVal == -1)
+            {
+                tags.clear();
+                getReferencedOriginalHandlesTags(tags);
+                for (size_t i = 0; i < tags.size(); i++)
+                {
+
+                    if ( (tags[i].size() > 0) && ((pName.size() == 0) || utils::startsWith(tags[i].c_str(), pName.c_str())) )
+                    {
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = ORIGREFSPREFIX + tags[i];
+                            retVal = 1;
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
     return retVal;
@@ -6719,7 +6825,34 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
                     if (signal)
                         info = info | sim_propertyinfo_modelhashexclude;
                     if (s > LARGE_PROPERTY_SIZE)
-                        s = s | 0x100;
+                        info = info | sim_propertyinfo_largedata;
+                    infoTxt = "";
+                }
+            }
+        }
+        else
+        {
+            if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+            {
+                size_t s = getReferencedHandlesCount(pN.c_str());
+                if (s > 0)
+                {
+                    retVal = sim_propertytype_handlearray;
+                    info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
+                    if (s > LARGE_PROPERTY_SIZE)
+                        info = info | sim_propertyinfo_largedata;
+                    infoTxt = "";
+                }
+            }
+            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+            {
+                size_t s = getReferencedOriginalHandlesCount(pN.c_str());
+                if (s > 0)
+                {
+                    retVal = sim_propertytype_handlearray;
+                    info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
+                    if (s > LARGE_PROPERTY_SIZE)
+                        info = info | sim_propertyinfo_largedata;
                     infoTxt = "";
                 }
             }
