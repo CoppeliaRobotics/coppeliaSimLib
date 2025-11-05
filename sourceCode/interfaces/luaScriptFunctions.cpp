@@ -3277,7 +3277,7 @@ int _simHandleVisionSensor(luaWrap_lua_State* L)
     LUA_START("sim.handleVisionSensor");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0))
     {
         double* auxVals = nullptr;
         int* auxValsCount = nullptr;

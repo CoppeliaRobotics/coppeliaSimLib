@@ -46,9 +46,9 @@ bool CCollection::isObjectInCollection(int objectHandle) const
     for (size_t i = 0; i < _collectionObjects.size(); i++)
     {
         if (_collectionObjects[i] == objectHandle)
-            return (true);
+            return true;
     }
-    return (false);
+    return false;
 }
 
 void CCollection::addCollectionElement(CCollectionElement* collectionElement)
@@ -66,7 +66,6 @@ void CCollection::addCollectionElement(CCollectionElement* collectionElement)
 
 bool CCollection::actualizeCollection()
 { // return value false means that this collection is empty
-    bool retVal = false;
     // First we remove all collection elements which are not valid anymore:
     {
         size_t i = 0;
@@ -100,17 +99,16 @@ bool CCollection::actualizeCollection()
                 _removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
         }
     }
-    // Is this collection still valid?
-    if (getElementCount() != 0)
-    {
-        retVal = true;
-        // Now we set-up the object list:
-        std::vector<int> objs;
-        for (size_t i = 0; i < getElementCount(); i++)
-            getElementFromIndex(i)->addOrRemoveYourObjects(&objs);
-        _updateCollectionObjects_(objs);
-    }
-    return (retVal);
+    bool retVal = (getElementCount() != 0);
+//    if (retVal)
+//    {
+    // Now we set-up the object list:
+    std::vector<int> objs;
+    for (size_t i = 0; i < getElementCount(); i++)
+        getElementFromIndex(i)->addOrRemoveYourObjects(&objs);
+    _updateCollectionObjects_(objs);
+//    }
+    return retVal;
 }
 
 void CCollection::removeCollectionElementFromHandle(int collectionElementHandle)
@@ -176,7 +174,7 @@ bool CCollection::announceObjectWillBeErased(int objectHandle, bool copyBuffer)
         _updateCollectionObjects_(objs);
     }
 
-    return (retVal);
+    return retVal;
 }
 
 bool CCollection::setCollectionName(const char* newName, bool check)
@@ -245,23 +243,23 @@ void CCollection::emptyCollection()
 {
     while (getElementCount() > 0)
         _removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
-    _collectionObjects.clear();
+    //_collectionObjects.clear();
     actualizeCollection();
 }
 
 int CCollection::getCreatorHandle() const
 {
-    return (_creatorHandle);
+    return _creatorHandle;
 }
 
 std::string CCollection::getUniquePersistentIdString() const
 {
-    return (_uniquePersistentIdString);
+    return _uniquePersistentIdString;
 }
 
 size_t CCollection::getSceneObjectCountInCollection() const
 {
-    return (_collectionObjects.size());
+    return _collectionObjects.size();
 }
 
 int CCollection::getSceneObjectHandleFromIndex(size_t index) const
@@ -269,7 +267,7 @@ int CCollection::getSceneObjectHandleFromIndex(size_t index) const
     int retVal = -1;
     if (index < _collectionObjects.size())
         retVal = _collectionObjects[index];
-    return (retVal);
+    return retVal;
 }
 
 int CCollection::getStringProperty(const char* ppName, std::string& pState) const
@@ -507,7 +505,18 @@ void CCollection::serialize(CSer& ar)
 
 void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectHandles)
 {
+    std::vector<int> cpy(_collectionObjects);
     _collectionObjects.assign(sceneObjectHandles.begin(), sceneObjectHandles.end());
+    if (cpy != _collectionObjects)
+    {
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_COLLECTIONCHANGED, -1, _collectionHandle, nullptr, false);
+            ev->appendKeyIntArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+            App::worldContainer->pushEvent();
+        }
+
+    }
 }
 
 std::string CCollection::getCollectionLoadName() const
@@ -583,5 +592,16 @@ void CCollection::_removeCollectionElementFromHandle(int collectionElementHandle
             _collectionElements.erase(_collectionElements.begin() + i);
             break;
         }
+    }
+}
+
+void CCollection::pushCreationEvent() const
+{
+    if (App::worldContainer->getEventsEnabled())
+    {
+        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_COLLECTIONADDED, -1, _collectionHandle, nullptr, false);
+        ev->appendKeyText(propCollection_objectType.name, "collection");
+        ev->appendKeyIntArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+        App::worldContainer->pushEvent();
     }
 }

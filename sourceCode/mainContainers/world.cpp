@@ -1219,6 +1219,7 @@ void CWorld::pushGenesisEvents()
     App::worldContainer->pushEvent();
 
     sceneObjects->pushObjectGenesisEvents();
+    collections->pushGenesisEvents();
 
     drawingCont->pushGenesisEvents();
     pointCloudCont_old->pushGenesisEvents();

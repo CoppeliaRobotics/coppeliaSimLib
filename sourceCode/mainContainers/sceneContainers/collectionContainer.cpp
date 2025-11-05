@@ -207,12 +207,12 @@ bool CCollectionContainer::canSuffix1BeSetToSuffix2(int suffix1, int suffix2) co
                     std::string name2(
                         tt::getNameWithoutSuffixNumber(getObjectFromIndex(j)->getCollectionName().c_str(), true));
                     if (name1 == name2)
-                        return (false); // NO! We would have a name clash!
+                        return false; // NO! We would have a name clash!
                 }
             }
         }
     }
-    return (true);
+    return true;
 }
 
 void CCollectionContainer::setSuffix1ToSuffix2(int suffix1, int suffix2)
@@ -382,6 +382,11 @@ void CCollectionContainer::_removeCollection(int collectionHandle)
     {
         if (_allCollections[i]->getCollectionHandle() == collectionHandle)
         {
+            if (App::worldContainer->getEventsEnabled())
+            {
+                App::worldContainer->createEvent(EVENTTYPE_COLLECTIONREMOVED, -1, collectionHandle, nullptr, false);
+                App::worldContainer->pushEvent();
+            }
             delete _allCollections[i];
             _allCollections.erase(_allCollections.begin() + i);
             break;
@@ -392,11 +397,23 @@ void CCollectionContainer::_removeCollection(int collectionHandle)
 void CCollectionContainer::_addCollection(CCollection* collection)
 {
     _allCollections.push_back(collection);
+    collection->pushCreationEvent();
+
+    if (App::worldContainer->getEventsEnabled())
+    {
+        std::vector<int> handles;
+        for (size_t i = 0; i < _allCollections.size(); i++)
+            handles.push_back(_allCollections[i]->getCollectionHandle());
+        const char* cmd = propCollCont_collections.name;
+        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyIntArray(cmd, handles.data(), handles.size());
+        App::worldContainer->pushEvent();
+    }
 }
 
 size_t CCollectionContainer::getObjectCount() const
 {
-    return (_allCollections.size());
+    return _allCollections.size();
 }
 
 CCollection* CCollectionContainer::getObjectFromIndex(size_t index) const
@@ -404,7 +421,7 @@ CCollection* CCollectionContainer::getObjectFromIndex(size_t index) const
     CCollection* retVal = nullptr;
     if (index < _allCollections.size())
         retVal = _allCollections[index];
-    return (retVal);
+    return retVal;
 }
 
 CCollection* CCollectionContainer::getObjectFromHandle(int collectionHandle) const
@@ -418,7 +435,7 @@ CCollection* CCollectionContainer::getObjectFromHandle(int collectionHandle) con
             break;
         }
     }
-    return (retVal);
+    return retVal;
 }
 
 CCollection* CCollectionContainer::getObjectFromName(const char* collectionName) const
@@ -432,5 +449,23 @@ CCollection* CCollectionContainer::getObjectFromName(const char* collectionName)
             break;
         }
     }
-    return (retVal);
+    return retVal;
 }
+
+void CCollectionContainer::pushGenesisEvents() const
+{
+    std::vector<int> addedCollections;
+    for (size_t i = 0; i < _allCollections.size(); i++)
+    {
+        CCollection* coll = _allCollections[i];
+        coll->pushCreationEvent();
+
+        // We need to "fake" adding that collection:
+        addedCollections.push_back(coll->getCollectionHandle());
+        const char* cmd = propCollCont_collections.name;
+        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyIntArray(cmd, addedCollections.data(), addedCollections.size());
+        App::worldContainer->pushEvent();
+    }
+}
+

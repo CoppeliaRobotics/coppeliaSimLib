@@ -52,6 +52,7 @@ class CCollectionContainer
     void performObjectLoadingMapping(const std::map<int, int>* map);
 
     void addCollectionToSelection(int collectionHandle) const;
+    void pushGenesisEvents() const;
 
     int getStringProperty(long long int target, const char* pName, std::string& pState) const;
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
