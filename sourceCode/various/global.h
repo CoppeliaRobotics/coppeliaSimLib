@@ -1558,7 +1558,9 @@ enum
                                    // if we remove float support anyways
     SIM_IDEND_TEXTURE = 2280009,   // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok
                                    // if we remove float support anyways
-    SIM_UIDSTART = 10000000,       // only for object related to a specific scene! (i.e. no app objects!)
+    SIM_IDSTART_DRAWINGOBJ = 10000000,
+    SIM_IDEND_DRAWINGOBJ = 19999999,
+    SIM_UIDSTART = 20000000,       // only for object related to a specific scene! (e.g. meshes) (i.e. no app objects!)
 };
 #endif
 enum

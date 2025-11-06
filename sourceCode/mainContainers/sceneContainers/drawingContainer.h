@@ -3,6 +3,20 @@
 #include <drawingObject.h>
 #include <simMath/7Vector.h>
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES                                                                                                                                                                                                               \
+FUNCX(propDrawCont_drawingObjects, "drawingObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Drawing objects", "Handles of all drawing objects")
+
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, t1, t2) name,
+    const std::vector<SProperty> allProps_drawCont = {DEFINE_PROPERTIES};
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CViewableBase;
 
 class CDrawingContainer
@@ -14,15 +28,22 @@ class CDrawingContainer
     void simulationEnded();
     void eraseAllObjects();
     int addObject(CDrawingObject* it);
-    CDrawingObject* getObject(int objectId);
+    CDrawingObject* getObject(int objectId) const;
+    CDrawingObject* getObjectFromUid(long long int objectUid) const;
     void announceObjectWillBeErased(const CSceneObject* object);
     void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void removeObject(int objectId);
+
+    int getStringProperty(long long int target, const char* pName, std::string& pState) const;
+    int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
+    int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance) const;
+    int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;
 
     void pushGenesisEvents();
     void pushAppendNewPointEvents();
 
   private:
+    void _publishAllDrawingObjectHandlesEvent() const;
     std::vector<CDrawingObject*> _allObjects;
 
 #ifdef SIM_WITH_GUI

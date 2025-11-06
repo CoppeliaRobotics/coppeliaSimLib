@@ -2737,6 +2737,8 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
             retVal = sceneObjects->setBoolProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setBoolProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setBoolProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -2805,6 +2807,12 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
         //const char* pName = _pName.c_str();
         //retVal = collections->setBoolProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setBoolProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -2834,6 +2842,8 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
             retVal = sceneObjects->getBoolProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getBoolProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->sgetBoolProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -2901,6 +2911,12 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
         //const char* pName = _pName.c_str();
         //retVal = collections->getBoolProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getBoolProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -2930,6 +2946,8 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
             retVal = sceneObjects->setIntProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setIntProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setIntProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -2998,6 +3016,12 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
         //const char* pName = _pName.c_str();
         //retVal = collections->setIntProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setIntProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3027,6 +3051,8 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
             retVal = sceneObjects->getIntProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getIntProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getIntProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -3094,6 +3120,12 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
         //const char* pName = _pName.c_str();
         //retVal = collections->getIntProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getIntProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3124,6 +3156,8 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
             retVal = sceneObjects->setLongProperty(-1, pName, pState); // for the container itself
         if ((retVal == -1) && (collections != nullptr))
             retVal = collections->setLongProperty(-1, pName, pState); // for the container itself
+        if ((retVal == -1) && (drawingCont != nullptr))
+            retVal = drawingCont->setLongProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -3193,6 +3227,12 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
         //const char* pName = _pName.c_str();
         //retVal = collections->setLongProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setLongProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3223,6 +3263,8 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
             retVal = sceneObjects->getLongProperty(-1, pName, pState); // for the container itself
         if ((retVal == -1) && (collections != nullptr))
             retVal = collections->getLongProperty(-1, pName, pState); // for the container itself
+        if ((retVal == -1) && (drawingCont != nullptr))
+            retVal = drawingCont->getLongProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -3290,6 +3332,12 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
         //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         //const char* pName = _pName.c_str();
         //retVal = collections->getLongProperty(target, pName, pState);
+    }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getLongProperty(target, pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -3375,6 +3423,12 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
         //const char* pName = _pName.c_str();
         //retVal = collections->setHandleProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setHandleProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3458,6 +3512,12 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
         //const char* pName = _pName.c_str();
         //retVal = collections->getHandleProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getHandleProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3485,6 +3545,8 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
             retVal = sceneObjects->setFloatProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setFloatProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setFloatProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -3553,6 +3615,12 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
         //const char* pName = _pName.c_str();
         //retVal = collections->setFloatProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setFloatProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3580,6 +3648,8 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
             retVal = sceneObjects->getFloatProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getFloatProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getFloatProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -3647,6 +3717,12 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
         //const char* pName = _pName.c_str();
         //retVal = collections->getFloatProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getFloatProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3674,6 +3750,8 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
             retVal = sceneObjects->setStringProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setStringProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setStringProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -3742,6 +3820,12 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
         //const char* pName = _pName.c_str();
         //retVal = collections->setStringProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setStringProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -3769,6 +3853,8 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
             retVal = sceneObjects->getStringProperty(-1, pName, pState); // for the container itself
         if ((retVal == -1) && (collections != nullptr))
             retVal = collections->getStringProperty(-1, pName, pState); // for the container itself
+        if ((retVal == -1) && (drawingCont != nullptr))
+            retVal = drawingCont->getStringProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -3843,6 +3929,12 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = collections->getStringProperty(target, pName, pState);
+    }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        const char* pName = _pName.c_str();
+        retVal = drawingCont->getStringProperty(target, pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -3950,6 +4042,12 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
         //const char* pName = _pName.c_str();
         //retVal = collections->setBufferProperty(target, pName, buffer, bufferL);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setBufferProperty(target, pName, buffer, bufferL);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4055,6 +4153,12 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
         //const char* pName = _pName.c_str();
         //retVal = collections->getBufferProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getBufferProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4080,6 +4184,8 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
             retVal = sceneObjects->setIntArray2Property(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setIntArray2Property(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setIntArray2Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4154,6 +4260,12 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
         //const char* pName = _pName.c_str();
         //retVal = collections->setIntArray2Property(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setIntArray2Property(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4179,6 +4291,8 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
             retVal = sceneObjects->getIntArray2Property(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getIntArray2Property(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getIntArray2Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4256,6 +4370,12 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
         //const char* pName = _pName.c_str();
         //retVal = collections->getIntArray2Property(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getIntArray2Property(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4281,6 +4401,8 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
             retVal = sceneObjects->setVector2Property(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setVector2Property(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setVector2Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4352,6 +4474,12 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
         //const char* pName = _pName.c_str();
         //retVal = collections->setVector2Property(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setVector2Property(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4377,6 +4505,8 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
             retVal = sceneObjects->getVector2Property(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getVector2Property(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getVector2Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4458,6 +4588,12 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
         //const char* pName = _pName.c_str();
         //retVal = collections->getVector2Property(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getVector2Property(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4483,6 +4619,8 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
             retVal = sceneObjects->setVector3Property(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setVector3Property(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setVector3Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4554,6 +4692,12 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
         //const char* pName = _pName.c_str();
         //retVal = collections->setVector3Property(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setVector3Property(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4579,6 +4723,8 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
             retVal = sceneObjects->getVector3Property(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getVector3Property(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getVector3Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4658,6 +4804,12 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
         //const char* pName = _pName.c_str();
         //retVal = collections->getVector3Property(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getVector3Property(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4681,6 +4833,8 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
             retVal = sceneObjects->setQuaternionProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setQuaternionProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setQuaternionProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4752,6 +4906,12 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
         //const char* pName = _pName.c_str();
         //retVal = collections->setQuaternionProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setQuaternionProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4775,6 +4935,8 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
             retVal = sceneObjects->getQuaternionProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getQuaternionProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getQuaternionProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4854,6 +5016,12 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
         //const char* pName = _pName.c_str();
         //retVal = collections->getQuaternionProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getQuaternionProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4877,6 +5045,8 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
             retVal = sceneObjects->setPoseProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setPoseProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setPoseProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -4950,6 +5120,12 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
         //const char* pName = _pName.c_str();
         //retVal = collections->setPoseProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setPoseProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -4973,6 +5149,8 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
             retVal = sceneObjects->getPoseProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getPoseProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getPoseProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5052,6 +5230,12 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
         //const char* pName = _pName.c_str();
         //retVal = collections->getPoseProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getPoseProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -5077,6 +5261,8 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
             retVal = sceneObjects->setColorProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setColorProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setColorProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5151,6 +5337,12 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
         //const char* pName = _pName.c_str();
         //retVal = collections->setColorProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setColorProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -5176,6 +5368,8 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
             retVal = sceneObjects->getColorProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getColorProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getColorProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5253,6 +5447,12 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
         //const char* pName = _pName.c_str();
         //retVal = collections->getColorProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getColorProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -5278,6 +5478,8 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
             retVal = sceneObjects->setFloatArrayProperty(-1, pName, v, vL); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setFloatArrayProperty(-1, pName, v, vL); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setFloatArrayProperty(-1, pName, v, vL); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5352,6 +5554,12 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
         //const char* pName = _pName.c_str();
         //retVal = collections->setFloatArrayProperty(target, pName, v, vL);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setFloatArrayProperty(target, pName, v, vL);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -5378,6 +5586,8 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
             retVal = sceneObjects->getFloatArrayProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getFloatArrayProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getFloatArrayProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5457,6 +5667,12 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
         //const char* pName = _pName.c_str();
         //retVal = collections->getFloatArrayProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getFloatArrayProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -5482,6 +5698,8 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
             retVal = sceneObjects->setIntArrayProperty(-1, pName, v, vL); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setIntArrayProperty(-1, pName, v, vL); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setIntArrayProperty(-1, pName, v, vL); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5556,6 +5774,12 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
         //const char* pName = _pName.c_str();
         //retVal = collections->setIntArrayProperty(target, pName, v, vL);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setIntArrayProperty(target, pName, v, vL);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -5582,6 +5806,8 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
             retVal = sceneObjects->getIntArrayProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->getIntArrayProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->getIntArrayProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5661,6 +5887,12 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
         //const char* pName = _pName.c_str();
         //retVal = collections->getIntArrayProperty(target, pName, pState);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->getIntArrayProperty(target, pName, pState);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -5686,6 +5918,8 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
             retVal = sceneObjects->setHandleArrayProperty(-1, pName, v, vL); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
         //    retVal = collections->setHandleArrayProperty(-1, pName, v, vL); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setHandleArrayProperty(-1, pName, v, vL); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5760,6 +5994,12 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
         //const char* pName = _pName.c_str();
         //retVal = collections->setHandleArrayProperty(target, pName, v, vL);
     }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        //const char* pName = _pName.c_str();
+        //retVal = drawingCont->setHandleArrayProperty(target, pName, v, vL);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -5786,6 +6026,8 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
             retVal = sceneObjects->getHandleArrayProperty(-1, pName, pState); // for the container itself
         if ((retVal == -1) && (collections != nullptr))
             retVal = collections->getHandleArrayProperty(-1, pName, pState); // for the container itself
+        if ((retVal == -1) && (drawingCont != nullptr))
+            retVal = drawingCont->getHandleArrayProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -5864,6 +6106,12 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         retVal = collections->getHandleArrayProperty(target, pName, pState);
+    }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        const char* pName = _pName.c_str();
+        retVal = drawingCont->getHandleArrayProperty(target, pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -5966,7 +6214,9 @@ int CWorld::removeProperty(long long int target, const char* ppName)
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-
+    }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
     }
     else
         retVal = -2; // target does not exist
@@ -6015,11 +6265,10 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
                 }
             }
         }
-        if (retVal == -1)
-        {
-            if (targetObject != nullptr)
-                retVal = targetObject->collections->getPropertyName(-1, index, pName, appartenance); // for the container itself
-        }
+        if ( (retVal == -1) && (targetObject != nullptr) )
+            retVal = targetObject->collections->getPropertyName(-1, index, pName, appartenance); // for the container itself
+        if ( (retVal == -1) && (targetObject != nullptr) )
+            retVal = targetObject->drawingCont->getPropertyName(-1, index, pName, appartenance); // for the container itself
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
@@ -6067,6 +6316,12 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         appartenance += ".scene";
         if (targetObject != nullptr)
             retVal = targetObject->collections->getPropertyName(target, index, pName, appartenance);
+    }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        appartenance += ".scene";
+        if (targetObject != nullptr)
+            retVal = targetObject->drawingCont->getPropertyName(target, index, pName, appartenance);
     }
     else
         retVal = -2; // target does not exist
@@ -6295,11 +6550,10 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                 }
             }
         }
-        if (retVal == -1)
-        {
-            if (targetObject != nullptr)
-                retVal = targetObject->collections->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
-        }
+        if ( (retVal == -1) && (targetObject != nullptr) )
+            retVal = targetObject->collections->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
+        if ( (retVal == -1) && (targetObject != nullptr) )
+            retVal = targetObject->drawingCont->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
@@ -6352,6 +6606,13 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         const char* pName = _pName.c_str();
         if (targetObject != nullptr)
             retVal = targetObject->collections->getPropertyInfo(target, pName, info, infoTxt);
+    }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        const char* pName = _pName.c_str();
+        if (targetObject != nullptr)
+            retVal = targetObject->drawingCont->getPropertyInfo(target, pName, info, infoTxt);
     }
     else
         retVal = -2; // target does not exist

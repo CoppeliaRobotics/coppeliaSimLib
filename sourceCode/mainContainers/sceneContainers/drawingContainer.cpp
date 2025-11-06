@@ -2,6 +2,7 @@
 #include <drawingContainer.h>
 #include <viewableBase.h>
 #include <app.h>
+#include <utils.h>
 
 CDrawingContainer::CDrawingContainer()
 {
@@ -20,14 +21,24 @@ void CDrawingContainer::simulationEnded()
 {
 }
 
-CDrawingObject* CDrawingContainer::getObject(int objectId)
+CDrawingObject* CDrawingContainer::getObject(int objectId) const
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
     {
         if (_allObjects[i]->getObjectId() == objectId)
-            return (_allObjects[i]);
+            return _allObjects[i];
     }
-    return (nullptr);
+    return nullptr;
+}
+
+CDrawingObject* CDrawingContainer::getObjectFromUid(long long int objectUid) const
+{
+    for (size_t i = 0; i < _allObjects.size(); i++)
+    {
+        if (_allObjects[i]->getObjectUid() == objectUid)
+            return _allObjects[i];
+    }
+    return nullptr;
 }
 
 int CDrawingContainer::addObject(CDrawingObject* it)
@@ -37,10 +48,31 @@ int CDrawingContainer::addObject(CDrawingObject* it)
     while (getObject(newId) != nullptr)
         newId++;
     it->setObjectId(newId);
-    it->setObjectUniqueId();
+    long long int newUid = SIM_IDSTART_DRAWINGOBJ;
+    while (getObjectFromUid(newUid) != nullptr)
+        newUid++;
+    it->setObjectUniqueId(newUid);
     _allObjects.push_back(it);
     it->pushAddEvent();
-    return (newId);
+    _publishAllDrawingObjectHandlesEvent();
+    return newId;
+}
+
+void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
+{
+    if (App::worldContainer->getEventsEnabled())
+    {
+        std::vector<long long int> handles;
+        for (size_t i = 0; i < _allObjects.size(); i++)
+        {
+            CDrawingObject* dr = _allObjects[i];
+            handles.push_back(dr->getObjectUid());
+        }
+        const char* cmd = propDrawCont_drawingObjects.name;
+        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyIntArray(cmd, handles.data(), handles.size());
+        App::worldContainer->pushEvent();
+    }
 }
 
 void CDrawingContainer::removeObject(int objectId)
@@ -58,6 +90,7 @@ void CDrawingContainer::removeObject(int objectId)
             delete _allObjects[i];
             _allObjects.erase(_allObjects.begin() + i);
 
+            _publishAllDrawingObjectHandlesEvent();
             break;
         }
     }
@@ -97,14 +130,120 @@ void CDrawingContainer::announceScriptStateWillBeErased(int scriptHandle, bool s
 
 void CDrawingContainer::pushGenesisEvents()
 {
+    std::vector<long long int> addedObjects;
     for (size_t i = 0; i < _allObjects.size(); i++)
-        _allObjects[i]->pushAddEvent();
+    {
+        CDrawingObject* dr = _allObjects[i];
+        dr->pushAddEvent();
+        // We need to "fake" adding that drawing object:
+        addedObjects.push_back(dr->getObjectUid());
+        const char* cmd = propDrawCont_drawingObjects.name;
+        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyIntArray(cmd, addedObjects.data(), addedObjects.size());
+        App::worldContainer->pushEvent();
+    }
 }
 
 void CDrawingContainer::pushAppendNewPointEvents()
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
         _allObjects[i]->pushAppendNewPointEvent();
+}
+
+int CDrawingContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CDrawingObject* it = getObject(int(target));
+        if (it != nullptr)
+            return it->getStringProperty(pName, pState);
+        retVal = -2; // drawing object does not exist
+    }
+    return retVal;
+}
+
+int CDrawingContainer::getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const
+{
+    int retVal = -1;
+    pState.clear();
+    if (target == -1)
+    {
+        if (strcmp(pName, propDrawCont_drawingObjects.name) == 0)
+        {
+            for (size_t i = 0; i < _allObjects.size(); i++)
+                pState.push_back(_allObjects[i]->getObjectUid());
+            retVal = 1;
+        }
+    }
+    return retVal;
+}
+
+int CDrawingContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+        for (size_t i = 0; i < allProps_drawCont.size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(allProps_drawCont[i].name, pName.c_str()))
+            {
+                if ((allProps_drawCont[i].flags & sim_propertyinfo_deprecated) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_drawCont[i].name;
+                        retVal = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        CDrawingObject* it = getObject(int(target));
+        if (it != nullptr)
+        {
+            appartenance += ".drawingObject";
+            return it->getPropertyName(index, pName, appartenance);
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
+int CDrawingContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+        for (size_t i = 0; i < allProps_drawCont.size(); i++)
+        {
+            if (strcmp(allProps_drawCont[i].name, pName) == 0)
+            {
+                retVal = allProps_drawCont[i].type;
+                info = allProps_drawCont[i].flags;
+                if ((infoTxt == "") && (strcmp(allProps_drawCont[i].infoTxt, "") != 0))
+                    infoTxt = allProps_drawCont[i].infoTxt;
+                else
+                    infoTxt = allProps_drawCont[i].shortInfoTxt;
+                break;
+            }
+        }
+    }
+    else
+    {
+        CDrawingObject* it = getObject(int(target));
+        if (it != nullptr)
+            return it->getPropertyInfo(pName, info, infoTxt);
+        retVal = -2; // object does not exist
+    }
+    return retVal;
 }
 
 #ifdef SIM_WITH_GUI

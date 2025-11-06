@@ -209,7 +209,7 @@ extern int _simSetExplicitHandling(luaWrap_lua_State* L);
 extern int _simGetExplicitHandling(luaWrap_lua_State* L);
 extern int _simGetLinkDummy(luaWrap_lua_State* L);
 extern int _simSetLinkDummy(luaWrap_lua_State* L);
-extern int _simAddDrawingObject(luaWrap_lua_State* L);
+extern int _simCreateDrawingObject(luaWrap_lua_State* L);
 extern int _simRemoveDrawingObject(luaWrap_lua_State* L);
 extern int _simAddDrawingObjectItem(luaWrap_lua_State* L);
 extern int _simAddParticleObject(luaWrap_lua_State* L);

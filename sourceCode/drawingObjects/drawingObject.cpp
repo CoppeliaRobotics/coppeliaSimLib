@@ -2,6 +2,7 @@
 #include <drawingObject.h>
 #include <app.h>
 #include <tt.h>
+#include <utils.h>
 #ifdef SIM_WITH_GUI
 #include <drawingObjectRendering.h>
 #endif
@@ -122,17 +123,17 @@ void CDrawingObject::setObjectId(int newId)
 
 int CDrawingObject::getObjectId() const
 {
-    return (_objectId);
+    return _objectId;
 }
 
 long long int CDrawingObject::getObjectUid() const
 {
-    return (_objectUid);
+    return _objectUid;
 }
 
-void CDrawingObject::setObjectUniqueId()
+void CDrawingObject::setObjectUniqueId(long long int newUid)
 {
-    _objectUid = App::getFreshUniqueId(-1);
+    _objectUid = newUid; //App::getFreshUniqueId(-1);
 }
 
 void CDrawingObject::setItems(const double* itemData, size_t itemCnt)
@@ -516,6 +517,64 @@ void CDrawingObject::pushAppendNewPointEvent()
         _bufferedEventData.clear();
         _rebuildRemoteItems = false;
     }
+}
+
+int CDrawingObject::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "drawingObject."));
+    int retVal = -1;
+
+    if (_pName == propDrawingObj_objectType.name)
+    {
+        retVal = 1;
+        pState = "drawingObject";
+    }
+
+    return retVal;
+}
+
+int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_drawingObj.size(); i++)
+    {
+        if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
+        {
+            if ((allProps_drawingObj[i].flags & sim_propertyinfo_deprecated) == 0)
+            {
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_drawingObj[i].name;
+                    //pName = "drawingObject." + pName;
+                    retVal = 1;
+                    break;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CDrawingObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "drawingObject."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_drawingObj.size(); i++)
+    {
+        if (strcmp(allProps_drawingObj[i].name, pName) == 0)
+        {
+            retVal = allProps_drawingObj[i].type;
+            info = allProps_drawingObj[i].flags;
+            if ((infoTxt == "") && (strcmp(allProps_drawingObj[i].infoTxt, "") != 0))
+                infoTxt = allProps_drawingObj[i].infoTxt;
+            else
+                infoTxt = allProps_drawingObj[i].shortInfoTxt;
+            break;
+        }
+    }
+    return retVal;
 }
 
 #ifdef SIM_WITH_GUI

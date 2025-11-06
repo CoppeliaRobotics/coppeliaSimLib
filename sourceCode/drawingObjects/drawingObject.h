@@ -3,6 +3,20 @@
 #include <colorObject.h>
 #include <simMath/4X4Matrix.h>
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES                                                                                                                                                                                                       \
+FUNCX(propDrawingObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")
+
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
+    DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, t1, t2) name,
+    const std::vector<SProperty> allProps_drawingObj = {DEFINE_PROPERTIES};
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CSceneObject;
 
 class CDrawingObject
@@ -13,7 +27,7 @@ class CDrawingObject
     virtual ~CDrawingObject();
 
     void setObjectId(int newId);
-    void setObjectUniqueId();
+    void setObjectUniqueId(long long int newUid);
     long long int getObjectUid() const;
     int getObjectId() const;
     bool addItem(const double* itemData);
@@ -22,6 +36,10 @@ class CDrawingObject
     int getObjectType() const;
     bool announceObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+
+    int getStringProperty(const char* pName, std::string& pState) const;
+    static int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
 
     void pushAddEvent();
     void pushAppendNewPointEvent();

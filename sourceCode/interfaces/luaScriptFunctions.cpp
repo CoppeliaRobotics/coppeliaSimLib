@@ -216,7 +216,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.addForce", _simAddForce},
     {"sim.setExplicitHandling", _simSetExplicitHandling},
     {"sim.getExplicitHandling", _simGetExplicitHandling},
-    {"sim.addDrawingObject", _simAddDrawingObject},
+    {"sim.createDrawingObject", _simCreateDrawingObject},
     {"sim.removeDrawingObject", _simRemoveDrawingObject},
     {"sim.addDrawingObjectItem", _simAddDrawingObjectItem},
     {"sim.addParticleObject", _simAddParticleObject},
@@ -9578,10 +9578,10 @@ int _simCombineRgbImages(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simAddDrawingObject(luaWrap_lua_State* L)
+int _simCreateDrawingObject(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.addDrawingObject");
+    LUA_START("sim.createDrawingObject");
 
     int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 3, lua_arg_number | lua_arg_optional, 3, lua_arg_number | lua_arg_optional, 3))
