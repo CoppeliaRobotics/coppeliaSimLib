@@ -1537,30 +1537,36 @@ enum
 };
 #else
 enum
-{ // keep below 2^20=1048576 (b/c of handleflags)
-    // Keep in mind that scene object handles are serialized, other handles/ids are created on-the-fly
+{
+    // Most of below handles are sometimes combined with sim_handleflag_xxx, so keep them below 4'194'304
+    // See also sim_handleflag_handlemask and sim_handleflag_flagmask
+
+    // Scene object handles are serialized
     SIM_IDSTART_SCENEOBJECT = 0,
     SIM_IDEND_SCENEOBJECT = 999999,
 
-    SIM_IDSTART_COLLECTION = 2000000, // for V4.6 can be set to 1000000, but then not backward compatible prior V4.5. Is
-                                      // ok if we remove float support anyways
-    SIM_IDEND_COLLECTION = 2010000,   // for V4.6 can be set to 1009999, but then not backward compatible prior V4.5. Is
-                                      // ok if we remove float support anyways
-
+    // Non-object script handles are created on-the-fly, except for old, associated scripts that have handles serialized
     SIM_IDSTART_LUASCRIPT = 1010000,
     SIM_IDEND_LUASCRIPT = 1019999,
 
+    // Stack handles are created on-the-fly
     SIM_IDSTART_INTERFACESTACK = 1020000,
     SIM_IDEND_INTERFACESTACK = 1029999,
 
-    // Textures are also serialized
-    SIM_IDSTART_TEXTURE = 2180009, // for V4.6 can be set to 1030000, but then not backward compatible prior V4.5. Is ok
-                                   // if we remove float support anyways
-    SIM_IDEND_TEXTURE = 2280009,   // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok
-                                   // if we remove float support anyways
-    SIM_IDSTART_DRAWINGOBJ = 10000000,
-    SIM_IDEND_DRAWINGOBJ = 49999999,
-    SIM_UIDSTART = 50000000,       // only for object related to a specific scene! (e.g. meshes) (i.e. no app objects!)
+    // Collection handles are created on-the-fly, except for old collections that have handles serialized
+    SIM_IDSTART_COLLECTION = 2000000, // for V4.6 can be set to 1000000, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
+    SIM_IDEND_COLLECTION = 2010000,   // for V4.6 can be set to 1009999, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
+
+    // Texture handles are serialized
+    SIM_IDSTART_TEXTURE = 2180009, // for V4.6 can be set to 1030000, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
+    SIM_IDEND_TEXTURE = 2280009,   // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
+
+    // Drawing object handles are created on-the-fly
+    SIM_IDSTART_DRAWINGOBJ = 2280010,
+    SIM_IDEND_DRAWINGOBJ = 4194303,
+
+    // Only for object related to a specific scene! (e.g. meshes) (i.e. no app objects!)
+    SIM_UIDSTART = 10000000,
 };
 #endif
 enum

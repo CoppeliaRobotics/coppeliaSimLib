@@ -3691,8 +3691,8 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
     {
         bool returnImage = luaToBool(L, 3);
         int arg1 = luaToInt(L, 1);
-        int handleFlags = arg1 & 0xff00000;
-        int sensHandle = arg1 & 0xfffff;
+        int handleFlags = arg1 & sim_handleflag_flagmask;
+        int sensHandle = arg1 & sim_handleflag_handlemask;
         int res[2];
         CALL_C_API(simGetVisionSensorRes, sensHandle, res);
         float* buffer = CALL_C_API(simCheckVisionSensorEx, luaToInt(L, 1), luaToInt(L, 2), returnImage);
@@ -9612,25 +9612,19 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.removeDrawingObject");
 
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0))
     {
         int objectHandle = luaToInt(L, 1);
         if (objectHandle == sim_handle_all)
-        { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from
-            // add-on:
-            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            CScriptObject* itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+        { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from add-on:
             App::currentWorld->drawingCont->eraseAllObjects();
-            retVal = 1;
         }
         else
-            retVal = CALL_C_API(simRemoveDrawingObject, objectHandle);
+            CALL_C_API(simRemoveDrawingObject, objectHandle);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simAddDrawingObjectItem(luaWrap_lua_State* L)
@@ -9642,8 +9636,8 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int h = luaToInt(L, 1);
-        int handleFlags = h & 0xff00000;
-        h = h & 0xfffff;
+        int handleFlags = h & sim_handleflag_flagmask;
+        h = h & sim_handleflag_handlemask;
         CDrawingObject* it = App::currentWorld->drawingCont->getObject(h);
         size_t d = 3;
         if (it != nullptr)
@@ -12667,8 +12661,8 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         int handle = luaToInt(L, 1);
-        int handleFlags = handle & 0xff00000;
-        handle = handle & 0xfffff;
+        int handleFlags = handle & sim_handleflag_flagmask;
+        handle = handle & sim_handleflag_handlemask;
         int options = luaToInt(L, 2);
         unsigned char* cols = nullptr;
         std::vector<unsigned char> _cols;
@@ -12810,8 +12804,8 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
         int handle = luaToInt(L, 1);
-        int handleFlags = handle & 0xff00000;
-        handle = handle & 0xfffff;
+        int handleFlags = handle & sim_handleflag_flagmask;
+        handle = handle & sim_handleflag_handlemask;
         int options = luaToInt(L, 2);
         float optionalValues[2];
         ((int*)optionalValues)[0] = 1; // duplicate tolerance bit
@@ -13591,8 +13585,8 @@ int _simGetReferencedHandlesTags(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int objHandle = luaToInt(L, 1);
-        int handleFlags = objHandle & 0xff00000;
-        objHandle = objHandle & 0xfffff;
+        int handleFlags = objHandle & sim_handleflag_flagmask;
+        objHandle = objHandle & sim_handleflag_handlemask;
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
         if (it != nullptr)
         {

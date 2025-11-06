@@ -3678,8 +3678,8 @@ int simRemoveBanner_internal(int bannerID)
             int handleFlags = 0;
             if (bannerID >= 0)
             {
-                handleFlags = bannerID & 0xff00000;
-                bannerID = bannerID & 0xfffff;
+                handleFlags = bannerID & sim_handleflag_flagmask;
+                bannerID = bannerID & sim_handleflag_handlemask;
             }
             CBannerObject* it = App::currentWorld->bannerCont_old->getObject(bannerID);
             if (it == nullptr)
@@ -3867,8 +3867,8 @@ char* simGetObjectName_internal(int objectHandle)
         int handleFlags = 0;
         if (objectHandle >= 0)
         {
-            handleFlags = objectHandle & 0x0ff00000;
-            handle = objectHandle & 0x000fffff;
+            handleFlags = objectHandle & sim_handleflag_flagmask;
+            handle = objectHandle & sim_handleflag_handlemask;
         }
         if (!doesObjectExist(__func__, handle))
             return (nullptr);
@@ -3898,8 +3898,8 @@ int simSetObjectName_internal(int objectHandle, const char* objectName)
         int handleFlags = 0;
         if (objectHandle >= 0)
         {
-            handleFlags = objectHandle & 0x0ff00000;
-            handle = objectHandle & 0x000fffff;
+            handleFlags = objectHandle & sim_handleflag_flagmask;
+            handle = objectHandle & sim_handleflag_handlemask;
         }
         if (!doesObjectExist(__func__, handle))
             return (-1);
@@ -5313,8 +5313,8 @@ float* simGetVisionSensorImage_internal(int sensorHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = sensorHandle & 0xff00000;
-        sensorHandle = sensorHandle & 0xfffff;
+        int handleFlags = sensorHandle & sim_handleflag_flagmask;
+        sensorHandle = sensorHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, sensorHandle))
             return (nullptr);
         if (!isVisionSensor(__func__, sensorHandle))
@@ -5354,8 +5354,8 @@ int simSetVisionSensorImage_internal(int sensorHandle, const float* image)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        int handleFlags = sensorHandle & 0xff00000;
-        int objectHandle = sensorHandle & 0xfffff;
+        int handleFlags = sensorHandle & sim_handleflag_flagmask;
+        int objectHandle = sensorHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         if (!isVisionSensor(__func__, objectHandle))
@@ -5382,8 +5382,8 @@ unsigned char* simGetVisionSensorCharImage_internal(int sensorHandle, int* resol
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = sensorHandle & 0xff00000;
-        sensorHandle = sensorHandle & 0xfffff;
+        int handleFlags = sensorHandle & sim_handleflag_flagmask;
+        sensorHandle = sensorHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, sensorHandle))
             return (nullptr);
         if (!isVisionSensor(__func__, sensorHandle))
@@ -5430,8 +5430,8 @@ int simSetVisionSensorCharImage_internal(int sensorHandle, const unsigned char* 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        int handleFlags = sensorHandle & 0xff00000;
-        int objectHandle = sensorHandle & 0xfffff;
+        int handleFlags = sensorHandle & sim_handleflag_flagmask;
+        int objectHandle = sensorHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         if (!isVisionSensor(__func__, objectHandle))
@@ -5453,8 +5453,8 @@ float* simGetVisionSensorDepthBuffer_internal(int sensorHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = sensorHandle & 0xff00000;
-        sensorHandle = sensorHandle & 0xfffff;
+        int handleFlags = sensorHandle & sim_handleflag_flagmask;
+        sensorHandle = sensorHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, sensorHandle))
             return (nullptr);
         if (!isVisionSensor(__func__, sensorHandle))

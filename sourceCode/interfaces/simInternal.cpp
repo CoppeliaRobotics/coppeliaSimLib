@@ -3170,8 +3170,8 @@ int simGetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, do
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -3221,8 +3221,8 @@ int simSetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, co
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         if (!isFloatArrayOk(matrix, 12))
@@ -3283,8 +3283,8 @@ int simGetObjectPose_internal(int objectHandle, int relativeToObjectHandle, doub
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -3334,8 +3334,8 @@ int simSetObjectPose_internal(int objectHandle, int relativeToObjectHandle, cons
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         if (!isFloatArrayOk(pose, 7))
@@ -3393,8 +3393,8 @@ int simGetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -3445,8 +3445,8 @@ int simSetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         if (!isFloatArrayOk(position, 3))
@@ -3514,8 +3514,8 @@ int simGetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -3569,8 +3569,8 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         if (!isFloatArrayOk(eulerAngles, 3))
@@ -4025,8 +4025,8 @@ int simSetObjectParent_internal(int objectHandle, int parentObjectHandle, bool k
         int handleFlags = 0;
         if (objectHandle >= 0)
         {
-            handleFlags = objectHandle & 0xff00000;
-            objectHandle = objectHandle & 0xfffff;
+            handleFlags = objectHandle & sim_handleflag_flagmask;
+            objectHandle = objectHandle & sim_handleflag_handlemask;
         }
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
@@ -5798,8 +5798,8 @@ int simRemoveDrawingObject_internal(int objectHandle)
         int handleFlags = 0;
         if (objectHandle >= 0)
         {
-            handleFlags = objectHandle & 0x0ff00000;
-            handle = objectHandle & 0x000fffff;
+            handleFlags = objectHandle & sim_handleflag_flagmask;
+            handle = objectHandle & sim_handleflag_handlemask;
         }
 
         if (handle == sim_handle_all)
@@ -5883,8 +5883,8 @@ int simReadForceSensor_internal(int objectHandle, double* forceVector, double* t
         int handleFlags = 0;
         if (objectHandle >= 0)
         {
-            handleFlags = objectHandle & 0x0ff00000;
-            handle = objectHandle & 0x000fffff;
+            handleFlags = objectHandle & sim_handleflag_flagmask;
+            handle = objectHandle & sim_handleflag_handlemask;
         }
 
         if (!doesObjectExist(__func__, handle))
@@ -5953,8 +5953,8 @@ int simGetObjectVelocity_internal(int objectHandle, double* linearVelocity, doub
         int handleFlags = 0;
         if (objectHandle >= 0)
         {
-            handleFlags = objectHandle & 0x0ff00000;
-            handle = objectHandle & 0x000fffff;
+            handleFlags = objectHandle & sim_handleflag_flagmask;
+            handle = objectHandle & sim_handleflag_handlemask;
         }
         if (!doesObjectExist(__func__, handle))
             return (-1);
@@ -6001,8 +6001,8 @@ int simAddForceAndTorque_internal(int shapeHandle, const double* force, const do
         int handleFlags = 0;
         if (shapeHandle >= 0)
         {
-            handleFlags = shapeHandle & 0x0ff00000;
-            handle = shapeHandle & 0x000fffff;
+            handleFlags = shapeHandle & sim_handleflag_flagmask;
+            handle = shapeHandle & sim_handleflag_handlemask;
         }
         if (!doesObjectExist(__func__, handle))
             return (-1);
@@ -6054,8 +6054,8 @@ int simAddForce_internal(int shapeHandle, const double* position, const double* 
         int handleFlags = 0;
         if (shapeHandle >= 0)
         {
-            handleFlags = shapeHandle & 0x0ff00000;
-            handle = shapeHandle & 0x000fffff;
+            handleFlags = shapeHandle & sim_handleflag_flagmask;
+            handle = shapeHandle & sim_handleflag_handlemask;
         }
         if (!doesObjectExist(__func__, handle))
             return (-1);
@@ -6589,8 +6589,8 @@ int simResetDynamicObject_internal(int objectHandle)
         int handleFlags = 0;
         if (objectHandle >= 0)
         {
-            handleFlags = objectHandle & 0xff00000;
-            objectHandle = objectHandle & 0xfffff;
+            handleFlags = objectHandle & sim_handleflag_flagmask;
+            objectHandle = objectHandle & sim_handleflag_handlemask;
         }
 
         if ((objectHandle != sim_handle_all) && (!doesObjectExist(__func__, objectHandle)))
@@ -6799,8 +6799,8 @@ int simAuxiliaryConsoleShow_internal(int consoleHandle, bool showState)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        int handleFlags = consoleHandle & 0x0ff00000;
-        int handle = consoleHandle & 0x000fffff;
+        int handleFlags = consoleHandle & sim_handleflag_flagmask;
+        int handle = consoleHandle & sim_handleflag_handlemask;
         if ((handleFlags & sim_handleflag_extended) != 0)
         { // we just wanna now if the console is still open
             if ((GuiApp::mainWindow != nullptr) && (GuiApp::mainWindow->codeEditorContainer->isHandleValid(handle)))
@@ -7462,8 +7462,8 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
         int handleFlags = 0;
         if (viewHandleOrIndex >= 0)
         {
-            handleFlags = viewHandleOrIndex & 0xff00000;
-            viewHandleOrIndex = viewHandleOrIndex & 0xfffff;
+            handleFlags = viewHandleOrIndex & sim_handleflag_flagmask;
+            viewHandleOrIndex = viewHandleOrIndex & sim_handleflag_handlemask;
         }
 
         CSView* view = nullptr;
@@ -7765,8 +7765,8 @@ int simGetJointForce_internal(int jointHandle, double* forceOrTorque)
         int handleFlags = 0;
         if (jointHandle >= 0)
         {
-            handleFlags = jointHandle & 0x0ff00000;
-            handle = jointHandle & 0x000fffff;
+            handleFlags = jointHandle & sim_handleflag_flagmask;
+            handle = jointHandle & sim_handleflag_handlemask;
         }
         if (!doesObjectExist(__func__, handle))
             return (-1);
@@ -7844,6 +7844,9 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_texture)) &&
             (App::currentWorld->textureContainer->getObject(generalObjectHandle) != nullptr))
+            return (1);
+        if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_drawingobject)) &&
+            (App::currentWorld->drawingCont->getObject(generalObjectHandle) != nullptr))
             return (1);
 
         // Old:
@@ -8321,8 +8324,8 @@ int simGetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
 
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
@@ -8384,8 +8387,8 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
 
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
@@ -9908,8 +9911,8 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
     int handleFlags = 0;
     if (scriptHandle >= 0)
     {
-        handleFlags = scriptHandle & 0x0ff00000;
-        scriptHandle = scriptHandle & 0x000fffff;
+        handleFlags = scriptHandle & sim_handleflag_flagmask;
+        scriptHandle = scriptHandle & sim_handleflag_handlemask;
     }
     else
     {
@@ -11565,8 +11568,8 @@ int simSetReferencedHandles_internal(int objectHandle, int count, const int* ref
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         std::string ttag("");
@@ -11589,8 +11592,8 @@ int simGetReferencedHandles_internal(int objectHandle, int** referencedHandles, 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = objectHandle & 0xff00000;
-        objectHandle = objectHandle & 0xfffff;
+        int handleFlags = objectHandle & sim_handleflag_flagmask;
+        objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -11630,8 +11633,8 @@ int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo* in
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = shapeHandle & 0x0ff00000;
-        shapeHandle = shapeHandle & 0x000fffff;
+        int handleFlags = shapeHandle & sim_handleflag_flagmask;
+        shapeHandle = shapeHandle & sim_handleflag_handlemask;
 
         if (!isShape(__func__, shapeHandle))
             return (-1);
@@ -11746,8 +11749,8 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof* 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int handleFlags = shapeHandle & 0x0ff00000;
-        shapeHandle = shapeHandle & 0x000fffff;
+        int handleFlags = shapeHandle & sim_handleflag_flagmask;
+        shapeHandle = shapeHandle & sim_handleflag_handlemask;
 
         if (!isShape(__func__, shapeHandle))
             return (-1);

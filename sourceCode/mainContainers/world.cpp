@@ -2563,8 +2563,8 @@ UID CWorld::getNewHandleFromOldHandle(int oldHandle)
 #ifdef USE_LONG_LONG_HANDLES
     if (oldHandle >= 0)
     {
-        UID handleFlags = oldHandle & 0x3c00000;
-        oldHandle = oldHandle & 0x03fffff;
+        UID handleFlags = oldHandle & sim_handleflag_flagmask;
+        oldHandle = oldHandle & sim_handleflag_handlemask;
 
         auto s = uidFromOldHandle.find(oldHandle);
         if (s != uidFromOldHandle.end())
