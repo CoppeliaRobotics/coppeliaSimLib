@@ -29,7 +29,6 @@ class CDrawingContainer
     void eraseAllObjects();
     int addObject(CDrawingObject* it);
     CDrawingObject* getObject(int objectId) const;
-    CDrawingObject* getObjectFromUid(long long int objectUid) const;
     void announceObjectWillBeErased(const CSceneObject* object);
     void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void removeObject(int objectId);
@@ -52,7 +51,6 @@ class CDrawingContainer
     void renderYour3DStuff_transparent(CViewableBase* renderingObject, int displayAttrib);
     void renderYour3DStuff_overlay(CViewableBase* renderingObject, int displayAttrib);
     void drawAll(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix& cameraCTM);
-    void drawObjectsParentedWith(bool overlay, bool transparentObject, int parentObjectId, int displayAttrib,
-                                 const C4X4Matrix& cameraCTM);
+    void drawObjectsParentedWith(bool overlay, bool transparentObject, int parentObjectId, int displayAttrib, const C4X4Matrix& cameraCTM);
 #endif
 };

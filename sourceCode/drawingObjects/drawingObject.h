@@ -27,8 +27,6 @@ class CDrawingObject
     virtual ~CDrawingObject();
 
     void setObjectId(int newId);
-    void setObjectUniqueId(long long int newUid);
-    long long int getObjectUid() const;
     int getObjectId() const;
     bool addItem(const double* itemData);
     void addItems(const double* itemData, size_t itemCnt);
@@ -72,7 +70,6 @@ class CDrawingObject
     void _setItemSizes();
 
     int _objectId;
-    long long int _objectUid;
     int _sceneObjectId;
     long long int _sceneObjectUid;
     int _objectType;

@@ -38,8 +38,7 @@ std::vector<double>* CDrawingObject::getDataPtr()
     return (&_data);
 }
 
-CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId,
-                               int maxItemCount, int creatorHandle)
+CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int creatorHandle)
 {
     _rebuildRemoteItems = true;
     _creatorHandle = creatorHandle;
@@ -60,7 +59,6 @@ CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateT
 
     _objectId = -1;
     _sceneObjectId = -1;
-    _objectUid = -1;
     _sceneObjectUid = -1;
 
     size = tt::getLimitedFloat(0.0001, 100.0, size);
@@ -126,16 +124,6 @@ int CDrawingObject::getObjectId() const
     return _objectId;
 }
 
-long long int CDrawingObject::getObjectUid() const
-{
-    return _objectUid;
-}
-
-void CDrawingObject::setObjectUniqueId(long long int newUid)
-{
-    _objectUid = newUid; //App::getFreshUniqueId(-1);
-}
-
 void CDrawingObject::setItems(const double* itemData, size_t itemCnt)
 {
     addItem(nullptr);
@@ -159,7 +147,7 @@ bool CDrawingObject::addItem(const double* itemData)
 
         if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
         {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _objectUid, nullptr, false);
+            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, _objectId, _objectId, nullptr, false);
             ev->appendKeyBool("clearPoints", true);
             App::worldContainer->pushEvent();
         }
@@ -453,7 +441,7 @@ void CDrawingObject::pushAddEvent()
 {
     if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
     {
-        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, -1, _objectUid, nullptr, false);
+        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, _objectId, _objectId, nullptr, false);
         std::string tp;
         switch (_objectType & 0x001f)
         {
@@ -507,7 +495,7 @@ void CDrawingObject::pushAppendNewPointEvent()
         std::vector<float> colors;
         _getEventData(points, quaternions, colors);
 
-        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _objectUid, nullptr, false);
+        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, _objectId, _objectId, nullptr, false);
         ev->appendKeyFloatArray("points", points.data(), points.size());
         ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
         ev->appendKeyFloatArray("colors", colors.data(), colors.size());

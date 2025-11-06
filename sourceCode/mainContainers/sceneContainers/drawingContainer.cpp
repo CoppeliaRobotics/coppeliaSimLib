@@ -31,42 +31,26 @@ CDrawingObject* CDrawingContainer::getObject(int objectId) const
     return nullptr;
 }
 
-CDrawingObject* CDrawingContainer::getObjectFromUid(long long int objectUid) const
-{
-    for (size_t i = 0; i < _allObjects.size(); i++)
-    {
-        if (_allObjects[i]->getObjectUid() == objectUid)
-            return _allObjects[i];
-    }
-    return nullptr;
-}
-
 int CDrawingContainer::addObject(CDrawingObject* it)
 {
-    int newId = 0;
-    newId++;
-    while (getObject(newId) != nullptr)
-        newId++;
-    it->setObjectId(newId);
-    long long int newUid = SIM_IDSTART_DRAWINGOBJ;
-    while (getObjectFromUid(newUid) != nullptr)
-        newUid++;
-    it->setObjectUniqueId(newUid);
+    static int newId = SIM_IDSTART_DRAWINGOBJ;
+    int id = newId++;
+    it->setObjectId(id);
     _allObjects.push_back(it);
     it->pushAddEvent();
     _publishAllDrawingObjectHandlesEvent();
-    return newId;
+    return id;
 }
 
 void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
 {
     if (App::worldContainer->getEventsEnabled())
     {
-        std::vector<long long int> handles;
+        std::vector<int> handles;
         for (size_t i = 0; i < _allObjects.size(); i++)
         {
             CDrawingObject* dr = _allObjects[i];
-            handles.push_back(dr->getObjectUid());
+            handles.push_back(dr->getObjectId());
         }
         const char* cmd = propDrawCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
@@ -83,7 +67,7 @@ void CDrawingContainer::removeObject(int objectId)
         {
             if (App::worldContainer->getEventsEnabled())
             {
-                App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED, -1, _allObjects[i]->getObjectUid(), nullptr, false);
+                App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,  _allObjects[i]->getObjectId(), _allObjects[i]->getObjectId(), nullptr, false);
                 App::worldContainer->pushEvent();
             }
 
@@ -130,13 +114,13 @@ void CDrawingContainer::announceScriptStateWillBeErased(int scriptHandle, bool s
 
 void CDrawingContainer::pushGenesisEvents()
 {
-    std::vector<long long int> addedObjects;
+    std::vector<int> addedObjects;
     for (size_t i = 0; i < _allObjects.size(); i++)
     {
         CDrawingObject* dr = _allObjects[i];
         dr->pushAddEvent();
         // We need to "fake" adding that drawing object:
-        addedObjects.push_back(dr->getObjectUid());
+        addedObjects.push_back(dr->getObjectId());
         const char* cmd = propDrawCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         ev->appendKeyIntArray(cmd, addedObjects.data(), addedObjects.size());
@@ -175,7 +159,7 @@ int CDrawingContainer::getHandleArrayProperty(long long int target, const char* 
         if (strcmp(pName, propDrawCont_drawingObjects.name) == 0)
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
-                pState.push_back(_allObjects[i]->getObjectUid());
+                pState.push_back(_allObjects[i]->getObjectId());
             retVal = 1;
         }
     }
