@@ -7,6 +7,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                                        \
+    FUNCX(propShape_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propShape_meshes, "meshes", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Meshes", "Mesh handles")                                                                                     \
     FUNCX(propShape_applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply culling", "Enables/disables culling for all contained meshes")                                 \
     FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, "Apply shading", "Applies a shading angle to all contained meshes")                        \

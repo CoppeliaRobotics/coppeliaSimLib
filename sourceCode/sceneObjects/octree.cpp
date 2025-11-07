@@ -10,6 +10,19 @@
 #include <octreeRendering.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 COcTree::COcTree()
 {
     TRACE_INTERNAL;
@@ -1162,9 +1175,8 @@ void COcTree::display(CViewableBase* renderingObject, int displayAttrib)
 
 int COcTree::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propOctree_randomColors.name)
@@ -1184,9 +1196,8 @@ int COcTree::setBoolProperty(const char* ppName, bool pState)
 
 int COcTree::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propOctree_randomColors.name)
@@ -1206,11 +1217,10 @@ int COcTree::getBoolProperty(const char* ppName, bool& pState) const
 
 int COcTree::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.setFloatProperty(pName, pState);
+        retVal = color.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propOctree_voxelSize.name)
@@ -1225,11 +1235,10 @@ int COcTree::setFloatProperty(const char* ppName, double pState)
 
 int COcTree::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.getFloatProperty(pName, pState);
+        retVal = color.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propOctree_voxelSize.name)
@@ -1242,11 +1251,26 @@ int COcTree::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int COcTree::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propOctree_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int COcTree::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBufferProperty(pName, buffer, bufferL);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBufferProperty(ppName, buffer, bufferL);
     if (retVal == -1)
     {
     }
@@ -1256,10 +1280,9 @@ int COcTree::setBufferProperty(const char* ppName, const char* buffer, int buffe
 
 int COcTree::getBufferProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getBufferProperty(pName, pState);
+    int retVal = CSceneObject::getBufferProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propOctree_colors.name)
@@ -1274,11 +1297,10 @@ int COcTree::getBufferProperty(const char* ppName, std::string& pState) const
 
 int COcTree::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.setColorProperty(pName, pState);
+        retVal = color.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1287,11 +1309,10 @@ int COcTree::setColorProperty(const char* ppName, const float* pState)
 
 int COcTree::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.getColorProperty(pName, pState);
+        retVal = color.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1300,11 +1321,10 @@ int COcTree::getColorProperty(const char* ppName, float* pState) const
 
 int COcTree::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
     {
     }
@@ -1314,10 +1334,9 @@ int COcTree::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 
 int COcTree::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propOctree_voxels.name)
@@ -1392,16 +1411,15 @@ int COcTree::getPropertyName_static(int& index, std::string& pName, std::string&
 
 int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = color.getPropertyInfo(pName, info, infoTxt);
+        retVal = color.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_ocTree.size(); i++)
         {
-            if (strcmp(allProps_ocTree[i].name, pName) == 0)
+            if (strcmp(allProps_ocTree[i].name, ppName) == 0)
             {
                 retVal = allProps_ocTree[i].type;
                 info = allProps_ocTree[i].flags;
@@ -1431,16 +1449,15 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
 
 int COcTree::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_ocTree.size(); i++)
         {
-            if (strcmp(allProps_ocTree[i].name, pName) == 0)
+            if (strcmp(allProps_ocTree[i].name, ppName) == 0)
             {
                 retVal = allProps_ocTree[i].type;
                 info = allProps_ocTree[i].flags;

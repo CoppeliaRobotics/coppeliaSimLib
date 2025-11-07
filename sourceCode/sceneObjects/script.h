@@ -7,6 +7,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                             \
+    FUNCX(propScript_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0, "Size", "Size of the script's 3D representation") \
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0, "Reset after simulation error", "")
 

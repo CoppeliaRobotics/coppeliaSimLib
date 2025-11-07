@@ -300,4 +300,5 @@ extern int _simGetPoseInverse(luaWrap_lua_State* L);
 extern int _simGetObjectChild(luaWrap_lua_State* L);
 extern int _simGetObjectParent(luaWrap_lua_State* L);
 extern int _simGetCollectionObjects(luaWrap_lua_State* L);
+extern int _simReadForceSensor(luaWrap_lua_State* L);
 

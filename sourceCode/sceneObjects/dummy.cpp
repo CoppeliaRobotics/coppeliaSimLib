@@ -11,6 +11,19 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CDummy::CDummy()
 {
     _objectType = sim_sceneobject_dummy;
@@ -1227,9 +1240,8 @@ int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev /* = nul
 
 int CDummy::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         // First non-engine properties:
@@ -1322,9 +1334,8 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullp
 
 int CDummy::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         // First non-engine properties:
@@ -1420,9 +1431,8 @@ int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* e
 
 int CDummy::getHandleProperty(const char* ppName, long long int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getHandleProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getHandleProperty(ppName, pState);
     if (retVal == -1)
     {
         // First non-engine properties:
@@ -1519,14 +1529,13 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev /* = 
 
 int CDummy::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dummyColor.getFloatProperty(pName, pState);
+        retVal = _dummyColor.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (strcmp(pName, propDummy_size.name) == 0)
+        if (strcmp(ppName, propDummy_size.name) == 0)
         {
             pState = _dummySize;
             retVal = 1;
@@ -1566,9 +1575,8 @@ int CDummy::getFloatProperty(const char* ppName, double& pState) const
 
 int CDummy::setStringProperty(const char* ppName, const char* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setStringProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setStringProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propDummy_assemblyTag.name)
@@ -1579,7 +1587,7 @@ int CDummy::setStringProperty(const char* ppName, const char* pState)
     }
     if (retVal == -1)
     {
-        if (strcmp(pName, propDummy_engineProperties.name) == 0)
+        if (strcmp(ppName, propDummy_engineProperties.name) == 0)
         {
             retVal = 0;
             CEngineProperties prop;
@@ -1598,9 +1606,8 @@ int CDummy::setStringProperty(const char* ppName, const char* pState)
 
 int CDummy::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getStringProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propDummy_assemblyTag.name)
@@ -1608,10 +1615,15 @@ int CDummy::getStringProperty(const char* ppName, std::string& pState) const
             retVal = 1;
             pState = _assemblyTag;
         }
+        else if (_pName == propDummy_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
     }
     if (retVal == -1)
     {
-        if (strcmp(pName, propDummy_engineProperties.name) == 0)
+        if (strcmp(ppName, propDummy_engineProperties.name) == 0)
         {
             retVal = 1;
             CEngineProperties prop;
@@ -1624,11 +1636,10 @@ int CDummy::getStringProperty(const char* ppName, std::string& pState) const
 
 int CDummy::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dummyColor.setColorProperty(pName, pState);
+        retVal = _dummyColor.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1637,11 +1648,10 @@ int CDummy::setColorProperty(const char* ppName, const float* pState)
 
 int CDummy::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dummyColor.getColorProperty(pName, pState);
+        retVal = _dummyColor.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1714,9 +1724,8 @@ int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* 
 
 int CDummy::getVector2Property(const char* ppName, double* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector2Property(ppName, pState);
     if (retVal == -1)
     { // First non-engine properties:
     }
@@ -1809,10 +1818,9 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
 
 int CDummy::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
     { // First non-engine properties:
     }
@@ -1907,16 +1915,15 @@ int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CDummy::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = _dummyColor.getPropertyInfo(pName, info, infoTxt);
+        retVal = _dummyColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
         {
-            if (strcmp(allProps_dummy[i].name, pName) == 0)
+            if (strcmp(allProps_dummy[i].name, ppName) == 0)
             {
                 retVal = allProps_dummy[i].type;
                 info = allProps_dummy[i].flags;
@@ -1933,16 +1940,15 @@ int CDummy::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 
 int CDummy::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
         {
-            if (strcmp(allProps_dummy[i].name, pName) == 0)
+            if (strcmp(allProps_dummy[i].name, ppName) == 0)
             {
                 retVal = allProps_dummy[i].type;
                 info = allProps_dummy[i].flags;

@@ -8,6 +8,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                            \
+    FUNCX(propPointCloud_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0, "OC-Tree structure Enabled", "Use an oc-tree structure")                                            \
     FUNCX(propPointCloud_randomColors, "randomColors", sim_propertytype_bool, 0, "Random point colors", "")                                                                          \
     FUNCX(propPointCloud_pointSize, "pointSize", sim_propertytype_int, 0, "Point size", "")                                                                                          \
@@ -72,6 +73,7 @@ class CPointCloud : public CSceneObject
     int getIntProperty(const char* pName, int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
+    int getStringProperty(const char* pName, std::string& pState) const override;
     int setBufferProperty(const char* pName, const char* buffer, int bufferL) override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;

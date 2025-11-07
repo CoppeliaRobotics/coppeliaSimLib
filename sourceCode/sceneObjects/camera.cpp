@@ -16,6 +16,19 @@
 #include <oGL.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 unsigned int CCamera::selectBuff[SELECTION_BUFFER_SIZE * 4];
 
 CCamera::CCamera()
@@ -3290,9 +3303,8 @@ bool CCamera::getInternalRendering() const
 
 int CCamera::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propCamera_parentAsManipProxy.name)
@@ -3317,9 +3329,8 @@ int CCamera::setBoolProperty(const char* ppName, bool pState)
 
 int CCamera::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propCamera_parentAsManipProxy.name)
@@ -3344,9 +3355,8 @@ int CCamera::getBoolProperty(const char* ppName, bool& pState) const
 
 int CCamera::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::setIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::setIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propCamera_trackedObjectHandle.name)
@@ -3361,9 +3371,8 @@ int CCamera::setIntProperty(const char* ppName, int pState)
 
 int CCamera::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propCamera_trackedObjectHandle.name)
@@ -3378,11 +3387,10 @@ int CCamera::getIntProperty(const char* ppName, int& pState) const
 
 int CCamera::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.setFloatProperty(pName, pState);
+        retVal = _color.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propCamera_size.name)
@@ -3397,11 +3405,10 @@ int CCamera::setFloatProperty(const char* ppName, double pState)
 
 int CCamera::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.getFloatProperty(pName, pState);
+        retVal = _color.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propCamera_size.name)
@@ -3414,11 +3421,26 @@ int CCamera::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CCamera::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propCamera_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CCamera::setIntArray2Property(const char* ppName, const int* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::setIntArray2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::setIntArray2Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -3428,9 +3450,8 @@ int CCamera::setIntArray2Property(const char* ppName, const int* pState)
 
 int CCamera::getIntArray2Property(const char* ppName, int* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::getIntArray2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::getIntArray2Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -3440,9 +3461,8 @@ int CCamera::getIntArray2Property(const char* ppName, int* pState) const
 
 int CCamera::setVector2Property(const char* ppName, const double* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::setVector2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::setVector2Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -3452,9 +3472,8 @@ int CCamera::setVector2Property(const char* ppName, const double* pState)
 
 int CCamera::getVector2Property(const char* ppName, double* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::getVector2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::getVector2Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -3464,11 +3483,10 @@ int CCamera::getVector2Property(const char* ppName, double* pState) const
 
 int CCamera::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.setColorProperty(pName, pState);
+        retVal = _color.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -3477,11 +3495,10 @@ int CCamera::setColorProperty(const char* ppName, const float* pState)
 
 int CCamera::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.getColorProperty(pName, pState);
+        retVal = _color.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -3490,9 +3507,8 @@ int CCamera::getColorProperty(const char* ppName, float* pState) const
 
 int CCamera::setVector3Property(const char* ppName, const C3Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::setVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::setVector3Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -3502,9 +3518,8 @@ int CCamera::setVector3Property(const char* ppName, const C3Vector& pState)
 
 int CCamera::getVector3Property(const char* ppName, C3Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CViewableBase::getVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CViewableBase::getVector3Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -3514,11 +3529,10 @@ int CCamera::getVector3Property(const char* ppName, C3Vector& pState) const
 
 int CCamera::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CViewableBase::setFloatArrayProperty(pName, v, vL);
+    int retVal = CViewableBase::setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
     {
     }
@@ -3528,10 +3542,9 @@ int CCamera::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 
 int CCamera::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CViewableBase::getFloatArrayProperty(pName, pState);
+    int retVal = CViewableBase::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -3541,11 +3554,10 @@ int CCamera::getFloatArrayProperty(const char* ppName, std::vector<double>& pSta
 
 int CCamera::setIntArrayProperty(const char* ppName, const int* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CViewableBase::setIntArrayProperty(pName, v, vL);
+    int retVal = CViewableBase::setIntArrayProperty(ppName, v, vL);
     if (retVal == -1)
     {
     }
@@ -3555,10 +3567,9 @@ int CCamera::setIntArrayProperty(const char* ppName, const int* v, int vL)
 
 int CCamera::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CViewableBase::getIntArrayProperty(pName, pState);
+    int retVal = CViewableBase::getIntArrayProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -3632,18 +3643,17 @@ int CCamera::getPropertyName_static(int& index, std::string& pName, std::string&
 
 int CCamera::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = _color.getPropertyInfo(pName, info, infoTxt);
+        retVal = _color.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info, infoTxt);
+        retVal = CViewableBase::getPropertyInfo_vstatic(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
         {
-            if (strcmp(allProps_camera[i].name, pName) == 0)
+            if (strcmp(allProps_camera[i].name, ppName) == 0)
             {
                 retVal = allProps_camera[i].type;
                 info = allProps_camera[i].flags;
@@ -3660,18 +3670,17 @@ int CCamera::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
 
 int CCamera::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info, infoTxt);
+        retVal = CViewableBase::getPropertyInfo_vstatic(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
         {
-            if (strcmp(allProps_camera[i].name, pName) == 0)
+            if (strcmp(allProps_camera[i].name, ppName) == 0)
             {
                 retVal = allProps_camera[i].type;
                 info = allProps_camera[i].flags;

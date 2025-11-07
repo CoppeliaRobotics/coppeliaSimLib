@@ -7,6 +7,16 @@
 #include <drawingObjectRendering.h>
 #endif
 
+static std::string OBJECT_TYPE = "drawingObject";
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+    },
+    "methods": {
+    }
+}
+)";
+
 double CDrawingObject::getSize() const
 {
     return (_size);
@@ -509,15 +519,20 @@ void CDrawingObject::pushAppendNewPointEvent()
 
 int CDrawingObject::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "drawingObject."));
+    std::string _pName(ppName);
     int retVal = -1;
 
     if (_pName == propDrawingObj_objectType.name)
     {
         retVal = 1;
-        pState = "drawingObject";
+        pState = OBJECT_TYPE;
     }
-
+    else if (_pName == propDrawingObj_objectMetaInfo.name)
+    {
+        retVal = 1;
+        pState = OBJECT_META_INFO;
+    }
+ 
     return retVal;
 }
 
@@ -534,7 +549,6 @@ int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string&
                 if (index == -1)
                 {
                     pName = allProps_drawingObj[i].name;
-                    //pName = "drawingObject." + pName;
                     retVal = 1;
                     break;
                 }
@@ -546,8 +560,7 @@ int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string&
 
 int CDrawingObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "drawingObject."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
     for (size_t i = 0; i < allProps_drawingObj.size(); i++)
     {

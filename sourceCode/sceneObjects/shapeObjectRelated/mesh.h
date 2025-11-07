@@ -22,9 +22,10 @@
     FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0, "Visible edges", "")                                                                                              \
     FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0, "Backface culling", "")                                                                                               \
     FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                             \
+    FUNCX(propMesh_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")         \
     FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Shape UID", "Unique identifier of parent shape")     \
-    FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Shape handle", "")     \
-    FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Primitive type", "")     \
+    FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Shape handle", "")                                      \
+    FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Primitive type", "")                       \
     FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether mesh is convex or not")                                                   \
     FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, "Color name", "")
 

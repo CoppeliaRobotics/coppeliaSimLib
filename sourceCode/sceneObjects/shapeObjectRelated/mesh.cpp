@@ -13,6 +13,16 @@
 #include <shapeRendering.h>
 #endif
 
+static std::string OBJECT_TYPE = "mesh";
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+    },
+    "methods": {
+    }
+}
+)";
+
 unsigned int CMesh::_extRendererUniqueObjectID = 0;
 unsigned int CMesh::_extRendererUniqueMeshID = 0;
 unsigned int CMesh::_extRendererUniqueTextureID = 0;
@@ -516,7 +526,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
     ev->appendKeyInt(propMesh_shape.name, _isInSceneShapeHandle);
     ev->appendKeyInt(propMesh_shapeUid.name, _isInSceneShapeUid);
     ev->appendKeyInt(propMesh_primitiveType.name, _purePrimitive);
-    ev->appendKeyText(propMesh_objectType.name, "mesh");
+    ev->appendKeyText(propMesh_objectType.name, OBJECT_TYPE.c_str());
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
     for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
@@ -2895,8 +2905,7 @@ int CMesh::getTextureApplyMode() const
 
 int CMesh::setBoolProperty(const char* ppName, bool pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if (strcmp(pName, propMesh_showEdges.name) == 0)
@@ -2930,8 +2939,7 @@ int CMesh::setBoolProperty(const char* ppName, bool pState, const C7Vector& shap
 
 int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if (strcmp(pName, propMesh_showEdges.name) == 0)
@@ -2970,8 +2978,7 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
 
 int CMesh::setIntProperty(const char* ppName, int pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if ((strcmp(pName, propMesh_textureApplyMode.name) == 0) && (_textureProperty != nullptr))
@@ -2985,8 +2992,7 @@ int CMesh::setIntProperty(const char* ppName, int pState, const C7Vector& shapeR
 
 int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if ((strcmp(pName, propMesh_textureID.name) == 0) && (_textureProperty != nullptr))
@@ -3015,8 +3021,6 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
 
 int CMesh::getLongProperty(const char* ppName, long long int& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3024,8 +3028,7 @@ int CMesh::getLongProperty(const char* ppName, long long int& pState, const C7Ve
 
 int CMesh::getHandleProperty(const char* ppName, long long int& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if (strcmp(pName, propMesh_shape.name) == 0)
@@ -3039,8 +3042,7 @@ int CMesh::getHandleProperty(const char* ppName, long long int& pState, const C7
 
 int CMesh::setFloatProperty(const char* ppName, double pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = color.setFloatProperty(pName, pState);
     if (retVal == -1)
     {
@@ -3055,8 +3057,7 @@ int CMesh::setFloatProperty(const char* ppName, double pState, const C7Vector& s
 
 int CMesh::getFloatProperty(const char* ppName, double& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = color.getFloatProperty(pName, pState);
     if (retVal == -1)
     {
@@ -3072,8 +3073,7 @@ int CMesh::getFloatProperty(const char* ppName, double& pState, const C7Vector& 
 
 int CMesh::setStringProperty(const char* ppName, const char* pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if (strcmp(pName, propMesh_colorName.name) == 0)
@@ -3087,14 +3087,18 @@ int CMesh::setStringProperty(const char* ppName, const char* pState, const C7Vec
 
 int CMesh::getStringProperty(const char* ppName, std::string& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if (strcmp(pName, propMesh_objectType.name) == 0)
     {
         retVal = 1;
-        pState = "mesh";
+        pState = OBJECT_TYPE;
+    }
+    else if (strcmp(pName, propMesh_objectMetaInfo.name) == 0)
+    {
+        retVal = 1;
+        pState = OBJECT_META_INFO;
     }
     else if (strcmp(pName, propMesh_colorName.name) == 0)
     {
@@ -3107,8 +3111,6 @@ int CMesh::getStringProperty(const char* ppName, std::string& pState, const C7Ve
 
 int CMesh::setBufferProperty(const char* ppName, const char* buffer, int bufferL, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
     if (buffer == nullptr)
         bufferL = 0;
@@ -3118,8 +3120,7 @@ int CMesh::setBufferProperty(const char* ppName, const char* buffer, int bufferL
 
 int CMesh::getBufferProperty(const char* ppName, std::string& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if ((strcmp(pName, propMesh_texture.name) == 0) && (_textureProperty != nullptr))
@@ -3136,8 +3137,6 @@ int CMesh::getBufferProperty(const char* ppName, std::string& pState, const C7Ve
 
 int CMesh::setIntArray2Property(const char* ppName, const int* pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3145,8 +3144,7 @@ int CMesh::setIntArray2Property(const char* ppName, const int* pState, const C7V
 
 int CMesh::getIntArray2Property(const char* ppName, int* pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
 
     if ((strcmp(pName, propMesh_textureResolution.name) == 0) && (_textureProperty != nullptr))
@@ -3160,8 +3158,6 @@ int CMesh::getIntArray2Property(const char* ppName, int* pState, const C7Vector&
 
 int CMesh::setVector2Property(const char* ppName, const double* pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3169,8 +3165,6 @@ int CMesh::setVector2Property(const char* ppName, const double* pState, const C7
 
 int CMesh::getVector2Property(const char* ppName, double* pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3178,8 +3172,6 @@ int CMesh::getVector2Property(const char* ppName, double* pState, const C7Vector
 
 int CMesh::setVector3Property(const char* ppName, const C3Vector& pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3187,8 +3179,6 @@ int CMesh::setVector3Property(const char* ppName, const C3Vector& pState, const 
 
 int CMesh::getVector3Property(const char* ppName, C3Vector& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3196,8 +3186,6 @@ int CMesh::getVector3Property(const char* ppName, C3Vector& pState, const C7Vect
 
 int CMesh::setQuaternionProperty(const char* ppName, const C4Vector& pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3205,8 +3193,6 @@ int CMesh::setQuaternionProperty(const char* ppName, const C4Vector& pState, con
 
 int CMesh::getQuaternionProperty(const char* ppName, C4Vector& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3214,8 +3200,6 @@ int CMesh::getQuaternionProperty(const char* ppName, C4Vector& pState, const C7V
 
 int CMesh::setPoseProperty(const char* ppName, const C7Vector& pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3223,8 +3207,6 @@ int CMesh::setPoseProperty(const char* ppName, const C7Vector& pState, const C7V
 
 int CMesh::getPoseProperty(const char* ppName, C7Vector& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3232,8 +3214,7 @@ int CMesh::getPoseProperty(const char* ppName, C7Vector& pState, const C7Vector&
 
 int CMesh::setColorProperty(const char* ppName, const float* pState, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = color.setColorProperty(pName, pState);
     if (retVal == -1)
     {
@@ -3243,8 +3224,7 @@ int CMesh::setColorProperty(const char* ppName, const float* pState, const C7Vec
 
 int CMesh::getColorProperty(const char* ppName, float* pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = color.getColorProperty(pName, pState);
     if (retVal == -1)
     {
@@ -3254,8 +3234,6 @@ int CMesh::getColorProperty(const char* ppName, float* pState, const C7Vector& s
 
 int CMesh::setFloatArrayProperty(const char* ppName, const double* v, int vL, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
     if (v == nullptr)
         vL = 0;
@@ -3265,8 +3243,7 @@ int CMesh::setFloatArrayProperty(const char* ppName, const double* v, int vL, co
 
 int CMesh::getFloatArrayProperty(const char* ppName, std::vector<double>& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
     pState.clear();
 
@@ -3312,8 +3289,6 @@ int CMesh::getFloatArrayProperty(const char* ppName, std::vector<double>& pState
 
 int CMesh::setIntArrayProperty(const char* ppName, const int* v, int vL, const C7Vector& shapeRelTr)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
     if (v == nullptr)
         vL = 0;
@@ -3323,8 +3298,7 @@ int CMesh::setIntArrayProperty(const char* ppName, const int* v, int vL, const C
 
 int CMesh::getIntArrayProperty(const char* ppName, std::vector<int>& pState, const C7Vector& shapeRelTr) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
     pState.clear();
 
@@ -3339,8 +3313,6 @@ int CMesh::getIntArrayProperty(const char* ppName, std::vector<int>& pState, con
 
 int CMesh::removeProperty(const char* ppName)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
@@ -3380,8 +3352,8 @@ int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
 
 int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, CMesh* targetObject)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
+    const char* pName = ppName;
     int retVal = -1;
     if (targetObject != nullptr)
         retVal = targetObject->color.getPropertyInfo(pName, info, infoTxt);

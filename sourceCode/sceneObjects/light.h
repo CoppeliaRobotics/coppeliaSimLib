@@ -5,6 +5,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                 \
+    FUNCX(propLight_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0, "Size", "Light size")                                   \
     FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0, "Enabled", "")                                          \
     FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Light type")     \
@@ -58,6 +59,7 @@ class CLight : public CSceneObject
     int getIntProperty(const char* pName, int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
+    int getStringProperty(const char* pName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;

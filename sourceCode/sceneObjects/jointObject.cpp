@@ -11,6 +11,19 @@
 #include <jointRendering.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CJoint::CJoint()
 {
     _commonInit();
@@ -4695,9 +4708,8 @@ int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev /* = nul
 
 int CJoint::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         // First non-engine properties:
@@ -4815,9 +4827,8 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullp
 
 int CJoint::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         // First non-engine properties:
@@ -5031,11 +5042,10 @@ int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev /* = 
 
 int CJoint::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.getFloatProperty(pName, pState);
+        retVal = _color.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propJoint_position.name)
@@ -5472,9 +5482,8 @@ int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* e
 
 int CJoint::getIntArray2Property(const char* ppName, int* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntArray2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntArray2Property(ppName, pState);
     if (retVal == -1)
     { // First non-engine properties:
 
@@ -5560,9 +5569,8 @@ int CJoint::setVector2Property(const char* ppName, const double* pState, CCbor* 
 
 int CJoint::getVector2Property(const char* ppName, double* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector2Property(ppName, pState);
     if (retVal == -1)
     { // First non-engine properties:
 
@@ -5643,9 +5651,8 @@ int CJoint::setVector3Property(const char* ppName, const C3Vector& pState, CCbor
 
 int CJoint::getVector3Property(const char* ppName, C3Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector3Property(ppName, pState);
     if (retVal == -1)
     { // First non-engine properties:
 
@@ -5664,13 +5671,11 @@ int CJoint::getVector3Property(const char* ppName, C3Vector& pState) const
 
 int CJoint::setStringProperty(const char* ppName, const char* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-
-    int retVal = CSceneObject::setStringProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (strcmp(pName, propJoint_engineProperties.name) == 0)
+        if (strcmp(ppName, propJoint_engineProperties.name) == 0)
         {
             retVal = 0;
             CEngineProperties prop;
@@ -5689,16 +5694,20 @@ int CJoint::setStringProperty(const char* ppName, const char* pState)
 
 int CJoint::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getStringProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (strcmp(pName, propJoint_engineProperties.name) == 0)
+        if (strcmp(ppName, propJoint_engineProperties.name) == 0)
         {
             retVal = 1;
             CEngineProperties prop;
             pState = prop.getObjectProperties(_objectHandle);
+        }
+        else if (strcmp(ppName, propJoint_objectMetaInfo.name) == 0)
+        {
+            retVal = 1;
+            pState = OBJECT_META_INFO;
         }
     }
 
@@ -5707,10 +5716,8 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
 
 int CJoint::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-
-    int retVal = CSceneObject::setQuaternionProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setQuaternionProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propJoint_quaternion.name)
@@ -5724,9 +5731,8 @@ int CJoint::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 
 int CJoint::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getQuaternionProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getQuaternionProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propJoint_quaternion.name)
@@ -5741,9 +5747,8 @@ int CJoint::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 
 int CJoint::getPoseProperty(const char* ppName, C7Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPoseProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPoseProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propJoint_intrinsicError.name)
@@ -5763,11 +5768,10 @@ int CJoint::getPoseProperty(const char* ppName, C7Vector& pState) const
 
 int CJoint::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.setColorProperty(pName, pState);
+        retVal = _color.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -5776,11 +5780,10 @@ int CJoint::setColorProperty(const char* ppName, const float* pState)
 
 int CJoint::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.getColorProperty(pName, pState);
+        retVal = _color.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -5905,10 +5908,9 @@ int CJoint::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
 
 int CJoint::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
     { // First non-engine properties:
         if (_pName == propJoint_maxVelAccelJerk.name)
@@ -6037,16 +6039,15 @@ int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CJoint::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = _color.getPropertyInfo(pName, info, infoTxt);
+        retVal = _color.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_joint.size(); i++)
         {
-            if (strcmp(allProps_joint[i].name, pName) == 0)
+            if (strcmp(allProps_joint[i].name, ppName) == 0)
             {
                 retVal = allProps_joint[i].type;
                 info = allProps_joint[i].flags;
@@ -6063,16 +6064,15 @@ int CJoint::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 
 int CJoint::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_joint.size(); i++)
         {
-            if (strcmp(allProps_joint[i].name, pName) == 0)
+            if (strcmp(allProps_joint[i].name, ppName) == 0)
             {
                 retVal = allProps_joint[i].type;
                 info = allProps_joint[i].flags;

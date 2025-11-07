@@ -11,6 +11,19 @@
 #include <pointCloudRendering.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CPointCloud::CPointCloud()
 {
     TRACE_INTERNAL;
@@ -1531,9 +1544,8 @@ void CPointCloud::display(CViewableBase* renderingObject, int displayAttrib)
 
 int CPointCloud::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propPointCloud_ocTreeStruct.name)
@@ -1553,9 +1565,8 @@ int CPointCloud::setBoolProperty(const char* ppName, bool pState)
 
 int CPointCloud::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propPointCloud_ocTreeStruct.name)
@@ -1575,9 +1586,8 @@ int CPointCloud::getBoolProperty(const char* ppName, bool& pState) const
 
 int CPointCloud::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propPointCloud_pointSize.name)
@@ -1597,9 +1607,8 @@ int CPointCloud::setIntProperty(const char* ppName, int pState)
 
 int CPointCloud::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propPointCloud_pointSize.name)
@@ -1619,11 +1628,10 @@ int CPointCloud::getIntProperty(const char* ppName, int& pState) const
 
 int CPointCloud::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.setFloatProperty(pName, pState);
+        retVal = color.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propPointCloud_cellSize.name)
@@ -1643,11 +1651,10 @@ int CPointCloud::setFloatProperty(const char* ppName, double pState)
 
 int CPointCloud::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.getFloatProperty(pName, pState);
+        retVal = color.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propPointCloud_cellSize.name)
@@ -1665,11 +1672,26 @@ int CPointCloud::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CPointCloud::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propPointCloud_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CPointCloud::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBufferProperty(pName, buffer, bufferL);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBufferProperty(ppName, buffer, bufferL);
     if (retVal == -1)
     {
     }
@@ -1679,10 +1701,9 @@ int CPointCloud::setBufferProperty(const char* ppName, const char* buffer, int b
 
 int CPointCloud::getBufferProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getBufferProperty(pName, pState);
+    int retVal = CSceneObject::getBufferProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propPointCloud_colors.name)
@@ -1697,11 +1718,10 @@ int CPointCloud::getBufferProperty(const char* ppName, std::string& pState) cons
 
 int CPointCloud::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.setColorProperty(pName, pState);
+        retVal = color.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1710,11 +1730,10 @@ int CPointCloud::setColorProperty(const char* ppName, const float* pState)
 
 int CPointCloud::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.getColorProperty(pName, pState);
+        retVal = color.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1723,11 +1742,10 @@ int CPointCloud::getColorProperty(const char* ppName, float* pState) const
 
 int CPointCloud::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
     {
     }
@@ -1737,10 +1755,9 @@ int CPointCloud::setFloatArrayProperty(const char* ppName, const double* v, int 
 
 int CPointCloud::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propPointCloud_points.name)
@@ -1815,16 +1832,15 @@ int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::str
 
 int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = color.getPropertyInfo(pName, info, infoTxt);
+        retVal = color.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_pointCloud.size(); i++)
         {
-            if (strcmp(allProps_pointCloud[i].name, pName) == 0)
+            if (strcmp(allProps_pointCloud[i].name, ppName) == 0)
             {
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
@@ -1854,16 +1870,15 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
 
 int CPointCloud::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_pointCloud.size(); i++)
         {
-            if (strcmp(allProps_pointCloud[i].name, pName) == 0)
+            if (strcmp(allProps_pointCloud[i].name, ppName) == 0)
             {
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;

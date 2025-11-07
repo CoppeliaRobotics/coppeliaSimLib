@@ -8,6 +8,18 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_TYPE = "collection";
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+    },
+    "methods": {
+        "addItem" : "sim-2.addToCollection",
+        "checkCollision" : "sim-2.checkCollision"
+    }
+}
+)";
+
 CCollection::CCollection(int creatorHandle)
 {
     _collectionHandle = -1;
@@ -272,13 +284,18 @@ int CCollection::getSceneObjectHandleFromIndex(size_t index) const
 
 int CCollection::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "collection."));
+    std::string _pName(ppName);
     int retVal = -1;
 
     if (_pName == propCollection_objectType.name)
     {
         retVal = 1;
-        pState = "collection";
+        pState = OBJECT_TYPE;
+    }
+    else if (_pName == propCollection_objectMetaInfo.name)
+    {
+        retVal = 1;
+        pState = OBJECT_META_INFO;
     }
 
     return retVal;
@@ -286,7 +303,7 @@ int CCollection::getStringProperty(const char* ppName, std::string& pState) cons
 
 int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "collection."));
+    std::string _pName(ppName);
     const char* pName = _pName.c_str();
     int retVal = -1;
     pState.clear();
@@ -314,7 +331,6 @@ int CCollection::getPropertyName(int& index, std::string& pName, std::string& ap
                 if (index == -1)
                 {
                     pName = allProps_collection[i].name;
-                    //pName = "collection." + pName;
                     retVal = 1;
                     break;
                 }
@@ -326,8 +342,7 @@ int CCollection::getPropertyName(int& index, std::string& pName, std::string& ap
 
 int CCollection::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "collection."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     int retVal = -1;
     for (size_t i = 0; i < allProps_collection.size(); i++)
     {
@@ -600,7 +615,7 @@ void CCollection::pushCreationEvent() const
     if (App::worldContainer->getEventsEnabled())
     {
         CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_COLLECTIONADDED, -1, _collectionHandle, nullptr, false);
-        ev->appendKeyText(propCollection_objectType.name, "collection");
+        ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
         ev->appendKeyIntArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
         App::worldContainer->pushEvent();
     }

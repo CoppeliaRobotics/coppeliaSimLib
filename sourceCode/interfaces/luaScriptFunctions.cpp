@@ -223,7 +223,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.removeParticleObject", _simRemoveParticleObject},
     {"sim.addParticleObjectItem", _simAddParticleObjectItem},
     {"sim.getObjectSizeFactor", _simGetObjectSizeFactor},
-    {"sim.readForceSensor", _simReadForceSensor},
     {"sim.getLinkDummy", _simGetLinkDummy},
     {"sim.setLinkDummy", _simSetLinkDummy},
     {"sim.setObjectColor", _simSetObjectColor},
@@ -403,6 +402,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim1.readForceSensor", _simReadForceSensor},
     {"sim1.buildIdentityMatrix", _simBuildIdentityMatrix},
     {"sim1.buildMatrix", _simBuildMatrix},
     {"sim1.buildPose", _simBuildPose},
@@ -9913,24 +9913,6 @@ int _simGetObjectSizeFactor(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L, retVal);
     LUA_END(1);
-}
-
-int _simReadForceSensor(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.readForceSensor");
-
-    int retVal = -1;
-    double force[3] = {0.0, 0.0, 0.0};
-    double torque[3] = {0.0, 0.0, 0.0};
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = CALL_C_API(simReadForceSensor, luaToInt(L, 1), force, torque);
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    pushDoubleTableOntoStack(L, 3, force);
-    pushDoubleTableOntoStack(L, 3, torque);
-    LUA_END(3);
 }
 
 int _simGetVelocity(luaWrap_lua_State* L)

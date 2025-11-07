@@ -8,6 +8,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                          \
+    FUNCX(propOctree_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0, "Voxel size", "")                                                                          \
     FUNCX(propOctree_randomColors, "randomColors", sim_propertytype_bool, 0, "Random voxel colors", "")                                                                          \
     FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0, "Show points instead of voxels", "")                                                                          \
@@ -66,6 +67,7 @@ class COcTree : public CSceneObject
     int getBoolProperty(const char* pName, bool& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
+    int getStringProperty(const char* pName, std::string& pState) const override;
     int setBufferProperty(const char* pName, const char* buffer, int bufferL) override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;

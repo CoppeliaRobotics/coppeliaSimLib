@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                              \
+    FUNCX(propCamera_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0, "Size", "Camera size")                                                             \
     FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0, "Parent as proxy", "Use parent as manipulation proxy") \
     FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0, "Translation enabled", "")                                    \
@@ -71,6 +72,7 @@ class CCamera : public CViewableBase
     int getIntProperty(const char* pName, int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
+    int getStringProperty(const char* ppName, std::string& pState) const override;
     int setIntArray2Property(const char* pName, const int* pState) override;
     int getIntArray2Property(const char* pName, int* pState) const override;
     int setVector2Property(const char* pName, const double* pState) override;

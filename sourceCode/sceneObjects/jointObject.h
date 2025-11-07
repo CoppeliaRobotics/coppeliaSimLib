@@ -15,6 +15,7 @@ struct SJointProperty
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                                                                            \
+    FUNCX(propJoint_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "Object meta information", "")             \
     FUNCX(propJoint_length, "jointLength", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "Size", "Joint size")                                                                                                                                                                      \
     FUNCX(propJoint_diameter, "jointDiameter", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "Size", "Joint size")                                                                                                                                                                  \
     FUNCX(propJoint_position, "jointPosition", sim_propertytype_float, 0, -1, -1, -1, -1, -1, "Position", "Joint linear/angular displacement")                                                                                                                                       \

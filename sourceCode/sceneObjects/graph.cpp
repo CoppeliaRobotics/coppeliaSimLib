@@ -13,6 +13,19 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CGraph::CGraph()
 {
     _objectType = sim_sceneobject_graph;
@@ -3607,9 +3620,8 @@ void CGraph::validateViewValues(int windowSize[2], double graphPosition[2], doub
 
 int CGraph::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propGraph_cyclic.name)
@@ -3624,9 +3636,8 @@ int CGraph::setBoolProperty(const char* ppName, bool pState)
 
 int CGraph::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propGraph_cyclic.name)
@@ -3641,9 +3652,8 @@ int CGraph::getBoolProperty(const char* ppName, bool& pState) const
 
 int CGraph::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propGraph_bufferSize.name)
@@ -3658,9 +3668,8 @@ int CGraph::setIntProperty(const char* ppName, int pState)
 
 int CGraph::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propGraph_bufferSize.name)
@@ -3675,11 +3684,10 @@ int CGraph::getIntProperty(const char* ppName, int& pState) const
 
 int CGraph::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.setFloatProperty(pName, pState);
+        retVal = color.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propGraph_size.name)
@@ -3694,11 +3702,10 @@ int CGraph::setFloatProperty(const char* ppName, double pState)
 
 int CGraph::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.getFloatProperty(pName, pState);
+        retVal = color.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propGraph_size.name)
@@ -3711,13 +3718,28 @@ int CGraph::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CGraph::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propGraph_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CGraph::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.setColorProperty(pName, pState);
+        retVal = color.setColorProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propGraph_backgroundColor.name)
@@ -3736,11 +3758,10 @@ int CGraph::setColorProperty(const char* ppName, const float* pState)
 
 int CGraph::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = color.getColorProperty(pName, pState);
+        retVal = color.getColorProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propGraph_backgroundColor.name)
@@ -3821,16 +3842,15 @@ int CGraph::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CGraph::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = color.getPropertyInfo(pName, info, infoTxt);
+        retVal = color.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_graph.size(); i++)
         {
-            if (strcmp(allProps_graph[i].name, pName) == 0)
+            if (strcmp(allProps_graph[i].name, ppName) == 0)
             {
                 retVal = allProps_graph[i].type;
                 info = allProps_graph[i].flags;
@@ -3847,16 +3867,15 @@ int CGraph::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 
 int CGraph::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_graph.size(); i++)
         {
-            if (strcmp(allProps_graph[i].name, pName) == 0)
+            if (strcmp(allProps_graph[i].name, ppName) == 0)
             {
                 retVal = allProps_graph[i].type;
                 info = allProps_graph[i].flags;

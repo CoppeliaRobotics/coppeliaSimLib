@@ -9,6 +9,19 @@
 #include <proximitySensorRendering.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CProxSensor::CProxSensor(int theType)
 {
     commonInit();
@@ -1202,11 +1215,10 @@ void CProxSensor::display(CViewableBase* renderingObject, int displayAttrib)
 
 int CProxSensor::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->setBoolProperty(pName, pState);
+        retVal = convexVolume->setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propProximitySensor_frontFaceDetection.name)
@@ -1241,11 +1253,10 @@ int CProxSensor::setBoolProperty(const char* ppName, bool pState)
 
 int CProxSensor::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getBoolProperty(pName, pState);
+        retVal = convexVolume->getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propProximitySensor_frontFaceDetection.name)
@@ -1285,11 +1296,10 @@ int CProxSensor::getBoolProperty(const char* ppName, bool& pState) const
 
 int CProxSensor::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->setIntProperty(pName, pState);
+        retVal = convexVolume->setIntProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1299,11 +1309,10 @@ int CProxSensor::setIntProperty(const char* ppName, int pState)
 
 int CProxSensor::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getIntProperty(pName, pState);
+        retVal = convexVolume->getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propProximitySensor_sensorType.name)
@@ -1323,15 +1332,14 @@ int CProxSensor::getIntProperty(const char* ppName, int& pState) const
 
 int CProxSensor::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = volumeColor.setFloatProperty(pName, pState);
+        retVal = volumeColor.setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = detectionRayColor.setFloatProperty(pName, pState);
+        retVal = detectionRayColor.setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->setFloatProperty(pName, pState);
+        retVal = convexVolume->setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propProximitySensor_size.name)
@@ -1351,15 +1359,14 @@ int CProxSensor::setFloatProperty(const char* ppName, double pState)
 
 int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = volumeColor.getFloatProperty(pName, pState);
+        retVal = volumeColor.getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = detectionRayColor.getFloatProperty(pName, pState);
+        retVal = detectionRayColor.getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getFloatProperty(pName, pState);
+        retVal = convexVolume->getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propProximitySensor_size.name)
@@ -1377,13 +1384,28 @@ int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CProxSensor::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propProximitySensor_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CProxSensor::setIntArray2Property(const char* ppName, const int* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntArray2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntArray2Property(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->setIntArray2Property(pName, pState);
+        retVal = convexVolume->setIntArray2Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1393,11 +1415,10 @@ int CProxSensor::setIntArray2Property(const char* ppName, const int* pState)
 
 int CProxSensor::getIntArray2Property(const char* ppName, int* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntArray2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntArray2Property(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getIntArray2Property(pName, pState);
+        retVal = convexVolume->getIntArray2Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1407,11 +1428,10 @@ int CProxSensor::getIntArray2Property(const char* ppName, int* pState) const
 
 int CProxSensor::setVector2Property(const char* ppName, const double* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setVector2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setVector2Property(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->setVector2Property(pName, pState);
+        retVal = convexVolume->setVector2Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1421,11 +1441,10 @@ int CProxSensor::setVector2Property(const char* ppName, const double* pState)
 
 int CProxSensor::getVector2Property(const char* ppName, double* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector2Property(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getVector2Property(pName, pState);
+        retVal = convexVolume->getVector2Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1435,9 +1454,8 @@ int CProxSensor::getVector2Property(const char* ppName, double* pState) const
 
 int CProxSensor::setVector3Property(const char* ppName, const C3Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setVector3Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1447,9 +1465,8 @@ int CProxSensor::setVector3Property(const char* ppName, const C3Vector& pState)
 
 int CProxSensor::getVector3Property(const char* ppName, C3Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector3Property(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propProximitySensor_detectedPoint.name)
@@ -1469,13 +1486,12 @@ int CProxSensor::getVector3Property(const char* ppName, C3Vector& pState) const
 
 int CProxSensor::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = volumeColor.setColorProperty(pName, pState);
+        retVal = volumeColor.setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = detectionRayColor.setColorProperty(pName, pState);
+        retVal = detectionRayColor.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1484,13 +1500,12 @@ int CProxSensor::setColorProperty(const char* ppName, const float* pState)
 
 int CProxSensor::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = volumeColor.getColorProperty(pName, pState);
+        retVal = volumeColor.getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = detectionRayColor.getColorProperty(pName, pState);
+        retVal = detectionRayColor.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1499,13 +1514,12 @@ int CProxSensor::getColorProperty(const char* ppName, float* pState) const
 
 int CProxSensor::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
-        retVal = convexVolume->setFloatArrayProperty(pName, v, vL);
+        retVal = convexVolume->setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
     {
     }
@@ -1515,12 +1529,11 @@ int CProxSensor::setFloatArrayProperty(const char* ppName, const double* v, int 
 
 int CProxSensor::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getFloatArrayProperty(pName, pState);
+        retVal = convexVolume->getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1530,13 +1543,12 @@ int CProxSensor::getFloatArrayProperty(const char* ppName, std::vector<double>& 
 
 int CProxSensor::setIntArrayProperty(const char* ppName, const int* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setIntArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setIntArrayProperty(ppName, v, vL);
     if (retVal == -1)
-        retVal = convexVolume->setIntArrayProperty(pName, v, vL);
+        retVal = convexVolume->setIntArrayProperty(ppName, v, vL);
     if (retVal == -1)
     {
     }
@@ -1546,12 +1558,11 @@ int CProxSensor::setIntArrayProperty(const char* ppName, const int* v, int vL)
 
 int CProxSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getIntArrayProperty(pName, pState);
+    int retVal = CSceneObject::getIntArrayProperty(ppName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getIntArrayProperty(pName, pState);
+        retVal = convexVolume->getIntArrayProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1629,20 +1640,19 @@ int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::str
 
 int CProxSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = volumeColor.getPropertyInfo(pName, info, infoTxt);
+        retVal = volumeColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = detectionRayColor.getPropertyInfo(pName, info, infoTxt);
+        retVal = detectionRayColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = convexVolume->getPropertyInfo(pName, info, infoTxt);
+        retVal = convexVolume->getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {
-            if (strcmp(allProps_proximitySensor[i].name, pName) == 0)
+            if (strcmp(allProps_proximitySensor[i].name, ppName) == 0)
             {
                 retVal = allProps_proximitySensor[i].type;
                 info = allProps_proximitySensor[i].flags;
@@ -1659,20 +1669,19 @@ int CProxSensor::getPropertyInfo(const char* ppName, int& info, std::string& inf
 
 int CProxSensor::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "_ray");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "_ray");
     if (retVal == -1)
-        retVal = CConvexVolume::getPropertyInfo_static(pName, info, infoTxt);
+        retVal = CConvexVolume::getPropertyInfo_static(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {
-            if (strcmp(allProps_proximitySensor[i].name, pName) == 0)
+            if (strcmp(allProps_proximitySensor[i].name, ppName) == 0)
             {
                 retVal = allProps_proximitySensor[i].type;
                 info = allProps_proximitySensor[i].flags;

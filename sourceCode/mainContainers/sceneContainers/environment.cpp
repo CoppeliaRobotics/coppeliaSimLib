@@ -15,6 +15,18 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_TYPE = "scene";
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 int CEnvironment::_nextSceneUniqueID = 0;
 bool CEnvironment::_shapeTexturesTemporarilyDisabled = false;
 bool CEnvironment::_shapeEdgesTemporarilyDisabled = false;
@@ -155,7 +167,7 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyInt(propScene_sceneUid.name, _sceneUniqueID);
     ev->appendKeyInt(propScene_visibilityLayers.name, _activeLayers);
     ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
-    ev->appendKeyText(propScene_objectType.name, "scene");
+    ev->appendKeyText(propScene_objectType.name, OBJECT_TYPE.c_str());
     ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
     ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
     ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
@@ -1176,7 +1188,12 @@ int CEnvironment::getStringProperty(const char* pName, std::string& pState) cons
     }
     else if (strcmp(pName, propScene_objectType.name) == 0)
     {
-        pState = "scene";
+        pState = OBJECT_TYPE;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propScene_objectMetaInfo.name) == 0)
+    {
+        pState = OBJECT_META_INFO;
         retVal = 1;
     }
     else if (strcmp(pName, propScene_acknowledgment.name) == 0)
@@ -1234,7 +1251,6 @@ int CEnvironment::getPropertyName(int& index, std::string& pName) const
                 if (index == -1)
                 {
                     pName = allProps_scene[i].name;
-                    //pName = "scene." + pName;
                     retVal = 1;
                     break;
                 }

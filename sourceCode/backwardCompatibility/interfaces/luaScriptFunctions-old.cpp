@@ -8914,3 +8914,21 @@ int _simGetCollectionObjects(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simReadForceSensor(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.readForceSensor");
+
+    int retVal = -1;
+    double force[3] = {0.0, 0.0, 0.0};
+    double torque[3] = {0.0, 0.0, 0.0};
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+        retVal = CALL_C_API(simReadForceSensor, luaToInt(L, 1), force, torque);
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    pushDoubleTableOntoStack(L, 3, force);
+    pushDoubleTableOntoStack(L, 3, torque);
+    LUA_END(3);
+}
+

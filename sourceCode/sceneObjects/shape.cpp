@@ -14,6 +14,19 @@
 #include <shapeRendering.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CShape::CShape()
 {
     commonInit();
@@ -1771,11 +1784,10 @@ void CShape::setIsInScene(bool s)
 
 int CShape::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->setBoolProperty(pName, pState);
+        retVal = _dynMaterial->setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_applyCulling.name)
@@ -1825,11 +1837,10 @@ int CShape::setBoolProperty(const char* ppName, bool pState)
 
 int CShape::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->getBoolProperty(pName, pState);
+        retVal = _dynMaterial->getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_startInDynSleepMode.name)
@@ -1879,11 +1890,10 @@ int CShape::getBoolProperty(const char* ppName, bool& pState) const
 
 int CShape::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->setIntProperty(pName, pState);
+        retVal = _dynMaterial->setIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_respondableMask.name)
@@ -1898,11 +1908,10 @@ int CShape::setIntProperty(const char* ppName, int pState)
 
 int CShape::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->getIntProperty(pName, pState);
+        retVal = _dynMaterial->getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_respondableMask.name)
@@ -1917,13 +1926,12 @@ int CShape::getIntProperty(const char* ppName, int& pState) const
 
 int CShape::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->setFloatProperty(pName, pState);
+        retVal = _dynMaterial->setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _mesh->setFloatProperty_wrapper(pName, pState);
+        retVal = _mesh->setFloatProperty_wrapper(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_applyShadingAngle.name)
@@ -1945,46 +1953,50 @@ int CShape::setFloatProperty(const char* ppName, double pState)
 
 int CShape::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->getFloatProperty(pName, pState);
+        retVal = _dynMaterial->getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _mesh->getFloatProperty_wrapper(pName, pState);
+        retVal = _mesh->getFloatProperty_wrapper(ppName, pState);
 
     return retVal;
 }
 
 int CShape::setStringProperty(const char* ppName, const char* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setStringProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setStringProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->setStringProperty(pName, pState);
+        retVal = _dynMaterial->setStringProperty(ppName, pState);
 
     return retVal;
 }
 
 int CShape::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getStringProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->getStringProperty(pName, pState);
+        retVal = _dynMaterial->getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }
 
 int CShape::setVector2Property(const char* ppName, const double* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setVector2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setVector2Property(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->setVector2Property(pName, pState);
+        retVal = _dynMaterial->setVector2Property(ppName, pState);
     //    if (retVal == -1)
     //        retVal = _mesh->setVector2Property_wrapper(pName, pState);
     if (retVal == -1)
@@ -1996,11 +2008,10 @@ int CShape::setVector2Property(const char* ppName, const double* pState)
 
 int CShape::getVector2Property(const char* ppName, double* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector2Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector2Property(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->getVector2Property(pName, pState);
+        retVal = _dynMaterial->getVector2Property(ppName, pState);
     //    if (retVal == -1)
     //        retVal = _mesh->getVector2Property_wrapper(pName, pState);
     if (retVal == -1)
@@ -2012,13 +2023,12 @@ int CShape::getVector2Property(const char* ppName, double* pState) const
 
 int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setVector3Property(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->setVector3Property(pName, &pState);
+        retVal = _dynMaterial->setVector3Property(ppName, &pState);
     if (retVal == -1)
-        retVal = _mesh->setVector3Property_wrapper(pName, pState);
+        retVal = _mesh->setVector3Property_wrapper(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_initLinearVelocity.name)
@@ -2038,13 +2048,12 @@ int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
 
 int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector3Property(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->getVector3Property(pName, &pState);
+        retVal = _dynMaterial->getVector3Property(ppName, &pState);
     if (retVal == -1)
-        retVal = _mesh->getVector3Property_wrapper(pName, pState);
+        retVal = _mesh->getVector3Property_wrapper(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_initLinearVelocity.name)
@@ -2074,13 +2083,12 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
 
 int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setQuaternionProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setQuaternionProperty(ppName, pState);
     //    if (retVal == -1)
     //        retVal = _dynMaterial->setQuaternionProperty(pName, &pState);
     if (retVal == -1)
-        retVal = _mesh->setQuaternionProperty_wrapper(pName, pState);
+        retVal = _mesh->setQuaternionProperty_wrapper(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -2090,13 +2098,12 @@ int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 
 int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getQuaternionProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getQuaternionProperty(ppName, pState);
     //   if (retVal == -1)
     //       retVal = _dynMaterial->getQuaternionProperty(pName, &pState);
     if (retVal == -1)
-        retVal = _mesh->getQuaternionProperty_wrapper(pName, pState);
+        retVal = _mesh->getQuaternionProperty_wrapper(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -2106,9 +2113,8 @@ int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 
 int CShape::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_applyColorDiffuse.name)
@@ -2133,53 +2139,49 @@ int CShape::setColorProperty(const char* ppName, const float* pState)
 
 int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
-        retVal = _dynMaterial->setFloatArrayProperty(pName, v, vL);
+        retVal = _dynMaterial->setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
-        retVal = _mesh->setFloatArrayProperty_wrapper(pName, v, vL);
+        retVal = _mesh->setFloatArrayProperty_wrapper(ppName, v, vL);
 
     return retVal;
 }
 
 int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->getFloatArrayProperty(pName, pState);
+        retVal = _dynMaterial->getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _mesh->getFloatArrayProperty_wrapper(pName, pState);
+        retVal = _mesh->getFloatArrayProperty_wrapper(ppName, pState);
 
     return retVal;
 }
 
 int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setIntArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setIntArrayProperty(ppName, v, vL);
 
     return retVal;
 }
 
 int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getIntArrayProperty(pName, pState);
+    int retVal = CSceneObject::getIntArrayProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (strcmp(pName, "meshes") == 0)
+        if (strcmp(ppName, "meshes") == 0)
         {
             std::vector<CMesh*> all;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
@@ -2194,13 +2196,12 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
 
 int CShape::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getHandleArrayProperty(pName, pState);
+    int retVal = CSceneObject::getHandleArrayProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (strcmp(pName, propShape_meshes.name) == 0)
+        if (strcmp(ppName, propShape_meshes.name) == 0)
         {
             std::vector<CMesh*> all;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
@@ -2281,19 +2282,18 @@ int CShape::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CShape::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
-        retVal = _dynMaterial->getPropertyInfo(pName, info, infoTxt);
+        retVal = _dynMaterial->getPropertyInfo(ppName, info, infoTxt);
         if (retVal == -1)
-            retVal = _mesh->getPropertyInfo_wrapper(pName, info, infoTxt);
+            retVal = _mesh->getPropertyInfo_wrapper(ppName, info, infoTxt);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
             {
-                if (strcmp(allProps_shape[i].name, pName) == 0)
+                if (strcmp(allProps_shape[i].name, ppName) == 0)
                 {
                     retVal = allProps_shape[i].type;
                     info = allProps_shape[i].flags;
@@ -2311,19 +2311,18 @@ int CShape::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 
 int CShape::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
     {
-        retVal = CDynMaterialObject::getPropertyInfo_static(pName, info, infoTxt);
+        retVal = CDynMaterialObject::getPropertyInfo_static(ppName, info, infoTxt);
         if (retVal == -1)
-            retVal = CMeshWrapper::getPropertyInfo_static_wrapper(pName, info, infoTxt);
+            retVal = CMeshWrapper::getPropertyInfo_static_wrapper(ppName, info, infoTxt);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
             {
-                if (strcmp(allProps_shape[i].name, pName) == 0)
+                if (strcmp(allProps_shape[i].name, ppName) == 0)
                 {
                     retVal = allProps_shape[i].type;
                     info = allProps_shape[i].flags;

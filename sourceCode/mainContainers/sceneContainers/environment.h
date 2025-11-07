@@ -11,6 +11,7 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                   \
     FUNCX(propScene_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                                 \
+    FUNCX(propScene_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, "Final save", "Lock scene and models after next scene save operation")  \
     FUNCX(propScene_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_notwritable, "Scene is locked", "")                                                             \
     FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs", sim_propertytype_bool, 0, "Save calculation structures", "Save operation also saves existing calculation structures") \

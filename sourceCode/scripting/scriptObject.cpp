@@ -24,6 +24,17 @@
 
 #define BASE_SANDBOX_SCRIPT "sandboxScriptBase.lua"
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
+
+
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+    },
+    "methods": {
+    }
+}
+)";
+
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
 std::vector<int> CScriptObject::_externalScriptCalls;
 std::map<std::string, std::pair<int, int>> CScriptObject::_signalNameToScriptHandle;
@@ -4338,6 +4349,11 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     {
         retVal = 1;
         pState = _addOnMenuPath;
+    }
+    else if (strcmp(propScriptObj_objectMetaInfo.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = OBJECT_META_INFO;
     }
 
     return retVal;

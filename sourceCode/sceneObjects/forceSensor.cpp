@@ -9,6 +9,19 @@
 #include <forceSensorRendering.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CForceSensor::CForceSensor()
 {
     commonInit();
@@ -301,10 +314,10 @@ void CForceSensor::_setFilteredForceAndTorque(bool valid, const C3Vector* f /*= 
         _filteredDynamicTorques = vt;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propFSensor_sensorAverageForce.name;
+            const char* cmd = propFSensor_filteredSensorForce.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, _filteredDynamicForces.data, 3);
-            ev->appendKeyDoubleArray(propFSensor_sensorAverageTorque.name, _filteredDynamicTorques.data, 3);
+            ev->appendKeyDoubleArray(propFSensor_filteredSensorTorque.name, _filteredDynamicTorques.data, 3);
             App::worldContainer->pushEvent();
         }
     }
@@ -649,8 +662,8 @@ void CForceSensor::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDoubleArray(propFSensor_intrinsicError.name, p, 7);
     ev->appendKeyDoubleArray(propFSensor_sensorForce.name, _lastForce_dynStep.data, 3);
     ev->appendKeyDoubleArray(propFSensor_sensorTorque.name, _lastTorque_dynStep.data, 3);
-    ev->appendKeyDoubleArray(propFSensor_sensorAverageForce.name, _filteredDynamicForces.data, 3);
-    ev->appendKeyDoubleArray(propFSensor_sensorAverageTorque.name, _filteredDynamicTorques.data, 3);
+    ev->appendKeyDoubleArray(propFSensor_filteredSensorForce.name, _filteredDynamicForces.data, 3);
+    ev->appendKeyDoubleArray(propFSensor_filteredSensorTorque.name, _filteredDynamicTorques.data, 3);
     ev->appendKeyBool(propFSensor_forceThresholdEnabled.name, _forceThresholdEnabled);
     ev->appendKeyBool(propFSensor_torqueThresholdEnabled.name, _torqueThresholdEnabled);
     ev->appendKeyInt(propFSensor_filterType.name, _filterType);
@@ -998,9 +1011,8 @@ void CForceSensor::display(CViewableBase* renderingObject, int displayAttrib)
 
 int CForceSensor::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propFSensor_forceThresholdEnabled.name)
@@ -1020,9 +1032,8 @@ int CForceSensor::setBoolProperty(const char* ppName, bool pState)
 
 int CForceSensor::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propFSensor_forceThresholdEnabled.name)
@@ -1042,9 +1053,8 @@ int CForceSensor::getBoolProperty(const char* ppName, bool& pState) const
 
 int CForceSensor::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propFSensor_filterType.name)
@@ -1069,9 +1079,8 @@ int CForceSensor::setIntProperty(const char* ppName, int pState)
 
 int CForceSensor::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propFSensor_filterType.name)
@@ -1096,11 +1105,10 @@ int CForceSensor::getIntProperty(const char* ppName, int& pState) const
 
 int CForceSensor::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.setFloatProperty(pName, pState);
+        retVal = _color.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propFSensor_size.name)
@@ -1125,11 +1133,10 @@ int CForceSensor::setFloatProperty(const char* ppName, double pState)
 
 int CForceSensor::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.getFloatProperty(pName, pState);
+        retVal = _color.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propFSensor_size.name)
@@ -1152,11 +1159,26 @@ int CForceSensor::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CForceSensor::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propFSensor_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CForceSensor::setVector3Property(const char* ppName, const C3Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setVector3Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1166,9 +1188,8 @@ int CForceSensor::setVector3Property(const char* ppName, const C3Vector& pState)
 
 int CForceSensor::getVector3Property(const char* ppName, C3Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector3Property(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propFSensor_sensorAverageForce.name)
@@ -1177,6 +1198,16 @@ int CForceSensor::getVector3Property(const char* ppName, C3Vector& pState) const
             retVal = 1;
         }
         else if (_pName == propFSensor_sensorAverageTorque.name)
+        {
+            pState = _filteredDynamicTorques;
+            retVal = 1;
+        }
+        if (_pName == propFSensor_filteredSensorForce.name)
+        {
+            pState = _filteredDynamicForces;
+            retVal = 1;
+        }
+        else if (_pName == propFSensor_filteredSensorTorque.name)
         {
             pState = _filteredDynamicTorques;
             retVal = 1;
@@ -1198,9 +1229,8 @@ int CForceSensor::getVector3Property(const char* ppName, C3Vector& pState) const
 
 int CForceSensor::setPoseProperty(const char* ppName, const C7Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setPoseProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setPoseProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1210,9 +1240,8 @@ int CForceSensor::setPoseProperty(const char* ppName, const C7Vector& pState)
 
 int CForceSensor::getPoseProperty(const char* ppName, C7Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPoseProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPoseProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propFSensor_intrinsicError.name)
@@ -1227,11 +1256,10 @@ int CForceSensor::getPoseProperty(const char* ppName, C7Vector& pState) const
 
 int CForceSensor::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.setColorProperty(pName, pState);
+        retVal = _color.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1240,11 +1268,10 @@ int CForceSensor::setColorProperty(const char* ppName, const float* pState)
 
 int CForceSensor::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _color.getColorProperty(pName, pState);
+        retVal = _color.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -1313,16 +1340,15 @@ int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::st
 
 int CForceSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = _color.getPropertyInfo(pName, info, infoTxt);
+        retVal = _color.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_forceSensor.size(); i++)
         {
-            if (strcmp(allProps_forceSensor[i].name, pName) == 0)
+            if (strcmp(allProps_forceSensor[i].name, ppName) == 0)
             {
                 retVal = allProps_forceSensor[i].type;
                 info = allProps_forceSensor[i].flags;
@@ -1339,16 +1365,15 @@ int CForceSensor::getPropertyInfo(const char* ppName, int& info, std::string& in
 
 int CForceSensor::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "forceSensor."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_forceSensor.size(); i++)
         {
-            if (strcmp(allProps_forceSensor[i].name, pName) == 0)
+            if (strcmp(allProps_forceSensor[i].name, ppName) == 0)
             {
                 retVal = allProps_forceSensor[i].type;
                 info = allProps_forceSensor[i].flags;

@@ -13,6 +13,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                        \
+    FUNCX(propGraph_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propGraph_size, "graphSize", sim_propertytype_float, 0, "Size", "Size of the 3D graph representation") \
     FUNCX(propGraph_bufferSize, "bufferSize", sim_propertytype_int, 0, "Buffer size", "")                        \
     FUNCX(propGraph_cyclic, "cyclic", sim_propertytype_bool, 0, "Cyclic", "Buffer is cyclic")                    \
@@ -53,6 +54,7 @@ class CGraph : public CSceneObject
     int getIntProperty(const char* pName, int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
+    int getStringProperty(const char* ppName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const override;

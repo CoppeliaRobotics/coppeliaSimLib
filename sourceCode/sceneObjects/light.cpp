@@ -9,6 +9,19 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 int CLight::_maximumOpenGlLights = 8;
 
 CLight::CLight()
@@ -795,9 +808,8 @@ void CLight::display(CViewableBase* renderingObject, int displayAttrib)
 
 int CLight::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propLight_enabled.name)
@@ -820,9 +832,8 @@ int CLight::setBoolProperty(const char* ppName, bool pState)
 
 int CLight::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propLight_enabled.name)
@@ -845,9 +856,8 @@ int CLight::getBoolProperty(const char* ppName, bool& pState) const
 
 int CLight::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propLight_spotExponent.name)
@@ -862,9 +872,8 @@ int CLight::setIntProperty(const char* ppName, int pState)
 
 int CLight::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propLight_spotExponent.name)
@@ -884,13 +893,12 @@ int CLight::getIntProperty(const char* ppName, int& pState) const
 
 int CLight::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = objectColor.setFloatProperty(pName, pState);
+        retVal = objectColor.setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = lightColor.setFloatProperty(pName, pState);
+        retVal = lightColor.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propLight_size.name)
@@ -910,13 +918,12 @@ int CLight::setFloatProperty(const char* ppName, double pState)
 
 int CLight::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = objectColor.getFloatProperty(pName, pState);
+        retVal = objectColor.getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = lightColor.getFloatProperty(pName, pState);
+        retVal = lightColor.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propLight_size.name)
@@ -934,15 +941,30 @@ int CLight::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CLight::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CLight::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = objectColor.setColorProperty(pName, pState);
+        retVal = objectColor.setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = lightColor.setColorProperty(pName, pState);
+        retVal = lightColor.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -951,13 +973,12 @@ int CLight::setColorProperty(const char* ppName, const float* pState)
 
 int CLight::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = objectColor.getColorProperty(pName, pState);
+        retVal = objectColor.getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = lightColor.getColorProperty(pName, pState);
+        retVal = lightColor.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -966,9 +987,8 @@ int CLight::getColorProperty(const char* ppName, float* pState) const
 
 int CLight::setVector3Property(const char* ppName, const C3Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setVector3Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -978,9 +998,8 @@ int CLight::setVector3Property(const char* ppName, const C3Vector& pState)
 
 int CLight::getVector3Property(const char* ppName, C3Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getVector3Property(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getVector3Property(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -990,11 +1009,10 @@ int CLight::getVector3Property(const char* ppName, C3Vector& pState) const
 
 int CLight::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
     {
         if (_pName == propLight_attenuationFactors.name)
@@ -1014,10 +1032,9 @@ int CLight::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 
 int CLight::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
+    std::string _pName(ppName);
     pState.clear();
-    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propLight_attenuationFactors.name)
@@ -1098,18 +1115,17 @@ int CLight::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CLight::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = objectColor.getPropertyInfo(pName, info, infoTxt);
+        retVal = objectColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = lightColor.getPropertyInfo(pName, info, infoTxt);
+        retVal = lightColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {
-            if (strcmp(allProps_light[i].name, pName) == 0)
+            if (strcmp(allProps_light[i].name, ppName) == 0)
             {
                 retVal = allProps_light[i].type;
                 info = allProps_light[i].flags;
@@ -1126,18 +1142,17 @@ int CLight::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 
 int CLight::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 2 + 4 + 8, "_light");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 2 + 4 + 8, "_light");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {
-            if (strcmp(allProps_light[i].name, pName) == 0)
+            if (strcmp(allProps_light[i].name, ppName) == 0)
             {
                 retVal = allProps_light[i].type;
                 info = allProps_light[i].flags;

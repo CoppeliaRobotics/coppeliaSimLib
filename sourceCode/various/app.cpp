@@ -34,6 +34,20 @@ int App::_qApp_argc = 1;
 char App::_qApp_arg0[] = {"CoppeliaSim"};
 char* App::_qApp_argv[1] = {_qApp_arg0};
 #endif
+
+static std::string OBJECT_TYPE = "app";
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "namedParam": {},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CSimThread* App::simThread = nullptr;
 CUserSettings* App::userSettings = nullptr;
 CFolderSystem* App::folders = nullptr;
@@ -1538,8 +1552,7 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
@@ -1571,8 +1584,7 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
@@ -1631,8 +1643,7 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
@@ -1668,8 +1679,7 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_protocolVersion.name) == 0)
@@ -1765,8 +1775,7 @@ int App::setLongProperty(long long int target, const char* ppName, long long int
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -1781,8 +1790,7 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_pid.name) == 0)
@@ -1802,8 +1810,7 @@ int App::setHandleProperty(long long int target, const char* ppName, long long i
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -1818,8 +1825,7 @@ int App::getHandleProperty(long long int target, const char* ppName, long long i
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -1834,8 +1840,7 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
@@ -1862,8 +1867,7 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
@@ -1899,8 +1903,7 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         std::string pN(pName);
@@ -2020,8 +2023,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         std::string pN(pName);
@@ -2045,7 +2047,12 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
             }
             else if (strcmp(pName, propApp_objectType.name) == 0)
             {
-                pState = "app";
+                pState = OBJECT_TYPE;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_objectMetaInfo.name) == 0)
+            {
+                pState = OBJECT_META_INFO;
                 retVal = 1;
             }
             else if (strcmp(pName, propApp_productVersion.name) == 0)
@@ -2316,8 +2323,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
     int retVal = -1;
     if (buffer == nullptr)
         bufferL = 0;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         std::string pN(pName);
@@ -2370,8 +2376,7 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         std::string pN(pName);
@@ -2411,8 +2416,7 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2427,8 +2431,7 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2443,8 +2446,7 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2459,8 +2461,7 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2475,8 +2476,7 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2491,8 +2491,7 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2507,8 +2506,7 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2523,8 +2521,7 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_randomQuaternion.name) == 0)
@@ -2544,8 +2541,7 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2560,8 +2556,7 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2576,8 +2571,7 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2592,8 +2586,7 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2608,8 +2601,7 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2625,8 +2617,7 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
 
     int retVal = -1;
     pState.clear();
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2641,8 +2632,7 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2658,8 +2648,7 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
 
     int retVal = -1;
     pState.clear();
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2674,8 +2663,7 @@ int App::setHandleArrayProperty(long long int target, const char* ppName, const 
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2691,8 +2679,7 @@ int App::getHandleArrayProperty(long long int target, const char* ppName, std::v
 
     int retVal = -1;
     pState.clear();
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
@@ -2707,8 +2694,7 @@ int App::removeProperty(long long int target, const char* ppName)
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         std::string pN(pName);
@@ -2773,7 +2759,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
     int retVal = -1;
-    appartenance = "app";
+    appartenance = OBJECT_TYPE;
     if (target == sim_handle_app)
     {
         for (size_t i = 0; i < allProps_app.size(); i++)
@@ -2786,7 +2772,6 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                     if (index == -1)
                     {
                         pName = allProps_app[i].name;
-                        //pName = "app." + pName;
                         retVal = 1;
                         break;
                     }
@@ -2846,8 +2831,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
         target = worldContainer->sandboxScript->getScriptHandle();
 
     int retVal = -1;
-    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
-    const char* pName = _pName.c_str();
+    const char* pName = ppName;
     if (target == sim_handle_app)
     {
         for (size_t i = 0; i < allProps_app.size(); i++)
@@ -2867,7 +2851,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
         {
             if (retVal == -1)
             {
-                std::string pN(_pName);
+                std::string pN(pName);
                 if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
                 {
                     pN += "&customData";
@@ -2885,7 +2869,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
             }
             if ((retVal == -1) && (worldContainer != nullptr))
             {
-                std::string pN(_pName);
+                std::string pN(pName);
                 if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
                 {
                     int s;
@@ -3113,7 +3097,7 @@ void App::pushGenesisEvents()
         ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
 #endif
         ev->appendKeyText(propApp_sessionId.name, worldContainer->getSessionId().c_str());
-        ev->appendKeyText(propApp_objectType.name, "app");
+        ev->appendKeyText(propApp_objectType.name, OBJECT_TYPE.c_str());
         ev->appendKeyInt(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
         ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
         ev->appendKeyInt(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);

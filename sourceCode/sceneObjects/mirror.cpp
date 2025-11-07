@@ -9,6 +9,19 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 int CMirror::currentMirrorContentBeingRendered = -1;
 
 CMirror::CMirror()
@@ -469,11 +482,10 @@ void CMirror::display(CViewableBase* renderingObject, int displayAttrib)
 
 int CMirror::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = clipPlaneColor.setFloatProperty(pName, pState);
+        retVal = clipPlaneColor.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -483,11 +495,10 @@ int CMirror::setFloatProperty(const char* ppName, double pState)
 
 int CMirror::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = clipPlaneColor.getFloatProperty(pName, pState);
+        retVal = clipPlaneColor.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -495,13 +506,28 @@ int CMirror::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CMirror::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propMirror_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CMirror::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = clipPlaneColor.setColorProperty(pName, pState);
+        retVal = clipPlaneColor.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -510,11 +536,10 @@ int CMirror::setColorProperty(const char* ppName, const float* pState)
 
 int CMirror::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = clipPlaneColor.getColorProperty(pName, pState);
+        retVal = clipPlaneColor.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -583,16 +608,15 @@ int CMirror::getPropertyName_static(int& index, std::string& pName, std::string&
 
 int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = clipPlaneColor.getPropertyInfo(pName, info, infoTxt);
+        retVal = clipPlaneColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mirror.size(); i++)
         {
-            if (strcmp(allProps_mirror[i].name, pName) == 0)
+            if (strcmp(allProps_mirror[i].name, ppName) == 0)
             {
                 retVal = allProps_mirror[i].type;
                 info = allProps_mirror[i].flags;
@@ -609,16 +633,15 @@ int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
 
 int CMirror::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mirror.size(); i++)
         {
-            if (strcmp(allProps_mirror[i].name, pName) == 0)
+            if (strcmp(allProps_mirror[i].name, ppName) == 0)
             {
                 retVal = allProps_mirror[i].type;
                 info = allProps_mirror[i].flags;

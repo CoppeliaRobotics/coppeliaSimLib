@@ -4,7 +4,8 @@
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES
+#define DEFINE_PROPERTIES \
+    FUNCX(propMirror_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -46,6 +47,7 @@ class CMirror : public CSceneObject
     void setIsInScene(bool s) override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
+    int getStringProperty(const char* pName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const override;

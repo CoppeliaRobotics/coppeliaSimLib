@@ -10,6 +10,19 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    },
+    "methods": {
+    }
+}
+)";
+
 CScript::CScript()
 {
     _commonInit(sim_scripttype_simulation, "", 0, nullptr);
@@ -466,11 +479,10 @@ void CScript::display(CViewableBase* renderingObject, int displayAttrib)
 
 int CScript::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->setBoolProperty(pName, pState);
+        retVal = scriptObject->setBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propScript_resetAfterSimError.name)
@@ -485,11 +497,10 @@ int CScript::setBoolProperty(const char* ppName, bool pState)
 
 int CScript::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->getBoolProperty(pName, pState);
+        retVal = scriptObject->getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propScript_resetAfterSimError.name)
@@ -504,11 +515,10 @@ int CScript::getBoolProperty(const char* ppName, bool& pState) const
 
 int CScript::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->setIntProperty(pName, pState);
+        retVal = scriptObject->setIntProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -518,11 +528,10 @@ int CScript::setIntProperty(const char* ppName, int pState)
 
 int CScript::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->getIntProperty(pName, pState);
+        retVal = scriptObject->getIntProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -532,11 +541,10 @@ int CScript::getIntProperty(const char* ppName, int& pState) const
 
 int CScript::setLongProperty(const char* ppName, long long int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setLongProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setLongProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->setLongProperty(pName, pState);
+        retVal = scriptObject->setLongProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -546,11 +554,10 @@ int CScript::setLongProperty(const char* ppName, long long int pState)
 
 int CScript::getLongProperty(const char* ppName, long long int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getLongProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getLongProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->getLongProperty(pName, pState);
+        retVal = scriptObject->getLongProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -560,11 +567,10 @@ int CScript::getLongProperty(const char* ppName, long long int& pState) const
 
 int CScript::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _scriptColor.setFloatProperty(pName, pState);
+        retVal = _scriptColor.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propScript_size.name)
@@ -579,11 +585,10 @@ int CScript::setFloatProperty(const char* ppName, double pState)
 
 int CScript::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _scriptColor.getFloatProperty(pName, pState);
+        retVal = _scriptColor.getFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propScript_size.name)
@@ -598,11 +603,10 @@ int CScript::getFloatProperty(const char* ppName, double& pState) const
 
 int CScript::setStringProperty(const char* ppName, const char* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setStringProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setStringProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->setStringProperty(pName, pState);
+        retVal = scriptObject->setStringProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -611,24 +615,27 @@ int CScript::setStringProperty(const char* ppName, const char* pState)
 
 int CScript::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getStringProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->getStringProperty(pName, pState);
-    if (retVal == -1)
+        retVal = scriptObject->getStringProperty(ppName, pState);
+    if ( (retVal == -1) || (_pName == propScript_objectMetaInfo.name) ) // special with propScript_objectMetaInfo
     {
+        if (_pName == propScript_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
     }
     return retVal;
 }
 
 int CScript::setColorProperty(const char* ppName, const float* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _scriptColor.setColorProperty(pName, pState);
+        retVal = _scriptColor.setColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -637,11 +644,10 @@ int CScript::setColorProperty(const char* ppName, const float* pState)
 
 int CScript::getColorProperty(const char* ppName, float* pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _scriptColor.getColorProperty(pName, pState);
+        retVal = _scriptColor.getColorProperty(ppName, pState);
     if (retVal != -1)
     {
     }
@@ -714,18 +720,17 @@ int CScript::getPropertyName_static(int& index, std::string& pName, std::string&
 
 int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = _scriptColor.getPropertyInfo(pName, info, infoTxt);
+        retVal = _scriptColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = scriptObject->getPropertyInfo(pName, info, infoTxt, false);
+        retVal = scriptObject->getPropertyInfo(ppName, info, infoTxt, false);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
-            if (strcmp(allProps_script[i].name, pName) == 0)
+            if (strcmp(allProps_script[i].name, ppName) == 0)
             {
                 retVal = allProps_script[i].type;
                 info = allProps_script[i].flags;
@@ -742,18 +747,17 @@ int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
 
 int CScript::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
-    const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt, false);
+        retVal = CScriptObject::getPropertyInfo_static(ppName, info, infoTxt, false);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
-            if (strcmp(allProps_script[i].name, pName) == 0)
+            if (strcmp(allProps_script[i].name, ppName) == 0)
             {
                 retVal = allProps_script[i].type;
                 info = allProps_script[i].flags;
