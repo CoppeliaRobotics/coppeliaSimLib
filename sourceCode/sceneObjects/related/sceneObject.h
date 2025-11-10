@@ -10,6 +10,20 @@
 #include <cbor.h>
 #include <simLib/simConst.h>
 
+#define SCENEOBJECT_META_METHODS R"("getAlias": "sim-2.getObjectAlias",
+        "getPose": "sim-2.getObjectPose",
+        "getPosition": "sim-2.getObjectPosition",
+        "getQuaternion": "sim-2.getObjectQuaternion",
+        "getVelocity": "sim-2.getObjectVelocity",
+        "scaleObject": "sim-2.scaleObject",
+        "setParent": "sim-2.setObjectParent",
+        "setPose": "sim-2.setObjectPose",
+        "setPosition": "sim-2.setObjectPosition",
+        "setQuaternion": "sim-2.setObjectQuaternion",
+        "visitTree": "sim-2.visitTree",
+        "dynamicReset": "sim-2.resetDynamicObject",
+        )" APP_META_METHODS
+
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                       \

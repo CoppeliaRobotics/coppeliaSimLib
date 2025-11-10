@@ -20,6 +20,9 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
+        "checkCollision": "sim-2.checkCollision",
+        "checkDistance": "sim-2.checkDistance",
+        )" SCENEOBJECT_META_METHODS R"(
     }
 }
 )";

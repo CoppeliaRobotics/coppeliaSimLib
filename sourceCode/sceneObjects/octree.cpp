@@ -19,6 +19,14 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
+        "checkCollision": "sim-2.checkCollision",
+        "checkDistance": "sim-2.checkDistance",
+        "checkPointOccupancy": "sim-2.checkOctreePointOccupancy",
+        "insertObject": "sim-2.insertObjectIntoOctree",
+        "insertVoxels": "sim-2.insertVoxelsIntoOctree",
+        "removeVoxels": "sim-2.removeVoxelsFromOctree",
+        "subtractObject": "sim-2.subtractObjectFromOctree",
+        )" SCENEOBJECT_META_METHODS R"(
     }
 }
 )";

@@ -31,6 +31,8 @@ static std::string OBJECT_META_INFO = R"(
     "namespaces": {
     },
     "methods": {
+        )" SCRIPT_META_METHODS R"(,
+        )" APP_META_METHODS R"(
     }
 }
 )";
@@ -1066,9 +1068,23 @@ int CScriptObject::getScriptState() const
     return _scriptState;
 }
 
+std::string CScriptObject::_getScriptTypeN() const
+{
+    std::string scriptType("script");
+    if (_scriptType == sim_scripttype_main)
+        scriptType = "mainScript";
+    else if (_scriptType == sim_scripttype_addon)
+        scriptType = "addOn";
+    else if (_scriptType == sim_scripttype_sandbox)
+        scriptType = "sandbox";
+    else if (_scriptType == sim_scripttype_passive)
+        scriptType = "passiveScript";
+    return scriptType;
+}
+
 void CScriptObject::addSpecializedObjectEventData(CCbor* ev)
 {
-    ev->appendKeyText(propScriptObj_objectType.name, "script");
+    ev->appendKeyText(propScriptObj_objectType.name, _getScriptTypeN().c_str());
     ev->appendKeyBool(propScriptObj_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propScriptObj_restartOnError.name, _autoRestartOnError);
     ev->appendKeyInt(propScriptObj_execPriority.name, getScriptExecPriority());
@@ -4333,7 +4349,7 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     else if (strcmp(propScriptObj_objectType.name, pName) == 0)
     {
         retVal = 1;
-        pState = "script";
+        pState = _getScriptTypeN();
     }
     else if (strcmp(propScriptObj_scriptName.name, pName) == 0)
     {

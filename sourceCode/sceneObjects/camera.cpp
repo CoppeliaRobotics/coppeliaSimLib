@@ -25,6 +25,7 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
+        )" SCENEOBJECT_META_METHODS R"(
     }
 }
 )";

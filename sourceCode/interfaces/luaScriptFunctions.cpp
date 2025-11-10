@@ -6146,7 +6146,9 @@ int _simGetPropertyName(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    luaWrap_lua_pushnil(L);
+    luaWrap_lua_pushnil(L);
+    LUA_END(2);
 }
 
 int _simGetPropertyInfo(luaWrap_lua_State* L)
@@ -6187,7 +6189,10 @@ int _simGetPropertyInfo(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    luaWrap_lua_pushnil(L);
+    luaWrap_lua_pushnil(L);
+    luaWrap_lua_pushnil(L);
+    LUA_END(3);
 }
 
 int _simSetEventFilters(luaWrap_lua_State* L)

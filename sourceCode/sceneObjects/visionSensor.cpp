@@ -35,6 +35,11 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
+        "checkSensor": "sim-2.checkVisionSensor",
+        "checkSensorEx": "sim-2.checkVisionSensorEx",
+        "read": "sim-2.readVisionSensor",
+        "reset": "sim-2.resetVisionSensor",
+        )" SCENEOBJECT_META_METHODS R"(
     }
 }
 )";
