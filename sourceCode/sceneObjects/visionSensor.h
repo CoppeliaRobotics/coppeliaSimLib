@@ -37,6 +37,10 @@ struct SHandlingResult
     FUNCX(propVisionSensor_emitDepthChangedEvent, "emitDepthChangedEvent", sim_propertytype_bool, 0, "Emit depth change event", "")                                               \
     FUNCX(propVisionSensor_imageBuffer, "imageBuffer", sim_propertytype_buffer, sim_propertyinfo_modelhashexclude, "RGB buffer", "")                                              \
     FUNCX(propVisionSensor_depthBuffer, "depthBuffer", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Depth buffer", "")         \
+    FUNCX(propVisionSensor_packedDepthBuffer, "packedDepthBuffer", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Packed depth buffer", "")         \
+    FUNCX(propVisionSensor_triggerState, "triggerState", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Trigger state", "")         \
+    FUNCX(propVisionSensor_packet1, "packet1", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Data packet 1", "")         \
+    FUNCX(propVisionSensor_packet2, "packet2", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Data packet 2", "")         \
     FUNCX(propVisionSensor_povFocalBlur, "povray.focalBlur", sim_propertytype_bool, 0, "POV-Ray: focal blur", "Focal blur (with the POV-Ray renderer plugin)")                    \
     FUNCX(propVisionSensor_povBlurSamples, "povray.blurSamples", sim_propertytype_int, 0, "POV-Ray: blur samples", "Focal blur samples (with the POV-Ray renderer plugin)")       \
     FUNCX(propVisionSensor_povBlurDistance, "povray.blurDistance", sim_propertytype_float, 0, "POV-Ray: blur distance", "Focal blur distance (with the POV-Ray renderer plugin)") \
@@ -189,15 +193,15 @@ class CVisionSensor : public CViewableBase
     CColorObject* getColor();
 
     SHandlingResult sensorResult;
-    std::vector<std::vector<double>>
-        sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
+    std::vector<std::vector<double>> sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
 
     bool setExternalImage_old(const float* img, bool imgIsGreyScale, bool noProcessing);
     bool setExternalCharImage_old(const unsigned char* img, bool imgIsGreyScale, bool noProcessing);
 
   protected:
-    void _emitImageChangedEvent() const;
-    void _emitDepthChangedEvent() const;
+    void _emitTriggerStateAndPacketChangeEvents(CCbor* thirdPartyEv = nullptr) const;
+    void _emitImageChangedEvent(CCbor* thirdPartyEv = nullptr) const;
+    void _emitDepthChangedEvent(CCbor* thirdPartyEv = nullptr) const;
     void _drawObjects(int entityID, bool detectAll, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
                       bool hideEdgesIfModel, bool overrideRenderableFlagsForNonCollections);
     int _getActiveMirrors(int entityID, bool detectAll,

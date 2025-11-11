@@ -30,7 +30,6 @@ static std::string OBJECT_META_INFO = R"(
         "checkDistance": "sim-2.checkDistance",
         "computeMassAndInertia": "sim-2.computeMassAndInertia",
         "getAppearance": "sim-2.getShapeAppearance",
-        "getDynVelocity": "sim-2.getShapeVelocity",
         "relocateFrame": "sim-2.relocateShapeFrame",
         "setAppearance": "sim-2.setShapeAppearance",
         "setShapeBB": "sim-2.setShapeBB",

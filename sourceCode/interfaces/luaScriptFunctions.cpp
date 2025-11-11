@@ -125,7 +125,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.isHandle", _simIsHandle},
     {"sim.handleDynamics", _simHandleDynamics},
     {"sim.handleProximitySensor", _simHandleProximitySensor},
-    {"sim.readProximitySensor", _simReadProximitySensor},
     {"sim.resetProximitySensor", _simResetProximitySensor},
     {"sim.checkProximitySensor", _simCheckProximitySensor},
     {"sim.getObject", _simGetObject},
@@ -290,13 +289,11 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.alignShapeBB", _simAlignShapeBB},
     {"sim.relocateShapeFrame", _simRelocateShapeFrame},
     {"sim.handleVisionSensor", _simHandleVisionSensor},
-    {"sim.readVisionSensor", _simReadVisionSensor},
     {"sim.resetVisionSensor", _simResetVisionSensor},
     {"sim.getVisionSensorImg", _simGetVisionSensorImg},
     {"sim.setVisionSensorImg", _simSetVisionSensorImg},
     {"sim.getVisionSensorDepth", _simGetVisionSensorDepth},
     {"sim.checkVisionSensor", _simCheckVisionSensor},
-    {"sim.checkVisionSensorEx", _simCheckVisionSensorEx},
     {"sim.ruckigPos", _simRuckigPos},
     {"sim.ruckigVel", _simRuckigVel},
     {"sim.ruckigStep", _simRuckigStep},
@@ -402,6 +399,9 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim1.checkVisionSensorEx", _simCheckVisionSensorEx},
+    {"sim1.readVisionSensor", _simReadVisionSensor},
+    {"sim1.readProximitySensor", _simReadProximitySensor},
     {"sim1.readForceSensor", _simReadForceSensor},
     {"sim1.buildIdentityMatrix", _simBuildIdentityMatrix},
     {"sim1.buildMatrix", _simBuildMatrix},
@@ -3238,39 +3238,6 @@ int _sim_qhull(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simReadProximitySensor(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.readProximitySensor");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-    {
-        double detPt[4];
-        int detectedObjectID;
-        double surfaceNormal[3];
-        retVal = CALL_C_API(simReadProximitySensor, luaToInt(L, 1), detPt, &detectedObjectID, surfaceNormal);
-        if (retVal == 1)
-        {
-            luaWrap_lua_pushinteger(L, retVal);
-            luaWrap_lua_pushnumber(L, detPt[3]);
-            pushDoubleTableOntoStack(L, 3, detPt);
-            luaWrap_lua_pushinteger(L, detectedObjectID);
-            pushDoubleTableOntoStack(L, 3, surfaceNormal);
-            LUA_END(5);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    luaWrap_lua_pushnumber(L, 0.0);
-    double ft[3] = {0.0, 0.0, 0.0};
-    pushDoubleTableOntoStack(L, 3, ft);
-    luaWrap_lua_pushinteger(L, -1);
-    pushDoubleTableOntoStack(L, 3, ft);
-    LUA_END(5);
-}
-
 int _simHandleVisionSensor(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -3282,47 +3249,6 @@ int _simHandleVisionSensor(luaWrap_lua_State* L)
         double* auxVals = nullptr;
         int* auxValsCount = nullptr;
         retVal = CALL_C_API(simHandleVisionSensor, luaToInt(L, 1), &auxVals, &auxValsCount);
-        if (retVal != -1)
-        {
-            luaWrap_lua_pushinteger(L, retVal);
-            int tableCount = 0;
-            if (auxValsCount != nullptr)
-            {
-                tableCount = auxValsCount[0];
-                int off = 0;
-                for (int i = 0; i < tableCount; i++)
-                {
-                    pushDoubleTableOntoStack(L, auxValsCount[i + 1], auxVals + off);
-                    off += auxValsCount[i + 1];
-                }
-                delete[] auxValsCount;
-                delete[] auxVals;
-            }
-            for (int i = tableCount; i < 2; i++)
-            {
-                pushIntTableOntoStack(L, 0, nullptr); // return at least 2 aux packets, even empty
-                tableCount++;
-            }
-            LUA_END(1 + tableCount);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simReadVisionSensor(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.readVisionSensor");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-    {
-        double* auxVals = nullptr;
-        int* auxValsCount = nullptr;
-        retVal = CALL_C_API(simReadVisionSensor, luaToInt(L, 1), &auxVals, &auxValsCount);
         if (retVal != -1)
         {
             luaWrap_lua_pushinteger(L, retVal);
@@ -3680,51 +3606,6 @@ int _simCheckVisionSensor(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
     LUA_END(1);
-}
-
-int _simCheckVisionSensorEx(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.checkVisionSensorEx");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_bool, 0))
-    {
-        bool returnImage = luaToBool(L, 3);
-        int arg1 = luaToInt(L, 1);
-        int handleFlags = arg1 & sim_handleflag_flagmask;
-        int sensHandle = arg1 & sim_handleflag_handlemask;
-        int res[2];
-        CALL_C_API(simGetVisionSensorRes, sensHandle, res);
-        float* buffer = CALL_C_API(simCheckVisionSensorEx, luaToInt(L, 1), luaToInt(L, 2), returnImage);
-        if (buffer != nullptr)
-        {
-            if ((handleFlags & sim_handleflag_codedstring) != 0)
-            {
-                if (returnImage)
-                {
-                    unsigned char* buff2 = new unsigned char[res[0] * res[1] * 3];
-                    for (size_t i = 0; i < res[0] * res[1] * 3; i++)
-                        buff2[i] = (unsigned char)(buffer[i] * 255.1);
-                    luaWrap_lua_pushbuffer(L, (const char*)buff2, res[0] * res[1] * 3);
-                    delete[] buff2;
-                }
-                else
-                    luaWrap_lua_pushbuffer(L, (const char*)buffer, res[0] * res[1] * sizeof(float));
-            }
-            else
-            {
-                if (returnImage)
-                    pushFloatTableOntoStack(L, res[0] * res[1] * 3, buffer);
-                else
-                    pushFloatTableOntoStack(L, res[0] * res[1], buffer);
-            }
-            CALL_C_API(simReleaseBuffer, buffer);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
 }
 
 int _simGetObject(luaWrap_lua_State* L)

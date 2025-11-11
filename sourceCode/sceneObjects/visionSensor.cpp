@@ -35,10 +35,11 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
+        "handleSensor": "sim-2.handleVisionSensor",
+        "resetSensor": "sim-2.resetVisionSensor",
         "checkSensor": "sim-2.checkVisionSensor",
-        "checkSensorEx": "sim-2.checkVisionSensorEx",
-        "read": "sim-2.readVisionSensor",
-        "reset": "sim-2.resetVisionSensor",
+        "getImage": "sim-2.getVisionSensorImg",
+        "setImage": "sim-2.setVisionSensorImg",
         )" SCENEOBJECT_META_METHODS R"(
     }
 }
@@ -252,7 +253,10 @@ bool CVisionSensor::writePortionOfCharImage(const unsigned char* img, int posX, 
         }
         _emitImageChangedEvent();
         if ((option & 4) == 0)
+        {
             _computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
+            _emitTriggerStateAndPacketChangeEvents();
+        }
 #ifdef SIM_WITH_GUI
         if (_contextFboAndTexture == nullptr)
             createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(false);
@@ -487,25 +491,31 @@ void CVisionSensor::setEmitDepthChangedEvent(bool e)
     }
 }
 
-void CVisionSensor::_emitImageChangedEvent() const
+void CVisionSensor::_emitImageChangedEvent(CCbor* thirdPartyEv /*= nullptr*/) const
 {
     if (_emitImageChangedEventEnabled && _isInScene && App::worldContainer->getEventsEnabled())
     {
         const char* cmd = propVisionSensor_imageBuffer.name;
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        CCbor* ev = thirdPartyEv;
+        if (thirdPartyEv == nullptr)
+            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyBuff(cmd, _rgbBuffer, 3 * _resolution[0] * _resolution[1]);
-        App::worldContainer->pushEvent();
+        if (thirdPartyEv == nullptr)
+            App::worldContainer->pushEvent();
     }
 }
 
-void CVisionSensor::_emitDepthChangedEvent() const
+void CVisionSensor::_emitDepthChangedEvent(CCbor* thirdPartyEv /*= nullptr*/) const
 {
     if (_emitDepthChangedEventEnabled && _isInScene && App::worldContainer->getEventsEnabled())
     {
         const char* cmd = propVisionSensor_depthBuffer.name;
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        CCbor* ev = thirdPartyEv;
+        if (thirdPartyEv == nullptr)
+            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyFloatArray(cmd, _depthBuffer, _resolution[0] * _resolution[1]);
-        App::worldContainer->pushEvent();
+        if (thirdPartyEv == nullptr)
+            App::worldContainer->pushEvent();
     }
 }
 
@@ -923,6 +933,9 @@ void CVisionSensor::setDepthBuffer(const float* img)
 bool CVisionSensor::handleSensor()
 {
     TRACE_INTERNAL;
+    std::vector<std::vector<double>> packets(sensorAuxiliaryResult);
+    bool wasTriggered = sensorResult.sensorWasTriggered;
+
     sensorAuxiliaryResult.clear();
     sensorResult.sensorWasTriggered = false;
     sensorResult.sensorResultIsValid = false;
@@ -946,7 +959,32 @@ bool CVisionSensor::handleSensor()
         _contextFboAndTexture->textureObject->setImage(false, false, true, _rgbBuffer); // Update the texture
 #endif
     sensorResult.calcTimeInMs = VDateTime::getTimeDiffInMs(stTime);
+
+    if ( (wasTriggered != sensorResult.sensorWasTriggered) || (packets != sensorAuxiliaryResult) )
+        _emitTriggerStateAndPacketChangeEvents();
     return (sensorResult.sensorWasTriggered);
+}
+
+void CVisionSensor::_emitTriggerStateAndPacketChangeEvents(CCbor* thirdPartyEv /*= nullptr*/) const
+{
+    if (_isInScene && App::worldContainer->getEventsEnabled())
+    {
+        const char* cmd = propVisionSensor_triggerState.name;
+        CCbor* ev = thirdPartyEv;
+        if (thirdPartyEv == nullptr)
+            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        ev->appendKeyBool(cmd, sensorResult.sensorWasTriggered);
+        if (sensorAuxiliaryResult.size() >= 1)
+            ev->appendKeyDoubleArray(propVisionSensor_packet1.name, sensorAuxiliaryResult[0].data(), sensorAuxiliaryResult[0].size());
+        else
+            ev->appendKeyDoubleArray(propVisionSensor_packet1.name, nullptr, 0);
+        if (sensorAuxiliaryResult.size() >= 2)
+            ev->appendKeyDoubleArray(propVisionSensor_packet2.name, sensorAuxiliaryResult[1].data(), sensorAuxiliaryResult[1].size());
+        else
+            ev->appendKeyDoubleArray(propVisionSensor_packet2.name, nullptr, 0);
+        if (thirdPartyEv == nullptr)
+            App::worldContainer->pushEvent();
+    }
 }
 
 bool CVisionSensor::checkSensor(int entityID, bool overrideRenderableFlagsForNonCollections)
@@ -980,8 +1018,7 @@ bool CVisionSensor::checkSensor(int entityID, bool overrideRenderableFlagsForNon
     }
     // 2. Do the detection:
     bool all = (entityID == -1);
-    bool retVal = detectEntity(entityID, all, false, false,
-                               overrideRenderableFlagsForNonCollections); // We don't swap image buffers!
+    bool retVal = detectEntity(entityID, all, false, false, overrideRenderableFlagsForNonCollections); // We don't swap image buffers!
     // 3. Restore previous state:
     sensorResult.sensorWasTriggered = cop.sensorWasTriggered;
     sensorResult.sensorResultIsValid = cop.sensorResultIsValid;
@@ -2117,8 +2154,9 @@ void CVisionSensor::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propVisionSensor_omitPacket1.name, !_computeImageBasicStats);
     ev->appendKeyBool(propVisionSensor_emitImageChangedEvent.name, _emitImageChangedEventEnabled);
     ev->appendKeyBool(propVisionSensor_emitDepthChangedEvent.name, _emitDepthChangedEventEnabled);
-    _emitImageChangedEvent();
-    _emitDepthChangedEvent();
+    _emitImageChangedEvent(ev);
+    _emitDepthChangedEvent(ev);
+    _emitTriggerStateAndPacketChangeEvents(ev);
     CViewableBase::addSpecializedObjectEventData(ev);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // visionSensor
@@ -3465,6 +3503,11 @@ int CVisionSensor::getBoolProperty(const char* ppName, bool& pState) const
             if (tt::getValueOfKey("focalBlur@povray", _extensionString.c_str(), val))
                 pState = (tt::getLowerUpperCaseString(val, false).compare("true") == 0);
         }
+        else if (_pName == propVisionSensor_triggerState.name)
+        {
+            retVal = 1;
+            pState = sensorResult.sensorWasTriggered;
+        }
     }
 
     return retVal;
@@ -3647,7 +3690,8 @@ int CVisionSensor::setBufferProperty(const char* ppName, const char* buffer, int
         {
             if (bufferL == 3 * _resolution[0] * _resolution[1])
             {
-                writeImage((float*)buffer, 0);
+                // ?? writeImage((float*)buffer, 0);
+                writePortionOfCharImage((unsigned char*)buffer, 0, 0, _resolution[0], _resolution[1], 0);
                 retVal = 1;
             }
             else
@@ -3669,6 +3713,11 @@ int CVisionSensor::getBufferProperty(const char* ppName, std::string& pState) co
         {
             pState.assign(_rgbBuffer, _rgbBuffer + 3 * _resolution[0] * _resolution[1]);
             retVal = 1;
+        }
+        else if (_pName == propVisionSensor_packedDepthBuffer.name)
+        {
+            retVal = 1;
+            pState.assign((char*)_depthBuffer, ((char*)_depthBuffer) + _resolution[0] * _resolution[1] * sizeof(float));
         }
     }
 
@@ -3756,7 +3805,20 @@ int CVisionSensor::getFloatArrayProperty(const char* ppName, std::vector<double>
         if (_pName == propVisionSensor_depthBuffer.name)
         {
             retVal = 1;
-            pState.assign(_depthBuffer, _depthBuffer + _resolution[0] * _resolution[1]);
+            for (size_t i = 0; i < _resolution[0] * _resolution[1]; i++)
+                pState.push_back(_depthBuffer[i]);
+        }
+        else if (_pName == propVisionSensor_packet1.name)
+        {
+            retVal = 1;
+            if (sensorAuxiliaryResult.size() >= 1)
+                pState.assign(sensorAuxiliaryResult[0].begin(), sensorAuxiliaryResult[0].end());
+        }
+        else if (_pName == propVisionSensor_packet2.name)
+        {
+            retVal = 1;
+            if (sensorAuxiliaryResult.size() >= 2)
+                pState.assign(sensorAuxiliaryResult[1].begin(), sensorAuxiliaryResult[1].end());
         }
     }
 
