@@ -951,6 +951,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertyinfo_removable", sim_propertyinfo_removable},
     {"sim.propertyinfo_largedata", sim_propertyinfo_largedata},
     {"sim.propertyinfo_deprecated", sim_propertyinfo_deprecated},
+    {"sim.propertyinfo_silent", sim_propertyinfo_silent},
     {"sim.propertyinfo_modelhashexclude", sim_propertyinfo_modelhashexclude},
     // dummy-dummy link types
     {"sim.dummytype_dynloopclosure", sim_dummytype_dynloopclosure},
