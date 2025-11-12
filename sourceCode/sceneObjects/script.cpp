@@ -661,7 +661,7 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".script";
+        appartenance = "script";
         retVal = _scriptColor.getPropertyName(index, pName);
     }
     if (retVal == -1)
@@ -693,7 +693,7 @@ int CScript::getPropertyName_static(int& index, std::string& pName, std::string&
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".script";
+        appartenance = "script";
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)

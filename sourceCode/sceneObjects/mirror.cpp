@@ -552,7 +552,7 @@ int CMirror::getPropertyName(int& index, std::string& pName, std::string& appart
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".mirror";
+        appartenance = "mirror";
         retVal = clipPlaneColor.getPropertyName(index, pName);
     }
     if (retVal == -1)
@@ -582,7 +582,7 @@ int CMirror::getPropertyName_static(int& index, std::string& pName, std::string&
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".mirror";
+        appartenance = "mirror";
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)

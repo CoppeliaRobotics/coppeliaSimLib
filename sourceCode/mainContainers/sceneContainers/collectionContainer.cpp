@@ -333,7 +333,7 @@ int CCollectionContainer::getPropertyName(long long int target, int& index, std:
         CCollection* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
-            appartenance += ".collection";
+            appartenance = "collection";
             return it->getPropertyName(index, pName, appartenance);
         }
         retVal = -2; // object does not exist

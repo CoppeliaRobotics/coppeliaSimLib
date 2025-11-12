@@ -3855,7 +3855,7 @@ int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& 
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".visionSensor";
+        appartenance = "visionSensor";
         retVal = color.getPropertyName(index, pName);
     }
     if (retVal == -1)
@@ -3887,7 +3887,7 @@ int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::s
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".visionSensor";
+        appartenance = "visionSensor";
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)

@@ -1859,7 +1859,7 @@ int CDummy::getPropertyName(int& index, std::string& pName, std::string& apparte
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".dummy";
+        appartenance = "dummy";
         retVal = _dummyColor.getPropertyName(index, pName);
     }
     if (retVal == -1)
@@ -1890,7 +1890,7 @@ int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& 
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".dummy";
+        appartenance = "dummy";
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)

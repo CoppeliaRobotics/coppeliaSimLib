@@ -1284,7 +1284,7 @@ int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& a
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".forceSensor";
+        appartenance = "forceSensor";
         retVal = _color.getPropertyName(index, pName);
     }
     if (retVal == -1)
@@ -1314,7 +1314,7 @@ int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::st
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".forceSensor";
+        appartenance = "forceSensor";
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)

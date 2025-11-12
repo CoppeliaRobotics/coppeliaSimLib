@@ -6756,7 +6756,6 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
                 if (index == -1)
                 {
                     pName = allProps_sceneObject[i].name;
-                    //pName = "object." + pName;
                     retVal = 1;
                     break;
                 }
@@ -6768,13 +6767,11 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
         if (customObjectData.getPropertyName(index, pName))
         {
             pName = CUSTOMDATAPREFIX + pName;
-            //pName = "object." + pName;
             retVal = 1;
         }
         else if (customObjectData_volatile.getPropertyName(index, pName))
         {
             pName = SIGNALPREFIX + pName;
-            //pName = "object." + pName;
             retVal = 1;
         }
         else
@@ -6834,7 +6831,6 @@ int CSceneObject::getPropertyName_bstatic(int& index, std::string& pName, std::s
                 if (index == -1)
                 {
                     pName = allProps_sceneObject[i].name;
-                    //pName = "object." + pName;
                     retVal = 1;
                     break;
                 }

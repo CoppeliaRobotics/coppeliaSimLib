@@ -6235,7 +6235,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        appartenance += ".scene";
+        appartenance = "scene";
         if (App::currentWorld->dynamicsContainer != nullptr)
             retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName);
         if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
@@ -6272,7 +6272,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        appartenance += ".scene";
+        appartenance = "scene";
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)
             soc = targetObject->sceneObjects;
@@ -6284,7 +6284,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         if (script != nullptr)
         {
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                appartenance += ".scene";
+                appartenance = "scene";
             retVal = script->getPropertyName(index, pName, &appartenance);
         }
     }
@@ -6302,7 +6302,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
                     {
                         pName = std::to_string(i);
                         retVal = 1;
-                        appartenance += ".stack";
+                        appartenance = "stack";
                         break;
                     }
                 }
@@ -6313,13 +6313,13 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        appartenance += ".scene";
+        appartenance = "scene";
         if (targetObject != nullptr)
             retVal = targetObject->collections->getPropertyName(target, index, pName, appartenance);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        appartenance += ".scene";
+        appartenance = "scene";
         if (targetObject != nullptr)
             retVal = targetObject->drawingCont->getPropertyName(target, index, pName, appartenance);
     }

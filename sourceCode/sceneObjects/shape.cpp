@@ -2231,7 +2231,7 @@ int CShape::getPropertyName(int& index, std::string& pName, std::string& apparte
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".shape";
+        appartenance = "shape";
         retVal = _dynMaterial->getPropertyName(index, pName);
         if (retVal == -1)
             retVal = _mesh->getPropertyName_wrapper(index, pName);
@@ -2264,7 +2264,7 @@ int CShape::getPropertyName_static(int& index, std::string& pName, std::string& 
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".shape";
+        appartenance = "shape";
         retVal = CDynMaterialObject::getPropertyName_static(index, pName);
         if (retVal == -1)
             retVal = CMeshWrapper::getPropertyName_static_wrapper(index, pName);

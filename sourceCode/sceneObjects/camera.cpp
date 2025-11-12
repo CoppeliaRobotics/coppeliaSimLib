@@ -3583,7 +3583,7 @@ int CCamera::getPropertyName(int& index, std::string& pName, std::string& appart
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".camera";
+        appartenance = "camera";
         retVal = _color.getPropertyName(index, pName);
     }
     if (retVal == -1)
@@ -3615,7 +3615,7 @@ int CCamera::getPropertyName_static(int& index, std::string& pName, std::string&
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".camera";
+        appartenance = "camera";
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)

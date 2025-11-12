@@ -5996,7 +5996,7 @@ int CJoint::getPropertyName(int& index, std::string& pName, std::string& apparte
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".joint";
+        appartenance = "joint";
         retVal = _color.getPropertyName(index, pName);
     }
     if (retVal == -1)
@@ -6026,7 +6026,7 @@ int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& 
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".joint";
+        appartenance = "joint";
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)

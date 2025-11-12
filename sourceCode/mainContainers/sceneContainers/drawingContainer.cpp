@@ -193,7 +193,7 @@ int CDrawingContainer::getPropertyName(long long int target, int& index, std::st
         CDrawingObject* it = getObject(int(target));
         if (it != nullptr)
         {
-            appartenance += ".drawingObject";
+            appartenance = "drawingObject";
             return it->getPropertyName(index, pName, appartenance);
         }
         retVal = -2; // object does not exist

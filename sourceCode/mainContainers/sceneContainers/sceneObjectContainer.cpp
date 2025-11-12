@@ -6273,7 +6273,7 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
             CSceneObject* it = targetObject->getObjectFromHandle(int(target));
             if (it != nullptr)
             {
-                appartenance += ".object";
+                appartenance = "object";
                 int objType = it->getObjectType();
                 if (objType == sim_sceneobject_shape)
                     return ((CShape*)it)->getPropertyName(index, pName, appartenance);
@@ -6308,7 +6308,7 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
             }
             else
             {
-                appartenance += ".mesh";
+                appartenance = "mesh";
                 CMesh* mesh = targetObject->getMeshFromUid(target);
                 if (mesh != nullptr)
                     return CMesh::getPropertyName(index, pName, mesh);
@@ -6318,10 +6318,10 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
         {
             if (target == sim_objecttype_mesh)
             {
-                appartenance += ".mesh";
+                appartenance = "mesh";
                 return CMesh::getPropertyName(index, pName, nullptr);
             }
-            appartenance += ".object";
+            appartenance = "object";
             if (target == sim_objecttype_sceneobject)
                 return CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
             if (target == sim_sceneobject_shape)

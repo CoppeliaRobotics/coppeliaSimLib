@@ -1783,7 +1783,7 @@ int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& ap
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".pointCloud";
+        appartenance = "pointCloud";
         retVal = color.getPropertyName(index, pName);
     }
     if (retVal == -1)
@@ -1813,7 +1813,7 @@ int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::str
     int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
-        appartenance += ".pointCloud";
+        appartenance = "pointCloud";
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)

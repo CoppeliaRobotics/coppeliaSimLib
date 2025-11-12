@@ -4377,6 +4377,8 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
 
 int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* appartenance) const
 {
+    if (appartenance != nullptr)
+        appartenance[0] = _getScriptTypeN();
     int retVal = CScriptObject::getPropertyName_static(index, pName, appartenance);
     return retVal;
 }
@@ -4395,8 +4397,6 @@ int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::s
                 {
                     pName = allProps_scriptObject[i].name;
                     retVal = 1;
-                    if (appartenance != nullptr)
-                        appartenance[0] += ".detachedScript";
                     break;
                 }
             }
@@ -4421,10 +4421,7 @@ int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& in
 
 int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt, bool detachedScript)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "detachedScript."));
     const char* pName = ppName;
-    if (detachedScript)
-        pName = _pName.c_str();
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
     {
