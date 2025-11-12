@@ -649,7 +649,11 @@ void COcTree::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDoubleArray(propOctree_voxels.name, _voxelPositions.data(), _voxelPositions.size());
     ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
 #endif
+
     ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+    ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
+    ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
+
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // octree
 #endif

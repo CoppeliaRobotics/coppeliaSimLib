@@ -5,7 +5,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                 \
-    FUNCX(propFSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
+    FUNCX(propFSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propFSensor_size, "sensorSize", sim_propertytype_float, 0, "Size", "Sensor size")                                                                                                               \
     FUNCX(propFSensor_forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0, "Force threshold enabled", "")                                                                            \
     FUNCX(propFSensor_torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0, "Torque threshold enabled", "")                                                                         \

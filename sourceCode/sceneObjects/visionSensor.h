@@ -23,7 +23,7 @@ struct SHandlingResult
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                         \
-    FUNCX(propVisionSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
+    FUNCX(propVisionSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propVisionSensor_size, "sensorSize", sim_propertytype_float, 0, "Size", "Sensor size")                                                                                  \
     FUNCX(propVisionSensor_backgroundCol, "backgroundColor", sim_propertytype_color, 0, "Background color", "")                                                                   \
     FUNCX(propVisionSensor_renderMode, "renderMode", sim_propertytype_int, 0, "Render mode", "")                                                                                  \
@@ -37,14 +37,14 @@ struct SHandlingResult
     FUNCX(propVisionSensor_emitDepthChangedEvent, "emitDepthChangedEvent", sim_propertytype_bool, 0, "Emit depth change event", "")                                               \
     FUNCX(propVisionSensor_imageBuffer, "imageBuffer", sim_propertytype_buffer, sim_propertyinfo_modelhashexclude, "RGB buffer", "")                                              \
     FUNCX(propVisionSensor_depthBuffer, "depthBuffer", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Depth buffer", "")         \
-    FUNCX(propVisionSensor_packedDepthBuffer, "packedDepthBuffer", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Packed depth buffer", "")         \
+    FUNCX(propVisionSensor_packedDepthBuffer, "packedDepthBuffer", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Packed depth buffer", "")         \
     FUNCX(propVisionSensor_triggerState, "triggerState", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Trigger state", "")         \
     FUNCX(propVisionSensor_packet1, "packet1", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Data packet 1", "")         \
     FUNCX(propVisionSensor_packet2, "packet2", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Data packet 2", "")         \
-    FUNCX(propVisionSensor_povFocalBlur, "povray.focalBlur", sim_propertytype_bool, 0, "POV-Ray: focal blur", "Focal blur (with the POV-Ray renderer plugin)")                    \
-    FUNCX(propVisionSensor_povBlurSamples, "povray.blurSamples", sim_propertytype_int, 0, "POV-Ray: blur samples", "Focal blur samples (with the POV-Ray renderer plugin)")       \
-    FUNCX(propVisionSensor_povBlurDistance, "povray.blurDistance", sim_propertytype_float, 0, "POV-Ray: blur distance", "Focal blur distance (with the POV-Ray renderer plugin)") \
-    FUNCX(propVisionSensor_povAperture, "povray.aperture", sim_propertytype_float, 0, "POV-Ray: aperture", "Aperture (with the POV-Ray renderer plugin)")
+    FUNCX(propVisionSensor_povFocalBlur, "povray.focalBlur", sim_propertytype_bool, sim_propertyinfo_silent, "POV-Ray: focal blur", "Focal blur (with the POV-Ray renderer plugin)")                    \
+    FUNCX(propVisionSensor_povBlurSamples, "povray.blurSamples", sim_propertytype_int, sim_propertyinfo_silent, "POV-Ray: blur samples", "Focal blur samples (with the POV-Ray renderer plugin)")       \
+    FUNCX(propVisionSensor_povBlurDistance, "povray.blurDistance", sim_propertytype_float, sim_propertyinfo_silent, "POV-Ray: blur distance", "Focal blur distance (with the POV-Ray renderer plugin)") \
+    FUNCX(propVisionSensor_povAperture, "povray.aperture", sim_propertytype_float, sim_propertyinfo_silent, "POV-Ray: aperture", "Aperture (with the POV-Ray renderer plugin)")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

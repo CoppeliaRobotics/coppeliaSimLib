@@ -560,6 +560,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
     ev->appendKeyBool(propMesh_showEdges.name, _visibleEdges);
     ev->appendKeyBool(propMesh_culling.name, _culling);
     ev->appendKeyBool(propMesh_convex.name, _convex);
+    ev->appendKeyText(propMesh_colorName.name, color.getColorName().c_str());
 
     CTextureObject* to = nullptr;
     const std::vector<float>* tc = nullptr;

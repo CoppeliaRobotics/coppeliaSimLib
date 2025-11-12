@@ -27,9 +27,9 @@
     FUNCX(propObjCont_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects")                                                                               \
     FUNCX(propObjCont_orphans, "orphans", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects")                                                                 \
     FUNCX(propObjCont_selection, "selection", sim_propertytype_handlearray, sim_propertyinfo_modelhashexclude, "Selected objects", "Handles of selected scene objects")                                                      \
-    FUNCX(propObjCont_objectCreationCounter, "objectCreationCounter", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object creation counter", "Counter of created scene objects")            \
-    FUNCX(propObjCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object destruction counter", "Counter of destroyed scene objects") \
-    FUNCX(propObjCont_hierarchyChangeCounter, "hierarchyChangeCounter", sim_propertytype_int, sim_propertyinfo_notwritable, "Hierarchy change counter", "Counter of scene hierarchy changes")
+    FUNCX(propObjCont_objectCreationCounter, "objectCreationCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object creation counter", "Counter of created scene objects")            \
+    FUNCX(propObjCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object destruction counter", "Counter of destroyed scene objects") \
+    FUNCX(propObjCont_hierarchyChangeCounter, "hierarchyChangeCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable, "Hierarchy change counter", "Counter of scene hierarchy changes")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

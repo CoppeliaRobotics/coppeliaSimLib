@@ -8,7 +8,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                            \
-    FUNCX(propPointCloud_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
+    FUNCX(propPointCloud_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0, "OC-Tree structure Enabled", "Use an oc-tree structure")                                            \
     FUNCX(propPointCloud_randomColors, "randomColors", sim_propertytype_bool, 0, "Random point colors", "")                                                                          \
     FUNCX(propPointCloud_pointSize, "pointSize", sim_propertytype_int, 0, "Point size", "")                                                                                          \

@@ -1355,7 +1355,16 @@ void CJoint::_setForceOrTorque(bool valid, double f /*= 0.0*/)
     _lastForceOrTorqueValid_dynStep = valid;
     bool diff = (_lastForceOrTorque_dynStep != f);
     if (diff)
+    {
         _lastForceOrTorque_dynStep = f;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = propJoint_jointForce.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(cmd, _lastForceOrTorque_dynStep);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CJoint::_setFilteredForceOrTorque(bool valid, double f /*= 0.0*/)
@@ -2055,6 +2064,7 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDouble(propJoint_targetVel.name, _targetVel);
     ev->appendKeyDouble(propJoint_targetForce.name, _targetForce);
     ev->appendKeyDouble(propJoint_averageJointForce.name, _filteredForceOrTorque);
+    ev->appendKeyDouble(propJoint_jointForce.name, _lastForceOrTorque_dynStep);
 
     double q[4];
     _sphericalTransf.getData(q, true);

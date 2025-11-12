@@ -2,6 +2,8 @@
 #include <app.h>
 #include <string.h>
 
+std::set<std::string> CCbor::allEVentFieldNames;
+
 bool CCbor::isText(const char* v, size_t l)
 {
     for (size_t i = 0; i < l; i++)
@@ -612,6 +614,9 @@ void CCbor::_handleDataField(const char* key /*= nullptr*/)
                 // For current key-value pair:
                 inf->fieldPositions.push_back(_buff.size());
                 inf->fieldNames.push_back(key);
+                if (key != nullptr)
+                    allEVentFieldNames.insert(key);
+
             }
         }
         _nextIsKeyInData = !_nextIsKeyInData;

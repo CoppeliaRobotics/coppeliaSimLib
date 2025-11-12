@@ -32,12 +32,12 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                   \
     FUNCX(propScriptObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")             \
-    FUNCX(propScriptObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
+    FUNCX(propScriptObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propScriptObj_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0, "Enabled", "Script is enabled")                                                         \
     FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0, "Restart", "Restart on error")                                                          \
     FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0, "Execution priority", "")                                                                    \
     FUNCX(propScriptObj_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Script type")                                                \
-    FUNCX(propScriptObj_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Execution depth", "")    \
+    FUNCX(propScriptObj_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Execution depth", "")    \
     FUNCX(propScriptObj_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "State", "Script state")        \
     FUNCX(propScriptObj_language, "language", sim_propertytype_string, sim_propertyinfo_notwritable, "Language", "")                                                        \
     FUNCX(propScriptObj_code, "code", sim_propertytype_string, 0, "Code", "Script content")                                                                                 \

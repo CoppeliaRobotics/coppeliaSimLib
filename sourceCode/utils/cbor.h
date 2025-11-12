@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <set>
 #include <simLib/simTypes.h>
 
 struct SEventInf
@@ -71,6 +72,8 @@ class CCbor
 
     std::string getBuff() const;
     const unsigned char* getBuff(size_t& l) const;
+
+    static std::set<std::string> allEVentFieldNames;
 
   protected:
     void _handleDataField(const char* key = nullptr);

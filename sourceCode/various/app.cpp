@@ -313,6 +313,10 @@ void App::init(const char* appDir, int)
 
 void App::cleanup()
 {
+// To print all event field names, that occured in this session:
+//    for (const auto& item : CCbor::allEVentFieldNames)
+//        std::cout << item << std::endl;
+
     CSimFlavor::run(5);
 
     delete gm;
@@ -3134,8 +3138,6 @@ void App::pushGenesisEvents()
             ev->appendKeyText(t.c_str(), pair.second.c_str());
         }
 
-        //        ev->appendKeyString(propApp_machineId.name, CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id).c_str());
-        //        ev->appendKeyString(propApp_legacyMachineId.name, CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id_legacy).c_str());
         if (folders != nullptr)
         {
             ev->appendKeyText(propApp_appDir.name, folders->getExecutablePath().c_str());
