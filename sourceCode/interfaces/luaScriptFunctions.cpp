@@ -789,9 +789,9 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.scriptexecorder_normal", sim_scriptexecorder_normal},
     {"sim.scriptexecorder_last", sim_scriptexecorder_last},
     // language:
-    {"sim.sim_lang_undefined", sim_lang_undefined},
-    {"sim.sim_lang_lua", sim_lang_lua},
-    {"sim.sim_lang_python", sim_lang_python},
+    {"sim.lang_undefined", sim_lang_undefined},
+    {"sim.lang_lua", sim_lang_lua},
+    {"sim.lang_python", sim_lang_python},
     // special arguments for some functions:
     {"sim.handle_world", sim_handle_world},
     {"sim.handle_all", sim_handle_all},

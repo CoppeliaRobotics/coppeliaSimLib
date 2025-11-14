@@ -24,6 +24,10 @@
         "dynamicReset": "sim-2.resetDynamicObject",
         )" APP_META_METHODS
 
+/*
+"getDescendants": "sim-2._getDescendants",
+"getAncestors": "sim-2._getAncestors",
+*/
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                       \
