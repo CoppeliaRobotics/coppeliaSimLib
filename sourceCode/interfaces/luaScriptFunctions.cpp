@@ -61,15 +61,30 @@ std::string _LUA_START(luaWrap_lua_State* L, const char* funcName, int& argOffse
     std::string functionName(funcName);
     if (luaWrap_lua_isstring(L, -1))
     {
-        functionName = luaWrap_lua_tostring(L, -1);
-        auto p = functionName.find("@method");
+        std::string replacementFuncName = luaWrap_lua_tostring(L, -1);
+        auto p = replacementFuncName.find(",");
         if (p != std::string::npos)
         {
-            functionName.erase(functionName.begin() + p, functionName.end());
-            argOffset = 1;
+            std::string orig(replacementFuncName.begin(), replacementFuncName.begin() + p);
+            if (orig == functionName)
+                replacementFuncName.assign(replacementFuncName.begin() + p + 1, replacementFuncName.end());
+            else
+                replacementFuncName.clear();
         }
-        luaWrap_lua_pushnil(L);
-        luaWrap_lua_setglobal(L, PROXY_FUNC_NAME_STR);
+        else
+            App::logMsg(sim_verbosity_scripterrors, (std::string("invalid '") + PROXY_FUNC_NAME_STR + "' content: '" + replacementFuncName + "'.").c_str());
+        if (replacementFuncName.size() > 0)
+        {
+            auto p = replacementFuncName.find("@method");
+            if (p != std::string::npos)
+            {
+                replacementFuncName.erase(replacementFuncName.begin() + p, replacementFuncName.end());
+                argOffset = 1;
+            }
+            functionName = replacementFuncName;
+            luaWrap_lua_pushnil(L);
+            luaWrap_lua_setglobal(L, PROXY_FUNC_NAME_STR);
+        }
     }
     luaWrap_lua_pop(L, 1);
     return functionName;
