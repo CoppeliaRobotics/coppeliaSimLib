@@ -33,8 +33,7 @@ struct SLuaVariables
     int val;
 };
 
-void _registerTableFunction(luaWrap_lua_State* L, char const* const tableName, char const* const functionName,
-                            luaWrap_lua_CFunction functionCallback);
+void _registerTableFunction(luaWrap_lua_State* L, char const* const tableName, char const* const functionName, luaWrap_lua_CFunction functionCallback);
 
 void getFloatsFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField);
 void getDoublesFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField);
@@ -56,6 +55,7 @@ int luaToInt(luaWrap_lua_State* L, int pos);
 double luaToDouble(luaWrap_lua_State* L, int pos);
 bool luaToBool(luaWrap_lua_State* L, int pos);
 
+std::string _LUA_START(luaWrap_lua_State* L, const char* funcName, int& argOffset);
 void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* warningString);
 void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* errorString, bool cSideErrorReporting);
 bool doesEntityExist(std::string* errStr, int identifier);
@@ -72,7 +72,7 @@ void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& out
 void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::initializer_list<double> arr = {});
 void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::vector<double>& arr);
 bool isArgNilOrMissing(luaWrap_lua_State* L, int index);
-bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int type1 = lua_arg_empty,
+bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int argOffset,int type1 = lua_arg_empty,
                          int type1Cnt_zeroIfNotTable = -2, int type2 = lua_arg_empty, int type2Cnt_zeroIfNotTable = -2,
                          int type3 = lua_arg_empty, int type3Cnt_zeroIfNotTable = -2, int type4 = lua_arg_empty,
                          int type4Cnt_zeroIfNotTable = -2, int type5 = lua_arg_empty, int type5Cnt_zeroIfNotTable = -2,
@@ -81,12 +81,10 @@ bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int type1 = 
                          int type9 = lua_arg_empty, int type9Cnt_zeroIfNotTable = -2, int type10 = lua_arg_empty,
                          int type10Cnt_zeroIfNotTable = -2, int type11 = lua_arg_empty,
                          int type11Cnt_zeroIfNotTable = -2);
-int checkOneGeneralInputArgument(luaWrap_lua_State* L, int index, int type, int cnt_orZeroIfNotTable, bool optional,
-                                 bool nilInsteadOfTypeAndCountAllowed, std::string* errStr);
-bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::string* errStr);
+int checkOneGeneralInputArgument(luaWrap_lua_State* L, int index, int type, int cnt_orZeroIfNotTable, bool optional, bool nilInsteadOfTypeAndCountAllowed, std::string* errStr, int argOffset);
+bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::string* errStr, int argOffset);
 
-int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScriptCallBack* cb),
-                            std::string& raiseErrorWithMsg, CScriptCustomFunction* func = nullptr);
+int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScriptCallBack* cb), std::string& raiseErrorWithMsg, CScriptCustomFunction* func = nullptr);
 
 const extern SLuaCommands simLuaCommands[];
 const extern SLuaVariables simLuaVariables[];

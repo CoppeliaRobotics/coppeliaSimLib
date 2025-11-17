@@ -199,10 +199,20 @@ bool CScriptObject::shouldAutoYield()
 {
     bool retVal = false;
     if ((_forbidAutoYieldingLevel == 0) && (_forbidOverallYieldingLevel == 0))
+    {
         retVal = VDateTime::getTimeDiffInMs(_timeForNextAutoYielding) > 0;
-    if (retVal)
-        _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
-    return (retVal);
+        if (retVal)
+        {
+            luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
+            luaWrap_lua_getglobal(L, PROXY_FUNC_NAME_STR);
+            if (luaWrap_lua_isstring(L, -1))
+                retVal = false; // auto yield forbidden for a short period of time with proxy function names (from the time the proxy func. name is defined until it is picked up by the c++ base lua function handler)
+            else
+                _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
+            luaWrap_lua_pop(L, 1);
+        }
+    }
+    return retVal;
 }
 
 bool CScriptObject::canManualYield() const
