@@ -2831,7 +2831,7 @@ int simGetStringArrayProperty_internal(long long int target, const char* ppName,
                     cnt[0] = 0;
                     for (size_t i = 0; i < l; i++)
                     {
-                        if (v[i] == '\0')
+                        if (buff[i] == '\0')
                             cnt[0]++;
                     }
                 }
