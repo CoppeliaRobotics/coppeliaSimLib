@@ -242,6 +242,7 @@ bool _simIsForceSensorBroken_internal(const void* forceSensor);
 void _simGetDynamicForceSensorLocalTransformationPart2_internal(const void* forceSensor, double* pos, double* quat);
 int simGetJointMatrix_internal(int objectHandle, double* matrix);
 int simSetSphericalJointMatrix_internal(int objectHandle, const double* matrix);
+double simGetObjectSizeFactor_internal(int objectHandle);
 int simGetObjectHandleEx_internal(const char* objectAlias, int index, int proxy, int options);
 int simSetScriptAttribute_internal(int scriptHandle, int attributeID, double floatVal, int intOrBoolVal);
 int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double* floatVal, int* intOrBoolVal);

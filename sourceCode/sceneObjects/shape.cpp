@@ -34,6 +34,7 @@ static std::string OBJECT_META_INFO = R"(
         "setAppearance": "sim-2.setShapeAppearance",
         "setShapeBB": "sim-2.setShapeBB",
         "ungroup": "sim-2.ungroupShape",
+        "getMeshData": "sim-2.getShapeMesh",
         )" SCENEOBJECT_META_METHODS R"(
     }
 }

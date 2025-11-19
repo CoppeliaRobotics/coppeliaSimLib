@@ -26,6 +26,7 @@
         "getExplicitHandling": "sim-2.getExplicitHandling",
         "getFloatArrayProperty": "sim-2.getFloatArrayProperty",
         "getFloatProperty": "sim-2.getFloatProperty",
+        "getStringArrayProperty": "sim-2.getStringArrayProperty",
         "getHandleArrayProperty": "sim-2.getHandleArrayProperty",
         "getHandleProperty": "sim-2.getHandleProperty",
         "getIntArray2Property": "sim-2.getIntArray2Property",
@@ -50,6 +51,7 @@
         "setColorProperty": "sim-2.setColorProperty",
         "setFloatArrayProperty": "sim-2.setFloatArrayProperty",
         "setFloatProperty": "sim-2.setFloatProperty",
+        "setStringArrayProperty": "sim-2.setStringArrayProperty",
         "setHandleArrayProperty": "sim-2.setHandleArrayProperty",
         "setHandleProperty": "sim-2.setHandleProperty",
         "setIntArray2Property": "sim-2.setIntArray2Property",
@@ -113,15 +115,16 @@
     FUNCX(propApp_headlessMode, "headlessMode", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Headless mode", "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)")           \
     FUNCX(propApp_canSave, "canSave", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Can save", "Whether save operation is allowed in given state")                                                \
     FUNCX(propApp_idleFps, "idleFps", sim_propertytype_int, sim_propertyinfo_modelhashexclude, "Idle FPS", "Desired maximum rendering frames per second, when simulation is not running")                                                     \
-    FUNCX(propApp_appArg1, "appArg1", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 1", "")                                                                                                                           \
-    FUNCX(propApp_appArg2, "appArg2", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 2", "")                                                                                                                           \
-    FUNCX(propApp_appArg3, "appArg3", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 3", "")                                                                                                                           \
-    FUNCX(propApp_appArg4, "appArg4", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 4", "")                                                                                                                           \
-    FUNCX(propApp_appArg5, "appArg5", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 5", "")                                                                                                                           \
-    FUNCX(propApp_appArg6, "appArg6", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 6", "")                                                                                                                           \
-    FUNCX(propApp_appArg7, "appArg7", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 7", "")                                                                                                                           \
-    FUNCX(propApp_appArg8, "appArg8", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 8", "")                                                                                                                           \
-    FUNCX(propApp_appArg9, "appArg9", sim_propertytype_string, sim_propertyinfo_modelhashexclude, "App arg. 9", "")                                                                                                                           \
+    FUNCX(propApp_appArgs, "appArgs", sim_propertytype_stringarray, sim_propertyinfo_modelhashexclude, "App args", "")                                                                                                                           \
+    FUNCX(propApp_appArg1, "appArg1", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 1", "")                                                                                                                           \
+    FUNCX(propApp_appArg2, "appArg2", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 2", "")                                                                                                                           \
+    FUNCX(propApp_appArg3, "appArg3", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 3", "")                                                                                                                           \
+    FUNCX(propApp_appArg4, "appArg4", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 4", "")                                                                                                                           \
+    FUNCX(propApp_appArg5, "appArg5", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 5", "")                                                                                                                           \
+    FUNCX(propApp_appArg6, "appArg6", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 6", "")                                                                                                                           \
+    FUNCX(propApp_appArg7, "appArg7", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 7", "")                                                                                                                           \
+    FUNCX(propApp_appArg8, "appArg8", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 8", "")                                                                                                                           \
+    FUNCX(propApp_appArg9, "appArg9", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 9", "")                                                                                                                           \
     FUNCX(propApp_randomQuaternion, "randomQuaternion", sim_propertytype_quaternion, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Random quaternion", "")                                                               \
     FUNCX(propApp_randomFloat, "randomFloat", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Random number", "")                                                                                  \
     FUNCX(propApp_randomString, "randomString", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Random string", "")                                                                               \
@@ -171,6 +174,7 @@ const std::vector<SProperty> allProps_app = {DEFINE_PROPERTIES};
 #define proptypetag_null "&nul&."
 #define proptypetag_handle "&han&."
 #define proptypetag_handlearray "&hanvect&."
+#define proptypetag_stringarray "&strvect&."
 
 static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_bool, proptypetag_bool},
@@ -195,6 +199,7 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_map, proptypetag_map},
     {sim_propertytype_handle, proptypetag_handle},
     {sim_propertytype_handlearray, proptypetag_handlearray},
+    {sim_propertytype_stringarray, proptypetag_stringarray},
 
     {sim_propertytype_buffer, proptypetag_buffer}, // keep always at the end
 };
@@ -222,6 +227,7 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_map, proptypetag_map},
     {sim_propertytype_handle, proptypetag_handle},
     {sim_propertytype_handlearray, proptypetag_handlearray},
+    {sim_propertytype_stringarray, proptypetag_stringarray},
 
     {sim_propertytype_buffer, proptypetag_buffer},
 };
@@ -349,6 +355,8 @@ class App
     static int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState);
     static int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL);
     static int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState);
+    static int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
+    static int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState);
     static int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, bool staticParsing);

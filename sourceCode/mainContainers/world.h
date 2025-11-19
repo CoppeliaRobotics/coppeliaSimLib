@@ -115,6 +115,8 @@ class CWorld
     int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const;
     int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL);
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
+    int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
+    int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
     int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CWorld* targetObject);

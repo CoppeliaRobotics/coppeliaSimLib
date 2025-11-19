@@ -22,12 +22,10 @@
         "setQuaternion": "sim-2.setObjectQuaternion",
         "visitTree": "sim-2.visitTree",
         "dynamicReset": "sim-2.resetDynamicObject",
+        "getDescendants": "sim-2.getObjectDescendants",
+        "getAncestors": "sim-2.getObjectAncestors",
         )" APP_META_METHODS
 
-/*
-"getDescendants": "sim-2._getDescendants",
-"getAncestors": "sim-2._getAncestors",
-*/
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                       \
@@ -267,6 +265,8 @@ class CSceneObject
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
     virtual int setHandleArrayProperty(const char* pName, const long long int* v, int vL);
     virtual int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
+    virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState);
+    virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);

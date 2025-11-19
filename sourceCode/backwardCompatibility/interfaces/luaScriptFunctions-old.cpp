@@ -9050,3 +9050,68 @@ int _simReadVisionSensor(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simGetObjectSizeFactor(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectSizeFactor");
+
+    double retVal = -1.0; // means error
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
+        retVal = CALL_C_API(simGetObjectSizeFactor, luaToInt(L, 1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushnumber(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetObjects(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjects");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 0))
+        retVal = CALL_C_API(simGetObjects, luaToInt(L, 1), luaToInt(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectsInTree(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectsInTree");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
+    {
+        int handle = luaToInt(L, 1);
+        int objType = sim_handle_all;
+        int options = 0;
+        int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 0, true, true, &errorString, argOffset);
+        if (res >= 0)
+        {
+            if (res == 2)
+                objType = luaToInt(L, 2);
+            res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, true, &errorString, argOffset);
+            if (res >= 0)
+            {
+                if (res == 2)
+                    options = luaToInt(L, 3);
+                int objCnt = 0;
+                int* objHandles = CALL_C_API(simGetObjectsInTree, handle, objType, options, &objCnt);
+                if (objHandles != nullptr)
+                {
+                    pushIntTableOntoStack(L, objCnt, objHandles);
+                    CALL_C_API(simReleaseBuffer, (char*)objHandles);
+                    LUA_END(1);
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+

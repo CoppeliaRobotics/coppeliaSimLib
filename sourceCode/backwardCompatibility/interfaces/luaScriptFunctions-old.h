@@ -304,4 +304,7 @@ extern int _simReadForceSensor(luaWrap_lua_State* L);
 extern int _simCheckVisionSensorEx(luaWrap_lua_State* L);
 extern int _simReadVisionSensor(luaWrap_lua_State* L);
 extern int _simReadProximitySensor(luaWrap_lua_State* L);
+extern int _simGetObjectSizeFactor(luaWrap_lua_State* L);
+extern int _simGetObjectsInTree(luaWrap_lua_State* L);
+extern int _simGetObjects(luaWrap_lua_State* L);
 

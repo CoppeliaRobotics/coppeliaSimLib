@@ -303,6 +303,14 @@ void CCbor::appendText(const char* v, int l /*=-1*/)
         _buff.push_back(v[i]);
 }
 
+void CCbor::appendTextArray(const std::vector<std::string>& txtArr)
+{
+    openArray(); // _handleDataField() called in there
+    for (size_t i = 0; i < txtArr.size(); i++)
+        appendText(txtArr[i].c_str());
+    closeArrayOrMap();
+}
+
 void CCbor::appendRaw(const unsigned char* v, size_t l)
 {
     _handleDataField();
@@ -561,6 +569,12 @@ void CCbor::appendKeyDoubleArray(const char* key, const double* v, size_t cnt)
 {
     appendText(key);
     appendDoubleArray(v, cnt);
+}
+
+void CCbor::appendKeyTextArray(const char* key, const std::vector<std::string>& txtArr)
+{
+    appendText(key);
+    appendTextArray(txtArr);
 }
 
 void CCbor::appendKeyNull(const char* key)

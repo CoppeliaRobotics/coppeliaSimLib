@@ -79,6 +79,8 @@ int simSetIntArrayProperty_internal(long long int target, const char* pName, con
 int simGetIntArrayProperty_internal(long long int target, const char* pName, int** v, int* vL);
 int simSetHandleArrayProperty_internal(long long int target, const char* pName, const long long int* v, int vL);
 int simGetHandleArrayProperty_internal(long long int target, const char* pName, long long int** v, int* vL);
+int simSetStringArrayProperty_internal(long long int target, const char* pName, const char* v, int cnt);
+int simGetStringArrayProperty_internal(long long int target, const char* pName, char** v, int* cnt);
 int simRemoveProperty_internal(long long int target, const char* pName);
 char* simGetPropertyName_internal(long long int target, int index, SPropertyOptions* options);
 int simGetPropertyInfo_internal(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options);
@@ -216,7 +218,6 @@ int simAddDrawingObject_internal(int objectType, double size, double duplicateTo
                                  const float* setToNULL3);
 int simRemoveDrawingObject_internal(int objectHandle);
 int simAddDrawingObjectItem_internal(int objectHandle, const double* itemData);
-double simGetObjectSizeFactor_internal(int objectHandle);
 int simAnnounceSceneContentChange_internal();
 int simReadForceSensor_internal(int objectHandle, double* forceVector, double* torqueVector);
 int simGetVelocity_internal(int shapeHandle, double* linearVelocity, double* angularVelocity);

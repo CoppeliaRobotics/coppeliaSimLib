@@ -6190,6 +6190,125 @@ int CSceneObjectContainer::getHandleArrayProperty(long long int target, const ch
     return retVal;
 }
 
+int CSceneObjectContainer::setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState)
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+        // if (strcmp(pName, propObjCont_selection.name) == 0)
+        //{
+        //    retVal = 1;
+        //}
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->setStringArrayProperty(pName, pState);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            //if (mesh != nullptr)
+            //    return mesh->setStringArrayProperty(pName, pState, shapeRelTr);
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const
+{
+    int retVal = -1;
+    pState.clear();
+    if (target == -1)
+    {
+        //if (strcmp(pName, propObjCont_objects.name) == 0)
+        //{
+        //    retVal = 1;
+        //}
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getStringArrayProperty(pName, pState);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            //if (mesh != nullptr)
+            //    return mesh->getStringArrayProperty(pName, pState, shapeRelTr);
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
 int CSceneObjectContainer::removeProperty(long long int target, const char* pName)
 {
     int retVal = -1;
@@ -6610,6 +6729,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                             std::vector<long long int> state;
                             result = obj->getHandleArrayProperty(name.c_str(), state);
                             dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(long long int));
+                            break;
+                        }
+                        case sim_propertytype_stringarray: {
+                            std::vector<std::string> state;
+                            result = obj->getStringArrayProperty(name.c_str(), state);
+                            dnaString.append(reinterpret_cast<const char*>(state.data()), state.size());
                             break;
                         }
                         case sim_propertytype_matrix3x3: {

@@ -2693,6 +2693,50 @@ int App::getHandleArrayProperty(long long int target, const char* ppName, std::v
     return retVal;
 }
 
+int App::setStringArrayProperty(long long int target, const char* ppName, const std::vector<std::string>& pState)
+{
+//    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+//        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+        if (strcmp(pName, propApp_appArgs.name) == 0)
+        {
+            std::vector<std::string> ps(pState);
+            ps.resize(9);
+            for (size_t i = 0; i < ps.size(); i++)
+                setApplicationArgument(i, ps[i]);
+            retVal = 1;
+        }
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setStringArrayProperty(target, pName, pState);
+    return retVal;
+}
+
+int App::getStringArrayProperty(long long int target, const char* ppName, std::vector<std::string>& pState)
+{
+//    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+//        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    pState.clear();
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+        if (strcmp(pName, propApp_appArgs.name) == 0)
+        {
+            pState = _applicationArguments;
+            retVal = 1;
+        }
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getStringArrayProperty(target, pName, pState);
+    return retVal;
+}
+
 int App::removeProperty(long long int target, const char* ppName)
 {
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
@@ -3121,15 +3165,7 @@ void App::pushGenesisEvents()
         ev->appendKeyInt(propApp_consoleVerbosity.name, getConsoleVerbosity());
         ev->appendKeyInt(propApp_statusbarVerbosity.name, getStatusbarVerbosity());
         ev->appendKeyInt(propApp_dialogVerbosity.name, getDlgVerbosity());
-        ev->appendKeyText(propApp_appArg1.name, getApplicationArgument(0).c_str());
-        ev->appendKeyText(propApp_appArg2.name, getApplicationArgument(1).c_str());
-        ev->appendKeyText(propApp_appArg3.name, getApplicationArgument(2).c_str());
-        ev->appendKeyText(propApp_appArg4.name, getApplicationArgument(3).c_str());
-        ev->appendKeyText(propApp_appArg5.name, getApplicationArgument(4).c_str());
-        ev->appendKeyText(propApp_appArg6.name, getApplicationArgument(5).c_str());
-        ev->appendKeyText(propApp_appArg7.name, getApplicationArgument(6).c_str());
-        ev->appendKeyText(propApp_appArg8.name, getApplicationArgument(7).c_str());
-        ev->appendKeyText(propApp_appArg9.name, getApplicationArgument(8).c_str());
+        ev->appendKeyTextArray(propApp_appArgs.name, _applicationArguments);
 
         for (const auto& pair : _applicationNamedParams)
         {

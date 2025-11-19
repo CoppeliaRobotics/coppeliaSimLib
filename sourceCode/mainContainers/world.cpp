@@ -2725,8 +2725,7 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setBoolProperty(pName, pState);
         if ((retVal == -1) && (simulation != nullptr))
@@ -2745,8 +2744,7 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -2755,8 +2753,6 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             retVal = script->setBoolProperty(pName, pState);
         }
@@ -2803,14 +2799,12 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setBoolProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setBoolProperty(target, pName, pState);
     }
     else
@@ -2830,8 +2824,7 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getBoolProperty(pName, pState);
         if ((retVal == -1) && (simulation != nullptr))
@@ -2850,8 +2843,7 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -2860,8 +2852,6 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             retVal = script->getBoolProperty(pName, pState);
         }
@@ -2907,14 +2897,12 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getBoolProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getBoolProperty(target, pName, pState);
     }
     else
@@ -2934,8 +2922,7 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntProperty(pName, pState);
         if ((retVal == -1) && (simulation != nullptr))
@@ -2954,8 +2941,7 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setIntProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -2963,10 +2949,7 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
         {
-            std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            const char* pName = _pName.c_str();
+            const char* pName = ppName;
             retVal = script->setIntProperty(pName, pState);
         }
     }
@@ -3012,14 +2995,12 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setIntProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setIntProperty(target, pName, pState);
     }
     else
@@ -3039,8 +3020,7 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntProperty(pName, pState);
         if ((retVal == -1) && (simulation != nullptr))
@@ -3059,8 +3039,7 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getIntProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3068,10 +3047,7 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
         {
-            std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            const char* pName = _pName.c_str();
+            const char* pName = ppName;
             retVal = script->getIntProperty(pName, pState);
         }
     }
@@ -3116,14 +3092,12 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getIntProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getIntProperty(target, pName, pState);
     }
     else
@@ -3143,8 +3117,7 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         /*
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setLongProperty(pName, pState);
@@ -3165,8 +3138,7 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setLongProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3175,9 +3147,7 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            const char* pName = _pName.c_str();
+            const char* pName = ppName;
             retVal = script->setLongProperty(pName, pState);
         }
     }
@@ -3223,14 +3193,12 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setLongProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setLongProperty(target, pName, pState);
     }
     else
@@ -3250,8 +3218,7 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         /*
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getLongProperty(pName, pState);
@@ -3272,8 +3239,7 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getLongProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3282,9 +3248,7 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            const char* pName = _pName.c_str();
+            const char* pName = ppName;
             retVal = script->getLongProperty(pName, pState);
         }
     }
@@ -3329,14 +3293,12 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getLongProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getLongProperty(target, pName, pState);
     }
     else
@@ -3356,13 +3318,11 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setHandleProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3371,9 +3331,7 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            //const char* pName = _pName.c_str();
+            //const char* pName = ppName;
             //retVal = script->setHandleProperty(pName, pState);
         }
     }
@@ -3419,14 +3377,12 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setHandleProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setHandleProperty(target, pName, pState);
     }
     else
@@ -3446,13 +3402,11 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getHandleProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3461,9 +3415,7 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            //const char* pName = _pName.c_str();
+            //const char* pName = ppName;
             //retVal = script->getHandleProperty(pName, pState);
         }
     }
@@ -3508,14 +3460,12 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getHandleProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getHandleProperty(target, pName, pState);
     }
     else
@@ -3535,8 +3485,7 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatProperty(pName, pState);
         if ((retVal == -1) && (simulation != nullptr))
@@ -3553,8 +3502,7 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3563,9 +3511,7 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            //const char* pName = _pName.c_str();
+            //const char* pName = ppName;
             //   retVal = script->setFloatProperty(pName, pState);
         }
     }
@@ -3611,14 +3557,12 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setFloatProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setFloatProperty(target, pName, pState);
     }
     else
@@ -3638,8 +3582,7 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatProperty(pName, pState);
         if ((retVal == -1) && (simulation != nullptr))
@@ -3656,8 +3599,7 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3666,9 +3608,7 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            //const char* pName = _pName.c_str();
+            //const char* pName = ppName;
             //    retVal = script->getFloatProperty(pName, pState);
         }
     }
@@ -3713,14 +3653,12 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getFloatProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getFloatProperty(target, pName, pState);
     }
     else
@@ -3740,8 +3678,7 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setStringProperty(pName, pState);
         if ((retVal == -1) && (environment != nullptr))
@@ -3758,8 +3695,7 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setStringProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3768,9 +3704,7 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            const char* pName = _pName.c_str();
+            const char* pName = ppName;
             retVal = script->setStringProperty(pName, pState);
         }
     }
@@ -3816,14 +3750,12 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setStringProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setStringProperty(target, pName, pState);
     }
     else
@@ -3843,8 +3775,7 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getStringProperty(pName, pState);
         if ((retVal == -1) && (environment != nullptr))
@@ -3861,8 +3792,7 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getStringProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3871,9 +3801,7 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
-            const char* pName = _pName.c_str();
+            const char* pName = ppName;
             retVal = script->getStringProperty(pName, pState);
         }
     }
@@ -3926,14 +3854,12 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = collections->getStringProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = drawingCont->getStringProperty(target, pName, pState);
     }
     else
@@ -3955,8 +3881,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
         bufferL = 0;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         std::string pN(pName);
         CCustomData* customDataPtr = nullptr;
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
@@ -3980,8 +3905,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -3990,8 +3914,6 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setBufferProperty(pName, buffer, bufferL);
         }
@@ -4038,14 +3960,12 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setBufferProperty(target, pName, buffer, bufferL);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setBufferProperty(target, pName, buffer, bufferL);
     }
     else
@@ -4065,8 +3985,7 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         std::string pN(pName);
         const CCustomData* customDataPtr = nullptr;
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
@@ -4087,8 +4006,7 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getBufferProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4097,8 +4015,6 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getBufferProperty(pName, pState);
         }
@@ -4149,14 +4065,12 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getBufferProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getBufferProperty(target, pName, pState);
     }
     else
@@ -4176,8 +4090,7 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntArray2Property(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -4192,8 +4105,7 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setIntArray2Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4202,8 +4114,6 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setIntArray2Property(pName, pState);
         }
@@ -4256,14 +4166,12 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setIntArray2Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setIntArray2Property(target, pName, pState);
     }
     else
@@ -4283,8 +4191,7 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntArray2Property(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -4299,8 +4206,7 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getIntArray2Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4309,8 +4215,6 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getIntArray2Property(pName, pState);
         }
@@ -4366,14 +4270,12 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getIntArray2Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getIntArray2Property(target, pName, pState);
     }
     else
@@ -4393,8 +4295,7 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector2Property(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -4409,8 +4310,7 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setVector2Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4419,8 +4319,6 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setVector2Property(pName, pState);
         }
@@ -4470,14 +4368,12 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setVector2Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setVector2Property(target, pName, pState);
     }
     else
@@ -4497,8 +4393,7 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector2Property(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -4513,8 +4408,7 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getVector2Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4523,8 +4417,6 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getVector2Property(pName, pState);
         }
@@ -4584,14 +4476,12 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getVector2Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getVector2Property(target, pName, pState);
     }
     else
@@ -4611,8 +4501,7 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector3Property(pName, &pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -4627,8 +4516,7 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setVector3Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4637,8 +4525,6 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setVector3Property(pName, pState);
         }
@@ -4688,14 +4574,12 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setVector3Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setVector3Property(target, pName, pState);
     }
     else
@@ -4715,8 +4599,7 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector3Property(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -4731,8 +4614,7 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getVector3Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4741,8 +4623,6 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getVector3Property(pName, pState);
         }
@@ -4800,14 +4680,12 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getVector3Property(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getVector3Property(target, pName, pState);
     }
     else
@@ -4827,8 +4705,7 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (sceneObjects != nullptr)
             retVal = sceneObjects->setQuaternionProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
@@ -4841,8 +4718,7 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4851,8 +4727,6 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setQuaternionProperty(pName, pState);
         }
@@ -4902,14 +4776,12 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setQuaternionProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setQuaternionProperty(target, pName, pState);
     }
     else
@@ -4929,8 +4801,7 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (sceneObjects != nullptr)
             retVal = sceneObjects->getQuaternionProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
@@ -4943,8 +4814,7 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -4953,8 +4823,6 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getQuaternionProperty(pName, pState);
         }
@@ -5012,14 +4880,12 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getQuaternionProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getQuaternionProperty(target, pName, pState);
     }
     else
@@ -5039,8 +4905,7 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (sceneObjects != nullptr)
             retVal = sceneObjects->setPoseProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
@@ -5053,8 +4918,7 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5063,8 +4927,6 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setPoseProperty(pName, pState);
         }
@@ -5116,14 +4978,12 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setPoseProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setPoseProperty(target, pName, pState);
     }
     else
@@ -5143,8 +5003,7 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (sceneObjects != nullptr)
             retVal = sceneObjects->getPoseProperty(-1, pName, pState); // for the container itself
         //if ((retVal == -1) && (collections != nullptr))
@@ -5157,8 +5016,7 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5167,8 +5025,6 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getPoseProperty(pName, pState);
         }
@@ -5226,14 +5082,12 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getPoseProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getPoseProperty(target, pName, pState);
     }
     else
@@ -5253,8 +5107,7 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (environment != nullptr)
             retVal = environment->setColorProperty(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -5269,8 +5122,7 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setColorProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5279,8 +5131,6 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setColorProperty(pName, pState);
         }
@@ -5333,14 +5183,12 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setColorProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setColorProperty(target, pName, pState);
     }
     else
@@ -5360,8 +5208,7 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (environment != nullptr)
             retVal = environment->getColorProperty(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -5376,8 +5223,7 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getColorProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5386,8 +5232,6 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getColorProperty(pName, pState);
         }
@@ -5443,14 +5287,12 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getColorProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getColorProperty(target, pName, pState);
     }
     else
@@ -5470,8 +5312,7 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatArrayProperty(pName, v, vL);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -5486,8 +5327,7 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setFloatArrayProperty(target, pName, v, vL);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5496,8 +5336,6 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setFloatArrayProperty(pName, v, vL);
         }
@@ -5550,14 +5388,12 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setFloatArrayProperty(target, pName, v, vL);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setFloatArrayProperty(target, pName, v, vL);
     }
     else
@@ -5578,8 +5414,7 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
     pState.clear();
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatArrayProperty(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -5594,8 +5429,7 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getFloatArrayProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5604,8 +5438,6 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getFloatArrayProperty(pName, pState);
         }
@@ -5663,14 +5495,12 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getFloatArrayProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getFloatArrayProperty(target, pName, pState);
     }
     else
@@ -5690,8 +5520,7 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntArrayProperty(pName, v, vL);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -5706,8 +5535,7 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setIntArrayProperty(target, pName, v, vL);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5716,8 +5544,6 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setIntArrayProperty(pName, v, vL);
         }
@@ -5770,14 +5596,12 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setIntArrayProperty(target, pName, v, vL);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setIntArrayProperty(target, pName, v, vL);
     }
     else
@@ -5798,8 +5622,7 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
     pState.clear();
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntArrayProperty(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -5814,8 +5637,7 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getIntArrayProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5824,8 +5646,6 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getIntArrayProperty(pName, pState);
         }
@@ -5883,14 +5703,12 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->getIntArrayProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->getIntArrayProperty(target, pName, pState);
     }
     else
@@ -5910,8 +5728,7 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         //if (dynamicsContainer != nullptr)
         //    retVal = dynamicsContainer->setHandleArrayProperty(pName, v, vL);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -5926,8 +5743,7 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->setHandleArrayProperty(target, pName, v, vL);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -5936,8 +5752,6 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->setHandleArrayProperty(pName, v, vL);
         }
@@ -5990,14 +5804,12 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = collections->setHandleArrayProperty(target, pName, v, vL);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        //const char* pName = _pName.c_str();
+        //const char* pName = ppName;
         //retVal = drawingCont->setHandleArrayProperty(target, pName, v, vL);
     }
     else
@@ -6018,8 +5830,7 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
     pState.clear();
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         //if (dynamicsContainer != nullptr)
         //    retVal = dynamicsContainer->getHandleArrayProperty(pName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
@@ -6034,8 +5845,7 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->getHandleArrayProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -6044,8 +5854,6 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->getHandleArrayProperty(pName, pState);
         }
@@ -6103,15 +5911,217 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = collections->getHandleArrayProperty(target, pName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = drawingCont->getHandleArrayProperty(target, pName, pState);
+    }
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::setStringArrayProperty(long long int target, const char* ppName, const std::vector<std::string>& pState)
+{
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        const char* pName = ppName;
+        //if (dynamicsContainer != nullptr)
+        //    retVal = dynamicsContainer->setStringArrayProperty(pName, pState);
+        if ((retVal == -1) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setStringArrayProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (collections != nullptr))
+        //    retVal = collections->setStringArrayProperty(-1, pName, pState); // for the container itself
+        //if ((retVal == -1) && (drawingCont != nullptr))
+        //    retVal = drawingCont->setStringArrayProperty(-1, pName, pState); // for the container itself
+        if (retVal == -1)
+        {
+        }
+    }
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    {
+        const char* pName = ppName;
+        retVal = sceneObjects->setStringArrayProperty(target, pName, pState);
+    }
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        if (script != nullptr)
+        {
+            std::string _pName(ppName);
+            //const char* pName = _pName.c_str();
+            //    retVal = script->setStringArrayProperty(pName, v, vL);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int stackIndex;
+        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackTable* tbl = new CInterfaceStackTable();
+                tbl->setTextArray(&pState);
+                stack->replaceStackObjectFromIndex(stackIndex, tbl);
+                retVal = 1;
+            }
+            else
+            { // we want to append an array or map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    if (key == "@arrayAppend@")
+                    {
+                        if (tbl->isTableArray())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setTextArray(&pState);
+                            tbl->appendArrayObject(tbl2);
+                            retVal = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (tbl->isTableMap())
+                        {
+                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                            tbl2->setTextArray(&pState);
+                            tbl->appendMapObject_object(key.c_str(), tbl2);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    {
+        //const char* pName = ppName;
+        //retVal = collections->setStringArrayProperty(target, pName, v, vL);
+    }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+        //const char* pName = ppName;
+        //retVal = drawingCont->setStringArrayProperty(target, pName, v, vL);
+    }
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::getStringArrayProperty(long long int target, const char* ppName, std::vector<std::string>& pState) const
+{
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
+    int retVal = -1;
+    pState.clear();
+    if (target == sim_handle_scene)
+    {
+        const char* pName = ppName;
+        //if (dynamicsContainer != nullptr)
+        //    retVal = dynamicsContainer->getStringArrayProperty(pName, pState);
+        if ((retVal == -1) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getStringArrayProperty(-1, pName, pState); // for the container itself
+//        if ((retVal == -1) && (collections != nullptr))
+//            retVal = collections->getStringArrayProperty(-1, pName, pState); // for the container itself
+//        if ((retVal == -1) && (drawingCont != nullptr))
+//            retVal = drawingCont->getStringArrayProperty(-1, pName, pState); // for the container itself
+        if (retVal == -1)
+        {
+        }
+    }
+    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    {
+        const char* pName = ppName;
+        retVal = sceneObjects->getStringArrayProperty(target, pName, pState);
+    }
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        if (script != nullptr)
+        {
+            std::string _pName(ppName);
+            //const char* pName = _pName.c_str();
+            //    retVal = script->getStringArrayProperty(pName, pState);
+        }
+    }
+    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    if (tbl->areAllValuesThis(sim_stackitem_string, true))
+                    {
+                        tbl->getTextArray(pState);
+                        retVal = 1;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        if (tbl->areAllValuesThis(sim_stackitem_string, true))
+                        {
+                            tbl->getTextArray(pState);
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    {
+//        const char* pName = ppName;
+//        retVal = collections->getStringArrayProperty(target, pName, pState);
+    }
+    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    {
+//        const char* pName = ppName;
+//        retVal = drawingCont->getStringArrayProperty(target, pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -6130,8 +6140,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         std::string pN(pName);
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
@@ -6172,8 +6181,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         retVal = sceneObjects->removeProperty(target, pName);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
@@ -6182,8 +6190,6 @@ int CWorld::removeProperty(long long int target, const char* ppName)
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             //const char* pName = _pName.c_str();
             //    retVal = script->removeProperty(pName);
         }
@@ -6495,8 +6501,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (App::currentWorld->dynamicsContainer != nullptr)
             retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
         if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
@@ -6557,8 +6562,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)
             soc = targetObject->sceneObjects;
@@ -6570,8 +6574,6 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         if (script != nullptr)
         {
             std::string _pName(ppName);
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
             retVal = script->getPropertyInfo(pName, info, infoTxt, true);
         }
@@ -6602,15 +6604,13 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (targetObject != nullptr)
             retVal = targetObject->collections->getPropertyInfo(target, pName, info, infoTxt);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
-        const char* pName = _pName.c_str();
+        const char* pName = ppName;
         if (targetObject != nullptr)
             retVal = targetObject->drawingCont->getPropertyInfo(target, pName, info, infoTxt);
     }

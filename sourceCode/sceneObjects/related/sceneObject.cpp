@@ -6691,6 +6691,23 @@ int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long lo
     return retVal;
 }
 
+int CSceneObject::setStringArrayProperty(const char* ppName, const std::vector<std::string>& pState)
+{
+    std::string _pName(ppName);
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getStringArrayProperty(const char* ppName, std::vector<std::string>& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = -1;
+    pState.clear();
+
+    return retVal;
+}
+
 int CSceneObject::removeProperty(const char* ppName)
 {
     std::string _pName(ppName);

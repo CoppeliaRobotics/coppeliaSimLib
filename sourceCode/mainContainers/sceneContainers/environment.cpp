@@ -23,7 +23,7 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
-        "getObjectsInTree": "sim-2.getObjectsInTree",
+        "getDescendants": "sim-2.getObjectDescendants",
         "load": "sim-2.loadScene",
         "save": "sim-2.saveScene",
         )" APP_META_METHODS R"(

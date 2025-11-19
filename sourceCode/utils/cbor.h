@@ -39,6 +39,7 @@ class CCbor
     void appendBool(bool v);
     void appendBuff(const unsigned char* v, size_t l);
     void appendText(const char* v, int l = -1);
+    void appendTextArray(const std::vector<std::string>& txtArr);
 
     void appendKeyInt(const char* key, long long int v);
     void appendKeyUCharArray(const char* key, const unsigned char* v, size_t cnt);
@@ -52,6 +53,7 @@ class CCbor
     void appendKeyBool(const char* key, bool v);
     void appendKeyBuff(const char* key, const unsigned char* v, size_t l);
     void appendKeyText(const char* key, const char* v, int l = -1);
+    void appendKeyTextArray(const char* key, const std::vector<std::string>& txtArr);
 
     void openArray();
     void openKeyArray(const char* key);

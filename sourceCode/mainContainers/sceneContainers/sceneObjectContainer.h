@@ -76,8 +76,7 @@ class CSceneObjectContainer
     CSceneObject* getObjectFromIndex(size_t index) const;
     CSceneObject* getObjectFromHandle(int objectHandle) const;
     CSceneObject* getObjectFromUid(long long int objectUid) const;
-    CSceneObject* getObjectFromPath(const CSceneObject* emittingObject, const char* objectAliasAndPath,
-                                    int index) const;
+    CSceneObject* getObjectFromPath(const CSceneObject* emittingObject, const char* objectAliasAndPath, int index) const;
     CSceneObject* getObjectFromName_old(const char* objectName) const;
     CSceneObject* getObjectFromAltName_old(const char* objectAltName) const;
     int getObjectHandleFromName_old(const char* objectName) const;
@@ -239,6 +238,8 @@ class CSceneObjectContainer
     int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const;
     int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL);
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
+    int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
+    int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
     int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CSceneObjectContainer* targetObject);

@@ -12035,3 +12035,21 @@ int simGetModelProperty_internal(int objectHandle)
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
+
+double simGetObjectSizeFactor_internal(int objectHandle)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__, objectHandle))
+            return (-1.0);
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+
+        double retVal = it->getSizeFactor();
+        return (retVal);
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+

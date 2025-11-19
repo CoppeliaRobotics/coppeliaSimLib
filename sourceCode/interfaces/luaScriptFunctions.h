@@ -42,6 +42,7 @@ bool getLongsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, long
 bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField);
 bool getUCharsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField);
 void getCharBoolsFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField);
+void getStringsFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount, std::vector<std::string>& array);
 void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const float* arrayField);
 void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField);
 void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField);
@@ -71,6 +72,8 @@ void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& out
 void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::vector<float>& arr);
 void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::initializer_list<double> arr = {});
 void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::vector<double>& arr);
+void fetchTextArrayArg(luaWrap_lua_State* L, int index, std::vector<std::string>& outArr, std::initializer_list<std::string> arr = {});
+void fetchTextArrayArg(luaWrap_lua_State* L, int index, std::vector<std::string>& outArr, std::vector<std::string>& arr);
 bool isArgNilOrMissing(luaWrap_lua_State* L, int index);
 bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int argOffset,int type1 = lua_arg_empty,
                          int type1Cnt_zeroIfNotTable = -2, int type2 = lua_arg_empty, int type2Cnt_zeroIfNotTable = -2,
@@ -217,7 +220,6 @@ extern int _simSerialClose(luaWrap_lua_State* L);
 extern int _simSerialSend(luaWrap_lua_State* L);
 extern int _simSerialRead(luaWrap_lua_State* L);
 extern int _simSerialCheck(luaWrap_lua_State* L);
-extern int _simGetObjectSizeFactor(luaWrap_lua_State* L);
 extern int _simGetShapeVertex(luaWrap_lua_State* L);
 extern int _simGetShapeTriangle(luaWrap_lua_State* L);
 extern int _simSetObjectColor(luaWrap_lua_State* L);
@@ -276,8 +278,6 @@ extern int _simReadTexture(luaWrap_lua_State* L);
 extern int _simWriteTexture(luaWrap_lua_State* L);
 extern int _simCreateTexture(luaWrap_lua_State* L);
 extern int _simGetShapeGeomInfo(luaWrap_lua_State* L);
-extern int _simGetObjectsInTree(luaWrap_lua_State* L);
-extern int _simGetObjects(luaWrap_lua_State* L);
 extern int _simScaleObject(luaWrap_lua_State* L);
 extern int _simSetShapeTexture(luaWrap_lua_State* L);
 extern int _simGetShapeTextureId(luaWrap_lua_State* L);
@@ -383,6 +383,8 @@ extern int _simSetIntArrayProperty(luaWrap_lua_State* L);
 extern int _simGetIntArrayProperty(luaWrap_lua_State* L);
 extern int _simSetHandleArrayProperty(luaWrap_lua_State* L);
 extern int _simGetHandleArrayProperty(luaWrap_lua_State* L);
+extern int _simSetStringArrayProperty(luaWrap_lua_State* L);
+extern int _simGetStringArrayProperty(luaWrap_lua_State* L);
 extern int _simRemoveProperty(luaWrap_lua_State* L);
 extern int _simGetPropertyName(luaWrap_lua_State* L);
 extern int _simGetPropertyInfo(luaWrap_lua_State* L);
