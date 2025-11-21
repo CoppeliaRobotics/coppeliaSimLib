@@ -123,7 +123,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, lo
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
         plug = new CPlugin(fileAndPath.c_str(), namespaceAndVersion, loadOrigin);
         plug->setHandle(_nextHandle);
-        _allPlugins.push_back(plug);
+        _addPlugin(plug);
         std::string errMsg;
 
         int loadRes = plug->load(&errMsg);
@@ -158,7 +158,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, lo
         }
         if (loadRes < 2)
         { // failed
-            _allPlugins.pop_back();
+            _removePlugin_doNotDelete(plug);
             delete plug;
             plug = nullptr;
         }
@@ -191,14 +191,14 @@ int CPluginContainer::addAndInitPlugin_old(const char* filename, const char* plu
         return (plug->getHandle());
     plug = new CPlugin(filename, pluginName, -2);
     plug->setHandle(_nextHandle);
-    _allPlugins.push_back(plug);
+    _addPlugin(plug);
     std::string errStr;
     int loadRes = plug->loadAndInit_old(&errStr);
     if (loadRes <= 0)
     { // failed
         if (errStr.size() > 0)
             App::logMsg(sim_verbosity_errors, errStr.c_str());
-        _allPlugins.pop_back();
+        _removePlugin_doNotDelete(plug);
         delete plug;
         return (loadRes - 1);
     }
@@ -216,7 +216,7 @@ CPlugin* CPluginContainer::getPluginFromName(const char* pluginNamespaceAndVersi
             break;
         }
     }
-    return (retVal);
+    return retVal;
 }
 
 CPlugin* CPluginContainer::getPluginFromName_old(const char* pluginName, bool caseSensitive)
@@ -236,7 +236,7 @@ CPlugin* CPluginContainer::getPluginFromName_old(const char* pluginName, bool ca
             break;
         }
     }
-    return (retVal);
+    return retVal;
 }
 
 CPlugin* CPluginContainer::getPluginFromIndex(size_t index)
@@ -244,7 +244,7 @@ CPlugin* CPluginContainer::getPluginFromIndex(size_t index)
     CPlugin* retVal = nullptr;
     if (index < _allPlugins.size())
         retVal = _allPlugins[index];
-    return (retVal);
+    return retVal;
 }
 
 CPlugin* CPluginContainer::getPluginFromHandle(int handle)
@@ -258,7 +258,7 @@ CPlugin* CPluginContainer::getPluginFromHandle(int handle)
             break;
         }
     }
-    return (retVal);
+    return retVal;
 }
 
 void CPluginContainer::lockInterface()
@@ -292,15 +292,8 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle, long long int unloadOri
             lockInterface();
             it->cleanup();
             retVal = true;
-            for (size_t i = 0; i < _allPlugins.size(); i++)
-            {
-                if (_allPlugins[i] == it)
-                {
-                    delete _allPlugins[i];
-                    _allPlugins.erase(_allPlugins.begin() + i);
-                    break;
-                }
-            }
+            if (_removePlugin_doNotDelete(it))
+                delete it;
             msg = msgB + "done.";
             if (scr != nullptr)
                 App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
@@ -336,8 +329,9 @@ void CPluginContainer::_removePlugin_old(int handle)
     {
         if (_allPlugins[i]->getHandle() == handle)
         {
-            delete _allPlugins[i];
-            _allPlugins.erase(_allPlugins.begin() + i);
+            CPlugin* it = _allPlugins[i];
+            _removePlugin_doNotDelete(it);
+            delete it;
             break;
         }
     }
@@ -366,7 +360,29 @@ bool CPluginContainer::unloadPlugin_old(int handle)
 
 int CPluginContainer::getPluginCount()
 {
-    return (int(_allPlugins.size()));
+    return int(_allPlugins.size());
+}
+
+void CPluginContainer::_addPlugin(CPlugin* plug)
+{
+    _allPlugins.push_back(plug);
+    App::setPluginList(&_allPlugins);
+}
+
+bool CPluginContainer::_removePlugin_doNotDelete(const CPlugin* plug)
+{
+    bool retVal = false;
+    for (size_t i = 0; i <_allPlugins.size(); i++)
+    {
+        if (_allPlugins[i] == plug)
+        {
+            _allPlugins.erase(_allPlugins.begin() + i);
+            App::setPluginList(&_allPlugins);
+            retVal = true;
+            break;
+        }
+    }
+    return retVal;
 }
 
 void CPluginContainer::uiCallAllPlugins(int msg, int* auxData /*=nullptr*/, void* auxPointer /*=nullptr*/)

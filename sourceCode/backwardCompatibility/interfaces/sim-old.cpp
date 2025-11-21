@@ -3881,3 +3881,8 @@ SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pNam
     simGetIntArrayProperty_internal(target, pName, &retVal, vL);
     return retVal;
 }
+SIM_DLLEXPORT char* simGetPluginName(int index)
+{
+    return (simGetPluginName_internal(index, nullptr));
+}
+

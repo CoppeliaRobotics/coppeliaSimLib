@@ -344,3 +344,4 @@ int simSetObjectSpecialProperty_internal(int objectHandle, int prop);
 int simGetObjectSpecialProperty_internal(int objectHandle);
 int simSetModelProperty_internal(int objectHandle, int modelProperty);
 int simGetModelProperty_internal(int objectHandle);
+char* simGetPluginName_internal(int index, unsigned char* setToNull);

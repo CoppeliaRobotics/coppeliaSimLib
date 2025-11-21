@@ -9114,4 +9114,26 @@ int _simGetObjectsInTree(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simGetPluginName(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getPluginName");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
+    {
+        unsigned char version;
+        char* name = CALL_C_API(simGetPluginName, luaToInt(L, 1), &version);
+        if (name != nullptr)
+        {
+            luaWrap_lua_pushtext(L, name);
+            CALL_C_API(simReleaseBuffer, name);
+            luaWrap_lua_pushinteger(L, (int)version);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
 

@@ -320,7 +320,6 @@ extern int _simGetShapeViz(luaWrap_lua_State* L);
 extern int _simExecuteScriptString(luaWrap_lua_State* L);
 extern int _simGetApiFunc(luaWrap_lua_State* L);
 extern int _simGetApiInfo(luaWrap_lua_State* L);
-extern int _simGetPluginName(luaWrap_lua_State* L);
 extern int _simGetPluginInfo(luaWrap_lua_State* L);
 extern int _simSetPluginInfo(luaWrap_lua_State* L);
 extern int _simTest(luaWrap_lua_State* L);

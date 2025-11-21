@@ -2128,11 +2128,6 @@ SIM_DLLEXPORT int simGetPluginInfo(const char* pluginName, int infoType, char** 
     return (simGetPluginInfo_internal(pluginName, infoType, stringInfo, intInfo));
 }
 
-SIM_DLLEXPORT char* simGetPluginName(int index)
-{
-    return (simGetPluginName_internal(index, nullptr));
-}
-
 SIM_DLLEXPORT int simEventNotification(const char* event)
 {
     return (simEventNotification_internal(event));

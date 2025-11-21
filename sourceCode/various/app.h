@@ -114,7 +114,8 @@
     FUNCX(propApp_sandboxLang, "sandboxLang", sim_propertytype_string, sim_propertyinfo_notwritable, "Sandbox language", "Default sandbox language")                                                                                          \
     FUNCX(propApp_headlessMode, "headlessMode", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Headless mode", "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)")           \
     FUNCX(propApp_canSave, "canSave", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Can save", "Whether save operation is allowed in given state")                                                \
-    FUNCX(propApp_idleFps, "idleFps", sim_propertytype_int, sim_propertyinfo_modelhashexclude, "Idle FPS", "Desired maximum rendering frames per second, when simulation is not running")                                                     \
+    FUNCX(propApp_idleFps, "idleFps", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Loaded plugin names", "")                                                                                       \
+    FUNCX(propApp_plugins, "plugins", sim_propertytype_stringarray, sim_propertyinfo_modelhashexclude, "App args", "")                                                                                                                           \
     FUNCX(propApp_appArgs, "appArgs", sim_propertytype_stringarray, sim_propertyinfo_modelhashexclude, "App args", "")                                                                                                                           \
     FUNCX(propApp_appArg1, "appArg1", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 1", "")                                                                                                                           \
     FUNCX(propApp_appArg2, "appArg2", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "App arg. 2", "")                                                                                                                           \
@@ -322,6 +323,8 @@ class App
     static void setAppStage(int s);
 
     static void pushGenesisEvents();
+    static void setPluginList(const std::vector<CPlugin*>* plugins);
+
 
     static int setBoolProperty(long long int target, const char* pName, bool pState);
     static int getBoolProperty(long long int target, const char* pName, bool& pState);
@@ -429,6 +432,7 @@ class App
     static std::vector<int> _scriptsToReset;
     static std::map<std::string, SSysSemaphore> _systemSemaphores;
     static VMutex _appSemaphore;
+    static std::vector<std::string> _pluginNames;
 
 #ifdef USE_LONG_LONG_HANDLES
     static long long int _nextHandle_object;

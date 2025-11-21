@@ -422,7 +422,6 @@ SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle, int** referencedHand
 SIM_DLLEXPORT int simExecuteScriptString(int scriptHandle, const char* stringToExecute, int stackHandle);
 SIM_DLLEXPORT char* simGetApiFunc(int scriptHandle, const char* apiWord);
 SIM_DLLEXPORT char* simGetApiInfo(int scriptHandleOrType, const char* apiWord);
-SIM_DLLEXPORT char* simGetPluginName(int index);
 SIM_DLLEXPORT int simSetPluginInfo(const char* pluginName, int infoType, const char* stringInfo, int intInfo);
 SIM_DLLEXPORT int simGetPluginInfo(const char* pluginName, int infoType, char** stringInfo, int* intInfo);
 SIM_DLLEXPORT int simEventNotification(const char* event);

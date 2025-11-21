@@ -5678,27 +5678,6 @@ int simSetGraphStreamValue_internal(int graphHandle, int streamId, double value)
     return (-1);
 }
 
-char* simGetPluginName_internal(int index, unsigned char* setToNull)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        CPlugin* plug = App::worldContainer->pluginContainer->getPluginFromIndex(index);
-        if (plug == nullptr)
-            return (nullptr);
-        char* name = new char[plug->getName().length() + 1];
-        for (size_t i = 0; i < plug->getName().length(); i++)
-            name[i] = plug->getName()[i];
-        name[plug->getName().length()] = 0;
-        if (setToNull != nullptr)
-            setToNull[0] = (unsigned char)plug->getPluginVersion();
-        return (name);
-    }
-    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return (nullptr);
-}
-
 int simAddLog_internal(const char* pluginName, int verbosityLevel, const char* logMsg)
 { // keep this as simple as possible (no trace, no thread checking). For now
     int retVal = 0;
@@ -12174,37 +12153,37 @@ int simSetPluginInfo_internal(const char* pluginName, int infoType, const char* 
             if (infoType == sim_moduleinfo_extversionstr)
             {
                 plug->setExtendedVersionString(stringInfo);
-                return (1);
+                return 1;
             }
             if (infoType == sim_moduleinfo_builddatestr)
             {
                 plug->setBuildDateString(stringInfo);
-                return (1);
+                return 1;
             }
             if (infoType == sim_moduleinfo_extversionint)
             {
                 plug->setExtendedVersionInt(intInfo);
-                return (1);
+                return 1;
             }
             if (infoType == sim_moduleinfo_verbosity)
             {
                 App::setConsoleVerbosity(intInfo, pluginName);
-                return (1);
+                return 1;
             }
             if (infoType == sim_moduleinfo_statusbarverbosity)
             {
                 App::setStatusbarVerbosity(intInfo, pluginName);
-                return (1);
+                return 1;
             }
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENT);
-            return (-1);
+            return -1;
         }
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PLUGIN_NAME);
-        return (-1);
+        return -1;
     }
 
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return (-1);
+    return -1;
 }
 
 int simGetPluginInfo_internal(const char* pluginName, int infoType, char** stringInfo, int* intInfo)
@@ -12232,7 +12211,7 @@ int simGetPluginInfo_internal(const char* pluginName, int infoType, char** strin
                     stringInfo[0] = txt;
                 else
                     delete[] txt;
-                return (1);
+                return 1;
             }
             if (infoType == sim_moduleinfo_builddatestr)
             {
@@ -12243,32 +12222,32 @@ int simGetPluginInfo_internal(const char* pluginName, int infoType, char** strin
                     stringInfo[0] = txt;
                 else
                     delete[] txt;
-                return (1);
+                return 1;
             }
             if (infoType == sim_moduleinfo_extversionint)
             {
                 intInfo[0] = plug->getExtendedVersionInt();
-                return (1);
+                return 1;
             }
             if (infoType == sim_moduleinfo_verbosity)
             {
                 intInfo[0] = App::getConsoleVerbosity(pluginName);
-                return (1);
+                return 1;
             }
             if (infoType == sim_moduleinfo_statusbarverbosity)
             {
                 intInfo[0] = App::getStatusbarVerbosity(pluginName);
-                return (1);
+                return 1;
             }
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_ARGUMENT);
-            return (-1);
+            return -1;
         }
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PLUGIN_NAME);
-        return (-1);
+        return -1;
     }
 
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return (-1);
+    return -1;
 }
 
 int simEventNotification_internal(const char* event)

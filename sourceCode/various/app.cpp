@@ -83,6 +83,7 @@ qint64 App::pid = -1;
 std::vector<int> App::_scriptsToReset;
 VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
+std::vector<std::string> App::_pluginNames;
 
 long long int App::_nextUniqueId = SIM_UIDSTART;
 #ifdef USE_LONG_LONG_HANDLES
@@ -258,7 +259,10 @@ void App::init(const char* appDir, int)
     worldContainer->sandboxScript = new CScriptObject(sim_scripttype_sandbox);
     worldContainer->sandboxScript->initScript();
 
-    if (App::userSettings->runAddOns)
+    std::string autoLoadAddOns("true");
+    getAppNamedParam("addOns.autoLoad", autoLoadAddOns);
+    std::transform(autoLoadAddOns.begin(), autoLoadAddOns.end(), autoLoadAddOns.begin(), [](unsigned char c){ return std::tolower(c); });
+    if ( App::userSettings->runAddOns && (autoLoadAddOns == "true") )
     {
         worldContainer->addOnScriptContainer->loadAllAddOns();
         worldContainer->addOnScriptContainer->callScripts(sim_syscb_init, nullptr, nullptr);
@@ -316,7 +320,6 @@ void App::cleanup()
 // To print all event field names, that occured in this session:
 //    for (const auto& item : CCbor::allEVentFieldNames)
 //        std::cout << item << std::endl;
-
     CSimFlavor::run(5);
 
     delete gm;
@@ -2731,6 +2734,11 @@ int App::getStringArrayProperty(long long int target, const char* ppName, std::v
             pState = _applicationArguments;
             retVal = 1;
         }
+        else if (strcmp(pName, propApp_plugins.name) == 0)
+        {
+            pState = _pluginNames;
+            retVal = 1;
+        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getStringArrayProperty(target, pName, pState);
@@ -3166,6 +3174,7 @@ void App::pushGenesisEvents()
         ev->appendKeyInt(propApp_statusbarVerbosity.name, getStatusbarVerbosity());
         ev->appendKeyInt(propApp_dialogVerbosity.name, getDlgVerbosity());
         ev->appendKeyTextArray(propApp_appArgs.name, _applicationArguments);
+        ev->appendKeyTextArray(propApp_plugins.name, _pluginNames);
 
         for (const auto& pair : _applicationNamedParams)
         {
@@ -3262,5 +3271,23 @@ void App::pushGenesisEvents()
 
         ev = worldContainer->createEvent(EVENTTYPE_GENESISEND, -1, -1, nullptr, false);
         worldContainer->pushEvent();
+    }
+}
+
+void App::setPluginList(const std::vector<CPlugin*>* plugins)
+{
+    std::vector<std::string> oldNames(_pluginNames);
+    _pluginNames.clear();
+    for (size_t i = 0; i < plugins->size(); i++)
+        _pluginNames.push_back(plugins->at(i)->getName());
+    if (_pluginNames != oldNames)
+    {
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = propApp_plugins.name;
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyTextArray(cmd, _pluginNames);
+            App::worldContainer->pushEvent();
+        }
     }
 }

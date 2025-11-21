@@ -499,6 +499,8 @@ class CPluginContainer
     CPlugin* currentMeshDecimationPlugin;
 
   private:
+    void _addPlugin(CPlugin* plug);
+    bool _removePlugin_doNotDelete(const CPlugin* plug);
     CPlugin* _tryToLoadPluginOnce(const char* namespaceAndVersion);
 
     int _nextHandle;

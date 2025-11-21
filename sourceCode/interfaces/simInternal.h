@@ -180,7 +180,6 @@ int simGetRealTimeSimulation_internal();
 int simStartSimulation_internal();
 int simStopSimulation_internal();
 int simPauseSimulation_internal();
-char* simGetPluginName_internal(int index, unsigned char* setToNull);
 int simSetPluginInfo_internal(const char* pluginName, int infoType, const char* stringInfo, int intInfo);
 int simGetPluginInfo_internal(const char* pluginName, int infoType, char** stringInfo, int* intInfo);
 int simFloatingViewAdd_internal(double posX, double posY, double sizeX, double sizeY, int options);

@@ -361,7 +361,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.executeScriptString", _simExecuteScriptString},
     {"sim.getApiFunc", _simGetApiFunc},
     {"sim.getApiInfo", _simGetApiInfo},
-    {"sim.getPluginName", _simGetPluginName},
     {"sim.getPluginInfo", _simGetPluginInfo},
     {"sim.setPluginInfo", _simSetPluginInfo},
     {"sim.textEditorOpen", _simTextEditorOpen},
@@ -434,6 +433,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim1.getPluginName", _simGetPluginName},
     {"sim1.getObjectsInTree", _simGetObjectsInTree},
     {"sim1.getObjects", _simGetObjects},
     {"sim1.getObjectSizeFactor", _simGetObjectSizeFactor},
@@ -8358,20 +8358,19 @@ int _simTransformBuffer(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.transformBuffer");
 
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0,
-                            lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_integer, 0, lua_arg_integer, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0))
     {
         size_t dataLength;
-        int inFormat = luaToInt(L, 2);
-        int outFormat = luaToInt(L, 5);
+        int inFormat = fetchIntArg(L, 2);
+        int outFormat = fetchIntArg(L, 3);
         bool clamp = (outFormat & sim_buffer_clamp) != 0;
         if (clamp)
             outFormat -= sim_buffer_clamp;
         bool something = false;
         if (inFormat == sim_buffer_float)
         {
-            double mult = luaToDouble(L, 3);
-            double off = luaToDouble(L, 4);
+            double mult = fetchDoubleArg(L, 4, 1.0);
+            double off = fetchDoubleArg(L, 5, 0.0);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
             const float* data = (const float*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
@@ -8707,8 +8706,8 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat == sim_buffer_double)
         {
-            double mult = luaToDouble(L, 3);
-            double off = luaToDouble(L, 4);
+            double mult = fetchDoubleArg(L, 4, 1.0);
+            double off = fetchDoubleArg(L, 5, 0.0);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
             const double* data = (const double*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
@@ -9066,8 +9065,8 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if ((inFormat == sim_buffer_uint8rgb) || (inFormat == sim_buffer_uint8bgr))
         {
-            double mult = luaToDouble(L, 3);
-            double off = luaToDouble(L, 4);
+            double mult = fetchDoubleArg(L, 4, 1.0);
+            double off = fetchDoubleArg(L, 5, 0.0);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
             const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
@@ -9163,8 +9162,8 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat == sim_buffer_uint8rgba)
         {
-            double mult = luaToDouble(L, 3);
-            double off = luaToDouble(L, 4);
+            double mult = fetchDoubleArg(L, 4, 1.0);
+            double off = fetchDoubleArg(L, 5, 0.0);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
             const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
@@ -9263,8 +9262,8 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat == sim_buffer_uint8argb)
         {
-            double mult = luaToDouble(L, 3);
-            double off = luaToDouble(L, 4);
+            double mult = fetchDoubleArg(L, 4, 1.0);
+            double off = fetchDoubleArg(L, 5, 0.0);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
             const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
@@ -9363,8 +9362,8 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat == sim_buffer_uint8)
         {
-            double mult = luaToDouble(L, 3);
-            double off = luaToDouble(L, 4);
+            double mult = fetchDoubleArg(L, 4, 1.0);
+            double off = fetchDoubleArg(L, 5, 0.0);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
             const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
@@ -9471,8 +9470,8 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if ((inFormat == sim_buffer_uint8rgb) || (inFormat == sim_buffer_uint8bgr))
         {
-            double mult = luaToDouble(L, 3);
-            double off = luaToDouble(L, 4);
+            double mult = fetchDoubleArg(L, 4, 1.0);
+            double off = fetchDoubleArg(L, 5, 0.0);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
             const unsigned char* data = (const unsigned char*)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
@@ -13772,39 +13771,17 @@ int _simGetApiInfo(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetPluginName(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getPluginName");
-
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
-    {
-        unsigned char version;
-        char* name = CALL_C_API(simGetPluginName, luaToInt(L, 1), &version);
-        if (name != nullptr)
-        {
-            luaWrap_lua_pushtext(L, name);
-            CALL_C_API(simReleaseBuffer, name);
-            luaWrap_lua_pushinteger(L, (int)version);
-            LUA_END(2);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simGetPluginInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.getPluginInfo");
 
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_integer, 0))
     {
         char* stringInfo;
         int intInfo;
-        std::string pluginName(luaWrap_lua_tostring(L, 1));
-        int infoType = luaToInt(L, 2);
+        std::string pluginName(fetchTextArg(L, 1));
+        int infoType = fetchIntArg(L, 2);
         int res = CALL_C_API(simGetPluginInfo, pluginName.c_str(), infoType, &stringInfo, &intInfo);
         if (res >= 0)
         {
@@ -13814,16 +13791,13 @@ int _simGetPluginInfo(luaWrap_lua_State* L)
                 delete[] stringInfo;
                 LUA_END(1);
             }
-            if ((infoType == sim_plugininfo_extversionint) || (infoType == sim_plugininfo_verbosity) ||
-                (infoType == sim_plugininfo_statusbarverbosity))
+            if ((infoType == sim_plugininfo_extversionint) || (infoType == sim_plugininfo_verbosity) || (infoType == sim_plugininfo_statusbarverbosity))
             {
                 luaWrap_lua_pushinteger(L, intInfo);
                 LUA_END(1);
             }
         }
-        LUA_END(0);
     }
-
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
@@ -13833,20 +13807,14 @@ int _simSetPluginInfo(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setPluginInfo");
 
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_integer, 0, lua_arg_integer, 0))
     {
-        std::string pluginName(luaWrap_lua_tostring(L, 1));
-        int infoType = luaToInt(L, 2);
+        std::string pluginName(fetchTextArg(L, 1));
+        int infoType = fetchIntArg(L, 2);
         if ((infoType == sim_plugininfo_verbosity) || (infoType == sim_plugininfo_statusbarverbosity))
         {
-            int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, false, false, &errorString, argOffset);
-            if (res == 2)
-            {
-                int verbosity = luaToInt(L, 3);
-                CALL_C_API(simSetPluginInfo, pluginName.c_str(), infoType, nullptr, verbosity);
-            }
-            else
-                errorString = SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
+            int verbosity = fetchIntArg(L, 3);
+            CALL_C_API(simSetPluginInfo, pluginName.c_str(), infoType, nullptr, verbosity);
         }
         else
             errorString = SIM_ERROR_INVALID_PLUGIN_INFO_TYPE;

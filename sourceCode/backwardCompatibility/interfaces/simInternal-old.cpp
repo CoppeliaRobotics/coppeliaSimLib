@@ -12053,3 +12053,24 @@ double simGetObjectSizeFactor_internal(int objectHandle)
     return (-1);
 }
 
+char* simGetPluginName_internal(int index, unsigned char* setToNull)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CPlugin* plug = App::worldContainer->pluginContainer->getPluginFromIndex(index);
+        if (plug == nullptr)
+            return (nullptr);
+        char* name = new char[plug->getName().length() + 1];
+        for (size_t i = 0; i < plug->getName().length(); i++)
+            name[i] = plug->getName()[i];
+        name[plug->getName().length()] = 0;
+        if (setToNull != nullptr)
+            setToNull[0] = (unsigned char)plug->getPluginVersion();
+        return (name);
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (nullptr);
+}
+
