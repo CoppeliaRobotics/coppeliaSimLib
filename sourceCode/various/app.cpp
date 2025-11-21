@@ -263,10 +263,9 @@ void App::init(const char* appDir, int)
     getAppNamedParam("addOns.autoLoad", autoLoadAddOns);
     std::transform(autoLoadAddOns.begin(), autoLoadAddOns.end(), autoLoadAddOns.begin(), [](unsigned char c){ return std::tolower(c); });
     if ( App::userSettings->runAddOns && (autoLoadAddOns == "true") )
-    {
-        worldContainer->addOnScriptContainer->loadAllAddOns();
-        worldContainer->addOnScriptContainer->callScripts(sim_syscb_init, nullptr, nullptr);
-    }
+        worldContainer->addOnScriptContainer->loadAllFromAddOnFolder();
+    worldContainer->addOnScriptContainer->loadAdditionalAddOns();
+    worldContainer->addOnScriptContainer->callScripts(sim_syscb_init, nullptr, nullptr);
     setAppStage(appstage_simRunning);
 
     if (!App::userSettings->doNotWritePersistentData)
@@ -1836,6 +1835,11 @@ int App::getHandleProperty(long long int target, const char* ppName, long long i
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+        if (strcmp(pName, propApp_handle.name) == 0)
+        {
+            pState = sim_handle_app;
+            retVal = 1;
+        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getHandleProperty(target, pName, pState);
@@ -2884,6 +2888,15 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         if (!staticParsing)
             cw = currentWorld;
         retVal = CWorld::getPropertyName(target, index, pName, appartenance, cw, excludeFlags);
+    }
+    if (retVal == 1)
+    { // Following needed to accomodate for Lua's object representation
+        if (pName == "objectType")
+            appartenance = "object";
+        else if (pName == "objectMetaInfo")
+            appartenance = "object";
+        else if (pName == "handle")
+            appartenance = "object";
     }
     return retVal;
 }

@@ -7,7 +7,8 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                       \
 FUNCX(propDrawingObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                \
-FUNCX(propDrawingObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")
+FUNCX(propDrawingObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "") \
+FUNCX(propDrawingObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Handle", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
     DEFINE_PROPERTIES
@@ -23,8 +24,7 @@ class CSceneObject;
 class CDrawingObject
 {
   public:
-    CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount,
-                   int creatorHandle);
+    CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int creatorHandle);
     virtual ~CDrawingObject();
 
     void setObjectId(int newId);
@@ -36,6 +36,7 @@ class CDrawingObject
     bool announceObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
+    int getHandleProperty(const char* pName, long long int& pState) const;
     int getStringProperty(const char* pName, std::string& pState) const;
     static int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);

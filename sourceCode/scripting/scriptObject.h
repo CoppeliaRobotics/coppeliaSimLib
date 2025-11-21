@@ -34,6 +34,7 @@
 #define DEFINE_PROPERTIES                                                                                                                                                   \
     FUNCX(propScriptObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")             \
     FUNCX(propScriptObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
+    FUNCX(propScriptObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Handle", "") \
     FUNCX(propScriptObj_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0, "Enabled", "Script is enabled")                                                         \
     FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0, "Restart", "Restart on error")                                                          \
     FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0, "Execution priority", "")                                                                    \
@@ -124,6 +125,7 @@ class CScriptObject
     int getIntProperty(const char* pName, int& pState) const;
     int setLongProperty(const char* pName, long long int pState);
     int getLongProperty(const char* pName, long long int& pState) const;
+    int getHandleProperty(const char* pName, long long int& pState) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string* appartenance, int excludeFlags) const;

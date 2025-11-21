@@ -3402,22 +3402,17 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        //const char* pName = ppName;
+        retVal = environment->getHandleProperty(ppName, pState);
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        const char* pName = ppName;
-        retVal = sceneObjects->getHandleProperty(target, pName, pState);
+        retVal = sceneObjects->getHandleProperty(target, ppName, pState);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = ppName;
-            //retVal = script->getHandleProperty(pName, pState);
-        }
+            retVal = script->getHandleProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
@@ -3460,13 +3455,11 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //const char* pName = ppName;
-        //retVal = collections->getHandleProperty(target, pName, pState);
+        retVal = collections->getHandleProperty(target, ppName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //const char* pName = ppName;
-        //retVal = drawingCont->getHandleProperty(target, pName, pState);
+        retVal = drawingCont->getHandleProperty(target, ppName, pState);
     }
     else
         retVal = -2; // target does not exist

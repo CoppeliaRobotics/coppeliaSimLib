@@ -134,6 +134,22 @@ void CDrawingContainer::pushAppendNewPointEvents()
         _allObjects[i]->pushAppendNewPointEvent();
 }
 
+int CDrawingContainer::getHandleProperty(long long int target, const char* pName, long long int& pState) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CDrawingObject* it = getObject(int(target));
+        if (it != nullptr)
+            return it->getHandleProperty(pName, pState);
+        retVal = -2; // drawing object does not exist
+    }
+    return retVal;
+}
+
 int CDrawingContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
 {
     int retVal = -1;

@@ -6152,6 +6152,11 @@ int CSceneObject::getHandleProperty(const char* ppName, long long int& pState) c
         if (_parentObject != nullptr)
             pState = _parentObject->getObjectHandle();
     }
+    else if (strcmp(ppName, propObject_handle.name) == 0)
+    {
+        retVal = 1;
+        pState = _objectHandle;
+    }
 
     return retVal;
 }

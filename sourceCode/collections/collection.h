@@ -8,6 +8,7 @@
 #define DEFINE_PROPERTIES                                                                                                                                                                        \
     FUNCX(propCollection_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                                 \
     FUNCX(propCollection_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
+    FUNCX(propCollection_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Handle", "")                                 \
     FUNCX(propCollection_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Children handles", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -60,6 +61,7 @@ class CCollection
     int getSceneObjectHandleFromIndex(size_t index) const;
     void pushCreationEvent() const;
 
+    int getHandleProperty(const char* pName, long long int& pState) const;
     int getStringProperty(const char* pName, std::string& pState) const;
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
     static int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags);

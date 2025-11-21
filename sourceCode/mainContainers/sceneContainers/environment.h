@@ -12,6 +12,7 @@
 #define DEFINE_PROPERTIES                                                                                                                                                                   \
     FUNCX(propScene_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                                 \
     FUNCX(propScene_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
+    FUNCX(propScene_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Handle", "") \
     FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, "Final save", "Lock scene and models after next scene save operation")  \
     FUNCX(propScene_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_notwritable, "Scene is locked", "")                                                             \
     FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs", sim_propertytype_bool, 0, "Save calculation structures", "Save operation also saves existing calculation structures") \
@@ -90,6 +91,7 @@ class CEnvironment
     int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState);
     int getIntProperty(const char* pName, int& pState) const;
+    int getHandleProperty(const char* pName, long long int& pState) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);

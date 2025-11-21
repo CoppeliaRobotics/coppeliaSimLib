@@ -18,12 +18,11 @@ CAddOnScriptContainer::CAddOnScriptContainer()
     _sysFuncAndHookCnt_joint = 0;
 }
 
-void CAddOnScriptContainer::loadAllAddOns()
+void CAddOnScriptContainer::loadAllFromAddOnFolder()
 { // will load them. But not call any script function yet (including 'info', which is called on-demand when a callback
     // is distributed)
     _insertAddOns(ADDON_EXTENTION_LUA);
     _insertAddOns(ADDON_EXTENTION_PY);
-    _insertAdditionalAddOns();
     _prepareAddOnFunctionNames_old();
 }
 
@@ -167,7 +166,7 @@ void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
     }
 }
 
-void CAddOnScriptContainer::_insertAdditionalAddOns()
+void CAddOnScriptContainer::loadAdditionalAddOns()
 { // The additional add-ons (this is enabled via command line options -a and -b:
     std::vector<std::string> additionalScripts;
     if (App::getAdditionalAddOnScript1().length() > 0)

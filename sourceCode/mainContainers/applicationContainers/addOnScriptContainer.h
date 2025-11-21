@@ -24,7 +24,8 @@ class CAddOnScriptContainer
     void simulationAboutToStart();
     void simulationEnded();
     void simulationAboutToEnd();
-    void loadAllAddOns();
+    void loadAllFromAddOnFolder();
+    void loadAdditionalAddOns(); // -a, -b options
     void removeAllAddOns();
     CScriptObject* getAddOnFromHandle(int scriptHandle) const;
     CScriptObject* getAddOnFromUid(int uid) const;
@@ -46,7 +47,6 @@ class CAddOnScriptContainer
     bool _removeAddOn(int scriptID);
     int _insertAddOn(CScriptObject* script);
     void _insertAddOns(const char* addOnExt);
-    void _insertAdditionalAddOns(); // -a, -b options
 
     int _sysFuncAndHookCnt_event;
     int _sysFuncAndHookCnt_dyn;

@@ -1163,6 +1163,19 @@ int CEnvironment::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
+int CEnvironment::getHandleProperty(const char* pName, long long int& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propScene_handle.name) == 0)
+    {
+        pState = sim_handle_scene;
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
 int CEnvironment::setStringProperty(const char* pName, const char* pState)
 {
     int retVal = -1;
