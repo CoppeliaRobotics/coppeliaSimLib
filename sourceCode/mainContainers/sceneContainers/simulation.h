@@ -108,7 +108,7 @@ class CSimulation
     int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
-    int getPropertyName(int& index, std::string& pName) const;
+    int getPropertyName(int& index, std::string& pName, int excludeFlags) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
 
 #ifdef SIM_WITH_GUI

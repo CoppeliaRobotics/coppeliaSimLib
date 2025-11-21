@@ -2411,19 +2411,19 @@ int CDynMaterialObject::getFloatArrayProperty(const char* pName, std::vector<dou
     return retVal;
 }
 
-int CDynMaterialObject::getPropertyName(int& index, std::string& pName) const
+int CDynMaterialObject::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
-    return getPropertyName_static(index, pName);
+    return getPropertyName_static(index, pName, excludeFlags);
 }
 
-int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName)
+int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_material.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_material[i].name, pName.c_str()))
         {
-            if ((allProps_material[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_material[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)

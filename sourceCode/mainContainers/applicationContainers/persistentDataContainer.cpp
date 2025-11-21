@@ -155,7 +155,7 @@ int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes, 
     return retVal;
 }
 
-bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName) const
+bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName, int excludeFlagsMask) const
 {
     bool retVal = false;
     for (size_t i = 0; i < _dataNames.size(); i++)
@@ -168,12 +168,18 @@ bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName) c
                 nnmm.erase(0, p + 2);
             if ((pName.size() == 0) || utils::startsWith((CUSTOMDATAPREFIX + nnmm).c_str(), pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                int flags = CUSTOMDATAFLAGS;
+                if (_dataValues[i].size() > LARGE_PROPERTY_SIZE)
+                    flags |= sim_propertyinfo_largedata;
+                if ((flags & excludeFlagsMask) == 0)
                 {
-                    pName = nnmm;
-                    retVal = true;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = nnmm;
+                        retVal = true;
+                        break;
+                    }
                 }
             }
         }

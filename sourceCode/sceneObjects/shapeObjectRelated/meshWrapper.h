@@ -102,8 +102,8 @@ class CMeshWrapper
     int getQuaternionProperty_wrapper(const char* pName, C4Vector& pState) const;
     int setFloatArrayProperty_wrapper(const char* pName, const double* v, int vL);
     int getFloatArrayProperty_wrapper(const char* pName, std::vector<double>& pState) const;
-    int getPropertyName_wrapper(int& index, std::string& pName) const;
-    static int getPropertyName_static_wrapper(int& index, std::string& pName);
+    int getPropertyName_wrapper(int& index, std::string& pName, int excludeFlags) const;
+    static int getPropertyName_static_wrapper(int& index, std::string& pName, int excludeFlags);
     int getPropertyInfo_wrapper(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_static_wrapper(const char* pName, int& info, std::string& infoTxt);
 

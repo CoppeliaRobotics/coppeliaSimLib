@@ -1854,13 +1854,13 @@ int CDummy::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     return retVal;
 }
 
-int CDummy::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CDummy::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "dummy";
-        retVal = _dummyColor.getPropertyName(index, pName);
+        retVal = _dummyColor.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
     {
@@ -1868,7 +1868,7 @@ int CDummy::getPropertyName(int& index, std::string& pName, std::string& apparte
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()))
             {
-                if ((allProps_dummy[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_dummy[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -1885,13 +1885,13 @@ int CDummy::getPropertyName(int& index, std::string& pName, std::string& apparte
     return retVal;
 }
 
-int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "dummy";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
     {
@@ -1899,7 +1899,7 @@ int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& 
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()))
             {
-                if ((allProps_dummy[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_dummy[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

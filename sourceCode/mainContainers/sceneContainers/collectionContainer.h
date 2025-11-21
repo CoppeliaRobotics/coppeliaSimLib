@@ -56,7 +56,7 @@ class CCollectionContainer
 
     int getStringProperty(long long int target, const char* pName, std::string& pState) const;
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
-    int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance) const;
+    int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;
 
   protected:

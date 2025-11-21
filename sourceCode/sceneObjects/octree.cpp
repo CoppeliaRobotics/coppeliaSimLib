@@ -1361,13 +1361,13 @@ int COcTree::getFloatArrayProperty(const char* ppName, std::vector<double>& pSta
     return retVal;
 }
 
-int COcTree::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int COcTree::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "ocTree";
-        retVal = color.getPropertyName(index, pName);
+        retVal = color.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
     {
@@ -1375,7 +1375,7 @@ int COcTree::getPropertyName(int& index, std::string& pName, std::string& appart
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_ocTree[i].name, pName.c_str()))
             {
-                if ((allProps_ocTree[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_ocTree[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -1391,13 +1391,13 @@ int COcTree::getPropertyName(int& index, std::string& pName, std::string& appart
     return retVal;
 }
 
-int COcTree::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int COcTree::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "ocTree";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
     {
@@ -1405,7 +1405,7 @@ int COcTree::getPropertyName_static(int& index, std::string& pName, std::string&
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_ocTree[i].name, pName.c_str()))
             {
-                if ((allProps_ocTree[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_ocTree[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -1447,12 +1447,12 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
             if (_pName == propOctree_voxels.name)
             {
                 if (_voxelPositions.size() > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
             if (_pName == propOctree_colors.name)
             {
                 if (_colorsByte.size() * 3 > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
         }
     }

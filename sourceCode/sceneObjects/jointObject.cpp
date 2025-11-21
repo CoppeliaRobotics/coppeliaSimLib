@@ -5991,13 +5991,13 @@ int CJoint::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     return retVal;
 }
 
-int CJoint::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CJoint::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "joint";
-        retVal = _color.getPropertyName(index, pName);
+        retVal = _color.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
     {
@@ -6005,7 +6005,7 @@ int CJoint::getPropertyName(int& index, std::string& pName, std::string& apparte
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_joint[i].name, pName.c_str()))
             {
-                if ((allProps_joint[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_joint[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -6021,13 +6021,13 @@ int CJoint::getPropertyName(int& index, std::string& pName, std::string& apparte
     return retVal;
 }
 
-int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "joint";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
     {
@@ -6035,7 +6035,7 @@ int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& 
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_joint[i].name, pName.c_str()))
             {
-                if ((allProps_joint[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_joint[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

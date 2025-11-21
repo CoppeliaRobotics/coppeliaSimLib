@@ -6229,7 +6229,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
     return retVal;
 }
 
-int CWorld::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject)
+int CWorld::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject, int excludeFlags)
 {
     if ((target == sim_handle_mainscript) && (targetObject != nullptr))
     {
@@ -6243,28 +6243,28 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
     {
         appartenance = "scene";
         if (App::currentWorld->dynamicsContainer != nullptr)
-            retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName);
+            retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
         if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
-            retVal = App::currentWorld->simulation->getPropertyName(index, pName);
+            retVal = App::currentWorld->simulation->getPropertyName(index, pName, excludeFlags);
         if ((retVal == -1) && (App::currentWorld->environment != nullptr))
-            retVal = App::currentWorld->environment->getPropertyName(index, pName);
+            retVal = App::currentWorld->environment->getPropertyName(index, pName, excludeFlags);
         if (retVal == -1)
         {
             CSceneObjectContainer* soc = nullptr;
             if (targetObject != nullptr)
                 soc = targetObject->sceneObjects;
-            retVal = CSceneObjectContainer::getPropertyName(-1, index, pName, appartenance, soc); // for the container itself
+            retVal = CSceneObjectContainer::getPropertyName(-1, index, pName, appartenance, soc, excludeFlags); // for the container itself
         }
         if (retVal == -1)
         {
             if (targetObject != nullptr)
             {
-                if (targetObject->customSceneData.getPropertyName(index, pName))
+                if (targetObject->customSceneData.getPropertyName(index, pName, excludeFlags))
                 {
                     pName = CUSTOMDATAPREFIX + pName;
                     retVal = 1;
                 }
-                else if (targetObject->customSceneData_volatile.getPropertyName(index, pName))
+                else if (targetObject->customSceneData_volatile.getPropertyName(index, pName, excludeFlags))
                 {
                     pName = SIGNALPREFIX + pName;
                     retVal = 1;
@@ -6272,9 +6272,9 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
             }
         }
         if ( (retVal == -1) && (targetObject != nullptr) )
-            retVal = targetObject->collections->getPropertyName(-1, index, pName, appartenance); // for the container itself
+            retVal = targetObject->collections->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
         if ( (retVal == -1) && (targetObject != nullptr) )
-            retVal = targetObject->drawingCont->getPropertyName(-1, index, pName, appartenance); // for the container itself
+            retVal = targetObject->drawingCont->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
@@ -6282,7 +6282,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)
             soc = targetObject->sceneObjects;
-        retVal = CSceneObjectContainer::getPropertyName(target, index, pName, appartenance, soc);
+        retVal = CSceneObjectContainer::getPropertyName(target, index, pName, appartenance, soc, excludeFlags);
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr))
     { // sandbox, main, add-ons, or old associated scripts:
@@ -6291,7 +6291,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         {
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 appartenance = "scene";
-            retVal = script->getPropertyName(index, pName, &appartenance);
+            retVal = script->getPropertyName(index, pName, &appartenance, excludeFlags);
         }
     }
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
@@ -6299,17 +6299,21 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
         {
+            int flags = (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude);
             for (size_t i = 0; i < stack->getStackSize(); i++)
             {
                 if (pName.size() == 0)
                 {
-                    index--;
-                    if (index == -1)
+                    if ((flags & excludeFlags) == 0)
                     {
-                        pName = std::to_string(i);
-                        retVal = 1;
-                        appartenance = "stack";
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = std::to_string(i);
+                            retVal = 1;
+                            appartenance = "stack";
+                            break;
+                        }
                     }
                 }
             }
@@ -6321,13 +6325,13 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
     {
         appartenance = "scene";
         if (targetObject != nullptr)
-            retVal = targetObject->collections->getPropertyName(target, index, pName, appartenance);
+            retVal = targetObject->collections->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
         appartenance = "scene";
         if (targetObject != nullptr)
-            retVal = targetObject->drawingCont->getPropertyName(target, index, pName, appartenance);
+            retVal = targetObject->drawingCont->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
     else
         retVal = -2; // target does not exist
@@ -6528,9 +6532,9 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                         retVal = targetObject->customSceneData.hasData(pN.c_str(), true, &s);
                         if (retVal >= 0)
                         {
-                            info = sim_propertyinfo_removable;
+                            info = CUSTOMDATAFLAGS;
                             if (s > LARGE_PROPERTY_SIZE)
-                                info = info | 0x100;
+                                info = info | sim_propertyinfo_largedata;
                             infoTxt = "";
                         }
                     }
@@ -6546,9 +6550,9 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                         retVal = targetObject->customSceneData_volatile.hasData(pN.c_str(), true, &s);
                         if (retVal >= 0)
                         {
-                            info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
+                            info = SIGNALFLAGS;
                             if (s > LARGE_PROPERTY_SIZE)
-                                info = info | 0x100;
+                                info = info | sim_propertyinfo_largedata;
                             infoTxt = "";
                         }
                     }

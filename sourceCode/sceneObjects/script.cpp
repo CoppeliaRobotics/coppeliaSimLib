@@ -656,23 +656,23 @@ int CScript::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CScript::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CScript::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "script";
-        retVal = _scriptColor.getPropertyName(index, pName);
+        retVal = _scriptColor.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
-        retVal = scriptObject->getPropertyName(index, pName, nullptr);
+        retVal = scriptObject->getPropertyName(index, pName, nullptr, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
             {
-                if ((allProps_script[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_script[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -688,23 +688,23 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
     return retVal;
 }
 
-int CScript::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CScript::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "script";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
-        retVal = CScriptObject::getPropertyName_static(index, pName, nullptr);
+        retVal = CScriptObject::getPropertyName_static(index, pName, nullptr, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
             {
-                if ((allProps_script[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_script[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

@@ -13,10 +13,20 @@
 #endif
 
 #define CUSTOMDATAPREFIX "customData."
+#define CUSTOMDATAFLAGS (sim_propertyinfo_removable)
+
 #define SIGNALPREFIX "signal."
+#define SIGNALFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
+
 #define NAMEDPARAMPREFIX "namedParam."
+#define NAMEDPARAMFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
+
 #define REFSPREFIX "refs."
+#define REFSFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
+
 #define ORIGREFSPREFIX "origRefs."
+#define ORIGREFSFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
+
 #define COLORPREFIX "color."
 #define COLORPREFIX_CAP "Color."
 
@@ -361,7 +371,7 @@ class App
     static int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     static int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState);
     static int removeProperty(long long int target, const char* pName);
-    static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing);
+    static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing, int excludeFlags);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, bool staticParsing);
 
     static void undoRedo_sceneChanged(const char* txt);

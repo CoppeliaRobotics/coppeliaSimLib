@@ -1611,14 +1611,14 @@ int CSimulation::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
-int CSimulation::getPropertyName(int& index, std::string& pName) const
+int CSimulation::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_sim.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_sim[i].name, pName.c_str()))
         {
-            if ((allProps_sim[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_sim[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)

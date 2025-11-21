@@ -1778,13 +1778,13 @@ int CPointCloud::getFloatArrayProperty(const char* ppName, std::vector<double>& 
     return retVal;
 }
 
-int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "pointCloud";
-        retVal = color.getPropertyName(index, pName);
+        retVal = color.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
     {
@@ -1792,7 +1792,7 @@ int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& ap
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()))
             {
-                if ((allProps_pointCloud[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_pointCloud[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -1808,13 +1808,13 @@ int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& ap
     return retVal;
 }
 
-int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "pointCloud";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
     {
@@ -1822,7 +1822,7 @@ int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::str
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()))
             {
-                if ((allProps_pointCloud[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_pointCloud[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -1864,12 +1864,12 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
             if (_pName == propPointCloud_points.name)
             {
                 if (_displayPoints.size() > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
             if (_pName == propPointCloud_colors.name)
             {
                 if (_displayColorsByte.size() * 3 > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
         }
     }

@@ -2295,14 +2295,14 @@ int CConvexVolume::getIntArrayProperty(const char* pName, std::vector<int>& pSta
     return retVal;
 }
 
-int CConvexVolume::getPropertyName(int& index, std::string& pName) const
+int CConvexVolume::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()))
         {
-            if ((allProps_volume[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_volume[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)
@@ -2317,14 +2317,14 @@ int CConvexVolume::getPropertyName(int& index, std::string& pName) const
     return retVal;
 }
 
-int CConvexVolume::getPropertyName_static(int& index, std::string& pName)
+int CConvexVolume::getPropertyName_static(int& index, std::string& pName, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()))
         {
-            if ((allProps_volume[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_volume[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)

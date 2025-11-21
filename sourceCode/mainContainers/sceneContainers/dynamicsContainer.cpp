@@ -3526,14 +3526,14 @@ int CDynamicsContainer::getIntArrayProperty(const char* pName, std::vector<int>&
     return retVal;
 }
 
-int CDynamicsContainer::getPropertyName(int& index, std::string& pName) const
+int CDynamicsContainer::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_dyn.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_dyn[i].name, pName.c_str()))
         {
-            if ((allProps_dyn[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_dyn[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)

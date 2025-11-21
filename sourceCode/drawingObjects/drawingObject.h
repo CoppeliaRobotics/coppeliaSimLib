@@ -37,7 +37,7 @@ class CDrawingObject
     bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     int getStringProperty(const char* pName, std::string& pState) const;
-    static int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    static int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
 
     void pushAddEvent();

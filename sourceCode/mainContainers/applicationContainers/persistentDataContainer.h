@@ -19,7 +19,7 @@ class CPersistentDataContainer
     bool writeData(const char* dataName, const std::string& value, bool toFile, bool allowEmptyString);
     bool readData(const char* dataName, std::string& value);
     int hasData(const char* dataName, bool checkAllTypes, int* dataSize = nullptr);
-    bool getPropertyName(int& index, std::string& pName) const;
+    bool getPropertyName(int& index, std::string& pName, int excludeFlagsMask) const;
     int getAllDataNames(std::vector<std::string>& names);
     void appendEventData(const char* dataName, CCbor* ev, bool remove = false) const;
 

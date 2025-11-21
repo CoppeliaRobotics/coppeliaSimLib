@@ -268,8 +268,8 @@ class CSceneObject
     virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState);
     virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
     virtual int removeProperty(const char* pName);
-    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
-    static int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);
+    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    static int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_bstatic(const char* pName, int& info, std::string& infoTxt);
 

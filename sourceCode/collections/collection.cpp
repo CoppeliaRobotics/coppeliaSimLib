@@ -322,14 +322,14 @@ int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long lon
     return retVal;
 }
 
-int CCollection::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CCollection::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_collection.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
         {
-            if ((allProps_collection[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_collection[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)

@@ -126,8 +126,8 @@ class CScriptObject
     int getLongProperty(const char* pName, long long int& pState) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
-    int getPropertyName(int& index, std::string& pName, std::string* appartenance) const;
-    static int getPropertyName_static(int& index, std::string& pName, std::string* appartenance);
+    int getPropertyName(int& index, std::string& pName, std::string* appartenance, int excludeFlags) const;
+    static int getPropertyName_static(int& index, std::string& pName, std::string* appartenance, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool detachedScript) const;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt, bool detachedScript);
 

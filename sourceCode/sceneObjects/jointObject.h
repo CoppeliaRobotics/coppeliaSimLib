@@ -337,8 +337,8 @@ class CJoint : public CSceneObject
     int getColorProperty(const char* pName, float* pState) const override;
     int setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const override;
-    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
     // Some helpers:

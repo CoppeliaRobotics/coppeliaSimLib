@@ -171,7 +171,7 @@ class CMesh : public CMeshWrapper
     int setIntArrayProperty(const char* pName, const int* v, int vL, const C7Vector& shapeRelTr);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr) const;
     int removeProperty(const char* pName);
-    static int getPropertyName(int& index, std::string& pName, CMesh* targetObject);
+    static int getPropertyName(int& index, std::string& pName, CMesh* targetObject, int excludeFlags);
     static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt, CMesh* targetObject);
 
     std::string getMeshState() const;

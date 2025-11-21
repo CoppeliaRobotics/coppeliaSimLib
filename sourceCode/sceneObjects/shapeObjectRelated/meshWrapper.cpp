@@ -1377,20 +1377,20 @@ int CMeshWrapper::getFloatArrayProperty_wrapper(const char* pName, std::vector<d
     return retVal;
 }
 
-int CMeshWrapper::getPropertyName_wrapper(int& index, std::string& pName) const
+int CMeshWrapper::getPropertyName_wrapper(int& index, std::string& pName, int excludeFlags) const
 {
-    int retVal = getPropertyName_static_wrapper(index, pName);
+    int retVal = getPropertyName_static_wrapper(index, pName, excludeFlags);
     return retVal;
 }
 
-int CMeshWrapper::getPropertyName_static_wrapper(int& index, std::string& pName)
+int CMeshWrapper::getPropertyName_static_wrapper(int& index, std::string& pName, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_meshWrap.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_meshWrap[i].name, pName.c_str()))
         {
-            if ((allProps_meshWrap[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_meshWrap[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)

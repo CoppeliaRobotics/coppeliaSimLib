@@ -1574,25 +1574,25 @@ int CProxSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pStat
     return retVal;
 }
 
-int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "proximitySensor";
-        retVal = volumeColor.getPropertyName(index, pName);
+        retVal = volumeColor.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
-        retVal = detectionRayColor.getPropertyName(index, pName);
+        retVal = detectionRayColor.getPropertyName(index, pName, excludeFlags);
     if (retVal == -1)
-        retVal = convexVolume->getPropertyName(index, pName);
+        retVal = convexVolume->getPropertyName(index, pName, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_proximitySensor[i].name, pName.c_str()))
             {
-                if ((allProps_proximitySensor[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_proximitySensor[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -1608,25 +1608,25 @@ int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& ap
     return retVal;
 }
 
-int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "proximitySensor";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "ray");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "ray", excludeFlags);
     if (retVal == -1)
-        retVal = CConvexVolume::getPropertyName_static(index, pName);
+        retVal = CConvexVolume::getPropertyName_static(index, pName, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_proximitySensor[i].name, pName.c_str()))
             {
-                if ((allProps_proximitySensor[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_proximitySensor[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

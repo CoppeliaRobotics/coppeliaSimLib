@@ -1279,13 +1279,13 @@ int CForceSensor::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "forceSensor";
-        retVal = _color.getPropertyName(index, pName);
+        retVal = _color.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
     {
@@ -1293,7 +1293,7 @@ int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& a
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()))
             {
-                if ((allProps_forceSensor[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_forceSensor[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -1309,13 +1309,13 @@ int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& a
     return retVal;
 }
 
-int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "forceSensor";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
     {
@@ -1323,7 +1323,7 @@ int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::st
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()))
             {
-                if ((allProps_forceSensor[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_forceSensor[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

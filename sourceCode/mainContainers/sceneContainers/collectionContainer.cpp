@@ -306,7 +306,7 @@ int CCollectionContainer::getHandleArrayProperty(long long int target, const cha
     return retVal;
 }
 
-int CCollectionContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance) const
+int CCollectionContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = -1;
     if (target == -1)
@@ -315,7 +315,7 @@ int CCollectionContainer::getPropertyName(long long int target, int& index, std:
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_collCont[i].name, pName.c_str()))
             {
-                if ((allProps_collCont[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_collCont[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -334,7 +334,7 @@ int CCollectionContainer::getPropertyName(long long int target, int& index, std:
         if (it != nullptr)
         {
             appartenance = "collection";
-            return it->getPropertyName(index, pName, appartenance);
+            return it->getPropertyName(index, pName, appartenance, excludeFlags);
         }
         retVal = -2; // object does not exist
     }

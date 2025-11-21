@@ -118,7 +118,7 @@ class CWorld
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
     int removeProperty(long long int target, const char* pName);
-    static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject);
+    static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject, int excludeFlags);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CWorld* targetObject);
 
     // Old:

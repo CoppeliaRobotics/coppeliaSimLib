@@ -191,7 +191,7 @@ std::string CCustomData::getData(const char* tag) const
     return (retVal);
 }
 
-bool CCustomData::getPropertyName(int& index, std::string& pName) const
+bool CCustomData::getPropertyName(int& index, std::string& pName, int excludeFlagsMask) const
 {
     bool retVal = false;
     for (size_t i = 0; i < _data.size(); i++)
@@ -200,14 +200,24 @@ bool CCustomData::getPropertyName(int& index, std::string& pName) const
         size_t p = nnmm.find("&.");
         if (p != std::string::npos)
             nnmm.erase(0, p + 2);
-        if ((pName.size() == 0) || utils::startsWith((CUSTOMDATAPREFIX + nnmm).c_str(), pName.c_str()))
+        if ((pName.size() == 0) || utils::startsWith((_eventPrefix + nnmm).c_str(), pName.c_str()))
         {
-            index--;
-            if (index == -1)
+            int flags;
+            if (_eventPrefix == SIGNALPREFIX)
+                flags = SIGNALFLAGS;
+            else
+                flags = CUSTOMDATAFLAGS;
+            if (_data[i].data.size() > LARGE_PROPERTY_SIZE)
+                flags |= sim_propertyinfo_largedata;
+            if ((flags & excludeFlagsMask) == 0)
             {
-                pName = nnmm;
-                retVal = true;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = nnmm;
+                    retVal = true;
+                    break;
+                }
             }
         }
     }

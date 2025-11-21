@@ -2941,6 +2941,7 @@ char* simGetPropertyName_internal(long long int target, int index, SPropertyOpti
         std::string pName;
         std::string appartenance;
         bool staticParsing = false;
+        int excludeFlags = sim_propertyinfo_deprecated;
         if (options != nullptr)
         {
             if ((options->structSize >= 8) && (options->objectType != -1))
@@ -2950,8 +2951,10 @@ char* simGetPropertyName_internal(long long int target, int index, SPropertyOpti
             }
             if ((options->structSize >= 24) && (options->prefix != nullptr))
                 pName = options->prefix;
+            if ((options->structSize >= 32) && (options->excludeFlags != -1))
+                excludeFlags = options->excludeFlags;
         }
-        int res = App::getPropertyName(target, index, pName, appartenance, staticParsing);
+        int res = App::getPropertyName(target, index, pName, appartenance, staticParsing, excludeFlags);
         if (res == -2)
             CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
         else if ((res == 1) && (pName.size() > 0))

@@ -963,7 +963,7 @@ int CColorObject::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CColorObject::getPropertyName(int& index, std::string& pName) const
+int CColorObject::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_col.size(); i++)
@@ -972,7 +972,7 @@ int CColorObject::getPropertyName(int& index, std::string& pName) const
         {
             if ((pName.size() == 0) || utils::startsWith((_eventPrefix + allProps_col[i].name).c_str(), pName.c_str()))
             {
-                if ((allProps_col[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_col[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -988,7 +988,7 @@ int CColorObject::getPropertyName(int& index, std::string& pName) const
     return retVal;
 }
 
-int CColorObject::getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventPrefix)
+int CColorObject::getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventPrefix, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_col.size(); i++)
@@ -1002,7 +1002,7 @@ int CColorObject::getPropertyName_static(int& index, std::string& pName, int eve
                 nnmm = COLORPREFIX + nnmm;
             if ((pName.size() == 0) || utils::startsWith(nnmm.c_str(), pName.c_str()))
             {
-                if ((allProps_col[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_col[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

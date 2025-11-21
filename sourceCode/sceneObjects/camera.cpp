@@ -3578,23 +3578,23 @@ int CCamera::getIntArrayProperty(const char* ppName, std::vector<int>& pState) c
     return retVal;
 }
 
-int CCamera::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CCamera::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "camera";
-        retVal = _color.getPropertyName(index, pName);
+        retVal = _color.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyName_vstatic(index, pName);
+        retVal = CViewableBase::getPropertyName_vstatic(index, pName, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_camera[i].name, pName.c_str()))
             {
-                if ((allProps_camera[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_camera[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -3610,23 +3610,23 @@ int CCamera::getPropertyName(int& index, std::string& pName, std::string& appart
     return retVal;
 }
 
-int CCamera::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CCamera::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "camera";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyName_vstatic(index, pName);
+        retVal = CViewableBase::getPropertyName_vstatic(index, pName, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_camera[i].name, pName.c_str()))
             {
-                if ((allProps_camera[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_camera[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

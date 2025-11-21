@@ -842,14 +842,14 @@ int CViewableBase::getIntArrayProperty(const char* pName, std::vector<int>& pSta
     return retVal;
 }
 
-int CViewableBase::getPropertyName_vstatic(int& index, std::string& pName)
+int CViewableBase::getPropertyName_vstatic(int& index, std::string& pName, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_viewable.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_viewable[i].name, pName.c_str()))
         {
-            if ((allProps_viewable[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_viewable[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)

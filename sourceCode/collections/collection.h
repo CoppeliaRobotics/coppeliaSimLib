@@ -62,7 +62,7 @@ class CCollection
 
     int getStringProperty(const char* pName, std::string& pState) const;
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
-    static int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    static int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
 
   protected:

@@ -72,7 +72,7 @@ class CViewableBase : public CSceneObject
     virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     virtual int setIntArrayProperty(const char* pName, const int* v, int vL) override;
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
-    static int getPropertyName_vstatic(int& index, std::string& pName);
+    static int getPropertyName_vstatic(int& index, std::string& pName, int excludeFlags);
     static int getPropertyInfo_vstatic(const char* pName, int& info, std::string& infoTxt);
 
     void setClippingPlanes(double nearPlane, double farPlane);

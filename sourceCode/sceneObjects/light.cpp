@@ -1050,23 +1050,23 @@ int CLight::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     return retVal;
 }
 
-int CLight::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CLight::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "light";
-        retVal = objectColor.getPropertyName(index, pName);
+        retVal = objectColor.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
-        retVal = lightColor.getPropertyName(index, pName);
+        retVal = lightColor.getPropertyName(index, pName, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_light[i].name, pName.c_str()))
             {
-                if ((allProps_light[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_light[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -1082,23 +1082,23 @@ int CLight::getPropertyName(int& index, std::string& pName, std::string& apparte
     return retVal;
 }
 
-int CLight::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CLight::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "light";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
-        retVal = CColorObject::getPropertyName_static(index, pName, 2 + 4 + 8, "light");
+        retVal = CColorObject::getPropertyName_static(index, pName, 2 + 4 + 8, "light", excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_light[i].name, pName.c_str()))
             {
-                if ((allProps_light[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_light[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

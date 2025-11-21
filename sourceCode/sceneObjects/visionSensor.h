@@ -111,8 +111,8 @@ class CVisionSensor : public CViewableBase
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     int setIntArrayProperty(const char* pName, const int* v, int vL) override;
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const override;
-    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 

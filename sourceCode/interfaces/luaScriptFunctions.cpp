@@ -6169,6 +6169,7 @@ int _simGetPropertyName(luaWrap_lua_State* L)
             CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
             stack->getStackMapInt32Value("objectType", opt.objectType);
             stack->getStackMapStringValue("prefix", propertyPrefix);
+            stack->getStackMapInt32Value("excludeFlags", opt.excludeFlags);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         if (propertyPrefix.size() > 0)

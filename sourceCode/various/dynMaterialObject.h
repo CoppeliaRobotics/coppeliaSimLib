@@ -314,8 +314,8 @@ class CDynMaterialObject
     int getVector3Property(const char* pName, C3Vector* pState) const;
     int setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
-    int getPropertyName(int& index, std::string& pName) const;
-    static int getPropertyName_static(int& index, std::string& pName);
+    int getPropertyName(int& index, std::string& pName, int excludeFlags) const;
+    static int getPropertyName_static(int& index, std::string& pName, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
     // Some helpers:

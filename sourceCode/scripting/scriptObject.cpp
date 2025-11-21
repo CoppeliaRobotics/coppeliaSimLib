@@ -2675,7 +2675,6 @@ bool CScriptObject::prepareFilteredEventsBuffer(const std::vector<unsigned char>
             mainScriptHandle = mainScript->getScriptHandle();
 
         output.push_back(input[0]); // "array open" (holding all events)
-        size_t p = 1;
         for (size_t ev = 0; ev < inf.size(); ev++)
         {
             long long int t = inf[ev].target;
@@ -4385,22 +4384,22 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     return retVal;
 }
 
-int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* appartenance) const
+int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* appartenance, int excludeFlags) const
 {
     if (appartenance != nullptr)
         appartenance[0] = _getScriptTypeN();
-    int retVal = CScriptObject::getPropertyName_static(index, pName, appartenance);
+    int retVal = CScriptObject::getPropertyName_static(index, pName, appartenance, excludeFlags);
     return retVal;
 }
 
-int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::string* appartenance)
+int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::string* appartenance, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_scriptObject[i].name, pName.c_str()))
         {
-            if ((allProps_scriptObject[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_scriptObject[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)
@@ -4423,7 +4422,7 @@ int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& in
         if (strcmp(propScriptObj_code.name, pName) == 0)
         {
             if (_scriptText.size() > LARGE_PROPERTY_SIZE)
-                info = info | 0x100;
+                info = info | sim_propertyinfo_largedata;
         }
     }
     return retVal;

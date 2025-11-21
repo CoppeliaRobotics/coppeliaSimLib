@@ -398,7 +398,7 @@ class CDynamicsContainer
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState, bool getDefaultValue = false) const;
     int setIntArrayProperty(const char* pName, const int* v, int vL);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int getPropertyName(int& index, std::string& pName) const;
+    int getPropertyName(int& index, std::string& pName, int excludeFlags) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     // Some helpers:
     bool getBoolPropertyValue(const char* pName, bool getDefaultValue = false) const;

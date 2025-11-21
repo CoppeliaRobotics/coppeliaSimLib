@@ -3320,13 +3320,13 @@ int CMesh::removeProperty(const char* ppName)
     return retVal;
 }
 
-int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
+int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject, int excludeFlags)
 {
     int retVal = -1;
     if (targetObject != nullptr)
-        retVal = targetObject->color.getPropertyName(index, pName);
+        retVal = targetObject->color.getPropertyName(index, pName, excludeFlags);
     else
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8 + 16, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8 + 16, "", excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mesh.size(); i++)
@@ -3335,7 +3335,7 @@ int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
             {
                 if ((pName.size() == 0) || utils::startsWith(allProps_mesh[i].name, pName.c_str()))
                 {
-                    if ((allProps_mesh[i].flags & sim_propertyinfo_deprecated) == 0)
+                    if ((allProps_mesh[i].flags & excludeFlags) == 0)
                     {
                         index--;
                         if (index == -1)
@@ -3382,29 +3382,29 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, 
             {
                 const std::vector<float>* tc = targetObject->_textureProperty->getTextureCoordinates(-1, targetObject->_verticesForDisplayAndDisk, targetObject->_indices);
                 if (tc->size() > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
             else if ((_pName == propMesh_texture.name) && (targetObject->_textureProperty != nullptr))
             {
                 int ts[2];
                 targetObject->_textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
                 if (ts[0] * ts[1] > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
             else if (_pName == propMesh_vertices.name)
             {
                 if (targetObject->_verticesForDisplayAndDisk.size() > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
             else if (_pName == propMesh_indices.name)
             {
                 if (targetObject->_indices.size() > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
             else if (_pName == propMesh_normals.name)
             {
                 if (targetObject->_indices.size() * 3 > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
         }
     }

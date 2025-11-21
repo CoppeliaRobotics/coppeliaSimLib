@@ -2811,7 +2811,7 @@ int App::removeProperty(long long int target, const char* ppName)
     return retVal;
 }
 
-int App::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing)
+int App::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing, int excludeFlags)
 {
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
@@ -2823,7 +2823,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_app[i].name, pName.c_str()))
             {
-                if ((allProps_app[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_app[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -2840,7 +2840,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             if (retVal == -1)
             {
                 //CPersistentDataContainer cont("appStorage.dat");
-                if (_appStorage->getPropertyName(index, pName))
+                if (_appStorage->getPropertyName(index, pName, excludeFlags))
                 {
                     pName = CUSTOMDATAPREFIX + pName;
                     retVal = 1;
@@ -2848,7 +2848,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             }
             if ((retVal == -1) && (worldContainer != nullptr))
             {
-                if (worldContainer->customAppData_volatile.getPropertyName(index, pName))
+                if (worldContainer->customAppData_volatile.getPropertyName(index, pName, excludeFlags))
                 {
                     pName = SIGNALPREFIX + pName;
                     retVal = 1;
@@ -2858,14 +2858,20 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             {
                 for (const auto& pair : _applicationNamedParams)
                 {
+                    int flags = NAMEDPARAMFLAGS;
+                    if (pair.second.size() > LARGE_PROPERTY_SIZE)
+                        flags |= sim_propertyinfo_largedata;
                     if ((pName.size() == 0) || utils::startsWith((NAMEDPARAMPREFIX + pair.first).c_str(), pName.c_str()))
                     {
-                        index--;
-                        if (index == -1)
+                        if ((flags & excludeFlags) == 0)
                         {
-                            pName = NAMEDPARAMPREFIX + pair.first;
-                            retVal = 1;
-                            break;
+                            index--;
+                            if (index == -1)
+                            {
+                                pName = NAMEDPARAMPREFIX + pair.first;
+                                retVal = 1;
+                                break;
+                            }
                         }
                     }
                 }
@@ -2877,7 +2883,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         CWorld* cw = nullptr;
         if (!staticParsing)
             cw = currentWorld;
-        retVal = CWorld::getPropertyName(target, index, pName, appartenance, cw);
+        retVal = CWorld::getPropertyName(target, index, pName, appartenance, cw, excludeFlags);
     }
     return retVal;
 }
@@ -2917,9 +2923,9 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     retVal = _appStorage->hasData(pN.c_str(), true, &s);
                     if (retVal >= 0)
                     {
-                        info = sim_propertyinfo_removable;
+                        info = CUSTOMDATAFLAGS;
                         if (s > LARGE_PROPERTY_SIZE)
-                            info = info | 0x100;
+                            info = info | sim_propertyinfo_largedata;
                         infoTxt = "";
                     }
                 }
@@ -2933,9 +2939,9 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     retVal = worldContainer->customAppData_volatile.hasData(pN.c_str(), true, &s);
                     if (retVal >= 0)
                     {
-                        info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
+                        info = SIGNALFLAGS;
                         if (s > LARGE_PROPERTY_SIZE)
-                            info = info | 0x100;
+                            info = info | sim_propertyinfo_largedata;
                         infoTxt = "";
                     }
                 }
@@ -2950,7 +2956,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     if (getAppNamedParam(pN.c_str(), param))
                     {
                         retVal = sim_propertytype_string;
-                        info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
+                        info = NAMEDPARAMFLAGS;
                         if (param.size() > LARGE_PROPERTY_SIZE)
                             info = info | 0x100;
                         infoTxt = "";

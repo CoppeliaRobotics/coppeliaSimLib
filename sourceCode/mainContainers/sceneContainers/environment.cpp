@@ -1241,7 +1241,7 @@ int CEnvironment::getColorProperty(const char* pName, float* pState) const
     return retVal;
 }
 
-int CEnvironment::getPropertyName(int& index, std::string& pName) const
+int CEnvironment::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
     int retVal = -1;
 
@@ -1249,7 +1249,7 @@ int CEnvironment::getPropertyName(int& index, std::string& pName) const
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_scene[i].name, pName.c_str()))
         {
-            if ((allProps_scene[i].flags & sim_propertyinfo_deprecated) == 0)
+            if ((allProps_scene[i].flags & excludeFlags) == 0)
             {
                 index--;
                 if (index == -1)

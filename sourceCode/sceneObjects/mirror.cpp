@@ -547,13 +547,13 @@ int CMirror::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CMirror::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CMirror::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "mirror";
-        retVal = clipPlaneColor.getPropertyName(index, pName);
+        retVal = clipPlaneColor.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
     {
@@ -561,7 +561,7 @@ int CMirror::getPropertyName(int& index, std::string& pName, std::string& appart
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()))
             {
-                if ((allProps_mirror[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_mirror[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -577,13 +577,13 @@ int CMirror::getPropertyName(int& index, std::string& pName, std::string& appart
     return retVal;
 }
 
-int CMirror::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CMirror::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "mirror";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
     {
@@ -591,7 +591,7 @@ int CMirror::getPropertyName_static(int& index, std::string& pName, std::string&
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()))
             {
-                if ((allProps_mirror[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_mirror[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)

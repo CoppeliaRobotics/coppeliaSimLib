@@ -3850,23 +3850,23 @@ int CVisionSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pSt
     return retVal;
 }
 
-int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
+int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "visionSensor";
-        retVal = color.getPropertyName(index, pName);
+        retVal = color.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyName_vstatic(index, pName);
+        retVal = CViewableBase::getPropertyName_vstatic(index, pName, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_visionSensor.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_visionSensor[i].name, pName.c_str()))
             {
-                if ((allProps_visionSensor[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_visionSensor[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -3882,23 +3882,23 @@ int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
         appartenance = "visionSensor";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyName_vstatic(index, pName);
+        retVal = CViewableBase::getPropertyName_vstatic(index, pName, excludeFlags);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_visionSensor.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_visionSensor[i].name, pName.c_str()))
             {
-                if ((allProps_visionSensor[i].flags & sim_propertyinfo_deprecated) == 0)
+                if ((allProps_visionSensor[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
@@ -3942,12 +3942,12 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& i
             if (_pName == propVisionSensor_imageBuffer.name)
             {
                 if (3 * _resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
             if (_pName == propVisionSensor_depthBuffer.name)
             {
                 if (_resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
-                    info = info | 0x100;
+                    info = info | sim_propertyinfo_largedata;
             }
         }
     }

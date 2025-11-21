@@ -60,8 +60,8 @@ class CColorObject
     int getFloatProperty(const char* pName, double& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
-    int getPropertyName(int& index, std::string& pName) const;
-    static int getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventPrefix);
+    int getPropertyName(int& index, std::string& pName, int excludeFlags) const;
+    static int getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventPrefix, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt, int eventFlags, const char* eventPrefix);
 
