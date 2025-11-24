@@ -114,6 +114,7 @@ int CScriptObject::setHandle()
         if (_scriptHandle > SIM_IDEND_LUASCRIPT)
             _scriptHandle = SIM_IDSTART_LUASCRIPT;
     }
+    _scriptPseudoHandle = _scriptHandle;
     return _scriptHandle;
 }
 
@@ -1073,28 +1074,19 @@ std::string CScriptObject::getAddOnPath() const
     return _addOnPath;
 }
 
+std::string CScriptObject::getAddOnMenuPath() const
+{
+    return _addOnMenuPath;
+}
+
 int CScriptObject::getScriptState() const
 {
     return _scriptState;
 }
 
-std::string CScriptObject::_getScriptTypeN() const
-{
-    std::string scriptType("script");
-    if (_scriptType == sim_scripttype_main)
-        scriptType = "mainScript";
-    else if (_scriptType == sim_scripttype_addon)
-        scriptType = "addOn";
-    else if (_scriptType == sim_scripttype_sandbox)
-        scriptType = "sandbox";
-    else if (_scriptType == sim_scripttype_passive)
-        scriptType = "passiveScript";
-    return scriptType;
-}
-
 void CScriptObject::addSpecializedObjectEventData(CCbor* ev)
 {
-    ev->appendKeyText(propScriptObj_objectType.name, _getScriptTypeN().c_str());
+    ev->appendKeyText(propScriptObj_objectType.name, "detachedScript");
     ev->appendKeyBool(propScriptObj_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propScriptObj_restartOnError.name, _autoRestartOnError);
     ev->appendKeyInt(propScriptObj_execPriority.name, getScriptExecPriority());
@@ -1273,6 +1265,11 @@ bool CScriptObject::isNotInCopyBuffer() const
     return retVal;
 }
 
+bool CScriptObject::getAutoRestartOnError() const
+{
+    return _autoRestartOnError;
+}
+
 void CScriptObject::setAutoRestartOnError(bool restart)
 {
     bool diff = (_autoRestartOnError != restart);
@@ -1306,7 +1303,7 @@ bool CScriptObject::getScriptDisabledAndNoErrorRaised() const
 
 int CScriptObject::getScriptType() const
 {
-    return (_scriptType);
+    return _scriptType;
 }
 
 void CScriptObject::flagForDestruction()
@@ -1381,7 +1378,12 @@ const char* CScriptObject::getScriptText()
 
 int CScriptObject::getScriptHandle() const
 {
-    return (_scriptHandle);
+    return _scriptHandle;
+}
+
+int CScriptObject::getScriptPseudoHandle() const
+{
+    return _scriptPseudoHandle;
 }
 
 long long int CScriptObject::getScriptUid() const
@@ -4331,7 +4333,7 @@ int CScriptObject::getHandleProperty(const char* pName, long long int& pState) c
     if (strcmp(propScriptObj_handle.name, pName) == 0)
     {
         retVal = 1;
-        pState = _scriptHandle;
+        pState = _scriptPseudoHandle;
     }
 
     return retVal;
@@ -4371,7 +4373,7 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     else if (strcmp(propScriptObj_objectType.name, pName) == 0)
     {
         retVal = 1;
-        pState = _getScriptTypeN();
+        pState = "detachedScript";
     }
     else if (strcmp(propScriptObj_scriptName.name, pName) == 0)
     {
@@ -4400,7 +4402,7 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
 int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* appartenance, int excludeFlags) const
 {
     if (appartenance != nullptr)
-        appartenance[0] = _getScriptTypeN();
+        appartenance[0] = "detachedScript";
     int retVal = CScriptObject::getPropertyName_static(index, pName, appartenance, excludeFlags);
     return retVal;
 }

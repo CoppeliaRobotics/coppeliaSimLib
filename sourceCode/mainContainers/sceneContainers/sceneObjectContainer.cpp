@@ -3300,6 +3300,16 @@ void CSceneObjectContainer::remove_oldIk()
     }
 }
 
+CScriptObject* CSceneObjectContainer::getDetachedScriptFromScriptPseudoHandle(int h) const
+{
+    for (size_t i = 0; i < _scriptList.size(); i++)
+    {
+        if (_scriptList[i]->getScriptPseudoHandle() == h)
+            return _scriptList[i]->scriptObject;
+    }
+    return nullptr;
+}
+
 bool CSceneObjectContainer::doesObjectExist(const CSceneObject* obj) const
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
@@ -3557,8 +3567,10 @@ CScriptObject* CSceneObjectContainer::getScriptObjectFromHandle(int handle) cons
             retVal = it->scriptObject;
     }
     else
-    { // main script (and old non-scene object scripts)
-        retVal = embeddedScriptContainer->getScriptObjectFromHandle(handle);
+    {
+        retVal = getDetachedScriptFromScriptPseudoHandle(handle); // alt. way to get to a detached script (via a script pseudo handle)
+        if (retVal == nullptr)
+            retVal = embeddedScriptContainer->getScriptObjectFromHandle(handle); // main script (and old non-scene object scripts)
     }
     return (retVal);
 }

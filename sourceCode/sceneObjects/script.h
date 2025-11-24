@@ -9,7 +9,20 @@
 #define DEFINE_PROPERTIES                                                                                             \
     FUNCX(propScript_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
     FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0, "Size", "Size of the script's 3D representation") \
-    FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0, "Reset after simulation error", "")
+    FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0, "Reset after simulation error", "") \
+    FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Detached script handle", "")                                                                    \
+    /* FOLLOWING FOR BACKWARD COMPATIBILITY */ \
+    FUNCX(propScript_scriptDisabled, "scriptDisabled", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "")                                                         \
+    FUNCX(propScript_restartOnError, "restartOnError", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "")                                                          \
+    FUNCX(propScript_execPriority, "execPriority", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "")                                                                    \
+    FUNCX(propScript_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable, "", "")                                                \
+    FUNCX(propScript_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")    \
+    FUNCX(propScript_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")        \
+    FUNCX(propScript_language, "language", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")                                                        \
+    FUNCX(propScript_code, "code", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "")                                                                                 \
+    FUNCX(propScript_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")         \
+    FUNCX(propScript_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
+    FUNCX(propScript_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -64,6 +77,7 @@ class CScript : public CSceneObject
     int getIntProperty(const char* pName, int& pState) const override;
     int setLongProperty(const char* pName, long long int pState) override;
     int getLongProperty(const char* pName, long long int& pState) const override;
+    int getHandleProperty(const char* pName, long long int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
     int setStringProperty(const char* pName, const char* pState) override;
@@ -83,6 +97,7 @@ class CScript : public CSceneObject
     void setScriptSize(double s);
     void resetAfterSimError(bool r);
     bool getResetAfterSimError() const;
+    int getScriptPseudoHandle() const;
 
     CScriptObject* scriptObject;
 

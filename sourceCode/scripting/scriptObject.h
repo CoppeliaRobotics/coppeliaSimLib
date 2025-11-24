@@ -86,6 +86,7 @@ class CScriptObject
     void simulationEnded();
 
     int getScriptHandle() const;
+    int getScriptPseudoHandle() const;
     long long int getScriptUid() const;
     size_t getSimpleHash() const;
 
@@ -151,6 +152,7 @@ class CScriptObject
     void setParentIsProxy(bool isDisabled);
     bool getParentIsProxy() const;
     void setAutoRestartOnError(bool restart);
+    bool getAutoRestartOnError() const;
     void setScriptIsDisabled(bool isDisabled);
     bool getScriptIsDisabled() const;
     bool getScriptHasError() const;
@@ -212,6 +214,7 @@ class CScriptObject
     int getAddOnUiMenuHandle() const;
     void setAddOnPath(const char* p);
     std::string getAddOnPath() const;
+    std::string getAddOnMenuPath() const;
 
     void printInterpreterStack() const;
 
@@ -277,7 +280,6 @@ class CScriptObject
     // *****************************************
 
   protected:
-    std::string _getScriptTypeN() const;
     std::string _removeLangTagInCode();
     bool _initInterpreterState(std::string* errorMsg);
     bool _killInterpreterState();
@@ -294,6 +296,7 @@ class CScriptObject
     void _handleInfoCallback();
 
     int _scriptHandle;        // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
+    int _scriptPseudoHandle;  // normally same as _scriptHandle, except for new script objects. In that case, this pseudo handle can be used to access properties of the "naked script"
     int _sceneObjectHandle;   // is same as _scriptHandle with the new scene object scripts. With old associated scripts, is handle of scene object this script is associated with. -1 with add-ons and sandbox
     long long int _scriptUid; // unique across all scenes
     int _scriptType;

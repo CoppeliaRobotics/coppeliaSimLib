@@ -81,6 +81,7 @@ class CSceneObjectContainer
     CSceneObject* getObjectFromAltName_old(const char* objectAltName) const;
     int getObjectHandleFromName_old(const char* objectName) const;
     int getObjects_hierarchyOrder(std::vector<CSceneObject*>& allObjects);
+    CScriptObject* getDetachedScriptFromScriptPseudoHandle(int h) const;
 
     size_t getOrphanCount() const;
     size_t getSimpleShapeCount() const;

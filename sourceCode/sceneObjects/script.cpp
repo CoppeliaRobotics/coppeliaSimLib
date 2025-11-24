@@ -174,6 +174,7 @@ void CScript::addSpecializedObjectEventData(CCbor* ev)
 #endif
     ev->appendKeyDouble(propScript_size.name, _scriptSize);
     ev->appendKeyBool(propScript_resetAfterSimError.name, _resetAfterSimError);
+    ev->appendKeyInt(propScript_detachedScript.name, scriptObject->getScriptPseudoHandle());
     scriptObject->addSpecializedObjectEventData(ev);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // script
@@ -472,6 +473,11 @@ void CScript::resetAfterSimError(bool r)
     }
 }
 
+int CScript::getScriptPseudoHandle() const
+{
+    return scriptObject->getScriptPseudoHandle();
+}
+
 #ifdef SIM_WITH_GUI
 void CScript::display(CViewableBase* renderingObject, int displayAttrib)
 {
@@ -484,13 +490,26 @@ int CScript::setBoolProperty(const char* ppName, bool pState)
     std::string _pName(ppName);
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->setBoolProperty(ppName, pState);
-    if (retVal == -1)
     {
         if (_pName == propScript_resetAfterSimError.name)
         {
             resetAfterSimError(pState);
             retVal = 1;
+        }
+    }
+
+    // for backw. compatibility
+    if (retVal == -1)
+    {
+        if (strcmp(propScript_scriptDisabled.name, ppName) == 0)
+        {
+            retVal = 1;
+            scriptObject->setScriptIsDisabled(pState);
+        }
+        else if (strcmp(propScript_restartOnError.name, ppName) == 0)
+        {
+            retVal = 1;
+            scriptObject->setAutoRestartOnError(pState);
         }
     }
 
@@ -502,13 +521,26 @@ int CScript::getBoolProperty(const char* ppName, bool& pState) const
     std::string _pName(ppName);
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->getBoolProperty(ppName, pState);
-    if (retVal == -1)
     {
         if (_pName == propScript_resetAfterSimError.name)
         {
             pState = _resetAfterSimError;
             retVal = 1;
+        }
+    }
+
+    // for backw. compatibility
+    if (retVal == -1)
+    {
+        if (strcmp(propScript_scriptDisabled.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getScriptIsDisabled();
+        }
+        else if (strcmp(propScript_restartOnError.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getAutoRestartOnError();
         }
     }
 
@@ -520,9 +552,17 @@ int CScript::setIntProperty(const char* ppName, int pState)
     std::string _pName(ppName);
     int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->setIntProperty(ppName, pState);
+    {
+    }
+
+    // for backw. compatibility
     if (retVal == -1)
     {
+        if (strcmp(propScript_execPriority.name, ppName) == 0)
+        {
+            retVal = 1;
+            scriptObject->setScriptExecPriority(pState);
+        }
     }
 
     return retVal;
@@ -533,9 +573,32 @@ int CScript::getIntProperty(const char* ppName, int& pState) const
     std::string _pName(ppName);
     int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->getIntProperty(ppName, pState);
+    {
+    }
+
+    // for backw. compatibility
     if (retVal == -1)
     {
+        if (strcmp(propScript_execPriority.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getScriptExecPriority();
+        }
+        else if (strcmp(propScript_scriptType.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getScriptType();
+        }
+        else if (strcmp(propScript_executionDepth.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getExecutionDepth();
+        }
+        else if (strcmp(propScript_scriptState.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getScriptState();
+        }
     }
 
     return retVal;
@@ -545,8 +608,6 @@ int CScript::setLongProperty(const char* ppName, long long int pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setLongProperty(ppName, pState);
-    if (retVal == -1)
-        retVal = scriptObject->setLongProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -559,10 +620,23 @@ int CScript::getLongProperty(const char* ppName, long long int& pState) const
     std::string _pName(ppName);
     int retVal = CSceneObject::getLongProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->getLongProperty(ppName, pState);
-    if (retVal == -1)
     {
     }
+
+    return retVal;
+}
+
+int CScript::getHandleProperty(const char* ppName, long long int& pState) const
+{
+    int retVal = CSceneObject::getHandleProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(propScript_detachedScript.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getScriptPseudoHandle();
+        }
+     }
 
     return retVal;
 }
@@ -571,8 +645,6 @@ int CScript::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
-    if (retVal == -1)
-        retVal = _scriptColor.setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
         if (_pName == propScript_size.name)
@@ -608,10 +680,19 @@ int CScript::setStringProperty(const char* ppName, const char* pState)
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);
     if (retVal == -1)
-        retVal = scriptObject->setStringProperty(ppName, pState);
-    if (retVal == -1)
     {
     }
+
+    // for backw. compatibility
+    if (retVal == -1)
+    {
+        if (strcmp(propScript_code.name, ppName) == 0)
+        {
+            retVal = 1;
+            scriptObject->setScriptText(pState);
+        }
+    }
+
     return retVal;
 }
 
@@ -619,8 +700,6 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if (retVal == -1)
-        retVal = scriptObject->getStringProperty(ppName, pState);
     if ( (retVal == -1) || (_pName == propScript_objectMetaInfo.name) ) // special with propScript_objectMetaInfo
     {
         if (_pName == propScript_objectMetaInfo.name)
@@ -629,6 +708,41 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
             retVal = 1;
         }
     }
+
+    // for backw. compatibility
+    if (retVal == -1)
+    {
+        if (strcmp(propScript_code.name, ppName) == 0)
+        {
+            retVal = 1;
+#ifdef SIM_WITH_GUI
+            if (GuiApp::mainWindow != nullptr)
+                GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+#endif
+            pState = scriptObject->getScriptText();
+        }
+        else if (strcmp(propScript_language.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getLang();
+        }
+        else if (strcmp(propScript_scriptName.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getScriptName();
+        }
+        else if (strcmp(propScript_addOnPath.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getAddOnPath();
+        }
+        else if (strcmp(propScript_addOnMenuPath.name, ppName) == 0)
+        {
+            retVal = 1;
+            pState = scriptObject->getAddOnMenuPath();;
+        }
+    }
+
     return retVal;
 }
 
@@ -665,8 +779,6 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
         retVal = _scriptColor.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
-        retVal = scriptObject->getPropertyName(index, pName, nullptr, excludeFlags);
-    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
@@ -697,8 +809,6 @@ int CScript::getPropertyName_static(int& index, std::string& pName, std::string&
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
-        retVal = CScriptObject::getPropertyName_static(index, pName, nullptr, excludeFlags);
-    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
@@ -727,8 +837,6 @@ int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
     if (retVal == -1)
         retVal = _scriptColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = scriptObject->getPropertyInfo(ppName, info, infoTxt, false);
-    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
         {
@@ -753,8 +861,6 @@ int CScript::getPropertyInfo_static(const char* ppName, int& info, std::string& 
     int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
-    if (retVal == -1)
-        retVal = CScriptObject::getPropertyInfo_static(ppName, info, infoTxt, false);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
