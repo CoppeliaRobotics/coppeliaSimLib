@@ -8,15 +8,15 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                            \
-    FUNCX(propPointCloud_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
-    FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0, "OC-Tree structure Enabled", "Use an oc-tree structure")                                            \
-    FUNCX(propPointCloud_randomColors, "randomColors", sim_propertytype_bool, 0, "Random point colors", "")                                                                          \
-    FUNCX(propPointCloud_pointSize, "pointSize", sim_propertytype_int, 0, "Point size", "")                                                                                          \
-    FUNCX(propPointCloud_maxPtsInCell, "maxPointsInCell", sim_propertytype_int, 0, "Max. points in cell", "Maximum number of points in an oc-tree cell/voxel")                       \
-    FUNCX(propPointCloud_cellSize, "cellSize", sim_propertytype_float, 0, "Cell size", "Size of the oc-tree cell/voxel")                                                             \
-    FUNCX(propPointCloud_pointDisplayFraction, "pointDisplayFraction", sim_propertytype_float, 0, "Display fraction", "Fraction of points to be displayed in an oc-tree cell/voxel") \
-    FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Points", "Point positions")               \
-    FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Colors", "Point colors")
+    FUNCX(propPointCloud_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")             \
+    FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0, R"===({"label": "OC-Tree structure Enabled", "description": "Use an oc-tree structure"})===", "")                                            \
+    FUNCX(propPointCloud_randomColors, "randomColors", sim_propertytype_bool, 0, R"===({"label": "Random point colors", "description": ""})===", "")                                                                          \
+    FUNCX(propPointCloud_pointSize, "pointSize", sim_propertytype_int, 0, R"===({"label": "Point size", "description": ""})===", "")                                                                                          \
+    FUNCX(propPointCloud_maxPtsInCell, "maxPointsInCell", sim_propertytype_int, 0, R"===({"label": "Max. points in cell", "description": "Maximum number of points in an oc-tree cell/voxel"})===", "")                       \
+    FUNCX(propPointCloud_cellSize, "cellSize", sim_propertytype_float, 0, R"===({"label": "Cell size", "description": "Size of the oc-tree cell/voxel"})===", "")                                                             \
+    FUNCX(propPointCloud_pointDisplayFraction, "pointDisplayFraction", sim_propertytype_float, 0, R"===({"label": "Display fraction", "description": "Fraction of points to be displayed in an oc-tree cell/voxel"})===", "") \
+    FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Points", "description": "Point positions"})===", "")               \
+    FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Colors", "description": "Point colors"})===", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

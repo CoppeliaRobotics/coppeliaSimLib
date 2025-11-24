@@ -5930,7 +5930,7 @@ int _simGetIntArrayProperty(luaWrap_lua_State* L)
 }
 
 int _simSetHandleArrayProperty(luaWrap_lua_State* L)
-{
+{ // ALL handle items have to be of the same type
     TRACE_LUA_API;
     LUA_START("sim.setHandleArrayProperty");
 
@@ -5975,7 +5975,7 @@ int _simSetHandleArrayProperty(luaWrap_lua_State* L)
 }
 
 int _simGetHandleArrayProperty(luaWrap_lua_State* L)
-{
+{ // ALL handle items have to be of the same type
     TRACE_LUA_API;
     LUA_START("sim.getHandleArrayProperty");
 
@@ -6211,6 +6211,7 @@ int _simGetPropertyInfo(luaWrap_lua_State* L)
             CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
             stack->getStackMapInt32Value("objectType", opt.objectType);
             stack->getStackMapBoolValue("shortInfoTxt", opt.shortInfoTxt);
+            stack->getStackMapInt32Value("bitCoded", opt.bitCoded);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         SPropertyInfo infos;

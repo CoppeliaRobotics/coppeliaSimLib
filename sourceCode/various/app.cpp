@@ -2916,10 +2916,18 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
             {
                 retVal = allProps_app[i].type;
                 info = allProps_app[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_app[i].infoTxt, "") != 0))
-                    infoTxt = allProps_app[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_app[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_app[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }

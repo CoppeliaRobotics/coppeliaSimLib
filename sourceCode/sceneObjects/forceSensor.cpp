@@ -1353,10 +1353,18 @@ int CForceSensor::getPropertyInfo(const char* ppName, int& info, std::string& in
             {
                 retVal = allProps_forceSensor[i].type;
                 info = allProps_forceSensor[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_forceSensor[i].infoTxt, "") != 0))
-                    infoTxt = allProps_forceSensor[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_forceSensor[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }
@@ -1378,10 +1386,18 @@ int CForceSensor::getPropertyInfo_static(const char* ppName, int& info, std::str
             {
                 retVal = allProps_forceSensor[i].type;
                 info = allProps_forceSensor[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_forceSensor[i].infoTxt, "") != 0))
-                    infoTxt = allProps_forceSensor[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_forceSensor[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }

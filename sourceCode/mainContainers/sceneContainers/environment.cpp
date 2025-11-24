@@ -1288,10 +1288,18 @@ int CEnvironment::getPropertyInfo(const char* pName, int& info, std::string& inf
         {
             retVal = allProps_scene[i].type;
             info = allProps_scene[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_scene[i].infoTxt, "") != 0))
-                infoTxt = allProps_scene[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_scene[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_scene[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }

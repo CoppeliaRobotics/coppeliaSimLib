@@ -3374,10 +3374,18 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, 
             {
                 retVal = allProps_mesh[i].type;
                 info = allProps_mesh[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_mesh[i].infoTxt, "") != 0))
-                    infoTxt = allProps_mesh[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_mesh[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_mesh[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }

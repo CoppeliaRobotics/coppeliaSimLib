@@ -1435,10 +1435,18 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
             {
                 retVal = allProps_ocTree[i].type;
                 info = allProps_ocTree[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_ocTree[i].infoTxt, "") != 0))
-                    infoTxt = allProps_ocTree[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_ocTree[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_ocTree[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }
@@ -1473,10 +1481,18 @@ int COcTree::getPropertyInfo_static(const char* ppName, int& info, std::string& 
             {
                 retVal = allProps_ocTree[i].type;
                 info = allProps_ocTree[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_ocTree[i].infoTxt, "") != 0))
-                    infoTxt = allProps_ocTree[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_ocTree[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_ocTree[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }

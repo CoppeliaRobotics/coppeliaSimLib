@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                              \
-    FUNCX(propCamera_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
-    FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0, "Size", "Camera size")                                                             \
-    FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0, "Parent as proxy", "Use parent as manipulation proxy") \
-    FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0, "Translation enabled", "")                                    \
-    FUNCX(propCamera_rotationEnabled, "rotationEnabled", sim_propertytype_bool, 0, "Rotation enabled", "")                                             \
-    FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, "Tracked object", "Tracked scene object handle")
+    FUNCX(propCamera_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "")             \
+    FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0, R"({"label": "Size", "description": "Camera size"})", "")                                                             \
+    FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0, R"({"label": "Parent as proxy", "description": "Use parent as manipulation proxy"})", "") \
+    FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0, R"({"label": "Translation enabled", "description": ""})", "")                                    \
+    FUNCX(propCamera_rotationEnabled, "rotationEnabled", sim_propertytype_bool, 0, R"({"label": "Rotation enabled", "description": ""})", "")                                             \
+    FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, R"({"label": "Tracked object", "description": "Tracked scene object handle"})", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

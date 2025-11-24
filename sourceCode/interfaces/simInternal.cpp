@@ -2982,12 +2982,13 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
         // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             bool staticParsing = false;
-            bool shortInfoTxt = false;
             std::string infoTxt;
             if (options != nullptr)
             {
                 if ((options->structSize >= 12) && options->shortInfoTxt)
                     infoTxt = "s";
+                if ((options->structSize >= 32) && (options->bitCoded & 1))
+                    infoTxt = "j";
                 if ((options->structSize >= 8) && (options->objectType != -1))
                 {
                     target = options->objectType;

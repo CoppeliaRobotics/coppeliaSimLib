@@ -1852,10 +1852,18 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
             {
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_pointCloud[i].infoTxt, "") != 0))
-                    infoTxt = allProps_pointCloud[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_pointCloud[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_pointCloud[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }
@@ -1890,10 +1898,18 @@ int CPointCloud::getPropertyInfo_static(const char* ppName, int& info, std::stri
             {
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_pointCloud[i].infoTxt, "") != 0))
-                    infoTxt = allProps_pointCloud[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_pointCloud[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_pointCloud[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }

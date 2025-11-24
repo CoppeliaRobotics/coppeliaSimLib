@@ -6884,10 +6884,18 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
         {
             retVal = allProps_sceneObject[i].type;
             info = allProps_sceneObject[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_sceneObject[i].infoTxt, "") != 0))
-                infoTxt = allProps_sceneObject[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_sceneObject[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_sceneObject[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }
@@ -6961,10 +6969,18 @@ int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info, std::str
         {
             retVal = allProps_sceneObject[i].type;
             info = allProps_sceneObject[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_sceneObject[i].infoTxt, "") != 0))
-                infoTxt = allProps_sceneObject[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_sceneObject[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_sceneObject[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }

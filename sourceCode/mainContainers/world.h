@@ -113,8 +113,8 @@ class CWorld
     int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
     int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL);
-    int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
+    int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL); // ALL handle items have to be of the same type
+    int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
     int removeProperty(long long int target, const char* pName);

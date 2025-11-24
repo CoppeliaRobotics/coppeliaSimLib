@@ -7,28 +7,28 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                              \
-    FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable, "Texture resolution", "")                                         \
-    FUNCX(propMesh_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture coordinates", "") \
-    FUNCX(propMesh_textureApplyMode, "textureApplyMode", sim_propertytype_int, 0, "Texture apply mode", "")                                                                            \
-    FUNCX(propMesh_textureRepeatU, "textureRepeatU", sim_propertytype_bool, 0, "Texture repeat U", "")                                                                                 \
-    FUNCX(propMesh_textureRepeatV, "textureRepeatV", sim_propertytype_bool, 0, "Texture repeat V", "")                                                                                 \
-    FUNCX(propMesh_textureInterpolate, "textureInterpolate", sim_propertytype_bool, 0, "Interpolate texture", "")                                                                      \
-    FUNCX(propMesh_texture, "rawTexture", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture", "")                                    \
-    FUNCX(propMesh_textureID, "textureID", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Texture ID", "")                                   \
-    FUNCX(propMesh_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Vertices", "")                                \
-    FUNCX(propMesh_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Indices", "Indices (3 values per triangle)")      \
-    FUNCX(propMesh_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Normals", "Normals (3*3 values per triangle)")  \
-    FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0, "Shading angle", "")                                                                                       \
-    FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0, "Visible edges", "")                                                                                              \
-    FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0, "Backface culling", "")                                                                                               \
-    FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object type", "")                             \
-    FUNCX(propMesh_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")         \
-    FUNCX(propMesh_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Handle", "") \
-    FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Shape UID", "Unique identifier of parent shape")     \
-    FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Shape handle", "")                                      \
-    FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Primitive type", "")                       \
-    FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, "Convex", "Whether mesh is convex or not")                                                   \
-    FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, "Color name", "")
+    FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable, R"===({"label": "Texture resolution", "description": ""})===", "")                                         \
+    FUNCX(propMesh_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Texture coordinates", "description": ""})===", "") \
+    FUNCX(propMesh_textureApplyMode, "textureApplyMode", sim_propertytype_int, 0, R"===({"label": "Texture apply mode", "description": ""})===", "")                                                                            \
+    FUNCX(propMesh_textureRepeatU, "textureRepeatU", sim_propertytype_bool, 0, R"===({"label": "Texture repeat U", "description": ""})===", "")                                                                                 \
+    FUNCX(propMesh_textureRepeatV, "textureRepeatV", sim_propertytype_bool, 0, R"===({"label": "Texture repeat V", "description": ""})===", "")                                                                                 \
+    FUNCX(propMesh_textureInterpolate, "textureInterpolate", sim_propertytype_bool, 0, R"===({"label": "Interpolate texture", "description": ""})===", "")                                                                      \
+    FUNCX(propMesh_texture, "rawTexture", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Texture", "description": ""})===", "")                                    \
+    FUNCX(propMesh_textureID, "textureID", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Texture ID", "description": ""})===", "")                                   \
+    FUNCX(propMesh_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Vertices", "description": ""})===", "")                                \
+    FUNCX(propMesh_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Indices", "description": "Indices (3 values per triangle)"})===", "")      \
+    FUNCX(propMesh_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Normals", "description": "Normals (3*3 values per triangle)"})===", "")  \
+    FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0, R"===({"label": "Shading angle", "description": ""})===", "")                                                                                       \
+    FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0, R"===({"label": "Visible edges", "description": ""})===", "")                                                                                              \
+    FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0, R"===({"label": "Backface culling", "description": ""})===", "")                                                                                               \
+    FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "")                             \
+    FUNCX(propMesh_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")         \
+    FUNCX(propMesh_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": ""})===", "") \
+    FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Shape UID", "description": "Unique identifier of parent shape"})===", "")     \
+    FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Shape handle", "description": ""})===", "")                                      \
+    FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Primitive type", "description": ""})===", "")                       \
+    FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, R"===({"label": "Convex", "description": "Whether mesh is convex or not"})===", "")                                                   \
+    FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, R"===({"label": "Color name", "description": ""})===", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

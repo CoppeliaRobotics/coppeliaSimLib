@@ -1033,10 +1033,18 @@ int CColorObject::getPropertyInfo(const char* ppName, int& info, std::string& in
                 {
                     retVal = allProps_col[i].type;
                     info = allProps_col[i].flags;
-                    if ((infoTxt == "") && (strcmp(allProps_col[i].infoTxt, "") != 0))
-                        infoTxt = allProps_col[i].infoTxt;
-                    else
+                    if (infoTxt == "j")
                         infoTxt = allProps_col[i].shortInfoTxt;
+                    else
+                    {
+                        auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt).object();
+                        std::string descr = w["description"].toString().toStdString();
+                        std::string label = w["label"].toString().toStdString();
+                        if ( (infoTxt == "s") || (descr == "") )
+                            infoTxt = label;
+                        else
+                            infoTxt = descr;
+                    }
                     break;
                 }
             }
@@ -1065,10 +1073,18 @@ int CColorObject::getPropertyInfo_static(const char* ppName, int& info, std::str
                 {
                     retVal = allProps_col[i].type;
                     info = allProps_col[i].flags;
-                    if ((infoTxt == "") && (strcmp(allProps_col[i].infoTxt, "") != 0))
-                        infoTxt = allProps_col[i].infoTxt;
-                    else
+                    if (infoTxt == "j")
                         infoTxt = allProps_col[i].shortInfoTxt;
+                    else
+                    {
+                        auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt).object();
+                        std::string descr = w["description"].toString().toStdString();
+                        std::string label = w["label"].toString().toStdString();
+                        if ( (infoTxt == "s") || (descr == "") )
+                            infoTxt = label;
+                        else
+                            infoTxt = descr;
+                    }
                     break;
                 }
             }

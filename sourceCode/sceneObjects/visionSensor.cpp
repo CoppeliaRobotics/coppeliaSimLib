@@ -3930,10 +3930,18 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& i
             {
                 retVal = allProps_visionSensor[i].type;
                 info = allProps_visionSensor[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_visionSensor[i].infoTxt, "") != 0))
-                    infoTxt = allProps_visionSensor[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_visionSensor[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_visionSensor[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }
@@ -3970,10 +3978,18 @@ int CVisionSensor::getPropertyInfo_static(const char* ppName, int& info, std::st
             {
                 retVal = allProps_visionSensor[i].type;
                 info = allProps_visionSensor[i].flags;
-                if ((infoTxt == "") && (strcmp(allProps_visionSensor[i].infoTxt, "") != 0))
-                    infoTxt = allProps_visionSensor[i].infoTxt;
-                else
+                if (infoTxt == "j")
                     infoTxt = allProps_visionSensor[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_visionSensor[i].shortInfoTxt).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
                 break;
             }
         }

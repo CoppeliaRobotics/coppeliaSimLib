@@ -4453,10 +4453,18 @@ int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::st
         {
             retVal = allProps_scriptObject[i].type;
             info = allProps_scriptObject[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_scriptObject[i].infoTxt, "") != 0))
-                infoTxt = allProps_scriptObject[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_scriptObject[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_scriptObject[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }

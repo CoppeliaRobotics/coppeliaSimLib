@@ -5,14 +5,14 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                 \
-    FUNCX(propLight_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
-    FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0, "Size", "Light size")                                   \
-    FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0, "Enabled", "")                                          \
-    FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_notwritable, "Type", "Light type")     \
-    FUNCX(propLight_spotExponent, "spotExponent", sim_propertytype_int, 0, "Spot exponent", "")                           \
-    FUNCX(propLight_spotCutoffAngle, "spotCutoffAngle", sim_propertytype_float, 0, "Cut off angle", "Spot cut off angle") \
-    FUNCX(propLight_attenuationFactors, "attenuationFactors", sim_propertytype_floatarray, 0, "Attenuation factor", "")   \
-    FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, sim_propertyinfo_silent, "POV-Ray: cast shadows", "Light casts shadows (with the POV-Ray renderer plugin)")
+    FUNCX(propLight_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")             \
+    FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0, R"===({"label": "Size", "description": "Light size"})===", "")                                   \
+    FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0, R"===({"label": "Enabled", "description": ""})===", "")                                          \
+    FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Light type"})===", "")     \
+    FUNCX(propLight_spotExponent, "spotExponent", sim_propertytype_int, 0, R"===({"label": "Spot exponent", "description": ""})===", "")                           \
+    FUNCX(propLight_spotCutoffAngle, "spotCutoffAngle", sim_propertytype_float, 0, R"===({"label": "Cut off angle", "description": "Spot cut off angle"})===", "") \
+    FUNCX(propLight_attenuationFactors, "attenuationFactors", sim_propertytype_floatarray, 0, R"===({"label": "Attenuation factor", "description": ""})===", "")   \
+    FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, sim_propertyinfo_silent, R"===({"label": "POV-Ray: cast shadows", "description": "Light casts shadows (with the POV-Ray renderer plugin)"})===", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

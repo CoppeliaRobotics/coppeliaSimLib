@@ -1642,10 +1642,18 @@ int CSimulation::getPropertyInfo(const char* pName, int& info, std::string& info
         {
             retVal = allProps_sim[i].type;
             info = allProps_sim[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_sim[i].infoTxt, "") != 0))
-                infoTxt = allProps_sim[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_sim[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_sim[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }

@@ -3557,10 +3557,18 @@ int CDynamicsContainer::getPropertyInfo(const char* pName, int& info, std::strin
         {
             retVal = allProps_dyn[i].type;
             info = allProps_dyn[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_dyn[i].infoTxt, "") != 0))
-                infoTxt = allProps_dyn[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_dyn[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_dyn[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }

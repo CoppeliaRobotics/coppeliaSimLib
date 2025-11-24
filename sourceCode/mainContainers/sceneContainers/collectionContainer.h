@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                               \
-    FUNCX(propCollCont_collections, "collections", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Collections", "Handles of all collections")
+    FUNCX(propCollCont_collections, "collections", sim_propertytype_handlearray, sim_propertyinfo_notwritable, R"({"label": "Collections", "description": "Handles of all collections"})", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
     DEFINE_PROPERTIES

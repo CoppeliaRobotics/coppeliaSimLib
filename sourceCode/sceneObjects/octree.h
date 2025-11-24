@@ -8,12 +8,12 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                          \
-    FUNCX(propOctree_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
-    FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0, "Voxel size", "")                                                                          \
-    FUNCX(propOctree_randomColors, "randomColors", sim_propertytype_bool, 0, "Random voxel colors", "")                                                                          \
-    FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0, "Show points instead of voxels", "")                                                                          \
-    FUNCX(propOctree_voxels, "voxels", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Voxels", "Voxel positions") \
-    FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Voxel Colors", "")
+    FUNCX(propOctree_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")             \
+    FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0, R"===({"label": "Voxel size", "description": ""})===", "")                                                                          \
+    FUNCX(propOctree_randomColors, "randomColors", sim_propertytype_bool, 0, R"===({"label": "Random voxel colors", "description": ""})===", "")                                                                          \
+    FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0, R"===({"label": "Show points instead of voxels", "description": ""})===", "")                                                                          \
+    FUNCX(propOctree_voxels, "voxels", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Voxels", "description": "Voxel positions"})===", "") \
+    FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Voxel Colors", "description": ""})===", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

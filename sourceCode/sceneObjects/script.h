@@ -7,22 +7,22 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                             \
-    FUNCX(propScript_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object meta information", "")             \
-    FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0, "Size", "Size of the script's 3D representation") \
-    FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0, "Reset after simulation error", "") \
-    FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Detached script handle", "")                                                                    \
+    FUNCX(propScript_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")             \
+    FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0, R"===({"label": "Size", "description": "Size of the script's 3D representation"})===", "") \
+    FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0, R"===({"label": "Reset after simulation error", "description": ""})===", "") \
+    FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detached script handle", "description": ""})===", "")                                                                    \
     /* FOLLOWING FOR BACKWARD COMPATIBILITY */ \
-    FUNCX(propScript_scriptDisabled, "scriptDisabled", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "")                                                         \
-    FUNCX(propScript_restartOnError, "restartOnError", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "")                                                          \
-    FUNCX(propScript_execPriority, "execPriority", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "")                                                                    \
-    FUNCX(propScript_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable, "", "")                                                \
-    FUNCX(propScript_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")    \
-    FUNCX(propScript_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")        \
-    FUNCX(propScript_language, "language", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")                                                        \
-    FUNCX(propScript_code, "code", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "")                                                                                 \
-    FUNCX(propScript_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")         \
-    FUNCX(propScript_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")
+    FUNCX(propScript_scriptDisabled, "scriptDisabled", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                         \
+    FUNCX(propScript_restartOnError, "restartOnError", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                          \
+    FUNCX(propScript_execPriority, "execPriority", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                    \
+    FUNCX(propScript_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable, R"===({"label": "", "description": ""})===", "")                                                \
+    FUNCX(propScript_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")    \
+    FUNCX(propScript_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")        \
+    FUNCX(propScript_language, "language", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                        \
+    FUNCX(propScript_code, "code", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                 \
+    FUNCX(propScript_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")         \
+    FUNCX(propScript_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propScript_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

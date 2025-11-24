@@ -2348,10 +2348,18 @@ int CConvexVolume::getPropertyInfo(const char* pName, int& info, std::string& in
         {
             retVal = allProps_volume[i].type;
             info = allProps_volume[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_volume[i].infoTxt, "") != 0))
-                infoTxt = allProps_volume[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_volume[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_volume[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }
@@ -2367,10 +2375,18 @@ int CConvexVolume::getPropertyInfo_static(const char* pName, int& info, std::str
         {
             retVal = allProps_volume[i].type;
             info = allProps_volume[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_volume[i].infoTxt, "") != 0))
-                infoTxt = allProps_volume[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_volume[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_volume[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }

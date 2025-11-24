@@ -21,15 +21,15 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES                                                                                                                                                                                                               \
-    FUNCX(propObjCont_objectHandles, "objectHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, "", "")                                                                               \
-    FUNCX(propObjCont_orphanHandles, "orphanHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, "", "")                                                                 \
-    FUNCX(propObjCont_selectionHandles, "selectionHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, "", "")                                                      \
-    FUNCX(propObjCont_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects")                                                                               \
-    FUNCX(propObjCont_orphans, "orphans", sim_propertytype_handlearray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects")                                                                 \
-    FUNCX(propObjCont_selection, "selection", sim_propertytype_handlearray, sim_propertyinfo_modelhashexclude, "Selected objects", "Handles of selected scene objects")                                                      \
-    FUNCX(propObjCont_objectCreationCounter, "objectCreationCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object creation counter", "Counter of created scene objects")            \
-    FUNCX(propObjCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "Object destruction counter", "Counter of destroyed scene objects") \
-    FUNCX(propObjCont_hierarchyChangeCounter, "hierarchyChangeCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable, "Hierarchy change counter", "Counter of scene hierarchy changes")
+    FUNCX(propObjCont_objectHandles, "objectHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, R"({"label": "", "description": ""})", "")                                                                               \
+    FUNCX(propObjCont_orphanHandles, "orphanHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, R"({"label": "", "description": ""})", "")                                                                 \
+    FUNCX(propObjCont_selectionHandles, "selectionHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, R"({"label": "", "description": ""})", "")                                                      \
+    FUNCX(propObjCont_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable, R"({"label": "Objects", "description": "Handles of all scene objects"})", "")                                                                               \
+    FUNCX(propObjCont_orphans, "orphans", sim_propertytype_handlearray, sim_propertyinfo_notwritable, R"({"label": "Orphan objects", "description": "Handles of all orphan scene objects"})", "")                                                                 \
+    FUNCX(propObjCont_selection, "selection", sim_propertytype_handlearray, sim_propertyinfo_modelhashexclude, R"({"label": "Selected objects", "description": "Handles of selected scene objects"})", "")                                                      \
+    FUNCX(propObjCont_objectCreationCounter, "objectCreationCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object creation counter", "description": "Counter of created scene objects"})", "")            \
+    FUNCX(propObjCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object destruction counter", "description": "Counter of destroyed scene objects"})", "") \
+    FUNCX(propObjCont_hierarchyChangeCounter, "hierarchyChangeCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable, R"({"label": "Hierarchy change counter", "description": "Counter of scene hierarchy changes"})", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -237,8 +237,8 @@ class CSceneObjectContainer
     int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
     int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL);
-    int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
+    int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL); // ALL handle items have to be of the same type
+    int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
     int removeProperty(long long int target, const char* pName);

@@ -1420,10 +1420,18 @@ int CMeshWrapper::getPropertyInfo_static_wrapper(const char* pName, int& info, s
         {
             retVal = allProps_meshWrap[i].type;
             info = allProps_meshWrap[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_meshWrap[i].infoTxt, "") != 0))
-                infoTxt = allProps_meshWrap[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_meshWrap[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_meshWrap[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }

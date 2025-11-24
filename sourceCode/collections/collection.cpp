@@ -368,10 +368,18 @@ int CCollection::getPropertyInfo(const char* ppName, int& info, std::string& inf
         {
             retVal = allProps_collection[i].type;
             info = allProps_collection[i].flags;
-            if ((infoTxt == "") && (strcmp(allProps_collection[i].infoTxt, "") != 0))
-                infoTxt = allProps_collection[i].infoTxt;
-            else
+            if (infoTxt == "j")
                 infoTxt = allProps_collection[i].shortInfoTxt;
+            else
+            {
+                auto w = QJsonDocument::fromJson(allProps_collection[i].shortInfoTxt).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
+                else
+                    infoTxt = descr;
+            }
             break;
         }
     }
