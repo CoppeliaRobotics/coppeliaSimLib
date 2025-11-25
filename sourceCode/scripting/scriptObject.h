@@ -27,7 +27,7 @@
 #define DEFINE_PROPERTIES                                                                                                                                                   \
     FUNCX(propScriptObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "")             \
     FUNCX(propScriptObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")             \
-    FUNCX(propScriptObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": "detachedScript"})===", "") \
+    FUNCX(propScriptObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
     FUNCX(propScriptObj_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0, R"===({"label": "Enabled", "description": "Script is enabled"})===", "")                                                         \
     FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0, R"===({"label": "Restart", "description": "Restart on error"})===", "")                                                          \
     FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0, R"===({"label": "Execution priority", "description": ""})===", "")                                                                    \
