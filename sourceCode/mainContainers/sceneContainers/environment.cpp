@@ -18,6 +18,7 @@
 static std::string OBJECT_TYPE = "scene";
 static std::string OBJECT_META_INFO = R"(
 {
+    "superclass": "object",
     "namespaces": {
         "customData": {},
         "signal": {}

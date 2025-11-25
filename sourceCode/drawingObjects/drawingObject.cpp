@@ -10,6 +10,7 @@
 static std::string OBJECT_TYPE = "drawingObject";
 static std::string OBJECT_META_INFO = R"(
 {
+    "superclass": "object",
     "namespaces": {
     },
     "methods": {

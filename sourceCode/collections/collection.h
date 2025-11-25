@@ -8,8 +8,8 @@
 #define DEFINE_PROPERTIES                                                                                                                                                                        \
     FUNCX(propCollection_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object type", "description": ""})", "")                                 \
     FUNCX(propCollection_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "")             \
-    FUNCX(propCollection_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": ""})", "")                                 \
-    FUNCX(propCollection_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Children handles", "description": ""})", "")
+    FUNCX(propCollection_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": "", "handleType": "collection"})", "")                                 \
+    FUNCX(propCollection_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Children handles", "description": "", "handleType": "sceneObject"})", "")
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
     DEFINE_PROPERTIES

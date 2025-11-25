@@ -12,6 +12,7 @@
 
 static std::string OBJECT_META_INFO = R"(
 {
+    "superclass": "sceneObject",
     "namespaces": {
         "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
         "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},

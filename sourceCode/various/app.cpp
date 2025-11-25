@@ -38,6 +38,7 @@ char* App::_qApp_argv[1] = {_qApp_arg0};
 static std::string OBJECT_TYPE = "app";
 static std::string OBJECT_META_INFO = R"(
 {
+    "superclass": "object",
     "namespaces": {
         "namedParam": {},
         "customData": {},

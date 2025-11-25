@@ -28,10 +28,16 @@
 
 static std::string OBJECT_META_INFO = R"(
 {
+    "superclass": "object",
     "namespaces": {
     },
     "methods": {
-        )" SCRIPT_META_METHODS R"(,
+        "callFunction": "sim-2.callScriptFunction",
+        "executeScriptString": "sim-2.executeScriptString",
+        "getApiFunc": "sim-2.getApiFunc",
+        "getApiInfo": "sim-2.getApiInfo",
+        "getStackTraceback": "sim-2.getStackTraceback",
+        "init": "sim-2.initScript",
         )" APP_META_METHODS R"(
     }
 }

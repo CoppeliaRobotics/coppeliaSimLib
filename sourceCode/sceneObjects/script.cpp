@@ -12,6 +12,7 @@
 
 static std::string OBJECT_META_INFO = R"(
 {
+    "superclass": "sceneObject",
     "namespaces": {
         "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
         "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
@@ -19,7 +20,6 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
-        )" SCRIPT_META_METHODS R"(,
         )" SCENEOBJECT_META_METHODS R"(
     }
 }
@@ -112,6 +112,13 @@ bool CScript::canDestroyNow()
             App::worldContainer->setModificationFlag(16384);
             CScriptObject::destroy(scriptObject, true, true);
             scriptObject = nullptr;
+            if (_isInScene && App::worldContainer->getEventsEnabled())
+            { // indicate that this object does not have any detachedScript attached anymore
+                const char* cmd = propScript_detachedScript.name;
+                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyInt(cmd, -1);
+                App::worldContainer->pushEvent();
+            }
         }
     }
     return retVal;
@@ -633,7 +640,9 @@ int CScript::getHandleProperty(const char* ppName, long long int& pState) const
         if (strcmp(propScript_detachedScript.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getScriptPseudoHandle();
+            pState = -1;
+            if (scriptObject != nullptr)
+                pState = scriptObject->getScriptPseudoHandle();
         }
      }
 
