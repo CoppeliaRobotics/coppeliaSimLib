@@ -3285,11 +3285,7 @@ void App::pushGenesisEvents()
         worldContainer->pushEvent();
 
         if (worldContainer->sandboxScript != nullptr)
-        {
-            ev = worldContainer->createEvent(EVENTTYPE_OBJECTADDED, worldContainer->sandboxScript->getScriptHandle(), worldContainer->sandboxScript->getScriptUid(), nullptr, false);
-            worldContainer->sandboxScript->addSpecializedObjectEventData(ev);
-            worldContainer->pushEvent();
-        }
+            worldContainer->sandboxScript->pushObjectCreationEvent();
 
         if (worldContainer->addOnScriptContainer != nullptr)
             worldContainer->addOnScriptContainer->pushGenesisEvents();

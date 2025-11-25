@@ -517,14 +517,12 @@ int CEmbeddedScriptContainer::callLegacyScripts(int scriptType, int callTypeOrRe
     return (cnt);
 }
 
-bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3,
-                                                                int auxVal4, const double aux2Vals[8], int aux2Count)
+bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double aux2Vals[8], int aux2Count)
 {
     for (size_t i = 0; i < allScripts.size(); i++)
     {
         if (!allScripts[i]->getFlaggedForDestruction())
-            allScripts[i]->addCommandToOutsideCommandQueue(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals,
-                                                           aux2Count);
+            allScripts[i]->addCommandToOutsideCommandQueue(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
     }
     return (true);
 }
@@ -535,10 +533,6 @@ void CEmbeddedScriptContainer::pushObjectGenesisEvents() const
     {
         CScriptObject* it = allScripts[i];
         if (!it->getFlaggedForDestruction())
-        {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptUid(), nullptr, false);
-            it->addSpecializedObjectEventData(ev);
-            App::worldContainer->pushEvent();
-        }
+            it->pushObjectCreationEvent();
     }
 }

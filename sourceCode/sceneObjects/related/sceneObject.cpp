@@ -1457,6 +1457,8 @@ void CSceneObject::pushObjectCreationEvent()
             for (size_t i = 0; i < all.size(); i++)
                 all[i]->pushObjectCreationEvent(_objectHandle, _objectUid, allTr[i]);
         }
+        if (_objectType == sim_sceneobject_script)
+            ((CScript*)this)->scriptObject->pushObjectCreationEvent();
     }
 }
 

@@ -175,7 +175,6 @@ void CScript::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDouble(propScript_size.name, _scriptSize);
     ev->appendKeyBool(propScript_resetAfterSimError.name, _resetAfterSimError);
     ev->appendKeyInt(propScript_detachedScript.name, scriptObject->getScriptPseudoHandle());
-    scriptObject->addSpecializedObjectEventData(ev);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // script
 #endif

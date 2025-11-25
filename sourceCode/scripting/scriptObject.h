@@ -43,7 +43,7 @@
     FUNCX(propScriptObj_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "State", "description": "Script state"})===", "")        \
     FUNCX(propScriptObj_language, "language", sim_propertytype_string, sim_propertyinfo_notwritable, R"===({"label": "Language", "description": ""})===", "")                                                        \
     FUNCX(propScriptObj_code, "code", sim_propertytype_string, 0, R"===({"label": "Code", "description": "Script content"})===", "")                                                                                 \
-    FUNCX(propScriptObj_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Name", "description": "Script name"})===", "")         \
+    FUNCX(propScriptObj_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Name", "description": "Script name"})===", "")         \
     FUNCX(propScriptObj_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on path", "description": "Path of add-on"})===", "") \
     FUNCX(propScriptObj_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on menu path", "description": "Menu path of add-on"})===", "")
 
@@ -78,7 +78,8 @@ class CScriptObject
 
     static void destroy(CScriptObject* obj, bool registeredObject, bool announceScriptDestruction = true);
 
-    void addSpecializedObjectEventData(CCbor* ev);
+    void pushObjectCreationEvent();
+    void pushObjectRemoveEvent();
     int setHandle();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();

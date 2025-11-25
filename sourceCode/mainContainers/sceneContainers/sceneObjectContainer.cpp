@@ -301,7 +301,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                 if ( (it != nullptr) && (visited.find(it) == visited.end()) )
                 {
                     visited.insert(it);
-                    if  (it->canDestroyNow())
+                    if  (it->canDestroyNow()) // destroys detachedScripts, and generates removal events for detachedScripts
                     {
                         toDestroy.push_back(objectHandles->at(i));
                         toDestroyPtr.push_back(it);
@@ -361,6 +361,10 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                             for (size_t j = 0; j < all.size(); j++)
                                 all[j]->pushObjectRemoveEvent();
                         }
+
+                        // Following happens in script->canDestroyNow():
+                        //if ((it->getObjectType() == sim_sceneobject_script) && (((CScript*)it)->scriptObject != nullptr))
+                        //    ((CScript*)it)->scriptObject->pushObjectRemoveEvent();
 
                         App::worldContainer->pushSceneObjectRemoveEvent(it);
                         _removeObject(it);
