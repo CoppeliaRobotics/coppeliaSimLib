@@ -410,7 +410,7 @@ void CCollectionContainer::_removeCollection(int collectionHandle)
             {
 #if SIM_EVENT_PROTOCOL_VERSION >= 3
                 {
-                    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, -1, collectionHandle, nullptr, false);
+                    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, collectionHandle, collectionHandle, nullptr, false);
                     App::worldContainer->pushEvent();
                 }
 #endif
