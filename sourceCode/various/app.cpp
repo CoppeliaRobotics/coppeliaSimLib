@@ -2695,6 +2695,13 @@ int App::getHandleArrayProperty(long long int target, const char* ppName, std::v
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+        if (strcmp(pName, propApp_addOns.name) == 0)
+        {
+            std::vector<int> addOnList(worldContainer->addOnScriptContainer->getAddOnHandles());
+            for (size_t i = 0; i < addOnList.size(); i++)
+                pState.push_back(addOnList[i]);
+            retVal = 1;
+        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getHandleArrayProperty(target, pName, pState);
@@ -3203,6 +3210,8 @@ void App::pushGenesisEvents()
         ev->appendKeyInt(propApp_dialogVerbosity.name, getDlgVerbosity());
         ev->appendKeyTextArray(propApp_appArgs.name, _applicationArguments);
         ev->appendKeyTextArray(propApp_plugins.name, _pluginNames);
+        std::vector<int> addOnList(worldContainer->addOnScriptContainer->getAddOnHandles());
+        ev->appendKeyIntArray(propApp_addOns.name, addOnList.data(), addOnList.size());
 
         for (const auto& pair : _applicationNamedParams)
         {

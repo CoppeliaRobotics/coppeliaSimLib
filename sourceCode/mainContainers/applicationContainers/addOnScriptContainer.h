@@ -30,6 +30,7 @@ class CAddOnScriptContainer
     CScriptObject* getAddOnFromHandle(int scriptHandle) const;
     CScriptObject* getAddOnFromUid(int uid) const;
     CScriptObject* getAddOnFromName(const char* name) const;
+    std::vector<int> getAddOnHandles() const;
 
     int getSysFuncAndHookCnt(int sysCall) const;
     void setSysFuncAndHookCnt(int sysCall, int cnt);

@@ -79,9 +79,17 @@ CScriptObject* CAddOnScriptContainer::getAddOnFromHandle(int scriptHandle) const
     for (size_t i = 0; i < _addOns.size(); i++)
     {
         if (_addOns[i]->getScriptHandle() == scriptHandle)
-            return (_addOns[i]);
+            return _addOns[i];
     }
-    return (nullptr);
+    return nullptr;
+}
+
+std::vector<int> CAddOnScriptContainer::getAddOnHandles() const
+{
+    std::vector<int> retVal;
+    for (size_t i = 0; i < _addOns.size(); i++)
+        retVal.push_back(_addOns[i]->getScriptHandle());
+    return retVal;
 }
 
 CScriptObject* CAddOnScriptContainer::getAddOnFromUid(int uid) const
