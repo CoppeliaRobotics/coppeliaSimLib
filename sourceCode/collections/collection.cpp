@@ -658,6 +658,7 @@ void CCollection::pushCreationEvent() const
             CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, -1, _collectionHandle, nullptr, false);
             ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
             ev->appendKeyIntArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+            ev->appendKeyInt(propCollection_handle.name, _collectionHandle);
             App::worldContainer->pushEvent();
         }
 #endif

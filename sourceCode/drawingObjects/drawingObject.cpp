@@ -502,6 +502,7 @@ void CDrawingObject::pushAddEvent()
                 break;
             }
             ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
+            ev->appendKeyInt(propDrawingObj_handle.name, _objectId);
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
