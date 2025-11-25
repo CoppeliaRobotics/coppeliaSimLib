@@ -161,9 +161,21 @@ bool CDrawingObject::addItem(const double* itemData)
 
         if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
         {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, _objectId, _objectId, nullptr, false);
-            ev->appendKeyBool("clearPoints", true);
-            App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION >= 3
+            {
+                CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectId, _objectId, nullptr, false);
+                ev->appendKeyBool("clearPoints", true);
+                App::worldContainer->pushEvent();
+            }
+#endif
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
+            // For backw. compatibility
+            {
+                CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectId, _objectId, nullptr, false);
+                ev->appendKeyBool("clearPoints", true);
+                App::worldContainer->pushEvent();
+            }
+#endif
         }
 
         return (false);
@@ -455,46 +467,97 @@ void CDrawingObject::pushAddEvent()
 {
     if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
     {
-        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, _objectId, _objectId, nullptr, false);
-        std::string tp;
-        switch (_objectType & 0x001f)
+#if SIM_EVENT_PROTOCOL_VERSION >= 3
         {
-        case sim_drawing_points:
-            tp = "point";
-            break;
-        case sim_drawing_lines:
-            tp = "line";
-            break;
-        case sim_drawing_linestrip:
-            tp = "lineStrip";
-            break;
-        case sim_drawing_triangles:
-            tp = "triangle";
-            break;
-        case sim_drawing_trianglepts:
-            tp = "trianglePoint";
-            break;
-        case sim_drawing_quadpts:
-            tp = "quadPoint";
-            break;
-        case sim_drawing_discpts:
-            tp = "discPoint";
-            break;
-        case sim_drawing_cubepts:
-            tp = "cubePoint";
-            break;
-        case sim_drawing_spherepts:
-            tp = "spherePoint";
-            break;
+            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectId, _objectId, nullptr, false);
+            std::string tp;
+            switch (_objectType & 0x001f)
+            {
+            case sim_drawing_points:
+                tp = "point";
+                break;
+            case sim_drawing_lines:
+                tp = "line";
+                break;
+            case sim_drawing_linestrip:
+                tp = "lineStrip";
+                break;
+            case sim_drawing_triangles:
+                tp = "triangle";
+                break;
+            case sim_drawing_trianglepts:
+                tp = "trianglePoint";
+                break;
+            case sim_drawing_quadpts:
+                tp = "quadPoint";
+                break;
+            case sim_drawing_discpts:
+                tp = "discPoint";
+                break;
+            case sim_drawing_cubepts:
+                tp = "cubePoint";
+                break;
+            case sim_drawing_spherepts:
+                tp = "spherePoint";
+                break;
+            }
+            ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
+            ev->appendKeyText("type", tp.c_str());
+            ev->appendKeyInt("maxCnt", _maxItemCount);
+            ev->appendKeyDouble("size", _size);
+            ev->appendKeyInt("parentUid", _sceneObjectUid);
+            ev->appendKeyBool("cyclic", (_objectType & sim_drawing_cyclic) != 0);
+            ev->appendKeyBool("clearPoints", true);
+            ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
+            App::worldContainer->pushEvent();
         }
-        ev->appendKeyText("type", tp.c_str());
-        ev->appendKeyInt("maxCnt", _maxItemCount);
-        ev->appendKeyDouble("size", _size);
-        ev->appendKeyInt("parentUid", _sceneObjectUid);
-        ev->appendKeyBool("cyclic", (_objectType & sim_drawing_cyclic) != 0);
-        ev->appendKeyBool("clearPoints", true);
-        ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
-        App::worldContainer->pushEvent();
+#endif
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
+        // For backw. compatibility
+        {
+            CCbor* ev = App::worldContainer->createEvent("drawingObjectAdded", _objectId, _objectId, nullptr, false);
+            std::string tp;
+            switch (_objectType & 0x001f)
+            {
+            case sim_drawing_points:
+                tp = "point";
+                break;
+            case sim_drawing_lines:
+                tp = "line";
+                break;
+            case sim_drawing_linestrip:
+                tp = "lineStrip";
+                break;
+            case sim_drawing_triangles:
+                tp = "triangle";
+                break;
+            case sim_drawing_trianglepts:
+                tp = "trianglePoint";
+                break;
+            case sim_drawing_quadpts:
+                tp = "quadPoint";
+                break;
+            case sim_drawing_discpts:
+                tp = "discPoint";
+                break;
+            case sim_drawing_cubepts:
+                tp = "cubePoint";
+                break;
+            case sim_drawing_spherepts:
+                tp = "spherePoint";
+                break;
+            }
+            ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
+            ev->appendKeyText("type", tp.c_str());
+            ev->appendKeyInt("maxCnt", _maxItemCount);
+            ev->appendKeyDouble("size", _size);
+            ev->appendKeyInt("parentUid", _sceneObjectUid);
+            ev->appendKeyBool("cyclic", (_objectType & sim_drawing_cyclic) != 0);
+            ev->appendKeyBool("clearPoints", true);
+            ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
+            App::worldContainer->pushEvent();
+        }
+#endif
 
         _initBufferedEventData();
     }
@@ -509,12 +572,27 @@ void CDrawingObject::pushAppendNewPointEvent()
         std::vector<float> colors;
         _getEventData(points, quaternions, colors);
 
-        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, _objectId, _objectId, nullptr, false);
-        ev->appendKeyFloatArray("points", points.data(), points.size());
-        ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
-        ev->appendKeyFloatArray("colors", colors.data(), colors.size());
-        ev->appendKeyBool("clearPoints", _rebuildRemoteItems);
-        App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION >= 3
+        {
+            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectId, _objectId, nullptr, false);
+            ev->appendKeyFloatArray("points", points.data(), points.size());
+            ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
+            ev->appendKeyFloatArray("colors", colors.data(), colors.size());
+            ev->appendKeyBool("clearPoints", _rebuildRemoteItems);
+            App::worldContainer->pushEvent();
+        }
+#endif
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
+        // For backw. compatibility
+        {
+            CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectId, _objectId, nullptr, false);
+            ev->appendKeyFloatArray("points", points.data(), points.size());
+            ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
+            ev->appendKeyFloatArray("colors", colors.data(), colors.size());
+            ev->appendKeyBool("clearPoints", _rebuildRemoteItems);
+            App::worldContainer->pushEvent();
+        }
+#endif
 
         _bufferedEventData.clear();
         _rebuildRemoteItems = false;

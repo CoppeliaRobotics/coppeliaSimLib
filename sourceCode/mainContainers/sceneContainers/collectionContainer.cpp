@@ -408,8 +408,19 @@ void CCollectionContainer::_removeCollection(int collectionHandle)
         {
             if (App::worldContainer->getEventsEnabled())
             {
-                App::worldContainer->createEvent(EVENTTYPE_COLLECTIONREMOVED, -1, collectionHandle, nullptr, false);
-                App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION >= 3
+                {
+                    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, -1, collectionHandle, nullptr, false);
+                    App::worldContainer->pushEvent();
+                }
+#endif
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
+                // For backw. compatibility
+                {
+                    App::worldContainer->createEvent("collectionRemoved", -1, collectionHandle, nullptr, false);
+                    App::worldContainer->pushEvent();
+                }
+#endif
             }
             delete _allCollections[i];
             _allCollections.erase(_allCollections.begin() + i);

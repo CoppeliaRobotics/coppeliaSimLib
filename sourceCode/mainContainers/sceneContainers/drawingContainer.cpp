@@ -67,8 +67,19 @@ void CDrawingContainer::removeObject(int objectId)
         {
             if (App::worldContainer->getEventsEnabled())
             {
-                App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,  _allObjects[i]->getObjectId(), _allObjects[i]->getObjectId(), nullptr, false);
-                App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION >= 3
+                {
+                    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,  _allObjects[i]->getObjectId(), _allObjects[i]->getObjectId(), nullptr, false);
+                    App::worldContainer->pushEvent();
+                }
+#endif
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
+                // For backw. compatibility
+                {
+                    App::worldContainer->createEvent("drawingObjectRemoved",  _allObjects[i]->getObjectId(), _allObjects[i]->getObjectId(), nullptr, false);
+                    App::worldContainer->pushEvent();
+                }
+#endif
             }
 
             delete _allObjects[i];

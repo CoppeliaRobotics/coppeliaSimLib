@@ -23,14 +23,6 @@
 #define EVENTTYPE_OBJECTCHANGED "objectChanged"
 #define EVENTTYPE_OBJECTREMOVED "objectRemoved"
 
-#define EVENTTYPE_COLLECTIONADDED "collectionAdded"
-#define EVENTTYPE_COLLECTIONCHANGED "collectionChanged"
-#define EVENTTYPE_COLLECTIONREMOVED "collectionRemoved"
-
-#define EVENTTYPE_DRAWINGOBJECTADDED "drawingObjectAdded"
-#define EVENTTYPE_DRAWINGOBJECTCHANGED "drawingObjectChanged"
-#define EVENTTYPE_DRAWINGOBJECTREMOVED "drawingObjectRemoved"
-
 #define EVENTTYPE_GENESISBEGIN "genesisBegin"
 #define EVENTTYPE_GENESISEND "genesisEnd"
 #define EVENTTYPE_MSGDISPATCHTIME "msgDispatchTime"

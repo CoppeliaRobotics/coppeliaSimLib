@@ -147,7 +147,7 @@ void CPtCloud_old::pushAddEvent()
             quaternions[4 * i + 3] = 1.0f;
         }
 
-        CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, -1, _uniqueId, nullptr, false);
+        CCbor* ev = App::worldContainer->createEvent("drawingObjectAdded", -1, _uniqueId, nullptr, false);
         ev->appendKeyText("type", "point");
         ev->appendKeyFloatArray("color", c, 9);
         ev->appendKeyInt("maxCnt", int(_vertices.size() / 3));
@@ -158,7 +158,7 @@ void CPtCloud_old::pushAddEvent()
         ev->appendKeyBool("clearPoints", true);
         App::worldContainer->pushEvent();
 
-        ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _uniqueId, nullptr, false);
+        ev = App::worldContainer->createEvent("drawingObjectChanged", -1, _uniqueId, nullptr, false);
         ev->appendKeyDoubleArray("points", _vertices.data(), _vertices.size());
         ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
         ev->appendKeyFloatArray("colors", _colors.data(), _colors.size());
