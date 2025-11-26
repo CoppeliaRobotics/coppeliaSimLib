@@ -683,11 +683,13 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         ev->appendKeyIntArray(cmd, f_objectHandles.data(), f_objectHandles.size());
         App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
         // --- For backward compatibility ---
         cmd = propObjCont_objectHandles.name;
         ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         ev->appendKeyIntArray(cmd, f_objectHandles.data(), f_objectHandles.size());
         // ----------------------------------
+#endif
         App::worldContainer->pushEvent();
 
         if (obj->getParent() == nullptr)
@@ -697,12 +699,14 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
             ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyIntArray(cmd, f_orphanHandles.data(), f_orphanHandles.size());
             App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
             // --- For backward compatibility ---
             cmd = propObjCont_orphanHandles.name;
             ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyIntArray(cmd, f_orphanHandles.data(), f_orphanHandles.size());
             App::worldContainer->pushEvent();
             // ----------------------------------
+#endif
         }
     }
 
@@ -714,12 +718,14 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, arr.data(), arr.size());
     App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
     // --- For backward compatibility ---
     cmd = propObjCont_objectHandles.name;
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, arr.data(), arr.size());
     App::worldContainer->pushEvent();
     // ----------------------------------
+#endif
 
     // Make sure the orphan list has the same order:
     arr.clear();
@@ -729,12 +735,14 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, arr.data(), arr.size());
     App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
     // --- For backward compatibility ---
     cmd = propObjCont_orphanHandles.name;
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, arr.data(), arr.size());
     App::worldContainer->pushEvent();
     // ----------------------------------
+#endif
 
 
     // Update the selection list:
@@ -742,12 +750,14 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
     App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
     // --- For backward compatibility ---
     cmd = propObjCont_selectionHandles.name;
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
     App::worldContainer->pushEvent();
     // ----------------------------------
+#endif
 
     // Handle the main script and old associated scripts:
     embeddedScriptContainer->pushObjectGenesisEvents();
@@ -761,6 +771,7 @@ void CSceneObjectContainer::appendNonObjectGenesisData(CCbor* ev) const
     ev->appendText(propObjCont_selection.name);
     ev->openArray();
     ev->closeArrayOrMap();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
     // --- For backward compatibility ---
     ev->appendKeyIntArray(propObjCont_objectHandles.name, arr.data(), arr.size());
     ev->appendKeyIntArray(propObjCont_orphanHandles.name, arr.data(), arr.size());
@@ -768,6 +779,7 @@ void CSceneObjectContainer::appendNonObjectGenesisData(CCbor* ev) const
     ev->openArray();
     ev->closeArrayOrMap();
     // ----------------------------------
+#endif
 }
 
 void CSceneObjectContainer::getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,
@@ -1702,10 +1714,17 @@ bool CSceneObjectContainer::setSelectedObjectHandles(const int* v, size_t length
         }
         if (App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propObjCont_selectionHandles.name;
+            const char* cmd = propObjCont_selection.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyIntArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
             App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
+            // --- For backward compatibility ---
+            cmd = propObjCont_selectionHandles.name;
+            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            ev->appendKeyIntArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
+            App::worldContainer->pushEvent();
+#endif
         }
     }
     return (diff);
@@ -6922,10 +6941,17 @@ void CSceneObjectContainer::_setOrphanObjects(const std::vector<CSceneObject*>& 
             std::vector<int> arr;
             for (size_t i = 0; i < _orphanObjects.size(); i++)
                 arr.push_back(_orphanObjects[i]->getObjectHandle());
-            const char* cmd = propObjCont_orphanHandles.name;
+            const char* cmd = propObjCont_orphans.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyIntArray(cmd, arr.data(), arr.size());
             App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
+            // --- For backward compatibility ---
+            cmd = propObjCont_orphanHandles.name;
+            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            ev->appendKeyIntArray(cmd, arr.data(), arr.size());
+            App::worldContainer->pushEvent();
+#endif
         }
     }
 }
@@ -6952,10 +6978,17 @@ void CSceneObjectContainer::_setAllObjects(const std::vector<CSceneObject*>& new
             std::vector<int> arr;
             for (size_t i = 0; i < _allObjects.size(); i++)
                 arr.push_back(_allObjects[i]->getObjectHandle());
-            const char* cmd = propObjCont_objectHandles.name;
+            const char* cmd = propObjCont_objects.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyIntArray(cmd, arr.data(), arr.size());
             App::worldContainer->pushEvent();
+#if SIM_EVENT_PROTOCOL_VERSION < 4
+            // --- For backward compatibility ---
+            cmd = propObjCont_objectHandles.name;
+            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            ev->appendKeyIntArray(cmd, arr.data(), arr.size());
+            App::worldContainer->pushEvent();
+#endif
         }
     }
 }
