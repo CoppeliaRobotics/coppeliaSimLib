@@ -3,33 +3,18 @@
 #include <vThread.h>
 #include <ser.h>
 #include <cbor.h>
+#include <propertiesAndMethods.h>
 #ifdef SIM_WITH_GUI
 #include <vMenubar.h>
 #endif
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                            \
-    FUNCX(propSim_removeNewObjectsAtEnd, "removeNewObjectsAtEnd", sim_propertytype_bool, 0, R"({"label": "Remove new objects", "description": "Remove new scene objects at simulation end"})", "")                      \
-    FUNCX(propSim_realtimeSimulation, "realtimeSimulation", sim_propertytype_bool, 0, R"({"label": "Real-time simulation", "description": ""})", "")                                                                    \
-    FUNCX(propSim_pauseSimulationAtTime, "pauseSimulationAtTime", sim_propertytype_bool, 0, R"({"label": "Pause simulation at time", "description": "Pause simulation when simulation time exceeds a threshold"})", "") \
-    FUNCX(propSim_pauseSimulationAtError, "pauseSimulationAtError", sim_propertytype_bool, 0, R"({"label": "Pause simulation on script error", "description": ""})", "")                                                \
-    FUNCX(propSim_simulationTime, "simulationTime", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Simulation time", "description": ""})", "")                 \
-    FUNCX(propSim_timeStep, "timeStep", sim_propertytype_float, 0, R"({"label": "Simulation dt", "description": "Simulation time step"})", "")                                                                          \
-    FUNCX(propSim_timeToPause, "timeToPause", sim_propertytype_float, 0, R"({"label": "Simulation pause time", "description": "Time at which simulation should pause"})", "")                                           \
-    FUNCX(propSim_realtimeModifier, "realtimeModifier", sim_propertytype_float, 0, R"({"label": "Real-time modifier", "description": "Real-time multiplication factor"})", "")                                          \
-    FUNCX(propSim_stepCount, "stepCount", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Simulation steps", "description": "Counter of simulation steps"})", "") \
-    FUNCX(propSim_simulationState, "simulationState", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Simulation state", "description": ""})", "")                \
-    FUNCX(propSim_stepsPerRendering, "stepsPerRendering", sim_propertytype_int, 0, R"({"label": "Steps per frame", "description": "Simulation steps per frame"})", "")                                                  \
-    FUNCX(propSim_speedModifier, "speedModifier", sim_propertytype_int, sim_propertyinfo_modelhashexclude, R"({"label": "Speed modifier", "description": ""})", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+SIMULATION_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_sim = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_sim = {SIMULATION_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 class CSimulation

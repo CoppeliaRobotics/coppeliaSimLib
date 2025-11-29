@@ -11,22 +11,12 @@
 #include <sView.h>
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                        \
-    FUNCX(propGraph_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "")             \
-    FUNCX(propGraph_size, "graphSize", sim_propertytype_float, 0, R"({"label": "Size", "description": "Size of the 3D graph representation"})", "") \
-    FUNCX(propGraph_bufferSize, "bufferSize", sim_propertytype_int, 0, R"({"label": "Buffer size", "description": ""})", "")                        \
-    FUNCX(propGraph_cyclic, "cyclic", sim_propertytype_bool, 0, R"({"label": "Cyclic", "description": "Buffer is cyclic"})", "")                    \
-    FUNCX(propGraph_backgroundColor, "backgroundColor", sim_propertytype_color, 0, R"({"label": "Background color", "description": ""})", "")       \
-    FUNCX(propGraph_foregroundColor, "foregroundColor", sim_propertytype_color, 0, R"({"label": "Foreground color", "description": ""})", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+GRAPH_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_graph = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_graph = {GRAPH_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 class CGraph : public CSceneObject

@@ -4,29 +4,12 @@
 #include <convexVolume.h>
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                                              \
-    FUNCX(propProximitySensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")             \
-    FUNCX(propProximitySensor_size, "sensorPointSize", sim_propertytype_float, 0, R"===({"label": "Sensor point size", "description": ""})===", "")                                                                                                             \
-    FUNCX(propProximitySensor_frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0, R"===({"label": "Front face detection", "description": ""})===", "")                                                                                          \
-    FUNCX(propProximitySensor_backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0, R"===({"label": "Back face detection", "description": ""})===", "")                                                                                             \
-    FUNCX(propProximitySensor_exactMode, "exactMode", sim_propertytype_bool, 0, R"===({"label": "Exact mode", "description": ""})===", "")                                                                                                                      \
-    FUNCX(propProximitySensor_explicitHandling, "explicitHandling", sim_propertytype_bool, 0, R"===({"label": "Explicit handling", "description": ""})===", "")                                                                                                 \
-    FUNCX(propProximitySensor_showVolume, "showVolume", sim_propertytype_bool, 0, R"===({"label": "Show volume", "description": ""})===", "")                                                                                                                   \
-    FUNCX(propProximitySensor_randomizedDetection, "randomizedDetection", sim_propertytype_bool, sim_propertyinfo_notwritable, R"===({"label": "Randomized detection", "description": ""})===", "")                                                             \
-    FUNCX(propProximitySensor_sensorType, "sensorType", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Sensor type"})===", "")                                                                                     \
-    FUNCX(propProximitySensor_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detected object", "description": "Detected scene object handle"})===", "") \
-    FUNCX(propProximitySensor_angleThreshold, "angleThreshold", sim_propertytype_float, 0, R"===({"label": "Angle threshold", "description": "Angle threshold, 0.0 to disable"})===", "")                                                                       \
-    FUNCX(propProximitySensor_detectedPoint, "detectedPoint", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detected point", "description": ""})===", "")                                        \
-    FUNCX(propProximitySensor_detectedNormal, "detectedNormal", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detected normal", "description": "Detected normal vector"})===", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+PROXIMITYSENSOR_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_proximitySensor = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_proximitySensor = {PROXIMITYSENSOR_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 class CProxSensor : public CSceneObject

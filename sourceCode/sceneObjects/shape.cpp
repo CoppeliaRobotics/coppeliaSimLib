@@ -24,18 +24,7 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
-        "addForce": "sim-2.addForce",
-        "addForceAndTorque": "sim-2.addForceAndTorque",
-        "alignBB": "sim-2.alignShapeBB",
-        "checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
-        "computeMassAndInertia": "sim-2.computeMassAndInertia",
-        "getAppearance": "sim-2.getShapeAppearance",
-        "relocateFrame": "sim-2.relocateShapeFrame",
-        "setAppearance": "sim-2.setShapeAppearance",
-        "setShapeBB": "sim-2.setShapeBB",
-        "ungroup": "sim-2.ungroupShape",
-        "getMeshData": "sim-2.getShapeMesh",
+        )" SHAPE_META_METHODS R"(,
         )" SCENEOBJECT_META_METHODS R"(
     }
 }

@@ -15,12 +15,8 @@ static std::string OBJECT_META_INFO = R"(
     "namespaces": {
     },
     "methods": {
-        "addItem": "sim-2.addToCollection",
-        "removeItem": "sim-2.removeFromCollection",
-        "checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
-        "remove": "sim-2.removeCollection",
-        )" APP_META_METHODS R"(
+        )" COLLECTION_META_METHODS R"(,
+        )" OBJECT_META_METHODS R"(
     }
 }
 )";

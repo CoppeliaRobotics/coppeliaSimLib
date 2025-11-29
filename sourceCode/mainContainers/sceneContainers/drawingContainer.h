@@ -4,17 +4,12 @@
 #include <simMath/7Vector.h>
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                                                               \
-FUNCX(propDrawCont_drawingObjects, "drawingObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable, R"({"label": "Drawing objects", "description": "Handles of all drawing objects", "handleType": "drawingObject"})", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+DRAWINGOBJECTCONT_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-    const std::vector<SProperty> allProps_drawCont = {DEFINE_PROPERTIES};
+    const std::vector<SProperty> allProps_drawCont = {DRAWINGOBJECTCONT_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 class CViewableBase;

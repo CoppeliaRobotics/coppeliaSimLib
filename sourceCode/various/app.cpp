@@ -45,7 +45,7 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
-        )" APP_META_METHODS R"(
+        )" OBJECT_META_METHODS R"(
     }
 }
 )";
@@ -1841,6 +1841,14 @@ int App::getHandleProperty(long long int target, const char* ppName, long long i
             pState = sim_handle_app;
             retVal = 1;
         }
+        else if (strcmp(pName, propApp_sandbox.name) == 0)
+        {
+            if ( (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+                pState = worldContainer->sandboxScript->getScriptHandle();
+            else
+                pState = -1;
+            retVal = 1;
+        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getHandleProperty(target, pName, pState);
@@ -3200,6 +3208,10 @@ void App::pushGenesisEvents()
         ev->appendKeyInt(propApp_flavor.name, -1);
 #endif
         ev->appendKeyInt(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
+        int sbh = -1;
+        if (worldContainer->sandboxScript != nullptr)
+            sbh = worldContainer->sandboxScript->getScriptHandle();
+        ev->appendKeyInt(propApp_sandbox.name, sbh);
         if (instancesList != nullptr)
         {
             ev->appendKeyInt(propApp_processId.name, instancesList->thisInstanceId());

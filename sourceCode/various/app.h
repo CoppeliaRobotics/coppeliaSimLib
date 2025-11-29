@@ -10,186 +10,19 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSystemSemaphore>
+#include <propertiesAndMethods.h>
 #ifndef SIM_WITH_GUI
 #include <simQApp.h>
 #endif
 
-#define CUSTOMDATAPREFIX "customData."
-#define CUSTOMDATAFLAGS (sim_propertyinfo_removable)
-
-#define SIGNALPREFIX "signal."
-#define SIGNALFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
-
-#define NAMEDPARAMPREFIX "namedParam."
-#define NAMEDPARAMFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
-
-#define REFSPREFIX "refs."
-#define REFSFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
-
-#define ORIGREFSPREFIX "origRefs."
-#define ORIGREFSFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
-
-#define COLORPREFIX "color."
-#define COLORPREFIX_CAP "Color."
-
-#define APP_META_METHODS R"("getBoolProperty": "sim-2.getBoolProperty",
-        "getBufferProperty": "sim-2.getBufferProperty",
-        "getColorProperty": "sim-2.getColorProperty",
-        "getExplicitHandling": "sim-2.getExplicitHandling",
-        "getFloatArrayProperty": "sim-2.getFloatArrayProperty",
-        "getFloatProperty": "sim-2.getFloatProperty",
-        "getStringArrayProperty": "sim-2.getStringArrayProperty",
-        "getHandleArrayProperty": "sim-2.getHandleArrayProperty",
-        "getHandleProperty": "sim-2.getHandleProperty",
-        "getIntArray2Property": "sim-2.getIntArray2Property",
-        "getIntArrayProperty": "sim-2.getIntArrayProperty",
-        "getIntProperty": "sim-2.getIntProperty",
-        "getLongProperty": "sim-2.getLongProperty",
-        "getPoseProperty": "sim-2.getPoseProperty",
-        "getProperties": "sim-2.getProperties",
-        "getPropertiesInfos": "sim-2.getPropertiesInfos",
-        "getProperty": "sim-2.getProperty",
-        "getPropertyInfo": "sim-2.getPropertyInfo",
-        "getPropertyName": "sim-2.getPropertyName",
-        "getPropertyTypeString": "sim-2.getPropertyTypeString",
-        "getQuaternionProperty": "sim-2.getQuaternionProperty",
-        "getStringProperty": "sim-2.getStringProperty",
-        "getTableProperty": "sim-2.getTableProperty",
-        "getVector2Property": "sim-2.getVector2Property",
-        "getVector3Property": "sim-2.getVector3Property",
-        "removeProperty": "sim-2.removeProperty",
-        "setBoolProperty": "sim-2.setBoolProperty",
-        "setBufferProperty": "sim-2.setBufferProperty",
-        "setColorProperty": "sim-2.setColorProperty",
-        "setFloatArrayProperty": "sim-2.setFloatArrayProperty",
-        "setFloatProperty": "sim-2.setFloatProperty",
-        "setStringArrayProperty": "sim-2.setStringArrayProperty",
-        "setHandleArrayProperty": "sim-2.setHandleArrayProperty",
-        "setHandleProperty": "sim-2.setHandleProperty",
-        "setIntArray2Property": "sim-2.setIntArray2Property",
-        "setIntArrayProperty": "sim-2.setIntArrayProperty",
-        "setIntProperty": "sim-2.setIntProperty",
-        "setLongProperty": "sim-2.setLongProperty",
-        "setPoseProperty": "sim-2.setPoseProperty",
-        "setProperties": "sim-2.setProperties",
-        "setProperty": "sim-2.setProperty",
-        "setQuaternionProperty": "sim-2.setQuaternionProperty",
-        "setStringProperty": "sim-2.setStringProperty",
-        "setTableProperty": "sim-2.setTableProperty",
-        "setVector2Property": "sim-2.setVector2Property",
-        "setVector3Property": "sim-2.setVector3Property")"
-
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                                                                     \
-    FUNCX(propApp_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "")                                                                                        \
-    FUNCX(propApp_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")                                                                                        \
-    FUNCX(propApp_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
-    FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Session ID", "description": ""})===", "")                                                                                        \
-    FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Protocol", "description": "Protocol version"})===", "")                                                                                                     \
-    FUNCX(propApp_productVersion, "productVersion", sim_propertytype_string, sim_propertyinfo_notwritable, R"===({"label": "Product string", "description": "Product version (string)"})===", "")                                                                                      \
-    FUNCX(propApp_productVersionNb, "productVersionNb", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Product", "description": "Product version (number)"})===", "")                                                                                            \
-    FUNCX(propApp_platform, "platform", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Platform", "description": "Platform (0: Windows, 1: macOS, 2: Linux)"})===", "")                                                                                                                                 \
-    FUNCX(propApp_flavor, "flavor", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Flavor", "description": "Flavor (0: lite, 1: edu, 2: pro)"})===", "")                                                                                                                                         \
-    FUNCX(propApp_qtVersion, "qtVersion", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Qt", "description": "Qt version"})===", "")                                                                                                                             \
-    FUNCX(propApp_processId, "processId", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Process", "description": "Process ID"})===", "")                                                                                    \
-    FUNCX(propApp_processCnt, "processCnt", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Processes", "description": "Overall processes"})===", "")                                                                         \
-    FUNCX(propApp_consoleVerbosity, "consoleVerbosity", sim_propertytype_int, 0, R"===({"label": "Console verbosity", "description": ""})===", "")                                                                                                                                     \
-    FUNCX(propApp_statusbarVerbosity, "statusbarVerbosity", sim_propertytype_int, 0, R"===({"label": "Statusbar verbosity", "description": ""})===", "")                                                                                                                               \
-    FUNCX(propApp_dialogVerbosity, "dialogVerbosity", sim_propertytype_int, 0, R"===({"label": "Dialog verbosity", "description": ""})===", "")                                                                                                                                        \
-    FUNCX(propApp_consoleVerbosityStr, "consoleVerbosityStr", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, R"===({"label": "Console verbosity string", "description": "Console verbosity string, only for client app"})===", "")         \
-    FUNCX(propApp_statusbarVerbosityStr, "statusbarVerbosityStr", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, R"===({"label": "Statusbar verbosity string", "description": "Statusbar verbosity string, only for client app"})===", "") \
-    FUNCX(propApp_dialogVerbosityStr, "dialogVerbosityStr", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, R"===({"label": "Dialog verbosity string", "description": "Dialog verbosity string, only for client app"})===", "")             \
-    FUNCX(propApp_auxAddOn1, "auxAddOn1", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Aux. add-on 1", "description": "Auxiliary add-on 1"})===", "")             \
-    FUNCX(propApp_auxAddOn2, "auxAddOn2", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Aux. add-on 2", "description": "Auxiliary add-on 2"})===", "")             \
-    FUNCX(propApp_startupCode, "startupCode", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Start-up code", "description": ""})===", "")             \
-    FUNCX(propApp_defaultTranslationStepSize, "defaultTranslationStepSize", sim_propertytype_float, 0, R"===({"label": "Translation step size", "description": "Default translation step size"})===", "")                                                                              \
-    FUNCX(propApp_defaultRotationStepSize, "defaultRotationStepSize", sim_propertytype_float, 0, R"===({"label": "Rotation step size", "description": "Default rotation step size"})===", "")                                                                                          \
-    FUNCX(propApp_hierarchyEnabled, "hierarchyEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"===({"label": "Hierarchy enabled", "description": ""})===", "")                                                                                                    \
-    FUNCX(propApp_browserEnabled, "browserEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"===({"label": "Browser enabled", "description": ""})===", "")                                                                                                          \
-    FUNCX(propApp_displayEnabled, "displayEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"===({"label": "Display enabled", "description": ""})===", "")                                                                                                          \
-    FUNCX(propApp_appDir, "appPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Application path", "description": ""})===", "")                                                                                       \
-    FUNCX(propApp_machineId, "machineId", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Machine ID", "description": ""})===", "")                                                                                        \
-    FUNCX(propApp_legacyMachineId, "legacyMachineId", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Legacy machine ID", "description": ""})===", "")                                                                     \
-    FUNCX(propApp_tempDir, "tempPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Temporary path", "description": ""})===", "")                                                                                       \
-    FUNCX(propApp_sceneTempDir, "sceneTempPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Scene temporary path", "description": ""})===", "")                                                                       \
-    FUNCX(propApp_settingsDir, "settingsPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Settings path", "description": ""})===", "")                                                                                \
-    FUNCX(propApp_luaDir, "luaPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Lua path", "description": ""})===", "")                                                                                               \
-    FUNCX(propApp_pythonDir, "pythonPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Python path", "description": ""})===", "")                                                                                      \
-    FUNCX(propApp_mujocoDir, "mujocoPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "MuJoCo path", "description": ""})===", "")                                                                                      \
-    FUNCX(propApp_systemDir, "systemPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "System path", "description": ""})===", "")                                                                                      \
-    FUNCX(propApp_resourceDir, "resourcePath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Resource path", "description": ""})===", "")                                                                                \
-    FUNCX(propApp_addOnDir, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on path", "description": ""})===", "")                                                                                        \
-    FUNCX(propApp_sceneDir, "scenePath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, R"===({"label": "Scene path", "description": ""})===", "")                                                                                                                        \
-    FUNCX(propApp_modelDir, "modelPath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, R"===({"label": "Model path", "description": ""})===", "")                                                                                                                        \
-    FUNCX(propApp_importExportDir, "importExportPath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, R"===({"label": "Import/export path", "description": ""})===", "")                                                                                                  \
-    FUNCX(propApp_defaultPython, "defaultPython", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Default Python", "description": "Default Python interpreter"})===", "")                                                  \
-    FUNCX(propApp_sandboxLang, "sandboxLang", sim_propertytype_string, sim_propertyinfo_notwritable, R"===({"label": "Sandbox language", "description": "Default sandbox language"})===", "")                                                                                          \
-    FUNCX(propApp_headlessMode, "headlessMode", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Headless mode", "description": "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)"})===", "")           \
-    FUNCX(propApp_canSave, "canSave", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Can save", "description": "Whether save operation is allowed in given state"})===", "")                                                \
-    FUNCX(propApp_idleFps, "idleFps", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Loaded plugin names", "description": ""})===", "")                                                                                       \
-    FUNCX(propApp_plugins, "plugins", sim_propertytype_stringarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Plugins", "description": "List of plugins"})===", "")                                                                                                                           \
-    FUNCX(propApp_addOns, "addOns", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-ons", "description": "List of add-ons", "handleType": "detachedScript"})===", "")                                                                                                                           \
-    FUNCX(propApp_appArgs, "appArgs", sim_propertytype_stringarray, sim_propertyinfo_modelhashexclude, R"===({"label": "App args", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg1, "appArg1", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 1", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg2, "appArg2", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 2", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg3, "appArg3", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 3", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg4, "appArg4", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 4", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg5, "appArg5", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 5", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg6, "appArg6", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 6", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg7, "appArg7", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 7", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg8, "appArg8", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 8", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_appArg9, "appArg9", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 9", "description": ""})===", "")                                                                                                                           \
-    FUNCX(propApp_randomQuaternion, "randomQuaternion", sim_propertytype_quaternion, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Random quaternion", "description": ""})===", "")                                                               \
-    FUNCX(propApp_randomFloat, "randomFloat", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Random number", "description": ""})===", "")                                                                                  \
-    FUNCX(propApp_randomString, "randomString", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Random string", "description": ""})===", "")                                                                               \
-    FUNCX(propApp_notifyDeprecated, "notifyDeprecated", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Notify deprecated", "description": "Notify deprecated API (0: off, 1: light, 2: full)"})===", "")                     \
-    FUNCX(propApp_execUnsafe, "execUnsafe", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Execute unsafe", "description": ""})===", "")                                                                                    \
-    FUNCX(propApp_execUnsafeExt, "execUnsafeExt", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Execute unsafe extended", "description": "Execute unsafe for code triggered externally"})===", "")                         \
-    FUNCX(propApp_dongleSerial, "dongleSerial", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                            \
-    FUNCX(propApp_machineSerialND, "machineSerialND", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                      \
-    FUNCX(propApp_machineSerial, "machineSerial", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                          \
-    FUNCX(propApp_dongleID, "dongleID", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                                    \
-    FUNCX(propApp_machineIDX, "machineIDX", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                                \
-    FUNCX(propApp_machineID0, "machineID0", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                                \
-    FUNCX(propApp_machineID1, "machineID1", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                                \
-    FUNCX(propApp_machineID2, "machineID2", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                                \
-    FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")                                                                                                \
-    FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "PID", "description": ""})===", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+APP_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_app = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_app = {APP_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
-
-#define proptypetag_bool "&bool&."
-#define proptypetag_int "&int&."
-#define proptypetag_float "&dbl&."
-#define proptypetag_string "&str&."
-#define proptypetag_buffer ""
-#define proptypetag_intarray2 "&ivect2&."
-#define proptypetag_long "&lng&."
-#define proptypetag_vector2 "&vect2&."
-#define proptypetag_vector3 "&vect3&."
-#define proptypetag_quaternion "&quat&."
-#define proptypetag_pose "&pose&."
-#define proptypetag_matrix3x3 "&mtrx33&."
-#define proptypetag_matrix4x4 "&mtrx44&."
-#define proptypetag_color "&col&."
-#define proptypetag_floatarray "&vect&."
-#define proptypetag_intarray "&ivect&."
-#define proptypetag_table "&tbl&."
-#define proptypetag_matrix "&mtrxXX&."
-#define proptypetag_array "&arr&."
-#define proptypetag_map "&map&."
-#define proptypetag_null "&nul&."
-#define proptypetag_handle "&han&."
-#define proptypetag_handlearray "&hanvect&."
-#define proptypetag_stringarray "&strvect&."
 
 static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_bool, proptypetag_bool},

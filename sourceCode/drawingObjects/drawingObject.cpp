@@ -14,9 +14,8 @@ static std::string OBJECT_META_INFO = R"(
     "namespaces": {
     },
     "methods": {
-        "addItem": "sim-2.addDrawingObjectItem",
-        "remove": "sim-2.removeDrawingObject",
-        )" APP_META_METHODS R"(
+        )" DRAWINGOBJECT_META_METHODS R"(,
+        )" OBJECT_META_METHODS R"(
     }
 }
 )";

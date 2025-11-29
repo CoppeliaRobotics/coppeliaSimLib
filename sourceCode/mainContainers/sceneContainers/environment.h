@@ -3,33 +3,18 @@
 #include <colorObject.h>
 #include <thumbnail.h>
 #include <cbor.h>
+#include <propertiesAndMethods.h>
 #ifdef SIM_WITH_GUI
 #include <vMenubar.h>
 #endif
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                   \
-    FUNCX(propScene_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object type", "description": ""})", "")                                 \
-    FUNCX(propScene_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "")             \
-    FUNCX(propScene_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": "", "handleType": ""})", "") \
-    FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"({"label": "Final save", "description": "Lock scene and models after next scene save operation"})", "")  \
-    FUNCX(propScene_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_notwritable, R"({"label": "Scene is locked", "description": ""})", "")                                                             \
-    FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs", sim_propertytype_bool, 0, R"({"label": "Save calculation structures", "description": "Save operation also saves existing calculation structures"})", "") \
-    FUNCX(propScene_sceneUid, "sceneUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Scene UID", "description": "Scene unique identifier"})", "")                   \
-    FUNCX(propScene_visibilityLayers, "visibilityLayers", sim_propertytype_int, 0, R"({"label": "Visibility layers", "description": "Currently active visibility layers"})", "")                                               \
-    FUNCX(propScene_scenePath, "scenePath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, R"({"label": "Scene path", "description": ""})", "")                                                                   \
-    FUNCX(propScene_acknowledgment, "acknowledgment", sim_propertytype_string, 0, R"({"label": "Acknowledgment", "description": "Scene acknowledgment"})", "")                                                                 \
-    FUNCX(propScene_sceneUidString, "sceneUidString", sim_propertytype_string, sim_propertyinfo_notwritable, R"({"label": "Scene UID string", "description": "Scene unique identifier string"})", "")                          \
-    FUNCX(propScene_ambientLight, "ambientLight", sim_propertytype_color, 0, R"({"label": "Ambient light", "description": ""})", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+ENVIRONMENT_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_scene = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_scene = {ENVIRONMENT_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 class CCamera;

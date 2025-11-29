@@ -3,32 +3,18 @@
 #include <ser.h>
 #include <cbor.h>
 #include <simMath/3Vector.h>
+#include <propertiesAndMethods.h>
 
 #define PROXSENSOR_MAX_FACE_NUMBER 1024  // Maximum faces of a disk or cone-type sensor
 #define PROXSENSOR_MAX_SUBDIVISIONS 1024 // Maximum subdivisions of a cone-type sensor
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                                     \
-    FUNCX(propVolume_closeThreshold, "closeThreshold", sim_propertytype_float, 0, R"===({"label": "Close threshold", "description": "Close threshold: if a detection occures below that threshold, it is not registered. 0.0 to disable"})===", "")    \
-    FUNCX(propVolume_offset, "volume_offset", sim_propertytype_float, 0, R"===({"label": "Offset", "description": "Offset of detection volume"})===", "")                                                                                              \
-    FUNCX(propVolume_range, "volume_range", sim_propertytype_float, 0, R"===({"label": "Range", "description": "Range/depth of detection volume"})===", "")                                                                                            \
-    FUNCX(propVolume_xSize, "volume_xSize", sim_propertytype_floatarray, 0, R"===({"label": "X-sizes", "description": "X-size (near and far) for pyramid-type volumes"})===", "")                                                                      \
-    FUNCX(propVolume_ySize, "volume_ySize", sim_propertytype_floatarray, 0, R"===({"label": "Y-sizes", "description": "Y-size (near and far) for pyramid-type volumes"})===", "")                                                                      \
-    FUNCX(propVolume_radius, "volume_radius", sim_propertytype_floatarray, 0, R"===({"label": "Radius", "description": "Radius for cylinder-, disk- and cone-type volumes"})===", "")                                                                  \
-    FUNCX(propVolume_angle, "volume_angle", sim_propertytype_floatarray, 0, R"===({"label": "Angles", "description": "Angle and inside gap for disk- and cone-type volumes"})===", "")                                                                 \
-    FUNCX(propVolume_faces, "volume_faces", sim_propertytype_intarray, 0, R"===({"label": "Faces", "description": "Number of faces (near and far) for cylinder-, disk- and pyramid-type volumes"})===", "")                                            \
-    FUNCX(propVolume_subdivisions, "volume_subdivisions", sim_propertytype_intarray, 0, R"===({"label": "Subdivisions", "description": "Number of subdivisions (near and far) for cone-type volumes"})===", "")                                        \
-    FUNCX(propVolume_edges, "volume_edges", sim_propertytype_floatarray, sim_propertyinfo_notwritable, R"===({"label": "Volume edges", "description": "List of segments (defined by pairs of end-point coordinates) visualizing the volume"})===", "") \
-    FUNCX(propVolume_closeEdges, "volume_closeEdges", sim_propertytype_floatarray, sim_propertyinfo_notwritable, R"===({"label": "Volume close edges", "description": "List of segments (defined by pairs of end-point coordinates) visualizing the close threshold of the volume"})===", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+CONVEXVOLUME_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_volume = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_volume = {CONVEXVOLUME_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 enum

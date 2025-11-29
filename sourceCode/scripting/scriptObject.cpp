@@ -38,7 +38,7 @@ static std::string OBJECT_META_INFO = R"(
         "getApiInfo": "sim-2.getApiInfo",
         "getStackTraceback": "sim-2.getStackTraceback",
         "init": "sim-2.initScript",
-        )" APP_META_METHODS R"(
+        )" OBJECT_META_METHODS R"(
     }
 }
 )";

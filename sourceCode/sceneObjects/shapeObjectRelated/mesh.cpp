@@ -20,7 +20,7 @@ static std::string OBJECT_META_INFO = R"(
     "namespaces": {
     },
     "methods": {
-        )" APP_META_METHODS R"(
+        )" OBJECT_META_METHODS R"(
     }
 }
 )";

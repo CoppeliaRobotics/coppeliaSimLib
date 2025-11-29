@@ -21,13 +21,7 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
-        "checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
-        "insertObject": "sim-2.insertObjectIntoPointCloud",
-        "insertPoints": "sim-2.insertPointsIntoPointCloud",
-        "intersectPoints": "sim-2.intersectPointsWithPointCloud",
-        "removePoints": "sim-2.removePointsFromPointCloud",
-        "subtractObject": "sim-2.subtractObjectFromPointCloud",
+        )" POINTCLOUD_META_METHODS R"(,
         )" SCENEOBJECT_META_METHODS R"(
     }
 }

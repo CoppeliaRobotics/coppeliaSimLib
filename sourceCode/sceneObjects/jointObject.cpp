@@ -21,9 +21,7 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
-        "getForce": "sim-2.getJointForce",
-        "resetDynamicObject": "sim-2.resetDynamicObject",
-        "getVelocity": "sim-2.getJointVelocity",
+        )" JOINT_META_METHODS R"(,
         )" SCENEOBJECT_META_METHODS R"(
     }
 }

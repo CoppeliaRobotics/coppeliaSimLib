@@ -19,9 +19,7 @@ static std::string OBJECT_META_INFO = R"(
         "signal": {}
     },
     "methods": {
-        "handleSensor": "sim-2.handleProximitySensor",
-        "resetSensor": "sim-2.resetProximitySensor",
-        "checkSensor": "sim-2.checkProximitySensor",
+        )" PROXIMITYSENSOR_META_METHODS R"(,
         )" SCENEOBJECT_META_METHODS R"(
     }
 }
