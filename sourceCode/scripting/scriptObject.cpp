@@ -32,12 +32,7 @@ static std::string OBJECT_META_INFO = R"(
     "namespaces": {
     },
     "methods": {
-        "callFunction": "sim-2.callScriptFunction",
-        "executeScriptString": "sim-2.executeScriptString",
-        "getApiFunc": "sim-2.getApiFunc",
-        "getApiInfo": "sim-2.getApiInfo",
-        "getStackTraceback": "sim-2.getStackTraceback",
-        "init": "sim-2.initScript",
+        )" DETACHEDSCRIPT_META_METHODS R"(,
         )" OBJECT_META_METHODS R"(
     }
 }

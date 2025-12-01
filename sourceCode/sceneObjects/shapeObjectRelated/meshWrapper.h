@@ -7,21 +7,12 @@
 #include <dynMaterialObject.h>
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                                   \
-    FUNCX(propMeshWrap_mass, "mass", sim_propertytype_float, 0, R"===({"label": "Mass", "description": ""})===", "")                                                                                                                                 \
-    FUNCX(propMeshWrap_com, "centerOfMass", sim_propertytype_vector3, 0, R"===({"label": "Center of mass", "description": "Center of mass, relative to the shape's reference frame"})===", "")                                                       \
-    FUNCX(propMeshWrap_inertia, "inertia", sim_propertytype_floatarray, 0, R"===({"label": "Inertia tensor", "description": "Inertia tensor, relative to the shape's reference frame"})===", "")                                                     \
-    FUNCX(propMeshWrap_pmi, "principalMomentOfInertia", sim_propertytype_floatarray, sim_propertyinfo_notwritable, R"===({"label": "Principal moment of inertia", "description": "Principal moment of inertia, relative to pmiQuaternion"})===", "") \
-    FUNCX(propMeshWrap_pmiQuaternion, "pmiQuaternion", sim_propertytype_quaternion, sim_propertyinfo_notwritable, R"===({"label": "Quaternion of the principal moment of inertia", "description": "Quaternion of the principal moment of inertia, relative to the shape's reference frame"})===", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+MESHWRAPPER_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_meshWrap = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_meshWrap = {MESHWRAPPER_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 class CViewableBase;

@@ -4,24 +4,12 @@
 #include <ser.h>
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                                   \
-    FUNCX(propViewable_viewAngle, "viewAngle", sim_propertytype_float, 0, R"===({"label": "View angle", "description": "View angle (in perspective projection mode)"})===", "")                                                      \
-    FUNCX(propViewable_viewSize, "viewSize", sim_propertytype_float, 0, R"===({"label": "View size", "description": "View size (in orthogonal projection mode)"})===", "")                                                           \
-    FUNCX(propViewable_clippingPlanes, "clippingPlanes", sim_propertytype_floatarray, 0, R"===({"label": "Clipping planes", "description": "Near and far clipping planes"})===", "")                                                 \
-    FUNCX(propViewable_perspective, "perspective", sim_propertytype_bool, sim_propertyinfo_notwritable, R"===({"label": "Perspective", "description": "Perspective projection mode, otherwise orthogonal projection mode"})===", "") \
-    FUNCX(propViewable_showFrustum, "showFrustum", sim_propertytype_bool, 0, R"===({"label": "Show view frustum", "description": ""})===", "")                                                                                       \
-    FUNCX(propViewable_frustumCornerNear, "frustumCornerNear", sim_propertytype_vector3, sim_propertyinfo_notwritable, R"===({"label": "Near corner of View frustum", "description": ""})===", "")                                   \
-    FUNCX(propViewable_frustumCornerFar, "frustumCornerFar", sim_propertytype_vector3, sim_propertyinfo_notwritable, R"===({"label": "Far corner of view frustum", "description": ""})===", "")                                      \
-    FUNCX(propViewable_resolution, "resolution", sim_propertytype_intarray2, 0, R"===({"label": "Resolution", "description": "Resolution (relevant only with vision sensors)"})===", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+VIEWABLEBASE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_viewable = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_viewable = {VIEWABLEBASE_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 class CViewableBase : public CSceneObject

@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <plugin.h>
 #include <random>
+#include <propertiesAndMethods.h>
 
 #define PROXY_FUNC_NAME_STR "__proxyFuncName__"
 #define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
@@ -23,30 +24,12 @@
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 
 // ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES                                                                                                                                                   \
-    FUNCX(propScriptObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "")             \
-    FUNCX(propScriptObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "")             \
-    FUNCX(propScriptObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
-    FUNCX(propScriptObj_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0, R"===({"label": "Enabled", "description": "Script is enabled"})===", "")                                                         \
-    FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0, R"===({"label": "Restart", "description": "Restart on error"})===", "")                                                          \
-    FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0, R"===({"label": "Execution priority", "description": ""})===", "")                                                                    \
-    FUNCX(propScriptObj_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Script type"})===", "")                                                \
-    FUNCX(propScriptObj_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Execution depth", "description": ""})===", "")    \
-    FUNCX(propScriptObj_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "State", "description": "Script state"})===", "")        \
-    FUNCX(propScriptObj_language, "language", sim_propertytype_string, sim_propertyinfo_notwritable, R"===({"label": "Language", "description": ""})===", "")                                                        \
-    FUNCX(propScriptObj_code, "code", sim_propertytype_string, 0, R"===({"label": "Code", "description": "Script content"})===", "")                                                                                 \
-    FUNCX(propScriptObj_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Name", "description": "Script name"})===", "")         \
-    FUNCX(propScriptObj_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on path", "description": "Path of add-on"})===", "") \
-    FUNCX(propScriptObj_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on menu path", "description": "Menu path of add-on"})===", "")
-
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
+DETACHEDSCRIPT_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_scriptObject = {DEFINE_PROPERTIES};
+const std::vector<SProperty> allProps_scriptObject = {DETACHEDSCRIPT_PROPERTIES};
 #undef FUNCX
-#undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
 
 class CSceneObject;
