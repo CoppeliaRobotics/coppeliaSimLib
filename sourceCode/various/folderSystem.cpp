@@ -15,8 +15,11 @@
 #endif
 #include <QStandardPaths>
 
+#define FOLDERSYS_SEMAPHORE_TAG "__ACCESSING_FOLDERSYS_DATA__"
+
 CFolderSystem::CFolderSystem()
 {
+    App::systemSemaphore(FOLDERSYS_SEMAPHORE_TAG, true);
     _executablePath = App::getApplicationDir();
 #ifdef MAC_SIM
     _resourcesPath = _executablePath + "/../Resources";
@@ -95,6 +98,7 @@ CFolderSystem::CFolderSystem()
     _autoSavedScenesDir = now.toString("yyyy-MM-dd-HH-mm-").toStdString();
     _autoSavedScenesDir += utils::generateUniqueAlphaNumericString();
     VFile::createFolder((_autoSavedScenesContainingPath + "/" + _autoSavedScenesDir).c_str());
+    App::systemSemaphore(FOLDERSYS_SEMAPHORE_TAG, false);
 }
 
 #ifndef __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that
@@ -112,6 +116,7 @@ int rmrf(const char* path)
 
 CFolderSystem::~CFolderSystem()
 {
+    App::systemSemaphore(FOLDERSYS_SEMAPHORE_TAG, true);
     if (_tempDir->isValid())
         delete _tempDir;
     _tempDataPath.clear();
@@ -129,6 +134,7 @@ CFolderSystem::~CFolderSystem()
         rmrf(_tempDataPath.c_str());
 #endif
     }
+    App::systemSemaphore(FOLDERSYS_SEMAPHORE_TAG, false);
 }
 
 std::string CFolderSystem::getPathFromFull(const char* full)
