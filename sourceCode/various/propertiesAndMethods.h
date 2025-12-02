@@ -467,8 +467,8 @@
     FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0, R"===({"label": "Shading angle", "description": ""})===", "") \
     FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0, R"===({"label": "Visible edges", "description": ""})===", "") \
     FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0, R"===({"label": "Backface culling", "description": ""})===", "") \
-    FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "") \
-    FUNCX(propMesh_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "") \
+    FUNCX(propMesh_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propMesh_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
     FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Shape UID", "description": "Unique identifier of parent shape"})===", "") \
     FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Shape handle", "description": "", "handleType": "shape"})===", "") \
@@ -959,6 +959,7 @@
     FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0, R"===({"label": "Size", "description": "Size of the script object"})===", "") \
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0, R"===({"label": "Reset after simulation error", "description": ""})===", "") \
     FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detached script handle", "description": "", "handleType": "detachedScript"})===", "") \
+    /* Following for backward compatibility: */ \
     FUNCX(propScript_scriptDisabled, "scriptDisabled", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propScript_restartOnError, "restartOnError", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propScript_execPriority, "execPriority", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
