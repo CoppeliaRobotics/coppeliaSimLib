@@ -195,114 +195,114 @@
 
 
 #define APP_PROPERTIES \
-    FUNCX(propApp_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "") \
-    FUNCX(propApp_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
-    FUNCX(propApp_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
-    FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Session ID", "description": ""})===", "") \
-    FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Protocol", "description": "Protocol version"})===", "") \
-    FUNCX(propApp_productVersion, "productVersion", sim_propertytype_string, sim_propertyinfo_notwritable, R"===({"label": "Product string", "description": "Product version (string)"})===", "") \
-    FUNCX(propApp_productVersionNb, "productVersionNb", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Product", "description": "Product version (number)"})===", "") \
-    FUNCX(propApp_platform, "platform", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Platform", "description": "Platform (0: Windows, 1: macOS, 2: Linux)"})===", "") \
-    FUNCX(propApp_flavor, "flavor", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Flavor", "description": "Flavor (0: lite, 1: edu, 2: pro)"})===", "") \
-    FUNCX(propApp_qtVersion, "qtVersion", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Qt", "description": "Qt version"})===", "") \
-    FUNCX(propApp_processId, "processId", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Process", "description": "Process ID"})===", "") \
-    FUNCX(propApp_processCnt, "processCnt", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Processes", "description": "Overall processes"})===", "") \
+    FUNCX(propApp_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "") \
+    FUNCX(propApp_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propApp_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
+    FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Session ID", "description": ""})===", "") \
+    FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Protocol", "description": "Protocol version"})===", "") \
+    FUNCX(propApp_productVersion, "productVersion", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Product string", "description": "Product version (string)"})===", "") \
+    FUNCX(propApp_productVersionNb, "productVersionNb", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Product", "description": "Product version (number)"})===", "") \
+    FUNCX(propApp_platform, "platform", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Platform", "description": "Platform (0: Windows, 1: macOS, 2: Linux)"})===", "") \
+    FUNCX(propApp_flavor, "flavor", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Flavor", "description": "Flavor (0: lite, 1: edu, 2: pro)"})===", "") \
+    FUNCX(propApp_qtVersion, "qtVersion", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Qt", "description": "Qt version"})===", "") \
+    FUNCX(propApp_processId, "processId", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Process", "description": "Process ID"})===", "") \
+    FUNCX(propApp_processCnt, "processCnt", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Processes", "description": "Overall processes"})===", "") \
     FUNCX(propApp_consoleVerbosity, "consoleVerbosity", sim_propertytype_int, 0, R"===({"label": "Console verbosity", "description": ""})===", "") \
     FUNCX(propApp_statusbarVerbosity, "statusbarVerbosity", sim_propertytype_int, 0, R"===({"label": "Statusbar verbosity", "description": ""})===", "") \
     FUNCX(propApp_dialogVerbosity, "dialogVerbosity", sim_propertytype_int, 0, R"===({"label": "Dialog verbosity", "description": ""})===", "") \
     FUNCX(propApp_consoleVerbosityStr, "consoleVerbosityStr", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, R"===({"label": "Console verbosity string", "description": "Console verbosity string, only for client app"})===", "") \
     FUNCX(propApp_statusbarVerbosityStr, "statusbarVerbosityStr", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, R"===({"label": "Statusbar verbosity string", "description": "Statusbar verbosity string, only for client app"})===", "") \
     FUNCX(propApp_dialogVerbosityStr, "dialogVerbosityStr", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, R"===({"label": "Dialog verbosity string", "description": "Dialog verbosity string, only for client app"})===", "") \
-    FUNCX(propApp_auxAddOn1, "auxAddOn1", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Aux. add-on 1", "description": "Auxiliary add-on 1"})===", "") \
-    FUNCX(propApp_auxAddOn2, "auxAddOn2", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Aux. add-on 2", "description": "Auxiliary add-on 2"})===", "") \
-    FUNCX(propApp_startupCode, "startupCode", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Start-up code", "description": ""})===", "") \
+    FUNCX(propApp_auxAddOn1, "auxAddOn1", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "Aux. add-on 1", "description": "Auxiliary add-on 1"})===", "") \
+    FUNCX(propApp_auxAddOn2, "auxAddOn2", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "Aux. add-on 2", "description": "Auxiliary add-on 2"})===", "") \
+    FUNCX(propApp_startupCode, "startupCode", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "Start-up code", "description": ""})===", "") \
     FUNCX(propApp_defaultTranslationStepSize, "defaultTranslationStepSize", sim_propertytype_float, 0, R"===({"label": "Translation step size", "description": "Default translation step size"})===", "") \
     FUNCX(propApp_defaultRotationStepSize, "defaultRotationStepSize", sim_propertytype_float, 0, R"===({"label": "Rotation step size", "description": "Default rotation step size"})===", "") \
     FUNCX(propApp_hierarchyEnabled, "hierarchyEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"===({"label": "Hierarchy enabled", "description": ""})===", "") \
     FUNCX(propApp_browserEnabled, "browserEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"===({"label": "Browser enabled", "description": ""})===", "") \
     FUNCX(propApp_displayEnabled, "displayEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"===({"label": "Display enabled", "description": ""})===", "") \
-    FUNCX(propApp_appDir, "appPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Application path", "description": ""})===", "") \
-    FUNCX(propApp_machineId, "machineId", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Machine ID", "description": ""})===", "") \
-    FUNCX(propApp_legacyMachineId, "legacyMachineId", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Legacy machine ID", "description": ""})===", "") \
-    FUNCX(propApp_tempDir, "tempPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Temporary path", "description": ""})===", "") \
-    FUNCX(propApp_sceneTempDir, "sceneTempPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Scene temporary path", "description": ""})===", "") \
-    FUNCX(propApp_settingsDir, "settingsPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Settings path", "description": ""})===", "") \
-    FUNCX(propApp_luaDir, "luaPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Lua path", "description": ""})===", "") \
-    FUNCX(propApp_pythonDir, "pythonPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Python path", "description": ""})===", "") \
-    FUNCX(propApp_mujocoDir, "mujocoPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "MuJoCo path", "description": ""})===", "") \
-    FUNCX(propApp_systemDir, "systemPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "System path", "description": ""})===", "") \
-    FUNCX(propApp_resourceDir, "resourcePath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Resource path", "description": ""})===", "") \
-    FUNCX(propApp_addOnDir, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on path", "description": ""})===", "") \
-    FUNCX(propApp_sceneDir, "scenePath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, R"===({"label": "Scene path", "description": ""})===", "") \
-    FUNCX(propApp_modelDir, "modelPath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, R"===({"label": "Model path", "description": ""})===", "") \
-    FUNCX(propApp_importExportDir, "importExportPath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, R"===({"label": "Import/export path", "description": ""})===", "") \
-    FUNCX(propApp_defaultPython, "defaultPython", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Default Python", "description": "Default Python interpreter"})===", "") \
-    FUNCX(propApp_sandboxLang, "sandboxLang", sim_propertytype_string, sim_propertyinfo_notwritable, R"===({"label": "Sandbox language", "description": "Default sandbox language"})===", "") \
-    FUNCX(propApp_headlessMode, "headlessMode", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Headless mode", "description": "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)"})===", "") \
-    FUNCX(propApp_canSave, "canSave", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Can save", "description": "Whether save operation is allowed in given state"})===", "") \
+    FUNCX(propApp_appDir, "appPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Application path", "description": ""})===", "") \
+    FUNCX(propApp_machineId, "machineId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Machine ID", "description": ""})===", "") \
+    FUNCX(propApp_legacyMachineId, "legacyMachineId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Legacy machine ID", "description": ""})===", "") \
+    FUNCX(propApp_tempDir, "tempPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Temporary path", "description": ""})===", "") \
+    FUNCX(propApp_sceneTempDir, "sceneTempPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Scene temporary path", "description": ""})===", "") \
+    FUNCX(propApp_settingsDir, "settingsPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Settings path", "description": ""})===", "") \
+    FUNCX(propApp_luaDir, "luaPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Lua path", "description": ""})===", "") \
+    FUNCX(propApp_pythonDir, "pythonPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Python path", "description": ""})===", "") \
+    FUNCX(propApp_mujocoDir, "mujocoPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "MuJoCo path", "description": ""})===", "") \
+    FUNCX(propApp_systemDir, "systemPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "System path", "description": ""})===", "") \
+    FUNCX(propApp_resourceDir, "resourcePath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Resource path", "description": ""})===", "") \
+    FUNCX(propApp_addOnDir, "addOnPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on path", "description": ""})===", "") \
+    FUNCX(propApp_sceneDir, "scenePath", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Scene path", "description": ""})===", "") \
+    FUNCX(propApp_modelDir, "modelPath", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Model path", "description": ""})===", "") \
+    FUNCX(propApp_importExportDir, "importExportPath", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Import/export path", "description": ""})===", "") \
+    FUNCX(propApp_defaultPython, "defaultPython", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Default Python", "description": "Default Python interpreter"})===", "") \
+    FUNCX(propApp_sandboxLang, "sandboxLang", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Sandbox language", "description": "Default sandbox language"})===", "") \
+    FUNCX(propApp_headlessMode, "headlessMode", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Headless mode", "description": "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)"})===", "") \
+    FUNCX(propApp_canSave, "canSave", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Can save", "description": "Whether save operation is allowed in given state"})===", "") \
     FUNCX(propApp_idleFps, "idleFps", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Loaded plugin names", "description": ""})===", "") \
     FUNCX(propApp_plugins, "plugins", sim_propertytype_stringarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Plugins", "description": "List of plugins"})===", "") \
-    FUNCX(propApp_addOns, "addOns", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-ons", "description": "List of add-ons", "handleType": "detachedScript"})===", "") \
-    FUNCX(propApp_sandbox, "sandbox", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Sandbox", "description": "Handle of the sandbox script", "handleType": "detachedScript"})", "") \
-    FUNCX(propApp_appArgs, "appArgs", sim_propertytype_stringarray, sim_propertyinfo_modelhashexclude, R"===({"label": "App args", "description": ""})===", "") \
-    FUNCX(propApp_appArg1, "appArg1", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 1", "description": ""})===", "") \
-    FUNCX(propApp_appArg2, "appArg2", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 2", "description": ""})===", "") \
-    FUNCX(propApp_appArg3, "appArg3", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 3", "description": ""})===", "") \
-    FUNCX(propApp_appArg4, "appArg4", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 4", "description": ""})===", "") \
-    FUNCX(propApp_appArg5, "appArg5", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 5", "description": ""})===", "") \
-    FUNCX(propApp_appArg6, "appArg6", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 6", "description": ""})===", "") \
-    FUNCX(propApp_appArg7, "appArg7", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 7", "description": ""})===", "") \
-    FUNCX(propApp_appArg8, "appArg8", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 8", "description": ""})===", "") \
-    FUNCX(propApp_appArg9, "appArg9", sim_propertytype_string, sim_propertyinfo_deprecated |  sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 9", "description": ""})===", "") \
+    FUNCX(propApp_addOns, "addOns", sim_propertytype_handlearray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-ons", "description": "List of add-ons", "handleType": "detachedScript"})===", "") \
+    FUNCX(propApp_sandbox, "sandbox", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Sandbox", "description": "Handle of the sandbox script", "handleType": "detachedScript"})", "") \
+    FUNCX(propApp_appArgs, "appArgs", sim_propertytype_stringarray, sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App args", "description": ""})===", "") \
+    FUNCX(propApp_appArg1, "appArg1", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 1", "description": ""})===", "") \
+    FUNCX(propApp_appArg2, "appArg2", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 2", "description": ""})===", "") \
+    FUNCX(propApp_appArg3, "appArg3", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 3", "description": ""})===", "") \
+    FUNCX(propApp_appArg4, "appArg4", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 4", "description": ""})===", "") \
+    FUNCX(propApp_appArg5, "appArg5", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 5", "description": ""})===", "") \
+    FUNCX(propApp_appArg6, "appArg6", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 6", "description": ""})===", "") \
+    FUNCX(propApp_appArg7, "appArg7", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 7", "description": ""})===", "") \
+    FUNCX(propApp_appArg8, "appArg8", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 8", "description": ""})===", "") \
+    FUNCX(propApp_appArg9, "appArg9", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"===({"label": "App arg. 9", "description": ""})===", "") \
     FUNCX(propApp_randomQuaternion, "randomQuaternion", sim_propertytype_quaternion, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Random quaternion", "description": ""})===", "") \
     FUNCX(propApp_randomFloat, "randomFloat", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Random number", "description": ""})===", "") \
     FUNCX(propApp_randomString, "randomString", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Random string", "description": ""})===", "") \
-    FUNCX(propApp_notifyDeprecated, "notifyDeprecated", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Notify deprecated", "description": "Notify deprecated API (0: off, 1: light, 2: full)"})===", "") \
-    FUNCX(propApp_execUnsafe, "execUnsafe", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Execute unsafe", "description": ""})===", "") \
-    FUNCX(propApp_execUnsafeExt, "execUnsafeExt", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Execute unsafe extended", "description": "Execute unsafe for code triggered externally"})===", "") \
-    FUNCX(propApp_dongleSerial, "dongleSerial", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_machineSerialND, "machineSerialND", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_machineSerial, "machineSerial", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_dongleID, "dongleID", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_machineIDX, "machineIDX", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_machineID0, "machineID0", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_machineID1, "machineID1", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_machineID2, "machineID2", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "PID", "description": ""})===", "")
+    FUNCX(propApp_notifyDeprecated, "notifyDeprecated", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Notify deprecated", "description": "Notify deprecated API (0: off, 1: light, 2: full)"})===", "") \
+    FUNCX(propApp_execUnsafe, "execUnsafe", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Execute unsafe", "description": ""})===", "") \
+    FUNCX(propApp_execUnsafeExt, "execUnsafeExt", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Execute unsafe extended", "description": "Execute unsafe for code triggered externally"})===", "") \
+    FUNCX(propApp_dongleSerial, "dongleSerial", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_machineSerialND, "machineSerialND", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_machineSerial, "machineSerial", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_dongleID, "dongleID", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_machineIDX, "machineIDX", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_machineID0, "machineID0", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_machineID1, "machineID1", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_machineID2, "machineID2", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "PID", "description": ""})===", "")
 
 #define DETACHEDSCRIPT_PROPERTIES \
-    FUNCX(propScriptObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "") \
-    FUNCX(propScriptObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
-    FUNCX(propScriptObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
+    FUNCX(propScriptObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "") \
+    FUNCX(propScriptObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propScriptObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
     FUNCX(propScriptObj_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0, R"===({"label": "Enabled", "description": "Script is enabled"})===", "") \
     FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0, R"===({"label": "Restart", "description": "Restart on error"})===", "") \
     FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0, R"===({"label": "Execution priority", "description": ""})===", "") \
-    FUNCX(propScriptObj_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Script type"})===", "") \
+    FUNCX(propScriptObj_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Script type"})===", "") \
     FUNCX(propScriptObj_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Execution depth", "description": ""})===", "") \
     FUNCX(propScriptObj_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "State", "description": "Script state"})===", "") \
-    FUNCX(propScriptObj_language, "language", sim_propertytype_string, sim_propertyinfo_notwritable, R"===({"label": "Language", "description": ""})===", "") \
+    FUNCX(propScriptObj_language, "language", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Language", "description": ""})===", "") \
     FUNCX(propScriptObj_code, "code", sim_propertytype_string, 0, R"===({"label": "Code", "description": "Script content"})===", "") \
     FUNCX(propScriptObj_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Name", "description": "Script name"})===", "") \
-    FUNCX(propScriptObj_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on path", "description": "Path of add-on"})===", "") \
-    FUNCX(propScriptObj_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on menu path", "description": "Menu path of add-on"})===", "")
+    FUNCX(propScriptObj_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on path", "description": "Path of add-on"})===", "") \
+    FUNCX(propScriptObj_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Add-on menu path", "description": "Menu path of add-on"})===", "")
 
 #define COLLECTIONCONT_PROPERTIES \
     FUNCX(propCollCont_collections, "collections", sim_propertytype_handlearray, sim_propertyinfo_notwritable, R"({"label": "Collections", "description": "Handles of all collections", "handleType": "collection"})", "")
 
 #define COLLECTION_PROPERTIES \
-    FUNCX(propCollection_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object type", "description": ""})", "") \
-    FUNCX(propCollection_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
-    FUNCX(propCollection_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": "", "handleType": ""})", "") \
+    FUNCX(propCollection_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object type", "description": ""})", "") \
+    FUNCX(propCollection_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
+    FUNCX(propCollection_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": "", "handleType": ""})", "") \
     FUNCX(propCollection_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Children handles", "description": "", "handleType": "sceneObject"})", "")
 
 #define DRAWINGOBJECTCONT_PROPERTIES \
     FUNCX(propDrawCont_drawingObjects, "drawingObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable, R"({"label": "Drawing objects", "description": "Handles of all drawing objects", "handleType": "drawingObject"})", "")
 
 #define DRAWINGOBJECT_PROPERTIES \
-    FUNCX(propDrawingObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object type", "description": ""})", "") \
-    FUNCX(propDrawingObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
-    FUNCX(propDrawingObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": "", "handleType": ""})", "")
+    FUNCX(propDrawingObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object type", "description": ""})", "") \
+    FUNCX(propDrawingObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
+    FUNCX(propDrawingObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": "", "handleType": ""})", "")
 
 #define COLOR_PROPERTIES \
     FUNCX(propCol_colDiffuse, "diffuse", sim_propertytype_color, 0, R"({"label": "Diffuse color", "description": ""})", "") \
@@ -417,18 +417,18 @@
     FUNCX(propDyn_mujocoKinematicWeldTorqueScale, "mujoco.kinematicWeldTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1, R"({"label": "", "description": ""})", "")
 
 #define ENVIRONMENT_PROPERTIES \
-    FUNCX(propScene_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object type", "description": ""})", "") \
-    FUNCX(propScene_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
-    FUNCX(propScene_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": "", "handleType": ""})", "") \
-    FUNCX(propScene_mainScript, "mainScript", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Main script", "description": "Handle of the main script", "handleType": "detachedScript"})", "") \
+    FUNCX(propScene_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object type", "description": ""})", "") \
+    FUNCX(propScene_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
+    FUNCX(propScene_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Handle", "description": "", "handleType": ""})", "") \
+    FUNCX(propScene_mainScript, "mainScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Main script", "description": "Handle of the main script", "handleType": "detachedScript"})", "") \
     FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"({"label": "Final save", "description": "Lock scene and models after next scene save operation"})", "") \
     FUNCX(propScene_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_notwritable, R"({"label": "Scene is locked", "description": ""})", "") \
     FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs", sim_propertytype_bool, 0, R"({"label": "Save calculation structures", "description": "Save operation also saves existing calculation structures"})", "") \
-    FUNCX(propScene_sceneUid, "sceneUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Scene UID", "description": "Scene unique identifier"})", "") \
+    FUNCX(propScene_sceneUid, "sceneUid", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Scene UID", "description": "Scene unique identifier"})", "") \
     FUNCX(propScene_visibilityLayers, "visibilityLayers", sim_propertytype_int, 0, R"({"label": "Visibility layers", "description": "Currently active visibility layers"})", "") \
     FUNCX(propScene_scenePath, "scenePath", sim_propertytype_string, sim_propertyinfo_modelhashexclude, R"({"label": "Scene path", "description": ""})", "") \
     FUNCX(propScene_acknowledgment, "acknowledgment", sim_propertytype_string, 0, R"({"label": "Acknowledgment", "description": "Scene acknowledgment"})", "") \
-    FUNCX(propScene_sceneUidString, "sceneUidString", sim_propertytype_string, sim_propertyinfo_notwritable, R"({"label": "Scene UID string", "description": "Scene unique identifier string"})", "") \
+    FUNCX(propScene_sceneUidString, "sceneUidString", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"({"label": "Scene UID string", "description": "Scene unique identifier string"})", "") \
     FUNCX(propScene_ambientLight, "ambientLight", sim_propertytype_color, 0, R"({"label": "Ambient light", "description": ""})", "")
 
 #define SIMULATION_PROPERTIES \
@@ -469,9 +469,9 @@
     FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0, R"===({"label": "Backface culling", "description": ""})===", "") \
     FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": ""})===", "") \
     FUNCX(propMesh_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
-    FUNCX(propMesh_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
-    FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Shape UID", "description": "Unique identifier of parent shape"})===", "") \
-    FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Shape handle", "description": "", "handleType": "shape"})===", "") \
+    FUNCX(propMesh_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": ""})===", "") \
+    FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Shape UID", "description": "Unique identifier of parent shape"})===", "") \
+    FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Shape handle", "description": "", "handleType": "shape"})===", "") \
     FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Primitive type", "description": ""})===", "") \
     FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable, R"===({"label": "Convex", "description": "Whether mesh is convex or not"})===", "") \
     FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0, R"===({"label": "Color name", "description": ""})===", "")
@@ -480,7 +480,7 @@
     FUNCX(propViewable_viewAngle, "viewAngle", sim_propertytype_float, 0, R"===({"label": "View angle", "description": "View angle (in perspective projection mode)"})===", "") \
     FUNCX(propViewable_viewSize, "viewSize", sim_propertytype_float, 0, R"===({"label": "View size", "description": "View size (in orthogonal projection mode)"})===", "") \
     FUNCX(propViewable_clippingPlanes, "clippingPlanes", sim_propertytype_floatarray, 0, R"===({"label": "Clipping planes", "description": "Near and far clipping planes"})===", "") \
-    FUNCX(propViewable_perspective, "perspective", sim_propertytype_bool, sim_propertyinfo_notwritable, R"===({"label": "Perspective", "description": "Perspective projection mode, otherwise orthogonal projection mode"})===", "") \
+    FUNCX(propViewable_perspective, "perspective", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Perspective", "description": "Perspective projection mode, otherwise orthogonal projection mode"})===", "") \
     FUNCX(propViewable_showFrustum, "showFrustum", sim_propertytype_bool, 0, R"===({"label": "Show view frustum", "description": ""})===", "") \
     FUNCX(propViewable_frustumCornerNear, "frustumCornerNear", sim_propertytype_vector3, sim_propertyinfo_notwritable, R"===({"label": "Near corner of View frustum", "description": ""})===", "") \
     FUNCX(propViewable_frustumCornerFar, "frustumCornerFar", sim_propertytype_vector3, sim_propertyinfo_notwritable, R"===({"label": "Far corner of view frustum", "description": ""})===", "") \
@@ -594,7 +594,7 @@
     FUNCX(propObject_layer, "layer", sim_propertytype_int, 0, R"===({"label": "Visibility layer", "description": ""})===", "") \
     FUNCX(propObject_childOrder, "childOrder", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Child order", "description": ""})===", "") \
     FUNCX(propObject_parentUid, "parentUid", sim_propertytype_long, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Parent UID", "description": "Parent scene object unique identifier"})===", "") \
-    FUNCX(propObject_objectUid, "objectUid", sim_propertytype_long, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object UID", "description": "Scene object unique identifier"})===", "") \
+    FUNCX(propObject_objectUid, "objectUid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object UID", "description": "Scene object unique identifier"})===", "") \
     FUNCX(propObject_parentHandle, "parentHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propObject_parent, "parent", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, R"===({"label": "Parent", "description": "Parent scene object handle", "handleType": "sceneObject"})===", "") \
     FUNCX(propObject_selected, "selected", sim_propertytype_bool, sim_propertyinfo_modelhashexclude, R"===({"label": "Selected", "description": "Selection state"})===", "") \
@@ -605,7 +605,7 @@
     FUNCX(propObject_detectable, "detectable", sim_propertytype_bool, 0, R"===({"label": "Detectable", "description": ""})===", "") \
     FUNCX(propObject_modelAcknowledgment, "modelAcknowledgment", sim_propertytype_string, 0, R"===({"label": "Acknowledgment", "description": "Model acknowledgment"})===", "") \
     FUNCX(propObject_dna, "dna", sim_propertytype_buffer, sim_propertyinfo_notwritable, R"===({"label": "DNA", "description": "Scene object DNA"})===", "") \
-    FUNCX(propObject_persistentUid, "persistentUid", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Persistent UID", "description": "Scene object persistent unique identifier"})===", "") \
+    FUNCX(propObject_persistentUid, "persistentUid", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Persistent UID", "description": "Scene object persistent unique identifier"})===", "") \
     FUNCX(propObject_calcLinearVelocity, "calcLinearVelocity", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Linear velocity", "description": "Calculated scene object linear velocity vector"})===", "") \
     FUNCX(propObject_calcRotationAxis, "calcRotationAxis", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Rotation axis", "description": "Calculated scene object rotation axis"})===", "") \
     FUNCX(propObject_calcRotationVelocity, "calcRotationVelocity", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Rotation velocity", "description": "Calculated scene object rotation velocity"})===", "") \
@@ -687,8 +687,8 @@
     FUNCX(propObject_movPrefRotX, "mov.prefRotX", sim_propertytype_bool, 0, R"===({"label": "Preferred X-axis rotation", "description": ""})===", "") \
     FUNCX(propObject_movPrefRotY, "mov.prefRotY", sim_propertytype_bool, 0, R"===({"label": "Preferred Y-axis rotation", "description": ""})===", "") \
     FUNCX(propObject_movPrefRotZ, "mov.prefRotZ", sim_propertytype_bool, 0, R"===({"label": "Preferred Z-axis rotation", "description": ""})===", "") \
-    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": "Scene object type"})===", "") \
-    FUNCX(propObject_handle, "handle", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": "sceneObject"})===", "") \
+    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object type", "description": "Scene object type"})===", "") \
+    FUNCX(propObject_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Handle", "description": "", "handleType": "sceneObject"})===", "") \
     FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Visible", "description": "Whether the scene object is currently visible"})===", "") \
     FUNCX(propObject_children, "children", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Children handles", "description": "", "handleType": "sceneObject"})===", "") \
     FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Model hash", "description": ""})===", "")
@@ -698,7 +698,7 @@
     SCENEOBJECT_PROPERTIES_2
 
 #define SHAPE_PROPERTIES \
-    FUNCX(propShape_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propShape_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propShape_meshes, "meshes", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Meshes", "description": "Mesh handles", "handleType": "mesh"})===", "") \
     FUNCX(propShape_applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, R"===({"label": "Apply culling", "description": "Enables/disables culling for all contained meshes"})===", "") \
     FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude, R"===({"label": "Apply shading", "description": "Applies a shading angle to all contained meshes"})===", "") \
@@ -723,7 +723,7 @@
     FUNCX(propShape_compound, "compound", sim_propertytype_bool, sim_propertyinfo_notwritable, R"===({"label": "Compound", "description": "Whether the shape is a compound"})===", "")
 
 #define CAMERA_PROPERTIES \
-    FUNCX(propCamera_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
+    FUNCX(propCamera_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
     FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0, R"({"label": "Size", "description": "Camera size"})", "") \
     FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0, R"({"label": "Parent as proxy", "description": "Use parent as manipulation proxy"})", "") \
     FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0, R"({"label": "Translation enabled", "description": ""})", "") \
@@ -731,7 +731,7 @@
     FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, R"({"label": "Tracked object", "description": "Tracked scene object handle"})", "")
 
 #define DUMMY_PROPERTIES \
-    FUNCX(propDummy_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"({"label": "Object meta information", "description": ""})", "") \
+    FUNCX(propDummy_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"({"label": "Object meta information", "description": ""})", "") \
     FUNCX(propDummy_size, "dummySize", sim_propertytype_float, 0, -1, -1, -1, -1, -1, R"({"label": "Size", "description": "Dummy size"})", "") \
     FUNCX(propDummy_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"({"label": "", "description": ""})", "") \
     FUNCX(propDummy_linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"({"label": "Linked dummy", "description": "Handle of the linked dummy", "handleType": "dummy"})", "") \
@@ -752,7 +752,7 @@
     FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1, R"({"label": "", "description": ""})", "")
 
 #define FORCESENSOR_PROPERTIES \
-    FUNCX(propFSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
+    FUNCX(propFSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
     FUNCX(propFSensor_size, "sensorSize", sim_propertytype_float, 0, R"({"label": "Size", "description": "Sensor size"})", "") \
     FUNCX(propFSensor_forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0, R"({"label": "Force threshold enabled", "description": ""})", "") \
     FUNCX(propFSensor_torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0, R"({"label": "Torque threshold enabled", "description": ""})", "") \
@@ -770,7 +770,7 @@
     FUNCX(propFSensor_intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Intrinsic error", "description": "Intrinsic error, generated by some physics engines"})", "")
 
 #define GRAPH_PROPERTIES \
-    FUNCX(propGraph_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
+    FUNCX(propGraph_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"({"label": "Object meta information", "description": ""})", "") \
     FUNCX(propGraph_size, "graphSize", sim_propertytype_float, 0, R"({"label": "Size", "description": "Size of the 3D graph representation"})", "") \
     FUNCX(propGraph_bufferSize, "bufferSize", sim_propertytype_int, 0, R"({"label": "Buffer size", "description": ""})", "") \
     FUNCX(propGraph_cyclic, "cyclic", sim_propertytype_bool, 0, R"({"label": "Cyclic", "description": "Buffer is cyclic"})", "") \
@@ -778,7 +778,7 @@
     FUNCX(propGraph_foregroundColor, "foregroundColor", sim_propertytype_color, 0, R"({"label": "Foreground color", "description": ""})", "")
 
 #define JOINT_PROPERTIES \
-    FUNCX(propJoint_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propJoint_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propJoint_length, "jointLength", sim_propertytype_float, 0, -1, -1, -1, -1, -1, R"===({"label": "Size", "description": "Joint size"})===", "") \
     FUNCX(propJoint_diameter, "jointDiameter", sim_propertytype_float, 0, -1, -1, -1, -1, -1, R"===({"label": "Size", "description": "Joint size"})===", "") \
     FUNCX(propJoint_position, "jointPosition", sim_propertytype_float, 0, -1, -1, -1, -1, -1, R"===({"label": "Position", "description": "Joint linear/angular displacement"})===", "") \
@@ -787,7 +787,7 @@
     FUNCX(propJoint_intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"===({"label": "Intrinsic error", "description": "Intrinsic error, generated by some physics engines"})===", "") \
     FUNCX(propJoint_intrinsicPose, "intrinsicPose", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"===({"label": "Intrinsic pose", "description": "Intrinsic pose (includes a possible intrinsic error)"})===", "") \
     FUNCX(propJoint_calcVelocity, "calcVelocity", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, R"===({"label": "Velocity", "description": "Calculated joint linear or angular velocity"})===", "") \
-    FUNCX(propJoint_jointType, "jointType", sim_propertytype_int, sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, R"===({"label": "Type", "description": "Joint type"})===", "") \
+    FUNCX(propJoint_jointType, "jointType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, R"===({"label": "Type", "description": "Joint type"})===", "") \
     FUNCX(propJoint_cyclic, "cyclic", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, R"===({"label": "Cyclic", "description": "Cyclic revolute joint, has no limits"})===", "") \
     FUNCX(propJoint_enforceLimits, "enforceLimits", sim_propertytype_bool, 0, -1, -1, -1, -1, -1, R"===({"label": "Enforce limits", "description": "Enforce limits strictly"})===", "") \
     FUNCX(propJoint_interval, "interval", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1, R"===({"label": "Interval", "description": "Joint limits (lower and upper bounds)"})===", "") \
@@ -884,20 +884,20 @@
     FUNCX(propJoint_mujocoDependencyPolyCoef, "mujoco.dependencyPolyCoeff", sim_propertytype_floatarray, 0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5, R"===({"label": "", "description": ""})===", "")
 
 #define LIGHT_PROPERTIES \
-    FUNCX(propLight_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propLight_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0, R"===({"label": "Size", "description": "Light size"})===", "") \
     FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0, R"===({"label": "Enabled", "description": ""})===", "") \
-    FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Light type"})===", "") \
+    FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Light type"})===", "") \
     FUNCX(propLight_spotExponent, "spotExponent", sim_propertytype_int, 0, R"===({"label": "Spot exponent", "description": ""})===", "") \
     FUNCX(propLight_spotCutoffAngle, "spotCutoffAngle", sim_propertytype_float, 0, R"===({"label": "Cut off angle", "description": "Spot cut off angle"})===", "") \
     FUNCX(propLight_attenuationFactors, "attenuationFactors", sim_propertytype_floatarray, 0, R"===({"label": "Attenuation factor", "description": ""})===", "") \
     FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, sim_propertyinfo_silent, R"===({"label": "POV-Ray: cast shadows", "description": "Light casts shadows (with the POV-Ray renderer plugin)"})===", "")
 
 #define MIRROR_PROPERTIES \
-    FUNCX(propMirror_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propMirror_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
 
 #define OCTREE_PROPERTIES \
-    FUNCX(propOctree_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propOctree_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0, R"===({"label": "Voxel size", "description": ""})===", "") \
     FUNCX(propOctree_randomColors, "randomColors", sim_propertytype_bool, 0, R"===({"label": "Random voxel colors", "description": ""})===", "") \
     FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0, R"===({"label": "Show points instead of voxels", "description": ""})===", "") \
@@ -905,7 +905,7 @@
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Voxel Colors", "description": ""})===", "")
 
 #define POINTCLOUD_PROPERTIES \
-    FUNCX(propPointCloud_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propPointCloud_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0, R"===({"label": "OC-Tree structure Enabled", "description": "Use an oc-tree structure"})===", "") \
     FUNCX(propPointCloud_randomColors, "randomColors", sim_propertytype_bool, 0, R"===({"label": "Random point colors", "description": ""})===", "") \
     FUNCX(propPointCloud_pointSize, "pointSize", sim_propertytype_int, 0, R"===({"label": "Point size", "description": ""})===", "") \
@@ -916,7 +916,7 @@
     FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Colors", "description": "Point colors"})===", "")
 
 #define PROXIMITYSENSOR_PROPERTIES \
-    FUNCX(propProximitySensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propProximitySensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propProximitySensor_size, "sensorPointSize", sim_propertytype_float, 0, R"===({"label": "Sensor point size", "description": ""})===", "") \
     FUNCX(propProximitySensor_frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0, R"===({"label": "Front face detection", "description": ""})===", "") \
     FUNCX(propProximitySensor_backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0, R"===({"label": "Back face detection", "description": ""})===", "") \
@@ -924,14 +924,14 @@
     FUNCX(propProximitySensor_explicitHandling, "explicitHandling", sim_propertytype_bool, 0, R"===({"label": "Explicit handling", "description": ""})===", "") \
     FUNCX(propProximitySensor_showVolume, "showVolume", sim_propertytype_bool, 0, R"===({"label": "Show volume", "description": ""})===", "") \
     FUNCX(propProximitySensor_randomizedDetection, "randomizedDetection", sim_propertytype_bool, sim_propertyinfo_notwritable, R"===({"label": "Randomized detection", "description": ""})===", "") \
-    FUNCX(propProximitySensor_sensorType, "sensorType", sim_propertytype_int, sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Sensor type"})===", "") \
+    FUNCX(propProximitySensor_sensorType, "sensorType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, R"===({"label": "Type", "description": "Sensor type"})===", "") \
     FUNCX(propProximitySensor_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detected object", "description": "Detected scene object handle"})===", "") \
     FUNCX(propProximitySensor_angleThreshold, "angleThreshold", sim_propertytype_float, 0, R"===({"label": "Angle threshold", "description": "Angle threshold, 0.0 to disable"})===", "") \
     FUNCX(propProximitySensor_detectedPoint, "detectedPoint", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detected point", "description": ""})===", "") \
     FUNCX(propProximitySensor_detectedNormal, "detectedNormal", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detected normal", "description": "Detected normal vector"})===", "")
 
 #define VISIONSENSOR_PROPERTIES \
-    FUNCX(propVisionSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propVisionSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propVisionSensor_size, "sensorSize", sim_propertytype_float, 0, R"===({"label": "Size", "description": "Sensor size"})===", "") \
     FUNCX(propVisionSensor_backgroundCol, "backgroundColor", sim_propertytype_color, 0, R"===({"label": "Background color", "description": ""})===", "") \
     FUNCX(propVisionSensor_renderMode, "renderMode", sim_propertytype_int, 0, R"===({"label": "Render mode", "description": ""})===", "") \
@@ -955,19 +955,19 @@
     FUNCX(propVisionSensor_povAperture, "povray.aperture", sim_propertytype_float, sim_propertyinfo_silent, R"===({"label": "POV-Ray: aperture", "description": "Aperture (with the POV-Ray renderer plugin)"})===", "")
 
 #define SCRIPT_PROPERTIES \
-    FUNCX(propScript_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
+    FUNCX(propScript_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Object meta information", "description": ""})===", "") \
     FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0, R"===({"label": "Size", "description": "Size of the script object"})===", "") \
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0, R"===({"label": "Reset after simulation error", "description": ""})===", "") \
-    FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detached script handle", "description": "", "handleType": "detachedScript"})===", "") \
+    FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Detached script handle", "description": "", "handleType": "detachedScript"})===", "") \
     FUNCX(propScript_scriptDisabled, "scriptDisabled", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propScript_restartOnError, "restartOnError", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propScript_execPriority, "execPriority", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propScript_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propScript_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propScript_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propScript_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propScript_language, "language", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propScript_language, "language", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propScript_code, "code", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
     FUNCX(propScript_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propScript_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
-    FUNCX(propScript_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")
+    FUNCX(propScript_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "") \
+    FUNCX(propScript_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "", "description": ""})===", "")
 
