@@ -221,7 +221,7 @@ CMainWindow::CMainWindow(int operationalUiParts)
     font.setFamily("Courier New");
     doc->setDefaultFont(font);
     statusBar->setReadOnly(true);
-    statusBar->setLineWrapMode(QPlainTextEdit::WidgetWidth);
+    statusBar->setLineWrapMode(QPlainTextEdit::WidgetWidth); // QPlainTextEdit::NoWrap
     statusBar->setMaximumBlockCount(5000);
     statusBar->moveCursor(QTextCursor::End);
     statusBar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

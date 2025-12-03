@@ -2755,7 +2755,7 @@ int App::getStringArrayProperty(long long int target, const char* ppName, std::v
             pState = _applicationArguments;
             retVal = 1;
         }
-        else if (strcmp(pName, propApp_plugins.name) == 0)
+        else if (strcmp(pName, propApp_pluginNames.name) == 0)
         {
             pState = _pluginNames;
             retVal = 1;
@@ -3222,7 +3222,7 @@ void App::pushGenesisEvents()
         ev->appendKeyInt(propApp_statusbarVerbosity.name, getStatusbarVerbosity());
         ev->appendKeyInt(propApp_dialogVerbosity.name, getDlgVerbosity());
         ev->appendKeyTextArray(propApp_appArgs.name, _applicationArguments);
-        ev->appendKeyTextArray(propApp_plugins.name, _pluginNames);
+        ev->appendKeyTextArray(propApp_pluginNames.name, _pluginNames);
         std::vector<int> addOnList(worldContainer->addOnScriptContainer->getAddOnHandles());
         ev->appendKeyIntArray(propApp_addOns.name, addOnList.data(), addOnList.size());
 
@@ -3330,7 +3330,7 @@ void App::setPluginList(const std::vector<CPlugin*>* plugins)
     {
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propApp_plugins.name;
+            const char* cmd = propApp_pluginNames.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyTextArray(cmd, _pluginNames);
             App::worldContainer->pushEvent();

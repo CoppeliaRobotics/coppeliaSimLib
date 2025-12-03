@@ -7066,7 +7066,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
 #ifdef SIM_WITH_GUI
     if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable() && (GuiApp::mainWindow != nullptr))
     {
-        if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
+        if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0))
         {
             int handle = luaToInt(L, 1);
             int state = GuiApp::mainWindow->codeEditorContainer->getShowState(handle);
