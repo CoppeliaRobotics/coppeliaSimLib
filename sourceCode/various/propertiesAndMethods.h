@@ -645,7 +645,7 @@
     FUNCX(propObject_modelBBSize, "model.bbSize", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Model bounding boxe size", "description": ""})===", "") \
     FUNCX(propObject_modelBBPos, "model.bbPos", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, R"===({"label": "Model bounding boxe position", "description": ""})===", "") \
     FUNCX(propObject_pose, "pose", sim_propertytype_pose, 0, R"===({"label": "Pose", "description": "Scene object local pose"})===", "") \
-    FUNCX(propObject_position, "position", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Position", "description": "Scene object local position"})===", "") \
+    FUNCX(propObject_position, "position", sim_propertytype_vector3, sim_propertyinfo_modelhashexclude, R"===({"label": "Position", "description": "Scene object local position"})===", "") \
     FUNCX(propObject_quaternion, "quaternion", sim_propertytype_quaternion, sim_propertyinfo_modelhashexclude, R"===({"label": "Quaternion", "description": "Scene object local quaternion"})===", "") \
     FUNCX(propObject_eulerAngles, "eulerAngles", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Euler angles", "description": "Scene object local Euler angles"})===", "") \
     FUNCX(propObject_absPose, "absPose", sim_propertytype_pose, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, R"===({"label": "Pose", "description": "Scene object absolute pose"})===", "") \

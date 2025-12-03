@@ -1486,6 +1486,8 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
     ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
+    ev->appendKeyDoubleArray(propObject_position.name, p, 3);
+    ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
     ev->appendKeyText(propObject_alias.name, _objectAlias.c_str());
     ev->appendKeyBool(propObject_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(propObject_modelBase.name, _modelBase);
@@ -5395,6 +5397,8 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
             ev->appendKeyDoubleArray(cmd, p, 7);
+            ev->appendKeyDoubleArray(propObject_position.name, p, 3);
+            ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
             App::worldContainer->pushEvent();
         }
         _setLocalTransformation_send(_localTransformation);
@@ -5415,6 +5419,7 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
                            _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                            _localTransformation.Q(0)};
             ev->appendKeyDoubleArray(cmd, p, 7);
+            ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
             App::worldContainer->pushEvent();
         }
         C7Vector tr(_localTransformation);
@@ -5436,6 +5441,7 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
             double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                            _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                            _localTransformation.Q(0)};
+            ev->appendKeyDoubleArray(propObject_position.name, p, 3);
             ev->appendKeyDoubleArray(cmd, p, 7);
             App::worldContainer->pushEvent();
         }
