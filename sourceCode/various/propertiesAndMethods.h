@@ -92,10 +92,10 @@
         "setVector2Property": "sim-2.setVector2Property",
         "setVector3Property": "sim-2.setVector3Property")"
 
-#define APP_META_METHODS R"("loadPlugin": "sim-2.loadPlugin",
-        "unloadPlugin": "sim-2.unloadPlugin")"
+#define APP_META_METHODS R"("__": "__")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callScriptFunction",
+        "getFunctions": "sim-2.getScriptFunctions",
         "executeScriptString": "sim-2.executeScriptString",
         "getApiFunc": "sim-2.getApiFunc",
         "getApiInfo": "sim-2.getApiInfo",
