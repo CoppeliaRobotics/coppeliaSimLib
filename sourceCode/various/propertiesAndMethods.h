@@ -96,7 +96,7 @@
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callScriptFunction",
         "getFunctions": "sim-2.getScriptFunctions",
-        "executeScriptString": "sim-2.executeScriptString",
+        "executeString": "sim-2.executeScriptString",
         "getApiFunc": "sim-2.getApiFunc",
         "getApiInfo": "sim-2.getApiInfo",
         "getStackTraceback": "sim-2.getStackTraceback",

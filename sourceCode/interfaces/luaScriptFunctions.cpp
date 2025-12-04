@@ -13687,13 +13687,13 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.executeScriptString");
 
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        std::string stringToExecute(luaWrap_lua_tostring(L, 1));
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
-        int scriptID = luaToInt(L, 2);
+        int scriptID = fetchIntArg(L, 1);
         if (scriptID == sim_handle_self)
             scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string stringToExecute(fetchTextArg(L, 2));
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         int retVal = CALL_C_API(simExecuteScriptString, scriptID, stringToExecute.c_str(), stack->getId());
         if (retVal >= 0)
         {
