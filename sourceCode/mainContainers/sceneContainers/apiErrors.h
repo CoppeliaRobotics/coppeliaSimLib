@@ -48,6 +48,7 @@
 #define SIM_ERROR_SIMULATION_NOT_RUNNING "simulation is not running."
 #define SIM_ERROR_SIMULATION_NOT_REAL_TIME "simulation is not real-time."
 #define SIM_ERROR_FILE_NOT_FOUND "file not found."
+#define SIM_ERROR_INVALID_FILENAME "invalid file name."
 #define SIM_ERROR_WRONG_POS_SIZE_PARAMS "wrong position/size parameters."
 #define SIM_ERROR_BUTTON_NOT_SLIDER "button is not a slider."
 #define SIM_ERROR_SCENE_LOCKED "scene is locked."

@@ -92,7 +92,8 @@
         "setVector2Property": "sim-2.setVector2Property",
         "setVector3Property": "sim-2.setVector3Property")"
 
-#define APP_META_METHODS R"("__": "__")"
+#define APP_META_METHODS R"("handleAddOnScripts": "sim-2._handleAddOnScripts",
+        "handleSandboxScript": "sim-2._handleSandboxScript")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callScriptFunction",
         "getFunctions": "sim-2.getScriptFunctions",
@@ -102,24 +103,42 @@
         "getStackTraceback": "sim-2.getStackTraceback",
         "init": "sim-2.initScript")"
 
-#define COLLECTION_META_METHODS R"("addItem": "sim-2.addToCollection",
-        "removeItem": "sim-2.removeFromCollection",
+#define COLLECTION_META_METHODS R"("addItem": "sim-2._addItem",
+        "removeItem": "sim-2._removeItem",
         "checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
-        "remove": "sim-2.removeCollection")"
+        "checkDistance": "sim-2.checkDistance")"
 
-#define DRAWINGOBJECT_META_METHODS R"("addItem": "sim-2.addDrawingObjectItem",
-        "remove": "sim-2.removeDrawingObject")"
+#define DRAWINGOBJECT_META_METHODS R"("addItems": "sim-2._addDrawingObjectItems",
+        "clearItems": "sim-2._clearDrawingObjectItems",
+        "addPackedItems": "sim-2._addDrawingObjectPackedItems")"
 
 #define MESH_META_METHODS R"("__": "__")"
 
-#define SCENE_META_METHODS R"("getAncestors": "sim-2.getObjectAncestors",
-        "getDescendants": "sim-2.getObjectDescendants",
+#define SCENE_META_METHODS R"("removeObject": "sim-2._removeObject",
+        "removeObjects": "sim-2._removeObjects",
+        "removeModel": "sim-2._removeModel",
+        "duplicateObjects": "sim-2._duplicateObjects",
+        "handleSimulationScripts": "sim-2._handleSimulationScripts",
+        "handleEmbeddedScripts": "sim-2._handleEmbeddedScripts",
+        "saveModel": "sim-2.__saveModel",
+        "saveModelToBuffer": "sim-2.__saveModelToBuffer",
+        "loadModel": "sim-2._loadModel",
+        "loadModelFromBuffer": "sim-2._loadModelFromBuffer",
+        "loadModelThumbnail": "sim-2._loadModelThumbnail",
+        "loadModelThumbnailFromBuffer": "sim-2._loadModelThumbnailFromBuffer",
         "load": "sim-2.loadScene",
         "save": "sim-2.saveScene")"
 
-#define SCENEOBJECT_META_METHODS R"("getAlias": "sim-2.getObjectAlias",
-        "getPose": "sim-2.getObjectPose",
+#define SCENEOBJECT_META_METHODS R"("getAncestors": "sim-2._getAncestors",
+        "getDescendants": "sim-2._getDescendants",
+        "saveModel": "sim-2._saveModel",
+        "saveModelToBuffer": "sim-2._saveModelToBuffer",
+        "checkCollision": "sim-2.checkCollision",
+        "checkDistance": "sim-2.checkDistance",
+        "getAlias": "sim-2.getObjectAlias",
+        "setAlias": "sim-2.setObjectAlias",
+        "getPose": "sim-2._getObjectPose",
+
         "getPosition": "sim-2.getObjectPosition",
         "getQuaternion": "sim-2.getObjectQuaternion",
         "getVelocity": "sim-2.getObjectVelocity",
@@ -130,8 +149,6 @@
         "setQuaternion": "sim-2.setObjectQuaternion",
         "visitTree": "sim-2.visitTree",
         "dynamicReset": "sim-2.resetDynamicObject",
-        "getDescendants": "sim-2.getObjectDescendants",
-        "getAncestors": "sim-2.getObjectAncestors",
         )" OBJECT_META_METHODS
 
 #define SHAPE_META_METHODS R"("addForce": "sim-2.addForce",

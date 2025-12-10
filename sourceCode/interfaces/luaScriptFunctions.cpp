@@ -6590,7 +6590,7 @@ int _simLoadModel(luaWrap_lua_State* L)
         bool onlyThumbnails = (options & 1);
         if (data.size() < 1000)
         { // loading from file:
-            std::string path(data, data.size());
+            std::string path(data);
             size_t atCopyPos = path.find("@copy");
             bool forceAsCopy = (atCopyPos != std::string::npos);
             if (forceAsCopy)
@@ -6664,44 +6664,45 @@ int _simSaveModel(luaWrap_lua_State* L)
     LUA_START("sim.saveModel");
 
     int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string | lua_arg_optional, 0))
     {
-        int model = luaToInt(L, 1);
-        int res = checkOneGeneralInputArgument(L, 2, lua_arg_string, 0, true, true, &errorString, argOffset);
-        if (res >= 0)
+        int model = fetchIntArg(L, 1);
+        std::string filename = fetchTextArg(L, 2);
+        if (filename.size() > 0)
         {
-            if (res == 2)
-                retVal = CALL_C_API(simSaveModel, luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
+            if (filename.size() > 1)
+                retVal = CALL_C_API(simSaveModel, model, filename.c_str());
             else
-            { // here we don't save to file, but to buffer:
-
-                if (!App::currentWorld->environment->getSceneLocked())
+                errorString = SIM_ERROR_INVALID_FILENAME;
+        }
+        else
+        { // here we don't save to file, but to buffer:
+            if (!App::currentWorld->environment->getSceneLocked())
+            {
+                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(model);
+                if (it != nullptr)
                 {
-                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(model);
-                    if (it != nullptr)
+                    if (it->getModelBase())
                     {
-                        if (it->getModelBase())
+                        std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
+                        std::vector<char> buffer;
+                        std::string infoStr;
+                        if (CFileOperations::saveModel(model, nullptr, false, &buffer, &infoStr, &errorString))
                         {
-                            std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
-                            std::vector<char> buffer;
-                            std::string infoStr;
-                            if (CFileOperations::saveModel(model, nullptr, false, &buffer, &infoStr, &errorString))
-                            {
-                                App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
-                                setLastInfo(infoStr.c_str());
-                                luaWrap_lua_pushbuffer(L, &buffer[0], buffer.size());
-                                LUA_END(1);
-                            }
+                            App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
+                            setLastInfo(infoStr.c_str());
+                            luaWrap_lua_pushbuffer(L, &buffer[0], buffer.size());
+                            LUA_END(1);
                         }
-                        else
-                            errorString = SIM_ERROR_OBJECT_NOT_MODEL_BASE;
                     }
                     else
-                        errorString = SIM_ERROR_OBJECT_INEXISTANT;
+                        errorString = SIM_ERROR_OBJECT_NOT_MODEL_BASE;
                 }
                 else
-                    errorString = SIM_ERROR_SCENE_LOCKED;
+                    errorString = SIM_ERROR_OBJECT_INEXISTANT;
             }
+            else
+                errorString = SIM_ERROR_SCENE_LOCKED;
         }
     }
 
@@ -12407,9 +12408,9 @@ int _simAddToCollection(luaWrap_lua_State* L)
 }
 
 int _simDestroyCollection(luaWrap_lua_State* L)
-{ // wrapped to sim.removeCollection in sim-2
+{
     TRACE_LUA_API;
-    LUA_START("sim.removeCollection");
+    LUA_START("sim.destroyCollection");
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
         CALL_C_API(simDestroyCollection, luaToInt(L, 1));
