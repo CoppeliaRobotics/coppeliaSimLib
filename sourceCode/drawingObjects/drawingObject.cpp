@@ -668,7 +668,7 @@ int CDrawingObject::getPropertyInfo(const char* ppName, int& info, std::string& 
                 infoTxt = allProps_drawingObj[i].shortInfoTxt;
             else
             {
-                auto w = QJsonDocument::fromJson(allProps_drawingObj[i].shortInfoTxt).object();
+                auto w = QJsonDocument::fromJson(allProps_drawingObj[i].shortInfoTxt.c_str()).object();
                 std::string descr = w["description"].toString().toStdString();
                 std::string label = w["label"].toString().toStdString();
                 if ( (infoTxt == "s") || (descr == "") )

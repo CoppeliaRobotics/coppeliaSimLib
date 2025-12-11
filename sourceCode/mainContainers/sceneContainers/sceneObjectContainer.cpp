@@ -6529,7 +6529,7 @@ int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pNa
                     infoTxt = allProps_objCont[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_objCont[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_objCont[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

@@ -5,16 +5,6 @@
 #include <colorObject.h>
 #include <cbor.h>
 
-struct SDynProperty
-{
-    const char* name;
-    int type;
-    int flags;
-    int oldEnums[5];
-    const char* shortInfoTxt;
-    const char* infoTxt;
-};
-
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDynProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DYNCONT_PROPERTIES

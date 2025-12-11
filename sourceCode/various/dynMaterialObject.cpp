@@ -2456,7 +2456,7 @@ int CDynMaterialObject::getPropertyInfo_static(const char* pName, int& info, std
                 infoTxt = allProps_material[i].shortInfoTxt;
             else
             {
-                auto w = QJsonDocument::fromJson(allProps_material[i].shortInfoTxt).object();
+                auto w = QJsonDocument::fromJson(allProps_material[i].shortInfoTxt.c_str()).object();
                 std::string descr = w["description"].toString().toStdString();
                 std::string label = w["label"].toString().toStdString();
                 if ( (infoTxt == "s") || (descr == "") )

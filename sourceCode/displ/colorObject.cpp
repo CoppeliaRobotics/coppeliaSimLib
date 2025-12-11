@@ -1037,7 +1037,7 @@ int CColorObject::getPropertyInfo(const char* ppName, int& info, std::string& in
                         infoTxt = allProps_col[i].shortInfoTxt;
                     else
                     {
-                        auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt).object();
+                        auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt.c_str()).object();
                         std::string descr = w["description"].toString().toStdString();
                         std::string label = w["label"].toString().toStdString();
                         if ( (infoTxt == "s") || (descr == "") )
@@ -1077,7 +1077,7 @@ int CColorObject::getPropertyInfo_static(const char* ppName, int& info, std::str
                         infoTxt = allProps_col[i].shortInfoTxt;
                     else
                     {
-                        auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt).object();
+                        auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt.c_str()).object();
                         std::string descr = w["description"].toString().toStdString();
                         std::string label = w["label"].toString().toStdString();
                         if ( (infoTxt == "s") || (descr == "") )

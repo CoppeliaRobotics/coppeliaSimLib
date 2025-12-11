@@ -2352,7 +2352,7 @@ int CConvexVolume::getPropertyInfo(const char* pName, int& info, std::string& in
                 infoTxt = allProps_volume[i].shortInfoTxt;
             else
             {
-                auto w = QJsonDocument::fromJson(allProps_volume[i].shortInfoTxt).object();
+                auto w = QJsonDocument::fromJson(allProps_volume[i].shortInfoTxt.c_str()).object();
                 std::string descr = w["description"].toString().toStdString();
                 std::string label = w["label"].toString().toStdString();
                 if ( (infoTxt == "s") || (descr == "") )
@@ -2379,7 +2379,7 @@ int CConvexVolume::getPropertyInfo_static(const char* pName, int& info, std::str
                 infoTxt = allProps_volume[i].shortInfoTxt;
             else
             {
-                auto w = QJsonDocument::fromJson(allProps_volume[i].shortInfoTxt).object();
+                auto w = QJsonDocument::fromJson(allProps_volume[i].shortInfoTxt.c_str()).object();
                 std::string descr = w["description"].toString().toStdString();
                 std::string label = w["label"].toString().toStdString();
                 if ( (infoTxt == "s") || (descr == "") )

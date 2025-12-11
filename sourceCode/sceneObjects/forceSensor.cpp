@@ -1359,7 +1359,7 @@ int CForceSensor::getPropertyInfo(const char* ppName, int& info, std::string& in
                     infoTxt = allProps_forceSensor[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )
@@ -1392,7 +1392,7 @@ int CForceSensor::getPropertyInfo_static(const char* ppName, int& info, std::str
                     infoTxt = allProps_forceSensor[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

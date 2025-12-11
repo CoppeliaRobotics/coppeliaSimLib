@@ -627,7 +627,7 @@ int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                     infoTxt = allProps_mirror[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_mirror[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_mirror[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )
@@ -660,7 +660,7 @@ int CMirror::getPropertyInfo_static(const char* ppName, int& info, std::string& 
                     infoTxt = allProps_mirror[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_mirror[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_mirror[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

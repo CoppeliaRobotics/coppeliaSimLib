@@ -877,7 +877,7 @@ int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info, std::st
                 infoTxt = allProps_viewable[i].shortInfoTxt;
             else
             {
-                auto w = QJsonDocument::fromJson(allProps_viewable[i].shortInfoTxt).object();
+                auto w = QJsonDocument::fromJson(allProps_viewable[i].shortInfoTxt.c_str()).object();
                 std::string descr = w["description"].toString().toStdString();
                 std::string label = w["label"].toString().toStdString();
                 if ( (infoTxt == "s") || (descr == "") )

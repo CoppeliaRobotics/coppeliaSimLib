@@ -1136,7 +1136,7 @@ int CLight::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
                     infoTxt = allProps_light[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_light[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_light[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )
@@ -1171,7 +1171,7 @@ int CLight::getPropertyInfo_static(const char* ppName, int& info, std::string& i
                     infoTxt = allProps_light[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_light[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_light[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

@@ -1434,7 +1434,7 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                     infoTxt = allProps_ocTree[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_ocTree[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_ocTree[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )
@@ -1480,7 +1480,7 @@ int COcTree::getPropertyInfo_static(const char* ppName, int& info, std::string& 
                     infoTxt = allProps_ocTree[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_ocTree[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_ocTree[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

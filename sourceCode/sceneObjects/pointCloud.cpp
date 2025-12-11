@@ -1851,7 +1851,7 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
                     infoTxt = allProps_pointCloud[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_pointCloud[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_pointCloud[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )
@@ -1897,7 +1897,7 @@ int CPointCloud::getPropertyInfo_static(const char* ppName, int& info, std::stri
                     infoTxt = allProps_pointCloud[i].shortInfoTxt;
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_pointCloud[i].shortInfoTxt).object();
+                    auto w = QJsonDocument::fromJson(allProps_pointCloud[i].shortInfoTxt.c_str()).object();
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

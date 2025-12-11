@@ -1646,7 +1646,7 @@ int CSimulation::getPropertyInfo(const char* pName, int& info, std::string& info
                 infoTxt = allProps_sim[i].shortInfoTxt;
             else
             {
-                auto w = QJsonDocument::fromJson(allProps_sim[i].shortInfoTxt).object();
+                auto w = QJsonDocument::fromJson(allProps_sim[i].shortInfoTxt.c_str()).object();
                 std::string descr = w["description"].toString().toStdString();
                 std::string label = w["label"].toString().toStdString();
                 if ( (infoTxt == "s") || (descr == "") )
