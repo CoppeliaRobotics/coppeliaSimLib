@@ -283,7 +283,7 @@ int CCollection::getSceneObjectHandleFromIndex(size_t index) const
     return retVal;
 }
 
-int CCollection::getHandleProperty(const char* ppName, long long int& pState) const
+int CCollection::getLongProperty(const char* ppName, long long int& pState) const
 {
     std::string _pName(ppName);
     int retVal = -1;
@@ -293,6 +293,14 @@ int CCollection::getHandleProperty(const char* ppName, long long int& pState) co
         retVal = 1;
         pState = _collectionHandle;
     }
+
+    return retVal;
+}
+
+int CCollection::getHandleProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = -1;
 
     return retVal;
 }

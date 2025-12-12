@@ -599,7 +599,7 @@ void CDrawingObject::pushAppendNewPointEvent()
     }
 }
 
-int CDrawingObject::getHandleProperty(const char* ppName, long long int& pState) const
+int CDrawingObject::getLongProperty(const char* ppName, long long int& pState) const
 {
     std::string _pName(ppName);
     int retVal = -1;
@@ -610,6 +610,14 @@ int CDrawingObject::getHandleProperty(const char* ppName, long long int& pState)
         pState = _objectId;
     }
  
+    return retVal;
+}
+
+int CDrawingObject::getHandleProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = -1;
+
     return retVal;
 }
 

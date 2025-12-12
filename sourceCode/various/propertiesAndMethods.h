@@ -273,11 +273,25 @@ inline std::string jsonStr(const QJsonObject& obj)
         "getImage": "sim-2.getVisionSensorImg",
         "setImage": "sim-2.setVisionSensorImg")"
 
+#define OBJECT_TYPE_NAME "objectType"
+#define OBJECT_TYPE_TYPE (sim_propertytype_string)
+#define OBJECT_TYPE_FLAGS (sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
+#define OBJECT_TYPE_JSON (jsonStr({{"label", "Object type"}, {"description", ""}}))
+
+#define OBJECT_HANDLE_NAME "handle"
+#define OBJECT_HANDLE_TYPE (sim_propertytype_long)
+#define OBJECT_HANDLE_FLAGS (sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
+#define OBJECT_HANDLE_JSON (jsonStr({{"label", "Handle"}, {"description", ""}}))
+
+#define OBJECT_META_INFO_NAME "objectMetaInfo"
+#define OBJECT_META_INFO_TYPE (sim_propertytype_string)
+#define OBJECT_META_INFO_FLAGS (sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
+#define OBJECT_META_INFO_JSON (jsonStr({{"label", "Object meta information"}, {"description", ""}}))
 
 #define APP_PROPERTIES \
-    FUNCX(propApp_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
-    FUNCX(propApp_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
-    FUNCX(propApp_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Handle"}, {"description", ""}, {"handleType", "app"}}), "") \
+    FUNCX(propApp_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
+    FUNCX(propApp_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
+    FUNCX(propApp_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Session ID"}, {"description", ""}}), "") \
     FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Protocol"}, {"description", "Protocol version"}}), "") \
     FUNCX(propApp_productVersion, "productVersion", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Product string"}, {"description", "Product version (string)"}}), "") \
@@ -352,9 +366,9 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "PID"}, {"description", ""}}), "")
 
 #define DETACHEDSCRIPT_PROPERTIES \
-    FUNCX(propScriptObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
-    FUNCX(propScriptObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
-    FUNCX(propScriptObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Handle"}, {"description", ""}, {"handleType", "detachedScript"}}), "") \
+    FUNCX(propScriptObj_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
+    FUNCX(propScriptObj_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
+    FUNCX(propScriptObj_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propScriptObj_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Enabled"}, {"description", "Script is enabled"}}), "") \
     FUNCX(propScriptObj_restartOnError, "restartOnError", sim_propertytype_bool, 0,  jsonStr({{"label", "Restart"}, {"description", "Restart on error"}}), "") \
     FUNCX(propScriptObj_execPriority, "execPriority", sim_propertytype_int, 0,  jsonStr({{"label", "Execution priority"}, {"description", ""}}), "") \
@@ -371,18 +385,18 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propCollCont_collections, "collections", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Collections"}, {"description", "Handles of all collections"}, {"handleType", "collection"}}), "")
 
 #define COLLECTION_PROPERTIES \
-    FUNCX(propCollection_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
-    FUNCX(propCollection_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
-    FUNCX(propCollection_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Handle"}, {"description", ""}, {"handleType", "collection"}}), "") \
+    FUNCX(propCollection_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
+    FUNCX(propCollection_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
+    FUNCX(propCollection_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propCollection_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Children handles"}, {"description", ""}, {"handleType", "sceneObject"}}), "")
 
 #define DRAWINGOBJECTCONT_PROPERTIES \
     FUNCX(propDrawCont_drawingObjects, "drawingObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Drawing objects"}, {"description", "Handles of all drawing objects"}, {"handleType", "drawingObject"}}), "")
 
 #define DRAWINGOBJECT_PROPERTIES \
-    FUNCX(propDrawingObj_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
-    FUNCX(propDrawingObj_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
-    FUNCX(propDrawingObj_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Handle"}, {"description", ""}, {"handleType", "drawingObject"}}), "")
+    FUNCX(propDrawingObj_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
+    FUNCX(propDrawingObj_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
+    FUNCX(propDrawingObj_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "")
 
 #define COLOR_PROPERTIES \
     FUNCX(propCol_colDiffuse, "diffuse", sim_propertytype_color, 0,  jsonStr({{"label", "Diffuse color"}, {"description", ""}}), "") \
@@ -497,9 +511,9 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propDyn_mujocoKinematicWeldTorqueScale, "mujoco.kinematicWeldTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define ENVIRONMENT_PROPERTIES \
-    FUNCX(propScene_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
-    FUNCX(propScene_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
-    FUNCX(propScene_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Handle"}, {"description", ""}, {"handleType", "scene"}}), "") \
+    FUNCX(propScene_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
+    FUNCX(propScene_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
+    FUNCX(propScene_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propScene_mainScript, "mainScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Main script"}, {"description", "Handle of the main script"}, {"handleType", "detachedScript"}}), "") \
     FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Final save"}, {"description", "Lock scene and models after next scene save operation"}}), "") \
     FUNCX(propScene_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Scene is locked"}, {"description", ""}}), "") \
@@ -533,6 +547,9 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propMeshWrap_pmiQuaternion, "pmiQuaternion", sim_propertytype_quaternion, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternion of the principal moment of inertia"}, {"description", "Quaternion of the principal moment of inertia, relative to the shape's reference frame"}}), "")
 
 #define MESH_PROPERTIES \
+    FUNCX(propMesh_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
+    FUNCX(propMesh_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
+    FUNCX(propMesh_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable,  jsonStr({{"label", "Texture resolution"}, {"description", ""}}), "") \
     FUNCX(propMesh_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture coordinates"}, {"description", ""}}), "") \
     FUNCX(propMesh_textureApplyMode, "textureApplyMode", sim_propertytype_int, 0,  jsonStr({{"label", "Texture apply mode"}, {"description", ""}}), "") \
@@ -547,9 +564,6 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0,  jsonStr({{"label", "Shading angle"}, {"description", ""}}), "") \
     FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0,  jsonStr({{"label", "Visible edges"}, {"description", ""}}), "") \
     FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0,  jsonStr({{"label", "Backface culling"}, {"description", ""}}), "") \
-    FUNCX(propMesh_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
-    FUNCX(propMesh_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
-    FUNCX(propMesh_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Handle"}, {"description", ""}, {"handleType", "mesh"}}), "") \
     FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Shape UID"}, {"description", "Unique identifier of parent shape"}}), "") \
     FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Shape handle"}, {"description", ""}, {"handleType", "shape"}}), "") \
     FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Primitive type"}, {"description", ""}}), "") \
@@ -669,6 +683,8 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propMaterial_mujocoGravcomp, "mujoco.gravcomp", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define SCENEOBJECT_PROPERTIES_1 \
+    FUNCX(propObject_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
+    FUNCX(propObject_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
     FUNCX(propObject_modelInvisible, "modelInvisible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Inherited model invisibility"}, {"description", ""}}), "") \
     FUNCX(propObject_modelBase, "modelBase", sim_propertytype_bool, 0,  jsonStr({{"label", "Model base"}, {"description", "Model base flag, indicates the scene object is the base of a model"}}), "") \
     FUNCX(propObject_layer, "layer", sim_propertytype_int, 0,  jsonStr({{"label", "Visibility layer"}, {"description", ""}}), "") \
@@ -767,8 +783,6 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propObject_movPrefRotX, "mov.prefRotX", sim_propertytype_bool, 0,  jsonStr({{"label", "Preferred X-axis rotation"}, {"description", ""}}), "") \
     FUNCX(propObject_movPrefRotY, "mov.prefRotY", sim_propertytype_bool, 0,  jsonStr({{"label", "Preferred Y-axis rotation"}, {"description", ""}}), "") \
     FUNCX(propObject_movPrefRotZ, "mov.prefRotZ", sim_propertytype_bool, 0,  jsonStr({{"label", "Preferred Z-axis rotation"}, {"description", ""}}), "") \
-    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
-    FUNCX(propObject_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Handle"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
     FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Visible"}, {"description", "Whether the scene object is currently visible"}}), "") \
     FUNCX(propObject_children, "children", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Children handles"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
     FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Model hash"}, {"description", ""}}), "")
@@ -778,7 +792,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     SCENEOBJECT_PROPERTIES_2
 
 #define SHAPE_PROPERTIES \
-    FUNCX(propShape_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propShape_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propShape_meshes, "meshes", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Meshes"}, {"description", "Mesh handles"}, {"handleType", "mesh"}}), "") \
     FUNCX(propShape_applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Apply culling"}, {"description", "Enables/disables culling for all contained meshes"}}), "") \
     FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Apply shading"}, {"description", "Applies a shading angle to all contained meshes"}}), "") \
@@ -803,7 +817,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propShape_compound, "compound", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Compound"}, {"description", "Whether the shape is a compound"}}), "")
 
 #define CAMERA_PROPERTIES \
-    FUNCX(propCamera_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propCamera_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Camera size"}}), "") \
     FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0,  jsonStr({{"label", "Parent as proxy"}, {"description", "Use parent as manipulation proxy"}}), "") \
     FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Translation enabled"}, {"description", ""}}), "") \
@@ -811,7 +825,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Tracked object"}, {"description", "Tracked scene object handle"}}), "")
 
 #define DUMMY_PROPERTIES \
-    FUNCX(propDummy_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propDummy_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, -1, -1, -1, -1, -1, OBJECT_META_INFO_JSON, "") \
     FUNCX(propDummy_size, "dummySize", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Dummy size"}}), "") \
     FUNCX(propDummy_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDummy_linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Linked dummy"}, {"description", "Handle of the linked dummy"}, {"handleType", "dummy"}}), "") \
@@ -832,7 +846,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define FORCESENSOR_PROPERTIES \
-    FUNCX(propFSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propFSensor_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propFSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
     FUNCX(propFSensor_forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Force threshold enabled"}, {"description", ""}}), "") \
     FUNCX(propFSensor_torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Torque threshold enabled"}, {"description", ""}}), "") \
@@ -850,7 +864,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propFSensor_intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Intrinsic error"}, {"description", "Intrinsic error, generated by some physics engines"}}), "")
 
 #define GRAPH_PROPERTIES \
-    FUNCX(propGraph_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propGraph_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propGraph_size, "graphSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the 3D graph representation"}}), "") \
     FUNCX(propGraph_bufferSize, "bufferSize", sim_propertytype_int, 0,  jsonStr({{"label", "Buffer size"}, {"description", ""}}), "") \
     FUNCX(propGraph_cyclic, "cyclic", sim_propertytype_bool, 0,  jsonStr({{"label", "Cyclic"}, {"description", "Buffer is cyclic"}}), "") \
@@ -858,7 +872,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propGraph_foregroundColor, "foregroundColor", sim_propertytype_color, 0,  jsonStr({{"label", "Foreground color"}, {"description", ""}}), "")
 
 #define JOINT_PROPERTIES \
-    FUNCX(propJoint_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propJoint_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, -1, -1, -1, -1, -1, OBJECT_META_INFO_JSON, "") \
     FUNCX(propJoint_length, "jointLength", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Joint size"}}), "") \
     FUNCX(propJoint_diameter, "jointDiameter", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Joint size"}}), "") \
     FUNCX(propJoint_position, "jointPosition", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Position"}, {"description", "Joint linear/angular displacement"}}), "") \
@@ -964,7 +978,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propJoint_mujocoDependencyPolyCoef, "mujoco.dependencyPolyCoeff", sim_propertytype_floatarray, 0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define LIGHT_PROPERTIES \
-    FUNCX(propLight_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propLight_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Light size"}}), "") \
     FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Enabled"}, {"description", ""}}), "") \
     FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Light type"}}), "") \
@@ -974,10 +988,10 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: cast shadows"}, {"description", "Light casts shadows (with the POV-Ray renderer plugin)"}}), "")
 
 #define MIRROR_PROPERTIES \
-    FUNCX(propMirror_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propMirror_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "")
 
 #define OCTREE_PROPERTIES \
-    FUNCX(propOctree_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propOctree_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0,  jsonStr({{"label", "Voxel size"}, {"description", ""}}), "") \
     FUNCX(propOctree_randomColors, "randomColors", sim_propertytype_bool, 0,  jsonStr({{"label", "Random voxel colors"}, {"description", ""}}), "") \
     FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0,  jsonStr({{"label", "Show points instead of voxels"}, {"description", ""}}), "") \
@@ -985,7 +999,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxel Colors"}, {"description", ""}}), "")
 
 #define POINTCLOUD_PROPERTIES \
-    FUNCX(propPointCloud_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propPointCloud_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0,  jsonStr({{"label", "OC-Tree structure Enabled"}, {"description", "Use an oc-tree structure"}}), "") \
     FUNCX(propPointCloud_randomColors, "randomColors", sim_propertytype_bool, 0,  jsonStr({{"label", "Random point colors"}, {"description", ""}}), "") \
     FUNCX(propPointCloud_pointSize, "pointSize", sim_propertytype_int, 0,  jsonStr({{"label", "Point size"}, {"description", ""}}), "") \
@@ -996,7 +1010,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Colors"}, {"description", "Point colors"}}), "")
 
 #define PROXIMITYSENSOR_PROPERTIES \
-    FUNCX(propProximitySensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propProximitySensor_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propProximitySensor_size, "sensorPointSize", sim_propertytype_float, 0,  jsonStr({{"label", "Sensor point size"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0,  jsonStr({{"label", "Front face detection"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0,  jsonStr({{"label", "Back face detection"}, {"description", ""}}), "") \
@@ -1011,7 +1025,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propProximitySensor_detectedNormal, "detectedNormal", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detected normal"}, {"description", "Detected normal vector"}}), "")
 
 #define VISIONSENSOR_PROPERTIES \
-    FUNCX(propVisionSensor_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propVisionSensor_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propVisionSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
     FUNCX(propVisionSensor_backgroundCol, "backgroundColor", sim_propertytype_color, 0,  jsonStr({{"label", "Background color"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_renderMode, "renderMode", sim_propertytype_int, 0,  jsonStr({{"label", "Render mode"}, {"description", ""}}), "") \
@@ -1035,7 +1049,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propVisionSensor_povAperture, "povray.aperture", sim_propertytype_float, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: aperture"}, {"description", "Aperture (with the POV-Ray renderer plugin)"}}), "")
 
 #define SCRIPT_PROPERTIES \
-    FUNCX(propScript_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propScript_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the script object"}}), "") \
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  jsonStr({{"label", "Reset after simulation error"}, {"description", ""}}), "") \
     FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detached script handle"}, {"description", ""}, {"handleType", "detachedScript"}}), "") \

@@ -4333,18 +4333,18 @@ int CScriptObject::getLongProperty(const char* pName, long long int& pState) con
 {
     int retVal = -1;
 
+    if (strcmp(propScriptObj_handle.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = _scriptPseudoHandle;
+    }
+
     return retVal;
 }
 
 int CScriptObject::getHandleProperty(const char* pName, long long int& pState) const
 {
     int retVal = -1;
-
-    if (strcmp(propScriptObj_handle.name, pName) == 0)
-    {
-        retVal = 1;
-        pState = _scriptPseudoHandle;
-    }
 
     return retVal;
 }

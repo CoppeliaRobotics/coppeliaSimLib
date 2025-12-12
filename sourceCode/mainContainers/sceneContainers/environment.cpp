@@ -1168,7 +1168,7 @@ int CEnvironment::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
-int CEnvironment::getHandleProperty(const char* pName, long long int& pState) const
+int CEnvironment::getLongProperty(const char* pName, long long int& pState) const
 {
     int retVal = -1;
 
@@ -1177,7 +1177,15 @@ int CEnvironment::getHandleProperty(const char* pName, long long int& pState) co
         pState = sim_handle_scene;
         retVal = 1;
     }
-    else if (strcmp(pName, propScene_mainScript.name) == 0)
+
+    return retVal;
+}
+
+int CEnvironment::getHandleProperty(const char* pName, long long int& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propScene_mainScript.name) == 0)
     {
         CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         pState = -1;

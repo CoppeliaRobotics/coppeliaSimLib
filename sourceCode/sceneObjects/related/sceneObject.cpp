@@ -6113,7 +6113,12 @@ int CSceneObject::getLongProperty(const char* ppName, long long int& pState) con
     std::string _pName(ppName);
     int retVal = -1;
 
-    if (strcmp(ppName, propObject_parentUid.name) == 0)
+    if (strcmp(ppName, propObject_handle.name) == 0)
+    {
+        retVal = 1;
+        pState = _objectHandle;
+    }
+    else if (strcmp(ppName, propObject_parentUid.name) == 0)
     {
         retVal = 1;
         pState = -1;
@@ -6159,11 +6164,6 @@ int CSceneObject::getHandleProperty(const char* ppName, long long int& pState) c
         pState = -1;
         if (_parentObject != nullptr)
             pState = _parentObject->getObjectHandle();
-    }
-    else if (strcmp(ppName, propObject_handle.name) == 0)
-    {
-        retVal = 1;
-        pState = _objectHandle;
     }
 
     return retVal;

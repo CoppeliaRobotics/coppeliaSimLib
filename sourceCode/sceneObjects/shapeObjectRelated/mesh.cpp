@@ -3027,6 +3027,12 @@ int CMesh::getLongProperty(const char* ppName, long long int& pState, const C7Ve
 {
     int retVal = -1;
 
+    if (strcmp(ppName, propMesh_handle.name) == 0)
+    {
+        retVal = 1;
+        pState = _uniqueID;
+    }
+
     return retVal;
 }
 
@@ -3039,11 +3045,6 @@ int CMesh::getHandleProperty(const char* ppName, long long int& pState, const C7
     {
         retVal = 1;
         pState = _isInSceneShapeHandle;
-    }
-    else if (strcmp(pName, propMesh_handle.name) == 0)
-    {
-        retVal = 1;
-        pState = _uniqueID;
     }
 
     return retVal;

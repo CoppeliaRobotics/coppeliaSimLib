@@ -1802,7 +1802,12 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_pid.name) == 0)
+        if (strcmp(pName, propApp_handle.name) == 0)
+        {
+            pState = sim_handle_app;
+            retVal = 1;
+        }
+        else if (strcmp(pName, propApp_pid.name) == 0)
         {
             pState = pid;
             retVal = 1;
@@ -1837,12 +1842,7 @@ int App::getHandleProperty(long long int target, const char* ppName, long long i
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_handle.name) == 0)
-        {
-            pState = sim_handle_app;
-            retVal = 1;
-        }
-        else if (strcmp(pName, propApp_sandbox.name) == 0)
+        if (strcmp(pName, propApp_sandbox.name) == 0)
         {
             if ( (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
                 pState = worldContainer->sandboxScript->getScriptHandle();

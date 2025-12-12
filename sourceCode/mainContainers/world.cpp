@@ -3218,24 +3218,7 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        const char* pName = ppName;
-        /*
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getLongProperty(pName, pState);
-        if ( (retVal == -1) && (simulation != nullptr) )
-            retVal = simulation->getLongProperty(pName, pState);
-        if ( (retVal == -1) && (environment != nullptr) )
-            retVal = environment->getLongProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getLongProperty(-1, pName, pState); // for the container itself
-        if ((retVal == -1) && (collections != nullptr))
-            retVal = collections->getLongProperty(-1, pName, pState); // for the container itself
-        if ((retVal == -1) && (drawingCont != nullptr))
-            retVal = drawingCont->getLongProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
-        {
-        }
-        */
+        retVal = environment->getLongProperty(ppName, pState);
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
@@ -3293,13 +3276,11 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        //const char* pName = ppName;
-        //retVal = collections->getLongProperty(target, pName, pState);
+        retVal = collections->getLongProperty(target, ppName, pState);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        //const char* pName = ppName;
-        //retVal = drawingCont->getLongProperty(target, pName, pState);
+        retVal = drawingCont->getLongProperty(target, ppName, pState);
     }
     else
         retVal = -2; // target does not exist

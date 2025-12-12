@@ -29,6 +29,7 @@ class CDrawingObject
     bool announceObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
+    int getLongProperty(const char* pName, long long int& pState) const;
     int getHandleProperty(const char* pName, long long int& pState) const;
     int getStringProperty(const char* pName, std::string& pState) const;
     static int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags);

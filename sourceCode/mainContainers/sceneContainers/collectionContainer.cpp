@@ -267,6 +267,22 @@ void CCollectionContainer::addCollectionToSelection(int collectionHandle) const
     }
 }
 
+int CCollectionContainer::getLongProperty(long long int target, const char* pName, long long int& pState) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CCollection* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getLongProperty(pName, pState);
+        retVal = -2; // collection does not exist
+    }
+    return retVal;
+}
+
 int CCollectionContainer::getHandleProperty(long long int target, const char* pName, long long int& pState) const
 {
     int retVal = -1;

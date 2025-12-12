@@ -54,6 +54,7 @@ class CCollection
     int getSceneObjectHandleFromIndex(size_t index) const;
     void pushCreationEvent() const;
 
+    int getLongProperty(const char* pName, long long int& pState) const;
     int getHandleProperty(const char* pName, long long int& pState) const;
     int getStringProperty(const char* pName, std::string& pState) const;
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;

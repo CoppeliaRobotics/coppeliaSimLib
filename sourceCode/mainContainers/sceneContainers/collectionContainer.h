@@ -49,6 +49,7 @@ class CCollectionContainer
     void addCollectionToSelection(int collectionHandle) const;
     void pushGenesisEvents() const;
 
+    int getLongProperty(long long int target, const char* pName, long long int& pState) const;
     int getHandleProperty(long long int target, const char* pName, long long int& pState) const;
     int getStringProperty(long long int target, const char* pName, std::string& pState) const;
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
