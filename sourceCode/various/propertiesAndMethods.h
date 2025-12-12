@@ -767,7 +767,7 @@ inline std::string jsonStr(const QJsonObject& obj)
     FUNCX(propObject_movPrefRotX, "mov.prefRotX", sim_propertytype_bool, 0,  jsonStr({{"label", "Preferred X-axis rotation"}, {"description", ""}}), "") \
     FUNCX(propObject_movPrefRotY, "mov.prefRotY", sim_propertytype_bool, 0,  jsonStr({{"label", "Preferred Y-axis rotation"}, {"description", ""}}), "") \
     FUNCX(propObject_movPrefRotZ, "mov.prefRotZ", sim_propertytype_bool, 0,  jsonStr({{"label", "Preferred Z-axis rotation"}, {"description", ""}}), "") \
-    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", "Scene object type"}}), "") \
+    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
     FUNCX(propObject_handle, "handle", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Handle"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
     FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Visible"}, {"description", "Whether the scene object is currently visible"}}), "") \
     FUNCX(propObject_children, "children", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Children handles"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
