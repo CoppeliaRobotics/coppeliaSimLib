@@ -6,12 +6,10 @@
 #include <propertiesAndMethods.h>
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SEngMaterialProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SEngMaterialProperty name;
 DYNMATERIAL_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
-const std::vector<SEngMaterialProperty> allProps_material = {DYNMATERIAL_PROPERTIES};
-#undef FUNCX
+extern const std::vector<SEngMaterialProperty> allProps_material;
 // ----------------------------------------------------------------------------------------------
 
 enum

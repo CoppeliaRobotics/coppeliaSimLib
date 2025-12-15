@@ -6,12 +6,10 @@
 #include <sceneObject.h>
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SDummyProperty name;
 DUMMY_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
-const std::vector<SDummyProperty> allProps_dummy = {DUMMY_PROPERTIES};
-#undef FUNCX
+extern const std::vector<SDummyProperty> allProps_dummy;
 // ----------------------------------------------------------------------------------------------
 
 enum

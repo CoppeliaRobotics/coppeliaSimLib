@@ -4,12 +4,10 @@
 #include <simMath/4X4Matrix.h>
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
 DRAWINGOBJECT_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2, t1, t2) name,
-    const std::vector<SProperty> allProps_drawingObj = {DRAWINGOBJECT_PROPERTIES};
-#undef FUNCX
+extern const std::vector<SProperty> allProps_drawingObj;
 // ----------------------------------------------------------------------------------------------
 
 class CSceneObject;

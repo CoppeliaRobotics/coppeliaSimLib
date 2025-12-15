@@ -605,6 +605,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/various/dynMaterialObject.cpp
     sourceCode/various/sigHandler.cpp
     sourceCode/various/engineProperties.cpp
+    sourceCode/various/propertiesAndMethods.cpp
 
     sourceCode/undoRedo/undoBufferArrays.cpp
     sourceCode/undoRedo/undoBuffer.cpp

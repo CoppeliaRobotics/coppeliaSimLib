@@ -1,6 +1,5 @@
 #pragma once
 
-#include <simLib/simConst.h>
 #include <string>
 
 struct SProperty {
@@ -51,8 +50,6 @@ struct SJointProperty
     const std::string infoTxt;
 };
 
-#define STR(x) #x
-
 #define CUSTOMDATAPREFIX "customData."
 #define CUSTOMDATAFLAGS (sim_propertyinfo_removable)
 
@@ -95,15 +92,6 @@ struct SJointProperty
 #define proptypetag_handle "&han&."
 #define proptypetag_handlearray "&hanvect&."
 #define proptypetag_stringarray "&strvect&."
-
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonDocument>
-
-inline std::string jsonStr(const QJsonObject& obj)
-{
-    return QJsonDocument(obj).toJson(QJsonDocument::Compact).toStdString();
-}
 
 #define OBJECT_META_METHODS R"("getBoolProperty": "sim-2.getBoolProperty",
         "getBufferProperty": "sim-2.getBufferProperty",

@@ -24,12 +24,10 @@
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
 DETACHEDSCRIPT_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_scriptObject = {DETACHEDSCRIPT_PROPERTIES};
-#undef FUNCX
+extern const std::vector<SProperty> allProps_scriptObject;
 // ----------------------------------------------------------------------------------------------
 
 class CSceneObject;

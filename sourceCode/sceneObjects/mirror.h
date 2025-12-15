@@ -3,12 +3,10 @@
 #include <sceneObject.h>
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
 MIRROR_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_mirror = {MIRROR_PROPERTIES};
-#undef FUNCX
+extern const std::vector<SProperty> allProps_mirror;
 // ----------------------------------------------------------------------------------------------
 
 class CMirror : public CSceneObject

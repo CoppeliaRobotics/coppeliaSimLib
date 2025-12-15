@@ -511,6 +511,7 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
     $$PWD/sourceCode/various/dynMaterialObject.h \
     $$PWD/sourceCode/various/sigHandler.h \
     $$PWD/sourceCode/various/engineProperties.h \
+    $$PWD/sourceCode/various/propertiesAndMethods.h \
 
 HEADERS += $$PWD/sourceCode/undoRedo/undoBufferArrays.h \
     $$PWD/sourceCode/undoRedo/undoBuffer.h \
@@ -893,6 +894,7 @@ SOURCES += $$PWD/sourceCode/various/userSettings.cpp \
     $$PWD/sourceCode/various/dynMaterialObject.cpp \
     $$PWD/sourceCode/various/sigHandler.cpp \
     $$PWD/sourceCode/various/engineProperties.cpp \
+    $$PWD/sourceCode/various/propertiesAndMethods.cpp \
 
 SOURCES += $$PWD/sourceCode/undoRedo/undoBufferArrays.cpp \
     $$PWD/sourceCode/undoRedo/undoBuffer.cpp \
