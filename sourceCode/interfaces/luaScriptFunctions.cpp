@@ -764,9 +764,8 @@ const SLuaVariables simLuaVariables[] = {
     // Simulation status:
     {"sim.simulation_stopped", sim_simulation_stopped},
     {"sim.simulation_paused", sim_simulation_paused},
-    {"sim.simulation_advancing", sim_simulation_advancing},
-    {"sim.simulation_advancing_running", sim_simulation_advancing_running},
-    {"sim.simulation_advancing_lastbeforestop", sim_simulation_advancing_lastbeforestop},
+    {"sim.simulation_running", sim_simulation_running},
+    {"sim.simulation_lastbeforestop", sim_simulation_lastbeforestop},
     // Texture mapping modes:
     {"sim.texturemap_plane", sim_texturemap_plane},
     {"sim.texturemap_cylinder", sim_texturemap_cylinder},
@@ -1060,6 +1059,9 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.ruckig_minaccel", sim_ruckig_minaccel},
 
     // deprecated!
+    {"sim1.simulation_advancing", sim_simulation_advancing},
+    {"sim1.simulation_advancing_running", sim_simulation_running},
+    {"sim1.simulation_advancing_lastbeforestop", sim_simulation_lastbeforestop},
     {"sim1.particle_points1", sim_particle_points1},
     {"sim1.particle_points2", sim_particle_points2},
     {"sim1.particle_points4", sim_particle_points4},

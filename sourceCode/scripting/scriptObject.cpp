@@ -1610,7 +1610,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceSt
         App::worldContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
         retVal = systemCallScript(sim_syscb_sensing, inStack, outStack);
 
-        if (App::currentWorld->simulation->getSimulationState() == sim_simulation_advancing_lastbeforestop)
+        if (App::currentWorld->simulation->getSimulationState() == sim_simulation_lastbeforestop)
             retVal = systemCallScript(sim_syscb_cleanup, inStack, outStack);
 
         App::worldContainer->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs()) - startT);
@@ -7755,9 +7755,9 @@ const SNewApiMapping _simApiMapping[] = {
     "sim_simulation_advancing",
     "sim.simulation_advancing",
     "sim_simulation_advancing_running",
-    "sim.simulation_advancing_running",
+    "sim.simulation_running",
     "sim_simulation_advancing_lastbeforestop",
-    "sim.simulation_advancing_lastbeforestop",
+    "sim.simulation_lastbeforestop",
     "sim_texturemap_plane",
     "sim.texturemap_plane",
     "sim_texturemap_cylinder",

@@ -230,13 +230,13 @@ void CSimulation::startOrResumeSimulation()
         _clearSimulationTimeHistory();
         simulationTime_real_lastInMs = (int)VDateTime::getTimeInMs();
         setSimulationStepCount(0);
-        setSimulationState(sim_simulation_advancing_running);
+        setSimulationState(sim_simulation_running);
     }
     else if (isSimulationPaused())
     {
         App::worldContainer->simulationAboutToResume();
         _realTimeCorrection = 0.0;
-        setSimulationState(sim_simulation_advancing_running);
+        setSimulationState(sim_simulation_running);
         simulationTime_real_lastInMs = (int)VDateTime::getTimeInMs();
         advanceSimulationByOneStep();
     }
@@ -250,12 +250,12 @@ void CSimulation::stopSimulation()
         GuiApp::setFullScreen(false);
 #endif
 
-    if (getSimulationState() != sim_simulation_advancing_lastbeforestop)
+    if (getSimulationState() != sim_simulation_lastbeforestop)
     {
         if (getSimulationState() == sim_simulation_paused)
         {
             App::worldContainer->simulationAboutToResume();
-            setSimulationState(sim_simulation_advancing_running);
+            setSimulationState(sim_simulation_running);
             advanceSimulationByOneStep(); // we paused in last simulation step. So we need to step here
         }
         if (!_requestToStop)
@@ -328,15 +328,15 @@ void CSimulation::advanceSimulationByOneStep()
             simulationTime_real_lastInMs = ct;
             _addToSimulationTimeHistory(getSimulationTime(), simulationTime_real);
 
-            if (getSimulationState() == sim_simulation_advancing_running)
+            if (getSimulationState() == sim_simulation_running)
             {
                 if (_requestToStop)
                 {
-                    setSimulationState(sim_simulation_advancing_lastbeforestop);
+                    setSimulationState(sim_simulation_lastbeforestop);
                     _requestToStop = false;
                 }
             }
-            else if (getSimulationState() == sim_simulation_advancing_lastbeforestop)
+            else if (getSimulationState() == sim_simulation_lastbeforestop)
             {
                 App::worldContainer->simulationAboutToEnd();
                 setSimulationState(sim_simulation_stopped);
