@@ -118,8 +118,7 @@ CMainWindow::CMainWindow(int operationalUiParts)
 
     // setWindowTitle adds multiple app icons on Linux somehow..
 #ifndef LIN_SIM
-    setWindowTitle(CSimFlavor::getStringVal(2)
-                       .c_str()); // somehow it is important for Linux. Even if this title gets later overwritten, Linux
+    setWindowTitle(CSimFlavor::getStringVal(2).c_str()); // somehow it is important for Linux. Even if this title gets later overwritten, Linux
                                   // keeps this text to display the app name when minimized
 #endif
 
@@ -651,9 +650,8 @@ void CMainWindow::refreshDialogs_uiThread()
 #ifndef LIN_SIM
     // setWindowTitle somehow adds multiple app icons on Linux...
     int ct = (int)VDateTime::getTimeInMs();
-    if ((VDateTime::getTimeDiffInMs(timeCounter) > 1000) ||
-        ((VDateTime::getTimeDiffInMs(timeCounter) > 100) && (!App::getOpenGlDisplayEnabled())))
-    { // Refresh the main window text every 1/4 seconds:
+    if (VDateTime::getTimeDiffInMs(timeCounter) > 1000)
+    {
         timeCounter = ct;
         std::string title;
         if (App::getOpenGlDisplayEnabled())

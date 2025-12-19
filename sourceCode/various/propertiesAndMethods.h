@@ -203,12 +203,12 @@ struct SJointProperty
 
 #define SHAPE_META_METHODS R"("addForce": "sim-2.addForce",
         "addForceAndTorque": "sim-2.addForceAndTorque",
-        "alignBB": "sim-2.alignShapeBB",
+        "alignBoundingBox": "sim-2._alignShapeBB",
         "checkCollision": "sim-2.checkCollision",
         "checkDistance": "sim-2.checkDistance",
         "computeMassAndInertia": "sim-2.computeMassAndInertia",
         "getAppearance": "sim-2.getShapeAppearance",
-        "relocateFrame": "sim-2.relocateShapeFrame",
+        "relocateFrame": "sim-2._relocateShapeFrame",
         "setAppearance": "sim-2.setShapeAppearance",
         "setShapeBB": "sim-2.setShapeBB",
         "ungroup": "sim-2.ungroupShape",
@@ -879,7 +879,7 @@ struct SJointProperty
     FUNCX(propJoint_jointForce, "jointForce", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Force"}, {"description", "Force applied"}}), "") \
     FUNCX(propJoint_averageJointForce, "averageJointForce", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Average force"}, {"description", "Force applied on average (in a simulation step)"}}), "") \
     FUNCX(propJoint_jointMode, "jointMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Mode"}, {"description", "Joint mode"}}), "") \
-    FUNCX(propJoint_dynCtrlMode, "dynCtrlMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1, jsonStr({{"label", "Control mode" }, {"description", "Joint control mode, when in dynamic mode"}, {"enum", QJsonObject{{STR(sim_jointdynctrl_free), sim_jointdynctrl_free}, {STR(sim_jointdynctrl_force), sim_jointdynctrl_force}, {STR(sim_jointdynctrl_velocity), sim_jointdynctrl_velocity}, {STR(sim_jointdynctrl_position), sim_jointdynctrl_position}, {STR(sim_jointdynctrl_spring), sim_jointdynctrl_spring}, {STR(sim_jointdynctrl_callback), sim_jointdynctrl_callback}} }}), "") \
+    FUNCX(propJoint_dynCtrlMode, "dynCtrlMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1, jsonStr({{"label", "Control mode" }, {"description", "Joint control mode, when in dynamic mode"}, {"enum", "jointDynCtrlMode"}}), "") \
     FUNCX(propJoint_dependencyMaster, "dependencyMasterHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dependency master"}, {"description", "Handle of master joint (in a dependency relationship)"}}), "") \
     FUNCX(propJoint_dependencyParams, "dependencyParams", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dependency parameters"}, {"description", "Dependency parameters (offset and coefficient)"}}), "") \
     FUNCX(propJoint_maxVelAccelJerk, "maxVelAccelJerk", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Maximum velocity, acceleration and jerk"}, {"description", ""}}), "") \

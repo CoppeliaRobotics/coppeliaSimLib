@@ -11118,7 +11118,7 @@ int _simCreateVisionSensor(luaWrap_lua_State* L)
         std::vector<double> doubleParamsDef = {0.01, 10.0, 0.1, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         if (options & 2)
             doubleParamsDef[2] = 60.0 * degToRad; // perspective. View angle
-        fetchDoubleArrayArg(L, 2, doubleParams, doubleParamsDef);
+        fetchDoubleArrayArg(L, 3, doubleParams, doubleParamsDef);
         retVal = CALL_C_API(simCreateVisionSensor, options, intParams.data(), doubleParams.data(), nullptr);
     }
 

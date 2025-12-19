@@ -163,7 +163,9 @@ bool CDrawingObject::addItem(const double* itemData)
 #if SIM_EVENT_PROTOCOL_VERSION >= 3
             {
                 CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectId, _objectId, nullptr, false);
-                ev->appendKeyBool("clearPoints", true);
+                ev->appendKeyFloatArray("points", nullptr, 0);
+                ev->appendKeyFloatArray("quaternions", nullptr, 0);
+                ev->appendKeyFloatArray("colors", nullptr, 0);
                 App::worldContainer->pushEvent();
             }
 #endif
@@ -507,7 +509,6 @@ void CDrawingObject::pushAddEvent()
             ev->appendKeyDouble("size", _size);
             ev->appendKeyInt("parentUid", _sceneObjectUid);
             ev->appendKeyBool("cyclic", (_objectType & sim_drawing_cyclic) != 0);
-            ev->appendKeyBool("clearPoints", true);
             ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
             App::worldContainer->pushEvent();
         }
@@ -575,10 +576,18 @@ void CDrawingObject::pushAppendNewPointEvent()
 #if SIM_EVENT_PROTOCOL_VERSION >= 3
         {
             CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectId, _objectId, nullptr, false);
-            ev->appendKeyFloatArray("points", points.data(), points.size());
-            ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
-            ev->appendKeyFloatArray("colors", colors.data(), colors.size());
-            ev->appendKeyBool("clearPoints", _rebuildRemoteItems);
+            if (_rebuildRemoteItems)
+            {
+                ev->appendKeyFloatArray("points", points.data(), points.size());
+                ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
+                ev->appendKeyFloatArray("colors", colors.data(), colors.size());
+            }
+            else
+            {
+                ev->appendKeyFloatArray("appendPoints", points.data(), points.size());
+                ev->appendKeyFloatArray("appendQuaternions", quaternions.data(), quaternions.size());
+                ev->appendKeyFloatArray("appendColors", colors.data(), colors.size());
+            }
             App::worldContainer->pushEvent();
         }
 #endif

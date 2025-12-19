@@ -2922,20 +2922,23 @@ int CMesh::setBoolProperty(const char* ppName, bool pState, const C7Vector& shap
         retVal = 1;
         setCulling(pState);
     }
-    else if ((strcmp(pName, propMesh_textureRepeatU.name) == 0) && (_textureProperty != nullptr))
+    else if (strcmp(pName, propMesh_textureRepeatU.name) == 0)
     {
         retVal = 1;
-        setTextureRepeatU(pState);
+        if (_textureProperty != nullptr)
+            setTextureRepeatU(pState);
     }
-    else if ((strcmp(pName, propMesh_textureRepeatV.name) == 0) && (_textureProperty != nullptr))
+    else if (strcmp(pName, propMesh_textureRepeatV.name) == 0)
     {
         retVal = 1;
-        setTextureRepeatV(pState);
+        if (_textureProperty != nullptr)
+            setTextureRepeatV(pState);
     }
-    else if ((strcmp(pName, propMesh_textureInterpolate.name) == 0) && (_textureProperty != nullptr))
+    else if (strcmp(pName, propMesh_textureInterpolate.name) == 0)
     {
         retVal = 1;
-        setTextureInterpolate(pState);
+        if (_textureProperty != nullptr)
+            setTextureInterpolate(pState);
     }
 
     return retVal;
@@ -2956,20 +2959,29 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
         retVal = 1;
         pState = _culling;
     }
-    else if ((strcmp(pName, propMesh_textureRepeatU.name) == 0) && (_textureProperty != nullptr))
+    else if (strcmp(pName, propMesh_textureRepeatU.name) == 0)
     {
         retVal = 1;
-        pState = getTextureRepeatU();
+        if (_textureProperty != nullptr)
+            pState = getTextureRepeatU();
+        else
+            pState = false;
     }
-    else if ((strcmp(pName, propMesh_textureRepeatV.name) == 0) && (_textureProperty != nullptr))
+    else if (strcmp(pName, propMesh_textureRepeatV.name) == 0)
     {
         retVal = 1;
-        pState = getTextureRepeatV();
+        if (_textureProperty != nullptr)
+            pState = getTextureRepeatV();
+        else
+            pState = false;
     }
-    else if ((strcmp(pName, propMesh_textureInterpolate.name) == 0) && (_textureProperty != nullptr))
+    else if (strcmp(pName, propMesh_textureInterpolate.name) == 0)
     {
         retVal = 1;
-        pState = getTextureInterpolate();
+        if (_textureProperty != nullptr)
+            pState = getTextureInterpolate();
+        else
+            pState = false;
     }
     else if (strcmp(pName, propMesh_convex.name) == 0)
     {
@@ -2999,15 +3011,21 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
     const char* pName = ppName;
     int retVal = -1;
 
-    if ((strcmp(pName, propMesh_textureID.name) == 0) && (_textureProperty != nullptr))
+    if (strcmp(pName, propMesh_textureID.name) == 0)
     {
         retVal = 1;
-        pState = _textureProperty->getTextureObjectID();
+        if (_textureProperty != nullptr)
+            pState = _textureProperty->getTextureObjectID();
+        else
+            pState = -1;
     }
-    else if ((strcmp(pName, propMesh_textureApplyMode.name) == 0) && (_textureProperty != nullptr))
+    else if (strcmp(pName, propMesh_textureApplyMode.name) == 0)
     {
         retVal = 1;
-        pState = getTextureApplyMode();
+        if (_textureProperty != nullptr)
+            pState = getTextureApplyMode();
+        else
+            pState = 0;
     }
     else if (strcmp(pName, propMesh_shapeUid.name) == 0)
     {
@@ -3133,13 +3151,18 @@ int CMesh::getBufferProperty(const char* ppName, std::string& pState, const C7Ve
     const char* pName = ppName;
     int retVal = -1;
 
-    if ((strcmp(pName, propMesh_texture.name) == 0) && (_textureProperty != nullptr))
+    if (strcmp(pName, propMesh_texture.name) == 0)
     {
         retVal = 1;
-        int ts[2];
-        _textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
-        const char* t = (const char*)_textureProperty->getTextureObject()->getTextureBufferPointer();
-        pState.assign(t, t + 4 * ts[0] * ts[1]);
+        if (_textureProperty != nullptr)
+        {
+            int ts[2];
+            _textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
+            const char* t = (const char*)_textureProperty->getTextureObject()->getTextureBufferPointer();
+            pState.assign(t, t + 4 * ts[0] * ts[1]);
+        }
+        else
+            pState.clear();
     }
 
     return retVal;
