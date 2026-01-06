@@ -245,6 +245,8 @@ extern int _simCreateHeightfieldShape(luaWrap_lua_State* L);
 extern int _simCreateJoint(luaWrap_lua_State* L);
 extern int _simCreateDummy(luaWrap_lua_State* L);
 extern int _simCreateScript(luaWrap_lua_State* L);
+extern int _simCreateDetachedScript(luaWrap_lua_State* L);
+extern int _simRemoveDetachedScript(luaWrap_lua_State* L);
 extern int _simCreateProximitySensor(luaWrap_lua_State* L);
 extern int _simCreateForceSensor(luaWrap_lua_State* L);
 extern int _simCreateVisionSensor(luaWrap_lua_State* L);

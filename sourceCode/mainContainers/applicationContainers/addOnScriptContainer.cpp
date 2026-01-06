@@ -112,10 +112,22 @@ CScriptObject* CAddOnScriptContainer::getAddOnFromName(const char* name) const
     return (nullptr);
 }
 
+int CAddOnScriptContainer::createAddOn(const char* lang, const char* code)
+{
+    CScriptObject* defScript = new CScriptObject(sim_scripttype_addon);
+    defScript->setLang(lang);
+    defScript->setScriptText(code, false);
+    //defScript->setAddOnPath();
+    int handle = _insertAddOn(defScript);
+    //defScript->setDisplayAddOnName(nm.c_str());
+    //defScript->setScriptState(CScriptObject::scriptState_ended);
+    return handle;
+}
+
 int CAddOnScriptContainer::_insertAddOn(CScriptObject* script)
 {
     _addOns.push_back(script);
-    return (script->getScriptHandle());
+    return script->getScriptHandle();
 }
 
 void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
@@ -129,7 +141,6 @@ void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
     SFileOrFolder* foundItem = finder.getFoundItem(cnt);
     while (foundItem != nullptr)
     {
-        bool oldAddOn = true;
         std::string at;
         if (foundItem->name.find(ADDON_SCRIPT_PREFIX1_AUTOSTART) == 0)
             at = ADDON_SCRIPT_PREFIX1_AUTOSTART;
@@ -141,11 +152,6 @@ void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
             at = ADDON_SCRIPT_PREFIX2_NOAUTOSTART;
         if ((foundItem->name.find(ADDON_FUNCTION_PREFIX1) == 0) || (foundItem->name.find(ADDON_FUNCTION_PREFIX2) == 0))
             at = "X";
-        if ((at.size() == 0)) //&& (foundItem->name.find(ADDON_PREFIX) == 0))
-        {
-            // at = ADDON_PREFIX;
-            oldAddOn = false;
-        }
         if (foundItem->name.find("simAddOnHibot Visualization") == std::string::npos) // temp, remove later
         {
             std::string fp(App::folders->getAddOnPath() + "/");
@@ -336,9 +342,10 @@ int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack* inStack, C
     return (retVal);
 }
 
-bool CAddOnScriptContainer::_removeAddOn(int scriptID)
+bool CAddOnScriptContainer::removeAddOn(int scriptID)
 {
     TRACE_INTERNAL;
+    bool res = false;
     for (size_t i = 0; i < _addOns.size(); i++)
     {
         if (_addOns[i]->getScriptHandle() == scriptID)
@@ -347,13 +354,14 @@ bool CAddOnScriptContainer::_removeAddOn(int scriptID)
             it->resetScript(); // should not be done in the destructor!
             _addOns.erase(_addOns.begin() + i);
             CScriptObject::destroy(it, true);
+            res = true;
             break;
         }
     }
 #ifdef SIM_WITH_GUI
     GuiApp::setFullDialogRefreshFlag();
 #endif
-    return (true);
+    return res;
 }
 
 void CAddOnScriptContainer::removeAllAddOns()
@@ -461,7 +469,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                             delete[] script;
                             archive.close();
                             file.close();
-                            _removeAddOn(scriptID);
+                            removeAddOn(scriptID);
                         }
                         catch (VFILE_EXCEPTION_TYPE)
                         {

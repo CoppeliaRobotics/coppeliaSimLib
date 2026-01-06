@@ -7138,13 +7138,11 @@ int simCreateShape_internal(int options, double shadingAngle, const double* vert
         std::vector<float> _textCoords;
         std::vector<float>* textCoords = nullptr;
         const unsigned char* img = nullptr;
-        const int* res = nullptr;
         if ((textureCoords != nullptr) && (texture != nullptr) && (textureRes != nullptr))
         {
             _textCoords.assign(textureCoords, textureCoords + indicesSize * 2);
             textCoords = &_textCoords;
             img = texture;
-            res = textureRes;
         }
         else
         { // Simplify meshes only at import, and only if there are no textures (for now):

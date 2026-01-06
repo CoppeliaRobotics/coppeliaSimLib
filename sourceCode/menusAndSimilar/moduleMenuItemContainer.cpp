@@ -67,7 +67,7 @@ int CModuleMenuItemContainer::addMenuItem(const char* item, int scriptHandle)
     CModuleMenuItem* it = new CModuleMenuItem(item, scriptHandle);
     it->setHandle(h);
     _allItems.push_back(it);
-    return (h);
+    return h;
 }
 
 void CModuleMenuItemContainer::_orderItems()

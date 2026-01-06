@@ -27,6 +27,9 @@ class CAddOnScriptContainer
     void loadAllFromAddOnFolder();
     void loadAdditionalAddOns(); // -a, -b options
     void removeAllAddOns();
+    int createAddOn(const char* lang, const char* code);
+    bool removeAddOn(int id);
+
     CScriptObject* getAddOnFromHandle(int scriptHandle) const;
     CScriptObject* getAddOnFromUid(int uid) const;
     CScriptObject* getAddOnFromName(const char* name) const;
@@ -45,7 +48,6 @@ class CAddOnScriptContainer
     bool processCommand(int commandID);
 #endif
   private:
-    bool _removeAddOn(int scriptID);
     int _insertAddOn(CScriptObject* script);
     void _insertAddOns(const char* addOnExt);
 

@@ -135,6 +135,8 @@ void CScriptObject::destroy(CScriptObject* obj, bool registeredObject, bool anno
         if (announceScriptDestruction)
             App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationOrMainScript(), obj->isSceneSwitchPersistentScript());
     }
+    if (obj->_addOnUiMenuHandle != -1)
+        App::worldContainer->moduleMenuItemContainer->removeMenuItem(obj->_addOnUiMenuHandle);
     delete obj;
 }
 

@@ -6650,7 +6650,7 @@ int CSceneObject::setHandleArrayProperty(const char* ppName, const long long int
         std::vector<int> v2;
         for (int i = 0; i < vL; i++)
             v2.push_back(int(v[i]));
-        setReferencedOriginalHandles(v2.size(), v2.data(), pN.c_str());
+        setReferencedOriginalHandles(int(v2.size()), v2.data(), pN.c_str());
         retVal = 1;
     }
 

@@ -141,7 +141,10 @@ struct SJointProperty
         "setVector3Property": "sim-2.setVector3Property")"
 
 #define APP_META_METHODS R"("handleAddOnScripts": "sim-2._handleAddOnScripts",
-        "handleSandboxScript": "sim-2._handleSandboxScript")"
+        "handleSandboxScript": "sim-2._handleSandboxScript",
+        "createObject": "sim-2._createObject",
+        "removeObject": "sim-2._removeObject",
+        "removeObjects": "sim-2._removeObjects")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callScriptFunction",
         "getFunctions": "sim-2.getScriptFunctions",

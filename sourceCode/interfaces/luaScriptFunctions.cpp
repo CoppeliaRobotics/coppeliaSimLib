@@ -287,6 +287,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.createJoint", _simCreateJoint},
     {"sim.createDummy", _simCreateDummy},
     {"sim.createScript", _simCreateScript},
+    {"sim.createDetachedScript", _simCreateDetachedScript},
+    {"sim.removeDetachedScript", _simRemoveDetachedScript},
     {"sim.createProximitySensor", _simCreateProximitySensor},
     {"sim.createForceSensor", _simCreateForceSensor},
     {"sim.createVisionSensor", _simCreateVisionSensor},
@@ -11014,6 +11016,45 @@ int _simCreateScript(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
     LUA_END(1);
+}
+
+int _simCreateDetachedScript(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.createDetachedScript");
+
+    long long int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_string | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0))
+    {
+        int scriptType = fetchIntArg(L, 1);
+        std::string code = fetchTextArg(L, 2);
+        std::string lang = fetchTextArg(L, 3, "lua");
+        //int options = fetchIntArg(L, 4, 0);
+        if (scriptType == sim_scripttype_addon)
+            retVal = App::worldContainer->addOnScriptContainer->createAddOn(lang.c_str(), code.c_str());
+        else
+            errorString = SIM_ERROR_INVALID_SCRIPT_TYPE;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simRemoveDetachedScript(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.removeDetachedScript");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0))
+    {
+        long long int scriptHandle = fetchLongArg(L, 1);
+        if (!App::worldContainer->addOnScriptContainer->removeAddOn(scriptHandle))
+            errorString = SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simCreateProximitySensor(luaWrap_lua_State* L)

@@ -478,7 +478,7 @@ HEADERS += $$PWD/sourceCode/strings/simStringTable.h \
 HEADERS += $$PWD/sourceCode/interfaces/sim.h \
     $$PWD/sourceCode/interfaces/simInternal.h \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.h \
-    
+
 HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackNull.h \
