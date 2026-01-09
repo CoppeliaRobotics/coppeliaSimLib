@@ -146,18 +146,18 @@ struct SJointProperty
         "removeObject": "sim-2._removeObject",
         "removeObjects": "sim-2._removeObjects")"
 
-#define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callScriptFunction",
-        "getFunctions": "sim-2.getScriptFunctions",
-        "executeString": "sim-2.executeScriptString",
-        "getApiFunc": "sim-2.getApiFunc",
-        "getApiInfo": "sim-2.getApiInfo",
-        "getStackTraceback": "sim-2.getStackTraceback",
-        "init": "sim-2.initScript")"
+#define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2._callScriptFunction",
+        "getFunctions": "sim-2._getScriptFunctions",
+        "executeString": "sim-2._executeScriptString",
+        "getApiFunc": "sim-2._getApiFunc",
+        "getApiInfo": "sim-2._getApiInfo",
+        "getStackTraceback": "sim-2._getStackTraceback",
+        "init": "sim-2._initScript")"
 
 #define COLLECTION_META_METHODS R"("addItem": "sim-2._addItem",
         "removeItem": "sim-2._removeItem",
-        "checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance")"
+        "checkCollision": "sim-2._checkCollision",
+        "checkDistance": "sim-2._checkDistance")"
 
 #define DRAWINGOBJECT_META_METHODS R"("addItems": "sim-2._addDrawingObjectItems",
         "clearItems": "sim-2._clearDrawingObjectItems",
@@ -172,22 +172,25 @@ struct SJointProperty
         "duplicateObjects": "sim-2._duplicateObjects",
         "handleSimulationScripts": "sim-2._handleSimulationScripts",
         "handleEmbeddedScripts": "sim-2._handleEmbeddedScripts",
-        "saveModel": "sim-2.__saveModel",
-        "saveModelToBuffer": "sim-2.__saveModelToBuffer",
+        "scaleObjects": "sim-2._scaleObjects",
         "loadModel": "sim-2._loadModel",
         "loadModelFromBuffer": "sim-2._loadModelFromBuffer",
         "loadModelThumbnail": "sim-2._loadModelThumbnail",
         "loadModelThumbnailFromBuffer": "sim-2._loadModelThumbnailFromBuffer",
-        "scaleObjects": "sim-2._scaleObjects",
-        "load": "sim-2.loadScene",
-        "save": "sim-2.saveScene")"
+        "saveModel": "sim-2._saveModel",
+        "saveModelToBuffer": "sim-2._saveModelToBuffer",
+        "saveScene": "sim-2._saveScene",
+
+        "loadScene": "sim-2._loadScene",
+        "loadSceneFromBuffer": "sim-2._loadSceneFromBuffer",
+        "saveSceneToBuffer": "sim-2._saveSceneToBuffer")"
 
 #define SCENEOBJECT_META_METHODS R"("getAncestors": "sim-2._getAncestors",
         "getDescendants": "sim-2._getDescendants",
         "saveModel": "sim-2._saveModel",
         "saveModelToBuffer": "sim-2._saveModelToBuffer",
-        "checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
+        "checkCollision": "sim-2._checkCollision",
+        "checkDistance": "sim-2._checkDistance",
         "getAlias": "sim-2.getObjectAlias",
         "setAlias": "sim-2.setObjectAlias",
         "getPose": "sim-2._getObjectPose",

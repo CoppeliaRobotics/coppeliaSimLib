@@ -4099,16 +4099,31 @@ CInterfaceStackObject* CScriptObject::_generateObjectFromInterpreterStack_lua(vo
     else if (t == sim_stackitem_table)
     { // this part is more tricky:
         size_t rows, cols;
-        std::vector<double> matrix;
+        std::vector<double> dat;
         if (luaWrap_lua_isbuffer(L, index))
         { // this is a buffer
             size_t l;
             const char* c = luaWrap_lua_tobuffer(L, index, &l);
             return (new CInterfaceStackString(c, l, true));
         }
-        else if (luaWrap_lua_isMatrix(L, index, &rows, &cols, &matrix))
+        else if (luaWrap_lua_isvector3(L, index, &dat, true))
+        { // this is a vector3
+//            return new CInterfaceStackVector3(dat.data());
+            return nullptr;
+        }
+        else if (luaWrap_lua_isquaternion(L, index, &dat, true))
+        { // this is a quaternion
+//            return new CInterfaceStackQuaternion(dat.data());
+            return nullptr;
+        }
+        else if (luaWrap_lua_ispose(L, index, &dat, true))
+        { // this is a pose
+//            return new CInterfaceStackPose(dat.data());
+            return nullptr;
+        }
+        else if (luaWrap_lua_ismatrix(L, index, &rows, &cols, &dat))
         { // this is a matrix
-            return new CInterfaceStackMatrix(matrix.data(), rows, cols);
+            return new CInterfaceStackMatrix(dat.data(), rows, cols);
         }
         else
         { // Following to avoid getting trapped in circular references:

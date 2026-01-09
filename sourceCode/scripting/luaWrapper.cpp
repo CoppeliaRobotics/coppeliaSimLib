@@ -295,6 +295,16 @@ void luaWrap_lua_insert(luaWrap_lua_State* L, int idx)
     lua_insert((lua_State*)L, idx);
 }
 
+int luaWrap_luaL_ref(luaWrap_lua_State* L, int t)
+{
+    return luaL_ref((lua_State*)L, t);
+}
+
+void luaWrap_lua_call(luaWrap_lua_State* L, int nargs, int nresult)
+{
+    lua_call((lua_State*)L, nargs, nresult);
+}
+
 int luaWrap_lua_pcall(luaWrap_lua_State* L, int nargs, int nresult, int errfunc)
 {
     return (lua_pcall((lua_State*)L, nargs, nresult, errfunc));
@@ -427,7 +437,32 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx)
     return retVal;
 }
 
-bool luaWrap_lua_isMatrix(luaWrap_lua_State* L, int idx, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/, std::vector<double>* matrixData /*= nullptr*/)
+bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal /*= nullptr*/)
+{
+    bool retVal = false;
+    idx = lua_absindex((lua_State*)L, idx);
+    if (lua_isinteger((lua_State*)L, idx))
+    {
+        if (handleVal != nullptr)
+            handleVal[0] = lua_tointeger((lua_State*)L, idx);
+        retVal = true;
+    }
+    else if (lua_getmetatable((lua_State*)L, idx)) // Check if there is a metatable
+    {
+        lua_pop((lua_State*)L, 1); // Remove the metatable
+        lua_getfield((lua_State*)L, idx, "handle");
+        if (lua_isinteger((lua_State*)L, -1))
+        {
+            if (handleVal != nullptr)
+                handleVal[0] = lua_tointeger((lua_State*)L, -1);
+            retVal = true;
+        }
+        lua_pop((lua_State*)L, 1); // Remove the handle value
+    }
+    return retVal;
+}
+
+bool luaWrap_lua_ismatrix(luaWrap_lua_State* L, int idx, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/, std::vector<double>* matrixData /*= nullptr*/)
 {
     bool retVal = false;
     int abs_idx = lua_absindex((lua_State*)L, idx);
@@ -475,12 +510,150 @@ bool luaWrap_lua_isMatrix(luaWrap_lua_State* L, int idx, size_t* rows /*= nullpt
     return retVal;
 }
 
+bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData /*= nullptr*/, bool strict /*= false*/)
+{
+    bool retVal = false;
+    int abs_idx = lua_absindex((lua_State*)L, idx);
+    size_t rows, cols;
+    std::vector<double> dat;
+    if (luaWrap_lua_ismatrix(L, abs_idx, &rows, &cols, &dat))
+    {
+        if ((rows == 3) && (cols == 1))
+        {
+            if (vectorData != nullptr)
+                dat.swap(vectorData[0]);
+            retVal = true;
+        }
+    }
+    if ((!retVal) && (!strict))
+    {
+        if (luaWrap_lua_isnonbuffertable(L, abs_idx))
+        {
+            int s = int(lua_rawlen((lua_State*)L, abs_idx));
+            if (s == 3)
+            {
+                dat.resize(s);
+                if (getDoublesFromTable(L, abs_idx, s, dat.data()))
+                {
+                    if (vectorData != nullptr)
+                        dat.swap(vectorData[0]);
+                    retVal = true;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, std::vector<double>* quaternionData /*= nullptr*/, bool strict /*= false*/)
+{
+    bool retVal = false;
+    int abs_idx = lua_absindex((lua_State*)L, idx);
+    if (luaL_callmeta((lua_State*)L, abs_idx, "__isquaternion") == 1)
+    {
+        retVal = lua_toboolean((lua_State*)L, -1);
+        lua_pop((lua_State*)L,1);
+        if (retVal)
+        {
+            if (quaternionData != nullptr)
+            {
+                if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
+                {
+                    size_t n = lua_rawlen((lua_State*)L, -1);
+                    quaternionData->clear();
+                    for (size_t i = 1; i <= n; i++)
+                    {
+                        lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
+                        quaternionData->push_back(lua_tonumber((lua_State*)L, -1));
+                        lua_pop((lua_State*)L, 1);
+                    }
+                }
+                lua_pop((lua_State*)L, 1);
+            }
+        }
+    }
+    if ((!retVal) && (!strict))
+    {
+        if (luaWrap_lua_isnonbuffertable(L, abs_idx))
+        {
+            int s = int(lua_rawlen((lua_State*)L, abs_idx));
+            if (s == 4)
+            {
+                std::vector<double> dat;
+                dat.resize(s);
+                if (getDoublesFromTable(L, abs_idx, s, dat.data()))
+                {
+                    if (quaternionData != nullptr)
+                        dat.swap(quaternionData[0]);
+                    retVal = true;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, std::vector<double>* poseData /*= nullptr*/, bool strict /*= false*/)
+{
+    bool retVal = false;
+    int abs_idx = lua_absindex((lua_State*)L, idx);
+    if (luaL_callmeta((lua_State*)L, abs_idx, "__ispose") == 1)
+    {
+        retVal = lua_toboolean((lua_State*)L, -1);
+        lua_pop((lua_State*)L,1);
+        if (retVal)
+        {
+            if (poseData != nullptr)
+            {
+                if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
+                {
+                    size_t n = lua_rawlen((lua_State*)L, -1);
+                    poseData->clear();
+                    for (size_t i = 1; i <= n; i++)
+                    {
+                        lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
+                        poseData->push_back(lua_tonumber((lua_State*)L, -1));
+                        lua_pop((lua_State*)L, 1);
+                    }
+                }
+                lua_pop((lua_State*)L, 1);
+            }
+        }
+    }
+    if ((!retVal) && (!strict))
+    {
+        if (luaWrap_lua_isnonbuffertable(L, abs_idx))
+        {
+            int s = int(lua_rawlen((lua_State*)L, abs_idx));
+            if (s == 7)
+            {
+                std::vector<double> dat;
+                dat.resize(s);
+                if (getDoublesFromTable(L, abs_idx, s, dat.data()))
+                {
+                    if (poseData != nullptr)
+                        dat.swap(poseData[0]);
+                    retVal = true;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int luaWrap_lua_tohandle(luaWrap_lua_State* L, int idx)
+{
+    int retVal = -1;
+    idx = lua_absindex((lua_State*)L, idx);
+    luaWrap_lua_ishandle(L, idx, &retVal);
+    return retVal;
+}
+
 const char* luaWrap_lua_tobuffer(luaWrap_lua_State* L, int idx, size_t* len)
 {
     const char* retVal = nullptr;
     len[0] = 0;
-    if (idx < 0)
-        idx = lua_gettop((lua_State*)L) + idx + 1;
+    idx = lua_absindex((lua_State*)L, idx);
 
     if (lua_isstring((lua_State*)L, idx))
         retVal = lua_tolstring((lua_State*)L, idx, len);
@@ -525,20 +698,46 @@ void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l)
         luaWrap_lua_pushbinarystring(L, str, l); // old, no difference between strings and buffers
 }
 
+bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int h)
+{
+    bool retVal = false;
+    if ((h == sim_handle_scene) || (h == sim_handle_app) || (h >= 0))
+    {
+        lua_getglobal((lua_State*)L, "sim");
+        if (lua_istable((lua_State*)L, -1))
+        {
+            lua_getfield((lua_State*)L, -1, "Object");
+            lua_pushinteger((lua_State*)L, h);
+            if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+            {
+                lua_remove((lua_State*)L, -2);
+                retVal = true;
+            }
+            else
+                lua_pop((lua_State*)L, 2);
+        }
+        else
+            lua_pop((lua_State*)L, 1);
+    }
+    if (!retVal)
+        lua_pushnil((lua_State*)L);
+    return retVal;
+}
+
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols)
 {
     lua_getglobal((lua_State*)L, "require");
     lua_pushstring((lua_State*)L, "simEigen");
     if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
     {
-        lua_getfield((lua_State*)L,-1,"Matrix");
+        lua_getfield((lua_State*)L, -1, "Matrix");
         lua_pushinteger((lua_State*)L, rows);
         lua_pushinteger((lua_State*)L, cols);
         lua_createtable((lua_State*)L, int(rows * cols), 0);
         for (size_t i = 0; i < rows * cols; i++)
         {
             lua_pushnumber((lua_State*)L, matrix[i]);
-            lua_rawseti((lua_State*)L, -2, i+1);
+            lua_rawseti((lua_State*)L, -2, i + 1);
         }
         lua_pcall((lua_State*)L, 3, 1, 0);
         lua_remove((lua_State*)L, -2); // simEigen module
@@ -551,7 +750,361 @@ void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t r
     }
 }
 
+void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* dat)
+{
+    /*
+    bool found = true;
+//    lua_getglobal((lua_State*)L, "_Vector__");
+//    if (lua_isnil((lua_State*)L, -1))
+    {
+        found = false;
+        lua_pop((lua_State*)L, 1);
+        lua_getglobal((lua_State*)L, "require");
+        lua_pushstring((lua_State*)L, "simEigen");
+        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+        {
+            lua_remove((lua_State*)L, -2); // simEigen module
+            found = true;
+            lua_getfield((lua_State*)L, -1, "Vector");
+        //    lua_pushvalue((lua_State*)L, -1);
+        //    lua_setglobal((lua_State*)L, "_Vector__");
+        }
+        else
+        {
+            lua_pop((lua_State*)L, 1);
+            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushvector3.");
+            lua_pushnil((lua_State*)L);
+        }
+    }
+    if (found)
+    {
+        lua_createtable((lua_State*)L, 3, 0);
+        for (size_t i = 0; i < 3; i++)
+        {
+            lua_pushnumber((lua_State*)L, dat[i]);
+            lua_rawseti((lua_State*)L, -2, i + 1);
+        }
+        lua_pcall((lua_State*)L, 1, 1, 0);
+    }
+*/
+
+    lua_getglobal((lua_State*)L, "_Vector__");
+    if (lua_isnil((lua_State*)L, -1))
+    {
+        lua_pop((lua_State*)L, 1); // pop nil
+        lua_getglobal((lua_State*)L, "require");
+        lua_pushstring((lua_State*)L, "simEigen");
+        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+        {
+            lua_getfield((lua_State*)L, -1, "Vector");
+            lua_pushvalue((lua_State*)L, -1);
+            lua_setglobal((lua_State*)L, "_Vector__");
+            lua_createtable((lua_State*)L, 3, 0);
+            for (size_t i = 0; i < 3; i++)
+            {
+                lua_pushnumber((lua_State*)L, dat[i]);
+                lua_rawseti((lua_State*)L, -2, i + 1);
+            }
+            lua_pcall((lua_State*)L, 1, 1, 0);
+            lua_remove((lua_State*)L, -2); // simEigen module
+        }
+        else
+        {
+            lua_pop((lua_State*)L, 1);
+            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushvector3.");
+            lua_pushnil((lua_State*)L);
+        }
+    }
+    else
+    {
+        lua_createtable((lua_State*)L, 3, 0);
+        for (size_t i = 0; i < 3; i++)
+        {
+            lua_pushnumber((lua_State*)L, dat[i]);
+            lua_rawseti((lua_State*)L, -2, i + 1);
+        }
+        lua_pcall((lua_State*)L, 1, 1, 0);
+    }
+}
+
+void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
+{
+    lua_getglobal((lua_State*)L, "require");
+    lua_pushstring((lua_State*)L, "simEigen");
+    if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+    {
+        lua_getfield((lua_State*)L, -1, "Quaternion");
+        lua_createtable((lua_State*)L, 4, 0);
+        for (size_t i = 0; i < 4; i++)
+        {
+            lua_pushnumber((lua_State*)L, dat[i]);
+            lua_rawseti((lua_State*)L, -2, i + 1);
+        }
+        lua_pcall((lua_State*)L, 1, 1, 0);
+        lua_remove((lua_State*)L, -2); // simEigen module
+    }
+    else
+    {
+        lua_pop((lua_State*)L, 1);
+        App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushquaternion.");
+        lua_pushnil((lua_State*)L);
+    }
+}
+
+void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
+{
+    lua_getglobal((lua_State*)L, "require");
+    lua_pushstring((lua_State*)L, "simEigen");
+    if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+    {
+        lua_getfield((lua_State*)L, -1, "Pose");
+        lua_createtable((lua_State*)L, 7, 0);
+        for (size_t i = 0; i < 7; i++)
+        {
+            lua_pushnumber((lua_State*)L, dat[i]);
+            lua_rawseti((lua_State*)L, -2, i + 1);
+        }
+        lua_pcall((lua_State*)L, 1, 1, 0);
+        lua_remove((lua_State*)L, -2); // simEigen module
+    }
+    else
+    {
+        lua_pop((lua_State*)L, 1);
+        App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushquaternion.");
+        lua_pushnil((lua_State*)L);
+    }
+}
+
 void luaWrap_lua_pushbinarystring(luaWrap_lua_State* L, const char* str, size_t l)
 {
     lua_pushlstring((lua_State*)L, str, l);
 }
+
+bool getFloatsFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < floatCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!lua_isnumber((lua_State*)L, -1))
+            retVal = false;        // Not a number
+        arrayField[i] = (float)lua_tonumber((lua_State*)L, -1);
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+bool getDoublesFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < doubleCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!lua_isnumber((lua_State*)L, -1))
+            retVal = false;        // Not a number
+        arrayField[i] = lua_tonumber((lua_State*)L, -1);
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+bool getIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!lua_isinteger((lua_State*)L, -1))
+            retVal = false;        // Not an integer
+        arrayField[i] = int(lua_tointeger((lua_State*)L, -1));
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+bool getLongsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, long long int* arrayField)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!lua_isinteger((lua_State*)L, -1))
+            retVal = false;        // Not an integer
+        arrayField[i] = lua_tointeger((lua_State*)L, -1);
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!lua_isinteger((lua_State*)L, -1))
+            retVal = false;        // Not an integer
+        arrayField[i] = (unsigned int)lua_tointeger((lua_State*)L, -1);
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+bool getUCharsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!lua_isinteger((lua_State*)L, -1))
+            retVal = false;        // Not an integer
+        arrayField[i] = (unsigned char)lua_tointeger((lua_State*)L, -1);
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+bool getCharBoolsFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < boolCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!lua_isboolean((lua_State*)L, -1))
+            retVal = false;        // Not a boolean!!
+        arrayField[i] = (char)lua_toboolean((lua_State*)L, -1);
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+bool getStringsFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount, std::vector<std::string>& array)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < stringCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!luaWrap_lua_isstring((lua_State*)L, -1))
+            retVal = false;        // Not a string!!
+        array.push_back(lua_tostring((lua_State*)L, -1));
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+bool getHandlesFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField)
+{
+    bool retVal = true;
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
+        if (!luaWrap_lua_ishandle(L, -1))
+            retVal = false;        // Not a handle!!
+        arrayField[i] = luaWrap_lua_tohandle(L, -1);
+        lua_pop((lua_State*)L, 1); // we pop one element from the stack;
+    }
+    return retVal;
+}
+
+void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const float* arrayField)
+{
+    lua_createtable((lua_State*)L, int(floatCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < floatCount; i++)
+    {
+        lua_pushnumber((lua_State*)L, arrayField[i]);
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+}
+
+void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField)
+{
+    lua_createtable((lua_State*)L, int(doubleCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < doubleCount; i++)
+    {
+        lua_pushnumber((lua_State*)L, arrayField[i]);
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+}
+
+void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
+{
+    lua_createtable((lua_State*)L, int(intCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_pushinteger((lua_State*)L, arrayField[i]);
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+}
+
+void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField)
+{
+    lua_createtable((lua_State*)L, int(intCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_pushinteger((lua_State*)L, arrayField[i]);
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+}
+
+void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField)
+{
+    lua_createtable((lua_State*)L, int(intCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_pushinteger((lua_State*)L, arrayField[i]);
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+}
+
+void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField)
+{
+    lua_createtable((lua_State*)L, int(intCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_pushinteger((lua_State*)L, arrayField[i]);
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+}
+
+void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
+{
+    lua_createtable((lua_State*)L, int(stringTable.size()), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < stringTable.size(); i++)
+    {
+        luaWrap_lua_pushtext((lua_State*)L, stringTable[i].c_str());
+        lua_rawseti((lua_State*)L, newTablePos, (int)i + 1);
+    }
+}
+
+void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
+{
+    lua_createtable((lua_State*)L, int(stringTable.size()), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < stringTable.size(); i++)
+    {
+        luaWrap_lua_pushbuffer((lua_State*)L, stringTable[i].c_str(), stringTable[i].size());
+        lua_rawseti((lua_State*)L, newTablePos, (int)i + 1);
+    }
+}
+
+bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
+{
+    bool retVal = true;
+    lua_createtable((lua_State*)L, int(intCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < intCount; i++)
+    {
+        if (!luaWrap_lua_pushhandle((lua_State*)L, arrayField[i]))
+            retVal = false;
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+    return retVal;
+}
+

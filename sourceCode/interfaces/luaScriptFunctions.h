@@ -18,6 +18,7 @@ enum
     lua_arg_function,
     lua_arg_userdata,
     lua_arg_table,
+    lua_arg_handle,
     lua_arg_optional = 64
 };
 
@@ -35,23 +36,6 @@ struct SLuaVariables
 
 void _registerTableFunction(luaWrap_lua_State* L, char const* const tableName, char const* const functionName, luaWrap_lua_CFunction functionCallback);
 
-void getFloatsFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField);
-void getDoublesFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField);
-bool getIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField);
-bool getLongsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, long long int* arrayField);
-bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField);
-bool getUCharsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField);
-void getCharBoolsFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField);
-void getStringsFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount, std::vector<std::string>& array);
-void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const float* arrayField);
-void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField);
-void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField);
-void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField);
-void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField);
-void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField);
-void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);
-void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);
-
 int luaToInt(luaWrap_lua_State* L, int pos);
 double luaToDouble(luaWrap_lua_State* L, int pos);
 bool luaToBool(luaWrap_lua_State* L, int pos);
@@ -63,11 +47,14 @@ bool doesEntityExist(std::string* errStr, int identifier);
 int fetchBoolArg(luaWrap_lua_State* L, int index, bool defaultValue = false);
 long long int fetchLongArg(luaWrap_lua_State* L, int index, long long int defaultValue = -1);
 int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue = -1);
+int fetchHandleArg(luaWrap_lua_State* L, int index, int defaultValue = -1);
 double fetchDoubleArg(luaWrap_lua_State* L, int index, double defaultValue = 0.0);
 std::string fetchTextArg(luaWrap_lua_State* L, int index, const char* txt = "");
 std::string fetchBufferArg(luaWrap_lua_State* L, int index);
 void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::initializer_list<int> arr = {});
 void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::vector<int>& arr);
+void fetchHandleArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::initializer_list<int> arr = {});
+void fetchHandleArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::vector<int>& arr);
 void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::initializer_list<float> arr = {});
 void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& outArr, std::vector<float>& arr);
 void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr, std::initializer_list<double> arr = {});

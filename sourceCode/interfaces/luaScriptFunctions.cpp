@@ -127,9 +127,9 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const c
     lineNumber = luaWrap_getCurrentCodeLine(L);
     std::string msg;
     msg += std::to_string(lineNumber);
-    msg += ": in ";
+    msg += ": error in '";
     msg += functionName;
-    msg += ": ";
+    msg += "': ";
     msg += errStr;
     luaWrap_lua_pushtext(L, msg.c_str());
 
@@ -2080,198 +2080,6 @@ void _registerTableFunction(luaWrap_lua_State* L, char const* const tableName, c
     luaWrap_lua_pop(L, 1); // pop table of globals
 }
 
-void getFloatsFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField)
-{
-    for (size_t i = 0; i < floatCount; i++)
-    {
-        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
-        arrayField[i] = (float)luaWrap_lua_tonumber(L, -1);
-        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-    }
-}
-
-void getDoublesFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField)
-{
-    for (size_t i = 0; i < doubleCount; i++)
-    {
-        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
-        arrayField[i] = luaWrap_lua_tonumber(L, -1);
-        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-    }
-}
-
-bool getIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField)
-{
-    for (size_t i = 0; i < intCount; i++)
-    {
-        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
-        if (!luaWrap_lua_isnumber(L, -1))
-        {
-            luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-            return (false);        // Not a number!!
-        }
-        arrayField[i] = luaToInt(L, -1);
-        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-    }
-    return (true);
-}
-
-bool getLongsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, long long int* arrayField)
-{
-    for (size_t i = 0; i < intCount; i++)
-    {
-        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
-        if (!luaWrap_lua_isnumber(L, -1))
-        {
-            luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-            return (false);        // Not a number!!
-        }
-        arrayField[i] = luaWrap_lua_tointeger(L, -1);
-        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-    }
-    return (true);
-}
-
-bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField)
-{
-    for (size_t i = 0; i < intCount; i++)
-    {
-        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
-        if (!luaWrap_lua_isnumber(L, -1))
-        {
-            luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-            return (false);        // Not a number!!
-        }
-        arrayField[i] = (unsigned int)luaToInt(L, -1);
-        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-    }
-    return (true);
-}
-
-bool getUCharsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField)
-{
-    for (size_t i = 0; i < intCount; i++)
-    {
-        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
-        if (!luaWrap_lua_isnumber(L, -1))
-        {
-            luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-            return (false);        // Not a number!!
-        }
-        arrayField[i] = (unsigned char)luaToInt(L, -1);
-        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-    }
-    return (true);
-}
-
-void getCharBoolsFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField)
-{
-    for (size_t i = 0; i < boolCount; i++)
-    {
-        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
-        arrayField[i] = (char)luaToBool(L, -1);
-        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-    }
-}
-
-void getStringsFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount, std::vector<std::string>& array)
-{
-    for (size_t i = 0; i < stringCount; i++)
-    {
-        luaWrap_lua_rawgeti(L, tablePos, int(i + 1));
-        array.push_back(luaWrap_lua_tostring(L, -1));
-        luaWrap_lua_pop(L, 1); // we pop one element from the stack;
-    }
-}
-
-void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const float* arrayField)
-{
-    luaWrap_lua_newtable(L);
-    int newTablePos = luaWrap_lua_gettop(L);
-    for (size_t i = 0; i < floatCount; i++)
-    {
-        luaWrap_lua_pushnumber(L, arrayField[i]);
-        luaWrap_lua_rawseti(L, newTablePos, int(i + 1));
-    }
-}
-
-void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField)
-{
-    luaWrap_lua_newtable(L);
-    int newTablePos = luaWrap_lua_gettop(L);
-    for (size_t i = 0; i < doubleCount; i++)
-    {
-        luaWrap_lua_pushnumber(L, arrayField[i]);
-        luaWrap_lua_rawseti(L, newTablePos, int(i + 1));
-    }
-}
-
-void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
-{
-    luaWrap_lua_newtable(L);
-    int newTablePos = luaWrap_lua_gettop(L);
-    for (size_t i = 0; i < intCount; i++)
-    {
-        luaWrap_lua_pushinteger(L, arrayField[i]);
-        luaWrap_lua_rawseti(L, newTablePos, int(i + 1));
-    }
-}
-
-void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField)
-{
-    luaWrap_lua_newtable(L);
-    int newTablePos = luaWrap_lua_gettop(L);
-    for (size_t i = 0; i < intCount; i++)
-    {
-        luaWrap_lua_pushinteger(L, arrayField[i]);
-        luaWrap_lua_rawseti(L, newTablePos, int(i + 1));
-    }
-}
-
-void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField)
-{
-    luaWrap_lua_newtable(L);
-    int newTablePos = luaWrap_lua_gettop(L);
-    for (size_t i = 0; i < intCount; i++)
-    {
-        luaWrap_lua_pushinteger(L, arrayField[i]);
-        luaWrap_lua_rawseti(L, newTablePos, int(i + 1));
-    }
-}
-
-void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField)
-{
-    luaWrap_lua_newtable(L);
-    int newTablePos = luaWrap_lua_gettop(L);
-    for (size_t i = 0; i < intCount; i++)
-    {
-        luaWrap_lua_pushinteger(L, arrayField[i]);
-        luaWrap_lua_rawseti(L, newTablePos, int(i + 1));
-    }
-}
-
-void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
-{
-    luaWrap_lua_newtable(L);
-    int newTablePos = luaWrap_lua_gettop(L);
-    for (size_t i = 0; i < stringTable.size(); i++)
-    {
-        luaWrap_lua_pushtext(L, stringTable[i].c_str());
-        luaWrap_lua_rawseti(L, newTablePos, (int)i + 1);
-    }
-}
-
-void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
-{
-    luaWrap_lua_newtable(L);
-    int newTablePos = luaWrap_lua_gettop(L);
-    for (size_t i = 0; i < stringTable.size(); i++)
-    {
-        luaWrap_lua_pushbuffer(L, stringTable[i].c_str(), stringTable[i].size());
-        luaWrap_lua_rawseti(L, newTablePos, (int)i + 1);
-    }
-}
-
 int luaToInt(luaWrap_lua_State* L, int pos)
 {
     return ((int)luaWrap_lua_tointeger(L, pos));
@@ -2463,6 +2271,21 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
         }
         return true;
     }
+    if (type == lua_arg_handle)
+    {
+        if (!luaWrap_lua_ishandle(L, index))
+        {
+            if (errStr != nullptr)
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index - argOffset);
+                msg += " (expecting a handle).";
+                errStr->assign(msg.c_str());
+            }
+            return false; // error
+        }
+        return true;
+    }
     if (type == lua_arg_function)
     {
         if (!luaWrap_lua_isfunction(L, index))
@@ -2519,6 +2342,15 @@ int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue /*= -1*/)
     return int(fetchLongArg(L, index, defaultValue));
 }
 
+int fetchHandleArg(luaWrap_lua_State* L, int index, int defaultValue /*= -1*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    int retVal = defaultValue;
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+        retVal = luaWrap_lua_tohandle(L, index);
+    return retVal;
+}
+
 double fetchDoubleArg(luaWrap_lua_State* L, int index, double defaultValue /*= 0.0*/)
 { // make sure you have verified for correct args with checkInputArguments previously
     double retVal = defaultValue;
@@ -2569,6 +2401,28 @@ void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr,
         int cnt = int(luaWrap_lua_rawlen(L, index));
         outArr.resize(cnt);
         getIntsFromTable(L, index, cnt, outArr.data());
+    }
+}
+
+void fetchHandleArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::initializer_list<int> arr /*= {}*/)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    std::vector<int> def;
+    if (arr.size() != 0)
+        for (int x : arr) def.push_back(x);
+    fetchHandleArrayArg(L, index, outArr, def);
+}
+
+void fetchHandleArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr, std::vector<int>& arr)
+{ // make sure you have verified for correct args with checkInputArguments previously
+    outArr.clear();
+    if (arr.size() != 0)
+        for (int x : arr) outArr.push_back(x);
+    int argCnt = luaWrap_lua_gettop(L);
+    if ( (argCnt >= index) && (luaWrap_lua_isnonbuffertable(L, index)) )
+    {
+        int cnt = int(luaWrap_lua_rawlen(L, index));
+        outArr.resize(cnt);
+        getHandlesFromTable(L, index, cnt, outArr.data());
     }
 }
 
@@ -6861,6 +6715,158 @@ int _simTest(luaWrap_lua_State* L)
     if (checkInputArguments(L, nullptr, argOffset, lua_arg_string, 0))
     {
         std::string cmd = luaWrap_lua_tostring(L, 1);
+        if (cmd.compare("testHandles") == 0)
+        {
+            if (checkInputArguments(L, nullptr, argOffset, lua_arg_string, 0, lua_arg_handle, -1))
+            {
+                printf("Is a table of handles\n");
+                std::vector<int> h;
+                fetchHandleArrayArg(L, 2, h);
+                for (int i = 0; i < h.size(); i++)
+                    printf("handle %i: %i\n", i, h[i]);
+                pushHandleTableOntoStack(L, h.size(), h.data());
+                LUA_END(1);
+            }
+            else
+                printf("not a table of handles\n");
+        }
+        if (cmd.compare("testMatrix") == 0)
+        {
+            size_t rows, cols;
+            std::vector<double> matrixData;
+            if (luaWrap_lua_ismatrix(L, 2, &rows, &cols, &matrixData))
+            {
+                luaWrap_lua_pushmatrix(L, matrixData.data(), rows, cols);
+                LUA_END(1);
+            }
+        }
+
+        if (cmd.compare("testVector3") == 0)
+        {
+            std::vector<double> dat;
+
+            int startT = VDateTime::getTimeDiffInMs(-1);
+            for (size_t i = 0; i < 100000; i++)
+                luaWrap_lua_isvector3(L, 2, &dat);
+            printf("luaWrap_lua_isvector3 speed: %f\n", float(VDateTime::getTimeDiffInMs(startT))/100000.0);
+
+            startT = VDateTime::getTimeDiffInMs(-1);
+            for (size_t i = 0; i < 100000; i++)
+            {
+                if (luaWrap_lua_isnonbuffertable(L, 2))
+                {
+                    int l = luaWrap_lua_rawlen(L, 2);
+                    getDoublesFromTable(L, 2, l, dat.data());
+                }
+            }
+            printf("luaWrap_lua_isgeneraltable speed: %f\n", float(VDateTime::getTimeDiffInMs(startT))/100000.0);
+
+            startT = VDateTime::getTimeDiffInMs(-1);
+            for (size_t j = 0; j < 1000; j++)
+            {
+                for (size_t i = 0; i < 100; i++)
+                {
+                    luaWrap_lua_pushvector3(L, dat.data());
+                }
+                luaWrap_lua_pop(L, 100);
+            }
+            printf("luaWrap_lua_pushvector3 speed: %f\n", float(VDateTime::getTimeDiffInMs(startT))/100000.0);
+
+            startT = VDateTime::getTimeDiffInMs(-1);
+            for (size_t j = 0; j < 1000; j++)
+            {
+                for (size_t i = 0; i < 100; i++)
+                {
+                    pushDoubleTableOntoStack(L, dat.size(), dat.data());
+                }
+                luaWrap_lua_pop(L, 100);
+            }
+            printf("pushDoubleTableOntoStack speed: %f\n", float(VDateTime::getTimeDiffInMs(startT))/100000.0);
+
+            if (luaWrap_lua_isvector3(L, 2, &dat))
+            {
+                luaWrap_lua_pushvector3(L, dat.data());
+                LUA_END(1);
+            }
+        }
+
+        if (cmd.compare("vectorSpeedTest-inOnly") == 0)
+        {
+            std::vector<double> dat;
+            luaWrap_lua_isvector3(L, 2, &dat);
+            LUA_END(0);
+        }
+        if (cmd.compare("vectorSpeedTest-outOnly") == 0)
+        {
+            std::vector<double> dat({1,2,3});
+            luaWrap_lua_pushvector3(L, dat.data());
+            LUA_END(1);
+        }
+        if (cmd.compare("vectorSpeedTest") == 0)
+        {
+            std::vector<double> dat;
+            if (luaWrap_lua_isvector3(L, 2, &dat))
+            {
+                luaWrap_lua_pushvector3(L, dat.data());
+                LUA_END(1);
+            }
+        }
+        if (cmd.compare("arraySpeedTest-inOnly") == 0)
+        {
+            std::vector<double> dat;
+            if (luaWrap_lua_isnonbuffertable(L, 2))
+            {
+                int l = luaWrap_lua_rawlen(L, 2);
+                if (l == 3)
+                {
+                    dat.resize(3);
+                    getDoublesFromTable(L, 2, 3, dat.data());
+                    LUA_END(0);
+                }
+            }
+        }
+        if (cmd.compare("arraySpeedTest-outOnly") == 0)
+        {
+            std::vector<double> dat({1,2,3});
+            pushDoubleTableOntoStack(L, dat.size(), dat.data());
+            LUA_END(1);
+        }
+        if (cmd.compare("arraySpeedTest") == 0)
+        {
+            std::vector<double> dat;
+            if (luaWrap_lua_isnonbuffertable(L, 2))
+            {
+                int l = luaWrap_lua_rawlen(L, 2);
+                if (l == 3)
+                {
+                    dat.resize(3);
+                    getDoublesFromTable(L, 2, 3, dat.data());
+                    pushDoubleTableOntoStack(L, dat.size(), dat.data());
+                    LUA_END(1);
+                }
+            }
+        }
+
+        if (cmd.compare("testQuaternion") == 0)
+        {
+            std::vector<double> dat;
+            if (luaWrap_lua_isquaternion(L, 2, &dat))
+            {
+                luaWrap_lua_pushquaternion(L, dat.data());
+                LUA_END(1);
+            }
+        }
+
+        if (cmd.compare("testPose") == 0)
+        {
+            std::vector<double> dat;
+            if (luaWrap_lua_ispose(L, 2, &dat))
+            {
+                luaWrap_lua_pushpose(L, dat.data());
+                LUA_END(1);
+            }
+        }
+
         if (cmd.compare("mjcf") == 0)
         {
             std::string r = App::worldContainer->pluginContainer->dyn_generateMjcfFile();
