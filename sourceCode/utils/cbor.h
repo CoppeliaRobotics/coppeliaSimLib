@@ -35,6 +35,8 @@ class CCbor
     void appendDouble(double v);
     void appendDoubleArray(const double* v, size_t cnt);
     void appendMatrix(const double* v, size_t rows, size_t cols);
+    void appendQuaternion(const double* v);
+    void appendPose(const double* v);
     void appendNull();
     void appendBool(bool v);
     void appendBuff(const unsigned char* v, size_t l);

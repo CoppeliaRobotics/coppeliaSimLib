@@ -220,7 +220,7 @@ class CScriptObject
     // -----------------------------
     void registerNewFunctions_lua();
     static void buildFromInterpreterStack_lua(void* LL, CInterfaceStack* stack, int fromPos, int cnt);
-    static void buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop);
+    static size_t buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop, bool interlaceWithTypeInfo = false);
     static int getScriptHandleFromInterpreterState_lua(void* LL);
     static std::string getSearchPath_lua();
     static std::string getSearchCPath_lua();
@@ -342,14 +342,14 @@ class CScriptObject
     int _loadBufferResult_lua;
     bool _loadBuffer_lua(const char* buff, size_t sz, const char* name);
     void _registerNewVariables_lua();
-    static CInterfaceStackObject* _generateObjectFromInterpreterStack_lua(void* LL, int index,
-                                                                          std::map<void*, bool>& visitedTables);
-    static CInterfaceStackTable* _generateTableArrayFromInterpreterStack_lua(void* LL, int index,
-                                                                             std::map<void*, bool>& visitedTables);
-    static CInterfaceStackTable* _generateTableMapFromInterpreterStack_lua(void* LL, int index,
-                                                                           std::map<void*, bool>& visitedTables);
+    static CInterfaceStackObject* _getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints = false);
+    static CInterfaceStackTable* _getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints = false);
+
+//    static CInterfaceStackObject* _generateObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, int hintIndex = -9999);
+//    static CInterfaceStackTable* _generateTableArrayFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables);
+//    static CInterfaceStackTable* _generateTableMapFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables);
     static int _countInterpreterStackTableEntries_lua(void* LL, int index);
-    static void _pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj);
+    static void _pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj, bool pushOnlySimpleTypes = false);
     static void _hookFunction_lua(void* LL, void* arr);
     static void _setScriptHandleToInterpreterState_lua(void* LL, int h);
     // -----------------------------

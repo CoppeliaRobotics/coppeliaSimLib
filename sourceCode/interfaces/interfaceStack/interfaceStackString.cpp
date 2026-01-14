@@ -1,4 +1,5 @@
 #include <interfaceStackString.h>
+#include <interfaceStackInteger.h>
 
 CInterfaceStackString::CInterfaceStackString(const char* str)
 {
@@ -70,6 +71,15 @@ CInterfaceStackObject* CInterfaceStackString::copyYourself() const
     return (retVal);
 }
 
+CInterfaceStackObject* CInterfaceStackString::getTypeEquivalent() const
+{
+    int w = sim_stackitem_string;
+    if (_isBuffer)
+        w = -2; // special
+    CInterfaceStackInteger* retVal = new CInterfaceStackInteger(w);
+    return retVal;
+}
+
 void CInterfaceStackString::printContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
@@ -125,15 +135,14 @@ void CInterfaceStackString::addCborObjectData(CCbor* cborObj) const
 unsigned int CInterfaceStackString::createFromData(const char* data, unsigned char /*version*/, std::vector<CInterfaceStackObject*>& allCreatedObjects)
 {
     allCreatedObjects.push_back(this);
-    size_t p = 0;
     _isBuffer = false;
     _isText = false;
     unsigned int l;
     char* tmp = (char*)(&l);
     for (size_t i = 0; i < sizeof(l); i++)
-        tmp[i] = data[p + i];
+        tmp[i] = data[i];
     for (size_t i = 0; i < l; i++)
-        _value.push_back(p + data[sizeof(l) + i]);
+        _value.push_back(data[sizeof(l) + i]);
     return (sizeof(l) + l);
 }
 

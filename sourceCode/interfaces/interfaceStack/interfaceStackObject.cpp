@@ -6,6 +6,9 @@
 #include <interfaceStackString.h>
 #include <interfaceStackTable.h>
 #include <interfaceStackMatrix.h>
+#include <interfaceStackQuaternion.h>
+#include <interfaceStackPose.h>
+#include <interfaceStackHandle.h>
 
 CInterfaceStackObject::CInterfaceStackObject()
 {
@@ -29,6 +32,12 @@ CInterfaceStackObject* CInterfaceStackObject::copyYourself() const
     return (nullptr);
 }
 
+CInterfaceStackObject* CInterfaceStackObject::getTypeEquivalent() const
+{
+    CInterfaceStackInteger* retVal = new CInterfaceStackInteger(_objectType);
+    return retVal;
+}
+
 std::string CInterfaceStackObject::getObjectData(std::string& /*auxInfos*/) const
 {
     return ("");
@@ -50,7 +59,7 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
     retOffset = 1;
     if (t == sim_stackitem_null)
         obj = new CInterfaceStackNull();
-    if (t == sim_stackitem_double)
+    else if (t == sim_stackitem_double)
     {
         obj = new CInterfaceStackNumber(0.0);
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
@@ -65,30 +74,45 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
             }
         }
     }
-    if (t == sim_stackitem_integer)
+    else if (t == sim_stackitem_integer)
     {
         obj = new CInterfaceStackInteger(0);
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
     }
-    if (t == sim_stackitem_bool)
+    else if (t == sim_stackitem_handle)
+    {
+        obj = new CInterfaceStackHandle(0);
+        retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
+    }
+    else if (t == sim_stackitem_bool)
     {
         obj = new CInterfaceStackBool(false);
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
     }
-    if (t == sim_stackitem_string)
+    else if (t == sim_stackitem_string)
     {
         obj = new CInterfaceStackString(nullptr);
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
     }
-    if (t == sim_stackitem_table)
+    else if (t == sim_stackitem_table)
     {
         obj = new CInterfaceStackTable();
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
     }
-    if (t == sim_stackitem_matrix)
+    else if (t == sim_stackitem_matrix)
     {
         obj = new CInterfaceStackMatrix(nullptr, 0, 0);
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
     }
-    return (obj);
+    else if (t == sim_stackitem_quaternion)
+    {
+        obj = new CInterfaceStackQuaternion(nullptr, true);
+        retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
+    }
+    else if (t == sim_stackitem_pose)
+    {
+        obj = new CInterfaceStackPose(nullptr, true);
+        retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
+    }
+    return obj;
 }

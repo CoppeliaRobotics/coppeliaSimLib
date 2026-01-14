@@ -6,6 +6,7 @@
 #include <simLib/simExp.h>
 
 #ifdef SIM_UNIFIED_HANDLES
+SIM_DLLEXPORT int simCallMethod_L(long long int target, const char* name, UID inputStack, UID outputStack);
 SIM_DLLEXPORT UID simGetObject_L(const char* objectPath, int index, UID proxy, int options);
 SIM_DLLEXPORT long long int simGetObjectUid_L(UID objectHandle);
 SIM_DLLEXPORT UID simGetObjectFromUid_L(long long int uid, int options);
@@ -76,6 +77,8 @@ SIM_DLLEXPORT int simPushTextOntoStack_L(UID stackHandle, const char* value);
 SIM_DLLEXPORT int simPushStringOntoStack_L(UID stackHandle, const char* value, int stringSize);
 SIM_DLLEXPORT int simPushBufferOntoStack_L(UID stackHandle, const char* value, int stringSize);
 SIM_DLLEXPORT int simPushMatrixOntoStack_L(UID stackHandle, const double* value, int rows, int cols);
+SIM_DLLEXPORT int simPushQuaternionOntoStack_L(UID stackHandle, const double* value);
+SIM_DLLEXPORT int simPushPoseOntoStack_L(UID stackHandle, const double* value);
 SIM_DLLEXPORT int simPushUInt8TableOntoStack_L(UID stackHandle, const unsigned char* values, int valueCnt);
 SIM_DLLEXPORT int simPushInt32TableOntoStack_L(UID stackHandle, const int* values, int valueCnt);
 SIM_DLLEXPORT int simPushInt64TableOntoStack_L(UID stackHandle, const long long int* values, int valueCnt);
@@ -95,6 +98,8 @@ SIM_DLLEXPORT int simGetStackFloatValue_L(UID stackHandle, float* numberValue);
 SIM_DLLEXPORT int simGetStackDoubleValue_L(UID stackHandle, double* numberValue);
 SIM_DLLEXPORT char* simGetStackStringValue_L(UID stackHandle, int* stringSize);
 SIM_DLLEXPORT double* simGetStackMatrix_L(UID stackHandle, int* rows, int* cols);
+SIM_DLLEXPORT double* simGetStackQuaternion_L(UID stackHandle);
+SIM_DLLEXPORT double* simGetStackPose_L(UID stackHandle);
 SIM_DLLEXPORT int simGetStackTableInfo_L(UID stackHandle, int infoType);
 SIM_DLLEXPORT int simGetStackUInt8Table_L(UID stackHandle, unsigned char* array, int count);
 SIM_DLLEXPORT int simGetStackInt32Table_L(UID stackHandle, int* array, int count);
@@ -264,6 +269,7 @@ SIM_DLLEXPORT int simRemoveProperty(long long int target, const char* pName);
 SIM_DLLEXPORT char* simGetPropertyName(long long int target, int index, SPropertyOptions* options);
 SIM_DLLEXPORT int simGetPropertyInfo(long long int target, const char*, SPropertyInfo* infos, SPropertyOptions* options);
 
+SIM_DLLEXPORT int simCallMethod(long long int target, const char* name, int inputStack, int outputStack);
 SIM_DLLEXPORT int simTest(int mode, void* ptr1, void* ptr2, void* ptr3);
 SIM_DLLEXPORT void* simGetMainWindow(int type);
 SIM_DLLEXPORT char* simGetLastError();
@@ -382,6 +388,8 @@ SIM_DLLEXPORT int simPushTextOntoStack(int stackHandle, const char* value);
 SIM_DLLEXPORT int simPushStringOntoStack(int stackHandle, const char* value, int stringSize);
 SIM_DLLEXPORT int simPushBufferOntoStack(int stackHandle, const char* value, int stringSize);
 SIM_DLLEXPORT int simPushMatrixOntoStack(int stackHandle, const double* value, int rows, int cols);
+SIM_DLLEXPORT int simPushQuaternionOntoStack(int stackHandle, const double* value);
+SIM_DLLEXPORT int simPushPoseOntoStack(int stackHandle, const double* value);
 SIM_DLLEXPORT int simPushUInt8TableOntoStack(int stackHandle, const unsigned char* values, int valueCnt);
 SIM_DLLEXPORT int simPushInt32TableOntoStack(int stackHandle, const int* values, int valueCnt);
 SIM_DLLEXPORT int simPushInt64TableOntoStack(int stackHandle, const long long int* values, int valueCnt);
@@ -401,6 +409,8 @@ SIM_DLLEXPORT int simGetStackFloatValue(int stackHandle, float* numberValue);
 SIM_DLLEXPORT int simGetStackDoubleValue(int stackHandle, double* numberValue);
 SIM_DLLEXPORT char* simGetStackStringValue(int stackHandle, int* stringSize);
 SIM_DLLEXPORT double* simGetStackMatrix(int stackHandle, int* rows, int* cols);
+SIM_DLLEXPORT double* simGetStackQuaternion(int stackHandle);
+SIM_DLLEXPORT double* simGetStackPose(int stackHandle);
 SIM_DLLEXPORT int simGetStackTableInfo(int stackHandle, int infoType);
 SIM_DLLEXPORT int simGetStackUInt8Table(int stackHandle, unsigned char* array, int count);
 SIM_DLLEXPORT int simGetStackInt32Table(int stackHandle, int* array, int count);

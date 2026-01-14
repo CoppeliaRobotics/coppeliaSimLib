@@ -2705,7 +2705,7 @@ int simGetHandleArrayProperty_internal(long long int target, const char* ppName,
                     v[0] = new long long int[vv.size()];
                     for (size_t i = 0; i < vv.size(); i++)
                         v[0][i] = vv[i];
-                    vL[0] = (long long int)(vv.size());
+                    vL[0] = int(vv.size());
                     retVal = 1;
                 }
                 else if (res == -2)
@@ -2765,7 +2765,7 @@ int simSetStringArrayProperty_internal(long long int target, const char* ppName,
                 }
                 std::string pName(ppName);
                 if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_stringarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_stringarray))))
-                    retVal = simSetBufferProperty_internal(target, pName.c_str(), v, totalSize);
+                    retVal = simSetBufferProperty_internal(target, pName.c_str(), v, int(totalSize));
                 else
                 {
                     int res = App::setStringArrayProperty(target, pName.c_str(), vv);
@@ -3015,6 +3015,28 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
             }
         }
         return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->getStack(inputStack);
+        if (inStack != nullptr)
+        {
+//            std::string str;
+//            inStack->printContent(-1, str);
+//            printf(str.c_str());
+            CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->getStack(outputStack);
+            if (outStack != nullptr)
+                outStack->copyFrom(inStack);
+        }
+        return 1;
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
@@ -10451,6 +10473,46 @@ int simPushMatrixOntoStack_internal(int stackHandle, const double* value, int ro
     return (-1);
 }
 
+int simPushQuaternionOntoStack_internal(int stackHandle, const double* value)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            stack->pushQuaternionOntoStack(value, true);
+            return (1);
+        }
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return (-1);
+    }
+
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simPushPoseOntoStack_internal(int stackHandle, const double* value)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            stack->pushPoseOntoStack(value, true);
+            return (1);
+        }
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return (-1);
+    }
+
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
 int simPushUInt8TableOntoStack_internal(int stackHandle, const unsigned char* values, int valueCnt)
 {
     C_API_START;
@@ -10919,21 +10981,83 @@ double* simGetStackMatrix_internal(int stackHandle, int* rows, int* cols)
         {
             if (stack->getStackSize() > 0)
             {
-                size_t r, c;
-                if (stack->getStackMatrix(nullptr, &r, &c))
+                const CMatrix* m = stack->getStackMatrix();
+                if (m != nullptr)
                 {
-                    double* buff = new double[r * c];
-                    stack->getStackMatrix(buff, nullptr, nullptr);
+                    double* buff = new double[m->rows * m->cols];
+                    std::copy(m->data.begin(), m->data.end(), buff);
                     if (rows != nullptr)
-                        rows[0] = int(r);
+                        rows[0] = int(m->rows);
                     if (cols != nullptr)
-                        cols[0] = int(c);
+                        cols[0] = int(m->cols);
                     return buff;
                 }
                 if (rows != nullptr)
                     rows[0] = 0;
                 if (cols != nullptr)
                     cols[0] = 0;
+                return nullptr;
+            }
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            return nullptr;
+        }
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return nullptr;
+    }
+
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return nullptr;
+}
+
+double* simGetStackQuaternion_internal(int stackHandle)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            if (stack->getStackSize() > 0)
+            {
+                const C4Vector* q = stack->getStackQuaternion();
+                if (q != nullptr)
+                {
+                    double* buff = new double[4];
+                    q->getData(buff, true);
+                    return buff;
+                }
+                return nullptr;
+            }
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            return nullptr;
+        }
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return nullptr;
+    }
+
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return nullptr;
+}
+
+double* simGetStackPose_internal(int stackHandle)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            if (stack->getStackSize() > 0)
+            {
+                const C7Vector* p = stack->getStackPose();
+                if (p != nullptr)
+                {
+                    double* buff = new double[7];
+                    p->getData(buff, true);
+                    return buff;
+                }
                 return nullptr;
             }
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);

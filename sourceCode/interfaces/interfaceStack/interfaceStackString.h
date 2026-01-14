@@ -11,6 +11,7 @@ class CInterfaceStackString : public CInterfaceStackObject
     virtual ~CInterfaceStackString();
 
     CInterfaceStackObject* copyYourself() const override;
+    CInterfaceStackObject* getTypeEquivalent() const override;
     void printContent(int spaces, std::string& buffer) const override;
     std::string getObjectData(std::string& auxInfos) const override;
     void setCborCoded(bool coded);

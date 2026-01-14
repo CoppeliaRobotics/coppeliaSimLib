@@ -1,35 +1,46 @@
 #include <interfaceStackMatrix.h>
+#include <interfaceStackString.h>
+
 
 CInterfaceStackMatrix::CInterfaceStackMatrix(const double* matrix, size_t rows, size_t cols)
 {
     _objectType = sim_stackitem_matrix;
-    _rows = 0;
-    _cols = 0;
     if (matrix != nullptr)
-        setValue(matrix, rows, cols);
+    {
+        _matrix.resize(rows, cols, 0.0);
+        _matrix.data.assign(matrix, matrix + rows * cols);
+    }
+    else
+        _matrix.resize(1, 1, 0.0);
 }
 
 CInterfaceStackMatrix::~CInterfaceStackMatrix()
 {
 }
 
-const double* CInterfaceStackMatrix::getValue(size_t& rows, size_t& cols) const
+const CMatrix* CInterfaceStackMatrix::getValue() const
 {
-    rows = _rows;
-    cols = _cols;
-    return _data.data();
+    return &_matrix;
 }
 
-void CInterfaceStackMatrix::setValue(const double* matrix, size_t rows, size_t cols)
+void CInterfaceStackMatrix::setValue(const CMatrix* matrix)
 {
-    _data.assign(matrix, matrix + rows * cols);
-    _rows = rows;
-    _cols = cols;
+    _matrix = matrix[0];
 }
 
 CInterfaceStackObject* CInterfaceStackMatrix::copyYourself() const
 {
-    CInterfaceStackMatrix* retVal = new CInterfaceStackMatrix(_data.data(), _rows, _cols);
+    CInterfaceStackMatrix* retVal = new CInterfaceStackMatrix(_matrix.data.data(), _matrix.rows, _matrix.cols);
+    return retVal;
+}
+
+CInterfaceStackObject* CInterfaceStackMatrix::getTypeEquivalent() const
+{
+    std::string str("m");
+    str += std::to_string(_matrix.rows);
+    str += "x";
+    str += std::to_string(_matrix.cols);
+    CInterfaceStackString* retVal = new CInterfaceStackString(str.c_str());
     return retVal;
 }
 
@@ -38,11 +49,11 @@ void CInterfaceStackMatrix::printContent(int spaces, std::string& buffer) const
     for (int i = 0; i < spaces; i++)
         buffer += " ";
     buffer += "MATRIX(";
-    buffer += std::to_string(_rows) + "*" + std::to_string(_cols) + "): ";
-    for (size_t i = 0; i < _data.size(); i++)
+    buffer += std::to_string(_matrix.rows) + "*" + std::to_string(_matrix.cols) + "): ";
+    for (size_t i = 0; i < _matrix.data.size(); i++)
     {
-        buffer += std::to_string(_data[i]);
-        if (i != _data.size() - 1)
+        buffer += std::to_string(_matrix.data[i]);
+        if (i != _matrix.data.size() - 1)
             buffer += ", ";
     }
     buffer += "\n";
@@ -51,16 +62,16 @@ void CInterfaceStackMatrix::printContent(int spaces, std::string& buffer) const
 std::string CInterfaceStackMatrix::getObjectData(std::string& /*auxInfos*/) const
 {
     std::string retVal;
-    retVal.append(reinterpret_cast<const char*>(&_rows), sizeof(_rows));
-    retVal.append(reinterpret_cast<const char*>(&_cols), sizeof(_cols));
-    for (size_t i = 0; i < _data.size(); i++)
-        retVal.append(reinterpret_cast<const char*>(&_data[i]), sizeof(double));
+    retVal.append(reinterpret_cast<const char*>(&_matrix.rows), sizeof(_matrix.rows));
+    retVal.append(reinterpret_cast<const char*>(&_matrix.cols), sizeof(_matrix.cols));
+    for (size_t i = 0; i < _matrix.data.size(); i++)
+        retVal.append(reinterpret_cast<const char*>(&_matrix.data[i]), sizeof(double));
     return retVal;
 }
 
 void CInterfaceStackMatrix::addCborObjectData(CCbor* cborObj) const
 {
-    cborObj->appendMatrix(_data.data(), _rows, _cols);
+    cborObj->appendMatrix(_matrix.data.data(), _matrix.rows, _matrix.cols);
 }
 
 unsigned int CInterfaceStackMatrix::createFromData(const char* data, unsigned char /*version*/, std::vector<CInterfaceStackObject*>& allCreatedObjects)
@@ -68,14 +79,15 @@ unsigned int CInterfaceStackMatrix::createFromData(const char* data, unsigned ch
     allCreatedObjects.push_back(this);
 
     std::size_t pos = 0;
-    std::memcpy(&_rows, data + pos, sizeof(_rows));
-    pos += sizeof(_rows);
-    std::memcpy(&_cols, data + pos, sizeof(_cols));
-    pos += sizeof(_cols);
-    size_t cnt = _rows * _cols;
-    _data.resize(cnt);
-    std::memcpy(_data.data(), data + pos, cnt * sizeof(double));
-    return (unsigned int)(sizeof(_rows) + sizeof(_cols) + cnt * sizeof(double));
+    size_t rows, cols;
+    std::memcpy(&rows, data + pos, sizeof(rows));
+    pos += sizeof(rows);
+    std::memcpy(&cols, data + pos, sizeof(cols));
+    pos += sizeof(cols);
+    _matrix.resize(rows, cols, 0.0);
+    size_t cnt = rows * cols;
+    std::memcpy(_matrix.data.data(), data + pos, cnt * sizeof(double));
+    return (unsigned int)(sizeof(rows) + sizeof(cols) + cnt * sizeof(double));
 }
 
 bool CInterfaceStackMatrix::checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version)

@@ -255,6 +255,11 @@ void luaWrap_lua_settop(luaWrap_lua_State* L, int idx)
     lua_settop((lua_State*)L, idx);
 }
 
+int luaWrap_lua_absindex(luaWrap_lua_State* L, int idx)
+{
+    return lua_absindex((lua_State*)L, idx);
+}
+
 size_t luaWrap_lua_rawlen(luaWrap_lua_State* L, int idx)
 {
     return (lua_rawlen((lua_State*)L, idx));
@@ -366,31 +371,32 @@ bool luaWrap_lua_numbertype(luaWrap_lua_State* L, int idx)
 
 int luaWrap_lua_stype(luaWrap_lua_State* L, int idx)
 {
+    int retVal = sim_stackitem_null;
     int t = lua_type((lua_State*)L, idx);
     if (t == LUA_TNIL)
-        return (sim_stackitem_null);
-    if (t == LUA_TNUMBER)
+        retVal = sim_stackitem_null;
+    else if (t == LUA_TNUMBER)
     {
-        int intT = lua_isinteger((lua_State*)L, idx);
-        if (intT == 0)
-            return (sim_stackitem_double);
-        return (sim_stackitem_integer);
+        if (lua_isinteger((lua_State*)L, idx) == 0)
+            retVal = sim_stackitem_double;
+        else
+            retVal = sim_stackitem_integer;
     }
-    if (t == LUA_TBOOLEAN)
-        return (sim_stackitem_bool);
-    if (t == LUA_TSTRING)
-        return (sim_stackitem_string);
-    if (t == LUA_TTABLE)
-        return (sim_stackitem_table);
-    if (t == LUA_TFUNCTION)
-        return (sim_stackitem_func);
-    if (t == LUA_TUSERDATA)
-        return (sim_stackitem_userdat);
-    if (t == LUA_TTHREAD)
-        return (sim_stackitem_thread);
-    if (t == LUA_TLIGHTUSERDATA)
-        return (sim_stackitem_lightuserdat);
-    return (sim_stackitem_null);
+    else if (t == LUA_TBOOLEAN)
+        retVal = sim_stackitem_bool;
+    else if (t == LUA_TSTRING)
+        retVal = sim_stackitem_string;
+    else if (t == LUA_TTABLE)
+        retVal = sim_stackitem_table;
+    else if (t == LUA_TFUNCTION)
+        retVal = sim_stackitem_func;
+    else if (t == LUA_TUSERDATA)
+        retVal = sim_stackitem_userdat;
+    else if (t == LUA_TTHREAD)
+        retVal = sim_stackitem_thread;
+    else if (t == LUA_TLIGHTUSERDATA)
+        retVal = sim_stackitem_lightuserdat;
+    return retVal;
 }
 
 int luaWrap_lua_error(luaWrap_lua_State* L)
@@ -408,6 +414,18 @@ bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State* L, int idx)
     bool retVal = false;
     if (lua_istable((lua_State*)L, idx))
         retVal = !luaWrap_lua_isbuffer(L, idx);
+    return retVal;
+}
+
+bool luaWrap_lua_ismetatable(luaWrap_lua_State* L, int idx)
+{
+    bool retVal = false;
+    if (lua_istable((lua_State*)L, idx))
+    {
+        retVal = (lua_getmetatable((lua_State*)L, idx) != 0);
+        if (retVal)
+            lua_pop((lua_State*)L, 1);
+    }
     return retVal;
 }
 

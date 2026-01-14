@@ -432,6 +432,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getPropertyInfo", _simGetPropertyInfo},
     {"sim.setEventFilters", _simSetEventFilters},
 
+    {"sim._callMethod", _sim_callMethod},
+
     {"sim.test", _simTest},
 
     // deprecated
@@ -985,6 +987,21 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_handle", sim_propertytype_handle},
     {"sim.propertytype_handlearray", sim_propertytype_handlearray},
     {"sim.propertytype_stringarray", sim_propertytype_stringarray},
+    // stack types
+    {"sim.stackitem_null", sim_stackitem_null},
+    {"sim.stackitem_double", sim_stackitem_double},
+    {"sim.stackitem_bool", sim_stackitem_bool},
+    {"sim.stackitem_string", sim_stackitem_string},
+    {"sim.stackitem_table", sim_stackitem_table},
+    {"sim.stackitem_func", sim_stackitem_func},
+    {"sim.stackitem_userdat", sim_stackitem_userdat},
+    {"sim.stackitem_thread", sim_stackitem_thread},
+    {"sim.stackitem_lightuserdat", sim_stackitem_lightuserdat},
+    {"sim.stackitem_integer", sim_stackitem_integer},
+    {"sim.stackitem_matrix", sim_stackitem_matrix},
+    {"sim.stackitem_quaternion", sim_stackitem_quaternion},
+    {"sim.stackitem_pose", sim_stackitem_pose},
+    {"sim.stackitem_handle", sim_stackitem_handle},
     // property info
     {"sim.propertyinfo_notwritable", sim_propertyinfo_notwritable},
     {"sim.propertyinfo_notreadable", sim_propertyinfo_notreadable},
@@ -6146,6 +6163,29 @@ int _simSetEventFilters(luaWrap_lua_State* L)
     }
     else
         errorString = "bad argument #1 (expecting a table)";
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _sim_callMethod(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.callMethod");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_table, 0, lua_arg_table, 0))
+    {
+        long long int target = fetchLongArg(L, 1);
+        std::string name = fetchTextArg(L, 2);
+        CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
+        CScriptObject::buildFromInterpreterStack_lua(L, inStack, 3, -1); // skip the two first args, and use the content of the 2 tables at that location
+        CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+        int res = CALL_C_API(simCallMethod, target, name.c_str(), inStack->getId(), outStack->getId());
+        int s = CScriptObject::buildOntoInterpreterStack_lua(L, outStack, false, true);
+        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+        App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+        LUA_END(s);
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);

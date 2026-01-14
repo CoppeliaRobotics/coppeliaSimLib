@@ -1,25 +1,24 @@
 #pragma once
 
 #include <interfaceStackObject.h>
-#include <simMath/mXnMatrix.h>
+#include <simMath/4Vector.h>
 
-class CInterfaceStackMatrix : public CInterfaceStackObject
+class CInterfaceStackQuaternion : public CInterfaceStackObject
 {
   public:
-    CInterfaceStackMatrix(const double* matrix, size_t rows, size_t cols);
-    virtual ~CInterfaceStackMatrix();
+    CInterfaceStackQuaternion(const double* data, bool xyzwLayout);
+    virtual ~CInterfaceStackQuaternion();
 
     CInterfaceStackObject* copyYourself() const override;
-    CInterfaceStackObject* getTypeEquivalent() const override;
     void printContent(int spaces, std::string& buffer) const override;
     std::string getObjectData(std::string& auxInfos) const override;
     void addCborObjectData(CCbor* cborObj) const override;
     unsigned int createFromData(const char* data, unsigned char version, std::vector<CInterfaceStackObject*>& allCreatedObjects) override;
     static bool checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version);
 
-    const CMatrix* getValue() const;
-    void setValue(const CMatrix* matrix);
+    const C4Vector* getValue() const;
+    void setValue(const C4Vector* q);
 
   protected:
-    CMatrix _matrix;
+    C4Vector _quaternion;
 };

@@ -585,6 +585,9 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/interfaces/interfaceStack/interfaceStackString.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackTable.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackMatrix.cpp
+    sourceCode/interfaces/interfaceStack/interfaceStackHandle.cpp
+    sourceCode/interfaces/interfaceStack/interfaceStackQuaternion.cpp
+    sourceCode/interfaces/interfaceStack/interfaceStackPose.cpp
 
     sourceCode/menusAndSimilar/addOperations.cpp
     sourceCode/menusAndSimilar/fileOperations.cpp

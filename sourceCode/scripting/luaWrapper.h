@@ -79,6 +79,7 @@ bool luaWrap_lua_isnil(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isboolean(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isgeneraltable(luaWrap_lua_State* L, int idx);   // a random table, including metatable or 'buffer' metatable
 bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State* L, int idx); // a table that is not a 'buffer' metatable
+bool luaWrap_lua_ismetatable(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx);         // a buffer (a 'buffer' metatable)
 bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal = nullptr);         // a metatable with a 'handle' field
 bool luaWrap_lua_ismatrix(luaWrap_lua_State* L, int idx, size_t* rows = nullptr, size_t* cols = nullptr, std::vector<double>* matrixData = nullptr);
@@ -101,6 +102,7 @@ void luaWrap_lua_getglobal(luaWrap_lua_State* L, const char* str);
 void luaWrap_lua_pop(luaWrap_lua_State* L, int n);
 int luaWrap_lua_gettop(luaWrap_lua_State* L);
 void luaWrap_lua_settop(luaWrap_lua_State* L, int idx);
+int luaWrap_lua_absindex(luaWrap_lua_State* L, int idx);
 size_t luaWrap_lua_rawlen(luaWrap_lua_State* L, int idx);
 void luaWrap_lua_rawgeti(luaWrap_lua_State* L, int idx, int n);
 void luaWrap_lua_rawseti(luaWrap_lua_State* L, int idx, int n);

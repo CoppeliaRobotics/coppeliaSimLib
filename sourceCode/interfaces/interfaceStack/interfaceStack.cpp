@@ -7,6 +7,9 @@
 #include <interfaceStackString.h>
 #include <interfaceStackTable.h>
 #include <interfaceStackMatrix.h>
+#include <interfaceStackQuaternion.h>
+#include <interfaceStackPose.h>
+#include <interfaceStackHandle.h>
 #include <cbor.h>
 #include <algorithm>
 
@@ -232,6 +235,20 @@ bool CInterfaceStack::getStackInt64Value(long long int& theValue) const
     return (retVal);
 }
 
+bool CInterfaceStack::getStackHandleValue(long long int& theValue) const
+{
+    if (_stackObjects.size() != 0)
+    {
+        CInterfaceStackObject* it = _stackObjects[_stackObjects.size() - 1];
+        if (it->getObjectType() == sim_stackitem_handle)
+        {
+            theValue = ((CInterfaceStackHandle*)it)->getValue();
+            return true;
+        }
+    }
+    return false;
+}
+
 bool CInterfaceStack::getStackInt32Value(int& theValue) const
 {
     long long int v;
@@ -405,6 +422,22 @@ bool CInterfaceStack::getStackInt64Array(long long int* array, int count) const
     return retVal;
 }
 
+bool CInterfaceStack::getStackHandleArray(long long int* array, int count) const
+{
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            if (table->isTableArray())
+                retVal = table->getHandleArray(array, count);
+        }
+    }
+    return retVal;
+}
+
 bool CInterfaceStack::getStackFloatArray(float* array, int count) const
 {
     bool retVal = false;
@@ -461,28 +494,38 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
     return retVal;
 }
 
-bool CInterfaceStack::getStackMatrix(double* matrix /*= nullptr*/, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/) const
+const CMatrix* CInterfaceStack::getStackMatrix() const
 {
-    bool retVal = false;
+    const CMatrix* retVal = nullptr;
     if (_stackObjects.size() > 0)
     {
         CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
         if (obj->getObjectType() == sim_stackitem_matrix)
-        {
-            CInterfaceStackMatrix* matr = (CInterfaceStackMatrix*)obj;
-            size_t r, c;
-            const double* m = matr->getValue(r, c);
-            if (matrix != nullptr)
-            {
-                for (size_t i = 0; i < r * c; i++)
-                    matrix[i] = m[i];
-            }
-            if (rows != nullptr)
-                rows[0] = r;
-            if (cols != nullptr)
-                cols[0] = c;
-            retVal = true;
-        }
+            retVal = ((CInterfaceStackMatrix*)obj)->getValue();
+    }
+    return retVal;
+}
+
+const C4Vector* CInterfaceStack::getStackQuaternion() const
+{
+    const C4Vector* retVal = nullptr;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_quaternion)
+            retVal = ((CInterfaceStackQuaternion*)obj)->getValue();
+    }
+    return retVal;
+}
+
+const C7Vector* CInterfaceStack::getStackPose() const
+{
+    const C7Vector* retVal = nullptr;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_pose)
+            retVal = ((CInterfaceStackPose*)obj)->getValue();
     }
     return retVal;
 }
@@ -517,28 +560,46 @@ bool CInterfaceStack::getStackMapDoubleArray(const char* fieldName, double* arra
     return (false);
 }
 
-bool CInterfaceStack::getStackMapMatrix(const char* fieldName, double* matrix /*= nullptr*/, size_t* rows /*= nullptr*/, size_t* cols /*= nullptr*/) const
+const CMatrix* CInterfaceStack::getStackMapMatrix(const char* fieldName) const
 {
-    bool retVal = false;
+    const CMatrix* retVal = nullptr;
     const CInterfaceStackObject* obj = getStackMapObject(fieldName);
     if (obj != nullptr)
     {
         if (obj->getObjectType() == sim_stackitem_matrix)
         {
             CInterfaceStackMatrix* matr = (CInterfaceStackMatrix*)obj;
-            size_t r, c;
-            const double* m = matr->getValue(r, c);
-            if (matrix != nullptr)
-            {
-                for (size_t i = 0; i < r * c; i++)
-                    matrix[i] = m[i];
-            }
-            if (rows != nullptr)
-                rows[0] = r;
-            if (cols != nullptr)
-                cols[0] = c;
-            retVal = true;
+            retVal = matr->getValue();
+        }
+    }
+    return retVal;
+}
 
+const C4Vector* CInterfaceStack::getStackMapQuaternion(const char* fieldName) const
+{
+    const C4Vector* retVal = nullptr;
+    const CInterfaceStackObject* obj = getStackMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        if (obj->getObjectType() == sim_stackitem_quaternion)
+        {
+            CInterfaceStackQuaternion* quat = (CInterfaceStackQuaternion*)obj;
+            retVal = quat->getValue();
+        }
+    }
+    return retVal;
+}
+
+const C7Vector* CInterfaceStack::getStackMapPose(const char* fieldName) const
+{
+    const C7Vector* retVal = nullptr;
+    const CInterfaceStackObject* obj = getStackMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        if (obj->getObjectType() == sim_stackitem_pose)
+        {
+            CInterfaceStackPose* pose = (CInterfaceStackPose*)obj;
+            retVal = pose->getValue();
         }
     }
     return retVal;
@@ -623,6 +684,21 @@ bool CInterfaceStack::getStackMapInt64Value(const char* fieldName, long long int
         }
     }
     return (retVal);
+}
+
+bool CInterfaceStack::getStackMapHandleValue(const char* fieldName, long long int& val) const
+{
+    const CInterfaceStackObject* obj = getStackMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        if (obj->getObjectType() == sim_stackitem_handle)
+        {
+            val = ((CInterfaceStackHandle*)obj)->getValue();
+            return true;
+        }
+    }
+    return false;
+
 }
 
 bool CInterfaceStack::getStackMapInt32Value(const char* fieldName, int& val) const
@@ -785,6 +861,14 @@ void CInterfaceStack::pushInt64OntoStack(long long int v, bool toFront /*=false*
         _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
 
+void CInterfaceStack::pushHandleOntoStack(long long int v, bool toFront /*=false*/)
+{
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackHandle(v));
+    else
+        _stackObjects.push_back(new CInterfaceStackHandle(v));
+}
+
 void CInterfaceStack::pushBufferOntoStack(const char* buff, size_t buffLength, bool toFront /*=false*/)
 {
     if (toFront)
@@ -829,6 +913,16 @@ void CInterfaceStack::pushInt64ArrayOntoStack(const long long int* arr, size_t l
         _stackObjects.push_back(table);
 }
 
+void CInterfaceStack::pushHandleArrayOntoStack(const long long int* arr, size_t l, bool toFront /*=false*/)
+{
+    CInterfaceStackTable* table = new CInterfaceStackTable();
+    table->setHandleArray(arr, l);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), table);
+    else
+        _stackObjects.push_back(table);
+}
+
 void CInterfaceStack::pushUCharArrayOntoStack(const unsigned char* arr, size_t l, bool toFront /*=false*/)
 {
     CInterfaceStackTable* table = new CInterfaceStackTable();
@@ -865,6 +959,22 @@ void CInterfaceStack::pushMatrixOntoStack(const double* matrix, size_t rows, siz
         _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackMatrix(matrix, rows, cols));
     else
         _stackObjects.push_back(new CInterfaceStackMatrix(matrix, rows, cols));
+}
+
+void CInterfaceStack::pushQuaternionOntoStack(const double* q, bool toFront /*= false*/, bool xyzwLayout /*= false*/)
+{
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackQuaternion(q, xyzwLayout));
+    else
+        _stackObjects.push_back(new CInterfaceStackQuaternion(q, xyzwLayout));
+}
+
+void CInterfaceStack::pushPoseOntoStack(const double* p, bool toFront /*= false*/, bool xyzqxqyqzqwLayout /*= false*/)
+{
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackPose(p, xyzqxqyqzqwLayout));
+    else
+        _stackObjects.push_back(new CInterfaceStackPose(p, xyzqxqyqzqwLayout));
 }
 
 void CInterfaceStack::insertKeyNullIntoStackTable(const char* key)
@@ -909,6 +1019,13 @@ void CInterfaceStack::insertKeyInt64IntoStackTable(const char* key, long long in
     insertDataIntoStackTable();
 }
 
+void CInterfaceStack::insertKeyHandleIntoStackTable(const char* key, long long int value)
+{
+    pushTextOntoStack(key);
+    pushHandleOntoStack(value);
+    insertDataIntoStackTable();
+}
+
 void CInterfaceStack::insertKeyTextIntoStackTable(const char* key, const char* value)
 {
     pushTextOntoStack(key);
@@ -944,6 +1061,13 @@ void CInterfaceStack::insertKeyInt64ArrayIntoStackTable(const char* key, const l
     insertDataIntoStackTable();
 }
 
+void CInterfaceStack::insertKeyHandleArrayIntoStackTable(const char* key, const long long int* arr, size_t l)
+{
+    pushTextOntoStack(key);
+    pushHandleArrayOntoStack(arr, l);
+    insertDataIntoStackTable();
+}
+
 void CInterfaceStack::insertKeyFloatArrayIntoStackTable(const char* key, const float* arr, size_t l)
 {
     pushTextOntoStack(key);
@@ -962,6 +1086,20 @@ void CInterfaceStack::insertKeyMatrixIntoStackTable(const char* key, const doubl
 {
     pushTextOntoStack(key);
     pushMatrixOntoStack(matrix, rows, cols);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyQuaternionIntoStackTable(const char* key, const double* q, bool xyzwLayout /*= false*/)
+{
+    pushTextOntoStack(key);
+    pushQuaternionOntoStack(q, false, xyzwLayout);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyPoseIntoStackTable(const char* key, const double* p, bool xyzqxqyqzqwLayout /*= false*/)
+{
+    pushTextOntoStack(key);
+    pushPoseOntoStack(p, false, xyzqxqyqzqwLayout);
     insertDataIntoStackTable();
 }
 

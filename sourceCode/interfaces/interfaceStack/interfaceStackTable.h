@@ -10,6 +10,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     virtual ~CInterfaceStackTable();
 
     CInterfaceStackObject* copyYourself() const override;
+    CInterfaceStackObject* getTypeEquivalent() const override;
     void printContent(int spaces, std::string& buffer) const override;
     std::string getObjectData(std::string& auxInfos) const override;
     void addCborObjectData(CCbor* cborObj) const override;
@@ -32,6 +33,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void setUCharArray(const unsigned char* array, size_t l);
     void setInt32Array(const int* array, size_t l);
     void setInt64Array(const long long int* array, size_t l);
+    void setHandleArray(const long long int* array, size_t l);
     void setFloatArray(const float* array, size_t l);
     void setDoubleArray(const double* array, size_t l);
     void setTextArray(const std::vector<std::string>* array);
@@ -42,14 +44,18 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void appendArrayObject_double(double value);
     void appendArrayObject_int32(int value);
     void appendArrayObject_int64(long long int value);
+    void appendArrayObject_handle(long long int value);
     void appendArrayObject_buffer(const char* value, size_t l, bool cborCoded = false);
     void appendArrayObject_binaryString(const char* value, size_t l, bool cborCoded = false);
     void appendArrayObject_text(const char* txtStr);
     void appendArrayObject_int32Array(const int* arr, size_t l);
     void appendArrayObject_int64Array(const long long int* arr, size_t l);
+    void appendArrayObject_handleArray(const long long int* arr, size_t l);
     void appendArrayObject_floatArray(const float* arr, size_t l);
     void appendArrayObject_doubleArray(const double* arr, size_t l);
     void appendArrayObject_matrix(const double* matrix, size_t rows, size_t cols);
+    void appendArrayObject_quaternion(const double* quaternion, bool xyzwLayout = false);
+    void appendArrayObject_pose(const double* pose, bool xyzqxqyqzqwLayout = false);
     void appendArrayObject(CInterfaceStackObject* obj);
     void insertArrayObject(CInterfaceStackObject* obj, size_t pos);
 
@@ -59,14 +65,18 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void appendMapObject_double(const char* key, double value);
     void appendMapObject_int32(const char* key, int value);
     void appendMapObject_int64(const char* key, long long int value);
+    void appendMapObject_handle(const char* key, long long int value);
     void appendMapObject_buffer(const char* key, const char* value, size_t l, bool cborCoded = false);
     void appendMapObject_binaryString(const char* key, const char* value, size_t l, bool cborCoded = false);
     void appendMapObject_text(const char* key, const char* txtStr);
     void appendMapObject_int32Array(const char* key, const int* arr, size_t l);
     void appendMapObject_int64Array(const char* key, const long long int* arr, size_t l);
+    void appendMapObject_handleArray(const char* key, const long long int* arr, size_t l);
     void appendMapObject_floatArray(const char* key, const float* arr, size_t l);
     void appendMapObject_doubleArray(const char* key, const double* arr, size_t l);
     void appendMapObject_matrix(const char* key, const double* matrix, size_t rows, size_t cols);
+    void appendMapObject_quaternion(const char* key, const double* quaternion, bool xyzwLayout = false);
+    void appendMapObject_pose(const char* key, const double* pose, bool xyzqxqyqzqwLayout = false);
     void appendMapObject_object(const char* key, CInterfaceStackObject* obj);
     void appendMapObject_object(long long int key, CInterfaceStackObject* obj);
     void appendMapObject_object(double key, CInterfaceStackObject* obj);
@@ -76,6 +86,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     bool getUCharArray(unsigned char* array, int count) const;
     bool getInt32Array(int* array, int count) const;
     bool getInt64Array(long long int* array, int count) const;
+    bool getHandleArray(long long int* array, int count) const;
     bool getFloatArray(float* array, int count) const;
     bool getDoubleArray(double* array, int count) const;
     void getTextArray(std::vector<std::string>& array) const;

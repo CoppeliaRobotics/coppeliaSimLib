@@ -3,6 +3,11 @@
 #include <app.h>
 
 #ifdef SIM_UNIFIED_HANDLES
+SIM_DLLEXPORT int simCallMethod_L(long long int target, const char* name, UID inputStack, UID outputStack)
+{
+    return (simCallMethod_internal(target, name, inputStack, outputStack));
+}
+
 SIM_DLLEXPORT UID simGetObject_L(const char* objectPath, int index, UID proxy, int options)
 {
     return simGetObject_internal(objectPath, index, proxy, options);
@@ -358,6 +363,16 @@ SIM_DLLEXPORT int simPushMatrixOntoStack_L(UID stackHandle, const double* value,
     return (simPushMatrixOntoStack_internal(stackHandle, value, rows, cols));
 }
 
+SIM_DLLEXPORT int simPushQuaternionOntoStack_L(UID stackHandle, const double* value)
+{
+    return (simPushQuaternionOntoStack_internal(stackHandle, value));
+}
+
+SIM_DLLEXPORT int simPushPoseOntoStack_L(UID stackHandle, const double* value)
+{
+    return (simPushPoseOntoStack_internal(stackHandle, value));
+}
+
 SIM_DLLEXPORT int simPushUInt8TableOntoStack_L(UID stackHandle, const unsigned char* values, int valueCnt)
 {
     return (simPushUInt8TableOntoStack_internal(stackHandle, values, valueCnt));
@@ -451,6 +466,16 @@ SIM_DLLEXPORT char* simGetStackStringValue_L(UID stackHandle, int* stringSize)
 SIM_DLLEXPORT double* simGetStackMatrix_L(UID stackHandle, int* rows, int* cols)
 {
     return (simGetStackMatrix_internal(stackHandle, rows, cols));
+}
+
+SIM_DLLEXPORT double* simGetStackQuaternion_L(UID stackHandle)
+{
+    return (simGetStackQuaternion_internal(stackHandle));
+}
+
+SIM_DLLEXPORT double* simGetStackPose_L(UID stackHandle)
+{
+    return (simGetStackPose_internal(stackHandle));
 }
 
 SIM_DLLEXPORT int simGetStackTableInfo_L(UID stackHandle, int infoType)
@@ -1289,6 +1314,11 @@ SIM_DLLEXPORT int simGetPropertyInfo(long long int target, const char* pName, SP
     return simGetPropertyInfo_internal(target, pName, infos, options);
 }
 
+SIM_DLLEXPORT int simCallMethod(long long int target, const char* name, int inputStack, int outputStack)
+{ // backw. compatibility version
+    return simCallMethod_internal(target, name, App::getNewHandleFromOldHandle(inputStack), App::getNewHandleFromOldHandle(outputStack));
+}
+
 SIM_DLLEXPORT void simRegCallback(int index, void* callback)
 {
     simRegCallback_internal(index, callback);
@@ -1925,6 +1955,16 @@ SIM_DLLEXPORT int simPushMatrixOntoStack(int stackHandle, const double* value, i
     return simPushMatrixOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value, rows, cols);
 }
 
+SIM_DLLEXPORT int simPushQuaternionOntoStack(int stackHandle, const double* value)
+{ // backw. compatibility version
+    return simPushQuaternionOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value);
+}
+
+SIM_DLLEXPORT int simPushPoseOntoStack(int stackHandle, const double* value)
+{ // backw. compatibility version
+    return simPushPoseOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value);
+}
+
 SIM_DLLEXPORT int simPushUInt8TableOntoStack(int stackHandle, const unsigned char* values, int valueCnt)
 { // backw. compatibility version
     return simPushUInt8TableOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), values, valueCnt);
@@ -2018,6 +2058,16 @@ SIM_DLLEXPORT char* simGetStackStringValue(int stackHandle, int* stringSize)
 SIM_DLLEXPORT double* simGetStackMatrix(int stackHandle, int* rows, int* cols)
 { // backw. compatibility version
     return simGetStackMatrix_internal(App::getNewHandleFromOldHandle(stackHandle), rows, cols);
+}
+
+SIM_DLLEXPORT double* simGetStackQuaternion(int stackHandle)
+{ // backw. compatibility version
+    return simGetStackQuaternion_internal(App::getNewHandleFromOldHandle(stackHandle));
+}
+
+SIM_DLLEXPORT double* simGetStackPose(int stackHandle)
+{ // backw. compatibility version
+    return simGetStackPose_internal(App::getNewHandleFromOldHandle(stackHandle));
 }
 
 SIM_DLLEXPORT int simGetStackTableInfo(int stackHandle, int infoType)

@@ -11,6 +11,7 @@ class CInterfaceStackObject
     virtual ~CInterfaceStackObject();
 
     virtual CInterfaceStackObject* copyYourself() const;
+    virtual CInterfaceStackObject* getTypeEquivalent() const;
     virtual void printContent(int spaces, std::string& buffer) const;
     virtual std::string getObjectData(std::string& auxInfos) const;
     virtual void addCborObjectData(CCbor* cborObj) const;

@@ -233,6 +233,16 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
     appendDoubleArray(v, rows * cols);
 }
 
+void CCbor::appendQuaternion(const double* v)
+{
+    appendDoubleArray(v, 4);
+}
+
+void CCbor::appendPose(const double* v)
+{
+    appendDoubleArray(v, 7);
+}
+
 void CCbor::appendNull()
 {
     _handleDataField();
