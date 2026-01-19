@@ -659,6 +659,54 @@ bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, std::vector<double>* pose
     return retVal;
 }
 
+bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[3] /*= nullptr*/, bool strict /*= false*/)
+{
+    bool retVal = false;
+    int abs_idx = lua_absindex((lua_State*)L, idx);
+    if (luaL_callmeta((lua_State*)L, abs_idx, "__iscolor") == 1)
+    {
+        retVal = lua_toboolean((lua_State*)L, -1);
+        lua_pop((lua_State*)L,1);
+        if (retVal)
+        {
+            if (colorData != nullptr)
+            {
+                if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
+                {
+                    for (size_t i = 1; i <= 3; i++)
+                    {
+                        lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
+                        colorData[i - 1] = float(lua_tonumber((lua_State*)L, -1));
+                        lua_pop((lua_State*)L, 1);
+                    }
+                }
+                lua_pop((lua_State*)L, 1);
+            }
+        }
+    }
+    if ((!retVal) && (!strict))
+    {
+        if (luaWrap_lua_isnonbuffertable(L, abs_idx))
+        {
+            int s = int(lua_rawlen((lua_State*)L, abs_idx));
+            if (s == 3)
+            {
+                float c[3];
+                if (getFloatsFromTable(L, abs_idx, s, c))
+                {
+                    if (colorData != nullptr)
+                    {
+                        for (size_t i = 0; i < 3; i++)
+                            colorData[i] = c[i];
+                    }
+                    retVal = true;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
 int luaWrap_lua_tohandle(luaWrap_lua_State* L, int idx)
 {
     int retVal = -1;
@@ -744,11 +792,37 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int h)
 
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols)
 {
-    lua_getglobal((lua_State*)L, "require");
-    lua_pushstring((lua_State*)L, "simEigen");
-    if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+    lua_getglobal((lua_State*)L, "_Matrix__");
+    if (lua_isnil((lua_State*)L, -1))
     {
-        lua_getfield((lua_State*)L, -1, "Matrix");
+        lua_pop((lua_State*)L, 1); // pop nil
+        lua_getglobal((lua_State*)L, "require");
+        lua_pushstring((lua_State*)L, "simEigen");
+        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+        {
+            lua_getfield((lua_State*)L, -1, "Matrix");
+            lua_pushvalue((lua_State*)L, -1);
+            lua_setglobal((lua_State*)L, "_Matrix__");
+            lua_pushinteger((lua_State*)L, rows);
+            lua_pushinteger((lua_State*)L, cols);
+            lua_createtable((lua_State*)L, int(rows * cols), 0);
+            for (size_t i = 0; i < rows * cols; i++)
+            {
+                lua_pushnumber((lua_State*)L, matrix[i]);
+                lua_rawseti((lua_State*)L, -2, i + 1);
+            }
+            lua_pcall((lua_State*)L, 3, 1, 0);
+            lua_remove((lua_State*)L, -2); // simEigen module
+        }
+        else
+        {
+            lua_pop((lua_State*)L, 1);
+            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushmatrix.");
+            lua_pushnil((lua_State*)L);
+        }
+    }
+    else
+    {
         lua_pushinteger((lua_State*)L, rows);
         lua_pushinteger((lua_State*)L, cols);
         lua_createtable((lua_State*)L, int(rows * cols), 0);
@@ -758,55 +832,17 @@ void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t r
             lua_rawseti((lua_State*)L, -2, i + 1);
         }
         lua_pcall((lua_State*)L, 3, 1, 0);
-        lua_remove((lua_State*)L, -2); // simEigen module
-    }
-    else
-    {
-        lua_pop((lua_State*)L, 1);
-        App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushmatrix.");
-        lua_pushnil((lua_State*)L);
     }
 }
 
 void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* dat)
 {
-    /*
-    bool found = true;
-//    lua_getglobal((lua_State*)L, "_Vector__");
-//    if (lua_isnil((lua_State*)L, -1))
-    {
-        found = false;
-        lua_pop((lua_State*)L, 1);
-        lua_getglobal((lua_State*)L, "require");
-        lua_pushstring((lua_State*)L, "simEigen");
-        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-        {
-            lua_remove((lua_State*)L, -2); // simEigen module
-            found = true;
-            lua_getfield((lua_State*)L, -1, "Vector");
-        //    lua_pushvalue((lua_State*)L, -1);
-        //    lua_setglobal((lua_State*)L, "_Vector__");
-        }
-        else
-        {
-            lua_pop((lua_State*)L, 1);
-            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushvector3.");
-            lua_pushnil((lua_State*)L);
-        }
-    }
-    if (found)
-    {
-        lua_createtable((lua_State*)L, 3, 0);
-        for (size_t i = 0; i < 3; i++)
-        {
-            lua_pushnumber((lua_State*)L, dat[i]);
-            lua_rawseti((lua_State*)L, -2, i + 1);
-        }
-        lua_pcall((lua_State*)L, 1, 1, 0);
-    }
-*/
+    luaWrap_lua_pushmatrix(L, dat, 3, 1);
+}
 
-    lua_getglobal((lua_State*)L, "_Vector__");
+void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
+{
+    lua_getglobal((lua_State*)L, "_Quaternion__");
     if (lua_isnil((lua_State*)L, -1))
     {
         lua_pop((lua_State*)L, 1); // pop nil
@@ -814,11 +850,11 @@ void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* dat)
         lua_pushstring((lua_State*)L, "simEigen");
         if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
         {
-            lua_getfield((lua_State*)L, -1, "Vector");
+            lua_getfield((lua_State*)L, -1, "Quaternion");
             lua_pushvalue((lua_State*)L, -1);
-            lua_setglobal((lua_State*)L, "_Vector__");
-            lua_createtable((lua_State*)L, 3, 0);
-            for (size_t i = 0; i < 3; i++)
+            lua_setglobal((lua_State*)L, "_Quaternion__");
+            lua_createtable((lua_State*)L, 4, 0);
+            for (size_t i = 0; i < 4; i++)
             {
                 lua_pushnumber((lua_State*)L, dat[i]);
                 lua_rawseti((lua_State*)L, -2, i + 1);
@@ -829,7 +865,87 @@ void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* dat)
         else
         {
             lua_pop((lua_State*)L, 1);
-            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushvector3.");
+            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushquaternion.");
+            lua_pushnil((lua_State*)L);
+        }
+    }
+    else
+    {
+        lua_createtable((lua_State*)L, 4, 0);
+        for (size_t i = 0; i < 4; i++)
+        {
+            lua_pushnumber((lua_State*)L, dat[i]);
+            lua_rawseti((lua_State*)L, -2, i + 1);
+        }
+        lua_pcall((lua_State*)L, 1, 1, 0);
+    }
+}
+
+void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
+{
+    lua_getglobal((lua_State*)L, "_Pose__");
+    if (lua_isnil((lua_State*)L, -1))
+    {
+        lua_pop((lua_State*)L, 1); // pop nil
+        lua_getglobal((lua_State*)L, "require");
+        lua_pushstring((lua_State*)L, "simEigen");
+        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+        {
+            lua_getfield((lua_State*)L, -1, "Pose");
+            lua_pushvalue((lua_State*)L, -1);
+            lua_setglobal((lua_State*)L, "_Pose__");
+            lua_createtable((lua_State*)L, 7, 0);
+            for (size_t i = 0; i < 7; i++)
+            {
+                lua_pushnumber((lua_State*)L, dat[i]);
+                lua_rawseti((lua_State*)L, -2, i + 1);
+            }
+            lua_pcall((lua_State*)L, 1, 1, 0);
+            lua_remove((lua_State*)L, -2); // simEigen module
+        }
+        else
+        {
+            lua_pop((lua_State*)L, 1);
+            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushpose.");
+            lua_pushnil((lua_State*)L);
+        }
+    }
+    else
+    {
+        lua_createtable((lua_State*)L, 7, 0);
+        for (size_t i = 0; i < 7; i++)
+        {
+            lua_pushnumber((lua_State*)L, dat[i]);
+            lua_rawseti((lua_State*)L, -2, i + 1);
+        }
+        lua_pcall((lua_State*)L, 1, 1, 0);
+    }
+}
+
+void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[3])
+{
+    lua_getglobal((lua_State*)L, "_Color__");
+    if (lua_isnil((lua_State*)L, -1))
+    {
+        lua_pop((lua_State*)L, 1); // pop nil
+        lua_getglobal((lua_State*)L, "require");
+        lua_pushstring((lua_State*)L, "Color");
+        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+        {
+            lua_pushvalue((lua_State*)L, -1);
+            lua_setglobal((lua_State*)L, "_Color__");
+            lua_createtable((lua_State*)L, 3, 0);
+            for (size_t i = 0; i < 3; i++)
+            {
+                lua_pushnumber((lua_State*)L, c[i]);
+                lua_rawseti((lua_State*)L, -2, i + 1);
+            }
+            lua_pcall((lua_State*)L, 1, 1, 0);
+        }
+        else
+        {
+            lua_pop((lua_State*)L, 1);
+            App::logMsg(sim_verbosity_errors, "failed to require Color in luaWrap_lua_pushcolor.");
             lua_pushnil((lua_State*)L);
         }
     }
@@ -838,58 +954,10 @@ void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* dat)
         lua_createtable((lua_State*)L, 3, 0);
         for (size_t i = 0; i < 3; i++)
         {
-            lua_pushnumber((lua_State*)L, dat[i]);
+            lua_pushnumber((lua_State*)L, c[i]);
             lua_rawseti((lua_State*)L, -2, i + 1);
         }
         lua_pcall((lua_State*)L, 1, 1, 0);
-    }
-}
-
-void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
-{
-    lua_getglobal((lua_State*)L, "require");
-    lua_pushstring((lua_State*)L, "simEigen");
-    if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-    {
-        lua_getfield((lua_State*)L, -1, "Quaternion");
-        lua_createtable((lua_State*)L, 4, 0);
-        for (size_t i = 0; i < 4; i++)
-        {
-            lua_pushnumber((lua_State*)L, dat[i]);
-            lua_rawseti((lua_State*)L, -2, i + 1);
-        }
-        lua_pcall((lua_State*)L, 1, 1, 0);
-        lua_remove((lua_State*)L, -2); // simEigen module
-    }
-    else
-    {
-        lua_pop((lua_State*)L, 1);
-        App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushquaternion.");
-        lua_pushnil((lua_State*)L);
-    }
-}
-
-void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
-{
-    lua_getglobal((lua_State*)L, "require");
-    lua_pushstring((lua_State*)L, "simEigen");
-    if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-    {
-        lua_getfield((lua_State*)L, -1, "Pose");
-        lua_createtable((lua_State*)L, 7, 0);
-        for (size_t i = 0; i < 7; i++)
-        {
-            lua_pushnumber((lua_State*)L, dat[i]);
-            lua_rawseti((lua_State*)L, -2, i + 1);
-        }
-        lua_pcall((lua_State*)L, 1, 1, 0);
-        lua_remove((lua_State*)L, -2); // simEigen module
-    }
-    else
-    {
-        lua_pop((lua_State*)L, 1);
-        App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushquaternion.");
-        lua_pushnil((lua_State*)L);
     }
 }
 

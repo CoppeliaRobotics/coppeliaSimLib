@@ -156,6 +156,7 @@ const SLuaCommands simLuaCommands[] = {
     {"addLog", _addLog},
     {"quitSimulator", _quitSimulator},
 
+    {"sim._callMethod", _sim_callMethod},
     {"sim.handleExtCalls", _simHandleExtCalls},
     {"sim.getLastInfo", _simGetLastInfo},
     {"sim.isHandle", _simIsHandle},
@@ -431,8 +432,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getPropertyName", _simGetPropertyName},
     {"sim.getPropertyInfo", _simGetPropertyInfo},
     {"sim.setEventFilters", _simSetEventFilters},
-
-    {"sim._callMethod", _sim_callMethod},
 
     {"sim.test", _simTest},
 
@@ -1002,6 +1001,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.stackitem_quaternion", sim_stackitem_quaternion},
     {"sim.stackitem_pose", sim_stackitem_pose},
     {"sim.stackitem_handle", sim_stackitem_handle},
+    {"sim.stackitem_color", sim_stackitem_color},
     // property info
     {"sim.propertyinfo_notwritable", sim_propertyinfo_notwritable},
     {"sim.propertyinfo_notreadable", sim_propertyinfo_notreadable},
@@ -6173,18 +6173,25 @@ int _sim_callMethod(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.callMethod");
 
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_table, 0, lua_arg_table, 0))
+    // if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_table, 0, lua_arg_table, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
         long long int target = fetchLongArg(L, 1);
-        std::string name = fetchTextArg(L, 2);
+        functionName = fetchTextArg(L, 2);
+        std::string name = "@" + functionName; // @ to indicate to simCallMethod that it cannot loops back to Lua
         CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
-        CScriptObject::buildFromInterpreterStack_lua(L, inStack, 3, -1); // skip the two first args, and use the content of the 2 tables at that location
+        // CScriptObject::buildFromInterpreterStack_lua(L, inStack, 3, -1); // skip the two first args, and use the content of the 2 tables at that location
+        CScriptObject::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
         CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
         int res = CALL_C_API(simCallMethod, target, name.c_str(), inStack->getId(), outStack->getId());
-        int s = CScriptObject::buildOntoInterpreterStack_lua(L, outStack, false, true);
-        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
-        App::worldContainer->interfaceStackContainer->destroyStack(inStack);
-        LUA_END(s);
+        if (res == 1)
+        {
+            // int s = CScriptObject::buildOntoInterpreterStack_lua(L, outStack, false, true); // insert also type info
+            int s = int(CScriptObject::buildOntoInterpreterStack_lua(L, outStack, false, false));
+            App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+            LUA_END(s);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -11648,11 +11655,13 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
 
                 if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    int rr = script->callCustomScriptFunction(funcName.c_str(), stack);
+                    CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+                    int rr = script->callCustomScriptFunction(funcName.c_str(), stack, outStack);
                     if (rr == 1)
                     {
-                        CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
-                        int ss = stack->getStackSize();
+                        CScriptObject::buildOntoInterpreterStack_lua(L, outStack, false);
+                        int ss = outStack->getStackSize();
+                        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                         App::worldContainer->interfaceStackContainer->destroyStack(stack);
                         LUA_END(ss);
                     }
@@ -11663,6 +11672,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                         else // rr==0
                             errorString = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
                     }
+                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                 }
                 else
                     errorString = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;

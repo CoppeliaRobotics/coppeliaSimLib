@@ -23,6 +23,9 @@
 #include <simFlavor.h>
 #include <regex>
 #include <interfaceStackString.h>
+#include <interfaceStackInteger.h>
+#include <interfaceStackHandle.h>
+#include <methods.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #ifdef SIM_WITH_GUI
@@ -3027,16 +3030,103 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->getStack(inputStack);
-        if (inStack != nullptr)
+        CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->getStack(outputStack);
+        std::string methodName(name);
+        bool luaOrigin = false;
+        if ((methodName.size() > 0) && (methodName[0] == '@'))
         {
-//            std::string str;
-//            inStack->printContent(-1, str);
-//            printf(str.c_str());
-            CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->getStack(outputStack);
-            if (outStack != nullptr)
-                outStack->copyFrom(inStack);
+            luaOrigin = true;
+            methodName.erase(methodName.begin());
         }
-        return 1;
+        int retVal = 0; // -1: error in method, 0: method not found, 1: ok
+        // Check if such a method is supported in here, or if we have to call Lua:
+        // ...
+        //
+        if (true)
+        {
+            retVal = 0;
+            CInterfaceStack* _inStack = inStack;
+            if (inStack == nullptr)
+                _inStack = App::worldContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* _outStack = outStack;
+            if (outStack == nullptr)
+                _outStack = App::worldContainer->interfaceStackContainer->createStack();
+            _outStack->clear();
+
+            std::string err(callMethod(target, methodName.c_str(), _inStack, _outStack));
+
+            if (inStack == nullptr)
+                App::worldContainer->interfaceStackContainer->destroyStack(_inStack);
+            if (outStack == nullptr)
+                App::worldContainer->interfaceStackContainer->destroyStack(_outStack);
+
+            if (err.size() == 0)
+                retVal = 1; // success
+            else if (err == "__notFound__")
+            {
+                if (luaOrigin)
+                {
+                    std::string errStr("failed calling method '");
+                    errStr += methodName;
+                    errStr += "'.";
+                    CApiErrors::setLastError(__func__, errStr.c_str());
+                    retVal = -1;
+                }
+                else
+                    retVal = 0;
+            }
+            else
+            {
+                CApiErrors::setLastError(__func__, err.c_str());
+                retVal = -1;
+            }
+        }
+        if ((retVal == 0) && (!luaOrigin))
+        { // method was not found here. Let's try the method as a pure Lua method:
+            if (App::worldContainer->sandboxScript != nullptr)
+            {
+                retVal = -1; // error
+
+                CInterfaceStack* outStackT = App::worldContainer->interfaceStackContainer->createStack();
+                if (outStack != nullptr)
+                    outStack->clear();
+                if (VThread::isSimThread())
+                {
+                    methodName = "@" + methodName; // to indicate that we come from c
+                    CInterfaceStack* inStackT = App::worldContainer->interfaceStackContainer->createStack();
+                    if (inStack != nullptr)
+                        inStackT->copyFrom(inStack);
+                    inStackT->insertItem(0, new CInterfaceStackString(methodName.c_str()));
+                    inStackT->insertItem(0, new CInterfaceStackHandle(target));
+                    std::string errorMsg;
+                    retVal = App::worldContainer->sandboxScript->callCustomScriptFunction("@sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext
+                    App::worldContainer->interfaceStackContainer->destroyStack(inStackT);
+                }
+                if (retVal <= 0)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_FAILED_CALLING_METHOD);
+                    retVal = -1;
+                }
+                else
+                {
+                    CInterfaceStackString* res = (CInterfaceStackString*)outStackT->detachStackObjectFromIndex(0); // first ret val is always an error string
+                    size_t l;
+                    std::string err(res->getValue(&l));
+                    if (err.size() > 0)
+                    { // runtime error
+                        retVal = -1;
+                        CApiErrors::setLastError(__func__, err.c_str());
+                    }
+                    else
+                    { // success
+                        retVal = 1;
+                        if (outStack != nullptr)
+                            outStack->copyFrom(outStackT);
+                    }
+                }
+            }
+        }
+        return retVal;
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return -1;
@@ -10099,11 +10189,12 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
                         funcName += "@lua"; // explicit lua when Python script
                 }
 
-                retVal = script->callCustomScriptFunction(funcName.c_str(), stack);
-                if (stack->getStackSize() > 0)
+                CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+                retVal = script->callCustomScriptFunction(funcName.c_str(), stack, outStack);
+                if (outStack->getStackSize() > 0)
                 { // when the script is a Python script, we must check for other errors, since the call is handled
                     // via sysCall_ext:
-                    CInterfaceStackObject* obj = stack->getStackObjectFromIndex(0);
+                    CInterfaceStackObject* obj = outStack->getStackObjectFromIndex(0);
                     if (obj->getObjectType() == sim_stackitem_string)
                     {
                         CInterfaceStackString* str = (CInterfaceStackString*)obj;
@@ -10111,15 +10202,18 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
                         if (tmp == "_*funcNotFound*_")
                         {
                             retVal = 0;
-                            stack->clear();
+                            outStack->clear();
                         }
                         if (tmp == "_*runtimeError*_")
                         {
                             retVal = -1;
-                            stack->clear();
+                            outStack->clear();
                         }
                     }
                 }
+                stack->clear();
+                stack->copyFrom(outStack);
+                App::worldContainer->interfaceStackContainer->destroyStack(outStack);
             }
             if (retVal == -1)
             {
@@ -10503,6 +10597,26 @@ int simPushPoseOntoStack_internal(int stackHandle, const double* value)
         if (stack != nullptr)
         {
             stack->pushPoseOntoStack(value, true);
+            return (1);
+        }
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return (-1);
+    }
+
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simPushColorOntoStack_internal(int stackHandle, const float* value)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            stack->pushColorOntoStack(value, true);
             return (1);
         }
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
@@ -11056,6 +11170,39 @@ double* simGetStackPose_internal(int stackHandle)
                 {
                     double* buff = new double[7];
                     p->getData(buff, true);
+                    return buff;
+                }
+                return nullptr;
+            }
+            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_STACK_CONTENT);
+            return nullptr;
+        }
+        CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return nullptr;
+    }
+
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return nullptr;
+}
+
+float* simGetStackColor_internal(int stackHandle)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            if (stack->getStackSize() > 0)
+            {
+                float c[3];
+                if (stack->getStackColor(c))
+                {
+                    float* buff = new float[3];
+                    buff[0] = c[0];
+                    buff[1] = c[1];
+                    buff[2] = c[2];
                     return buff;
                 }
                 return nullptr;
@@ -12145,10 +12292,12 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
                         if (script->getScriptState() == CScriptObject::scriptState_initialized)
                         {
                             CInterfaceStack* tmpStack = App::worldContainer->interfaceStackContainer->createStack();
+                            CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
                             tmpStack->pushTextOntoStack(stringToExec.c_str());
-                            retVal = script->callCustomScriptFunction("_evalExecRet", tmpStack);
+                            retVal = script->callCustomScriptFunction("_evalExecRet", tmpStack, outStack);
                             if (stack != nullptr)
-                                stack->copyFrom(tmpStack);
+                                stack->copyFrom(outStack);
+                            App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                             App::worldContainer->interfaceStackContainer->destroyStack(tmpStack);
                             if (retVal == 1)
                             {

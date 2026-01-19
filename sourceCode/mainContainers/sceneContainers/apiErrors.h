@@ -117,6 +117,7 @@
 #define SIM_ERROR_PROPERTY_INVALID_SIZE "invalid size."
 
 #define SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS "the function requires more arguments."
+#define SIM_ERROR_METHOD_REQUIRES_MORE_ARGUMENTS "the method requires more arguments."
 #define SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG "one of the function's argument type is not correct."
 #define SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG "incorrect table size."
 #define SIM_ERROR_INCORRECT_BUFFER_SIZE "incorrect buffer size."
@@ -152,6 +153,7 @@
     "cannot be called when the automatic cascading calls are not disabled."
 #define SIM_ERROR_INVALID_RESOLUTION "invalid resolution."
 #define SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION "failed calling script function."
+#define SIM_ERROR_FAILED_CALLING_METHOD "failed calling method."
 #define SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT "script function does not exist."
 #define SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION "error in script function."
 #define SIM_ERROR_INVALID_PLUGIN "invalid plugin."

@@ -8,6 +8,7 @@
 #include <interfaceStackMatrix.h>
 #include <interfaceStackQuaternion.h>
 #include <interfaceStackPose.h>
+#include <interfaceStackColor.h>
 #include <interfaceStackHandle.h>
 
 CInterfaceStackObject::CInterfaceStackObject()
@@ -112,6 +113,11 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
     else if (t == sim_stackitem_pose)
     {
         obj = new CInterfaceStackPose(nullptr, true);
+        retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
+    }
+    else if (t == sim_stackitem_color)
+    {
+        obj = new CInterfaceStackColor(nullptr);
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
     }
     return obj;

@@ -9,6 +9,7 @@
 #include <interfaceStackHandle.h>
 #include <interfaceStackQuaternion.h>
 #include <interfaceStackPose.h>
+#include <interfaceStackColor.h>
 #include <algorithm> // std::sort, etc.
 
 CInterfaceStackTable::CInterfaceStackTable()
@@ -615,6 +616,12 @@ void CInterfaceStackTable::appendArrayObject_pose(const double* pose, bool xyzqx
     appendArrayObject(newObj);
 }
 
+void CInterfaceStackTable::appendArrayObject_color(const float c[3])
+{
+    CInterfaceStackColor* newObj = new CInterfaceStackColor(c);
+    appendArrayObject(newObj);
+}
+
 void CInterfaceStackTable::appendMapObject_null(const char* key)
 {
     appendArrayOrMapObject(new CInterfaceStackString(key), new CInterfaceStackNull());
@@ -722,6 +729,12 @@ void CInterfaceStackTable::appendMapObject_quaternion(const char* key, const dou
 void CInterfaceStackTable::appendMapObject_pose(const char* key, const double* pose, bool xyzqxqyqzqwLayout /*= false*/)
 {
     CInterfaceStackPose* obj = new CInterfaceStackPose(pose, xyzqxqyqzqwLayout);
+    appendArrayOrMapObject(new CInterfaceStackString(key), obj);
+}
+
+void CInterfaceStackTable::appendMapObject_color(const char* key, const float c[3])
+{
+    CInterfaceStackColor* obj = new CInterfaceStackColor(c);
     appendArrayOrMapObject(new CInterfaceStackString(key), obj);
 }
 
@@ -897,6 +910,8 @@ int CInterfaceStackTable::getTableInfo(int infoType) const
     if ((infoType == 8) && areAllValuesThis(sim_stackitem_pose, false))
         retVal = 1;
     if ((infoType == 9) && areAllValuesThis(sim_stackitem_handle, false))
+        retVal = 1;
+    if ((infoType == 10) && areAllValuesThis(sim_stackitem_color, false))
         retVal = 1;
     return retVal;
 }
@@ -1185,6 +1200,8 @@ bool CInterfaceStackTable::checkCreateFromData(const char* data, unsigned int& w
             res = CInterfaceStackQuaternion::checkCreateFromData(data + w, v, l - w, version);
         if (t == sim_stackitem_pose)
             res = CInterfaceStackPose::checkCreateFromData(data + w, v, l - w, version);
+        if (t == sim_stackitem_color)
+            res = CInterfaceStackColor::checkCreateFromData(data + w, v, l - w, version);
         if (!res)
             return (false);
         w += v;

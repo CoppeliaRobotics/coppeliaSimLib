@@ -13,6 +13,7 @@
 #include <interfaceStackHandle.h>
 #include <interfaceStackQuaternion.h>
 #include <interfaceStackPose.h>
+#include <interfaceStackColor.h>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
 #endif
@@ -5100,9 +5101,8 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
             retVal = -1;
             if (key.size() == 0)
             {
-                CInterfaceStackTable* tbl = new CInterfaceStackTable();
-                tbl->setFloatArray(pState, 3);
-                stack->replaceStackObjectFromIndex(stackIndex, tbl);
+                CInterfaceStackColor* c = new CInterfaceStackColor(pState);
+                stack->replaceStackObjectFromIndex(stackIndex, c);
                 retVal = 1;
             }
             else
@@ -5115,9 +5115,8 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
                     {
                         if (tbl->isTableArray())
                         {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setFloatArray(pState, 3);
-                            tbl->appendArrayObject(tbl2);
+                            CInterfaceStackColor* c = new CInterfaceStackColor(pState);
+                            tbl->appendArrayObject(c);
                             retVal = 1;
                         }
                     }
@@ -5125,9 +5124,8 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
                     {
                         if (tbl->isTableMap())
                         {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setFloatArray(pState, 3);
-                            tbl->appendMapObject_object(key.c_str(), tbl2);
+                            CInterfaceStackColor* c = new CInterfaceStackColor(pState);
+                            tbl->appendMapObject_object(key.c_str(), c);
                             retVal = 1;
                         }
                     }
@@ -5203,15 +5201,13 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_color) )
                 {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                    size_t arrSize = tbl->getArraySize();
-                    if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 3))
-                    {
-                        tbl->getFloatArray(pState, int(arrSize));
-                        retVal = 1;
-                    }
+                    CInterfaceStackColor* c = (CInterfaceStackColor*)it;
+                    pState[0] = c->getValue()[0];
+                    pState[1] = c->getValue()[1];
+                    pState[2] = c->getValue()[2];
+                    retVal = 1;
                 }
             }
             else
@@ -5225,15 +5221,13 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
                         it = tbl->getArrayItemAtIndex(arrIndex);
                     else
                         it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_color) )
                     {
-                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                        size_t arrSize = tbl->getArraySize();
-                        if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 3))
-                        {
-                            tbl->getFloatArray(pState, int(arrSize));
-                            retVal = 1;
-                        }
+                        CInterfaceStackColor* c = (CInterfaceStackColor*)it;
+                        pState[0] = c->getValue()[0];
+                        pState[1] = c->getValue()[1];
+                        pState[2] = c->getValue()[2];
+                        retVal = 1;
                     }
                 }
             }
@@ -6347,6 +6341,11 @@ int CWorld::_getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::
         {
             retVal = sim_propertytype_pose;
             str = "pose";
+        }
+        else if (t == sim_stackitem_color)
+        {
+            retVal = sim_propertytype_color;
+            str = "color";
         }
         else if (t == sim_stackitem_matrix)
         {

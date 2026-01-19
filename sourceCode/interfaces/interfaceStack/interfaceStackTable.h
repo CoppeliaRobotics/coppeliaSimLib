@@ -56,6 +56,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void appendArrayObject_matrix(const double* matrix, size_t rows, size_t cols);
     void appendArrayObject_quaternion(const double* quaternion, bool xyzwLayout = false);
     void appendArrayObject_pose(const double* pose, bool xyzqxqyqzqwLayout = false);
+    void appendArrayObject_color(const float c[3]);
     void appendArrayObject(CInterfaceStackObject* obj);
     void insertArrayObject(CInterfaceStackObject* obj, size_t pos);
 
@@ -77,6 +78,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void appendMapObject_matrix(const char* key, const double* matrix, size_t rows, size_t cols);
     void appendMapObject_quaternion(const char* key, const double* quaternion, bool xyzwLayout = false);
     void appendMapObject_pose(const char* key, const double* pose, bool xyzqxqyqzqwLayout = false);
+    void appendMapObject_color(const char* key, const float c[3]);
     void appendMapObject_object(const char* key, CInterfaceStackObject* obj);
     void appendMapObject_object(long long int key, CInterfaceStackObject* obj);
     void appendMapObject_object(double key, CInterfaceStackObject* obj);

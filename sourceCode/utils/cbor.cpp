@@ -243,6 +243,11 @@ void CCbor::appendPose(const double* v)
     appendDoubleArray(v, 7);
 }
 
+void CCbor::appendColor(const float c[3])
+{
+    appendFloatArray(c, 3);
+}
+
 void CCbor::appendNull()
 {
     _handleDataField();

@@ -478,6 +478,7 @@ HEADERS += $$PWD/sourceCode/strings/simStringTable.h \
 HEADERS += $$PWD/sourceCode/interfaces/sim.h \
     $$PWD/sourceCode/interfaces/simInternal.h \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.h \
+    $$PWD/sourceCode/interfaces/methods.h \
 
 HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.h \
@@ -491,6 +492,7 @@ HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackHandle.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackQuaternion.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackPose.h \
+    $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackColor.h \
 
 HEADERS += $$PWD/sourceCode/menusAndSimilar/fileOperations.h \
     $$PWD/sourceCode/menusAndSimilar/addOperations.h \
@@ -862,6 +864,7 @@ SOURCES += $$PWD/sourceCode/serialization/ser.cpp \
 SOURCES += $$PWD/sourceCode/interfaces/sim.cpp \
     $$PWD/sourceCode/interfaces/simInternal.cpp \
     $$PWD/sourceCode/interfaces/luaScriptFunctions.cpp \
+    $$PWD/sourceCode/interfaces/methods.cpp \
 
 !IS_PLUS {
     SOURCES += $$PWD/sourceCode/interfaces/simFlavor.cpp \
@@ -880,6 +883,7 @@ SOURCES += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackHandle.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackQuaternion.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackPose.cpp \
+    $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackColor.cpp \
 
 SOURCES += $$PWD/sourceCode/menusAndSimilar/addOperations.cpp \
     $$PWD/sourceCode/menusAndSimilar/fileOperations.cpp \

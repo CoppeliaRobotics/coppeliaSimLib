@@ -61,6 +61,7 @@ void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t r
 void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* vector3);
 void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* quaternion);
 void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* pose);
+void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[3]);
 void luaWrap_lua_pushcclosure(luaWrap_lua_State* L, luaWrap_lua_CFunction func, int n);
 void luaWrap_lua_pushvalue(luaWrap_lua_State* L, int idx);
 void luaWrap_lua_pushcfunction(luaWrap_lua_State* L, luaWrap_lua_CFunction func);
@@ -86,6 +87,7 @@ bool luaWrap_lua_ismatrix(luaWrap_lua_State* L, int idx, size_t* rows = nullptr,
 bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData = nullptr, bool strict = false);
 bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, std::vector<double>* quaternionData = nullptr, bool strict = false);
 bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, std::vector<double>* poseData = nullptr, bool strict = false);
+bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[3] = nullptr, bool strict = false);
 int luaWrap_lua_getmetatable(luaWrap_lua_State* L, int idx);
 int luaWrap_lua_rawequal(luaWrap_lua_State* L, int idx1, int idx2);
 bool luaWrap_lua_isfunction(luaWrap_lua_State* L, int idx);

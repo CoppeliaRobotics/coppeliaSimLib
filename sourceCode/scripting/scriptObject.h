@@ -88,9 +88,8 @@ class CScriptObject
     bool getCalledInThisSimulationStep() const;
 
     int systemCallMainScript(int optionalCallType, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-    int systemCallScript(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack,
-                         bool addOnManuallyStarted = false);
-    int callCustomScriptFunction(const char* functionName, CInterfaceStack* inOutStack);
+    int systemCallScript(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, bool addOnManuallyStarted = false);
+    int callCustomScriptFunction(const char* functionName, CInterfaceStack* inStack = nullptr, CInterfaceStack* outStack = nullptr, std::string* errorMsg = nullptr);
     bool shouldTemporarilySuspendMainScript();
 
     int executeScriptString(const char* scriptString, CInterfaceStack* outStack);
@@ -149,8 +148,7 @@ class CScriptObject
     void setScriptExecPriority(int priority);
     int getScriptExecPriority() const;
 
-    bool addCommandToOutsideCommandQueue(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4,
-                                         const double aux2Vals[8], int aux2Count);
+    bool addCommandToOutsideCommandQueue(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double aux2Vals[8], int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int& aux2Count);
 
     void setEventFilters(const std::map<long long int, std::set<std::string>>& filters);
@@ -260,13 +258,10 @@ class CScriptObject
     bool _killInterpreterState();
     void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg, bool runtimeError);
     bool _loadCode();
-    int ___loadCode(const char* code, const char* functionsToFind, std::vector<bool>& functionsFound,
-                    std::string* errorMsg);
+    int ___loadCode(const char* code, const char* functionsToFind, std::vector<bool>& functionsFound, std::string* errorMsg);
     int _callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-    int _callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack,
-                            CInterfaceStack* outStack, std::string* errorMsg);
-    int _callScriptFunc(const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack,
-                        std::string* errorMsg);
+    int _callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg);
+    int _callScriptFunc(const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg);
     bool _execScriptString(const char* scriptString, CInterfaceStack* outStack);
     void _handleInfoCallback();
 
@@ -345,9 +340,6 @@ class CScriptObject
     static CInterfaceStackObject* _getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints = false);
     static CInterfaceStackTable* _getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints = false);
 
-//    static CInterfaceStackObject* _generateObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, int hintIndex = -9999);
-//    static CInterfaceStackTable* _generateTableArrayFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables);
-//    static CInterfaceStackTable* _generateTableMapFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables);
     static int _countInterpreterStackTableEntries_lua(void* LL, int index);
     static void _pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj, bool pushOnlySimpleTypes = false);
     static void _hookFunction_lua(void* LL, void* arr);

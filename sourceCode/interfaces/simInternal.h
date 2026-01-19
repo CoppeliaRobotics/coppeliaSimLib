@@ -363,6 +363,7 @@ int simPushBufferOntoStack_internal(int stackHandle, const char* value, int stri
 int simPushMatrixOntoStack_internal(int stackHandle, const double* value, int rows, int cols);
 int simPushQuaternionOntoStack_internal(int stackHandle, const double* value);
 int simPushPoseOntoStack_internal(int stackHandle, const double* value);
+int simPushColorOntoStack_internal(int stackHandle, const float* value);
 int simPushUInt8TableOntoStack_internal(int stackHandle, const unsigned char* values, int valueCnt);
 int simPushInt32TableOntoStack_internal(int stackHandle, const int* values, int valueCnt);
 int simPushInt64TableOntoStack_internal(int stackHandle, const long long int* values, int valueCnt);
@@ -384,6 +385,7 @@ char* simGetStackStringValue_internal(int stackHandle, int* stringSize);
 double* simGetStackMatrix_internal(int stackHandle, int* rows, int* cols);
 double* simGetStackQuaternion_internal(int stackHandle);
 double* simGetStackPose_internal(int stackHandle);
+float* simGetStackColor_internal(int stackHandle);
 int simGetStackTableInfo_internal(int stackHandle, int infoType);
 int simGetStackUInt8Table_internal(int stackHandle, unsigned char* array, int count);
 int simGetStackInt32Table_internal(int stackHandle, int* array, int count);

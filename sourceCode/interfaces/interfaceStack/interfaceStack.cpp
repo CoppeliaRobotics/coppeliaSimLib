@@ -10,6 +10,7 @@
 #include <interfaceStackQuaternion.h>
 #include <interfaceStackPose.h>
 #include <interfaceStackHandle.h>
+#include <interfaceStackColor.h>
 #include <cbor.h>
 #include <algorithm>
 
@@ -41,6 +42,17 @@ int CInterfaceStack::getId() const
 int CInterfaceStack::getStackSize() const
 {
     return ((int)_stackObjects.size());
+}
+
+bool CInterfaceStack::insertItem(int pos, CInterfaceStackObject* item)
+{
+    bool retVal = false;
+    if ((pos >= 0) && (pos <= int(_stackObjects.size())))
+    {
+        retVal = true;
+        _stackObjects.insert(_stackObjects.begin() + pos, item);
+    }
+    return retVal;
 }
 
 void CInterfaceStack::printContent(int cIndex, std::string& buffer) const
@@ -494,6 +506,24 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
     return retVal;
 }
 
+bool CInterfaceStack::getStackColor(float array[3]) const
+{
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_color)
+        {
+            const float* f = ((CInterfaceStackColor*)obj)->getValue();
+            array[0] = f[0];
+            array[1] = f[1];
+            array[2] = f[2];
+            retVal = true;
+        }
+    }
+    return retVal;
+}
+
 const CMatrix* CInterfaceStack::getStackMatrix() const
 {
     const CMatrix* retVal = nullptr;
@@ -558,6 +588,25 @@ bool CInterfaceStack::getStackMapDoubleArray(const char* fieldName, double* arra
         }
     }
     return (false);
+}
+
+bool CInterfaceStack::getStackMapColor(const char* fieldName, float array[3]) const
+{
+    const CInterfaceStackObject* obj = getStackMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        if (obj->getObjectType() == sim_stackitem_color)
+        {
+            const float* c = ((CInterfaceStackColor*)obj)->getValue();
+            {
+                array[0] = c[0];
+                array[1] = c[1];
+                array[2] = c[2];
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 const CMatrix* CInterfaceStack::getStackMapMatrix(const char* fieldName) const
@@ -977,6 +1026,14 @@ void CInterfaceStack::pushPoseOntoStack(const double* p, bool toFront /*= false*
         _stackObjects.push_back(new CInterfaceStackPose(p, xyzqxqyqzqwLayout));
 }
 
+void CInterfaceStack::pushColorOntoStack(const float c[3], bool toFront /*= false*/)
+{
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackColor(c));
+    else
+        _stackObjects.push_back(new CInterfaceStackColor(c));
+}
+
 void CInterfaceStack::insertKeyNullIntoStackTable(const char* key)
 {
     pushTextOntoStack(key);
@@ -1100,6 +1157,13 @@ void CInterfaceStack::insertKeyPoseIntoStackTable(const char* key, const double*
 {
     pushTextOntoStack(key);
     pushPoseOntoStack(p, false, xyzqxqyqzqwLayout);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyColorIntoStackTable(const char* key, const float c[3])
+{
+    pushTextOntoStack(key);
+    pushColorOntoStack(c);
     insertDataIntoStackTable();
 }
 

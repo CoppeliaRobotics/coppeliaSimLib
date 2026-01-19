@@ -575,6 +575,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/interfaces/sim.cpp
     sourceCode/interfaces/simInternal.cpp
     sourceCode/interfaces/luaScriptFunctions.cpp
+    sourceCode/interfaces/methods.cpp
 
     sourceCode/interfaces/interfaceStack/interfaceStack.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp
@@ -588,6 +589,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/interfaces/interfaceStack/interfaceStackHandle.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackQuaternion.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackPose.cpp
+    sourceCode/interfaces/interfaceStack/interfaceStackColor.cpp
 
     sourceCode/menusAndSimilar/addOperations.cpp
     sourceCode/menusAndSimilar/fileOperations.cpp

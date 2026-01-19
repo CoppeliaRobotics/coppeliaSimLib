@@ -373,6 +373,11 @@ SIM_DLLEXPORT int simPushPoseOntoStack_L(UID stackHandle, const double* value)
     return (simPushPoseOntoStack_internal(stackHandle, value));
 }
 
+SIM_DLLEXPORT int simPushColorOntoStack_L(UID stackHandle, const float* value)
+{
+    return (simPushColorOntoStack_internal(stackHandle, value));
+}
+
 SIM_DLLEXPORT int simPushUInt8TableOntoStack_L(UID stackHandle, const unsigned char* values, int valueCnt)
 {
     return (simPushUInt8TableOntoStack_internal(stackHandle, values, valueCnt));
@@ -476,6 +481,11 @@ SIM_DLLEXPORT double* simGetStackQuaternion_L(UID stackHandle)
 SIM_DLLEXPORT double* simGetStackPose_L(UID stackHandle)
 {
     return (simGetStackPose_internal(stackHandle));
+}
+
+SIM_DLLEXPORT float* simGetStackColor_L(UID stackHandle)
+{
+    return (simGetStackColor_internal(stackHandle));
 }
 
 SIM_DLLEXPORT int simGetStackTableInfo_L(UID stackHandle, int infoType)
@@ -1965,6 +1975,11 @@ SIM_DLLEXPORT int simPushPoseOntoStack(int stackHandle, const double* value)
     return simPushPoseOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value);
 }
 
+SIM_DLLEXPORT int simPushColorOntoStack(int stackHandle, const float* value)
+{ // backw. compatibility version
+    return simPushColorOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value);
+}
+
 SIM_DLLEXPORT int simPushUInt8TableOntoStack(int stackHandle, const unsigned char* values, int valueCnt)
 { // backw. compatibility version
     return simPushUInt8TableOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), values, valueCnt);
@@ -2068,6 +2083,11 @@ SIM_DLLEXPORT double* simGetStackQuaternion(int stackHandle)
 SIM_DLLEXPORT double* simGetStackPose(int stackHandle)
 { // backw. compatibility version
     return simGetStackPose_internal(App::getNewHandleFromOldHandle(stackHandle));
+}
+
+SIM_DLLEXPORT float* simGetStackColor(int stackHandle)
+{ // backw. compatibility version
+    return simGetStackColor_internal(App::getNewHandleFromOldHandle(stackHandle));
 }
 
 SIM_DLLEXPORT int simGetStackTableInfo(int stackHandle, int infoType)

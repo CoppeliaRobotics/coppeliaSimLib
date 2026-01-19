@@ -43,6 +43,7 @@ class CInterfaceStack
     void pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront = false);
     void pushQuaternionOntoStack(const double* q, bool toFront = false, bool xyzwLayout = false);
     void pushPoseOntoStack(const double* q, bool toFront = false, bool xyzqxqyqzqwLayout = false);
+    void pushColorOntoStack(const float c[3], bool toFront = false);
 
     void insertKeyNullIntoStackTable(const char* key);
     void insertKeyBoolIntoStackTable(const char* key, bool value);
@@ -62,6 +63,9 @@ class CInterfaceStack
     void insertKeyMatrixIntoStackTable(const char* key, const double* matrix, size_t rows, size_t cols);
     void insertKeyQuaternionIntoStackTable(const char* key, const double* q, bool xyzwLayout = false);
     void insertKeyPoseIntoStackTable(const char* key, const double* p, bool xyzqxqyqzqwLayout = false);
+    void insertKeyColorIntoStackTable(const char* key, const float c[3]);
+
+    bool insertItem(int pos, CInterfaceStackObject* item);
 
     void pushTableOntoStack();
     bool insertDataIntoStackTable();
@@ -93,6 +97,7 @@ class CInterfaceStack
     bool getStackHandleArray(long long int* array, int count) const;
     bool getStackFloatArray(float* array, int count) const;
     bool getStackDoubleArray(double* array, int count) const;
+    bool getStackColor(float array[3]) const;
     const CMatrix* getStackMatrix() const;
     const C4Vector* getStackQuaternion() const;
     const C7Vector* getStackPose() const;
@@ -111,6 +116,7 @@ class CInterfaceStack
     bool getStackMapStringValue(const char* fieldName, std::string& val) const;
     bool getStackMapFloatArray(const char* fieldName, float* array, int count) const;
     bool getStackMapDoubleArray(const char* fieldName, double* array, int count) const;
+    bool getStackMapColor(const char* fieldName, float array[3]) const;
     const CMatrix* getStackMapMatrix(const char* fieldName) const;
     const C4Vector* getStackMapQuaternion(const char* fieldName) const;
     const C7Vector* getStackMapPose(const char* fieldName) const;
