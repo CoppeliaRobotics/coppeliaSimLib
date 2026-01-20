@@ -5924,7 +5924,7 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
             if (key.size() == 0)
             {
                 CInterfaceStackTable* tbl = new CInterfaceStackTable();
-                tbl->setTextArray(&pState);
+                tbl->setTextArray(pState.data(), pState.size());
                 stack->replaceStackObjectFromIndex(stackIndex, tbl);
                 retVal = 1;
             }
@@ -5939,7 +5939,7 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
                         if (tbl->isTableArray())
                         {
                             CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setTextArray(&pState);
+                            tbl2->setTextArray(pState.data(), pState.size());
                             tbl->appendArrayObject(tbl2);
                             retVal = 1;
                         }
@@ -5949,7 +5949,7 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
                         if (tbl->isTableMap())
                         {
                             CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setTextArray(&pState);
+                            tbl2->setTextArray(pState.data(), pState.size());
                             tbl->appendMapObject_object(key.c_str(), tbl2);
                             retVal = 1;
                         }

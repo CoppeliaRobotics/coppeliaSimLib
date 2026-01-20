@@ -40,6 +40,7 @@ class CInterfaceStack
     void pushHandleArrayOntoStack(const long long int* arr, size_t l, bool toFront = false);
     void pushFloatArrayOntoStack(const float* arr, size_t l, bool toFront = false);
     void pushDoubleArrayOntoStack(const double* arr, size_t l, bool toFront = false);
+    void pushTextArrayOntoStack(const std::string* arr, size_t l, bool toFront = false);
     void pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront = false);
     void pushQuaternionOntoStack(const double* q, bool toFront = false, bool xyzwLayout = false);
     void pushPoseOntoStack(const double* q, bool toFront = false, bool xyzqxqyqzqwLayout = false);

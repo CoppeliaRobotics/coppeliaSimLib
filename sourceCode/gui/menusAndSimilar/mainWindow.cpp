@@ -218,6 +218,10 @@ CMainWindow::CMainWindow(int operationalUiParts)
     QTextDocument* doc = statusBar->document();
     QFont font = doc->defaultFont();
     font.setFamily("Courier New");
+    font.setStyleHint(QFont::Monospace);
+    //font.setHintingPreference(QFont::PreferNoHinting);
+    font.setKerning(false);
+    font.setFixedPitch(true);
     doc->setDefaultFont(font);
     statusBar->setReadOnly(true);
     statusBar->setLineWrapMode(QPlainTextEdit::WidgetWidth); // QPlainTextEdit::NoWrap

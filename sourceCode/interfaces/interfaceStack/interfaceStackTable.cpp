@@ -874,12 +874,12 @@ void CInterfaceStackTable::setDoubleArray(const double* array, size_t l)
         _tableObjects.push_back(new CInterfaceStackNumber(array[i]));
 }
 
-void CInterfaceStackTable::setTextArray(const std::vector<std::string>* array)
+void CInterfaceStackTable::setTextArray(const std::string* array, size_t l)
 {
     _tableObjects.clear();
     _isTableArray = true;
-    for (size_t i = 0; i < array->size(); i++)
-        _tableObjects.push_back(new CInterfaceStackString(array->at(i).c_str()));
+    for (size_t i = 0; i < l; i++)
+        _tableObjects.push_back(new CInterfaceStackString(array[i].c_str()));
 }
 
 int CInterfaceStackTable::getTableInfo(int infoType) const

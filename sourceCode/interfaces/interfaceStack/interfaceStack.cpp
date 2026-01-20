@@ -1002,6 +1002,16 @@ void CInterfaceStack::pushDoubleArrayOntoStack(const double* arr, size_t l, bool
         _stackObjects.push_back(table);
 }
 
+void CInterfaceStack::pushTextArrayOntoStack(const std::string* arr, size_t l, bool toFront /*=false*/)
+{
+    CInterfaceStackTable* table = new CInterfaceStackTable();
+    table->setTextArray(arr, l);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), table);
+    else
+        _stackObjects.push_back(table);
+}
+
 void CInterfaceStack::pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront /*= false*/)
 {
     if (toFront)
