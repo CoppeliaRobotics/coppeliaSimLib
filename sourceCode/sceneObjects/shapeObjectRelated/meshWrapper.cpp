@@ -593,6 +593,12 @@ CMesh* CMeshWrapper::getMeshFromUid(long long int meshUid, const C7Vector& paren
     return retVal;
 }
 
+void CMeshWrapper::appendMeshes(std::vector<CMesh*>& meshes)
+{
+    for (size_t i = 0; i < childList.size(); i++)
+        childList[i]->appendMeshes(meshes);
+}
+
 void CMeshWrapper::takeVisualAttributesFrom(CMesh* origin)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)

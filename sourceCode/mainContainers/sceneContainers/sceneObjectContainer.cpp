@@ -6919,6 +6919,15 @@ CMesh* CSceneObjectContainer::getMeshFromUid(long long int meshUid, C7Vector* op
     return mesh;
 }
 
+void CSceneObjectContainer::getAllMeshes(std::vector<CMesh*>& meshes) const
+{
+    for (size_t i = 0; i < _shapeList.size(); i++)
+    {
+        CShape* shape = _shapeList[i];
+        shape->appendMeshes(meshes);
+    }
+}
+
 void CSceneObjectContainer::_setOrphanObjects(const std::vector<CSceneObject*>& newOrphanObjects)
 {
     bool diff = (_orphanObjects.size() != newOrphanObjects.size());

@@ -21,10 +21,13 @@ class CDrawingContainer
     void simulationEnded();
     void eraseAllObjects();
     int addObject(CDrawingObject* it);
-    CDrawingObject* getObject(int objectId) const;
+    size_t getObjectCount() const;
+    CDrawingObject* getObjectFromIndex(size_t index) const;
+    CDrawingObject* getObjectFromHandle(int objectId) const;
     void announceObjectWillBeErased(const CSceneObject* object);
     void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void removeObject(int objectId);
+
 
     int getLongProperty(long long int target, const char* pName, long long int& pState) const;
     int getHandleProperty(long long int target, const char* pName, long long int& pState) const;

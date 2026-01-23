@@ -3,8 +3,9 @@
 #include <string>
 #include <interfaceStack.h>
 #include <app.h>
+#include <scriptObject.h>
 
-extern std::string callMethod(int targetObj, const char* methodName, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string callMethod(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std::string* errStr, std::vector<int> inargs);
 
 bool fetchBool(const CInterfaceStack* inStack, int index, bool defaultValue = false);
@@ -14,6 +15,7 @@ long long int fetchHandle(const CInterfaceStack* inStack, int index, long long i
 double fetchDouble(const CInterfaceStack* inStack, int index, double defaultValue = 0.0);
 std::string fetchText(const CInterfaceStack* inStack, int index, const char* txt = "");
 std::string fetchBuffer(const CInterfaceStack* inStack, int index);
+void fetchBuffer(const CInterfaceStack* inStack, int index, std::vector<char>& buff);
 void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], std::initializer_list<float> arr = {});
 void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], const float defaultArr[3]);
 C4Vector fetchQuaternion(const CInterfaceStack* inStack, int index, std::initializer_list<double> wxyz = {});
@@ -49,16 +51,50 @@ void pushVector(CInterfaceStack* outStack, const double* v, size_t length);
 void pushMatrix(CInterfaceStack* outStack, const CMatrix& v);
 void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length);
 void pushHandleArray(CInterfaceStack* outStack, const long long int* v, size_t length);
+void pushShortHandleArray(CInterfaceStack* outStack, const int* v, size_t length);
 void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length);
 void pushTextArray(CInterfaceStack* outStack, const std::string* v, size_t length);
 
 CSceneObject* getSceneObject(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
+CSceneObject* getSpecificSceneObjectType(int identifier, int type, std::string* errMsg = nullptr, size_t argPos = -1);
+CCollection* getCollection(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
+CDrawingObject* getDrawingObject(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
+CScriptObject* getDetachedScript(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
+bool doesEntityExist(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
+std::string getInvalidArgString(size_t argPos);
 
-extern std::string _method_test(int targetObj, const char* method, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_test(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
-extern std::string _method_getPosition(int targetObj, const char* method, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_setPosition(int targetObj, const char* method, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_getQuaternion(int targetObj, const char* method, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_setQuaternion(int targetObj, const char* method, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_getPose(int targetObj, const char* method, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_setPose(int targetObj, const char* method, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getPosition(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setPosition(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getQuaternion(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setQuaternion(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getPose(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setPose(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setParent(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_handleSandboxScript(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_handleAddOnScripts(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_handleCustomizationScripts(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_handleSimulationScripts(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_loadModel(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_loadModelFromBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_loadModelThumbnail(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_loadModelThumbnailFromBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_saveModel(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_saveModelToBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_loadScene(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_saveScene(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_saveSceneToBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_removeModel(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_remove(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_removeObjects(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_duplicateObjects(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_addItem(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_removeItem(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_checkCollision(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_checkDistance(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_handleSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_resetSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_checkSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getObjects(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

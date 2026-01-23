@@ -21,7 +21,12 @@ void CDrawingContainer::simulationEnded()
 {
 }
 
-CDrawingObject* CDrawingContainer::getObject(int objectId) const
+size_t CDrawingContainer::getObjectCount() const
+{
+    return _allObjects.size();
+}
+
+CDrawingObject* CDrawingContainer::getObjectFromHandle(int objectId) const
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
     {
@@ -29,6 +34,14 @@ CDrawingObject* CDrawingContainer::getObject(int objectId) const
             return _allObjects[i];
     }
     return nullptr;
+}
+
+CDrawingObject* CDrawingContainer::getObjectFromIndex(size_t index) const
+{
+    CDrawingObject* retVal = nullptr;
+    if (index < _allObjects.size())
+        retVal = _allObjects[index];
+    return retVal;
 }
 
 int CDrawingContainer::addObject(CDrawingObject* it)
@@ -153,7 +166,7 @@ int CDrawingContainer::getLongProperty(long long int target, const char* pName, 
     }
     else
     {
-        CDrawingObject* it = getObject(int(target));
+        CDrawingObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
             return it->getLongProperty(pName, pState);
         retVal = -2; // drawing object does not exist
@@ -169,7 +182,7 @@ int CDrawingContainer::getHandleProperty(long long int target, const char* pName
     }
     else
     {
-        CDrawingObject* it = getObject(int(target));
+        CDrawingObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
             return it->getHandleProperty(pName, pState);
         retVal = -2; // drawing object does not exist
@@ -185,7 +198,7 @@ int CDrawingContainer::getStringProperty(long long int target, const char* pName
     }
     else
     {
-        CDrawingObject* it = getObject(int(target));
+        CDrawingObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
             return it->getStringProperty(pName, pState);
         retVal = -2; // drawing object does not exist
@@ -233,7 +246,7 @@ int CDrawingContainer::getPropertyName(long long int target, int& index, std::st
     }
     else
     {
-        CDrawingObject* it = getObject(int(target));
+        CDrawingObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             appartenance = "drawingObject";
@@ -273,7 +286,7 @@ int CDrawingContainer::getPropertyInfo(long long int target, const char* pName, 
     }
     else
     {
-        CDrawingObject* it = getObject(int(target));
+        CDrawingObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
             return it->getPropertyInfo(pName, info, infoTxt);
         retVal = -2; // object does not exist

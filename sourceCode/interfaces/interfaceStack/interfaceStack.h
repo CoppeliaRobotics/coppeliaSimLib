@@ -38,6 +38,7 @@ class CInterfaceStack
     void pushInt32ArrayOntoStack(const int* arr, size_t l, bool toFront = false);
     void pushInt64ArrayOntoStack(const long long int* arr, size_t l, bool toFront = false);
     void pushHandleArrayOntoStack(const long long int* arr, size_t l, bool toFront = false);
+    void pushShortHandleArrayOntoStack(const int* arr, size_t l, bool toFront = false);
     void pushFloatArrayOntoStack(const float* arr, size_t l, bool toFront = false);
     void pushDoubleArrayOntoStack(const double* arr, size_t l, bool toFront = false);
     void pushTextArrayOntoStack(const std::string* arr, size_t l, bool toFront = false);

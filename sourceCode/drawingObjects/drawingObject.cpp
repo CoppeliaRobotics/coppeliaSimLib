@@ -504,6 +504,7 @@ void CDrawingObject::pushAddEvent()
             }
             ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
             ev->appendKeyInt(propDrawingObj_handle.name, _objectId);
+            ev->appendKeyInt(propDrawingObj_parent.name, _sceneObjectId);
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
@@ -626,6 +627,12 @@ int CDrawingObject::getHandleProperty(const char* ppName, long long int& pState)
 {
     std::string _pName(ppName);
     int retVal = -1;
+
+    if (_pName == propDrawingObj_parent.name)
+    {
+        retVal = 1;
+        pState = _sceneObjectId;
+    }
 
     return retVal;
 }

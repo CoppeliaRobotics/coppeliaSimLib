@@ -123,11 +123,20 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const c
     CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
-    int lineNumber = -1;
-    lineNumber = luaWrap_getCurrentCodeLine(L);
+    std::string suffix = " (c: simCallMethod)";
     std::string msg;
-    msg += std::to_string(lineNumber);
-    msg += ": error in '";
+    if (errStr.length() >= suffix.length() && errStr.compare(errStr.length() - suffix.length(), suffix.length(), suffix) == 0)
+    { // special handling of methods
+        errStr.erase(errStr.length() - suffix.length());
+        msg += "error in method '";
+    }
+    else
+    {
+        int lineNumber = -1;
+        lineNumber = luaWrap_getCurrentCodeLine(L);
+        msg += std::to_string(lineNumber);
+        msg += ": error in '";
+    }
     msg += functionName;
     msg += "': ";
     msg += errStr;
@@ -769,6 +778,10 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.simulation_paused", sim_simulation_paused},
     {"sim.simulation_running", sim_simulation_running},
     {"sim.simulation_lastbeforestop", sim_simulation_lastbeforestop},
+    // Parenting mode:
+    {"sim.parentingmode_keeplocalpose", sim_parentingmode_keeplocalpose},
+    {"sim.parentingmode_keepworldpose", sim_parentingmode_keepworldpose},
+    {"sim.parentingmode_assembly", sim_parentingmode_assembly},
     // Texture mapping modes:
     {"sim.texturemap_plane", sim_texturemap_plane},
     {"sim.texturemap_cylinder", sim_texturemap_cylinder},
@@ -6174,16 +6187,16 @@ int _sim_callMethod(luaWrap_lua_State* L)
     LUA_START("sim.callMethod");
 
     // if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_table, 0, lua_arg_table, 0))
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_handle, 0, lua_arg_string, 0))
     {
-        long long int target = fetchLongArg(L, 1);
+        long long int target = fetchHandleArg(L, 1);
         functionName = fetchTextArg(L, 2);
-        std::string name = "@" + functionName; // @ to indicate to simCallMethod that it cannot loops back to Lua
         CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
         // CScriptObject::buildFromInterpreterStack_lua(L, inStack, 3, -1); // skip the two first args, and use the content of the 2 tables at that location
         CScriptObject::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
         CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
-        int res = CALL_C_API(simCallMethod, target, name.c_str(), inStack->getId(), outStack->getId());
+        CScriptObject* currentScript = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        int res = CALL_C_API(simCallMethod, target, functionName.c_str(), inStack->getId(), outStack->getId(), currentScript);
         if (res == 1)
         {
             // int s = CScriptObject::buildOntoInterpreterStack_lua(L, outStack, false, true); // insert also type info
@@ -9734,7 +9747,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         int h = luaToInt(L, 1);
         int handleFlags = h & sim_handleflag_flagmask;
         h = h & sim_handleflag_handlemask;
-        CDrawingObject* it = App::currentWorld->drawingCont->getObject(h);
+        CDrawingObject* it = App::currentWorld->drawingCont->getObjectFromHandle(h);
         size_t d = 3;
         if (it != nullptr)
         {

@@ -81,6 +81,7 @@ class CMeshWrapper
     virtual void getColorStrings(std::string& colorStrings, bool onlyNamed) const;
     virtual CMesh* getFirstMesh();
     virtual CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
+    virtual void appendMeshes(std::vector<CMesh*>& meshes);
 
     void addSpecializedObjectEventData(int parentObjectHandle, CCbor* ev);
     int setFloatProperty_wrapper(const char* pName, double pState);

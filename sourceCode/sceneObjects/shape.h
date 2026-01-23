@@ -30,6 +30,7 @@ class CShape : public CSceneObject
     CMeshWrapper* getMesh() const;
     CMesh* getSingleMesh() const;
     CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const;
+    void appendMeshes(std::vector<CMesh*>& meshes) const;
 
     void* _meshCalculationStructure;
     int _meshModificationCounter;

@@ -3023,7 +3023,7 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
     return -1;
 }
 
-int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack)
+int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack, void* currentScript)
 {
     C_API_START;
 
@@ -3031,13 +3031,6 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
     {
         CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->getStack(inputStack);
         CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->getStack(outputStack);
-        std::string methodName(name);
-        bool luaOrigin = false;
-        if ((methodName.size() > 0) && (methodName[0] == '@'))
-        {
-            luaOrigin = true;
-            methodName.erase(methodName.begin());
-        }
         int retVal = 0; // -1: error in method, 0: method not found, 1: ok
         // Check if such a method is supported in here, or if we have to call Lua:
         // ...
@@ -3053,7 +3046,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                 _outStack = App::worldContainer->interfaceStackContainer->createStack();
             _outStack->clear();
 
-            std::string err(callMethod(target, methodName.c_str(), _inStack, _outStack));
+            std::string err(callMethod(target, name, (CScriptObject*)currentScript, _inStack, _outStack));
 
             if (inStack == nullptr)
                 App::worldContainer->interfaceStackContainer->destroyStack(_inStack);
@@ -3064,10 +3057,10 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                 retVal = 1; // success
             else if (err == "__notFound__")
             {
-                if (luaOrigin)
+                if (currentScript != nullptr)
                 {
                     std::string errStr("failed calling method '");
-                    errStr += methodName;
+                    errStr += name;
                     errStr += "'.";
                     CApiErrors::setLastError(__func__, errStr.c_str());
                     retVal = -1;
@@ -3081,7 +3074,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                 retVal = -1;
             }
         }
-        if ((retVal == 0) && (!luaOrigin))
+        if ((retVal == 0) && (currentScript == nullptr))
         { // method was not found here. Let's try the method as a pure Lua method:
             if (App::worldContainer->sandboxScript != nullptr)
             {
@@ -3092,6 +3085,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                     outStack->clear();
                 if (VThread::isSimThread())
                 {
+                    std::string methodName(name);
                     methodName = "@" + methodName; // to indicate that we come from c
                     CInterfaceStack* inStackT = App::worldContainer->interfaceStackContainer->createStack();
                     if (inStack != nullptr)
@@ -4875,8 +4869,7 @@ int simSetObjectSel_internal(const int* handles, int cnt)
     return (-1);
 }
 
-int simHandleProximitySensor_internal(int sensorHandle, double* detectedPoint, int* detectedObjectHandle,
-                                      double* normalVector)
+int simHandleProximitySensor_internal(int sensorHandle, double* detectedPoint, int* detectedObjectHandle, double* normalVector)
 {
     C_API_START;
 
@@ -6049,7 +6042,7 @@ int simRemoveDrawingObject_internal(int objectHandle)
             App::currentWorld->drawingCont->eraseAllObjects();
         else
         {
-            CDrawingObject* it = App::currentWorld->drawingCont->getObject(handle);
+            CDrawingObject* it = App::currentWorld->drawingCont->getObjectFromHandle(handle);
             if (it != nullptr)
                 App::currentWorld->drawingCont->removeObject(handle);
             else
@@ -6071,7 +6064,7 @@ int simAddDrawingObjectItem_internal(int objectHandle, const double* itemData)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDrawingObject* it = App::currentWorld->drawingCont->getObject(objectHandle);
+        CDrawingObject* it = App::currentWorld->drawingCont->getObjectFromHandle(objectHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
@@ -8070,7 +8063,7 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
             (App::currentWorld->textureContainer->getObject(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_drawingobject)) &&
-            (App::currentWorld->drawingCont->getObject(generalObjectHandle) != nullptr))
+            (App::currentWorld->drawingCont->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
 
         // Old:

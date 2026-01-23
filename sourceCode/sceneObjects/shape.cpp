@@ -155,6 +155,11 @@ CMesh* CShape::getMeshFromUid(long long int meshUid, const C7Vector& parentCumul
     return _mesh->getMeshFromUid(meshUid, parentCumulTr, shapeRelTr);
 }
 
+void CShape::appendMeshes(std::vector<CMesh*>& meshes) const
+{
+    _mesh->appendMeshes(meshes);
+}
+
 CDynMaterialObject* CShape::getDynMaterial()
 {
     return (_dynMaterial);

@@ -972,6 +972,16 @@ void CInterfaceStack::pushHandleArrayOntoStack(const long long int* arr, size_t 
         _stackObjects.push_back(table);
 }
 
+void CInterfaceStack::pushShortHandleArrayOntoStack(const int* arr, size_t l, bool toFront /*=false*/)
+{
+    CInterfaceStackTable* table = new CInterfaceStackTable();
+    table->setShortHandleArray(arr, l);
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), table);
+    else
+        _stackObjects.push_back(table);
+}
+
 void CInterfaceStack::pushUCharArrayOntoStack(const unsigned char* arr, size_t l, bool toFront /*=false*/)
 {
     CInterfaceStackTable* table = new CInterfaceStackTable();

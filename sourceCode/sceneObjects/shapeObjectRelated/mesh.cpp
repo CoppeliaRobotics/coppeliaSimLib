@@ -512,6 +512,11 @@ CMesh* CMesh::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulT
     return retVal;
 }
 
+void CMesh::appendMeshes(std::vector<CMesh*>& meshes)
+{
+    meshes.push_back(this);
+}
+
 void CMesh::pushObjectRemoveEvent()
 {
     _isInSceneShapeHandle = -1;

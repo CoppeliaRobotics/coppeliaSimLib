@@ -85,7 +85,7 @@ int simRemoveProperty_internal(long long int target, const char* pName);
 char* simGetPropertyName_internal(long long int target, int index, SPropertyOptions* options);
 int simGetPropertyInfo_internal(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options);
 
-int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack);
+int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack, void* currentScript);
 void simRegCallback_internal(int index, void* callback);
 void simRunGui_internal(int options);
 int simInitialize_internal(const char* appDir, int options);

@@ -34,6 +34,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void setInt32Array(const int* array, size_t l);
     void setInt64Array(const long long int* array, size_t l);
     void setHandleArray(const long long int* array, size_t l);
+    void setShortHandleArray(const int* array, size_t l);
     void setFloatArray(const float* array, size_t l);
     void setDoubleArray(const double* array, size_t l);
     void setTextArray(const std::string* array, size_t l);

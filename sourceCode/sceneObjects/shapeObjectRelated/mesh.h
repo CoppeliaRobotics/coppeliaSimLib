@@ -37,6 +37,7 @@ class CMesh : public CMeshWrapper
     bool checkIfConvex();
     CMesh* getFirstMesh() override;
     CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) override;
+    void appendMeshes(std::vector<CMesh*>& meshes) override;
     void pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vector& shapeRelTr);
     void pushObjectRemoveEvent();
 

@@ -109,6 +109,7 @@ class CSceneObjectContainer
     CForceSensor* getForceSensorFromHandle(int objectHandle) const;
 
     CMesh* getMeshFromUid(long long int meshUid, C7Vector* optShapeRelTr = nullptr) const;
+    void getAllMeshes(std::vector<CMesh*>& meshes) const;
 
     bool hasSelectionChanged();
     size_t getSelectionCount() const;

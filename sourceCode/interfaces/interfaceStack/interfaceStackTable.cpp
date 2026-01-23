@@ -858,6 +858,14 @@ void CInterfaceStackTable::setHandleArray(const long long int* array, size_t l)
         _tableObjects.push_back(new CInterfaceStackHandle(array[i]));
 }
 
+void CInterfaceStackTable::setShortHandleArray(const int* array, size_t l)
+{
+    _tableObjects.clear();
+    _isTableArray = true;
+    for (size_t i = 0; i < l; i++)
+        _tableObjects.push_back(new CInterfaceStackHandle(array[i]));
+}
+
 void CInterfaceStackTable::setFloatArray(const float* array, size_t l)
 {
     _tableObjects.clear();

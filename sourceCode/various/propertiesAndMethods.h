@@ -140,11 +140,20 @@ struct SJointProperty
         "setVector2Property": "sim-2.setVector2Property",
         "setVector3Property": "sim-2.setVector3Property")"
 
-#define APP_META_METHODS R"("handleAddOnScripts": "sim-2._handleAddOnScripts",
-        "handleSandboxScript": "sim-2._handleSandboxScript",
-        "createObject": "sim-2._createObject",
-        "removeObject": "sim-2._removeObject",
-        "removeObjects": "sim-2._removeObjects")"
+#define APP_META_METHODS R"("handleAddOnScripts": "sim-2.callMethod",
+        "handleSandboxScript": "sim-2.callMethod",
+        "loadModel": "sim-2.callMethod",
+        "loadModelFromBuffer": "sim-2.callMethod",
+        "loadModelThumbnail": "sim-2.callMethod",
+        "loadModelThumbnailFromBuffer": "sim-2.callMethod",
+        "saveScene": "sim-2.callMethod",
+        "saveSceneToBuffer": "sim-2.callMethod",
+        "loadScene": "sim-2.callMethod",
+        "loadSceneFromBuffer": "sim-2.callMethod",
+        "getObjects": "sim-2.callMethod",
+        "createObject": "sim-2.callMethod",
+        "duplicateObjects": "sim-2.callMethod",
+        "removeObjects": "sim-2.callMethod")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2._callScriptFunction",
         "getFunctions": "sim-2._getScriptFunctions",
@@ -152,45 +161,48 @@ struct SJointProperty
         "getApiFunc": "sim-2._getApiFunc",
         "getApiInfo": "sim-2._getApiInfo",
         "getStackTraceback": "sim-2._getStackTraceback",
+        "remove": "sim-2.callMethod",
         "init": "sim-2._initScript")"
 
-#define COLLECTION_META_METHODS R"("addItem": "sim-2._addItem",
-        "removeItem": "sim-2._removeItem",
-        "checkCollision": "sim-2._checkCollision",
-        "checkDistance": "sim-2._checkDistance")"
+#define COLLECTION_META_METHODS R"("addItem": "sim-2.callMethod",
+        "removeItem": "sim-2.callMethod",
+        "checkCollision": "sim-2.callMethod",
+        "remove": "sim-2.callMethod",
+        "checkDistance": "sim-2.callMethod")"
 
 #define DRAWINGOBJECT_META_METHODS R"("addItems": "sim-2._addDrawingObjectItems",
         "clearItems": "sim-2._clearDrawingObjectItems",
+        "remove": "sim-2.callMethod",
         "addPackedItems": "sim-2._addDrawingObjectPackedItems")"
 
 #define MESH_META_METHODS R"("__": "__")"
 
-#define SCENE_META_METHODS R"("createObject": "sim-2._createObject",
-        "removeObject": "sim-2._removeObject",
-        "removeObjects": "sim-2._removeObjects",
-        "removeModel": "sim-2._removeModel",
-        "duplicateObjects": "sim-2._duplicateObjects",
-        "handleSimulationScripts": "sim-2._handleSimulationScripts",
-        "handleEmbeddedScripts": "sim-2._handleEmbeddedScripts",
+#define SCENE_META_METHODS R"("createObject": "sim-2.callMethod",
+        "removeObjects": "sim-2.callMethod",
+        "duplicateObjects": "sim-2.callMethod",
+        "handleSimulationScripts": "sim-2.callMethod",
+        "handleCustomizationScripts": "sim-2.callMethod",
         "scaleObjects": "sim-2._scaleObjects",
-        "loadModel": "sim-2._loadModel",
-        "loadModelFromBuffer": "sim-2._loadModelFromBuffer",
-        "loadModelThumbnail": "sim-2._loadModelThumbnail",
-        "loadModelThumbnailFromBuffer": "sim-2._loadModelThumbnailFromBuffer",
-        "saveModel": "sim-2._saveModel",
-        "saveModelToBuffer": "sim-2._saveModelToBuffer",
-        "saveScene": "sim-2._saveScene",
+        "getAncestors": "sim-2.callMethod",
+        "getDescendants": "sim-2.callMethod",
+        "getObjects": "sim-2.callMethod",
+        "loadModel": "sim-2.callMethod",
+        "loadModelFromBuffer": "sim-2.callMethod",
+        "loadModelThumbnail": "sim-2.callMethod",
+        "loadModelThumbnailFromBuffer": "sim-2.callMethod",
+        "saveScene": "sim-2.callMethod",
+        "saveSceneToBuffer": "sim-2.callMethod",
+        "loadScene": "sim-2.callMethod",
+        "loadSceneFromBuffer": "sim-2.callMethod")"
 
-        "loadScene": "sim-2._loadScene",
-        "loadSceneFromBuffer": "sim-2._loadSceneFromBuffer",
-        "saveSceneToBuffer": "sim-2._saveSceneToBuffer")"
-
-#define SCENEOBJECT_META_METHODS R"("getAncestors": "sim-2._getAncestors",
-        "getDescendants": "sim-2._getDescendants",
-        "saveModel": "sim-2._saveModel",
-        "saveModelToBuffer": "sim-2._saveModelToBuffer",
-        "checkCollision": "sim-2._checkCollision",
-        "checkDistance": "sim-2._checkDistance",
+#define SCENEOBJECT_META_METHODS R"("getAncestors": "sim-2.callMethod",
+        "getDescendants": "sim-2.callMethod",
+        "removeModel": "sim-2.callMethod",
+        "remove": "sim-2.callMethod",
+        "saveModel": "sim-2.callMethod",
+        "saveModelToBuffer": "sim-2.callMethod",
+        "checkCollision": "sim-2.callMethod",
+        "checkDistance": "sim-2.callMethod",
         "getAlias": "sim-2.getObjectAlias",
         "setAlias": "sim-2.setObjectAlias",
         "getPose": "sim-2.callMethod",
@@ -199,7 +211,7 @@ struct SJointProperty
         "setPose": "sim-2.callMethod",
         "setPosition": "sim-2.callMethod",
         "setQuaternion": "sim-2.callMethod",
-        "setParent": "sim-2._setObjectParent",
+        "setParent": "sim-2.callMethod",
         "scale": "sim-2._scaleObject",
 
         "getVelocity": "sim-2.getObjectVelocity",
@@ -257,9 +269,9 @@ struct SJointProperty
         "removePoints": "sim-2.removePointsFromPointCloud",
         "subtractObject": "sim-2.subtractObjectFromPointCloud")"
 
-#define PROXIMITYSENSOR_META_METHODS R"("handleSensor": "sim-2.handleProximitySensor",
-        "resetSensor": "sim-2.resetProximitySensor",
-        "checkSensor": "sim-2.checkProximitySensor")"
+#define PROXIMITYSENSOR_META_METHODS R"("handleSensor": "sim-2.callMethod",
+        "resetSensor": "sim-2.callMethod",
+        "checkSensor": "sim-2.callMethod")"
 
 #define VISIONSENSOR_META_METHODS R"("handleSensor": "sim-2.handleVisionSensor",
         "resetSensor": "sim-2.resetVisionSensor",
@@ -390,7 +402,8 @@ struct SJointProperty
 #define DRAWINGOBJECT_PROPERTIES \
     FUNCX(propDrawingObj_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
     FUNCX(propDrawingObj_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
-    FUNCX(propDrawingObj_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "")
+    FUNCX(propDrawingObj_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
+    FUNCX(propDrawingObj_parent, "parent", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Parent handle"}, {"description", ""}, {"handleType", "sceneObject"}}), "")
 
 #define COLOR_PROPERTIES \
     FUNCX(propCol_colDiffuse, "diffuse", sim_propertytype_color, 0,  jsonStr({{"label", "Diffuse color"}, {"description", ""}}), "") \
