@@ -83,7 +83,7 @@ std::vector<double>* CPointCloud::getDisplayColors()
     return (&_displayColors);
 }
 
-void CPointCloud::_readPositionsAndColorsAndSetDimensions()
+void CPointCloud::_readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpdate)
 {
     std::vector<double> displayPoints_old;
     std::vector<unsigned char> displayColorsByte_old;
@@ -212,11 +212,11 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             }
         }
         if (generateEvent)
-            _updatePointCloudEvent();
+            updatePointCloudEvent(incrementalDisplayUpdate);
     }
 }
 
-void CPointCloud::_updatePointCloudEvent() const
+void CPointCloud::updatePointCloudEvent(bool incremental) const
 {
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
@@ -227,12 +227,63 @@ void CPointCloud::_updatePointCloudEvent() const
         ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
         ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
 #else
+        /*
         const char* cmd = propPointCloud_points.name;
         CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyDoubleArray(cmd, _displayPoints.data(), _displayPoints.size());
         ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
-#endif
         App::worldContainer->pushEvent();
+*/
+        if (_pointCloudInfo == nullptr)
+        {
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+            ev->openKeyMap("set");
+            ev->appendKeyBuff("pts", nullptr, 0);
+            ev->appendKeyBuff("rgb", nullptr, 0);
+            ev->appendKeyBuff("ids", nullptr, 0);
+            ev->closeArrayOrMap();
+            App::worldContainer->pushEvent();
+        }
+        else
+        {
+            float* pts;
+            unsigned char* cols;
+            unsigned int* ids;
+            unsigned int* remIds;
+            int newCnt, remCnt;
+            int r = App::worldContainer->pluginContainer->geomPlugin_getDisplayPtcloudData(_pointCloudInfo, !incremental, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
+            if (r >= 0)
+            {
+                if (r == 1)
+                {
+                    CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                    ev->openKeyMap("set");
+                    ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
+                    ev->appendKeyBuff("rgb", cols, newCnt * 3);
+                    ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
+                    ev->closeArrayOrMap();
+                    App::worldContainer->pushEvent();
+                }
+                else
+                {
+                    CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                    ev->openKeyMap("add");
+                    ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
+                    ev->appendKeyBuff("rgb", cols, newCnt * 3);
+                    ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
+                    ev->closeArrayOrMap();
+                    ev->openKeyMap("rem");
+                    ev->appendKeyBuff("ids", (unsigned char*)remIds, remCnt * sizeof(unsigned int));
+                    ev->closeArrayOrMap();
+                    App::worldContainer->pushEvent();
+                }
+                delete[] pts;
+                delete[] cols;
+                delete[] ids;
+                delete[] remIds;
+            }
+        }
+#endif
     }
 }
 
@@ -274,7 +325,7 @@ int CPointCloud::removePoints(const double* pts, int ptsCnt, bool ptsAreRelative
             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo = nullptr;
         }
-        _readPositionsAndColorsAndSetDimensions();
+        _readPositionsAndColorsAndSetDimensions(true);
     }
     return (pointCntRemoved);
 }
@@ -324,7 +375,7 @@ void CPointCloud::subtractOctree(const void* octree2Info, const C7Vector& octree
             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo = nullptr;
         }
-        _readPositionsAndColorsAndSetDimensions();
+        _readPositionsAndColorsAndSetDimensions(true);
     }
 }
 
@@ -375,7 +426,7 @@ int CPointCloud::intersectPoints(const double* pts, int ptsCnt, bool ptsAreRelat
             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo = nullptr;
         }
-        _readPositionsAndColorsAndSetDimensions();
+        _readPositionsAndColorsAndSetDimensions(true);
     }
     return (int(_points.size() / 3));
 }
@@ -486,7 +537,7 @@ void CPointCloud::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativ
             }
         }
     }
-    _readPositionsAndColorsAndSetDimensions();
+    _readPositionsAndColorsAndSetDimensions(true);
 }
 
 void CPointCloud::insertShape(CShape* shape)
@@ -592,7 +643,7 @@ void CPointCloud::clear()
 
     computeBoundingBox();
     _nonEmptyCells = 0;
-    _updatePointCloudEvent();
+    updatePointCloudEvent(false);
 }
 
 const std::vector<double>* CPointCloud::getPoints() const
@@ -697,7 +748,7 @@ void CPointCloud::scaleObject(double scalingFactor)
         _displayPoints[i] *= scalingFactor;
     if (_pointCloudInfo != nullptr)
         App::worldContainer->pluginContainer->geomPlugin_scalePtcloud(_pointCloudInfo, scalingFactor);
-    _updatePointCloudEvent();
+    updatePointCloudEvent(false);
 
     CSceneObject::scaleObject(scalingFactor);
 }
@@ -895,7 +946,7 @@ void CPointCloud::setUseRandomColors(bool r)
     if (diff)
     {
         _useRandomColors = r;
-        _readPositionsAndColorsAndSetDimensions();
+        _readPositionsAndColorsAndSetDimensions(false);
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propPointCloud_randomColors.name;
@@ -968,7 +1019,7 @@ void CPointCloud::setPointDisplayRatio(double r)
             ev->appendKeyDouble(cmd, _pointDisplayRatio);
             App::worldContainer->pushEvent();
         }
-        _readPositionsAndColorsAndSetDimensions();
+        _readPositionsAndColorsAndSetDimensions(false);
     }
 }
 
@@ -1309,7 +1360,7 @@ void CPointCloud::serialize(CSer& ar)
                         _pointCloudInfo =
                             App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData_float(
                                 &data[0]);
-                        _readPositionsAndColorsAndSetDimensions();
+                        _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if (theName.compare("_o2") == 0)
@@ -1328,7 +1379,7 @@ void CPointCloud::serialize(CSer& ar)
                             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
                         _pointCloudInfo =
                             App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData(&data[0]);
-                        _readPositionsAndColorsAndSetDimensions();
+                        _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if (noHit)

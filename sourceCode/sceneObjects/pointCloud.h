@@ -120,6 +120,7 @@ class CPointCloud : public CSceneObject
     std::vector<double>* getPoints();
     const void* getPointCloudInfo() const;
     void* getPointCloudInfo();
+    void updatePointCloudEvent(bool incremental) const;
 
     CColorObject* getColor();
     std::vector<double>* getColors();
@@ -127,8 +128,7 @@ class CPointCloud : public CSceneObject
     std::vector<double>* getDisplayColors();
 
   protected:
-    void _updatePointCloudEvent() const;
-    void _readPositionsAndColorsAndSetDimensions();
+    void _readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpdate);
     void _getCharRGB3Colors(const std::vector<double>& floatRGBA, std::vector<unsigned char>& charRGB);
 
     // Variables which need to be serialized & copied

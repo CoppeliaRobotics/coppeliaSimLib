@@ -120,6 +120,7 @@ typedef unsigned char*(__cdecl* ptr_geomPlugin_getPtcloudSerializationData_float
                                                                                   int* serializationDataSize);
 typedef void(__cdecl* ptr_geomPlugin_scalePtcloud)(void* pcStruct, double f);
 typedef void(__cdecl* ptr_geomPlugin_destroyPtcloud)(void* pcStruct);
+typedef bool(__cdecl* ptr_geomPlugin_getDisplayPtcloudData)(const void* pcStruct, bool forceFresh,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt);
 typedef double*(__cdecl* ptr_geomPlugin_getPtcloudPoints)(const void* pcStruct, int* pointCount, double prop);
 typedef double*(__cdecl* ptr_geomPlugin_getPtcloudOctreeCorners)(const void* pcStruct, int* pointCount);
 typedef int(__cdecl* ptr_geomPlugin_getPtcloudNonEmptyCellCount)(const void* pcStruct);
@@ -546,6 +547,7 @@ class CPlugin
     ptr_geomPlugin_getPtcloudSerializationData_float geomPlugin_getPtcloudSerializationData_float;
     ptr_geomPlugin_scalePtcloud geomPlugin_scalePtcloud;
     ptr_geomPlugin_destroyPtcloud geomPlugin_destroyPtcloud;
+    ptr_geomPlugin_getDisplayPtcloudData geomPlugin_getDisplayPtcloudData;
     ptr_geomPlugin_getPtcloudPoints geomPlugin_getPtcloudPoints;
     ptr_geomPlugin_getPtcloudOctreeCorners geomPlugin_getPtcloudOctreeCorners;
     ptr_geomPlugin_getPtcloudNonEmptyCellCount geomPlugin_getPtcloudNonEmptyCellCount;

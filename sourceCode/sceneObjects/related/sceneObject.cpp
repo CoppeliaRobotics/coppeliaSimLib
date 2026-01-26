@@ -1459,6 +1459,8 @@ void CSceneObject::pushObjectCreationEvent()
         }
         if (_objectType == sim_sceneobject_script)
             ((CScript*)this)->scriptObject->pushObjectCreationEvent();
+        if (_objectType == sim_sceneobject_pointcloud)
+            ((CPointCloud*)this)->updatePointCloudEvent(false);
     }
 }
 

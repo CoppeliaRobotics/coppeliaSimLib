@@ -1594,6 +1594,22 @@ void CPluginContainer::geomPlugin_destroyPtcloud(void* pcStruct)
         currentGeomPlugin->popCurrentPlugin();
     }
 }
+
+int CPluginContainer::geomPlugin_getDisplayPtcloudData(const void* pcStruct, bool forceFresh,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt)
+{
+    bool retVal = -1;
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        currentGeomPlugin->pushCurrentPlugin();
+        retVal = currentGeomPlugin->geomPlugin_getDisplayPtcloudData(pcStruct, forceFresh, pts, cols, ids, newCnt, remIds, remCnt);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+    return retVal;
+}
+
 void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct, std::vector<double>& pointData,
                                                    std::vector<double>* colorData /*=nullptr*/, double prop /*=1.0*/)
 {
