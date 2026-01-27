@@ -1087,8 +1087,7 @@ void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruc
             _tr = tr;
         }
         currentGeomPlugin->pushCurrentPlugin();
-        retVal =
-            currentGeomPlugin->geomPlugin_createOctreeFromMesh(meshObbStruct, _meshTr, _tr, cellS, rgbData, usrData);
+        retVal = currentGeomPlugin->geomPlugin_createOctreeFromMesh(meshObbStruct, _meshTr, _tr, cellS, rgbData, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
@@ -1226,6 +1225,41 @@ void CPluginContainer::geomPlugin_destroyOctree(void* ocStruct)
         currentGeomPlugin->popCurrentPlugin();
     }
 }
+
+void CPluginContainer::geomPlugin_refreshDisplayOctreeData(void* octStruct)
+{
+    if (octStruct != nullptr)
+    {
+        if (currentGeomPlugin == nullptr)
+            currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+        if (currentGeomPlugin != nullptr)
+        {
+            currentGeomPlugin->pushCurrentPlugin();
+            currentGeomPlugin->geomPlugin_refreshDisplayOctreeData(octStruct);
+            currentGeomPlugin->popCurrentPlugin();
+        }
+    }
+}
+
+int CPluginContainer::geomPlugin_getDisplayOctreeData(void* octStruct, float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt)
+{
+    bool retVal = -1;
+    if (octStruct != nullptr)
+    {
+        if (currentGeomPlugin == nullptr)
+            currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+        if (currentGeomPlugin != nullptr)
+        {
+            currentGeomPlugin->pushCurrentPlugin();
+            retVal = currentGeomPlugin->geomPlugin_getDisplayOctreeData(octStruct, pts, cols, ids, newCnt, remIds, remCnt);
+            currentGeomPlugin->popCurrentPlugin();
+        }
+    }
+    return retVal;
+}
+
 void CPluginContainer::geomPlugin_getOctreeVoxelPositions(const void* ocStruct, std::vector<double>& voxelPositions)
 {
     if (currentGeomPlugin == nullptr)
@@ -1595,17 +1629,36 @@ void CPluginContainer::geomPlugin_destroyPtcloud(void* pcStruct)
     }
 }
 
-int CPluginContainer::geomPlugin_getDisplayPtcloudData(const void* pcStruct, bool forceFresh,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt)
+void CPluginContainer::geomPlugin_refreshDisplayPtcloudData(void* pcStruct)
+{
+    if (pcStruct != nullptr)
+    {
+        if (currentGeomPlugin == nullptr)
+            currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+        if (currentGeomPlugin != nullptr)
+        {
+            currentGeomPlugin->pushCurrentPlugin();
+            currentGeomPlugin->geomPlugin_refreshDisplayPtcloudData(pcStruct);
+            currentGeomPlugin->popCurrentPlugin();
+        }
+    }
+}
+
+int CPluginContainer::geomPlugin_getDisplayPtcloudData(void* pcStruct,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt)
 {
     bool retVal = -1;
-    if (currentGeomPlugin == nullptr)
-        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
-
-    if (currentGeomPlugin != nullptr)
+    if (pcStruct != nullptr)
     {
-        currentGeomPlugin->pushCurrentPlugin();
-        retVal = currentGeomPlugin->geomPlugin_getDisplayPtcloudData(pcStruct, forceFresh, pts, cols, ids, newCnt, remIds, remCnt);
-        currentGeomPlugin->popCurrentPlugin();
+        if (currentGeomPlugin == nullptr)
+            currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+        if (currentGeomPlugin != nullptr)
+        {
+            currentGeomPlugin->pushCurrentPlugin();
+            retVal = currentGeomPlugin->geomPlugin_getDisplayPtcloudData(pcStruct, pts, cols, ids, newCnt, remIds, remCnt);
+            currentGeomPlugin->popCurrentPlugin();
+        }
     }
     return retVal;
 }

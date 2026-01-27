@@ -79,6 +79,9 @@ typedef unsigned char*(__cdecl* ptr_geomPlugin_getOctreeSerializationData_float)
                                                                                  int* serializationDataSize);
 typedef void(__cdecl* ptr_geomPlugin_scaleOctree)(void* ocStruct, double f);
 typedef void(__cdecl* ptr_geomPlugin_destroyOctree)(void* ocStruct);
+
+typedef void(__cdecl* ptr_geomPlugin_refreshDisplayOctreeData)(void* pcStruct);
+typedef bool(__cdecl* ptr_geomPlugin_getDisplayOctreeData)(void* octStruct,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt);
 typedef double*(__cdecl* ptr_geomPlugin_getOctreeVoxelData)(const void* ocStruct, int* voxelCount);
 typedef unsigned int*(__cdecl* ptr_geomPlugin_getOctreeUserData)(const void* ocStruct, int* voxelCount);
 typedef double*(__cdecl* ptr_geomPlugin_getOctreeCornersFromOctree)(const void* ocStruct, int* pointCount);
@@ -120,7 +123,8 @@ typedef unsigned char*(__cdecl* ptr_geomPlugin_getPtcloudSerializationData_float
                                                                                   int* serializationDataSize);
 typedef void(__cdecl* ptr_geomPlugin_scalePtcloud)(void* pcStruct, double f);
 typedef void(__cdecl* ptr_geomPlugin_destroyPtcloud)(void* pcStruct);
-typedef bool(__cdecl* ptr_geomPlugin_getDisplayPtcloudData)(const void* pcStruct, bool forceFresh,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt);
+typedef void(__cdecl* ptr_geomPlugin_refreshDisplayPtcloudData)(void* pcStruct);
+typedef bool(__cdecl* ptr_geomPlugin_getDisplayPtcloudData)(void* pcStruct,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt);
 typedef double*(__cdecl* ptr_geomPlugin_getPtcloudPoints)(const void* pcStruct, int* pointCount, double prop);
 typedef double*(__cdecl* ptr_geomPlugin_getPtcloudOctreeCorners)(const void* pcStruct, int* pointCount);
 typedef int(__cdecl* ptr_geomPlugin_getPtcloudNonEmptyCellCount)(const void* pcStruct);
@@ -528,6 +532,8 @@ class CPlugin
     ptr_geomPlugin_getOctreeSerializationData_float geomPlugin_getOctreeSerializationData_float;
     ptr_geomPlugin_scaleOctree geomPlugin_scaleOctree;
     ptr_geomPlugin_destroyOctree geomPlugin_destroyOctree;
+    ptr_geomPlugin_refreshDisplayOctreeData geomPlugin_refreshDisplayOctreeData;
+    ptr_geomPlugin_getDisplayOctreeData geomPlugin_getDisplayOctreeData;
     ptr_geomPlugin_getOctreeVoxelData geomPlugin_getOctreeVoxelData;
     ptr_geomPlugin_getOctreeUserData geomPlugin_getOctreeUserData;
     ptr_geomPlugin_getOctreeCornersFromOctree geomPlugin_getOctreeCornersFromOctree;
@@ -547,6 +553,7 @@ class CPlugin
     ptr_geomPlugin_getPtcloudSerializationData_float geomPlugin_getPtcloudSerializationData_float;
     ptr_geomPlugin_scalePtcloud geomPlugin_scalePtcloud;
     ptr_geomPlugin_destroyPtcloud geomPlugin_destroyPtcloud;
+    ptr_geomPlugin_refreshDisplayPtcloudData geomPlugin_refreshDisplayPtcloudData;
     ptr_geomPlugin_getDisplayPtcloudData geomPlugin_getDisplayPtcloudData;
     ptr_geomPlugin_getPtcloudPoints geomPlugin_getPtcloudPoints;
     ptr_geomPlugin_getPtcloudOctreeCorners geomPlugin_getPtcloudOctreeCorners;

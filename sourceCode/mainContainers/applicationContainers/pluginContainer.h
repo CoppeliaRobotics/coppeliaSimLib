@@ -102,6 +102,8 @@ class CPluginContainer
     void geomPlugin_getOctreeSerializationData_float(const void* ocStruct, std::vector<unsigned char>& serializationData);
     void geomPlugin_scaleOctree(void* ocStruct, double f);
     void geomPlugin_destroyOctree(void* ocStruct);
+    void geomPlugin_refreshDisplayOctreeData(void* ocStruct);
+    int geomPlugin_getDisplayOctreeData(void* ocStruct,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt);
     void geomPlugin_getOctreeVoxelPositions(const void* ocStruct, std::vector<double>& voxelPositions);
     void geomPlugin_getOctreeVoxelColors(const void* ocStruct, std::vector<float>& voxelColors);
     void geomPlugin_getOctreeUserData(const void* ocStruct, std::vector<unsigned int>& userData);
@@ -125,7 +127,8 @@ class CPluginContainer
     void geomPlugin_getPtcloudSerializationData_float(const void* pcStruct, std::vector<unsigned char>& serializationData);
     void geomPlugin_scalePtcloud(void* pcStruct, double f);
     void geomPlugin_destroyPtcloud(void* pcStruct);
-    int geomPlugin_getDisplayPtcloudData(const void* pcStruct, bool forceFresh,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt);
+    void geomPlugin_refreshDisplayPtcloudData(void* pcStruct);
+    int geomPlugin_getDisplayPtcloudData(void* pcStruct,float** pts, unsigned char** cols, unsigned int** ids, int* newCnt, unsigned int** remIds, int* remCnt);
     void geomPlugin_getPtcloudPoints(const void* pcStruct, std::vector<double>& pointData, std::vector<double>* colors = nullptr, double prop = 1.0);
     void geomPlugin_getPtcloudOctreeCorners(const void* pcStruct, std::vector<double>& points);
     int geomPlugin_getPtcloudNonEmptyCellCount(const void* pcStruct);

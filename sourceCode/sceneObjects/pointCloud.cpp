@@ -32,6 +32,7 @@ CPointCloud::CPointCloud()
     TRACE_INTERNAL;
     _objectType = sim_sceneobject_pointcloud;
 
+    _refreshDisplay = true;
     _cellSize = 0.02;
     _maxPointCountPerCell = 20;
     color.setDefaultValues();
@@ -212,61 +213,79 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions(bool incrementalDispla
             }
         }
         if (generateEvent)
-            updatePointCloudEvent(incrementalDisplayUpdate);
+            _updatePointCloudEvent(incrementalDisplayUpdate);
     }
 }
 
-void CPointCloud::updatePointCloudEvent(bool incremental) const
+void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullptr*/)
 {
-    if (_isInScene && App::worldContainer->getEventsEnabled())
+    CCbor* ev = evv;
+    if ((evv != nullptr) || (_isInScene && App::worldContainer->getEventsEnabled()))
     {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
         const char* cmd = "points";
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        if (evv == nullptr)
+            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
         ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
+        if (evv == nullptr)
+            App::worldContainer->pushEvent();
 #else
         /*
         const char* cmd = propPointCloud_points.name;
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        if (evv == nullptr)
+            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyDoubleArray(cmd, _displayPoints.data(), _displayPoints.size());
         ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
-        App::worldContainer->pushEvent();
+        if (evv == nullptr)
+            App::worldContainer->pushEvent();
 */
+        if (!incremental)
+            _refreshDisplay = true;
         if (_pointCloudInfo == nullptr)
         {
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+            if (evv == nullptr)
+                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
             ev->appendKeyBuff("pts", nullptr, 0);
             ev->appendKeyBuff("rgb", nullptr, 0);
             ev->appendKeyBuff("ids", nullptr, 0);
             ev->closeArrayOrMap();
-            App::worldContainer->pushEvent();
+            if (evv == nullptr)
+                App::worldContainer->pushEvent();
         }
         else
         {
+            if (_refreshDisplay)
+            {
+                App::worldContainer->pluginContainer->geomPlugin_refreshDisplayPtcloudData(_pointCloudInfo);
+                _refreshDisplay = false;
+            }
             float* pts;
             unsigned char* cols;
             unsigned int* ids;
             unsigned int* remIds;
             int newCnt, remCnt;
-            int r = App::worldContainer->pluginContainer->geomPlugin_getDisplayPtcloudData(_pointCloudInfo, !incremental, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
+            int r = App::worldContainer->pluginContainer->geomPlugin_getDisplayPtcloudData(_pointCloudInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
             if (r >= 0)
             {
                 if (r == 1)
                 {
-                    CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                    if (evv == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
                     ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
                     ev->appendKeyBuff("rgb", cols, newCnt * 3);
                     ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
                     ev->closeArrayOrMap();
-                    App::worldContainer->pushEvent();
+                    if (evv == nullptr)
+                        App::worldContainer->pushEvent();
                 }
                 else
                 {
-                    CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                    if (evv == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                     ev->openKeyMap("add");
                     ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
                     ev->appendKeyBuff("rgb", cols, newCnt * 3);
@@ -275,7 +294,8 @@ void CPointCloud::updatePointCloudEvent(bool incremental) const
                     ev->openKeyMap("rem");
                     ev->appendKeyBuff("ids", (unsigned char*)remIds, remCnt * sizeof(unsigned int));
                     ev->closeArrayOrMap();
-                    App::worldContainer->pushEvent();
+                    if (evv == nullptr)
+                        App::worldContainer->pushEvent();
                 }
                 delete[] pts;
                 delete[] cols;
@@ -643,7 +663,7 @@ void CPointCloud::clear()
 
     computeBoundingBox();
     _nonEmptyCells = 0;
-    updatePointCloudEvent(false);
+    _updatePointCloudEvent(false);
 }
 
 const std::vector<double>* CPointCloud::getPoints() const
@@ -748,7 +768,7 @@ void CPointCloud::scaleObject(double scalingFactor)
         _displayPoints[i] *= scalingFactor;
     if (_pointCloudInfo != nullptr)
         App::worldContainer->pluginContainer->geomPlugin_scalePtcloud(_pointCloudInfo, scalingFactor);
-    updatePointCloudEvent(false);
+    _updatePointCloudEvent(false);
 
     CSceneObject::scaleObject(scalingFactor);
 }
@@ -766,6 +786,7 @@ void CPointCloud::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
     ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
     ev->closeArrayOrMap(); // points
+    ev->closeArrayOrMap(); // pointCloud
 #else
     color.addGenesisEventData(ev);
     ev->appendKeyBool(propPointCloud_ocTreeStruct.name, !_doNotUseOctreeStructure);
@@ -774,12 +795,7 @@ void CPointCloud::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyInt(propPointCloud_maxPtsInCell.name, _maxPointCountPerCell);
     ev->appendKeyDouble(propPointCloud_cellSize.name, _cellSize);
     ev->appendKeyDouble(propPointCloud_pointDisplayFraction.name, _pointDisplayRatio);
-    ev->appendKeyDoubleArray(propPointCloud_points.name, _displayPoints.data(), _displayPoints.size());
-    ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
-#endif
-
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // pointCloud
+    _updatePointCloudEvent(false, ev);
 #endif
 }
 

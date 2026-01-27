@@ -120,8 +120,8 @@ class COcTree : public CSceneObject
     float* getColors();
 
   protected:
-    void _updateOctreeEvent() const;
-    void _readPositionsAndColorsAndSetDimensions();
+    void _updateOctreeEvent(bool incremental, CCbor* evv = nullptr);
+    void _readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpdate);
 
     // Variables which need to be serialized & copied
     CColorObject color;
@@ -141,6 +141,7 @@ class COcTree : public CSceneObject
     double _cellSizeForDisplay;
     int _vertexBufferId;
     int _normalBufferId;
+    bool _refreshDisplay;
 
 #ifdef SIM_WITH_GUI
   public:

@@ -120,7 +120,6 @@ class CPointCloud : public CSceneObject
     std::vector<double>* getPoints();
     const void* getPointCloudInfo() const;
     void* getPointCloudInfo();
-    void updatePointCloudEvent(bool incremental) const;
 
     CColorObject* getColor();
     std::vector<double>* getColors();
@@ -128,6 +127,7 @@ class CPointCloud : public CSceneObject
     std::vector<double>* getDisplayColors();
 
   protected:
+    void _updatePointCloudEvent(bool incremental, CCbor* evv = nullptr);
     void _readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpdate);
     void _getCharRGB3Colors(const std::vector<double>& floatRGBA, std::vector<unsigned char>& charRGB);
 
@@ -151,6 +151,7 @@ class CPointCloud : public CSceneObject
     double _pointDisplayRatio;
     bool _doNotUseOctreeStructure;
     bool _colorIsEmissive;
+    bool _refreshDisplay;
 
 #ifdef SIM_WITH_GUI
   public:

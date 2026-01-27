@@ -614,6 +614,9 @@ void CPlugin::_loadAuxEntryPoints()
         (ptr_geomPlugin_scaleOctree)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_scaleOctree"));
     geomPlugin_destroyOctree =
         (ptr_geomPlugin_destroyOctree)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_destroyOctree"));
+
+    geomPlugin_refreshDisplayOctreeData = (ptr_geomPlugin_refreshDisplayOctreeData)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_refreshDisplayOctreeData"));
+    geomPlugin_getDisplayOctreeData = (ptr_geomPlugin_getDisplayOctreeData)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_getDisplayOctreeData"));
     geomPlugin_getOctreeVoxelData = (ptr_geomPlugin_getOctreeVoxelData)(
         VVarious::resolveLibraryFuncName(instance, "geomPlugin_getOctreeVoxelData"));
     geomPlugin_getOctreeUserData =
@@ -650,6 +653,7 @@ void CPlugin::_loadAuxEntryPoints()
         VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudSerializationData_float"));
     geomPlugin_scalePtcloud = (ptr_geomPlugin_scalePtcloud)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_scalePtcloud"));
     geomPlugin_destroyPtcloud = (ptr_geomPlugin_destroyPtcloud)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_destroyPtcloud"));
+    geomPlugin_refreshDisplayPtcloudData = (ptr_geomPlugin_refreshDisplayPtcloudData)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_refreshDisplayPtcloudData"));
     geomPlugin_getDisplayPtcloudData = (ptr_geomPlugin_getDisplayPtcloudData)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_getDisplayPtcloudData"));
     geomPlugin_getPtcloudPoints = (ptr_geomPlugin_getPtcloudPoints)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudPoints"));
     geomPlugin_getPtcloudOctreeCorners = (ptr_geomPlugin_getPtcloudOctreeCorners)(
