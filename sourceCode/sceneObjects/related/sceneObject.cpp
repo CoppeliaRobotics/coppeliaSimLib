@@ -1645,6 +1645,8 @@ CSceneObject* CSceneObject::copyYourself()
         theNewObject = new CDummy();
     if (getObjectType() == sim_sceneobject_script)
         theNewObject = new CScript();
+    if (getObjectType() == sim_sceneobject_marker)
+        theNewObject = new CMarker();
     if (getObjectType() == sim_sceneobject_proximitysensor)
         theNewObject = new CProxSensor();
     if (getObjectType() == sim_sceneobject_camera)

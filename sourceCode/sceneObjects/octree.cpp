@@ -1385,9 +1385,6 @@ int COcTree::setColorProperty(const char* ppName, const float* pState)
     int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = color.setColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 
@@ -1397,9 +1394,6 @@ int COcTree::getColorProperty(const char* ppName, float* pState) const
     int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = color.getColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 

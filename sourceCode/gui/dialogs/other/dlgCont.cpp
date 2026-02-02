@@ -59,6 +59,7 @@ void CDlgCont::initialize(QWidget* pWindow)
     dialogs.push_back(new CToolDlgWrapper(IK_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(OLD_LUA_SCRIPT_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(DUMMY_DLG, 0));
+    dialogs.push_back(new CToolDlgWrapper(MARKER_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(SCRIPT_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(LAYERS_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(DYNAMICS_DLG, 0));
@@ -481,6 +482,11 @@ bool CDlgCont::processCommand(int commandID)
             openOrBringToFront(DUMMY_DLG);
             return (true);
         }
+        if (commandID == OPEN_MARKER_DLG_CMD)
+        {
+            openOrBringToFront(MARKER_DLG);
+            return (true);
+        }
         if (commandID == OPEN_SCRIPT_DLG_CMD)
         {
             openOrBringToFront(SCRIPT_DLG);
@@ -579,6 +585,11 @@ bool CDlgCont::processCommand(int commandID)
         if (commandID == TOGGLE_DUMMY_DLG_CMD)
         {
             toggle(DUMMY_DLG);
+            return (true);
+        }
+        if (commandID == TOGGLE_MARKER_DLG_CMD)
+        {
+            toggle(MARKER_DLG);
             return (true);
         }
         if (commandID == TOGGLE_SCRIPT_DLG_CMD)

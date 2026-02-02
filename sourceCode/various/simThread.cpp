@@ -1832,6 +1832,29 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
     }
 
+    if (cmd.cmdId == SET_SIZE_MARKERGUITRIGGEREDCMD)
+    {
+        CMarker* it = App::currentWorld->sceneObjects->getMarkerFromHandle(cmd.intParams[0]);
+        if (it != nullptr)
+            it->setMarkerSize(cmd.doubleParams[0]);
+    }
+    if (cmd.cmdId == APPLY_VISUALPROP_MARKERGUITRIGGEREDCMD)
+    {
+        CMarker* it = App::currentWorld->sceneObjects->getMarkerFromHandle(cmd.intParams[0]);
+        if (it != nullptr)
+        {
+            for (size_t i = 1; i < cmd.intParams.size(); i++)
+            {
+                CMarker* it2 = App::currentWorld->sceneObjects->getMarkerFromHandle(cmd.intParams[i]);
+                if (it2 != nullptr)
+                {
+                    it->getMarkerColor()->copyYourselfInto(it2->getMarkerColor());
+                    it2->setMarkerSize(it->getMarkerSize());
+                }
+            }
+        }
+    }
+
     if (cmd.cmdId == SET_SIZE_DUMMYGUITRIGGEREDCMD)
     {
         CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);

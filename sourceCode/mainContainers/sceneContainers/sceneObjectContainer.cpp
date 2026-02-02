@@ -950,6 +950,14 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar, const char* name,
             noHit = false;
             return (myNewObject);
         }
+        if (theName.compare(SER_MARKER) == 0)
+        {
+            ar >> byteQuantity;
+            CMarker* myNewObject = new CMarker();
+            myNewObject->serialize(ar);
+            noHit = false;
+            return (myNewObject);
+        }
         if (theName.compare(SER_SCRIPT) == 0)
         {
             ar >> byteQuantity;
@@ -1151,6 +1159,8 @@ void CSceneObjectContainer::writeSceneObject(CSer& ar, CSceneObject* it)
             ar.storeDataName(SER_POINTCLOUD);
         if (it->getObjectType() == sim_sceneobject_dummy)
             ar.storeDataName(SER_DUMMY);
+        if (it->getObjectType() == sim_sceneobject_marker)
+            ar.storeDataName(SER_MARKER);
         if (it->getObjectType() == sim_sceneobject_script)
             ar.storeDataName(SER_SCRIPT);
         if (it->getObjectType() == sim_sceneobject_proximitysensor)
@@ -1189,6 +1199,8 @@ void CSceneObjectContainer::writeSceneObject(CSer& ar, CSceneObject* it)
             ar.xmlPushNewNode(SERX_POINTCLOUD);
         if (it->getObjectType() == sim_sceneobject_dummy)
             ar.xmlPushNewNode(SERX_DUMMY);
+        if (it->getObjectType() == sim_sceneobject_marker)
+            ar.xmlPushNewNode(SERX_MARKER);
         if (it->getObjectType() == sim_sceneobject_script)
             ar.xmlPushNewNode(SERX_SCRIPT);
         if (it->getObjectType() == sim_sceneobject_proximitysensor)
@@ -1387,6 +1399,12 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar, const CScene
     {
         CDummy* obj = (CDummy*)object;
         ar.xmlPushNewNode("dummy");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType() == sim_sceneobject_marker)
+    {
+        CMarker* obj = (CMarker*)object;
+        ar.xmlPushNewNode("marker");
         obj->serialize(ar);
     }
     if (object->getObjectType() == sim_sceneobject_script)
@@ -2811,6 +2829,8 @@ void CSceneObjectContainer::_addObject(CSceneObject* object)
         _jointList.push_back((CJoint*)object);
     if (t == sim_sceneobject_dummy)
         _dummyList.push_back((CDummy*)object);
+    if (t == sim_sceneobject_marker)
+        _markerList.push_back((CMarker*)object);
     if (t == sim_sceneobject_script)
         _scriptList.push_back((CScript*)object);
     if (t == sim_sceneobject_graph)
@@ -3235,6 +3255,8 @@ void CSceneObjectContainer::_removeObject(CSceneObject* object)
         list = (std::vector<CSceneObject*>*)&_jointList;
     if (t == sim_sceneobject_dummy)
         list = (std::vector<CSceneObject*>*)&_dummyList;
+    if (t == sim_sceneobject_marker)
+        list = (std::vector<CSceneObject*>*)&_markerList;
     if (t == sim_sceneobject_script)
         list = (std::vector<CSceneObject*>*)&_scriptList;
     if (t == sim_sceneobject_graph)
@@ -3354,6 +3376,8 @@ size_t CSceneObjectContainer::getObjectCount(int type /* = -1 */) const
             retVal = _jointList.size();
         if (type == sim_sceneobject_dummy)
             retVal = _dummyList.size();
+        if (type == sim_sceneobject_marker)
+            retVal = _markerList.size();
         if (type == sim_sceneobject_script)
             retVal = _scriptList.size();
         if (type == sim_sceneobject_mirror)
@@ -3475,6 +3499,14 @@ CScript* CSceneObjectContainer::getScriptFromIndex(size_t index) const
     return (retVal);
 }
 
+CMarker* CSceneObjectContainer::getMarkerFromIndex(size_t index) const
+{
+    CMarker* retVal = nullptr;
+    if (index < _markerList.size())
+        retVal = _markerList[index];
+    return retVal;
+}
+
 CMirror* CSceneObjectContainer::getMirrorFromIndex(size_t index) const
 {
     CMirror* retVal = nullptr;
@@ -3578,6 +3610,15 @@ CDummy* CSceneObjectContainer::getDummyFromHandle(int objectHandle) const
     if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_dummy))
         retVal = (CDummy*)it;
     return (retVal);
+}
+
+CMarker* CSceneObjectContainer::getMarkerFromHandle(int objectHandle) const
+{
+    CMarker* retVal = nullptr;
+    CSceneObject* it = getObjectFromHandle(objectHandle);
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_marker))
+        retVal = (CMarker*)it;
+    return retVal;
 }
 
 CScriptObject* CSceneObjectContainer::getScriptObjectFromHandle(int handle) const
@@ -3915,6 +3956,17 @@ CDummy* CSceneObjectContainer::getLastSelectionDummy() const
             return ((CDummy*)it);
     }
     return (nullptr);
+}
+
+CMarker* CSceneObjectContainer::getLastSelectionMarker() const
+{
+    CSceneObject* it = getLastSelectionObject();
+    if (it != nullptr)
+    {
+        if (it->getObjectType() == sim_sceneobject_marker)
+            return ((CMarker*)it);
+    }
+    return nullptr;
 }
 
 CScript* CSceneObjectContainer::getLastSelectionScript() const
@@ -4409,6 +4461,8 @@ int CSceneObjectContainer::setBoolProperty(long long int target, const char* pNa
                 return ((CJoint*)it)->setBoolProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setBoolProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setBoolProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setBoolProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4464,6 +4518,8 @@ int CSceneObjectContainer::getBoolProperty(long long int target, const char* pNa
                 return ((CJoint*)it)->getBoolProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getBoolProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getBoolProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getBoolProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4519,6 +4575,8 @@ int CSceneObjectContainer::setIntProperty(long long int target, const char* pNam
                 return ((CJoint*)it)->setIntProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setIntProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setIntProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setIntProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4589,6 +4647,8 @@ int CSceneObjectContainer::getIntProperty(long long int target, const char* pNam
                 return ((CJoint*)it)->getIntProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getIntProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getIntProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getIntProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4644,6 +4704,8 @@ int CSceneObjectContainer::setLongProperty(long long int target, const char* pNa
                 return ((CJoint*)it)->setLongProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setLongProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setLongProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4701,6 +4763,8 @@ int CSceneObjectContainer::getLongProperty(long long int target, const char* pNa
                 return ((CJoint*)it)->getLongProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getLongProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getLongProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4756,6 +4820,8 @@ int CSceneObjectContainer::setHandleProperty(long long int target, const char* p
                 return ((CJoint*)it)->setHandleProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setHandleProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setHandleProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4813,6 +4879,8 @@ int CSceneObjectContainer::getHandleProperty(long long int target, const char* p
                 return ((CJoint*)it)->getHandleProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getHandleProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getHandleProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getHandleProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4868,6 +4936,8 @@ int CSceneObjectContainer::setFloatProperty(long long int target, const char* pN
                 return ((CJoint*)it)->setFloatProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setFloatProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setFloatProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setFloatProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4923,6 +4993,8 @@ int CSceneObjectContainer::getFloatProperty(long long int target, const char* pN
                 return ((CJoint*)it)->getFloatProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getFloatProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getFloatProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getFloatProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -4978,6 +5050,8 @@ int CSceneObjectContainer::setStringProperty(long long int target, const char* p
                 return ((CJoint*)it)->setStringProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setStringProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setStringProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setStringProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5033,6 +5107,8 @@ int CSceneObjectContainer::getStringProperty(long long int target, const char* p
                 return ((CJoint*)it)->getStringProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getStringProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getStringProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getStringProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5088,6 +5164,8 @@ int CSceneObjectContainer::setBufferProperty(long long int target, const char* p
                 return ((CJoint*)it)->setBufferProperty(pName, buffer, bufferL);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setBufferProperty(pName, buffer, bufferL);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setBufferProperty(pName, buffer, bufferL);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setBufferProperty(pName, buffer, bufferL);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5143,6 +5221,8 @@ int CSceneObjectContainer::getBufferProperty(long long int target, const char* p
                 return ((CJoint*)it)->getBufferProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getBufferProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getBufferProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getBufferProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5198,6 +5278,8 @@ int CSceneObjectContainer::setIntArray2Property(long long int target, const char
                 return ((CJoint*)it)->setIntArray2Property(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setIntArray2Property(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setIntArray2Property(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setIntArray2Property(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5253,6 +5335,8 @@ int CSceneObjectContainer::getIntArray2Property(long long int target, const char
                 return ((CJoint*)it)->getIntArray2Property(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getIntArray2Property(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getIntArray2Property(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getIntArray2Property(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5308,6 +5392,8 @@ int CSceneObjectContainer::setVector2Property(long long int target, const char* 
                 return ((CJoint*)it)->setVector2Property(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setVector2Property(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setVector2Property(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setVector2Property(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5363,6 +5449,8 @@ int CSceneObjectContainer::getVector2Property(long long int target, const char* 
                 return ((CJoint*)it)->getVector2Property(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getVector2Property(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getVector2Property(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getVector2Property(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5418,6 +5506,8 @@ int CSceneObjectContainer::setVector3Property(long long int target, const char* 
                 return ((CJoint*)it)->setVector3Property(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setVector3Property(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setVector3Property(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setVector3Property(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5473,6 +5563,8 @@ int CSceneObjectContainer::getVector3Property(long long int target, const char* 
                 return ((CJoint*)it)->getVector3Property(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getVector3Property(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getVector3Property(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getVector3Property(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5528,6 +5620,8 @@ int CSceneObjectContainer::setQuaternionProperty(long long int target, const cha
                 return ((CJoint*)it)->setQuaternionProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setQuaternionProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setQuaternionProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setQuaternionProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5583,6 +5677,8 @@ int CSceneObjectContainer::getQuaternionProperty(long long int target, const cha
                 return ((CJoint*)it)->getQuaternionProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getQuaternionProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getQuaternionProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getQuaternionProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5638,6 +5734,8 @@ int CSceneObjectContainer::setPoseProperty(long long int target, const char* pNa
                 return ((CJoint*)it)->setPoseProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setPoseProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setPoseProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setPoseProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5693,6 +5791,8 @@ int CSceneObjectContainer::getPoseProperty(long long int target, const char* pNa
                 return ((CJoint*)it)->getPoseProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getPoseProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getPoseProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getPoseProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5748,6 +5848,8 @@ int CSceneObjectContainer::setColorProperty(long long int target, const char* pN
                 return ((CJoint*)it)->setColorProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setColorProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setColorProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setColorProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5803,6 +5905,8 @@ int CSceneObjectContainer::getColorProperty(long long int target, const char* pN
                 return ((CJoint*)it)->getColorProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getColorProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getColorProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getColorProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5858,6 +5962,8 @@ int CSceneObjectContainer::setFloatArrayProperty(long long int target, const cha
                 return ((CJoint*)it)->setFloatArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setFloatArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setFloatArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setFloatArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5914,6 +6020,8 @@ int CSceneObjectContainer::getFloatArrayProperty(long long int target, const cha
                 return ((CJoint*)it)->getFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getFloatArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -5976,6 +6084,8 @@ int CSceneObjectContainer::setIntArrayProperty(long long int target, const char*
                 return ((CJoint*)it)->setIntArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setIntArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setIntArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setIntArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_proximitysensor)
@@ -6051,6 +6161,8 @@ int CSceneObjectContainer::getIntArrayProperty(long long int target, const char*
                 return ((CJoint*)it)->getIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getIntArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -6114,6 +6226,8 @@ int CSceneObjectContainer::setHandleArrayProperty(long long int target, const ch
                 return ((CJoint*)it)->setHandleArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setHandleArrayProperty(pName, v, vL);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setHandleArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setHandleArrayProperty(pName, v, vL);
             if (objType == sim_sceneobject_proximitysensor)
@@ -6188,6 +6302,8 @@ int CSceneObjectContainer::getHandleArrayProperty(long long int target, const ch
                 return ((CJoint*)it)->getHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getHandleArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -6247,6 +6363,8 @@ int CSceneObjectContainer::setStringArrayProperty(long long int target, const ch
                 return ((CJoint*)it)->setStringArrayProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->setStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setStringArrayProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->setStringArrayProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -6307,6 +6425,8 @@ int CSceneObjectContainer::getStringArrayProperty(long long int target, const ch
                 return ((CJoint*)it)->getStringArrayProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->getStringArrayProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getStringArrayProperty(pName, pState);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->getStringArrayProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
@@ -6362,6 +6482,8 @@ int CSceneObjectContainer::removeProperty(long long int target, const char* pNam
                 return ((CJoint*)it)->removeProperty(pName);
             if (objType == sim_sceneobject_dummy)
                 return ((CDummy*)it)->removeProperty(pName);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->removeProperty(pName);
             if (objType == sim_sceneobject_script)
                 return ((CScript*)it)->removeProperty(pName);
             if (objType == sim_sceneobject_proximitysensor)
@@ -6435,6 +6557,8 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
                     return ((CJoint*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
                 if (objType == sim_sceneobject_dummy)
                     return ((CDummy*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+                if (objType == sim_sceneobject_marker)
+                    return ((CMarker*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
                 if (objType == sim_sceneobject_script)
                     return ((CScript*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
                 if (objType == sim_sceneobject_proximitysensor)
@@ -6482,6 +6606,8 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
                 return CShape::getPropertyName_static(index, pName, appartenance, excludeFlags);
             if (target == sim_sceneobject_dummy)
                 return CDummy::getPropertyName_static(index, pName, appartenance, excludeFlags);
+            if (target == sim_sceneobject_marker)
+                return CMarker::getPropertyName_static(index, pName, appartenance, excludeFlags);
             if (target == sim_sceneobject_joint)
                 return CJoint::getPropertyName_static(index, pName, appartenance, excludeFlags);
             if (target == sim_sceneobject_script)
@@ -6555,6 +6681,8 @@ int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pNa
                     return ((CJoint*)it)->getPropertyInfo(pName, info, infoTxt);
                 if (objType == sim_sceneobject_dummy)
                     return ((CDummy*)it)->getPropertyInfo(pName, info, infoTxt);
+                if (objType == sim_sceneobject_marker)
+                    return ((CMarker*)it)->getPropertyInfo(pName, info, infoTxt);
                 if (objType == sim_sceneobject_script)
                     return ((CScript*)it)->getPropertyInfo(pName, info, infoTxt);
                 if (objType == sim_sceneobject_proximitysensor)
@@ -6597,6 +6725,8 @@ int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pNa
                 return CShape::getPropertyInfo_static(pName, info, infoTxt);
             if (target == sim_sceneobject_dummy)
                 return CDummy::getPropertyInfo_static(pName, info, infoTxt);
+            if (target == sim_sceneobject_marker)
+                return CMarker::getPropertyInfo_static(pName, info, infoTxt);
             if (target == sim_sceneobject_joint)
                 return CJoint::getPropertyInfo_static(pName, info, infoTxt);
             if (target == sim_sceneobject_script)

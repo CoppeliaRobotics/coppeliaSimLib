@@ -3490,9 +3490,6 @@ int CCamera::setColorProperty(const char* ppName, const float* pState)
     int retVal = CViewableBase::setColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = _color.setColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 
@@ -3502,9 +3499,6 @@ int CCamera::getColorProperty(const char* ppName, float* pState) const
     int retVal = CViewableBase::getColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = _color.getColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 

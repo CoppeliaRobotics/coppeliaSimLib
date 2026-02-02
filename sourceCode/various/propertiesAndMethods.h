@@ -242,6 +242,10 @@ struct SJointProperty
 
 #define SCRIPT_META_METHODS R"("__": "__")"
 
+#define MARKER_META_METHODS R"("addItems": "sim-2.callMethod",
+        "clearItems": "sim-2.callMethod",
+        "addPackedItems": "sim-2.callMethod")"
+
 #define DUMMY_META_METHODS R"("checkCollision": "sim-2.checkCollision",
         "checkDistance": "sim-2.checkDistance")"
 
@@ -1073,3 +1077,12 @@ struct SJointProperty
     FUNCX(propScript_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propScript_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
+#define MARKER_PROPERTIES \
+    FUNCX(propMarker_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
+    FUNCX(propMarker_size, "markerSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the marker object"}}), "") \
+    FUNCX(propMarker_itemType, "itemType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Item type"}}), "") \
+    FUNCX(propMarker_options, "options", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Options"}, {"description", ""}}), "") \
+    FUNCX(propMarker_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Points"}, {"description", ""}}), "") \
+    FUNCX(propMarker_quaternions, "quaternions", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternions"}, {"description", ""}}), "") \
+    FUNCX(propMarker_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable,  jsonStr({{"label", "Colors"}, {"description", ""}}), "") \
+    FUNCX(propMarker_sizes, "sizes", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Sizes"}, {"description", ""}}), "")

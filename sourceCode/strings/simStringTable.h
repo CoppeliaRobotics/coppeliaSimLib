@@ -241,6 +241,7 @@
 #define IDSN_CAMERA "Camera"
 #define IDSN_DUMMY "Dummy"
 #define IDSN_SCRIPT "Script"
+#define IDSN_MARKER "Marker"
 #define IDSN_PROXIMITY_SENSOR "Proximity sensor"
 #define IDSN_PATH "Path"
 #define IDSN_VISION_SENSOR "Vision sensor"

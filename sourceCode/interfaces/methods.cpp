@@ -29,9 +29,10 @@ namespace {
     constexpr int arg_pose          = sim_stackitem_pose;
     constexpr int arg_handle        = sim_stackitem_handle;
     constexpr int arg_color         = sim_stackitem_color;
-    constexpr int arg_vector        = 1000;
-    constexpr int arg_vector3       = 1001;
-    constexpr int arg_optional      = 1024;
+    constexpr int arg_vector        = sim_stackitem_exvector;
+    constexpr int arg_vector3       = sim_stackitem_exvector3;
+    constexpr int arg_any           = sim_stackitem_exany;
+    constexpr int arg_optional      = sim_stackitem_exoptional;
 }
 
 std::string callMethod(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
@@ -73,6 +74,8 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["resetSensor"] = _method_resetSensor;
         funcTable["checkSensor"] = _method_checkSensor;
         funcTable["getObjects"] = _method_getObjects;
+        funcTable["addItems"] = _method_addItems;
+        funcTable["clearItems"] = _method_clearItems;
     }
 
     std::string retVal("__notFound__");
@@ -82,9 +85,10 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
 }
 
 bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std::string* errStr, std::vector<int> inargs)
-{ // inargs: a list of desired types. Following 2 types are special:
-    // arg_table is followed by 2 auxiliary values: size (-1 for any, 0 for a map) and type of content (-1 for any)
+{ // inargs: a list of desired types. Following 3 types are special:
+    // arg_table is followed by 2 auxiliary values: size (-1 for any, 0 for a map) and type of content (arg_any for any)
     // arg_matrix is followed by 2 auxiliary values: rows (-1 for any) and cols (-1 for any)
+    // arg_any stands for any (is ignored)
     // The type argument can be combined with arg_optional
     bool retVal = true;
     size_t argP = 0;
@@ -125,7 +129,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                         {
                             if ((tableSize == -1) || (tbl->getArraySize() == tableSize))
                             {
-                                if ((tableContent != -1) && (!tbl->areAllValuesThis(tableContent, true)))
+                                if ((tableContent != arg_any) && (!tbl->areAllValuesThis(tableContent, true)))
                                 {
                                     retVal = false;
                                     if (errStr != nullptr)
@@ -180,7 +184,9 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
             {
                 if (t != desiredArgType)
                 { // we have a different type than expected. Check if we tolerate that other type
-                    if (desiredArgType == arg_double)
+                    if (desiredArgType == arg_any)
+                        retVal = true;
+                    else if (desiredArgType == arg_double)
                         retVal = (t == arg_integer);
                     else if (desiredArgType == arg_handle)
                         retVal = (t == arg_integer);
@@ -726,6 +732,36 @@ void fetchTextArray(const CInterfaceStack* inStack, int index, std::vector<std::
         {
             const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
             tbl->getTextArray(outArr);
+        }
+    }
+}
+
+void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, std::vector<float>& outArr)
+{ // quaternions and poses are fetched as qx,qy,qz,qw and x,y,z,qx,qy,qz,qw respectively
+    outArr.clear();
+    int argCnt = inStack->getStackSize();
+    if (argCnt > index)
+    {
+        const CInterfaceStackObject* obj = inStack->getStackObjectFromIndex(index);
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+            tbl->getItemsAsConsecutiveFloats(outArr);
+        }
+    }
+}
+
+void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, std::vector<double>& outArr)
+{ // quaternions and poses are fetched as qx,qy,qz,qw and x,y,z,qx,qy,qz,qw respectively
+    outArr.clear();
+    int argCnt = inStack->getStackSize();
+    if (argCnt > index)
+    {
+        const CInterfaceStackObject* obj = inStack->getStackObjectFromIndex(index);
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+            tbl->getItemsAsConsecutiveDoubles(outArr);
         }
     }
 }
@@ -2250,6 +2286,11 @@ std::string _method_getObjects(int targetObj, const char* method, CScriptObject*
                     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_script); i++)
                         objects.push_back(App::currentWorld->sceneObjects->getScriptFromIndex(i)->getObjectHandle());
                 }
+                else if (t == "marker")
+                {
+                    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_marker); i++)
+                        objects.push_back(App::currentWorld->sceneObjects->getMarkerFromIndex(i)->getObjectHandle());
+                }
                 else if (t == "mirror")
                 {
                     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror); i++)
@@ -2344,3 +2385,40 @@ std::string _method_getObjects(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
+std::string _method_addItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_vector3, arg_table | arg_optional, -1, arg_color, arg_table | arg_optional, -1, arg_quaternion, arg_table | arg_optional, -1, arg_vector3}))
+    {
+        std::vector<float> pts;
+        fetchArrayAsConsecutiveNumbers(inStack, 0, pts);
+        std::vector<float> ccols;
+        fetchArrayAsConsecutiveNumbers(inStack, 1, ccols);
+        std::vector<unsigned char> cols;
+        for (size_t i = 0; i < ccols.size() / 3; i++)
+        {
+            cols.push_back((unsigned char)(ccols[3 * i + 0] * 255.1f));
+            cols.push_back((unsigned char)(ccols[3 * i + 1] * 255.1f));
+            cols.push_back((unsigned char)(ccols[3 * i + 2] * 255.1f));
+            cols.push_back(255);
+        }
+        std::vector<float> quats;
+        fetchArrayAsConsecutiveNumbers(inStack, 2, quats);
+        std::vector<float> sizes;
+        fetchArrayAsConsecutiveNumbers(inStack, 3, sizes);
+        target->addItems(&pts, &quats, &cols, &sizes);
+    }
+    return errMsg;
+}
+
+std::string _method_clearItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        target->remItems(0);
+    }
+    return errMsg;
+}

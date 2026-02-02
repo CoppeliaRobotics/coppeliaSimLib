@@ -1495,9 +1495,6 @@ int CProxSensor::setColorProperty(const char* ppName, const float* pState)
         retVal = volumeColor.setColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = detectionRayColor.setColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 
@@ -1509,9 +1506,6 @@ int CProxSensor::getColorProperty(const char* ppName, float* pState) const
         retVal = volumeColor.getColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = detectionRayColor.getColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 

@@ -968,9 +968,6 @@ int CLight::setColorProperty(const char* ppName, const float* pState)
         retVal = objectColor.setColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = lightColor.setColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 
@@ -982,9 +979,6 @@ int CLight::getColorProperty(const char* ppName, float* pState) const
         retVal = objectColor.getColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = lightColor.getColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 

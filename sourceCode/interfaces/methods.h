@@ -35,6 +35,9 @@ void fetchVector(const CInterfaceStack* inStack, int index, std::vector<double>&
 void fetchTextArray(const CInterfaceStack* inStack, int index, std::vector<std::string>& outArr, std::initializer_list<std::string> arr = {});
 void fetchTextArray(const CInterfaceStack* inStack, int index, std::vector<std::string>& outArr, std::vector<std::string>& arr);
 
+void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, std::vector<float>& outArr);
+void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, std::vector<double>& outArr);
+
 void pushNull(CInterfaceStack* outStack);
 void pushBool(CInterfaceStack* outStack, bool v);
 void pushLong(CInterfaceStack* outStack, long long int v);
@@ -98,3 +101,5 @@ extern std::string _method_handleSensor(int targetObj, const char* method, CScri
 extern std::string _method_resetSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_checkSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getObjects(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_addItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_clearItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

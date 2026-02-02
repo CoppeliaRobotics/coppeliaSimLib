@@ -262,6 +262,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.setExplicitHandling", _simSetExplicitHandling},
     {"sim.getExplicitHandling", _simGetExplicitHandling},
     {"sim.createDrawingObject", _simCreateDrawingObject},
+    {"sim.createMarker", _simCreateMarker},
     {"sim.removeDrawingObject", _simRemoveDrawingObject},
     {"sim.addDrawingObjectItem", _simAddDrawingObjectItem},
     {"sim.addParticleObject", _simAddParticleObject},
@@ -735,6 +736,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.sceneobject_octree", sim_sceneobject_octree},
     {"sim.sceneobject_pointcloud", sim_sceneobject_pointcloud},
     {"sim.sceneobject_script", sim_sceneobject_script},
+    {"sim.sceneobject_marker", sim_sceneobject_marker},
     // 3D object sub-types:
     {"sim.light_omnidirectional", sim_light_omnidirectional},
     {"sim.light_spot", sim_light_spot},
@@ -945,6 +947,21 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.drawing_cyclic", sim_drawing_cyclic},
     {"sim.drawing_overlay", sim_drawing_overlay},
     {"sim.drawing_local", sim_drawing_local},
+
+    // marker object types
+    {"sim.markertype_points", sim_markertype_points},
+    {"sim.markertype_lines", sim_markertype_lines},
+    {"sim.markertype_triangles", sim_markertype_triangles},
+    {"sim.markertype_spheres", sim_markertype_spheres},
+    {"sim.markertype_squares", sim_markertype_squares},
+    {"sim.markertype_discs", sim_markertype_discs},
+    {"sim.markertype_cubes", sim_markertype_cubes},
+
+    // marker object options
+    {"sim.markeropts_local", sim_markeropts_local},
+    {"sim.markeropts_cyclic", sim_markeropts_cyclic},
+    {"sim.markeropts_overlay", sim_markeropts_overlay},
+    {"sim.markeropts_fixed", sim_markeropts_fixed},
 
     // joint modes
     {"sim.jointmode_kinematic", sim_jointmode_kinematic},
@@ -9734,6 +9751,34 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simCreateMarker(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.createMarker");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_number | lua_arg_optional, 3, lua_arg_number | lua_arg_optional, 3, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0))
+    {
+        int objType = fetchIntArg(L, 1);
+        std::vector<float> col;
+        fetchFloatArrayArg(L, 2, col, {1.0f, 0.0f, 0.0f});
+        unsigned char ccol[3] = {(unsigned char)(col[0] * 255.1f), (unsigned char)(col[1] * 255.1f), (unsigned char)(col[2] * 255.1f)};
+        std::vector<double> size;
+        fetchDoubleArrayArg(L, 3, size, {0.005, 0.005, 0.005});
+        int maxCnt = fetchIntArg(L, 4, 0);
+        int opts = fetchIntArg(L, 5, 0);
+        float duplicateTol = (float)fetchDoubleArg(L, 6, 0.0);
+
+        CMarker* it = new CMarker(objType, ccol, size.data(), maxCnt, opts, duplicateTol);
+        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        retVal = it->getObjectHandle();
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
 }
 
 int _simAddDrawingObjectItem(luaWrap_lua_State* L)

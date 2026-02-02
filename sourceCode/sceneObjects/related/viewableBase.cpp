@@ -888,8 +888,5 @@ int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info, std::st
             break;
         }
     }
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }

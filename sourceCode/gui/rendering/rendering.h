@@ -28,7 +28,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID);
 void _disableAuxClippingPlanes();
 void _selectLights(CSceneObject* object, CViewableBase* viewable);
 void _restoreDefaultLights(CSceneObject* object, CViewableBase* viewable);
-void _commonStart(CSceneObject* object, CViewableBase* viewable);
+void _commonStart(CSceneObject* object, CViewableBase* viewable, bool transf = true);
 void _commonFinish(CSceneObject* object, CViewableBase* viewable);
 void _displayBoundingBox(CSceneObject* object, CViewableBase* viewable, bool mainSelection);
 void _displayFrame(const C7Vector& tr, double frameSize, int color = 0);

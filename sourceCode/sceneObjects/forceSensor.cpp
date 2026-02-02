@@ -1263,9 +1263,6 @@ int CForceSensor::setColorProperty(const char* ppName, const float* pState)
     int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = _color.setColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 
@@ -1275,9 +1272,6 @@ int CForceSensor::getColorProperty(const char* ppName, float* pState) const
     int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = _color.getColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 

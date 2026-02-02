@@ -93,6 +93,8 @@ class CInterfaceStackTable : public CInterfaceStackObject
     bool getFloatArray(float* array, int count) const;
     bool getDoubleArray(double* array, int count) const;
     void getTextArray(std::vector<std::string>& array) const;
+    void getItemsAsConsecutiveFloats(std::vector<float>& array) const;
+    void getItemsAsConsecutiveDoubles(std::vector<double>& array) const;
     void getMapKeys(std::vector<std::string>* stringKeys, std::vector<long long int>* intKeys) const;
     CInterfaceStackObject* getMapObject(const char* fieldName) const;
     CInterfaceStackObject* getIntMapObject(const long long int key) const;
@@ -102,10 +104,11 @@ class CInterfaceStackTable : public CInterfaceStackObject
     bool removeFromKey(const CInterfaceStackObject* keyToRemove);
 
     int getTableInfo(int infoType) const;
-    bool areAllValuesThis(int what, bool integerAndDoubleTolerant) const;
+    bool areAllValuesThis(int what, bool tolerant) const;
+
 
   protected:
-
+    static bool _isEquivalent(int what, CInterfaceStackObject* obj);
     std::vector<CInterfaceStackObject*> _tableObjects;
     bool _isTableArray;
     bool _isCircularRef;

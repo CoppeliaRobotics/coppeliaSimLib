@@ -262,6 +262,7 @@ WITH_GUI {
     $$PWD/ui/qdlgmirrors.ui \
     $$PWD/ui/qdlgdummies.ui \
     $$PWD/ui/qdlgscripts.ui \
+    $$PWD/ui/qdlgmarkers.ui \
     $$PWD/ui/qdlgoctrees.ui \
     $$PWD/ui/qdlgpointclouds.ui \
     $$PWD/ui/qdlguserparameters.ui \
@@ -409,6 +410,7 @@ HEADERS += $$PWD/sourceCode/sceneObjects/jointObject.h \
     $$PWD/sourceCode/sceneObjects/shape.h \
     $$PWD/sourceCode/sceneObjects/proximitySensor.h \
     $$PWD/sourceCode/sceneObjects/visionSensor.h \
+    $$PWD/sourceCode/sceneObjects/marker.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphCurve.h \
     $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphDataStream.h \
@@ -548,6 +550,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/rendering/proximitySensorRendering.h \
         $$PWD/sourceCode/gui/rendering/dummyRendering.h \
         $$PWD/sourceCode/gui/rendering/scriptRendering.h \
+        $$PWD/sourceCode/gui/rendering/markerRendering.h \
         $$PWD/sourceCode/gui/rendering/lightRendering.h \
         $$PWD/sourceCode/gui/rendering/pointCloudRendering.h \
         $$PWD/sourceCode/gui/rendering/octreeRendering.h \
@@ -610,6 +613,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgmirrors.h \
         $$PWD/sourceCode/gui/dialogs/qdlgdummies.h \
         $$PWD/sourceCode/gui/dialogs/qdlgscripts.h \
+        $$PWD/sourceCode/gui/dialogs/qdlgmarkers.h \
         $$PWD/sourceCode/gui/dialogs/qdlgoctrees.h \
         $$PWD/sourceCode/gui/dialogs/qdlgpointclouds.h \
         $$PWD/sourceCode/gui/dialogs/qdlguserparameters.h \
@@ -797,6 +801,7 @@ SOURCES += $$PWD/sourceCode/sceneObjects/jointObject.cpp \
     $$PWD/sourceCode/sceneObjects/proximitySensor.cpp \
     $$PWD/sourceCode/sceneObjects/shape.cpp \
     $$PWD/sourceCode/sceneObjects/visionSensor.cpp \
+    $$PWD/sourceCode/sceneObjects/marker.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphCurve.cpp \
     $$PWD/sourceCode/sceneObjects/graphObjectRelated/graphDataStream.cpp \
@@ -936,6 +941,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/rendering/proximitySensorRendering.cpp \
         $$PWD/sourceCode/gui/rendering/dummyRendering.cpp \
         $$PWD/sourceCode/gui/rendering/scriptRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/markerRendering.cpp \
         $$PWD/sourceCode/gui/rendering/lightRendering.cpp \
         $$PWD/sourceCode/gui/rendering/pointCloudRendering.cpp \
         $$PWD/sourceCode/gui/rendering/octreeRendering.cpp \
@@ -999,6 +1005,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgmirrors.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgdummies.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgscripts.cpp \
+        $$PWD/sourceCode/gui/dialogs/qdlgmarkers.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgoctrees.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgpointclouds.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlguserparameters.cpp \

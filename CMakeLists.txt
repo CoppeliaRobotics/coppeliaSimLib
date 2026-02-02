@@ -269,6 +269,7 @@ if(WITH_GUI)
         sourceCode/gui/rendering/proximitySensorRendering.cpp
         sourceCode/gui/rendering/dummyRendering.cpp
         sourceCode/gui/rendering/scriptRendering.cpp
+        sourceCode/gui/rendering/markerRendering.cpp
         sourceCode/gui/rendering/lightRendering.cpp
         sourceCode/gui/rendering/pointCloudRendering.cpp
         sourceCode/gui/rendering/octreeRendering.cpp
@@ -322,6 +323,7 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgmirrors.cpp
         sourceCode/gui/dialogs/qdlgdummies.cpp
         sourceCode/gui/dialogs/qdlgscripts.cpp
+        sourceCode/gui/dialogs/qdlgmarkers.cpp
         sourceCode/gui/dialogs/qdlgoctrees.cpp
         sourceCode/gui/dialogs/qdlgpointclouds.cpp
         sourceCode/gui/dialogs/qdlguserparameters.cpp
@@ -509,6 +511,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/sceneObjects/proximitySensor.cpp
     sourceCode/sceneObjects/shape.cpp
     sourceCode/sceneObjects/visionSensor.cpp
+    sourceCode/sceneObjects/marker.cpp
 
     sourceCode/sceneObjects/graphObjectRelated/graphDataStream.cpp
     sourceCode/sceneObjects/graphObjectRelated/graphCurve.cpp

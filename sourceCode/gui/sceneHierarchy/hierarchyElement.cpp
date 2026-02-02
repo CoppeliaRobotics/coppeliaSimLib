@@ -784,6 +784,8 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier, int tPosX, int tP
                     objectOrWorldIconID = GRAPH_TREE_PICTURE;
                 if (type == sim_sceneobject_dummy)
                     objectOrWorldIconID = DUMMY_TREE_PICTURE;
+                if (type == sim_sceneobject_marker)
+                    objectOrWorldIconID = MARKER_TREE_PICTURE;
                 if (type == sim_sceneobject_script)
                 {
                     CScriptObject* script = ((CScript*)it)->scriptObject;

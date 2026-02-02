@@ -6593,6 +6593,11 @@ void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase*
                                                                   int windowSize[2], double verticalViewSizeOrAngle,
                                                                   bool perspective)
 {
+    for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_marker); i++)
+    {
+        CMarker* it = sceneObjects->getMarkerFromIndex(i);
+        it->displayOverlay(renderingObject, displayAttrib);
+    }
     drawingCont->renderYour3DStuff_overlay(renderingObject, displayAttrib);
     pointCloudCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);
     ghostObjectCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);

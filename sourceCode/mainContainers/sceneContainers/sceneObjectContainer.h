@@ -16,6 +16,7 @@
 #include <sceneObject.h>
 #include <jointObject.h>
 #include <sceneObject.h>
+#include <marker.h>
 #include <embeddedScriptContainer.h>
 
 // ----------------------------------------------------------------------------------------------
@@ -24,22 +25,6 @@ SCENEOBJECTCONT_PROPERTIES
 #undef FUNCX
 extern const std::vector<SProperty> allProps_objCont;
 // ----------------------------------------------------------------------------------------------
-
-class CJoint;
-class CDummy;
-class CGraph;
-class CLight;
-class CCamera;
-class CProxSensor;
-class CVisionSensor;
-class CShape;
-class CForceSensor;
-class COcTree;
-class CPointCloud;
-// Old objects:
-class CMirror;
-class CPath_old;
-class CMill;
 
 struct SSimpleXmlSceneObject
 {
@@ -76,6 +61,7 @@ class CSceneObjectContainer
     CJoint* getJointFromIndex(size_t index) const;
     CDummy* getDummyFromIndex(size_t index) const;
     CScript* getScriptFromIndex(size_t index) const;
+    CMarker* getMarkerFromIndex(size_t index) const;
     CMirror* getMirrorFromIndex(size_t index) const;
     CGraph* getGraphFromIndex(size_t index) const;
     CLight* getLightFromIndex(size_t index) const;
@@ -94,6 +80,7 @@ class CSceneObjectContainer
 
     CDummy* getDummyFromHandle(int objectHandle) const;
     CScript* getScriptFromHandle(int objectHandle) const;
+    CMarker* getMarkerFromHandle(int objectHandle) const;
     CJoint* getJointFromHandle(int objectHandle) const;
     CMirror* getMirrorFromHandle(int objectHandle) const;
     COcTree* getOctreeFromHandle(int objectHandle) const;
@@ -136,6 +123,7 @@ class CSceneObjectContainer
     CLight* getLastSelectionLight() const;
     CDummy* getLastSelectionDummy() const;
     CScript* getLastSelectionScript() const;
+    CMarker* getLastSelectionMarker() const;
     CProxSensor* getLastSelectionProxSensor() const;
     CVisionSensor* getLastSelectionVisionSensor() const;
     CPath_old* getLastSelectionPath() const;
@@ -240,18 +228,13 @@ class CSceneObjectContainer
     void pushObjectGenesisEvents() const;
     void appendNonObjectGenesisData(CCbor* ev) const;
 
-    void getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,
-                                                std::vector<CSceneObject*>& objects);
-    void getAllMeasurableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,
-                                                std::vector<CSceneObject*>& objects);
-    void getAllDetectableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,
-                                                std::vector<CSceneObject*>& objects, int detectableMask);
+    void getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects, std::vector<CSceneObject*>& objects);
+    void getAllMeasurableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects, std::vector<CSceneObject*>& objects);
+    void getAllDetectableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects, std::vector<CSceneObject*>& objects, int detectableMask);
 
     CSceneObject* readSceneObject(CSer& ar, const char* name, bool& noHit);
     void writeSceneObject(CSer& ar, CSceneObject* it);
-    bool readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSceneObject* parentObject,
-                                                const C7Vector& localFramePreCorrection,
-                                                std::vector<SSimpleXmlSceneObject>& simpleXmlObjects);
+    bool readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSceneObject* parentObject, const C7Vector& localFramePreCorrection, std::vector<SSimpleXmlSceneObject>& simpleXmlObjects);
     void writeSimpleXmlSceneObjectTree(CSer& ar, const CSceneObject* object);
 
     bool setObjectAlias(CSceneObject* object, const char* newAlias, bool allowNameAdjustment);
@@ -292,8 +275,7 @@ class CSceneObjectContainer
     void _setAllObjects(const std::vector<CSceneObject*>& newAllObjects);
     void _handleOrderIndexOfOrphans();
     CSceneObject* _getObjectInTree(const CSceneObject* treeBase, const char* objectAliasAndPath, int& index) const;
-    CSceneObject* _getObjectFromSimplePath(const CSceneObject* emittingObject, const char* objectAliasAndPath,
-                                           int index) const;
+    CSceneObject* _getObjectFromSimplePath(const CSceneObject* emittingObject, const char* objectAliasAndPath, int index) const;
     CSceneObject* _getObjectFromComplexPath(const CSceneObject* emittingObject, std::string& path, int index) const;
 
     void _addObject(CSceneObject* object);
@@ -327,6 +309,7 @@ class CSceneObjectContainer
     std::vector<CJoint*> _jointList;
     std::vector<CDummy*> _dummyList;
     std::vector<CScript*> _scriptList;
+    std::vector<CMarker*> _markerList;
     std::vector<CGraph*> _graphList;
     std::vector<CLight*> _lightList;
     std::vector<CCamera*> _cameraList;

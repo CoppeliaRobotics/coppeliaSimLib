@@ -6,6 +6,7 @@ void displayScript(CScript* script, CViewableBase* renderingObject, int displayA
     // At the beginning of every scene object display routine:
     _commonStart(script, renderingObject);
 
+    /*
     C3Vector normalVectorForLinesAndPoints(script->getFullCumulativeTransformation().Q.getInverse() *
                                            C3Vector::unitZVector);
 
@@ -34,7 +35,7 @@ void displayScript(CScript* script, CViewableBase* renderingObject, int displayA
         glDisable(GL_CULL_FACE);
         _disableAuxClippingPlanes();
     }
-
+    */
     // At the end of every scene object display routine:
     _commonFinish(script, renderingObject);
 }

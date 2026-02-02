@@ -531,9 +531,6 @@ int CMirror::setColorProperty(const char* ppName, const float* pState)
     int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = clipPlaneColor.setColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 
@@ -543,9 +540,6 @@ int CMirror::getColorProperty(const char* ppName, float* pState) const
     int retVal = CSceneObject::getColorProperty(ppName, pState);
     if (retVal == -1)
         retVal = clipPlaneColor.getColorProperty(ppName, pState);
-    if (retVal != -1)
-    {
-    }
     return retVal;
 }
 

@@ -1652,6 +1652,12 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
     }
     if (getInternalRendering()) // for now
     {
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_marker); i++)
+        {
+            CMarker* it = App::currentWorld->sceneObjects->getMarkerFromIndex(i);
+            it->displayOverlay(this, rendAttrib);
+        }
+
         // overlay attached drawing objects:
         for (int i = 0; i < int(toRender.size()); i++)
             App::currentWorld->drawingCont->drawObjectsParentedWith(
@@ -1692,6 +1698,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                     App::currentWorld->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
                 if (((it->getObjectType() == sim_sceneobject_shape) ||
                      (it->getObjectType() == sim_sceneobject_octree) ||
+                     (it->getObjectType() == sim_sceneobject_marker) ||
                      (it->getObjectType() == sim_sceneobject_pointcloud) ||
                      (it->getObjectType() == sim_sceneobject_path)) &&
                     (overridePropertyFlag || it->isObjectVisible()))
@@ -1728,6 +1735,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                     CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
                     if (((it->getObjectType() == sim_sceneobject_shape) ||
                          (it->getObjectType() == sim_sceneobject_octree) ||
+                         (it->getObjectType() == sim_sceneobject_marker) ||
                          (it->getObjectType() == sim_sceneobject_pointcloud) ||
                          (it->getObjectType() == sim_sceneobject_path)) &&
                         it->isObjectVisible())

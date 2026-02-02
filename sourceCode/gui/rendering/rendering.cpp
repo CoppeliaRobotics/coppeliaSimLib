@@ -661,16 +661,19 @@ void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame
     glDisable(GL_LINE_STIPPLE);
 }
 
-void _commonStart(CSceneObject* object, CViewableBase* viewable)
+void _commonStart(CSceneObject* object, CViewableBase* viewable, bool transf /*= true*/)
 {
     _selectLights(object, viewable);
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
 
-    C7Vector tr = object->getCumulativeTransformation();
-    glTranslated(tr.X(0), tr.X(1), tr.X(2));
-    C4Vector axis = tr.Q.getAngleAndAxis();
-    glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
+    if (transf)
+    {
+        C7Vector tr = object->getCumulativeTransformation();
+        glTranslated(tr.X(0), tr.X(1), tr.X(2));
+        C4Vector axis = tr.Q.getAngleAndAxis();
+        glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
+    }
 }
 
 void _commonFinish(CSceneObject* object, CViewableBase* viewable)

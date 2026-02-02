@@ -204,6 +204,115 @@ bool CInterfaceStackTable::getDoubleArray(double* array, int count) const
     return (retVal);
 }
 
+void CInterfaceStackTable::getItemsAsConsecutiveFloats(std::vector<float>& array) const
+{
+    if (_isTableArray)
+    {
+        for (size_t i = 0; i < _tableObjects.size(); i++)
+        {
+            int t = _tableObjects[i]->getObjectType();
+            if (t == sim_stackitem_double)
+                array.push_back((float)((CInterfaceStackNumber*)_tableObjects[i])->getValue());
+            else if (t == sim_stackitem_integer)
+                array.push_back((float)((CInterfaceStackInteger*)_tableObjects[i])->getValue());
+            else if (t == sim_stackitem_handle)
+                array.push_back((float)((CInterfaceStackHandle*)_tableObjects[i])->getValue());
+            else if (t == sim_stackitem_bool)
+                array.push_back((float)((CInterfaceStackBool*)_tableObjects[i])->getValue());
+            else if (t == sim_stackitem_color)
+            {
+                const float* col = ((CInterfaceStackColor*)_tableObjects[i])->getValue();
+                array.push_back(col[0]);
+                array.push_back(col[1]);
+                array.push_back(col[2]);
+            }
+            else if (t == sim_stackitem_quaternion)
+            { // as qx,qy,qz,qw
+                const C4Vector* v = ((CInterfaceStackQuaternion*)_tableObjects[i])->getValue();
+                array.push_back((float)v->data[1]);
+                array.push_back((float)v->data[2]);
+                array.push_back((float)v->data[3]);
+                array.push_back((float)v->data[0]);
+            }
+            else if (t == sim_stackitem_pose)
+            { // as x, y, z, qx,qy,qz,qw
+                const C7Vector* v = ((CInterfaceStackPose*)_tableObjects[i])->getValue();
+                array.push_back((float)v->X(0));
+                array.push_back((float)v->X(1));
+                array.push_back((float)v->X(2));
+                array.push_back((float)v->Q(1));
+                array.push_back((float)v->Q(2));
+                array.push_back((float)v->Q(3));
+                array.push_back((float)v->Q(0));
+            }
+            else if (t == sim_stackitem_matrix)
+            {
+                const CMatrix* m = ((CInterfaceStackMatrix*)_tableObjects[i])->getValue();
+                for (size_t j = 0; j < m->data.size(); j++)
+                    array.push_back((float)m->data[j]);
+            }
+            else if (t == sim_stackitem_table)
+                ((CInterfaceStackTable*)_tableObjects[i])->getItemsAsConsecutiveFloats(array);
+            else
+                array.push_back(0.0f);
+        }
+    }
+}
+
+void CInterfaceStackTable::getItemsAsConsecutiveDoubles(std::vector<double>& array) const
+{
+    if (_isTableArray)
+    {
+        for (size_t i = 0; i < _tableObjects.size(); i++)
+        {
+            int t = _tableObjects[i]->getObjectType();
+            if (t == sim_stackitem_double)
+                array.push_back(((CInterfaceStackNumber*)_tableObjects[i])->getValue());
+            else if (t == sim_stackitem_integer)
+                array.push_back((double)((CInterfaceStackInteger*)_tableObjects[i])->getValue());
+            else if (t == sim_stackitem_handle)
+                array.push_back((double)((CInterfaceStackHandle*)_tableObjects[i])->getValue());
+            else if (t == sim_stackitem_bool)
+                array.push_back((double)((CInterfaceStackBool*)_tableObjects[i])->getValue());
+            else if (t == sim_stackitem_color)
+            {
+                const float* col = ((CInterfaceStackColor*)_tableObjects[i])->getValue();
+                array.push_back((double)col[0]);
+                array.push_back((double)col[1]);
+                array.push_back((double)col[2]);
+            }
+            else if (t == sim_stackitem_quaternion)
+            { // as qx,qy,qz,qw
+                const C4Vector* v = ((CInterfaceStackQuaternion*)_tableObjects[i])->getValue();
+                array.push_back(v->data[1]);
+                array.push_back(v->data[2]);
+                array.push_back(v->data[3]);
+                array.push_back(v->data[0]);
+            }
+            else if (t == sim_stackitem_pose)
+            { // as x, y, z, qx,qy,qz,qw
+                const C7Vector* v = ((CInterfaceStackPose*)_tableObjects[i])->getValue();
+                array.push_back(v->X(0));
+                array.push_back(v->X(1));
+                array.push_back(v->X(2));
+                array.push_back(v->Q(1));
+                array.push_back(v->Q(2));
+                array.push_back(v->Q(3));
+                array.push_back(v->Q(0));
+            }
+            else if (t == sim_stackitem_matrix)
+            {
+                const CMatrix* m = ((CInterfaceStackMatrix*)_tableObjects[i])->getValue();
+                array.insert(array.end(), m->data.begin(), m->data.end());
+            }
+            else if (t == sim_stackitem_table)
+                ((CInterfaceStackTable*)_tableObjects[i])->getItemsAsConsecutiveDoubles(array);
+            else
+                array.push_back(0.0);
+        }
+    }
+}
+
 bool CInterfaceStackTable::getHandleArray(long long int* array, int count) const
 {
     if (!_isTableArray)
@@ -924,25 +1033,139 @@ int CInterfaceStackTable::getTableInfo(int infoType) const
     return retVal;
 }
 
-bool CInterfaceStackTable::areAllValuesThis(int what, bool integerAndDoubleTolerant) const
+bool CInterfaceStackTable::_isEquivalent(int what, CInterfaceStackObject* obj)
 {
+    if ((what == sim_stackitem_double) || (what == sim_stackitem_integer) || (what == sim_stackitem_handle))
+    {
+        if ((obj->getObjectType() != sim_stackitem_double) && (obj->getObjectType() != sim_stackitem_integer) && (obj->getObjectType() != sim_stackitem_handle))
+            return false;
+    }
+    else if (what == sim_stackitem_exvector)
+    {
+        if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            if (m->getValue()->cols > 1)
+                return false;
+        }
+        else if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* t = (CInterfaceStackTable*)obj;
+            if ( (!t->isTableArray()) || (t->getArraySize() == 0) || (!t->areAllValuesThis(sim_stackitem_double, true)) )
+                return false;
+        }
+        else
+            return false;
+    }
+    else if (what == sim_stackitem_exvector3)
+    {
+        if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            if ( (m->getValue()->cols > 1) || (m->getValue()->rows != 3) )
+                return false;
+        }
+        else if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* t = (CInterfaceStackTable*)obj;
+            if ( (!t->isTableArray()) || (t->getArraySize() != 3) || (!t->areAllValuesThis(sim_stackitem_double, true)) )
+                return false;
+        }
+        else
+            return false;
+    }
+    else if (what == sim_stackitem_quaternion)
+    {
+        if (obj->getObjectType() != sim_stackitem_quaternion)
+        {
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* t = (CInterfaceStackTable*)obj;
+                if ( (!t->isTableArray()) || (t->getArraySize() != 4) || (!t->areAllValuesThis(sim_stackitem_double, true)) )
+                    return false;
+            }
+            else
+                return false;
+        }
+    }
+    else if (what == sim_stackitem_pose)
+    {
+        if (obj->getObjectType() != sim_stackitem_pose)
+        {
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* t = (CInterfaceStackTable*)obj;
+                if ( (!t->isTableArray()) || (t->getArraySize() != 7) || (!t->areAllValuesThis(sim_stackitem_double, true)) )
+                    return false;
+            }
+            else
+                return false;
+        }
+    }
+    else if (what == sim_stackitem_color)
+    {
+        if (obj->getObjectType() != sim_stackitem_color)
+        {
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* t = (CInterfaceStackTable*)obj;
+                if ( (!t->isTableArray()) || (t->getArraySize() != 3) || (!t->areAllValuesThis(sim_stackitem_double, true)) )
+                    return false;
+            }
+            else
+                return false;
+        }
+    }
+    else if (what != sim_stackitem_exany)
+    {
+        return (what == obj->getObjectType());
+    }
+    return true;
+}
+
+bool CInterfaceStackTable::areAllValuesThis(int what, bool tolerant) const
+{ // tolerant: double/integer/handle, exvector/table, exvector3/table3, quaternion/table, pose/table, color/table
     if (_tableObjects.size() == 0)
         return true;
     if (_isTableArray)
     {
         for (size_t i = 0; i < _tableObjects.size(); i++)
         {
-            if (integerAndDoubleTolerant && ((what == sim_stackitem_double) || (what == sim_stackitem_integer) || (what == sim_stackitem_handle)))
+            CInterfaceStackObject* obj = _tableObjects[i];
+            if (tolerant)
             {
-                if ((_tableObjects[i]->getObjectType() != sim_stackitem_double) &&
-                    (_tableObjects[i]->getObjectType() != sim_stackitem_integer) &&
-                    (_tableObjects[i]->getObjectType() != sim_stackitem_handle))
+                if (!_isEquivalent(what, obj))
                     return false;
             }
             else
             {
-                if (_tableObjects[i]->getObjectType() != what)
-                    return false;
+                if (obj->getObjectType() != what)
+                {
+                    if (what == sim_stackitem_exvector)
+                    {
+                        if (obj->getObjectType() == sim_stackitem_matrix)
+                        {
+                            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+                            if (m->getValue()->cols > 1)
+                                return false;
+                        }
+                        else
+                            return false;
+                    }
+                    else if (what == sim_stackitem_exvector3)
+                    {
+                        if (obj->getObjectType() == sim_stackitem_matrix)
+                        {
+                            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+                            if ( (m->getValue()->cols > 1) || (m->getValue()->rows != 3) )
+                                return false;
+                        }
+                        else
+                            return false;
+                    }
+                    else if (what != sim_stackitem_exany)
+                        return false;
+                }
             }
         }
     }
@@ -950,17 +1173,41 @@ bool CInterfaceStackTable::areAllValuesThis(int what, bool integerAndDoubleToler
     {
         for (size_t i = 0; i < _tableObjects.size() / 2; i++)
         {
-            if (integerAndDoubleTolerant && ((what == sim_stackitem_double) || (what == sim_stackitem_integer) || (what == sim_stackitem_handle)))
+            CInterfaceStackObject* obj = _tableObjects[2 * i + 1];
+            if (tolerant)
             {
-                if ((_tableObjects[2 * i + 1]->getObjectType() != sim_stackitem_double) &&
-                    (_tableObjects[2 * i + 1]->getObjectType() != sim_stackitem_integer) &&
-                    (_tableObjects[2 * i + 1]->getObjectType() != sim_stackitem_handle))
+                if (!_isEquivalent(what, obj))
                     return false;
             }
             else
             {
-                if (_tableObjects[2 * i + 1]->getObjectType() != what)
-                    return false;
+                if (obj->getObjectType() != what)
+                {
+                    if (what == sim_stackitem_exvector)
+                    {
+                        if (obj->getObjectType() == sim_stackitem_matrix)
+                        {
+                            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+                            if (m->getValue()->cols > 1)
+                                return false;
+                        }
+                        else
+                            return false;
+                    }
+                    else if (what == sim_stackitem_exvector3)
+                    {
+                        if (obj->getObjectType() == sim_stackitem_matrix)
+                        {
+                            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+                            if ( (m->getValue()->cols > 1) || (m->getValue()->rows != 3) )
+                                return false;
+                        }
+                        else
+                            return false;
+                    }
+                    else if (what != sim_stackitem_exany)
+                        return false;
+                }
             }
         }
     }
