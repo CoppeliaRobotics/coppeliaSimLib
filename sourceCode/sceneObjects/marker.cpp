@@ -447,25 +447,25 @@ void CMarker::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Pts");
-            ar << _pts.size();
+            ar << int(_pts.size());
             for (size_t i = 0; i < _pts.size(); i++)
                 ar << _pts[i];
             ar.flush();
 
             ar.storeDataName("Qts");
-            ar << _quats.size();
+            ar << int(_quats.size());
             for (size_t i = 0; i < _quats.size(); i++)
                 ar << _quats[i];
             ar.flush();
 
             ar.storeDataName("Cls");
-            ar << _rgba.size();
+            ar << int(_rgba.size());
             for (size_t i = 0; i < _rgba.size(); i++)
                 ar << _rgba[i];
             ar.flush();
 
             ar.storeDataName("Siz");
-            ar << _sizes.size();
+            ar << int(_sizes.size());
             for (size_t i = 0; i < _sizes.size(); i++)
                 ar << _sizes[i];
             ar.flush();
@@ -522,10 +522,10 @@ void CMarker::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        size_t cnt;
+                        int cnt;
                         ar >> cnt;
                         _pts.resize(cnt);
-                        for (size_t i = 0; i < cnt; i++)
+                        for (int i = 0; i < cnt; i++)
                             ar >> _pts[i];
                     }
 
@@ -533,10 +533,10 @@ void CMarker::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        size_t cnt;
+                        int cnt;
                         ar >> cnt;
                         _quats.resize(cnt);
-                        for (size_t i = 0; i < cnt; i++)
+                        for (int i = 0; i < cnt; i++)
                             ar >> _quats[i];
                     }
 
@@ -544,10 +544,10 @@ void CMarker::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        size_t cnt;
+                        int cnt;
                         ar >> cnt;
                         _rgba.resize(cnt);
-                        for (size_t i = 0; i < cnt; i++)
+                        for (int i = 0; i < cnt; i++)
                             ar >> _rgba[i];
                     }
 
@@ -555,10 +555,10 @@ void CMarker::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        size_t cnt;
+                        int cnt;
                         ar >> cnt;
                         _sizes.resize(cnt);
-                        for (size_t i = 0; i < cnt; i++)
+                        for (int i = 0; i < cnt; i++)
                             ar >> _sizes[i];
                     }
 
