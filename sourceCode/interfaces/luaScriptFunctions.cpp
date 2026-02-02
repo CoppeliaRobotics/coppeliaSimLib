@@ -961,7 +961,6 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.markeropts_local", sim_markeropts_local},
     {"sim.markeropts_cyclic", sim_markeropts_cyclic},
     {"sim.markeropts_overlay", sim_markeropts_overlay},
-    {"sim.markeropts_fixed", sim_markeropts_fixed},
 
     // joint modes
     {"sim.jointmode_kinematic", sim_jointmode_kinematic},

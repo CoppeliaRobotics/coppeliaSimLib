@@ -4,7 +4,7 @@
 void displayMarker(CMarker* marker, CViewableBase* renderingObject, int displayAttrib, bool overlay)
 {
     // At the beginning of every scene object display routine:
-    _commonStart(marker, renderingObject, (marker->getMarkerOptions() & sim_markeropts_fixed) == 0);
+    _commonStart(marker, renderingObject, true);
     C3Vector normalVectorForLinesAndPoints(marker->getFullCumulativeTransformation().Q.getInverse() * C3Vector::unitZVector);
 
     // Object display:

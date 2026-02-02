@@ -2,6 +2,7 @@
 
 #include <ser.h>
 #include <sceneObject.h>
+#include <array>
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
@@ -9,6 +10,17 @@ MARKER_PROPERTIES
 #undef FUNCX
 extern const std::vector<SProperty> allProps_marker;
 // ----------------------------------------------------------------------------------------------
+
+struct CMultiSIt
+{
+    std::multiset<float>::iterator itX;
+    std::multiset<float>::iterator itY;
+    std::multiset<float>::iterator itZ;
+};
+
+struct CItemPointIts {
+    std::array<CMultiSIt, 3> its;
+};
 
 class CMarker : public CSceneObject
 {
@@ -63,6 +75,7 @@ class CMarker : public CSceneObject
   protected:
     void _updateMarkerEvent(bool incremental, CCbor* evv = nullptr);
     void _initialize();
+    void _rebuildMarkerBoundingBox();
 
     CColorObject _markerColor;
     double _markerSize;
@@ -84,6 +97,11 @@ class CMarker : public CSceneObject
     unsigned int _nextId;
     int _newItemsCnt;
     std::vector<unsigned int> _remIds;
+
+    std::multiset<float> _xs;
+    std::multiset<float> _ys;
+    std::multiset<float> _zs;
+    std::unordered_map<unsigned int, CItemPointIts> itemIts;
 
 
 #ifdef SIM_WITH_GUI

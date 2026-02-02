@@ -94,6 +94,27 @@ void CMarker::_initialize()
     computeBoundingBox();
 }
 
+void CMarker::_rebuildMarkerBoundingBox()
+{
+    _xs.clear();
+    _ys.clear();
+    _zs.clear();
+    itemIts.clear();
+    for (size_t i = 0; i < _ids.size(); i++)
+    {
+        CItemPointIts its;
+        for (int j = 0; j < _itemPointCnt; j++)
+        {
+            CMultiSIt it;
+            it.itX = _xs.insert(_pts[i * 3 * _itemPointCnt + j * 3 + 0]);
+            it.itY = _ys.insert(_pts[i * 3 * _itemPointCnt + j * 3 + 1]);
+            it.itZ = _zs.insert(_pts[i * 3 * _itemPointCnt + j * 3 + 2]);
+            its.its[j] = it;
+        }
+        itemIts[_nextId] = its;
+    }
+}
+
 void CMarker::remItems(int itemCnt, bool triggerEvent /*= true*/)
 {
     int items = _pts.size() / (3 * _itemPointCnt);
@@ -108,9 +129,28 @@ void CMarker::remItems(int itemCnt, bool triggerEvent /*= true*/)
         _newItemsCnt = 0;
         _sendFullEvent = true;
         _nextId = 0;
+        _xs.clear();
+        _ys.clear();
+        _zs.clear();
+        itemIts.clear();
     }
     else
     {
+        for (size_t i = 0; i < itemCnt; i++)
+        {
+            auto it = itemIts.find(_ids[i]);
+            if (it != itemIts.end())
+            {
+                CItemPointIts& iph = it->second;
+                for (int j = 0; j < _itemPointCnt; ++j)
+                {
+                    _xs.erase(iph.its[j].itX);
+                    _ys.erase(iph.its[j].itY);
+                    _zs.erase(iph.its[j].itZ);
+                }
+                itemIts.erase(it);
+            }
+        }
         _remIds.insert(_remIds.end(), _ids.begin(), _ids.begin() + itemCnt);
         _pts.erase(_pts.begin(), _pts.begin() + itemCnt * 3 * _itemPointCnt);
         _rgba.erase(_rgba.begin(), _rgba.begin() + itemCnt * 4 * _itemPointCnt);
@@ -125,7 +165,10 @@ void CMarker::remItems(int itemCnt, bool triggerEvent /*= true*/)
             _newItemsCnt = tot;
     }
     if (triggerEvent)
+    {
+        computeBoundingBox();
         _updateMarkerEvent(true);
+    }
 }
 
 void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform /*= true*/)
@@ -160,60 +203,28 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
     {
         if ((_itemOptions & sim_markeropts_local) != 0)
         {
-            if ((_itemOptions & sim_markeropts_fixed) != 0)
+            for (int i = 0; i < ptsCnt; i++)
             {
-                for (int i = 0; i < ptsCnt; i++)
-                {
-                    C7Vector t;
-                    t.X.setData(pts->data() + i * 3);
-                    if (quats != nullptr)
-                        t.Q.setData(quats->data() + i * 4, true);
-                    else
-                        t.Q.setIdentity();
-                    trs.push_back(tr * t);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < ptsCnt; i++)
-                {
-                    C7Vector t;
-                    t.X.setData(pts->data() + i * 3);
-                    if (quats != nullptr)
-                        t.Q.setData(quats->data() + i * 4, true);
-                    else
-                        t.Q.setIdentity();
-                    trs.push_back(t);
-                }
+                C7Vector t;
+                t.X.setData(pts->data() + i * 3);
+                if (quats != nullptr)
+                    t.Q.setData(quats->data() + i * 4, true);
+                else
+                    t.Q.setIdentity();
+                trs.push_back(t);
             }
         }
         else
         {
-            if ((_itemOptions & sim_markeropts_fixed) != 0)
+            for (int i = 0; i < ptsCnt; i++)
             {
-                for (int i = 0; i < ptsCnt; i++)
-                {
-                    C7Vector t;
-                    t.X.setData(pts->data() + i * 3);
-                    if (quats != nullptr)
-                        t.Q.setData(quats->data() + i * 4, true);
-                    else
-                        t.Q.setIdentity();
-                    trs.push_back(t);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < ptsCnt; i++)
-                {
-                    C7Vector t;
-                    t.X.setData(pts->data() + i * 3);
-                    if (quats != nullptr)
-                        t.Q.setData(quats->data() + i * 4, true);
-                    else
-                        t.Q.setIdentity();
-                    trs.push_back(trInv * t);
-                }
+                C7Vector t;
+                t.X.setData(pts->data() + i * 3);
+                if (quats != nullptr)
+                    t.Q.setData(quats->data() + i * 4, true);
+                else
+                    t.Q.setIdentity();
+                trs.push_back(trInv * t);
             }
         }
     }
@@ -249,12 +260,22 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
         }
         if (!skip)
         {
+            CItemPointIts its;
             for (int j = 0; j < _itemPointCnt; j++)
             {
-                _pts.push_back((float)trs[i * _itemPointCnt + j].X(0));
-                _pts.push_back((float)trs[i * _itemPointCnt + j].X(1));
-                _pts.push_back((float)trs[i * _itemPointCnt + j].X(2));
+                C3Vector p = trs[i * _itemPointCnt + j].X;
+                _pts.push_back((float)p(0));
+                _pts.push_back((float)p(1));
+                _pts.push_back((float)p(2));
+                CMultiSIt it;
+                it.itX = _xs.insert(p(0));
+                it.itY = _ys.insert(p(1));
+                it.itZ = _zs.insert(p(2));
+                its.its[j] = it;
             }
+            itemIts[_nextId] = its;
+            _ids.push_back(_nextId);
+
             if (rgbas != nullptr)
             {
                 for (int j = 0; j < 4 * _itemPointCnt; j++)
@@ -287,7 +308,6 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
                         _sizes.push_back(_itemSize[j]);
                 }
             }
-            _ids.push_back(_nextId);
 
             if (_nextId < MARKER_MAX_ID)
                 _nextId++;
@@ -303,6 +323,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
             _ids[i] = _nextId++;
         _newItemsCnt = totItemCnt;
         _remIds.clear();
+        _rebuildMarkerBoundingBox();
         _sendFullEvent = true;
     }
     else
@@ -311,6 +332,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
         if ((totItemCnt > _itemMaxCnt) && (_itemMaxCnt != 0))
             remItems(totItemCnt - _itemMaxCnt, false);
     }
+    computeBoundingBox();
     _updateMarkerEvent(true);
 }
 
@@ -339,7 +361,34 @@ std::string CMarker::getObjectTypeInfoExtended() const
 
 void CMarker::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(1.05, 1.05, 1.05) * _markerSize * 0.5);
+    C3Vector c, s;
+    if (_xs.empty())
+    {
+        c.clear();
+        s.clear();
+    }
+    else
+    {
+        double minX = *_xs.begin();
+        double maxX = *std::prev(_xs.end());
+        double minY = *_ys.begin();
+        double maxY = *std::prev(_ys.end());
+        double minZ = *_zs.begin();
+        double maxZ = *std::prev(_zs.end());
+        s(0) = maxX - minX;
+        s(1) = maxY - minY;
+        s(2) = maxZ - minZ;
+        c(0) = (maxX + minX) * 0.5;
+        c(1) = (maxY + minY) * 0.5;
+        c(2) = (maxZ + minZ) * 0.5;
+    }
+    s(0) += 0.02;
+    s(1) += 0.02;
+    s(2) += 0.02;
+    C7Vector tr;
+    tr.Q.setIdentity();
+    tr.X = c;
+    _setBB(tr, s * 0.5);
 }
 
 void CMarker::scaleObject(double scalingFactor)
@@ -359,7 +408,8 @@ void CMarker::addSpecializedObjectEventData(CCbor* ev)
     _markerColor.addGenesisEventData(ev);
     ev->appendKeyDouble(propScript_size.name, _markerSize);
     ev->appendKeyInt(propMarker_itemType.name, _itemType);
-    ev->appendKeyInt(propMarker_options.name, _itemOptions);
+    ev->appendKeyBool(propMarker_cyclic.name, _itemOptions & sim_markeropts_cyclic);
+    ev->appendKeyBool(propMarker_overlay.name, _itemOptions & sim_markeropts_overlay);
     _updateMarkerEvent(false, ev);
 }
 
@@ -385,7 +435,7 @@ CSceneObject* CMarker::copyYourself()
     newMarker->_rgba.assign(_rgba.begin(), _rgba.end());
     newMarker->_sizes.assign(_sizes.begin(), _sizes.end());
     newMarker->_ids.assign(_ids.begin(), _ids.end());
-
+    newMarker->_rebuildMarkerBoundingBox();
     newMarker->_sendFullEvent = true;
     newMarker->_nextId = _nextId;
 
@@ -1175,10 +1225,19 @@ int CMarker::setBoolProperty(const char* ppName, bool pState)
 
 int CMarker::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == -1)
     {
+        if (strcmp(propMarker_cyclic.name, ppName) == 0)
+        {
+            pState = _itemOptions & sim_markeropts_cyclic;
+            retVal = 1;
+        }
+        else if (strcmp(propMarker_overlay.name, ppName) == 0)
+        {
+            pState = _itemOptions & sim_markeropts_overlay;
+            retVal = 1;
+        }
     }
 
     return retVal;
@@ -1204,11 +1263,6 @@ int CMarker::getIntProperty(const char* ppName, int& pState) const
         if (_pName == propMarker_itemType.name)
         {
             pState = _itemType;
-            retVal = 1;
-        }
-        else if (_pName == propMarker_options.name)
-        {
-            pState = _itemOptions;
             retVal = 1;
         }
     }
@@ -1519,6 +1573,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             ev->openKeyMap("set");
             ev->appendKeyBuff("pts", (unsigned char*)_pts.data(), _pts.size() * sizeof(float));
             ev->appendKeyBuff("quats", (unsigned char*)_quats.data(), _quats.size() * sizeof(float));
+            ev->appendKeyBuff("sizes", (unsigned char*)_sizes.data(), _sizes.size() * sizeof(float));
             ev->appendKeyBuff("rgba", _rgba.data(), _rgba.size());
             ev->appendKeyBuff("ids", (unsigned char*)_ids.data(), _ids.size());
             ev->closeArrayOrMap();
@@ -1539,6 +1594,10 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                         ev->appendKeyBuff("quats", (unsigned char*)(_quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt)), (_newItemsCnt * 4 * _itemPointCnt) * sizeof(float));
                     else
                         ev->appendKeyBuff("quats", nullptr, 0);
+                    if (_sizes.size() > 0)
+                        ev->appendKeyBuff("sizes", (unsigned char*)(_sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
+                    else
+                        ev->appendKeyBuff("sizes", nullptr, 0);
                     ev->appendKeyBuff("rgba", (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
                     ev->appendKeyBuff("ids", (unsigned char*)(_ids.data() + _ids.size() - _newItemsCnt), _newItemsCnt * sizeof(unsigned int));
                     ev->closeArrayOrMap();
