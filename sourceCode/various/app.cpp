@@ -330,6 +330,10 @@ void App::cleanup()
         worldContainer->destroyCurrentWorld();
     currentWorld->clearScene(true);
 
+    // Following 2 important at this stage, as some destructors rely on plugins (e.g. simGeom):
+    worldContainer->copyBuffer->clearMemorizedBuffer();
+    worldContainer->copyBuffer->clearBuffer();
+
     worldContainer->addOnScriptContainer->removeAllAddOns();
     worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
     CScriptObject::destroy(worldContainer->sandboxScript, true);

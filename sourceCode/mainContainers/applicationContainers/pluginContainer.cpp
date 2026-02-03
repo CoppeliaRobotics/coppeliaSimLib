@@ -1014,7 +1014,7 @@ double CPluginContainer::geomPlugin_getMeshRootObbVolume(const void* meshObbStru
     }
     return (retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromPoints(const double* points, int pointCnt,
+void* CPluginContainer::geomPlugin_createOctreeFromPoints_rgb(const double* points, int pointCnt,
                                                           const C7Vector* octreeOrigin /*=nullptr*/,
                                                           double cellS /*=0.05*/,
                                                           const unsigned char rgbData[3] /*=nullptr*/,
@@ -1034,12 +1034,22 @@ void* CPluginContainer::geomPlugin_createOctreeFromPoints(const double* points, 
             _tr = tr;
         }
         currentGeomPlugin->pushCurrentPlugin();
-        retVal = currentGeomPlugin->geomPlugin_createOctreeFromPoints(points, pointCnt, _tr, cellS, rgbData, usrData);
+        unsigned char* cc = nullptr;
+        unsigned char rgbaData[4];
+        if (rgbData != nullptr)
+        {
+            rgbaData[0] = rgbData[0];
+            rgbaData[1] = rgbData[1];
+            rgbaData[2] = rgbData[2];
+            rgbaData[3] = 255;
+            cc = rgbaData;
+        }
+        retVal = currentGeomPlugin->geomPlugin_createOctreeFromPoints(points, pointCnt, _tr, cellS, cc, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const double* points, int pointCnt,
+void* CPluginContainer::geomPlugin_createOctreeFromColorPoints_rgb(const double* points, int pointCnt,
                                                                const C7Vector* octreeOrigin /*=nullptr*/,
                                                                double cellS /*=0.05*/,
                                                                const unsigned char* rgbData /*=nullptr*/,
@@ -1059,13 +1069,26 @@ void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const double* poi
             _tr = tr;
         }
         currentGeomPlugin->pushCurrentPlugin();
-        retVal =
-            currentGeomPlugin->geomPlugin_createOctreeFromColorPoints(points, pointCnt, _tr, cellS, rgbData, usrData);
+        std::vector<unsigned char> rgbaData;
+        unsigned char* cc = nullptr;
+        if (rgbData != nullptr)
+        {
+            rgbaData.resize(pointCnt * 4);
+            for (int i = 0; i < pointCnt; i++)
+            {
+                rgbaData[4 * i + 0] = rgbData[3 * i + 0];
+                rgbaData[4 * i + 1] = rgbData[3 * i + 1];
+                rgbaData[4 * i + 2] = rgbData[3 * i + 2];
+                rgbaData[4 * i + 3] = 255;
+            }
+            cc = rgbaData.data();
+        }
+        retVal = currentGeomPlugin->geomPlugin_createOctreeFromColorPoints(points, pointCnt, _tr, cellS, cc, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruct, const C7Vector& meshTransformation,
+void* CPluginContainer::geomPlugin_createOctreeFromMesh_rgb(const void* meshObbStruct, const C7Vector& meshTransformation,
                                                         const C7Vector* octreeOrigin /*=nullptr*/,
                                                         double cellS /*=0.05*/,
                                                         const unsigned char rgbData[3] /*=nullptr*/,
@@ -1087,12 +1110,22 @@ void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruc
             _tr = tr;
         }
         currentGeomPlugin->pushCurrentPlugin();
-        retVal = currentGeomPlugin->geomPlugin_createOctreeFromMesh(meshObbStruct, _meshTr, _tr, cellS, rgbData, usrData);
+        unsigned char* cc = nullptr;
+        unsigned char rgbaData[4];
+        if (rgbData != nullptr)
+        {
+            rgbaData[0] = rgbData[0];
+            rgbaData[1] = rgbData[1];
+            rgbaData[2] = rgbData[2];
+            rgbaData[3] = 255;
+            cc = rgbaData;
+        }
+        retVal = currentGeomPlugin->geomPlugin_createOctreeFromMesh(meshObbStruct, _meshTr, _tr, cellS, cc, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromOctree(const void* otherOctreeStruct,
+void* CPluginContainer::geomPlugin_createOctreeFromOctree_rgb(const void* otherOctreeStruct,
                                                           const C7Vector& otherOctreeTransformation,
                                                           const C7Vector* newOctreeOrigin /*=nullptr*/,
                                                           double newOctreeCellS /*=0.05*/,
@@ -1115,12 +1148,131 @@ void* CPluginContainer::geomPlugin_createOctreeFromOctree(const void* otherOctre
             _tr = tr;
         }
         currentGeomPlugin->pushCurrentPlugin();
-        retVal = currentGeomPlugin->geomPlugin_createOctreeFromOctree(otherOctreeStruct, _otherOcTr, _tr,
-                                                                      newOctreeCellS, rgbData, usrData);
+        unsigned char* cc = nullptr;
+        unsigned char rgbaData[4];
+        if (rgbData != nullptr)
+        {
+            rgbaData[0] = rgbData[0];
+            rgbaData[1] = rgbData[1];
+            rgbaData[2] = rgbData[2];
+            rgbaData[3] = 255;
+            cc = rgbaData;
+        }
+        retVal = currentGeomPlugin->geomPlugin_createOctreeFromOctree(otherOctreeStruct, _otherOcTr, _tr, newOctreeCellS, cc, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
 }
+
+void* CPluginContainer::geomPlugin_createOctreeFromPoints_rgba(const double* points, int pointCnt,
+                                                          const C7Vector* octreeOrigin /*=nullptr*/,
+                                                          double cellS /*=0.05*/,
+                                                          const unsigned char rgbaData[4] /*=nullptr*/,
+                                                          unsigned int usrData /*=0*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    void* retVal = nullptr;
+    if (currentGeomPlugin != nullptr)
+    {
+        double tr[7];
+        double* _tr = nullptr;
+        if (octreeOrigin != nullptr)
+        {
+            octreeOrigin->getData(tr);
+            _tr = tr;
+        }
+        currentGeomPlugin->pushCurrentPlugin();
+        retVal = currentGeomPlugin->geomPlugin_createOctreeFromPoints(points, pointCnt, _tr, cellS, rgbaData, usrData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+    return (retVal);
+}
+void* CPluginContainer::geomPlugin_createOctreeFromColorPoints_rgba(const double* points, int pointCnt,
+                                                               const C7Vector* octreeOrigin /*=nullptr*/,
+                                                               double cellS /*=0.05*/,
+                                                               const unsigned char* rgbaData /*=nullptr*/,
+                                                               const unsigned int* usrData /*=nullptr*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    void* retVal = nullptr;
+    if (currentGeomPlugin != nullptr)
+    {
+        double tr[7];
+        double* _tr = nullptr;
+        if (octreeOrigin != nullptr)
+        {
+            octreeOrigin->getData(tr);
+            _tr = tr;
+        }
+        currentGeomPlugin->pushCurrentPlugin();
+        retVal =
+            currentGeomPlugin->geomPlugin_createOctreeFromColorPoints(points, pointCnt, _tr, cellS, rgbaData, usrData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+    return (retVal);
+}
+void* CPluginContainer::geomPlugin_createOctreeFromMesh_rgba(const void* meshObbStruct, const C7Vector& meshTransformation,
+                                                        const C7Vector* octreeOrigin /*=nullptr*/,
+                                                        double cellS /*=0.05*/,
+                                                        const unsigned char rgbaData[4] /*=nullptr*/,
+                                                        unsigned int usrData /*=0*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    void* retVal = nullptr;
+    if (currentGeomPlugin != nullptr)
+    {
+        double _meshTr[7];
+        meshTransformation.getData(_meshTr);
+        double tr[7];
+        double* _tr = nullptr;
+        if (octreeOrigin != nullptr)
+        {
+            octreeOrigin->getData(tr);
+            _tr = tr;
+        }
+        currentGeomPlugin->pushCurrentPlugin();
+        retVal = currentGeomPlugin->geomPlugin_createOctreeFromMesh(meshObbStruct, _meshTr, _tr, cellS, rgbaData, usrData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+    return (retVal);
+}
+void* CPluginContainer::geomPlugin_createOctreeFromOctree_rgba(const void* otherOctreeStruct,
+                                                          const C7Vector& otherOctreeTransformation,
+                                                          const C7Vector* newOctreeOrigin /*=nullptr*/,
+                                                          double newOctreeCellS /*=0.05*/,
+                                                          const unsigned char rgbaData[4] /*=nullptr*/,
+                                                          unsigned int usrData /*=0*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    void* retVal = nullptr;
+    if (currentGeomPlugin != nullptr)
+    {
+        double _otherOcTr[7];
+        otherOctreeTransformation.getData(_otherOcTr);
+        double tr[7];
+        double* _tr = nullptr;
+        if (newOctreeOrigin != nullptr)
+        {
+            newOctreeOrigin->getData(tr);
+            _tr = tr;
+        }
+        currentGeomPlugin->pushCurrentPlugin();
+        retVal = currentGeomPlugin->geomPlugin_createOctreeFromOctree(otherOctreeStruct, _otherOcTr, _tr,
+                                                                      newOctreeCellS, rgbaData, usrData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+    return (retVal);
+}
+
+
 void* CPluginContainer::geomPlugin_copyOctree(const void* ocStruct)
 {
     if (currentGeomPlugin == nullptr)
@@ -1149,8 +1301,7 @@ void* CPluginContainer::geomPlugin_getOctreeFromSerializationData(const unsigned
     }
     return (retVal);
 }
-void CPluginContainer::geomPlugin_getOctreeSerializationData(const void* ocStruct,
-                                                             std::vector<unsigned char>& serializationData)
+void CPluginContainer::geomPlugin_getOctreeSerializationData(const void* ocStruct, std::vector<unsigned char>& serializationData)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -1160,6 +1311,24 @@ void CPluginContainer::geomPlugin_getOctreeSerializationData(const void* ocStruc
         int l;
         currentGeomPlugin->pushCurrentPlugin();
         unsigned char* data = currentGeomPlugin->geomPlugin_getOctreeSerializationData(ocStruct, &l);
+        if (data != nullptr)
+        {
+            serializationData.assign(data, data + l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+        currentGeomPlugin->popCurrentPlugin();
+    }
+}
+void CPluginContainer::geomPlugin_getOctreeSerializationData_ver2(const void* ocStruct, std::vector<unsigned char>& serializationData)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        int l;
+        currentGeomPlugin->pushCurrentPlugin();
+        unsigned char* data = currentGeomPlugin->geomPlugin_getOctreeSerializationData_ver2(ocStruct, &l);
         if (data != nullptr)
         {
             serializationData.assign(data, data + l);
@@ -1181,25 +1350,6 @@ void* CPluginContainer::geomPlugin_getOctreeFromSerializationData_float(const un
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
-}
-void CPluginContainer::geomPlugin_getOctreeSerializationData_float(const void* ocStruct,
-                                                                   std::vector<unsigned char>& serializationData)
-{
-    if (currentGeomPlugin == nullptr)
-        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
-
-    if (currentGeomPlugin != nullptr)
-    {
-        int l;
-        currentGeomPlugin->pushCurrentPlugin();
-        unsigned char* data = currentGeomPlugin->geomPlugin_getOctreeSerializationData_float(ocStruct, &l);
-        if (data != nullptr)
-        {
-            serializationData.assign(data, data + l);
-            currentGeomPlugin->geomPlugin_releaseBuffer(data);
-        }
-        currentGeomPlugin->popCurrentPlugin();
-    }
 }
 void CPluginContainer::geomPlugin_scaleOctree(void* ocStruct, double f)
 {
@@ -1275,9 +1425,9 @@ void CPluginContainer::geomPlugin_getOctreeVoxelPositions(const void* ocStruct, 
             voxelPositions.resize(3 * l);
             for (int i = 0; i < l; i++)
             {
-                voxelPositions[3 * i + 0] = data[6 * i + 0];
-                voxelPositions[3 * i + 1] = data[6 * i + 1];
-                voxelPositions[3 * i + 2] = data[6 * i + 2];
+                voxelPositions[3 * i + 0] = data[7 * i + 0];
+                voxelPositions[3 * i + 1] = data[7 * i + 1];
+                voxelPositions[3 * i + 2] = data[7 * i + 2];
             }
             currentGeomPlugin->geomPlugin_releaseBuffer(data);
         }
@@ -1299,10 +1449,10 @@ void CPluginContainer::geomPlugin_getOctreeVoxelColors(const void* ocStruct, std
             voxelColors.resize(4 * l);
             for (int i = 0; i < l; i++)
             {
-                voxelColors[4 * i + 0] = (float)data[6 * i + 3];
-                voxelColors[4 * i + 1] = (float)data[6 * i + 4];
-                voxelColors[4 * i + 2] = (float)data[6 * i + 5];
-                voxelColors[4 * i + 3] = 0.0;
+                voxelColors[4 * i + 0] = (float)data[7 * i + 3];
+                voxelColors[4 * i + 1] = (float)data[7 * i + 4];
+                voxelColors[4 * i + 2] = (float)data[7 * i + 5];
+                voxelColors[4 * i + 3] = (float)data[7 * i + 6];
             }
             currentGeomPlugin->geomPlugin_releaseBuffer(data);
         }
@@ -1345,7 +1495,7 @@ void CPluginContainer::geomPlugin_getOctreeCornersFromOctree(const void* ocStruc
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertPointsIntoOctree(void* ocStruct, const C7Vector& octreeTransformation,
+void CPluginContainer::geomPlugin_insertPointsIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation,
                                                          const double* points, int pointCnt,
                                                          const unsigned char rgbData[3] /*=nullptr*/,
                                                          unsigned int usrData /*=0*/)
@@ -1358,11 +1508,12 @@ void CPluginContainer::geomPlugin_insertPointsIntoOctree(void* ocStruct, const C
         double _tr[7];
         octreeTransformation.getData(_tr);
         currentGeomPlugin->pushCurrentPlugin();
-        currentGeomPlugin->geomPlugin_insertPointsIntoOctree(ocStruct, _tr, points, pointCnt, rgbData, usrData);
+        unsigned char rgba[4] = {rgbData[0], rgbData[1], rgbData[2], 255};
+        currentGeomPlugin->geomPlugin_insertPointsIntoOctree(ocStruct, _tr, points, pointCnt, rgba, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertColorPointsIntoOctree(void* ocStruct, const C7Vector& octreeTransformation,
+void CPluginContainer::geomPlugin_insertColorPointsIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation,
                                                               const double* points, int pointCnt,
                                                               const unsigned char* rgbData /*=nullptr*/,
                                                               const unsigned int* usrData /*=nullptr*/)
@@ -1375,11 +1526,25 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoOctree(void* ocStruct, co
         double _tr[7];
         octreeTransformation.getData(_tr);
         currentGeomPlugin->pushCurrentPlugin();
-        currentGeomPlugin->geomPlugin_insertColorPointsIntoOctree(ocStruct, _tr, points, pointCnt, rgbData, usrData);
+        std::vector<unsigned char> rgbaData;
+        unsigned char* cc = nullptr;
+        if (rgbData != nullptr)
+        {
+            rgbaData.resize(pointCnt * 4);
+            for (int i = 0; i < pointCnt; i++)
+            {
+                rgbaData[4 * i + 0] = rgbData[3 * i + 0];
+                rgbaData[4 * i + 1] = rgbData[3 * i + 1];
+                rgbaData[4 * i + 2] = rgbData[3 * i + 2];
+                rgbaData[4 * i + 3] = 255;
+            }
+            cc = rgbaData.data();
+        }
+        currentGeomPlugin->geomPlugin_insertColorPointsIntoOctree(ocStruct, _tr, points, pointCnt, cc, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertMeshIntoOctree(void* ocStruct, const C7Vector& octreeTransformation,
+void CPluginContainer::geomPlugin_insertMeshIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation,
                                                        const void* obbStruct, const C7Vector& meshTransformation,
                                                        const unsigned char rgbData[3] /*=nullptr*/,
                                                        unsigned int usrData /*=0*/)
@@ -1394,11 +1559,12 @@ void CPluginContainer::geomPlugin_insertMeshIntoOctree(void* ocStruct, const C7V
         double _tr2[7];
         meshTransformation.getData(_tr2);
         currentGeomPlugin->pushCurrentPlugin();
-        currentGeomPlugin->geomPlugin_insertMeshIntoOctree(ocStruct, _tr1, obbStruct, _tr2, rgbData, usrData);
+        unsigned char rgba[4] = {rgbData[0], rgbData[1], rgbData[2], 255};
+        currentGeomPlugin->geomPlugin_insertMeshIntoOctree(ocStruct, _tr1, obbStruct, _tr2, rgba, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertOctreeIntoOctree(void* oc1Struct, const C7Vector& octree1Transformation,
+void CPluginContainer::geomPlugin_insertOctreeIntoOctree_rgb(void* oc1Struct, const C7Vector& octree1Transformation,
                                                          const void* oc2Struct, const C7Vector& octree2Transformation,
                                                          const unsigned char rgbData[3] /*=nullptr*/,
                                                          unsigned int usrData /*=0*/)
@@ -1413,10 +1579,85 @@ void CPluginContainer::geomPlugin_insertOctreeIntoOctree(void* oc1Struct, const 
         double _tr2[7];
         octree2Transformation.getData(_tr2);
         currentGeomPlugin->pushCurrentPlugin();
-        currentGeomPlugin->geomPlugin_insertOctreeIntoOctree(oc1Struct, _tr1, oc2Struct, _tr2, rgbData, usrData);
+        unsigned char rgba[4] = {rgbData[0], rgbData[1], rgbData[2], 255};
+        currentGeomPlugin->geomPlugin_insertOctreeIntoOctree(oc1Struct, _tr1, oc2Struct, _tr2, rgba, usrData);
         currentGeomPlugin->popCurrentPlugin();
     }
 }
+
+void CPluginContainer::geomPlugin_insertPointsIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation,
+                                                         const double* points, int pointCnt,
+                                                         const unsigned char rgbaData[4] /*=nullptr*/,
+                                                         unsigned int usrData /*=0*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        double _tr[7];
+        octreeTransformation.getData(_tr);
+        currentGeomPlugin->pushCurrentPlugin();
+        currentGeomPlugin->geomPlugin_insertPointsIntoOctree(ocStruct, _tr, points, pointCnt, rgbaData, usrData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+}
+void CPluginContainer::geomPlugin_insertColorPointsIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation,
+                                                              const double* points, int pointCnt,
+                                                              const unsigned char* rgbaData /*=nullptr*/,
+                                                              const unsigned int* usrData /*=nullptr*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        double _tr[7];
+        octreeTransformation.getData(_tr);
+        currentGeomPlugin->pushCurrentPlugin();
+        currentGeomPlugin->geomPlugin_insertColorPointsIntoOctree(ocStruct, _tr, points, pointCnt, rgbaData, usrData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+}
+void CPluginContainer::geomPlugin_insertMeshIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation,
+                                                       const void* obbStruct, const C7Vector& meshTransformation,
+                                                       const unsigned char rgbaData[4] /*=nullptr*/,
+                                                       unsigned int usrData /*=0*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        double _tr1[7];
+        octreeTransformation.getData(_tr1);
+        double _tr2[7];
+        meshTransformation.getData(_tr2);
+        currentGeomPlugin->pushCurrentPlugin();
+        currentGeomPlugin->geomPlugin_insertMeshIntoOctree(ocStruct, _tr1, obbStruct, _tr2, rgbaData, usrData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+}
+void CPluginContainer::geomPlugin_insertOctreeIntoOctree_rgba(void* oc1Struct, const C7Vector& octree1Transformation,
+                                                         const void* oc2Struct, const C7Vector& octree2Transformation,
+                                                         const unsigned char rgbaData[4] /*=nullptr*/,
+                                                         unsigned int usrData /*=0*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        double _tr1[7];
+        octree1Transformation.getData(_tr1);
+        double _tr2[7];
+        octree2Transformation.getData(_tr2);
+        currentGeomPlugin->pushCurrentPlugin();
+        currentGeomPlugin->geomPlugin_insertOctreeIntoOctree(oc1Struct, _tr1, oc2Struct, _tr2, rgbaData, usrData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+}
+
 bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct, const C7Vector& octreeTransformation,
                                                          const double* points, int pointCnt)
 {
@@ -1472,7 +1713,7 @@ bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct, const 
     }
     return (retVal);
 }
-void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const double* points, int pointCnt,
+void* CPluginContainer::geomPlugin_createPtcloudFromPoints_rgb(const double* points, int pointCnt,
                                                            const C7Vector* ptcloudOrigin /*=nullptr*/,
                                                            double cellS /*=0.05*/, int maxPointCnt /*=20*/,
                                                            const unsigned char rgbData[3] /*=nullptr*/,
@@ -1492,13 +1733,48 @@ void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const double* points,
             _tr = tr;
         }
         currentGeomPlugin->pushCurrentPlugin();
-        retVal = currentGeomPlugin->geomPlugin_createPtcloudFromPoints(points, pointCnt, _tr, cellS, maxPointCnt,
-                                                                       rgbData, proximityTol);
+        unsigned char* cc = nullptr;
+        unsigned char rgbaData[4];
+        if (rgbData != nullptr)
+        {
+            rgbaData[0] = rgbData[0];
+            rgbaData[1] = rgbData[1];
+            rgbaData[2] = rgbData[2];
+            rgbaData[3] = 255;
+            cc = rgbaData;
+        }
+        retVal = currentGeomPlugin->geomPlugin_createPtcloudFromPoints(points, pointCnt, _tr, cellS, maxPointCnt, cc, proximityTol);
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
 }
-void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints(const double* points, int pointCnt,
+void* CPluginContainer::geomPlugin_createPtcloudFromPoints_rgba(const double* points, int pointCnt,
+                                                               const C7Vector* ptcloudOrigin /*=nullptr*/,
+                                                               double cellS /*=0.05*/, int maxPointCnt /*=20*/,
+                                                               const unsigned char rgbaData[4] /*=nullptr*/,
+                                                               double proximityTol /*=0.005*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    void* retVal = nullptr;
+    if (currentGeomPlugin != nullptr)
+    {
+        double tr[7];
+        double* _tr = nullptr;
+        if (ptcloudOrigin != nullptr)
+        {
+            ptcloudOrigin->getData(tr);
+            _tr = tr;
+        }
+        currentGeomPlugin->pushCurrentPlugin();
+        retVal = currentGeomPlugin->geomPlugin_createPtcloudFromPoints(points, pointCnt, _tr, cellS, maxPointCnt, rgbaData, proximityTol);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+    return (retVal);
+}
+
+void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints_rgb(const double* points, int pointCnt,
                                                                 const C7Vector* ptcloudOrigin /*=nullptr*/,
                                                                 double cellS /*=0.05*/, int maxPointCnt /*=20*/,
                                                                 const unsigned char* rgbData /*=nullptr*/,
@@ -1518,8 +1794,48 @@ void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints(const double* po
             _tr = tr;
         }
         currentGeomPlugin->pushCurrentPlugin();
+        std::vector<unsigned char> rgbaData;
+        unsigned char* cc = nullptr;
+        if (rgbData != nullptr)
+        {
+            rgbaData.resize(pointCnt * 4);
+            for (int i = 0; i < pointCnt; i++)
+            {
+                rgbaData[4 * i + 0] = rgbData[3 * i + 0];
+                rgbaData[4 * i + 1] = rgbData[3 * i + 1];
+                rgbaData[4 * i + 2] = rgbData[3 * i + 2];
+                rgbaData[4 * i + 3] = 255;
+            }
+            cc = rgbaData.data();
+        }
+        retVal = currentGeomPlugin->geomPlugin_createPtcloudFromColorPoints(points, pointCnt, _tr, cellS, maxPointCnt, cc, proximityTol);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+    return (retVal);
+}
+
+void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints_rgba(const double* points, int pointCnt,
+                                                                    const C7Vector* ptcloudOrigin /*=nullptr*/,
+                                                                    double cellS /*=0.05*/, int maxPointCnt /*=20*/,
+                                                                    const unsigned char* rgbaData /*=nullptr*/,
+                                                                    double proximityTol /*=0.005*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    void* retVal = nullptr;
+    if (currentGeomPlugin != nullptr)
+    {
+        double tr[7];
+        double* _tr = nullptr;
+        if (ptcloudOrigin != nullptr)
+        {
+            ptcloudOrigin->getData(tr);
+            _tr = tr;
+        }
+        currentGeomPlugin->pushCurrentPlugin();
         retVal = currentGeomPlugin->geomPlugin_createPtcloudFromColorPoints(points, pointCnt, _tr, cellS, maxPointCnt,
-                                                                            rgbData, proximityTol);
+                                                                            rgbaData, proximityTol);
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
@@ -1552,8 +1868,7 @@ void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData(const unsigne
     }
     return (retVal);
 }
-void CPluginContainer::geomPlugin_getPtcloudSerializationData(const void* pcStruct,
-                                                              std::vector<unsigned char>& serializationData)
+void CPluginContainer::geomPlugin_getPtcloudSerializationData(const void* pcStruct, std::vector<unsigned char>& serializationData)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -1563,6 +1878,38 @@ void CPluginContainer::geomPlugin_getPtcloudSerializationData(const void* pcStru
         int l;
         currentGeomPlugin->pushCurrentPlugin();
         unsigned char* data = currentGeomPlugin->geomPlugin_getPtcloudSerializationData(pcStruct, &l);
+        if (data != nullptr)
+        {
+            serializationData.assign(data, data + l);
+            currentGeomPlugin->geomPlugin_releaseBuffer(data);
+        }
+        currentGeomPlugin->popCurrentPlugin();
+    }
+}
+void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData_ver2(const unsigned char* serializationData)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    void* retVal = nullptr;
+    if (currentGeomPlugin != nullptr)
+    {
+        currentGeomPlugin->pushCurrentPlugin();
+        retVal = currentGeomPlugin->geomPlugin_getPtcloudFromSerializationData_ver2(serializationData);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+    return (retVal);
+}
+void CPluginContainer::geomPlugin_getPtcloudSerializationData_ver2(const void* pcStruct, std::vector<unsigned char>& serializationData)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        int l;
+        currentGeomPlugin->pushCurrentPlugin();
+        unsigned char* data = currentGeomPlugin->geomPlugin_getPtcloudSerializationData_ver2(pcStruct, &l);
         if (data != nullptr)
         {
             serializationData.assign(data, data + l);
@@ -1584,25 +1931,6 @@ void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData_float(const u
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
-}
-void CPluginContainer::geomPlugin_getPtcloudSerializationData_float(const void* pcStruct,
-                                                                    std::vector<unsigned char>& serializationData)
-{
-    if (currentGeomPlugin == nullptr)
-        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
-
-    if (currentGeomPlugin != nullptr)
-    {
-        int l;
-        currentGeomPlugin->pushCurrentPlugin();
-        unsigned char* data = currentGeomPlugin->geomPlugin_getPtcloudSerializationData_float(pcStruct, &l);
-        if (data != nullptr)
-        {
-            serializationData.assign(data, data + l);
-            currentGeomPlugin->geomPlugin_releaseBuffer(data);
-        }
-        currentGeomPlugin->popCurrentPlugin();
-    }
 }
 void CPluginContainer::geomPlugin_scalePtcloud(void* pcStruct, double f)
 {
@@ -1663,8 +1991,7 @@ int CPluginContainer::geomPlugin_getDisplayPtcloudData(void* pcStruct,float** pt
     return retVal;
 }
 
-void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct, std::vector<double>& pointData,
-                                                   std::vector<double>* colorData /*=nullptr*/, double prop /*=1.0*/)
+void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct, std::vector<double>& pointData, std::vector<double>* colorData /*=nullptr*/, double prop /*=1.0*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -1681,15 +2008,15 @@ void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct, std::ve
         {
             for (int i = 0; i < l; i++)
             {
-                pointData.push_back(data[6 * i + 0]);
-                pointData.push_back(data[6 * i + 1]);
-                pointData.push_back(data[6 * i + 2]);
+                pointData.push_back(data[7 * i + 0]);
+                pointData.push_back(data[7 * i + 1]);
+                pointData.push_back(data[7 * i + 2]);
                 if (colorData != nullptr)
                 {
-                    colorData->push_back(data[6 * i + 3]);
-                    colorData->push_back(data[6 * i + 4]);
-                    colorData->push_back(data[6 * i + 5]);
-                    colorData->push_back(1.0);
+                    colorData->push_back(data[7 * i + 3]);
+                    colorData->push_back(data[7 * i + 4]);
+                    colorData->push_back(data[7 * i + 5]);
+                    colorData->push_back(data[7 * i + 6]);
                 }
             }
             currentGeomPlugin->geomPlugin_releaseBuffer(data);
@@ -1730,7 +2057,7 @@ int CPluginContainer::geomPlugin_getPtcloudNonEmptyCellCount(const void* pcStruc
     }
     return (retVal);
 }
-void CPluginContainer::geomPlugin_insertPointsIntoPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation,
+void CPluginContainer::geomPlugin_insertPointsIntoPtcloud_rgb(void* pcStruct, const C7Vector& ptcloudTransformation,
                                                           const double* points, int pointCnt,
                                                           const unsigned char rgbData[3] /*=nullptr*/,
                                                           double proximityTol /*=0.001*/)
@@ -1743,11 +2070,21 @@ void CPluginContainer::geomPlugin_insertPointsIntoPtcloud(void* pcStruct, const 
         double _tr[7];
         ptcloudTransformation.getData(_tr);
         currentGeomPlugin->pushCurrentPlugin();
-        currentGeomPlugin->geomPlugin_insertPointsIntoPtcloud(pcStruct, _tr, points, pointCnt, rgbData, proximityTol);
+        unsigned char* cc = nullptr;
+        unsigned char rgbaData[4];
+        if (rgbData != nullptr)
+        {
+            rgbaData[0] = rgbData[0];
+            rgbaData[1] = rgbData[1];
+            rgbaData[2] = rgbData[2];
+            rgbaData[3] = 255;
+            cc = rgbaData;
+        }
+        currentGeomPlugin->geomPlugin_insertPointsIntoPtcloud(pcStruct, _tr, points, pointCnt, cc, proximityTol);
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation,
+void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud_rgb(void* pcStruct, const C7Vector& ptcloudTransformation,
                                                                const double* points, int pointCnt,
                                                                const unsigned char* rgbData /*=nullptr*/,
                                                                double proximityTol /*=0.001*/)
@@ -1760,8 +2097,55 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct, c
         double _tr[7];
         ptcloudTransformation.getData(_tr);
         currentGeomPlugin->pushCurrentPlugin();
-        currentGeomPlugin->geomPlugin_insertColorPointsIntoPtcloud(pcStruct, _tr, points, pointCnt, rgbData,
-                                                                   proximityTol);
+        std::vector<unsigned char> rgbaData;
+        unsigned char* cc = nullptr;
+        if (rgbData != nullptr)
+        {
+            rgbaData.resize(pointCnt * 4);
+            for (int i = 0; i < pointCnt; i++)
+            {
+                rgbaData[4 * i + 0] = rgbData[3 * i + 0];
+                rgbaData[4 * i + 1] = rgbData[3 * i + 1];
+                rgbaData[4 * i + 2] = rgbData[3 * i + 2];
+                rgbaData[4 * i + 3] = 255;
+            }
+            cc = rgbaData.data();
+        }
+        currentGeomPlugin->geomPlugin_insertColorPointsIntoPtcloud(pcStruct, _tr, points, pointCnt, cc, proximityTol);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+}
+void CPluginContainer::geomPlugin_insertPointsIntoPtcloud_rgba(void* pcStruct, const C7Vector& ptcloudTransformation,
+                                                          const double* points, int pointCnt,
+                                                          const unsigned char rgbaData[4] /*=nullptr*/,
+                                                          double proximityTol /*=0.001*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        double _tr[7];
+        ptcloudTransformation.getData(_tr);
+        currentGeomPlugin->pushCurrentPlugin();
+        currentGeomPlugin->geomPlugin_insertPointsIntoPtcloud(pcStruct, _tr, points, pointCnt, rgbaData, proximityTol);
+        currentGeomPlugin->popCurrentPlugin();
+    }
+}
+void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud_rgba(void* pcStruct, const C7Vector& ptcloudTransformation,
+                                                               const double* points, int pointCnt,
+                                                               const unsigned char* rgbaData /*=nullptr*/,
+                                                               double proximityTol /*=0.001*/)
+{
+    if (currentGeomPlugin == nullptr)
+        currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
+    if (currentGeomPlugin != nullptr)
+    {
+        double _tr[7];
+        ptcloudTransformation.getData(_tr);
+        currentGeomPlugin->pushCurrentPlugin();
+        currentGeomPlugin->geomPlugin_insertColorPointsIntoPtcloud(pcStruct, _tr, points, pointCnt, rgbaData, proximityTol);
         currentGeomPlugin->popCurrentPlugin();
     }
 }

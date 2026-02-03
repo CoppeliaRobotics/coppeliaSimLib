@@ -72,11 +72,9 @@ typedef void*(__cdecl* ptr_geomPlugin_createOctreeFromOctree)(const void* otherO
                                                               const unsigned char rgbData[3], unsigned int usrData);
 typedef void*(__cdecl* ptr_geomPlugin_copyOctree)(const void* ocStruct);
 typedef void*(__cdecl* ptr_geomPlugin_getOctreeFromSerializationData)(const unsigned char* serializationData);
-typedef unsigned char*(__cdecl* ptr_geomPlugin_getOctreeSerializationData)(const void* ocStruct,
-                                                                           int* serializationDataSize);
+typedef unsigned char*(__cdecl* ptr_geomPlugin_getOctreeSerializationData)(const void* ocStruct, int* serializationDataSize);
+typedef unsigned char*(__cdecl* ptr_geomPlugin_getOctreeSerializationData_ver2)(const void* ocStruct, int* serializationDataSize);
 typedef void*(__cdecl* ptr_geomPlugin_getOctreeFromSerializationData_float)(const unsigned char* serializationData);
-typedef unsigned char*(__cdecl* ptr_geomPlugin_getOctreeSerializationData_float)(const void* ocStruct,
-                                                                                 int* serializationDataSize);
 typedef void(__cdecl* ptr_geomPlugin_scaleOctree)(void* ocStruct, double f);
 typedef void(__cdecl* ptr_geomPlugin_destroyOctree)(void* ocStruct);
 
@@ -116,11 +114,10 @@ typedef void*(__cdecl* ptr_geomPlugin_createPtcloudFromColorPoints)(const double
                                                                     double proximityTol);
 typedef void*(__cdecl* ptr_geomPlugin_copyPtcloud)(const void* pcStruct);
 typedef void*(__cdecl* ptr_geomPlugin_getPtcloudFromSerializationData)(const unsigned char* serializationData);
-typedef unsigned char*(__cdecl* ptr_geomPlugin_getPtcloudSerializationData)(const void* pcStruct,
-                                                                            int* serializationDataSize);
+typedef unsigned char*(__cdecl* ptr_geomPlugin_getPtcloudSerializationData)(const void* pcStruct, int* serializationDataSize);
+typedef void*(__cdecl* ptr_geomPlugin_getPtcloudFromSerializationData_ver2)(const unsigned char* serializationData);
+typedef unsigned char*(__cdecl* ptr_geomPlugin_getPtcloudSerializationData_ver2)(const void* pcStruct, int* serializationDataSize);
 typedef void*(__cdecl* ptr_geomPlugin_getPtcloudFromSerializationData_float)(const unsigned char* serializationData);
-typedef unsigned char*(__cdecl* ptr_geomPlugin_getPtcloudSerializationData_float)(const void* pcStruct,
-                                                                                  int* serializationDataSize);
 typedef void(__cdecl* ptr_geomPlugin_scalePtcloud)(void* pcStruct, double f);
 typedef void(__cdecl* ptr_geomPlugin_destroyPtcloud)(void* pcStruct);
 typedef void(__cdecl* ptr_geomPlugin_refreshDisplayPtcloudData)(void* pcStruct);
@@ -528,8 +525,8 @@ class CPlugin
     ptr_geomPlugin_copyOctree geomPlugin_copyOctree;
     ptr_geomPlugin_getOctreeFromSerializationData geomPlugin_getOctreeFromSerializationData;
     ptr_geomPlugin_getOctreeSerializationData geomPlugin_getOctreeSerializationData;
+    ptr_geomPlugin_getOctreeSerializationData_ver2 geomPlugin_getOctreeSerializationData_ver2;
     ptr_geomPlugin_getOctreeFromSerializationData_float geomPlugin_getOctreeFromSerializationData_float;
-    ptr_geomPlugin_getOctreeSerializationData_float geomPlugin_getOctreeSerializationData_float;
     ptr_geomPlugin_scaleOctree geomPlugin_scaleOctree;
     ptr_geomPlugin_destroyOctree geomPlugin_destroyOctree;
     ptr_geomPlugin_refreshDisplayOctreeData geomPlugin_refreshDisplayOctreeData;
@@ -549,8 +546,9 @@ class CPlugin
     ptr_geomPlugin_copyPtcloud geomPlugin_copyPtcloud;
     ptr_geomPlugin_getPtcloudFromSerializationData geomPlugin_getPtcloudFromSerializationData;
     ptr_geomPlugin_getPtcloudSerializationData geomPlugin_getPtcloudSerializationData;
+    ptr_geomPlugin_getPtcloudFromSerializationData_ver2 geomPlugin_getPtcloudFromSerializationData_ver2;
+    ptr_geomPlugin_getPtcloudSerializationData_ver2 geomPlugin_getPtcloudSerializationData_ver2;
     ptr_geomPlugin_getPtcloudFromSerializationData_float geomPlugin_getPtcloudFromSerializationData_float;
-    ptr_geomPlugin_getPtcloudSerializationData_float geomPlugin_getPtcloudSerializationData_float;
     ptr_geomPlugin_scalePtcloud geomPlugin_scalePtcloud;
     ptr_geomPlugin_destroyPtcloud geomPlugin_destroyPtcloud;
     ptr_geomPlugin_refreshDisplayPtcloudData geomPlugin_refreshDisplayPtcloudData;

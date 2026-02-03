@@ -406,7 +406,7 @@ void CMarker::removeSceneDependencies()
 void CMarker::addSpecializedObjectEventData(CCbor* ev)
 {
     _markerColor.addGenesisEventData(ev);
-    ev->appendKeyDouble(propScript_size.name, _markerSize);
+    ev->appendKeyDouble(propMarker_size.name, _markerSize);
     ev->appendKeyInt(propMarker_itemType.name, _itemType);
     ev->appendKeyBool(propMarker_cyclic.name, _itemOptions & sim_markeropts_cyclic);
     ev->appendKeyBool(propMarker_overlay.name, _itemOptions & sim_markeropts_overlay);

@@ -606,10 +606,10 @@ void CPlugin::_loadAuxEntryPoints()
         VVarious::resolveLibraryFuncName(instance, "geomPlugin_getOctreeFromSerializationData"));
     geomPlugin_getOctreeSerializationData = (ptr_geomPlugin_getOctreeSerializationData)(
         VVarious::resolveLibraryFuncName(instance, "geomPlugin_getOctreeSerializationData"));
+    geomPlugin_getOctreeSerializationData_ver2 = (ptr_geomPlugin_getOctreeSerializationData_ver2)(
+        VVarious::resolveLibraryFuncName(instance, "geomPlugin_getOctreeSerializationData_ver2"));
     geomPlugin_getOctreeFromSerializationData_float = (ptr_geomPlugin_getOctreeFromSerializationData_float)(
         VVarious::resolveLibraryFuncName(instance, "geomPlugin_getOctreeFromSerializationData_float"));
-    geomPlugin_getOctreeSerializationData_float = (ptr_geomPlugin_getOctreeSerializationData_float)(
-        VVarious::resolveLibraryFuncName(instance, "geomPlugin_getOctreeSerializationData_float"));
     geomPlugin_scaleOctree =
         (ptr_geomPlugin_scaleOctree)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_scaleOctree"));
     geomPlugin_destroyOctree =
@@ -643,14 +643,11 @@ void CPlugin::_loadAuxEntryPoints()
         VVarious::resolveLibraryFuncName(instance, "geomPlugin_createPtcloudFromColorPoints"));
     geomPlugin_copyPtcloud =
         (ptr_geomPlugin_copyPtcloud)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_copyPtcloud"));
-    geomPlugin_getPtcloudFromSerializationData = (ptr_geomPlugin_getPtcloudFromSerializationData)(
-        VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudFromSerializationData"));
-    geomPlugin_getPtcloudSerializationData = (ptr_geomPlugin_getPtcloudSerializationData)(
-        VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudSerializationData"));
-    geomPlugin_getPtcloudFromSerializationData_float = (ptr_geomPlugin_getPtcloudFromSerializationData_float)(
-        VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudFromSerializationData_float"));
-    geomPlugin_getPtcloudSerializationData_float = (ptr_geomPlugin_getPtcloudSerializationData_float)(
-        VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudSerializationData_float"));
+    geomPlugin_getPtcloudFromSerializationData = (ptr_geomPlugin_getPtcloudFromSerializationData)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudFromSerializationData"));
+    geomPlugin_getPtcloudSerializationData = (ptr_geomPlugin_getPtcloudSerializationData)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudSerializationData"));
+    geomPlugin_getPtcloudFromSerializationData_ver2 = (ptr_geomPlugin_getPtcloudFromSerializationData_ver2)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudFromSerializationData_ver2"));
+    geomPlugin_getPtcloudSerializationData_ver2 = (ptr_geomPlugin_getPtcloudSerializationData_ver2)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudSerializationData_ver2"));
+    geomPlugin_getPtcloudFromSerializationData_float = (ptr_geomPlugin_getPtcloudFromSerializationData_float)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_getPtcloudFromSerializationData_float"));
     geomPlugin_scalePtcloud = (ptr_geomPlugin_scalePtcloud)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_scalePtcloud"));
     geomPlugin_destroyPtcloud = (ptr_geomPlugin_destroyPtcloud)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_destroyPtcloud"));
     geomPlugin_refreshDisplayPtcloudData = (ptr_geomPlugin_refreshDisplayPtcloudData)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_refreshDisplayPtcloudData"));

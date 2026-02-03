@@ -91,15 +91,19 @@ class CPluginContainer
     double geomPlugin_getMeshRootObbVolume(const void* meshObbStruct);
 
            // OC tree creation/destruction/manipulation/info
-    void* geomPlugin_createOctreeFromPoints(const double* points, int pointCnt, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
-    void* geomPlugin_createOctreeFromColorPoints(const double* points, int pointCnt, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char* rgbData = nullptr, const unsigned int* usrData = nullptr);
-    void* geomPlugin_createOctreeFromMesh(const void* meshObbStruct, const C7Vector& meshTransformation, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
-    void* geomPlugin_createOctreeFromOctree(const void* otherOctreeStruct, const C7Vector& otherOctreeTransformation, const C7Vector* newOctreeOrigin = nullptr, double newOctreeCellS = 0.05, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
+    void* geomPlugin_createOctreeFromPoints_rgb(const double* points, int pointCnt, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
+    void* geomPlugin_createOctreeFromColorPoints_rgb(const double* points, int pointCnt, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char* rgbData = nullptr, const unsigned int* usrData = nullptr);
+    void* geomPlugin_createOctreeFromMesh_rgb(const void* meshObbStruct, const C7Vector& meshTransformation, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
+    void* geomPlugin_createOctreeFromOctree_rgb(const void* otherOctreeStruct, const C7Vector& otherOctreeTransformation, const C7Vector* newOctreeOrigin = nullptr, double newOctreeCellS = 0.05, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
+    void* geomPlugin_createOctreeFromPoints_rgba(const double* points, int pointCnt, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char rgbaData[4] = nullptr, unsigned int usrData = 0);
+    void* geomPlugin_createOctreeFromColorPoints_rgba(const double* points, int pointCnt, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char* rgbaData = nullptr, const unsigned int* usrData = nullptr);
+    void* geomPlugin_createOctreeFromMesh_rgba(const void* meshObbStruct, const C7Vector& meshTransformation, const C7Vector* octreeOrigin = nullptr, double cellS = 0.05, const unsigned char rgbaData[4] = nullptr, unsigned int usrData = 0);
+    void* geomPlugin_createOctreeFromOctree_rgba(const void* otherOctreeStruct, const C7Vector& otherOctreeTransformation, const C7Vector* newOctreeOrigin = nullptr, double newOctreeCellS = 0.05, const unsigned char rgbaData[4] = nullptr, unsigned int usrData = 0);
     void* geomPlugin_copyOctree(const void* ocStruct);
     void* geomPlugin_getOctreeFromSerializationData(const unsigned char* serializationData);
     void geomPlugin_getOctreeSerializationData(const void* ocStruct, std::vector<unsigned char>& serializationData);
+    void geomPlugin_getOctreeSerializationData_ver2(const void* ocStruct, std::vector<unsigned char>& serializationData);
     void* geomPlugin_getOctreeFromSerializationData_float(const unsigned char* serializationData);
-    void geomPlugin_getOctreeSerializationData_float(const void* ocStruct, std::vector<unsigned char>& serializationData);
     void geomPlugin_scaleOctree(void* ocStruct, double f);
     void geomPlugin_destroyOctree(void* ocStruct);
     void geomPlugin_refreshDisplayOctreeData(void* ocStruct);
@@ -109,22 +113,29 @@ class CPluginContainer
     void geomPlugin_getOctreeUserData(const void* ocStruct, std::vector<unsigned int>& userData);
     void geomPlugin_getOctreeCornersFromOctree(const void* ocStruct, std::vector<double>& points);
 
-    void geomPlugin_insertPointsIntoOctree(void* ocStruct, const C7Vector& octreeTransformation, const double* points, int pointCnt, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
-    void geomPlugin_insertColorPointsIntoOctree(void* ocStruct, const C7Vector& octreeTransformation, const double* points, int pointCnt, const unsigned char* rgbData = nullptr, const unsigned int* usrData = nullptr);
-    void geomPlugin_insertMeshIntoOctree(void* ocStruct, const C7Vector& octreeTransformation, const void* obbStruct, const C7Vector& meshTransformation, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
-    void geomPlugin_insertOctreeIntoOctree(void* oc1Struct, const C7Vector& octree1Transformation, const void* oc2Struct, const C7Vector& octree2Transformation, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
+    void geomPlugin_insertPointsIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation, const double* points, int pointCnt, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
+    void geomPlugin_insertColorPointsIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation, const double* points, int pointCnt, const unsigned char* rgbData = nullptr, const unsigned int* usrData = nullptr);
+    void geomPlugin_insertMeshIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation, const void* obbStruct, const C7Vector& meshTransformation, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
+    void geomPlugin_insertOctreeIntoOctree_rgb(void* oc1Struct, const C7Vector& octree1Transformation, const void* oc2Struct, const C7Vector& octree2Transformation, const unsigned char rgbData[3] = nullptr, unsigned int usrData = 0);
+    void geomPlugin_insertPointsIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation, const double* points, int pointCnt, const unsigned char rgbaData[4] = nullptr, unsigned int usrData = 0);
+    void geomPlugin_insertColorPointsIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation, const double* points, int pointCnt, const unsigned char* rgbaData = nullptr, const unsigned int* usrData = nullptr);
+    void geomPlugin_insertMeshIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation, const void* obbStruct, const C7Vector& meshTransformation, const unsigned char rgbaData[4] = nullptr, unsigned int usrData = 0);
+    void geomPlugin_insertOctreeIntoOctree_rgba(void* oc1Struct, const C7Vector& octree1Transformation, const void* oc2Struct, const C7Vector& octree2Transformation, const unsigned char rgbaData[4] = nullptr, unsigned int usrData = 0);
     bool geomPlugin_removePointsFromOctree(void* ocStruct, const C7Vector& octreeTransformation, const double* points, int pointCnt);
     bool geomPlugin_removeMeshFromOctree(void* ocStruct, const C7Vector& octreeTransformation, const void* obbStruct, const C7Vector& meshTransformation);
     bool geomPlugin_removeOctreeFromOctree(void* oc1Struct, const C7Vector& octree1Transformation, const void* oc2Struct, const C7Vector& octree2Transformation);
 
            // Point cloud creation/destruction/manipulation/info
-    void* geomPlugin_createPtcloudFromPoints(const double* points, int pointCnt, const C7Vector* ptcloudOrigin = nullptr, double cellS = 0.05, int maxPointCnt = 20, const unsigned char rgbData[3] = nullptr, double proximityTol = 0.005);
-    void* geomPlugin_createPtcloudFromColorPoints(const double* points, int pointCnt, const C7Vector* ptcloudOrigin = nullptr, double cellS = 0.05, int maxPointCnt = 20, const unsigned char* rgbData = nullptr, double proximityTol = 0.005);
+    void* geomPlugin_createPtcloudFromPoints_rgb(const double* points, int pointCnt, const C7Vector* ptcloudOrigin = nullptr, double cellS = 0.05, int maxPointCnt = 20, const unsigned char rgbData[3] = nullptr, double proximityTol = 0.005);
+    void* geomPlugin_createPtcloudFromColorPoints_rgb(const double* points, int pointCnt, const C7Vector* ptcloudOrigin = nullptr, double cellS = 0.05, int maxPointCnt = 20, const unsigned char* rgbData = nullptr, double proximityTol = 0.005);
+    void* geomPlugin_createPtcloudFromPoints_rgba(const double* points, int pointCnt, const C7Vector* ptcloudOrigin = nullptr, double cellS = 0.05, int maxPointCnt = 20, const unsigned char rgbaData[4] = nullptr, double proximityTol = 0.005);
+    void* geomPlugin_createPtcloudFromColorPoints_rgba(const double* points, int pointCnt, const C7Vector* ptcloudOrigin = nullptr, double cellS = 0.05, int maxPointCnt = 20, const unsigned char* rgbaData = nullptr, double proximityTol = 0.005);
     void* geomPlugin_copyPtcloud(const void* pcStruct);
     void* geomPlugin_getPtcloudFromSerializationData(const unsigned char* serializationData);
     void geomPlugin_getPtcloudSerializationData(const void* pcStruct, std::vector<unsigned char>& serializationData);
+    void* geomPlugin_getPtcloudFromSerializationData_ver2(const unsigned char* serializationData);
+    void geomPlugin_getPtcloudSerializationData_ver2(const void* pcStruct, std::vector<unsigned char>& serializationData);
     void* geomPlugin_getPtcloudFromSerializationData_float(const unsigned char* serializationData);
-    void geomPlugin_getPtcloudSerializationData_float(const void* pcStruct, std::vector<unsigned char>& serializationData);
     void geomPlugin_scalePtcloud(void* pcStruct, double f);
     void geomPlugin_destroyPtcloud(void* pcStruct);
     void geomPlugin_refreshDisplayPtcloudData(void* pcStruct);
@@ -133,8 +144,10 @@ class CPluginContainer
     void geomPlugin_getPtcloudOctreeCorners(const void* pcStruct, std::vector<double>& points);
     int geomPlugin_getPtcloudNonEmptyCellCount(const void* pcStruct);
 
-    void geomPlugin_insertPointsIntoPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation, const double* points, int pointCnt, const unsigned char rgbData[3] = nullptr, double proximityTol = 0.001);
-    void geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation, const double* points, int pointCnt, const unsigned char* rgbData = nullptr, double proximityTol = 0.001);
+    void geomPlugin_insertPointsIntoPtcloud_rgb(void* pcStruct, const C7Vector& ptcloudTransformation, const double* points, int pointCnt, const unsigned char rgbData[3] = nullptr, double proximityTol = 0.001);
+    void geomPlugin_insertColorPointsIntoPtcloud_rgb(void* pcStruct, const C7Vector& ptcloudTransformation, const double* points, int pointCnt, const unsigned char* rgbData = nullptr, double proximityTol = 0.001);
+    void geomPlugin_insertPointsIntoPtcloud_rgba(void* pcStruct, const C7Vector& ptcloudTransformation, const double* points, int pointCnt, const unsigned char rgbaData[4] = nullptr, double proximityTol = 0.001);
+    void geomPlugin_insertColorPointsIntoPtcloud_rgba(void* pcStruct, const C7Vector& ptcloudTransformation, const double* points, int pointCnt, const unsigned char* rgbaData = nullptr, double proximityTol = 0.001);
     bool geomPlugin_removePointsFromPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation, const double* points, int pointCnt, double proximityTol, int* countRemoved = nullptr);
     bool geomPlugin_removeOctreeFromPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation, const void* ocStruct, const C7Vector& octreeTransformation, int* countRemoved = nullptr);
     bool geomPlugin_intersectPointsWithPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation, const double* points, int pointCnt, double proximityTol = 0.001);

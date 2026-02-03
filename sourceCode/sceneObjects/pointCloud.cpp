@@ -123,8 +123,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions(bool incrementalDispla
 
             App::worldContainer->pluginContainer->geomPlugin_getPtcloudPoints(_pointCloudInfo, _points, &_colors);
             if (_pointDisplayRatio < 0.99)
-                App::worldContainer->pluginContainer->geomPlugin_getPtcloudPoints(_pointCloudInfo, _displayPoints,
-                                                                                  &_displayColors, _pointDisplayRatio);
+                App::worldContainer->pluginContainer->geomPlugin_getPtcloudPoints(_pointCloudInfo, _displayPoints, &_displayColors, _pointDisplayRatio);
             else
             {
                 _displayPoints.assign(_points.begin(), _points.end());
@@ -276,7 +275,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
                     ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
-                    ev->appendKeyBuff("rgb", cols, newCnt * 3);
+                    ev->appendKeyBuff("rgba", cols, newCnt * 4);
                     ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
                     ev->closeArrayOrMap();
                     if (evv == nullptr)
@@ -519,18 +518,15 @@ void CPointCloud::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativ
                 unsigned char cols[3] = {(unsigned char)(color.getColorsPtr()[0] * 255.1),
                                          (unsigned char)(color.getColorsPtr()[1] * 255.1),
                                          (unsigned char)(color.getColorsPtr()[2] * 255.1)};
-                _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromPoints(
-                    _pts, ptsCnt, nullptr, _cellSize, _maxPointCountPerCell, cols, _insertionDistanceTolerance);
+                _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromPoints_rgb(_pts, ptsCnt, nullptr, _cellSize, _maxPointCountPerCell, cols, _insertionDistanceTolerance);
             }
             else
             {
                 if (colorsAreIndividual)
-                    _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromColorPoints(
-                        _pts, ptsCnt, nullptr, _cellSize, _maxPointCountPerCell, optionalColors3,
+                    _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromColorPoints_rgb(_pts, ptsCnt, nullptr, _cellSize, _maxPointCountPerCell, optionalColors3,
                         _insertionDistanceTolerance);
                 else
-                    _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromPoints(
-                        _pts, ptsCnt, nullptr, _cellSize, _maxPointCountPerCell, optionalColors3,
+                    _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromPoints_rgb(_pts, ptsCnt, nullptr, _cellSize, _maxPointCountPerCell, optionalColors3,
                         _insertionDistanceTolerance);
             }
         }
@@ -541,19 +537,14 @@ void CPointCloud::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativ
                 unsigned char cols[3] = {(unsigned char)(color.getColorsPtr()[0] * 255.1),
                                          (unsigned char)(color.getColorsPtr()[1] * 255.1),
                                          (unsigned char)(color.getColorsPtr()[2] * 255.1)};
-                App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoPtcloud(
-                    _pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, cols, _insertionDistanceTolerance);
+                App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoPtcloud_rgb(_pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, cols, _insertionDistanceTolerance);
             }
             else
             {
                 if (colorsAreIndividual)
-                    App::worldContainer->pluginContainer->geomPlugin_insertColorPointsIntoPtcloud(
-                        _pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3,
-                        _insertionDistanceTolerance);
+                    App::worldContainer->pluginContainer->geomPlugin_insertColorPointsIntoPtcloud_rgb(_pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, _insertionDistanceTolerance);
                 else
-                    App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoPtcloud(
-                        _pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3,
-                        _insertionDistanceTolerance);
+                    App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoPtcloud_rgb(_pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, _insertionDistanceTolerance);
             }
         }
     }
@@ -568,7 +559,7 @@ void CPointCloud::insertShape(CShape* shape)
     C4X4Matrix m(getCumulativeTransformation().getMatrix());
     unsigned char dummyColor[3];
     const C7Vector tr(getCumulativeTransformation());
-    void* octree = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromMesh(
+    void* octree = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromMesh_rgb(
         shape->_meshCalculationStructure, shape->getCumulCenteredMeshFrame(), &tr, _buildResolution, dummyColor, 0);
     std::vector<double> pts;
     App::worldContainer->pluginContainer->geomPlugin_getOctreeVoxelPositions(octree, pts);
@@ -1175,6 +1166,22 @@ void CPointCloud::serialize(CSer& ar)
                 {
                     std::vector<unsigned char> data;
                     App::worldContainer->pluginContainer->geomPlugin_getPtcloudSerializationData(_pointCloudInfo, data);
+                    ar.storeDataName("_o3");
+                    ar.setCountingMode(true);
+                    for (size_t i = 0; i < data.size(); i++)
+                        ar << data[i];
+                    ar.flush(false);
+                    if (ar.setWritingMode(true))
+                    {
+                        for (size_t i = 0; i < data.size(); i++)
+                            ar << data[i];
+                        ar.flush(false);
+                    }
+
+                    // Keep following a while (and after _o3) so that older versions can still read this:
+                    //*********************************************************************
+                    data.clear();
+                    App::worldContainer->pluginContainer->geomPlugin_getPtcloudSerializationData_ver2(_pointCloudInfo, data);
                     ar.storeDataName("_o2");
                     ar.setCountingMode(true);
                     for (size_t i = 0; i < data.size(); i++)
@@ -1193,6 +1200,7 @@ void CPointCloud::serialize(CSer& ar)
         else
         { // Loading
             int byteQuantity;
+            bool readVersion3 = false;
             std::string theName = "";
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
@@ -1364,7 +1372,7 @@ void CPointCloud::serialize(CSer& ar)
                         color.serialize(ar, 0);
                     }
                     if (theName.compare("Co2") == 0)
-                    { // for backward comp. (flt->dbl)
+                    { // for backward comp. (flt->dbl, ver1)
                         noHit = false;
                         ar >> byteQuantity;
                         std::vector<unsigned char> data;
@@ -1379,8 +1387,8 @@ void CPointCloud::serialize(CSer& ar)
                         _readPositionsAndColorsAndSetDimensions(false);
                     }
 
-                    if (theName.compare("_o2") == 0)
-                    {
+                    if ((theName.compare("_o2") == 0) && (!readVersion3))
+                    { // ver2
                         noHit = false;
                         ar >> byteQuantity;
                         std::vector<unsigned char> data;
@@ -1393,8 +1401,24 @@ void CPointCloud::serialize(CSer& ar)
                         }
                         if (_pointCloudInfo != nullptr) // we could also have read "Co2"
                             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
-                        _pointCloudInfo =
-                            App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData(&data[0]);
+                        _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData_ver2(&data[0]);
+                        _readPositionsAndColorsAndSetDimensions(false);
+                    }
+
+                    if (theName.compare("_o3") == 0)
+                    { // ver3
+                        noHit = false;
+                        readVersion3 = true;
+                        ar >> byteQuantity;
+                        std::vector<unsigned char> data;
+                        data.reserve(byteQuantity);
+                        unsigned char dummy;
+                        for (int i = 0; i < byteQuantity; i++)
+                        {
+                            ar >> dummy;
+                            data.push_back(dummy);
+                        }
+                        _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData(&data[0]);
                         _readPositionsAndColorsAndSetDimensions(false);
                     }
 
