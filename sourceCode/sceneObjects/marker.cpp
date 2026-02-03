@@ -1575,7 +1575,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             ev->appendKeyBuff("quats", (unsigned char*)_quats.data(), _quats.size() * sizeof(float));
             ev->appendKeyBuff("sizes", (unsigned char*)_sizes.data(), _sizes.size() * sizeof(float));
             ev->appendKeyBuff("rgba", _rgba.data(), _rgba.size());
-            ev->appendKeyBuff("ids", (unsigned char*)_ids.data(), _ids.size());
+            ev->appendKeyBuff("ids", (unsigned char*)_ids.data(), _ids.size() * sizeof(unsigned int));
             ev->closeArrayOrMap();
             if (evv == nullptr)
                 App::worldContainer->pushEvent();
