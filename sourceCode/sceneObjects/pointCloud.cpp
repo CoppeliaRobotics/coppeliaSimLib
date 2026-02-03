@@ -248,7 +248,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
             ev->appendKeyBuff("pts", nullptr, 0);
-            ev->appendKeyBuff("rgb", nullptr, 0);
+            ev->appendKeyBuff("rgba", nullptr, 0);
             ev->appendKeyBuff("ids", nullptr, 0);
             ev->closeArrayOrMap();
             if (evv == nullptr)
@@ -287,7 +287,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                     ev->openKeyMap("add");
                     ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
-                    ev->appendKeyBuff("rgb", cols, newCnt * 3);
+                    ev->appendKeyBuff("rgba", cols, newCnt * 4);
                     ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
                     ev->closeArrayOrMap();
                     ev->openKeyMap("rem");

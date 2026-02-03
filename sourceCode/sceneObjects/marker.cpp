@@ -91,6 +91,7 @@ void CMarker::_initialize()
 
     addItems(&ppts, &qqats, &rrgba, &ssizes, false);
 
+    _rebuildMarkerBoundingBox();
     computeBoundingBox();
 }
 
@@ -394,8 +395,18 @@ void CMarker::computeBoundingBox()
 void CMarker::scaleObject(double scalingFactor)
 {
     setMarkerSize(_markerSize * scalingFactor);
-    //TODO
+    _itemSize[0] *= scalingFactor;
+    _itemSize[1] *= scalingFactor;
+    _itemSize[2] *= scalingFactor;
+    _itemDuplicateTol *= scalingFactor;
+
+    for (size_t i = 0; i < _pts.size(); i++)
+        _pts[i] *= scalingFactor;
+    for (size_t i = 0; i < _sizes.size(); i++)
+        _sizes[i] *= scalingFactor;
+
     CSceneObject::scaleObject(scalingFactor);
+    _initialize();
 }
 
 void CMarker::removeSceneDependencies()
