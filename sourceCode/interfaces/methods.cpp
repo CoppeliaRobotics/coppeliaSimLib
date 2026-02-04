@@ -76,6 +76,7 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["getObjects"] = _method_getObjects;
         funcTable["addItems"] = _method_addItems;
         funcTable["clearItems"] = _method_clearItems;
+        funcTable["removeItems"] = _method_removeItems;
     }
 
     std::string retVal("__notFound__");
@@ -466,6 +467,23 @@ void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& 
     }
 }
 
+void fetchLongArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr)
+{
+    outArr.clear();
+    int argCnt = inStack->getStackSize();
+    if (argCnt > index)
+    {
+        const CInterfaceStackObject* obj = inStack->getStackObjectFromIndex(index);
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+            int cnt = int(tbl->getArraySize());
+            outArr.resize(cnt);
+            tbl->getInt64Array(outArr.data(), cnt);
+        }
+    }
+}
+
 void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr, std::initializer_list<long long int> arr /*= {}*/)
 {
     std::vector<long long int> def;
@@ -841,6 +859,11 @@ void pushMatrix(CInterfaceStack* outStack, const CMatrix& v)
 void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length)
 {
     outStack->pushInt32ArrayOntoStack(v, length);
+}
+
+void pushLongArray(CInterfaceStack* outStack, const long long int* v, size_t length)
+{
+    outStack->pushInt64ArrayOntoStack(v, length);
 }
 
 void pushHandleArray(CInterfaceStack* outStack, const long long int* v, size_t length)
@@ -2407,7 +2430,9 @@ std::string _method_addItems(int targetObj, const char* method, CScriptObject* c
         fetchArrayAsConsecutiveNumbers(inStack, 2, quats);
         std::vector<float> sizes;
         fetchArrayAsConsecutiveNumbers(inStack, 3, sizes);
-        target->addItems(&pts, &quats, &cols, &sizes);
+        std::vector<long long int> newIds;
+        target->addItems(&pts, &quats, &cols, &sizes, true, &newIds);
+        pushLongArray(outStack, newIds.data(), newIds.size());
     }
     return errMsg;
 }
@@ -2422,3 +2447,17 @@ std::string _method_clearItems(int targetObj, const char* method, CScriptObject*
     }
     return errMsg;
 }
+
+std::string _method_removeItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_integer}))
+    {
+        std::vector<long long int> ids;
+        fetchLongArray(inStack, 0, ids);
+        target->remItems(&ids);
+    }
+    return errMsg;
+}
+

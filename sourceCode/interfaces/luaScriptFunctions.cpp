@@ -9722,8 +9722,14 @@ int _simCreateDrawingObject(luaWrap_lua_State* L)
         fetchFloatArrayArg(L, 8, specular, {0.25f, 0.25f, 0.25f});
         std::vector<float> emission;
         fetchFloatArrayArg(L, 9, emission, {0.0f, 0.0f, 0.0f});
+        if (!luaWrap_lua_isnil(L, 9))
+        {
+            ambient[0] += emission[0];
+            ambient[1] += emission[1];
+            ambient[2] += emission[2];
+        }
         setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L), CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
-        retVal = CALL_C_API(simAddDrawingObject, objType, size, duplicateTolerance, parentID, maxItemCount, ambient.data(), nullptr, specular.data(), emission.data());
+        retVal = CALL_C_API(simAddDrawingObject, objType, size, duplicateTolerance, parentID, maxItemCount, ambient.data(), nullptr, specular.data(), nullptr);
         setCurrentScriptInfo_cSide(-1, -1);
     }
 

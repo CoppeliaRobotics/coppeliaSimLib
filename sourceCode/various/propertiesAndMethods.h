@@ -244,7 +244,7 @@ struct SJointProperty
 
 #define MARKER_META_METHODS R"("addItems": "sim-2.callMethod",
         "clearItems": "sim-2.callMethod",
-        "addPackedItems": "sim-2.callMethod")"
+        "removeItems": "sim-2.callMethod")"
 
 #define DUMMY_META_METHODS R"("checkCollision": "sim-2.checkCollision",
         "checkDistance": "sim-2.checkDistance")"
@@ -1079,7 +1079,6 @@ struct SJointProperty
 
 #define MARKER_PROPERTIES \
     FUNCX(propMarker_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
-    FUNCX(propMarker_size, "markerSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the marker object"}}), "") \
     FUNCX(propMarker_itemType, "itemType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Item type"}}), "") \
     FUNCX(propMarker_cyclic, "cyclic", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Cyclic"}, {"description", "Item buffer is cyclic"}}), "") \
     FUNCX(propMarker_overlay, "overlay", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Overlay"}, {"description", "Items are are displayed overlaid"}}), "") \

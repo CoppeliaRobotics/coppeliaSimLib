@@ -10,8 +10,6 @@
 #include <guiApp.h>
 #endif
 
-#define MARKER_MAX_ID 1000000
-
 static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "sceneObject",
@@ -32,16 +30,11 @@ CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= 
 {
     _objectType = sim_sceneobject_marker;
     _localObjectSpecialProperty = 0;
-    _objectProperty |= sim_objectproperty_dontshowasinsidemodel;
-    _markerSize = 0.01;
 
     _visibilityLayer = MARKER_LAYER;
     _objectAlias = getObjectTypeInfo();
     _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
-
-    _markerColor.setDefaultValues();
-    _markerColor.setColor(1.0f, 1.0f, 1.0f, sim_colorcomponent_ambient_diffuse);
 
     _itemType = type;
     _itemMaxCnt = maxCnt;
@@ -80,6 +73,11 @@ void CMarker::_initialize()
     _remIds.clear();
     _ids.clear();
 
+    _xs.clear();
+    _ys.clear();
+    _zs.clear();
+    itemIts.clear();
+
     std::vector<float> ppts;
     ppts.swap(_pts);
     std::vector<float> qqats;
@@ -90,9 +88,6 @@ void CMarker::_initialize()
     ssizes.swap(_sizes);
 
     addItems(&ppts, &qqats, &rrgba, &ssizes, false);
-
-    _rebuildMarkerBoundingBox();
-    computeBoundingBox();
 }
 
 void CMarker::_rebuildMarkerBoundingBox()
@@ -116,10 +111,53 @@ void CMarker::_rebuildMarkerBoundingBox()
     }
 }
 
-void CMarker::remItems(int itemCnt, bool triggerEvent /*= true*/)
+void CMarker::remItems(const std::vector<long long int>* ids)
+{ // remove items based on item ID
+    bool updateBB = false;
+    for (size_t i = 0; i < ids->size(); i++)
+    {
+        long long int id = ids->at(i);
+        auto it = itemIts.find(id);
+        if (it != itemIts.end())
+        { // item exists
+            // remove it from the bounding box calc struc:
+            CItemPointIts& iph = it->second;
+            for (int j = 0; j < _itemPointCnt; ++j)
+            {
+                _xs.erase(iph.its[j].itX);
+                _ys.erase(iph.its[j].itY);
+                _zs.erase(iph.its[j].itZ);
+            }
+            itemIts.erase(it);
+            // Find and remove the item:
+            size_t l = 0;
+            while (_ids[l] != id)
+                l++;
+            int newItemsStart = _ids.size() - _newItemsCnt;
+            if (l < newItemsStart)
+                _remIds.push_back(id); // only if not a newly added item
+            else
+                _newItemsCnt--;
+            _pts.erase(_pts.begin() + l * 3 * _itemPointCnt, _pts.begin() + l * 3 * _itemPointCnt + 3 * _itemPointCnt);
+            _rgba.erase(_rgba.begin() + l * 4 * _itemPointCnt, _rgba.begin() + l * 4 * _itemPointCnt + 4 * _itemPointCnt);
+            _ids.erase(_ids.begin() + l);
+            if (_sizes.size() > 0)
+                _sizes.erase(_sizes.begin() + 3 * l, _sizes.begin() + 3 * l + 3);
+            if (_quats.size() > 0)
+                _quats.erase(_quats.begin() + 4 * l, _quats.begin() + 4 * l + 4);
+            updateBB = true;
+        }
+    }
+    if (updateBB)
+    {
+        computeBoundingBox();
+        _updateMarkerEvent(true);
+    }
+}
+
+void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
 {
-    int items = _pts.size() / (3 * _itemPointCnt);
-    if ((items <= itemCnt) || (itemCnt == 0))
+    if ((_ids.size() <= itemCntToDelete) || (itemCntToDelete == 0))
     {
         _pts.clear();
         _quats.clear();
@@ -129,7 +167,6 @@ void CMarker::remItems(int itemCnt, bool triggerEvent /*= true*/)
         _remIds.clear();
         _newItemsCnt = 0;
         _sendFullEvent = true;
-        _nextId = 0;
         _xs.clear();
         _ys.clear();
         _zs.clear();
@@ -137,7 +174,7 @@ void CMarker::remItems(int itemCnt, bool triggerEvent /*= true*/)
     }
     else
     {
-        for (size_t i = 0; i < itemCnt; i++)
+        for (size_t i = 0; i < itemCntToDelete; i++)
         {
             auto it = itemIts.find(_ids[i]);
             if (it != itemIts.end())
@@ -152,14 +189,14 @@ void CMarker::remItems(int itemCnt, bool triggerEvent /*= true*/)
                 itemIts.erase(it);
             }
         }
-        _remIds.insert(_remIds.end(), _ids.begin(), _ids.begin() + itemCnt);
-        _pts.erase(_pts.begin(), _pts.begin() + itemCnt * 3 * _itemPointCnt);
-        _rgba.erase(_rgba.begin(), _rgba.begin() + itemCnt * 4 * _itemPointCnt);
-        _ids.erase(_ids.begin(), _ids.begin() + itemCnt);
+        _remIds.insert(_remIds.end(), _ids.begin(), _ids.begin() + itemCntToDelete);
+        _pts.erase(_pts.begin(), _pts.begin() + itemCntToDelete * 3 * _itemPointCnt);
+        _rgba.erase(_rgba.begin(), _rgba.begin() + itemCntToDelete * 4 * _itemPointCnt);
+        _ids.erase(_ids.begin(), _ids.begin() + itemCntToDelete);
         if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles) )
         {
-            _quats.erase(_quats.begin(), _quats.begin() + itemCnt * 4 * _itemPointCnt);
-            _sizes.erase(_sizes.begin(), _sizes.begin() + itemCnt * 3 * _itemPointCnt);
+            _quats.erase(_quats.begin(), _quats.begin() + itemCntToDelete * 4 * _itemPointCnt);
+            _sizes.erase(_sizes.begin(), _sizes.begin() + itemCntToDelete * 3 * _itemPointCnt);
         }
         int tot = int(_pts.size()) / (3 * _itemPointCnt);
         if (tot < _newItemsCnt)
@@ -172,7 +209,7 @@ void CMarker::remItems(int itemCnt, bool triggerEvent /*= true*/)
     }
 }
 
-void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform /*= true*/)
+void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform /*= true*/, std::vector<long long int>* newIds /*= nullptr*/)
 {
     int ptsCnt = int(pts->size()) / 3;
     if (quats != nullptr)
@@ -276,7 +313,8 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
             }
             itemIts[_nextId] = its;
             _ids.push_back(_nextId);
-
+            if (newIds != nullptr)
+                newIds->push_back(_nextId);
             if (rgbas != nullptr)
             {
                 for (int j = 0; j < 4 * _itemPointCnt; j++)
@@ -310,44 +348,25 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
                 }
             }
 
-            if (_nextId < MARKER_MAX_ID)
-                _nextId++;
+            _nextId++;
+        }
+        else
+        {
+            if (newIds != nullptr)
+                newIds->push_back(-1); // indicates an invalid ID
         }
     }
 
     totItemCnt = int(_pts.size()) / (3 * _itemPointCnt);
-    if (_nextId > MARKER_MAX_ID)
-    {
-        _nextId = 0;
-        _ids.resize(totItemCnt);
-        for (size_t i = 0; i < totItemCnt; i++)
-            _ids[i] = _nextId++;
-        _newItemsCnt = totItemCnt;
-        _remIds.clear();
-        _rebuildMarkerBoundingBox();
-        _sendFullEvent = true;
-    }
-    else
-    {
-        _newItemsCnt += itemCnt;
-        if ((totItemCnt > _itemMaxCnt) && (_itemMaxCnt != 0))
-            remItems(totItemCnt - _itemMaxCnt, false);
-    }
+    _newItemsCnt += itemCnt;
+    if ((totItemCnt > _itemMaxCnt) && (_itemMaxCnt != 0))
+        remItems(totItemCnt - _itemMaxCnt, false);
     computeBoundingBox();
     _updateMarkerEvent(true);
 }
 
 CMarker::~CMarker()
 {
-}
-
-void CMarker::setIsInScene(bool s)
-{
-    CSceneObject::setIsInScene(s);
-    if (s)
-        _markerColor.setEventParams(true, _objectHandle);
-    else
-        _markerColor.setEventParams(true, -1);
 }
 
 std::string CMarker::getObjectTypeInfo() const
@@ -394,7 +413,6 @@ void CMarker::computeBoundingBox()
 
 void CMarker::scaleObject(double scalingFactor)
 {
-    setMarkerSize(_markerSize * scalingFactor);
     _itemSize[0] *= scalingFactor;
     _itemSize[1] *= scalingFactor;
     _itemSize[2] *= scalingFactor;
@@ -416,8 +434,6 @@ void CMarker::removeSceneDependencies()
 
 void CMarker::addSpecializedObjectEventData(CCbor* ev)
 {
-    _markerColor.addGenesisEventData(ev);
-    ev->appendKeyDouble(propMarker_size.name, _markerSize);
     ev->appendKeyInt(propMarker_itemType.name, _itemType);
     ev->appendKeyBool(propMarker_cyclic.name, _itemOptions & sim_markeropts_cyclic);
     ev->appendKeyBool(propMarker_overlay.name, _itemOptions & sim_markeropts_overlay);
@@ -427,9 +443,6 @@ void CMarker::addSpecializedObjectEventData(CCbor* ev)
 CSceneObject* CMarker::copyYourself()
 {
     CMarker* newMarker = (CMarker*)CSceneObject::copyYourself();
-
-    _markerColor.copyYourselfInto(&newMarker->_markerColor);
-    newMarker->_markerSize = _markerSize;
 
     newMarker->_itemType = _itemType;
     newMarker->_itemMaxCnt = _itemMaxCnt;
@@ -486,10 +499,6 @@ void CMarker::serialize(CSer& ar)
     {
         if (ar.isStoring())
         { // Storing
-            ar.storeDataName("Sos");
-            ar << _markerSize;
-            ar.flush();
-
             ar.storeDataName("Var");
             unsigned char dummy = 0;
             // SIM_SET_CLEAR_BIT(dummy, 0, _resetAfterSimError);
@@ -531,12 +540,6 @@ void CMarker::serialize(CSer& ar)
                 ar << _sizes[i];
             ar.flush();
 
-            ar.storeDataName("Soc");
-            ar.setCountingMode();
-            _markerColor.serialize(ar, 0);
-            if (ar.setWritingMode())
-                _markerColor.serialize(ar, 0);
-
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
@@ -549,13 +552,6 @@ void CMarker::serialize(CSer& ar)
                 if (theName.compare(SER_END_OF_OBJECT) != 0)
                 {
                     bool noHit = true;
-                    if (theName.compare("Sos") == 0)
-                    {
-                        noHit = false;
-                        ar >> byteQuantity;
-                        ar >> _markerSize;
-                    }
-
                     if (theName.compare("Var") == 0)
                     {
                         noHit = false;
@@ -623,13 +619,6 @@ void CMarker::serialize(CSer& ar)
                             ar >> _sizes[i];
                     }
 
-                    if (theName.compare("Soc") == 0)
-                    {
-                        noHit = false;
-                        ar >> byteQuantity;
-                        _markerColor.serialize(ar, 0);
-                    }
-
                     if (noHit)
                         ar.loadUnknownData();
                 }
@@ -646,7 +635,6 @@ void CMarker::serialize(CSer& ar)
             ar.xmlAddNode_comment(" 'type' tag: can be 'points', 'lines', 'triangles', 'spheres', 'squares', 'discs' or 'cubes' ", exhaustiveXml);
             ar.xmlAddNode_enum("type", _itemType, sim_markertype_points, "points", sim_markertype_lines, "lines", sim_markertype_triangles, "triangles", sim_markertype_spheres, "spheres", sim_markertype_squares, "squares", sim_markertype_discs, "discs", sim_markertype_cubes, "cubes");
 
-            ar.xmlAddNode_float("size", _markerSize);
             ar.xmlAddNode_int("maxCnt", _itemMaxCnt);
             ar.xmlAddNode_int("options", _itemOptions);
             ar.xmlAddNode_float("duplicateTolerance", _itemDuplicateTol);
@@ -664,26 +652,11 @@ void CMarker::serialize(CSer& ar)
                 cols.push_back(_rgba[i]);
             ar.xmlAddNode_ints("colors", cols.data(), cols.size());
             ar.xmlAddNode_floats("sizes", _sizes.data(), _sizes.size());
-
-            ar.xmlPushNewNode("color");
-            if (exhaustiveXml)
-                _markerColor.serialize(ar, 0);
-            else
-            {
-                int rgb[3];
-                for (size_t l = 0; l < 3; l++)
-                    rgb[l] = int(_markerColor.getColorsPtr()[l] * 255.1);
-                ar.xmlAddNode_ints("object", rgb, 3);
-            }
-            ar.xmlPopNode();
         }
         else
         {
             ar.xmlGetNode_enum("type", _itemType, exhaustiveXml, "points", sim_markertype_points, "lines", sim_markertype_lines, "triangles", sim_markertype_triangles, "spheres", sim_markertype_spheres, "squares", sim_markertype_squares, "discs", sim_markertype_discs, "cubes", sim_markertype_cubes);
 
-            ar.xmlGetNode_float("size", _markerSize, exhaustiveXml);
-            if (_markerSize < 0.001)
-                _markerSize = 0.001;
             ar.xmlGetNode_int("maxCnt", _itemMaxCnt, exhaustiveXml);
             if (_itemMaxCnt < 0)
                 _itemMaxCnt = 0;
@@ -706,53 +679,14 @@ void CMarker::serialize(CSer& ar)
                 _rgba.push_back((unsigned char)cols[i]);
             ar.xmlGetNode_floats("sizes", _sizes, exhaustiveXml);
 
-            if (ar.xmlPushChildNode("color", exhaustiveXml))
-            {
-                if (exhaustiveXml)
-                    _markerColor.serialize(ar, 0);
-                else
-                {
-                    int rgb[3];
-                    if (ar.xmlGetNode_ints("object", rgb, 3, exhaustiveXml))
-                        _markerColor.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1, sim_colorcomponent_ambient_diffuse);
-                }
-                ar.xmlPopNode();
-            }
             _initialize();
         }
     }
 }
 
-double CMarker::getMarkerSize() const
-{
-    return (_markerSize);
-}
-
 int CMarker::getMarkerOptions() const
 {
     return _itemOptions;
-}
-
-CColorObject* CMarker::getMarkerColor()
-{
-    return (&_markerColor);
-}
-
-void CMarker::setMarkerSize(double s)
-{
-    bool diff = (_markerSize != s);
-    if (diff)
-    {
-        _markerSize = s;
-        computeBoundingBox();
-        if (_isInScene && App::worldContainer->getEventsEnabled())
-        {
-            const char* cmd = propMarker_size.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _markerSize);
-            App::worldContainer->pushEvent();
-        }
-    }
 }
 
 #ifdef SIM_WITH_GUI
@@ -1319,11 +1253,6 @@ int CMarker::setFloatProperty(const char* ppName, double pState)
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propMarker_size.name)
-        {
-            setMarkerSize(pState);
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -1334,14 +1263,7 @@ int CMarker::getFloatProperty(const char* ppName, double& pState) const
     std::string _pName(ppName);
     int retVal = CSceneObject::getFloatProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _markerColor.getFloatProperty(ppName, pState);
-    if (retVal == -1)
     {
-        if (_pName == propMarker_size.name)
-        {
-            pState = _markerSize;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -1394,8 +1316,6 @@ int CMarker::setColorProperty(const char* ppName, const float* pState)
     std::string _pName(ppName);
     int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == -1)
-        retVal = _markerColor.setColorProperty(ppName, pState);
-    if (retVal == -1)
     {
     }
     return retVal;
@@ -1405,8 +1325,6 @@ int CMarker::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getColorProperty(ppName, pState);
-    if (retVal == -1)
-        retVal = _markerColor.getColorProperty(ppName, pState);
     if (retVal == -1)
     {
     }
@@ -1447,10 +1365,7 @@ int CMarker::getPropertyName(int& index, std::string& pName, std::string& appart
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
-    {
         appartenance = "marker";
-        retVal = _markerColor.getPropertyName(index, pName, excludeFlags);
-    }
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_marker.size(); i++)
@@ -1507,8 +1422,6 @@ int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = _markerColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_marker.size(); i++)
@@ -1586,7 +1499,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             ev->appendKeyBuff("quats", (unsigned char*)_quats.data(), _quats.size() * sizeof(float));
             ev->appendKeyBuff("sizes", (unsigned char*)_sizes.data(), _sizes.size() * sizeof(float));
             ev->appendKeyBuff("rgba", _rgba.data(), _rgba.size());
-            ev->appendKeyBuff("ids", (unsigned char*)_ids.data(), _ids.size() * sizeof(unsigned int));
+            ev->appendKeyBuff("ids", (unsigned char*)_ids.data(), _ids.size() * sizeof(long long int));
             ev->closeArrayOrMap();
             if (evv == nullptr)
                 App::worldContainer->pushEvent();
@@ -1610,13 +1523,13 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     else
                         ev->appendKeyBuff("sizes", nullptr, 0);
                     ev->appendKeyBuff("rgba", (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
-                    ev->appendKeyBuff("ids", (unsigned char*)(_ids.data() + _ids.size() - _newItemsCnt), _newItemsCnt * sizeof(unsigned int));
+                    ev->appendKeyBuff("ids", (unsigned char*)(_ids.data() + _ids.size() - _newItemsCnt), _newItemsCnt * sizeof(long long int));
                     ev->closeArrayOrMap();
                 }
                 if (_remIds.size() > 0)
                 {
                     ev->openKeyMap("rem");
-                    ev->appendKeyBuff("ids", (unsigned char*)_remIds.data(), _remIds.size() * sizeof(unsigned int));
+                    ev->appendKeyBuff("ids", (unsigned char*)_remIds.data(), _remIds.size() * sizeof(long long int));
                     ev->closeArrayOrMap();
                 }
                 if (evv == nullptr)

@@ -39,7 +39,6 @@ class CMarker : public CSceneObject
     void simulationEnded() override;
     void initializeInitialValues(bool simulationAlreadyRunning) override;
     void computeBoundingBox() override;
-    void setIsInScene(bool s) override;
     std::string getObjectTypeInfo() const override;
     std::string getObjectTypeInfoExtended() const override;
     int setBoolProperty(const char* pName, bool pState) override;
@@ -63,22 +62,17 @@ class CMarker : public CSceneObject
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
-    double getMarkerSize() const;
     int getMarkerOptions() const;
 
-    CColorObject* getMarkerColor();
-    void setMarkerSize(double s);
-
-    void addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform = true);
+    void addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform = true, std::vector<long long int>* newIds = nullptr);
     void remItems(int itemCnt, bool triggerEvent = true);
+    void remItems(const std::vector<long long int>* ids);
 
   protected:
     void _updateMarkerEvent(bool incremental, CCbor* evv = nullptr);
     void _initialize();
     void _rebuildMarkerBoundingBox();
 
-    CColorObject _markerColor;
-    double _markerSize;
     int _itemType;
     unsigned char _itemCol[4];
     double _itemSize[3];
@@ -91,17 +85,17 @@ class CMarker : public CSceneObject
     std::vector<float> _quats; // 4 per item (qx, qy, qz, qw) (or 0 with lines and triangles, pts and similar)
     std::vector<unsigned char> _rgba; // 4 * _itemPointCnt per item
     std::vector<float> _sizes; // 3 per item (or 0 with lines and triangles, pts and similar)
-    std::vector<unsigned int> _ids; // 1 item
+    std::vector<long long int> _ids; // 1 item
 
     bool _sendFullEvent;
-    unsigned int _nextId;
+    long long int _nextId;
     int _newItemsCnt;
-    std::vector<unsigned int> _remIds;
+    std::vector<long long int> _remIds;
 
     std::multiset<float> _xs;
     std::multiset<float> _ys;
     std::multiset<float> _zs;
-    std::unordered_map<unsigned int, CItemPointIts> itemIts;
+    std::unordered_map<long long int, CItemPointIts> itemIts;
 
 
 #ifdef SIM_WITH_GUI

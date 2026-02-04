@@ -27,6 +27,7 @@ C3Vector fetchVector3(const CInterfaceStack* inStack, int index, const double xy
 CMatrix fetchMatrix(const CInterfaceStack* inStack, int index);
 void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr, std::initializer_list<int> arr = {});
 void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr, std::vector<int>& arr);
+void fetchLongArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr);
 void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr, std::initializer_list<long long int> arr = {});
 void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr, std::vector<long long int>& arr);
 void fetchDoubleArray(const CInterfaceStack* inStack, int index, std::vector<double>& outArr, std::initializer_list<double> arr = {});
@@ -53,6 +54,7 @@ void pushVector3(CInterfaceStack* outStack, const C3Vector& v);
 void pushVector(CInterfaceStack* outStack, const double* v, size_t length);
 void pushMatrix(CInterfaceStack* outStack, const CMatrix& v);
 void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length);
+void pushLongArray(CInterfaceStack* outStack, const long long int* v, size_t length);
 void pushHandleArray(CInterfaceStack* outStack, const long long int* v, size_t length);
 void pushShortHandleArray(CInterfaceStack* outStack, const int* v, size_t length);
 void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length);
@@ -103,3 +105,4 @@ extern std::string _method_checkSensor(int targetObj, const char* method, CScrip
 extern std::string _method_getObjects(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_addItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_clearItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_removeItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
