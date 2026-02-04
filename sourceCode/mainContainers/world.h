@@ -51,6 +51,7 @@ class CWorld
     bool loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr,
                    C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize);
 
+    void instancePass();
     void simulationAboutToStart();
     void simulationPaused();
     void simulationAboutToResume();

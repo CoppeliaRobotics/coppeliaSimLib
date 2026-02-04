@@ -96,7 +96,7 @@ float* COcTree::getColors()
     return (&_colors[0]);
 }
 
-void COcTree::_readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpdate)
+void COcTree::_readPositionsAndColorsAndSetDimensions()
 {
     std::vector<double> _voxelPositions_old;
     _voxelPositions_old.swap(_voxelPositions);
@@ -122,7 +122,7 @@ void COcTree::_readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpd
         for (size_t i = 0; i < _colors.size(); i++)
             _colorsByte.push_back((unsigned char)(_colors[i] * 255.1));
 
-        computeBoundingBox();
+        //computeBoundingBox();
     }
     else
     {
@@ -158,13 +158,54 @@ void COcTree::_readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpd
                     generateEvent = false;
             }
         }
-        if (generateEvent)
-            _updateOctreeEvent(incrementalDisplayUpdate);
+//        if (generateEvent)
+//            _updateOctreeEvent(incrementalDisplayUpdate);
+    }
+}
+
+void COcTree::_addBBPts(const float* pts, const unsigned int* ids, int ptCnt)
+{
+    for (int i = 0; i < ptCnt; i++)
+    {
+        COTMultiSIt it;
+        it.itX = _xs.insert(pts[3 * i + 0]);
+        it.itY = _ys.insert(pts[3 * i + 1]);
+        it.itZ = _zs.insert(pts[3 * i + 2]);
+        _itemIts[ids[i]] = it;
+    }
+}
+
+void COcTree::_remBBPts(const unsigned int* ids, int ptCnt)
+{
+    if (ptCnt == 0)
+    {
+        _xs.clear();
+        _ys.clear();
+        _zs.clear();
+        _itemIts.clear();
+    }
+    else
+    {
+        for (int i = 0; i < ptCnt; i++)
+        {
+            auto it = _itemIts.find(ids[i]);
+            if (it != _itemIts.end())
+            { // item exists
+                // remove it from the bounding box calc struc:
+                COTMultiSIt& iph = it->second;
+                _xs.erase(iph.itX);
+                _ys.erase(iph.itY);
+                _zs.erase(iph.itZ);
+                _itemIts.erase(it);
+            }
+        }
     }
 }
 
 void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
 {
+    if (!incremental)
+        _refreshDisplay = true;
     CCbor* ev = evv;
     if ((evv != nullptr) || (_isInScene && App::worldContainer->getEventsEnabled()))
     {
@@ -192,10 +233,9 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
             App::worldContainer->pushEvent();
         */
 
-        if (!incremental)
-            _refreshDisplay = true;
         if (_octreeInfo == nullptr)
         {
+            _remBBPts(nullptr, 0);
             if (evv == nullptr)
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
@@ -207,7 +247,16 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
             ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
             ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
             if (evv == nullptr)
+            {
                 App::worldContainer->pushEvent();
+                computeBoundingBox();
+                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                double p[7];
+                _bbFrame.getData(p, true);
+                ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+                App::worldContainer->pushEvent();
+            }
         }
         else
         {
@@ -226,6 +275,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
             {
                 if (r == 1)
                 {
+                    _remBBPts(nullptr, 0);
+                    _addBBPts(pts, ids, newCnt);
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
@@ -237,10 +288,22 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
                     ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
                     if (evv == nullptr)
+                    {
                         App::worldContainer->pushEvent();
+                        computeBoundingBox();
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                        double p[7];
+                        _bbFrame.getData(p, true);
+                        ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                        ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+                        App::worldContainer->pushEvent();
+                    }
                 }
                 else
                 {
+                    if (remCnt > 0)
+                        _remBBPts(remIds, remCnt);
+                    _addBBPts(pts, ids, newCnt);
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                     ev->openKeyMap("add");
@@ -255,7 +318,16 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
                     ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
                     if (evv == nullptr)
+                    {
                         App::worldContainer->pushEvent();
+                        computeBoundingBox();
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                        double p[7];
+                        _bbFrame.getData(p, true);
+                        ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                        ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+                        App::worldContainer->pushEvent();
+                    }
                 }
                 delete[] pts;
                 delete[] cols;
@@ -328,7 +400,8 @@ void COcTree::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToO
                     _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags[0]);
         }
     }
-    _readPositionsAndColorsAndSetDimensions(true);
+    _readPositionsAndColorsAndSetDimensions();
+    _updateOctreeEvent(true);
 }
 
 void COcTree::insertShape(CShape* shape, unsigned int theTag)
@@ -347,7 +420,8 @@ void COcTree::insertShape(CShape* shape, unsigned int theTag)
     else
         App::worldContainer->pluginContainer->geomPlugin_insertMeshIntoOctree_rgb(
             _octreeInfo, octreeTr, shape->_meshCalculationStructure, shapeTr, cols, theTag);
-    _readPositionsAndColorsAndSetDimensions(true);
+    _readPositionsAndColorsAndSetDimensions();
+    _updateOctreeEvent(true);
 }
 
 void COcTree::insertOctree(const COcTree* octree, unsigned int theTag)
@@ -399,7 +473,9 @@ void COcTree::insertOctree(const void* octree2Info, const C7Vector& octree2Tr, u
     else
         App::worldContainer->pluginContainer->geomPlugin_insertOctreeIntoOctree_rgb(
             _octreeInfo, getFullCumulativeTransformation(), octree2Info, octree2Tr, cols, theTag);
-    _readPositionsAndColorsAndSetDimensions(true);
+    _readPositionsAndColorsAndSetDimensions();
+    _updateOctreeEvent(true);
+
 }
 
 void COcTree::insertObjects(const std::vector<int>& sel)
@@ -451,7 +527,8 @@ void COcTree::subtractPoints(const double* pts, int ptsCnt, bool ptsAreRelativeT
             _octreeInfo = nullptr;
         }
     }
-    _readPositionsAndColorsAndSetDimensions(true);
+    _readPositionsAndColorsAndSetDimensions();
+    _updateOctreeEvent(true);
 }
 
 void COcTree::subtractShape(CShape* shape)
@@ -469,7 +546,8 @@ void COcTree::subtractShape(CShape* shape)
             App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo = nullptr;
         }
-        _readPositionsAndColorsAndSetDimensions(true);
+        _readPositionsAndColorsAndSetDimensions();
+        _updateOctreeEvent(true);
     }
 }
 
@@ -517,7 +595,8 @@ void COcTree::subtractOctree(const void* octree2Info, const C7Vector& octree2Tr)
             App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo = nullptr;
         }
-        _readPositionsAndColorsAndSetDimensions(true);
+        _readPositionsAndColorsAndSetDimensions();
+        _updateOctreeEvent(true);
     }
 }
 
@@ -554,7 +633,7 @@ void COcTree::clear()
     _voxelPositions.clear();
     _colors.clear();
     _colorsByte.clear();
-    computeBoundingBox();
+    //computeBoundingBox();
     _updateOctreeEvent(false);
 }
 
@@ -569,7 +648,8 @@ void COcTree::setUseRandomColors(bool r)
     if (diff)
     {
         _useRandomColors = r;
-        _readPositionsAndColorsAndSetDimensions(false);
+        _readPositionsAndColorsAndSetDimensions();
+        _updateOctreeEvent(false);
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propOctree_randomColors.name;
@@ -662,6 +742,32 @@ bool COcTree::isPotentiallyRenderable() const
 
 void COcTree::computeBoundingBox()
 {
+    C3Vector c, s;
+    if (_xs.empty())
+    {
+        s = C3Vector(_cellSize, _cellSize, _cellSize);
+        c.clear();
+    }
+    else
+    {
+        double minX = *_xs.begin();
+        double maxX = *std::prev(_xs.end());
+        double minY = *_ys.begin();
+        double maxY = *std::prev(_ys.end());
+        double minZ = *_zs.begin();
+        double maxZ = *std::prev(_zs.end());
+        s(0) = maxX - minX + _cellSize * 2.0;
+        s(1) = maxY - minY + _cellSize * 2.0;
+        s(2) = maxZ - minZ + _cellSize * 2.0;
+        c(0) = (maxX + minX) * 0.5;
+        c(1) = (maxY + minY) * 0.5;
+        c(2) = (maxZ + minZ) * 0.5;
+    }
+    C7Vector tr;
+    tr.Q.setIdentity();
+    tr.X = c;
+    _setBB(tr, s * 0.5);
+/*
     if (_voxelPositions.size() >= 6)
     {
         C3Vector minDim(C3Vector::inf);
@@ -685,6 +791,7 @@ void COcTree::computeBoundingBox()
     }
     else
         _setBB(C7Vector::identityTransformation, C3Vector(0.1, 0.1, 0.1));
+    */
 }
 
 void COcTree::setIsInScene(bool s)
@@ -854,6 +961,13 @@ void COcTree::initializeInitialValues(bool simulationAlreadyRunning)
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
 }
 
+void COcTree::instancePass()
+{
+    if (_refreshDisplay)
+        _updateOctreeEvent(false);
+    CSceneObject::instancePass();
+}
+
 void COcTree::simulationAboutToStart()
 {
     initializeInitialValues(false);
@@ -1011,8 +1125,6 @@ void COcTree::serialize(CSer& ar)
                         // Now we need to rebuild the octree:
                         if (cnt > 0)
                             insertPoints(&pts[0], cnt, true, &cols[0], true, &tags[0], 0);
-                        else
-                            _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if (theName.compare("_t2") == 0)
@@ -1040,8 +1152,6 @@ void COcTree::serialize(CSer& ar)
                         clear(); // we might also have read "Pt2"
                         if (cnt > 0)
                             insertPoints(&pts[0], cnt, true, &cols[0], true, &tags[0], 0);
-                        else
-                            _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if (theName.compare("Co2") == 0)
@@ -1059,7 +1169,6 @@ void COcTree::serialize(CSer& ar)
                         if (_octreeInfo != nullptr)
                             App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
                         _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData_float(&data[0]);
-                        _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if ((theName.compare("_o2") == 0) && (!readVersion3))
@@ -1076,7 +1185,6 @@ void COcTree::serialize(CSer& ar)
                         if (_octreeInfo != nullptr) // we could have also read "Co2"
                             App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
                         _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData(&data[0]);
-                        _readPositionsAndColorsAndSetDimensions(false);
                     }
                     if (theName.compare("_o3") == 0)
                     { // ver3
@@ -1091,14 +1199,14 @@ void COcTree::serialize(CSer& ar)
                             data.push_back(dummy);
                         }
                         _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData(&data[0]);
-                        _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if (noHit)
                         ar.loadUnknownData();
                 }
             }
-            computeBoundingBox();
+            _readPositionsAndColorsAndSetDimensions();
+            _updateOctreeEvent(false);
         }
     }
     else
@@ -1227,8 +1335,6 @@ void COcTree::serialize(CSer& ar)
                     tags.resize(voxelCnt, 0);
                     insertPoints(&pts[0], voxelCnt, true, &cols[0], true, &tags[0], 0);
                 }
-                else
-                    _readPositionsAndColorsAndSetDimensions(false);
             }
             else
             {
@@ -1254,10 +1360,9 @@ void COcTree::serialize(CSer& ar)
                     tags.resize(pts.size() / 3, 0);
                     insertPoints(&pts[0], int(pts.size() / 3), true, &cols[0], true, &tags[0], 0);
                 }
-                else
-                    _readPositionsAndColorsAndSetDimensions(false);
             }
-            computeBoundingBox();
+            _readPositionsAndColorsAndSetDimensions();
+            _updateOctreeEvent(false);
         }
     }
 }

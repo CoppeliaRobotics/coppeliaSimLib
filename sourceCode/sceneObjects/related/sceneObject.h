@@ -92,6 +92,7 @@ class CSceneObject
     virtual void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     // -----------
 
+    virtual void instancePass();
     virtual void simulationAboutToStart();
     void simulationEnded_restoreHierarchy();
     virtual void simulationEnded();

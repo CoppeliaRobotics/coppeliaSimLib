@@ -399,9 +399,7 @@ void App::cleanup()
 
 void App::loop(void (*callback)(), bool stepIfRunning)
 {
-    // Send the "instancePass" message to all plugins:
-    int auxData[4] = {worldContainer->getModificationFlags(true), 0, 0, 0};
-    worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass, auxData);
+    worldContainer->instancePass();
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;

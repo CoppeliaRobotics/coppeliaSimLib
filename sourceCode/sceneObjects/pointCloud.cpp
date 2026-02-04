@@ -84,7 +84,7 @@ std::vector<double>* CPointCloud::getDisplayColors()
     return (&_displayColors);
 }
 
-void CPointCloud::_readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpdate)
+void CPointCloud::_readPositionsAndColorsAndSetDimensions()
 {
     std::vector<double> displayPoints_old;
     std::vector<unsigned char> displayColorsByte_old;
@@ -106,7 +106,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions(bool incrementalDispla
                 _colors.push_back(1.0);
             }
         }
-        computeBoundingBox();
+        //computeBoundingBox();
         _displayPoints.assign(_points.begin(), _points.end());
         _displayColors.assign(_colors.begin(), _colors.end());
         for (size_t i = 0; i < _displayColors.size(); i++)
@@ -211,13 +211,54 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions(bool incrementalDispla
                     generateEvent = false;
             }
         }
-        if (generateEvent)
-            _updatePointCloudEvent(incrementalDisplayUpdate);
+//        if (generateEvent)
+//            _updatePointCloudEvent(incrementalDisplayUpdate);
+    }
+}
+
+void CPointCloud::_addBBPts(const float* pts, const unsigned int* ids, int ptCnt)
+{
+    for (int i = 0; i < ptCnt; i++)
+    {
+        CPCMultiSIt it;
+        it.itX = _xs.insert(pts[3 * i + 0]);
+        it.itY = _ys.insert(pts[3 * i + 1]);
+        it.itZ = _zs.insert(pts[3 * i + 2]);
+        _itemIts[ids[i]] = it;
+    }
+}
+
+void CPointCloud::_remBBPts(const unsigned int* ids, int ptCnt)
+{
+    if (ptCnt == 0)
+    {
+        _xs.clear();
+        _ys.clear();
+        _zs.clear();
+        _itemIts.clear();
+    }
+    else
+    {
+        for (int i = 0; i < ptCnt; i++)
+        {
+            auto it = _itemIts.find(ids[i]);
+            if (it != _itemIts.end())
+            { // item exists
+                // remove it from the bounding box calc struc:
+                CPCMultiSIt& iph = it->second;
+                _xs.erase(iph.itX);
+                _ys.erase(iph.itY);
+                _zs.erase(iph.itZ);
+                _itemIts.erase(it);
+            }
+        }
     }
 }
 
 void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullptr*/)
 {
+    if (!incremental)
+        _refreshDisplay = true;
     CCbor* ev = evv;
     if ((evv != nullptr) || (_isInScene && App::worldContainer->getEventsEnabled()))
     {
@@ -240,10 +281,9 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
         if (evv == nullptr)
             App::worldContainer->pushEvent();
 */
-        if (!incremental)
-            _refreshDisplay = true;
         if (_pointCloudInfo == nullptr)
         {
+            _remBBPts(nullptr, 0);
             if (evv == nullptr)
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
@@ -252,7 +292,16 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
             ev->appendKeyBuff("ids", nullptr, 0);
             ev->closeArrayOrMap();
             if (evv == nullptr)
+            {
                 App::worldContainer->pushEvent();
+                computeBoundingBox();
+                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                double p[7];
+                _bbFrame.getData(p, true);
+                ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+                App::worldContainer->pushEvent();
+            }
         }
         else
         {
@@ -271,6 +320,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
             {
                 if (r == 1)
                 {
+                    _remBBPts(nullptr, 0);
+                    _addBBPts(pts, ids, newCnt);
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
@@ -279,10 +330,22 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                     ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
                     ev->closeArrayOrMap();
                     if (evv == nullptr)
+                    {
                         App::worldContainer->pushEvent();
+                        computeBoundingBox();
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                        double p[7];
+                        _bbFrame.getData(p, true);
+                        ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                        ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+                        App::worldContainer->pushEvent();
+                    }
                 }
                 else
                 {
+                    if (remCnt > 0)
+                        _remBBPts(remIds, remCnt);
+                    _addBBPts(pts, ids, newCnt);
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                     ev->openKeyMap("add");
@@ -294,7 +357,16 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                     ev->appendKeyBuff("ids", (unsigned char*)remIds, remCnt * sizeof(unsigned int));
                     ev->closeArrayOrMap();
                     if (evv == nullptr)
+                    {
                         App::worldContainer->pushEvent();
+                        computeBoundingBox();
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                        double p[7];
+                        _bbFrame.getData(p, true);
+                        ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                        ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+                        App::worldContainer->pushEvent();
+                    }
                 }
                 delete[] pts;
                 delete[] cols;
@@ -344,7 +416,8 @@ int CPointCloud::removePoints(const double* pts, int ptsCnt, bool ptsAreRelative
             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo = nullptr;
         }
-        _readPositionsAndColorsAndSetDimensions(true);
+        _readPositionsAndColorsAndSetDimensions();
+        _updatePointCloudEvent(true);
     }
     return (pointCntRemoved);
 }
@@ -394,7 +467,8 @@ void CPointCloud::subtractOctree(const void* octree2Info, const C7Vector& octree
             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo = nullptr;
         }
-        _readPositionsAndColorsAndSetDimensions(true);
+        _readPositionsAndColorsAndSetDimensions();
+        _updatePointCloudEvent(true);
     }
 }
 
@@ -445,7 +519,8 @@ int CPointCloud::intersectPoints(const double* pts, int ptsCnt, bool ptsAreRelat
             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo = nullptr;
         }
-        _readPositionsAndColorsAndSetDimensions(true);
+        _readPositionsAndColorsAndSetDimensions();
+        _updatePointCloudEvent(true);
     }
     return (int(_points.size() / 3));
 }
@@ -548,7 +623,8 @@ void CPointCloud::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativ
             }
         }
     }
-    _readPositionsAndColorsAndSetDimensions(true);
+    _readPositionsAndColorsAndSetDimensions();
+    _updatePointCloudEvent(true);
 }
 
 void CPointCloud::insertShape(CShape* shape)
@@ -652,7 +728,7 @@ void CPointCloud::clear()
         _pointCloudInfo = nullptr;
     }
 
-    computeBoundingBox();
+    //computeBoundingBox();
     _nonEmptyCells = 0;
     _updatePointCloudEvent(false);
 }
@@ -711,31 +787,31 @@ bool CPointCloud::isPotentiallyRenderable() const
 
 void CPointCloud::computeBoundingBox()
 {
-    if (_points.size() >= 6)
+    C3Vector c, s;
+    if (_xs.empty())
     {
-        C3Vector minDim(C3Vector::inf);
-        C3Vector maxDim(C3Vector::ninf);
-        for (size_t i = 0; i < _points.size() / 3; i++)
-        {
-            C3Vector p(&_points[3 * i]);
-            minDim.keepMin(p);
-            maxDim.keepMax(p);
-        }
-        /*
-        minDim(0)-=_cellSize; // not *0.5 here! The point could lie on the other side of the cube (i.e. not centered)
-        minDim(1)-=_cellSize;
-        minDim(2)-=_cellSize;
-        maxDim(0)+=_cellSize;
-        maxDim(1)+=_cellSize;
-        maxDim(2)+=_cellSize;
-        */
-        C7Vector fr;
-        fr.setIdentity();
-        fr.X = (maxDim + minDim) * 0.5;
-        _setBB(fr, (maxDim - minDim) * 0.5);
+        s = C3Vector(0.02, 0.02, 0.02);
+        c.clear();
     }
     else
-        _setBB(C7Vector::identityTransformation, C3Vector(0.1, 0.1, 0.1));
+    {
+        double minX = *_xs.begin();
+        double maxX = *std::prev(_xs.end());
+        double minY = *_ys.begin();
+        double maxY = *std::prev(_ys.end());
+        double minZ = *_zs.begin();
+        double maxZ = *std::prev(_zs.end());
+        s(0) = maxX - minX;
+        s(1) = maxY - minY;
+        s(2) = maxZ - minZ;
+        c(0) = (maxX + minX) * 0.5;
+        c(1) = (maxY + minY) * 0.5;
+        c(2) = (maxZ + minZ) * 0.5;
+    }
+    C7Vector tr;
+    tr.Q.setIdentity();
+    tr.X = c;
+    _setBB(tr, s * 0.5);
 }
 
 void CPointCloud::setIsInScene(bool s)
@@ -953,7 +1029,8 @@ void CPointCloud::setUseRandomColors(bool r)
     if (diff)
     {
         _useRandomColors = r;
-        _readPositionsAndColorsAndSetDimensions(false);
+        _readPositionsAndColorsAndSetDimensions();
+        _updatePointCloudEvent(false);
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propPointCloud_randomColors.name;
@@ -1026,7 +1103,8 @@ void CPointCloud::setPointDisplayRatio(double r)
             ev->appendKeyDouble(cmd, _pointDisplayRatio);
             App::worldContainer->pushEvent();
         }
-        _readPositionsAndColorsAndSetDimensions(false);
+        _readPositionsAndColorsAndSetDimensions();
+        _updatePointCloudEvent(false);
     }
 }
 
@@ -1076,6 +1154,13 @@ void CPointCloud::performDynMaterialObjectLoadingMapping(const std::map<int, int
 void CPointCloud::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
+}
+
+void CPointCloud::instancePass()
+{
+    if (_refreshDisplay)
+        _updatePointCloudEvent(false);
+    CSceneObject::instancePass();
 }
 
 void CPointCloud::simulationAboutToStart()
@@ -1384,7 +1469,6 @@ void CPointCloud::serialize(CSer& ar)
                         _pointCloudInfo =
                             App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData_float(
                                 &data[0]);
-                        _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if ((theName.compare("_o2") == 0) && (!readVersion3))
@@ -1402,7 +1486,6 @@ void CPointCloud::serialize(CSer& ar)
                         if (_pointCloudInfo != nullptr) // we could also have read "Co2"
                             App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
                         _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData_ver2(&data[0]);
-                        _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if (theName.compare("_o3") == 0)
@@ -1419,14 +1502,14 @@ void CPointCloud::serialize(CSer& ar)
                             data.push_back(dummy);
                         }
                         _pointCloudInfo = App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData(&data[0]);
-                        _readPositionsAndColorsAndSetDimensions(false);
                     }
 
                     if (noHit)
                         ar.loadUnknownData();
                 }
             }
-            computeBoundingBox();
+            _readPositionsAndColorsAndSetDimensions();
+            _updatePointCloudEvent(false);
         }
     }
     else
@@ -1607,7 +1690,7 @@ void CPointCloud::serialize(CSer& ar)
                 else
                     clear();
             }
-            computeBoundingBox();
+            _updatePointCloudEvent(false);
         }
     }
 }

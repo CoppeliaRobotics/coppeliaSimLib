@@ -12,6 +12,13 @@ OCTREE_PROPERTIES
 extern const std::vector<SProperty> allProps_ocTree;
 // ----------------------------------------------------------------------------------------------
 
+struct COTMultiSIt
+{
+    std::multiset<float>::iterator itX;
+    std::multiset<float>::iterator itY;
+    std::multiset<float>::iterator itZ;
+};
+
 class CDummy;
 class CPointCloud;
 
@@ -36,6 +43,7 @@ class COcTree : public CSceneObject
     void performDistanceLoadingMapping(const std::map<int, int>* map, int opType) override;
     void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
     void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map) override;
+    void instancePass() override;
     void simulationAboutToStart() override;
     void simulationEnded() override;
     void initializeInitialValues(bool simulationAlreadyRunning) override;
@@ -120,8 +128,10 @@ class COcTree : public CSceneObject
     float* getColors();
 
   protected:
+    void _addBBPts(const float* pts, const unsigned int* ids, int ptCnt);
+    void _remBBPts(const unsigned int* ids, int ptCnt);
     void _updateOctreeEvent(bool incremental, CCbor* evv = nullptr);
-    void _readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpdate);
+    void _readPositionsAndColorsAndSetDimensions();
 
     // Variables which need to be serialized & copied
     CColorObject color;
@@ -142,6 +152,12 @@ class COcTree : public CSceneObject
     int _vertexBufferId;
     int _normalBufferId;
     bool _refreshDisplay;
+
+           // For bounding box calculation:
+    std::multiset<float> _xs;
+    std::multiset<float> _ys;
+    std::multiset<float> _zs;
+    std::unordered_map<long long int, COTMultiSIt> _itemIts;
 
 #ifdef SIM_WITH_GUI
   public:

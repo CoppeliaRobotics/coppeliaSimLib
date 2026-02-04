@@ -75,6 +75,7 @@ class CWorldContainer
     void getGenesisEvents(std::vector<unsigned char>* genesisEvents, CInterfaceStack* stack);
     void dispatchEvents();
 
+    void instancePass();
     void simulationAboutToStart();
     void simulationPaused();
     void simulationAboutToResume();

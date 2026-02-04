@@ -76,7 +76,7 @@ void CMarker::_initialize()
     _xs.clear();
     _ys.clear();
     _zs.clear();
-    itemIts.clear();
+    _itemIts.clear();
 
     std::vector<float> ppts;
     ppts.swap(_pts);
@@ -95,7 +95,7 @@ void CMarker::_rebuildMarkerBoundingBox()
     _xs.clear();
     _ys.clear();
     _zs.clear();
-    itemIts.clear();
+    _itemIts.clear();
     for (size_t i = 0; i < _ids.size(); i++)
     {
         CItemPointIts its;
@@ -107,7 +107,7 @@ void CMarker::_rebuildMarkerBoundingBox()
             it.itZ = _zs.insert(_pts[i * 3 * _itemPointCnt + j * 3 + 2]);
             its.its[j] = it;
         }
-        itemIts[_nextId] = its;
+        _itemIts[_nextId] = its;
     }
 }
 
@@ -117,8 +117,8 @@ void CMarker::remItems(const std::vector<long long int>* ids)
     for (size_t i = 0; i < ids->size(); i++)
     {
         long long int id = ids->at(i);
-        auto it = itemIts.find(id);
-        if (it != itemIts.end())
+        auto it = _itemIts.find(id);
+        if (it != _itemIts.end())
         { // item exists
             // remove it from the bounding box calc struc:
             CItemPointIts& iph = it->second;
@@ -128,7 +128,7 @@ void CMarker::remItems(const std::vector<long long int>* ids)
                 _ys.erase(iph.its[j].itY);
                 _zs.erase(iph.its[j].itZ);
             }
-            itemIts.erase(it);
+            _itemIts.erase(it);
             // Find and remove the item:
             size_t l = 0;
             while (_ids[l] != id)
@@ -170,14 +170,14 @@ void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
         _xs.clear();
         _ys.clear();
         _zs.clear();
-        itemIts.clear();
+        _itemIts.clear();
     }
     else
     {
         for (size_t i = 0; i < itemCntToDelete; i++)
         {
-            auto it = itemIts.find(_ids[i]);
-            if (it != itemIts.end())
+            auto it = _itemIts.find(_ids[i]);
+            if (it != _itemIts.end())
             {
                 CItemPointIts& iph = it->second;
                 for (int j = 0; j < _itemPointCnt; ++j)
@@ -186,7 +186,7 @@ void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
                     _ys.erase(iph.its[j].itY);
                     _zs.erase(iph.its[j].itZ);
                 }
-                itemIts.erase(it);
+                _itemIts.erase(it);
             }
         }
         _remIds.insert(_remIds.end(), _ids.begin(), _ids.begin() + itemCntToDelete);
@@ -311,7 +311,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
                 it.itZ = _zs.insert(p(2));
                 its.its[j] = it;
             }
-            itemIts[_nextId] = its;
+            _itemIts[_nextId] = its;
             _ids.push_back(_nextId);
             if (newIds != nullptr)
                 newIds->push_back(_nextId);

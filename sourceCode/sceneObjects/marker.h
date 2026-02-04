@@ -92,11 +92,11 @@ class CMarker : public CSceneObject
     int _newItemsCnt;
     std::vector<long long int> _remIds;
 
+    // For bounding box calculation:
     std::multiset<float> _xs;
     std::multiset<float> _ys;
     std::multiset<float> _zs;
-    std::unordered_map<long long int, CItemPointIts> itemIts;
-
+    std::unordered_map<long long int, CItemPointIts> _itemIts;
 
 #ifdef SIM_WITH_GUI
   public:

@@ -620,6 +620,11 @@ bool CWorld::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, 
     return (retVal);
 }
 
+void CWorld::instancePass()
+{
+    sceneObjects->instancePass();
+}
+
 void CWorld::simulationAboutToStart()
 {
     TRACE_INTERNAL;

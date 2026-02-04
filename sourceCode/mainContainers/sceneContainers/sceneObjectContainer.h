@@ -140,6 +140,7 @@ class CSceneObjectContainer
     void connect_oldIk();
     void remove_oldIk();
 
+    void instancePass();
     void simulationAboutToStart();
     void simulationAboutToEnd();
     void simulationEnded();

@@ -34,6 +34,12 @@ CSceneObjectContainer::~CSceneObjectContainer()
     delete embeddedScriptContainer;
 }
 
+void CSceneObjectContainer::instancePass()
+{
+    for (size_t i = 0; i < getObjectCount(); i++)
+        getObjectFromIndex(i)->instancePass();
+}
+
 void CSceneObjectContainer::simulationAboutToStart()
 {
     for (size_t i = 0; i < getObjectCount(); i++)

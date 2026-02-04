@@ -1445,8 +1445,8 @@ void CSceneObject::pushObjectCreationEvent()
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
         CCbor* ev = App::worldContainer->createSceneObjectAddEvent(this);
-        CSceneObject::_addCommonObjectEventData(ev);
         addSpecializedObjectEventData(ev);
+        CSceneObject::_addCommonObjectEventData(ev);
         App::worldContainer->pushEvent();
 
         if (_objectType == sim_sceneobject_shape)
@@ -1467,8 +1467,8 @@ void CSceneObject::pushObjectRefreshEvent()
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
         CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
-        CSceneObject::_addCommonObjectEventData(ev);
         addSpecializedObjectEventData(ev);
+        CSceneObject::_addCommonObjectEventData(ev);
         App::worldContainer->pushEvent();
     }
 }
@@ -1981,6 +1981,10 @@ void CSceneObject::setMechanismID(int id)
 int CSceneObject::getMechanismID() const
 { // Make sure setMechanismID was called just before!!
     return (_mechanismID);
+}
+
+void CSceneObject::instancePass()
+{
 }
 
 void CSceneObject::simulationAboutToStart()

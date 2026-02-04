@@ -791,6 +791,13 @@ bool CWorldContainer::processGuiCommand(int commandID)
 
 #endif
 
+void CWorldContainer::instancePass()
+{
+    currentWorld->instancePass();
+    int auxData[4] = {getModificationFlags(true), 0, 0, 0};
+    pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass, auxData);
+}
+
 void CWorldContainer::simulationAboutToStart()
 {
     calcInfo->simulationAboutToStart();

@@ -12,6 +12,13 @@ POINTCLOUD_PROPERTIES
 extern const std::vector<SProperty> allProps_pointCloud;
 // ----------------------------------------------------------------------------------------------
 
+struct CPCMultiSIt
+{
+    std::multiset<float>::iterator itX;
+    std::multiset<float>::iterator itY;
+    std::multiset<float>::iterator itZ;
+};
+
 class CDummy;
 class COcTree;
 
@@ -36,6 +43,7 @@ class CPointCloud : public CSceneObject
     void performDistanceLoadingMapping(const std::map<int, int>* map, int opType) override;
     void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
     void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map) override;
+    void instancePass() override;
     void simulationAboutToStart() override;
     void simulationEnded() override;
     void initializeInitialValues(bool simulationAlreadyRunning) override;
@@ -77,8 +85,7 @@ class CPointCloud : public CSceneObject
     double getCellSize() const;
     void setMaxPointCountPerCell(int cnt);
     int getMaxPointCountPerCell() const;
-    void insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToPointCloud,
-                      const unsigned char* optionalColors3, bool colorsAreIndividual);
+    void insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToPointCloud, const unsigned char* optionalColors3, bool colorsAreIndividual);
     void insertShape(CShape* shape);
     void insertOctree(const COcTree* octree);
     void insertDummy(const CDummy* dummy);
@@ -127,8 +134,10 @@ class CPointCloud : public CSceneObject
     std::vector<double>* getDisplayColors();
 
   protected:
+    void _addBBPts(const float* pts, const unsigned int* ids, int ptCnt);
+    void _remBBPts(const unsigned int* ids, int ptCnt);
     void _updatePointCloudEvent(bool incremental, CCbor* evv = nullptr);
-    void _readPositionsAndColorsAndSetDimensions(bool incrementalDisplayUpdate);
+    void _readPositionsAndColorsAndSetDimensions();
     void _getCharRGB3Colors(const std::vector<double>& floatRGBA, std::vector<unsigned char>& charRGB);
 
     // Variables which need to be serialized & copied
@@ -152,6 +161,12 @@ class CPointCloud : public CSceneObject
     bool _doNotUseOctreeStructure;
     bool _colorIsEmissive;
     bool _refreshDisplay;
+
+    // For bounding box calculation:
+    std::multiset<float> _xs;
+    std::multiset<float> _ys;
+    std::multiset<float> _zs;
+    std::unordered_map<long long int, CPCMultiSIt> _itemIts;
 
 #ifdef SIM_WITH_GUI
   public:
