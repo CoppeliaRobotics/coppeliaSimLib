@@ -346,26 +346,29 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                     if (remCnt > 0)
                         _remBBPts(remIds, remCnt);
                     _addBBPts(pts, ids, newCnt);
-                    if (evv == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
-                    ev->openKeyMap("add");
-                    ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
-                    ev->appendKeyBuff("rgba", cols, newCnt * 4);
-                    ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
-                    ev->closeArrayOrMap();
-                    ev->openKeyMap("rem");
-                    ev->appendKeyBuff("ids", (unsigned char*)remIds, remCnt * sizeof(unsigned int));
-                    ev->closeArrayOrMap();
-                    if (evv == nullptr)
+                    if (newCnt + remCnt > 0)
                     {
-                        App::worldContainer->pushEvent();
-                        computeBoundingBox();
-                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                        double p[7];
-                        _bbFrame.getData(p, true);
-                        ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
-                        ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
-                        App::worldContainer->pushEvent();
+                        if (evv == nullptr)
+                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                        ev->openKeyMap("add");
+                        ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
+                        ev->appendKeyBuff("rgba", cols, newCnt * 4);
+                        ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
+                        ev->closeArrayOrMap();
+                        ev->openKeyMap("rem");
+                        ev->appendKeyBuff("ids", (unsigned char*)remIds, remCnt * sizeof(unsigned int));
+                        ev->closeArrayOrMap();
+                        if (evv == nullptr)
+                        {
+                            App::worldContainer->pushEvent();
+                            computeBoundingBox();
+                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                            double p[7];
+                            _bbFrame.getData(p, true);
+                            ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                            ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+                            App::worldContainer->pushEvent();
+                        }
                     }
                 }
                 delete[] pts;
