@@ -26,7 +26,7 @@ static std::string OBJECT_META_INFO = R"(
 }
 )";
 
-CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= nullptr*/, double size[3] /*= nullptr*/, int maxCnt /*= 0*/, int options /*= 0*/, float duplicateTol /*= 0.0f*/)
+CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= nullptr*/, double size[3] /*= nullptr*/, int maxCnt /*= 0*/, int options /*= 0*/, float duplicateTol /*= 0.0f*/, const std::vector<float>* vertices /*= nullptr*/, const std::vector<int>* indices /*= nullptr*/, const std::vector<float>* normals /*= nullptr*/)
 {
     _objectType = sim_sceneobject_marker;
     _localObjectSpecialProperty = 0;
@@ -57,6 +57,31 @@ CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= 
         for (size_t i = 0; i < 3; i++)
             _itemSize[i] = size[i];
     }
+    if ((_itemType == sim_markertype_custom) && (vertices != nullptr) && (indices != nullptr))
+    {
+        _vertices = vertices[0];
+        _vertices.resize(3 * (_vertices.size() / 3));
+        int m = (_vertices.size() / 3) - 1;
+        _indices = indices[0];
+        _indices.resize(3 * (_indices.size() / 3));
+        size_t i = 0;
+        while (i < _indices.size() / 3)
+        {
+            if ((_indices[3 * i + 0] > m) || (_indices[3 * i + 1] > m) || (_indices[3 * i + 2] > m))
+                _indices.erase(_indices.begin() + i, _indices.begin() + i + 3);
+            else
+                i++;
+        }
+        if (normals != nullptr)
+        {
+            if (normals->size() >= _vertices.size())
+            {
+                _normals = normals[0];
+                _normals.resize(_vertices.size());
+            }
+        }
+    }
+
     _initialize();
 }
 
@@ -422,9 +447,19 @@ void CMarker::scaleObject(double scalingFactor)
         _pts[i] *= scalingFactor;
     for (size_t i = 0; i < _sizes.size(); i++)
         _sizes[i] *= scalingFactor;
+    for (size_t i = 0; i < _vertices.size(); i++)
+        _vertices[i] *= scalingFactor;
 
     CSceneObject::scaleObject(scalingFactor);
     _initialize();
+    if ( (_isInScene && App::worldContainer->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
+    {
+        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "vertices", true);
+        ev->appendKeyBuff(propMarker_vertices.name, (unsigned char*)_vertices.data(), _vertices.size() * sizeof(float));
+        ev->appendKeyBuff(propMarker_indices.name, (unsigned char*)_indices.data(), _indices.size() * sizeof(int));
+        ev->appendKeyBuff(propMarker_normals.name, (unsigned char*)_normals.data(), _normals.size() * sizeof(float));
+        App::worldContainer->pushEvent();
+    }
 }
 
 void CMarker::removeSceneDependencies()
@@ -437,6 +472,12 @@ void CMarker::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyInt(propMarker_itemType.name, _itemType);
     ev->appendKeyBool(propMarker_cyclic.name, _itemOptions & sim_markeropts_cyclic);
     ev->appendKeyBool(propMarker_overlay.name, _itemOptions & sim_markeropts_overlay);
+    if (_itemType == sim_markertype_custom)
+    {
+        ev->appendKeyBuff(propMarker_vertices.name, (unsigned char*)_vertices.data(), _vertices.size() * sizeof(float));
+        ev->appendKeyBuff(propMarker_indices.name, (unsigned char*)_indices.data(), _indices.size() * sizeof(int));
+        ev->appendKeyBuff(propMarker_normals.name, (unsigned char*)_normals.data(), _normals.size() * sizeof(float));
+    }
     _updateMarkerEvent(false, ev);
 }
 
@@ -459,6 +500,9 @@ CSceneObject* CMarker::copyYourself()
     newMarker->_rgba.assign(_rgba.begin(), _rgba.end());
     newMarker->_sizes.assign(_sizes.begin(), _sizes.end());
     newMarker->_ids.assign(_ids.begin(), _ids.end());
+    newMarker->_vertices.assign(_vertices.begin(), _vertices.end());
+    newMarker->_indices.assign(_indices.begin(), _indices.end());
+    newMarker->_normals.assign(_normals.begin(), _normals.end());
     newMarker->_rebuildMarkerBoundingBox();
     newMarker->_sendFullEvent = true;
     newMarker->_nextId = _nextId;
@@ -469,14 +513,12 @@ CSceneObject* CMarker::copyYourself()
 void CMarker::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
-    //TODO
 }
 
 void CMarker::simulationAboutToStart()
 {
     initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
-    //TODO
 }
 
 void CMarker::simulationEnded()
@@ -488,7 +530,6 @@ void CMarker::simulationEnded()
         {
         }
     }
-    //TODO
     CSceneObject::simulationEnded();
 }
 
@@ -538,6 +579,24 @@ void CMarker::serialize(CSer& ar)
             ar << int(_sizes.size());
             for (size_t i = 0; i < _sizes.size(); i++)
                 ar << _sizes[i];
+            ar.flush();
+
+            ar.storeDataName("Ver");
+            ar << int(_vertices.size());
+            for (size_t i = 0; i < _vertices.size(); i++)
+                ar << _vertices[i];
+            ar.flush();
+
+            ar.storeDataName("Ind");
+            ar << int(_indices.size());
+            for (size_t i = 0; i < _indices.size(); i++)
+                ar << _indices[i];
+            ar.flush();
+
+            ar.storeDataName("Nor");
+            ar << int(_normals.size());
+            for (size_t i = 0; i < _normals.size(); i++)
+                ar << _normals[i];
             ar.flush();
 
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -619,6 +678,39 @@ void CMarker::serialize(CSer& ar)
                             ar >> _sizes[i];
                     }
 
+                    if (theName.compare("Ver") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        int cnt;
+                        ar >> cnt;
+                        _vertices.resize(cnt);
+                        for (int i = 0; i < cnt; i++)
+                            ar >> _vertices[i];
+                    }
+
+                    if (theName.compare("Ind") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        int cnt;
+                        ar >> cnt;
+                        _indices.resize(cnt);
+                        for (int i = 0; i < cnt; i++)
+                            ar >> _indices[i];
+                    }
+
+                    if (theName.compare("Nor") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        int cnt;
+                        ar >> cnt;
+                        _normals.resize(cnt);
+                        for (int i = 0; i < cnt; i++)
+                            ar >> _normals[i];
+                    }
+
                     if (noHit)
                         ar.loadUnknownData();
                 }
@@ -633,11 +725,18 @@ void CMarker::serialize(CSer& ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_comment(" 'type' tag: can be 'points', 'lines', 'triangles', 'spheres', 'squares', 'discs' or 'cubes' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", _itemType, sim_markertype_points, "points", sim_markertype_lines, "lines", sim_markertype_triangles, "triangles", sim_markertype_spheres, "spheres", sim_markertype_squares, "squares", sim_markertype_discs, "discs", sim_markertype_cubes, "cubes");
+            ar.xmlAddNode_enum("type", _itemType, sim_markertype_points, "points", sim_markertype_lines, "lines", sim_markertype_triangles, "triangles", sim_markertype_spheres, "spheres", sim_markertype_squares, "squares", sim_markertype_discs, "discs", sim_markertype_cubes, "cubes", sim_markertype_cylinders, "cylinders", sim_markertype_custom, "custom");
 
             ar.xmlAddNode_int("maxCnt", _itemMaxCnt);
             ar.xmlAddNode_int("options", _itemOptions);
             ar.xmlAddNode_float("duplicateTolerance", _itemDuplicateTol);
+
+            if (_itemType == sim_markertype_custom)
+            {
+                ar.xmlAddNode_floats("vertices", _vertices.data(), _vertices.size());
+                ar.xmlAddNode_ints("indices", _indices.data(), _indices.size());
+                ar.xmlAddNode_floats("normals", _normals.data(), _normals.size());
+            }
 
             int rgba[4];
             for (size_t i = 0; i< 4; i++)
@@ -655,7 +754,14 @@ void CMarker::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_enum("type", _itemType, exhaustiveXml, "points", sim_markertype_points, "lines", sim_markertype_lines, "triangles", sim_markertype_triangles, "spheres", sim_markertype_spheres, "squares", sim_markertype_squares, "discs", sim_markertype_discs, "cubes", sim_markertype_cubes);
+            ar.xmlGetNode_enum("type", _itemType, exhaustiveXml, "points", sim_markertype_points, "lines", sim_markertype_lines, "triangles", sim_markertype_triangles, "spheres", sim_markertype_spheres, "squares", sim_markertype_squares, "discs", sim_markertype_discs, "cubes", sim_markertype_cubes, "cylinders", sim_markertype_cylinders, "custom", sim_markertype_custom);
+
+            if (_itemType == sim_markertype_custom)
+            {
+                ar.xmlGetNode_floats("vertices", _vertices, exhaustiveXml);
+                ar.xmlGetNode_ints("indices", _indices, exhaustiveXml);
+                ar.xmlGetNode_floats("normals", _normals, exhaustiveXml);
+            }
 
             ar.xmlGetNode_int("maxCnt", _itemMaxCnt, exhaustiveXml);
             if (_itemMaxCnt < 0)
@@ -687,6 +793,418 @@ void CMarker::serialize(CSer& ar)
 int CMarker::getMarkerOptions() const
 {
     return _itemOptions;
+}
+
+int CMarker::setBoolProperty(const char* ppName, bool pState)
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setBoolProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CMarker::getBoolProperty(const char* ppName, bool& pState) const
+{
+    int retVal = CSceneObject::getBoolProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(propMarker_cyclic.name, ppName) == 0)
+        {
+            pState = _itemOptions & sim_markeropts_cyclic;
+            retVal = 1;
+        }
+        else if (strcmp(propMarker_overlay.name, ppName) == 0)
+        {
+            pState = _itemOptions & sim_markeropts_overlay;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CMarker::setIntProperty(const char* ppName, int pState)
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setIntProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CMarker::getIntProperty(const char* ppName, int& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getIntProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propMarker_itemType.name)
+        {
+            pState = _itemType;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CMarker::setLongProperty(const char* ppName, long long int pState)
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setLongProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CMarker::getLongProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getLongProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CMarker::getHandleProperty(const char* ppName, long long int& pState) const
+{
+    int retVal = CSceneObject::getHandleProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CMarker::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setFloatProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CMarker::getFloatProperty(const char* ppName, double& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getFloatProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CMarker::setStringProperty(const char* ppName, const char* pState)
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CMarker::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propMarker_objectMetaInfo.name)
+        {
+            pState = OBJECT_META_INFO;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CMarker::getBufferProperty(const char* pName, std::string& pState) const
+{
+    int retVal = CSceneObject::getBufferProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propMarker_colors.name) == 0)
+        {
+            pState.assign(_rgba.begin(), _rgba.end());
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CMarker::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setColorProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+    return retVal;
+}
+
+int CMarker::getColorProperty(const char* ppName, float* pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getColorProperty(ppName, pState);
+    if (retVal == -1)
+    {
+    }
+    return retVal;
+}
+
+int CMarker::getIntArrayProperty(const char* pName, std::vector<int>& pState) const
+{
+    int retVal = CSceneObject::getIntArrayProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propMarker_indices.name) == 0)
+        {
+            pState = _indices;
+            retVal = 1;
+        }
+    }
+    return retVal;
+}
+
+int CMarker::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
+{
+    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propMarker_points.name) == 0)
+        {
+            pState.resize(_pts.size());
+            for (size_t i = 0; i < _pts.size(); i++)
+                pState[i] = (double)_pts[i];
+            retVal = 1;
+        }
+        else if (strcmp(pName, propMarker_quaternions.name) == 0)
+        {
+            pState.resize(_quats.size());
+            for (size_t i = 0; i < _quats.size(); i++)
+                pState[i] = (double)_quats[i];
+            retVal = 1;
+        }
+        else if (strcmp(pName, propMarker_sizes.name) == 0)
+        {
+            pState.resize(_sizes.size());
+            for (size_t i = 0; i < _sizes.size(); i++)
+                pState[i] = (double)_sizes[i];
+            retVal = 1;
+        }
+        else if (strcmp(pName, propMarker_vertices.name) == 0)
+        {
+            pState.resize(_vertices.size());
+            for (size_t i = 0; i < _vertices.size(); i++)
+                pState[i] = (double)_vertices[i];
+            retVal = 1;
+        }
+        else if (strcmp(pName, propMarker_normals.name) == 0)
+        {
+            pState.resize(_normals.size());
+            for (size_t i = 0; i < _normals.size(); i++)
+                pState[i] = (double)_normals[i];
+            retVal = 1;
+        }
+    }
+    return retVal;
+}
+
+int CMarker::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
+    if (retVal == -1)
+        appartenance = "marker";
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_marker.size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(allProps_marker[i].name, pName.c_str()))
+            {
+                if ((allProps_marker[i].flags & excludeFlags) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_marker[i].name;
+                        retVal = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CMarker::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
+    if (retVal == -1)
+    {
+        appartenance = "marker";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_marker.size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(allProps_marker[i].name, pName.c_str()))
+            {
+                if ((allProps_marker[i].flags & excludeFlags) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_marker[i].name;
+                        retVal = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_marker.size(); i++)
+        {
+            if (strcmp(allProps_marker[i].name, ppName) == 0)
+            {
+                retVal = allProps_marker[i].type;
+                info = allProps_marker[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_marker[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_marker[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CMarker::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_marker.size(); i++)
+        {
+            if (strcmp(allProps_marker[i].name, ppName) == 0)
+            {
+                retVal = allProps_marker[i].type;
+                info = allProps_marker[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_marker[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_marker[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
+{
+    CCbor* ev = evv;
+    if ((evv != nullptr) || (_isInScene && App::worldContainer->getEventsEnabled()))
+    {
+        if (!incremental)
+            _sendFullEvent = true;
+        if (_sendFullEvent)
+        {
+            _sendFullEvent = false;
+            if (evv == nullptr)
+                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+            ev->openKeyMap("set");
+            ev->appendKeyBuff("pts", (unsigned char*)_pts.data(), _pts.size() * sizeof(float));
+            ev->appendKeyBuff("quats", (unsigned char*)_quats.data(), _quats.size() * sizeof(float));
+            ev->appendKeyBuff("sizes", (unsigned char*)_sizes.data(), _sizes.size() * sizeof(float));
+            ev->appendKeyBuff("rgba", _rgba.data(), _rgba.size());
+            ev->appendKeyBuff("ids", (unsigned char*)_ids.data(), _ids.size() * sizeof(long long int));
+            ev->closeArrayOrMap();
+            if (evv == nullptr)
+                App::worldContainer->pushEvent();
+        }
+        else
+        {
+            if ( (_newItemsCnt > 0) || (_remIds.size() > 0) )
+            {
+                if (evv == nullptr)
+                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                if (_newItemsCnt > 0)
+                {
+                    ev->openKeyMap("add");
+                    ev->appendKeyBuff("pts", (unsigned char*)(_pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
+                    if (_quats.size() > 0)
+                        ev->appendKeyBuff("quats", (unsigned char*)(_quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt)), (_newItemsCnt * 4 * _itemPointCnt) * sizeof(float));
+                    else
+                        ev->appendKeyBuff("quats", nullptr, 0);
+                    if (_sizes.size() > 0)
+                        ev->appendKeyBuff("sizes", (unsigned char*)(_sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
+                    else
+                        ev->appendKeyBuff("sizes", nullptr, 0);
+                    ev->appendKeyBuff("rgba", (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
+                    ev->appendKeyBuff("ids", (unsigned char*)(_ids.data() + _ids.size() - _newItemsCnt), _newItemsCnt * sizeof(long long int));
+                    ev->closeArrayOrMap();
+                }
+                if (_remIds.size() > 0)
+                {
+                    ev->openKeyMap("rem");
+                    ev->appendKeyBuff("ids", (unsigned char*)_remIds.data(), _remIds.size() * sizeof(long long int));
+                    ev->closeArrayOrMap();
+                }
+                if (evv == nullptr)
+                    App::worldContainer->pushEvent();
+            }
+        }
+        _newItemsCnt = 0;
+        _remIds.clear();
+    }
 }
 
 #ifdef SIM_WITH_GUI
@@ -1010,97 +1528,133 @@ void CMarker::_drawSpherePoints(int displayAttrib, const double normalVectorForL
     }
 }
 
-/*
-void _drawTriangles(CDrawingObject* drawingObject, int displayAttrib)
+void CMarker::_drawCylinderPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
-    bool auxCmp = (displayAttrib & sim_displayattribute_useauxcomponent) != 0;
-    int _objectType = drawingObject->getObjectType();
-    // double _size=drawingObject->getSize();
-    int _maxItemCount = drawingObject->getMaxItemCount();
-    int _startItem = drawingObject->getStartItem();
-    std::vector<double>& _data = drawingObject->getDataPtr()[0];
-    // Following 2 new since introduction of sim_drawing_itemtransparency:
-    if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
-        ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // We turn blending on!
-
-    glBegin(GL_TRIANGLES);
-    C3Vector v, w, x, n;
-    int off = 0;
-    for (int i = 0; i < int(_data.size()) / drawingObject->floatsPerItem; i++)
+    for (size_t i = 0; i < _pts.size() / 3; i++)
     {
-        int p = _startItem + i;
-        if (p >= _maxItemCount)
-            p -= _maxItemCount;
-        v.setData(&_data[drawingObject->floatsPerItem * p + 0]);
-        w.setData(&_data[drawingObject->floatsPerItem * p + 3]);
-        x.setData(&_data[drawingObject->floatsPerItem * p + 6]);
-        if ((_objectType & (sim_drawing_itemcolors | sim_drawing_vertexcolors)) &&
-            ((!auxCmp) || (_objectType & sim_drawing_auxchannelcolor2)))
+        glPushMatrix();
+        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
+        const float* q = _quats.data() + 4 * i;
+        float angle = 2.0f * acosf(q[3]);
+        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
+        if (s_inv != INFINITY && angle != 0.0f)
         {
-            float ab[3] = {(float)_data[drawingObject->floatsPerItem * p + 9],
-                           (float)_data[drawingObject->floatsPerItem * p + 10],
-                           (float)_data[drawingObject->floatsPerItem * p + 11]};
-            if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, ab);
-            else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ab);
+            float ax = q[0] * s_inv;
+            float ay = q[1] * s_inv;
+            float az = q[2] * s_inv;
+            glRotatef(angle * 180.0f / piValue, ax, ay, az);
         }
-        if (_objectType & (sim_drawing_itemcolors | sim_drawing_vertexcolors))
-            off += 3;
-        float* vertex2Col = nullptr;
-        float* vertex3Col = nullptr;
-        float vertex2Col_[3];
-        float vertex3Col_[3];
-        if (_objectType & sim_drawing_vertexcolors)
+        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
+
+        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
         {
-            vertex2Col_[0] = _data[drawingObject->floatsPerItem * p + 9 + off + 0];
-            vertex2Col_[1] = _data[drawingObject->floatsPerItem * p + 9 + off + 1];
-            vertex2Col_[2] = _data[drawingObject->floatsPerItem * p + 9 + off + 2];
-            vertex2Col = vertex2Col_;
-            off += 3;
-            vertex3Col_[0] = _data[drawingObject->floatsPerItem * p + 9 + off + 0];
-            vertex3Col_[1] = _data[drawingObject->floatsPerItem * p + 9 + off + 1];
-            vertex3Col_[2] = _data[drawingObject->floatsPerItem * p + 9 + off + 2];
-            vertex3Col = vertex3Col_;
-            off += 3;
+            float col[3] = {float(_rgba[4 * i + 0]) / 255.0f, float(_rgba[4 * i + 1]) / 255.0f, float(_rgba[4 * i + 2]) / 255.0f};
+            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, col);
         }
 
-        if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
-        { // Following part new since introduction of sim_drawing_itemtransparency:
-            ogl::setAlpha(1.0 - _data[drawingObject->floatsPerItem * p + 9 + off]);
-            off++;
-        }
+        int slices = 16;
 
-        n = (w - v) ^ (x - v);
-        double l = n.getLength();
-        if (l != 0.0)
-            n /= l;
-        glNormal3dv(n.data);
-        glVertex3dv(v.data);
-        if ((_objectType & sim_drawing_vertexcolors) && ((!auxCmp) || (_objectType & sim_drawing_auxchannelcolor2)))
+        glBegin(GL_QUAD_STRIP);
+        for (int i = 0; i <= slices; i++)
         {
-            if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, vertex2Col);
-            else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, vertex2Col);
+            float angle = 2.0f * piValue * (float)i / slices;
+            float x = 0.5f * cosf(angle);
+            float y = 0.5f * sinf(angle);
+            glNormal3f(x / 0.5f, y / 0.5f, 0.0f);
+            glVertex3f(x, y, 0.5f);
+            glVertex3f(x, y, -0.5f);
         }
-        glVertex3dv(w.data);
-        if ((_objectType & sim_drawing_vertexcolors) && ((!auxCmp) || (_objectType & sim_drawing_auxchannelcolor2)))
+        glEnd();
+
+        glBegin(GL_TRIANGLE_FAN);
+        glNormal3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(0.0f, 0.0f, 0.5f);  // Center
+        for (int i = 0; i <= slices; i++)
         {
-            if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, vertex3Col);
-            else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, vertex3Col);
+            float angle = 2.0f * piValue * (float)i / slices;
+            float x = 0.5f * cosf(angle);
+            float y = 0.5f * sinf(angle);
+            glVertex3f(x, y, 0.5f);
         }
-        glVertex3dv(x.data);
+        glEnd();
+
+        glBegin(GL_TRIANGLE_FAN);
+        glNormal3f(0.0f, 0.0f, -1.0f);
+        glVertex3f(0.0f, 0.0f, -0.5f);
+        for (int i = slices; i >= 0; i--)
+        {
+            float angle = 2.0f * piValue * (float)i / slices;
+            float x = 0.5f * cosf(angle);
+            float y = 0.5f * sinf(angle);
+            glVertex3f(x, y, -0.5f);
+        }
+        glEnd();
+        glPopMatrix();
     }
-    glEnd();
-
-           // Following 2 new since introduction of sim_drawing_itemtransparency:
-    if ((_objectType & sim_drawing_itemtransparency) && (!auxCmp))
-        ogl::setBlending(false); // make sure we turn blending off!
 }
-*/
+
+void CMarker::_drawCustomPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
+{ // we ignore the normals. Those display routines are anyways just temp.
+    for (size_t i = 0; i < _pts.size() / 3; i++)
+    {
+        glPushMatrix();
+        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
+        const float* q = _quats.data() + 4 * i;
+        float angle = 2.0f * acosf(q[3]);
+        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
+        if (s_inv != INFINITY && angle != 0.0f)
+        {
+            float ax = q[0] * s_inv;
+            float ay = q[1] * s_inv;
+            float az = q[2] * s_inv;
+            glRotatef(angle * 180.0f / piValue, ax, ay, az);
+        }
+        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
+
+        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        {
+            float col[3] = {float(_rgba[4 * i + 0]) / 255.0f, float(_rgba[4 * i + 1]) / 255.0f, float(_rgba[4 * i + 2]) / 255.0f};
+            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, col);
+        }
+
+        for (size_t i = 0; i < _indices.size() / 3; i++)
+        {
+            int ind[3] = {_indices[3 * i + 0], _indices[3 * i + 1], _indices[3 * i + 2]};
+            const float* v0 = _vertices.data() + ind[0] * 3;
+            const float* v1 = _vertices.data() + ind[1] * 3;
+            const float* v2 = _vertices.data() + ind[2] * 3;
+
+            float edge1[3] = {v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]};
+            float edge2[3] = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
+
+            float normal[3] =
+                {
+                    edge1[1] * edge2[2] - edge1[2] * edge2[1],
+                    edge1[2] * edge2[0] - edge1[0] * edge2[2],
+                    edge1[0] * edge2[1] - edge1[1] * edge2[0]
+                };
+
+            float len = sqrtf(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
+            if (len > 0.0f)
+            {
+                normal[0] /= len;
+                normal[1] /= len;
+                normal[2] /= len;
+            }
+
+            glBegin(GL_TRIANGLES);
+            glNormal3fv(normal);
+            glVertex3fv(v0);
+            glNormal3fv(normal);
+            glVertex3fv(v1);
+            glNormal3fv(normal);
+            glVertex3fv(v2);
+            glEnd();
+        }
+        glPopMatrix();
+    }
+}
+
 void CMarker::drawItems(int displayAttrib, const double normalVectorForLinesAndPoints[3], bool overlay) const
 {
     if (_itemOptions & sim_markeropts_overlay)
@@ -1148,6 +1702,10 @@ void CMarker::drawItems(int displayAttrib, const double normalVectorForLinesAndP
         _drawCubePoints(displayAttrib, normalVectorForLinesAndPoints);
     else if (_itemType == sim_markertype_spheres)
         _drawSpherePoints(displayAttrib, normalVectorForLinesAndPoints);
+    else if (_itemType == sim_markertype_cylinders)
+        _drawCylinderPoints(displayAttrib, normalVectorForLinesAndPoints);
+    else if (_itemType == sim_markertype_custom)
+        _drawCustomPoints(displayAttrib, normalVectorForLinesAndPoints);
     glDisable(GL_NORMALIZE);
     glDisable(GL_CULL_FACE);
     glPopAttrib();
@@ -1156,388 +1714,3 @@ void CMarker::drawItems(int displayAttrib, const double normalVectorForLinesAndP
 
 }
 #endif
-
-int CMarker::setBoolProperty(const char* ppName, bool pState)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::setBoolProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CMarker::getBoolProperty(const char* ppName, bool& pState) const
-{
-    int retVal = CSceneObject::getBoolProperty(ppName, pState);
-    if (retVal == -1)
-    {
-        if (strcmp(propMarker_cyclic.name, ppName) == 0)
-        {
-            pState = _itemOptions & sim_markeropts_cyclic;
-            retVal = 1;
-        }
-        else if (strcmp(propMarker_overlay.name, ppName) == 0)
-        {
-            pState = _itemOptions & sim_markeropts_overlay;
-            retVal = 1;
-        }
-    }
-
-    return retVal;
-}
-
-int CMarker::setIntProperty(const char* ppName, int pState)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::setIntProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CMarker::getIntProperty(const char* ppName, int& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getIntProperty(ppName, pState);
-    if (retVal == -1)
-    {
-        if (_pName == propMarker_itemType.name)
-        {
-            pState = _itemType;
-            retVal = 1;
-        }
-    }
-
-    return retVal;
-}
-
-int CMarker::setLongProperty(const char* ppName, long long int pState)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::setLongProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CMarker::getLongProperty(const char* ppName, long long int& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getLongProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CMarker::getHandleProperty(const char* ppName, long long int& pState) const
-{
-    int retVal = CSceneObject::getHandleProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CMarker::setFloatProperty(const char* ppName, double pState)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::setFloatProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CMarker::getFloatProperty(const char* ppName, double& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getFloatProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CMarker::setStringProperty(const char* ppName, const char* pState)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::setStringProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CMarker::getStringProperty(const char* ppName, std::string& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if (retVal == -1)
-    {
-        if (_pName == propMarker_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
-    }
-
-    return retVal;
-}
-
-int CMarker::getBufferProperty(const char* pName, std::string& pState) const
-{
-    int retVal = CSceneObject::getBufferProperty(pName, pState);
-    if (retVal == -1)
-    {
-        if (strcmp(pName, propMarker_colors.name) == 0)
-        {
-            pState.assign(_rgba.begin(), _rgba.end());
-            retVal = 1;
-        }
-    }
-
-    return retVal;
-}
-
-int CMarker::setColorProperty(const char* ppName, const float* pState)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::setColorProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-    return retVal;
-}
-
-int CMarker::getColorProperty(const char* ppName, float* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getColorProperty(ppName, pState);
-    if (retVal == -1)
-    {
-    }
-    return retVal;
-}
-
-int CMarker::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
-{
-    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
-    if (retVal == -1)
-    {
-        if (strcmp(pName, propMarker_points.name) == 0)
-        {
-            pState.resize(_pts.size());
-            for (size_t i = 0; i < _pts.size(); i++)
-                pState[i] = (double)_pts[i];
-            retVal = 1;
-        }
-        else if (strcmp(pName, propMarker_quaternions.name) == 0)
-        {
-            pState.resize(_quats.size());
-            for (size_t i = 0; i < _quats.size(); i++)
-                pState[i] = (double)_quats[i];
-            retVal = 1;
-        }
-        else if (strcmp(pName, propMarker_sizes.name) == 0)
-        {
-            pState.resize(_sizes.size());
-            for (size_t i = 0; i < _sizes.size(); i++)
-                pState[i] = (double)_sizes[i];
-            retVal = 1;
-        }
-    }
-    return retVal;
-}
-
-int CMarker::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
-{
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-        appartenance = "marker";
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_marker.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_marker[i].name, pName.c_str()))
-            {
-                if ((allProps_marker[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_marker[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CMarker::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "marker";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_marker.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_marker[i].name, pName.c_str()))
-            {
-                if ((allProps_marker[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_marker[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_marker.size(); i++)
-        {
-            if (strcmp(allProps_marker[i].name, ppName) == 0)
-            {
-                retVal = allProps_marker[i].type;
-                info = allProps_marker[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_marker[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_marker[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CMarker::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_marker.size(); i++)
-        {
-            if (strcmp(allProps_marker[i].name, ppName) == 0)
-            {
-                retVal = allProps_marker[i].type;
-                info = allProps_marker[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_marker[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_marker[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
-{
-    CCbor* ev = evv;
-    if ((evv != nullptr) || (_isInScene && App::worldContainer->getEventsEnabled()))
-    {
-        if (!incremental)
-            _sendFullEvent = true;
-        if (_sendFullEvent)
-        {
-            _sendFullEvent = false;
-            if (evv == nullptr)
-                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
-            ev->openKeyMap("set");
-            ev->appendKeyBuff("pts", (unsigned char*)_pts.data(), _pts.size() * sizeof(float));
-            ev->appendKeyBuff("quats", (unsigned char*)_quats.data(), _quats.size() * sizeof(float));
-            ev->appendKeyBuff("sizes", (unsigned char*)_sizes.data(), _sizes.size() * sizeof(float));
-            ev->appendKeyBuff("rgba", _rgba.data(), _rgba.size());
-            ev->appendKeyBuff("ids", (unsigned char*)_ids.data(), _ids.size() * sizeof(long long int));
-            ev->closeArrayOrMap();
-            if (evv == nullptr)
-                App::worldContainer->pushEvent();
-        }
-        else
-        {
-            if ( (_newItemsCnt > 0) || (_remIds.size() > 0) )
-            {
-                if (evv == nullptr)
-                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
-                if (_newItemsCnt > 0)
-                {
-                    ev->openKeyMap("add");
-                    ev->appendKeyBuff("pts", (unsigned char*)(_pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
-                    if (_quats.size() > 0)
-                        ev->appendKeyBuff("quats", (unsigned char*)(_quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt)), (_newItemsCnt * 4 * _itemPointCnt) * sizeof(float));
-                    else
-                        ev->appendKeyBuff("quats", nullptr, 0);
-                    if (_sizes.size() > 0)
-                        ev->appendKeyBuff("sizes", (unsigned char*)(_sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
-                    else
-                        ev->appendKeyBuff("sizes", nullptr, 0);
-                    ev->appendKeyBuff("rgba", (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
-                    ev->appendKeyBuff("ids", (unsigned char*)(_ids.data() + _ids.size() - _newItemsCnt), _newItemsCnt * sizeof(long long int));
-                    ev->closeArrayOrMap();
-                }
-                if (_remIds.size() > 0)
-                {
-                    ev->openKeyMap("rem");
-                    ev->appendKeyBuff("ids", (unsigned char*)_remIds.data(), _remIds.size() * sizeof(long long int));
-                    ev->closeArrayOrMap();
-                }
-                if (evv == nullptr)
-                    App::worldContainer->pushEvent();
-            }
-        }
-        _newItemsCnt = 0;
-        _remIds.clear();
-    }
-}
-

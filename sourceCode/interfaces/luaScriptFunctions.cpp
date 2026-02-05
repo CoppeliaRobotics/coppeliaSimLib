@@ -956,6 +956,8 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.markertype_squares", sim_markertype_squares},
     {"sim.markertype_discs", sim_markertype_discs},
     {"sim.markertype_cubes", sim_markertype_cubes},
+    {"sim.markertype_cylinders", sim_markertype_cylinders},
+    {"sim.markertype_custom", sim_markertype_custom},
 
     // marker object options
     {"sim.markeropts_local", sim_markeropts_local},
@@ -9764,7 +9766,7 @@ int _simCreateMarker(luaWrap_lua_State* L)
     LUA_START("sim.createMarker");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_number | lua_arg_optional, 3, lua_arg_number | lua_arg_optional, 3, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_number | lua_arg_optional, 3, lua_arg_number | lua_arg_optional, 3, lua_arg_integer | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, 0, lua_arg_number | lua_arg_optional, -1, lua_arg_integer | lua_arg_optional, -1, lua_arg_number | lua_arg_optional, -1))
     {
         int objType = fetchIntArg(L, 1);
         std::vector<float> col;
@@ -9775,8 +9777,13 @@ int _simCreateMarker(luaWrap_lua_State* L)
         int maxCnt = fetchIntArg(L, 4, 0);
         int opts = fetchIntArg(L, 5, 0);
         float duplicateTol = (float)fetchDoubleArg(L, 6, 0.0);
-
-        CMarker* it = new CMarker(objType, ccol, size.data(), maxCnt, opts, duplicateTol);
+        std::vector<float> vertices;
+        fetchFloatArrayArg(L, 7, vertices);
+        std::vector<int> indices;
+        fetchIntArrayArg(L, 8, indices);
+        std::vector<float> normals;
+        fetchFloatArrayArg(L, 9, normals);
+        CMarker* it = new CMarker(objType, ccol, size.data(), maxCnt, opts, duplicateTol, &vertices, &indices, &normals);
         App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
         retVal = it->getObjectHandle();
     }

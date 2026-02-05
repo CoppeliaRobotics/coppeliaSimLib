@@ -25,7 +25,7 @@ struct CItemPointIts {
 class CMarker : public CSceneObject
 {
   public:
-    CMarker(int type = sim_markertype_points, unsigned char col[3] = nullptr, double size[3] = nullptr, int maxCnt = 0, int options = 0, float duplicateTol = 0.0f);
+    CMarker(int type = sim_markertype_points, unsigned char col[3] = nullptr, double size[3] = nullptr, int maxCnt = 0, int options = 0, float duplicateTol = 0.0f, const std::vector<float>* vertices = nullptr, const std::vector<int>* indices = nullptr, const std::vector<float>* normals = nullptr);
 
     virtual ~CMarker();
 
@@ -55,6 +55,7 @@ class CMarker : public CSceneObject
     int getBufferProperty(const char* pName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
 
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
@@ -80,6 +81,10 @@ class CMarker : public CSceneObject
     int _itemOptions;
     float _itemDuplicateTol;
     int _itemPointCnt; // 1, 2 (lines) or 3 (triangles)
+    // For custom items:
+    std::vector<float> _vertices;
+    std::vector<int> _indices;
+    std::vector<float> _normals; // per vertex
 
     std::vector<float> _pts; // 3 * _itemPointCnt per item
     std::vector<float> _quats; // 4 per item (qx, qy, qz, qw) (or 0 with lines and triangles, pts and similar)
@@ -110,5 +115,7 @@ class CMarker : public CSceneObject
     void _drawDiscPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawCubePoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawSpherePoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
+    void _drawCylinderPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
+    void _drawCustomPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
 #endif
 };
