@@ -1161,7 +1161,8 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             if (evv == nullptr)
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
-            ev->appendKeyBuff("pts", (unsigned char*)_pts.data(), _pts.size() * sizeof(float));
+//            ev->appendKeyBuff("pts", (unsigned char*)_pts.data(), _pts.size() * sizeof(float));
+            ev->appendKeyFloatArray("pts", _pts.data(), _pts.size());
             ev->appendKeyBuff("quats", (unsigned char*)_quats.data(), _quats.size() * sizeof(float));
             ev->appendKeyBuff("sizes", (unsigned char*)_sizes.data(), _sizes.size() * sizeof(float));
             ev->appendKeyBuff("rgba", _rgba.data(), _rgba.size());
@@ -1179,7 +1180,8 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 if (_newItemsCnt > 0)
                 {
                     ev->openKeyMap("add");
-                    ev->appendKeyBuff("pts", (unsigned char*)(_pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
+//                    ev->appendKeyBuff("pts", (unsigned char*)(_pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
+                    ev->appendKeyFloatArray("pts", _pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * 3 * _itemPointCnt);
                     if (_quats.size() > 0)
                         ev->appendKeyBuff("quats", (unsigned char*)(_quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt)), (_newItemsCnt * 4 * _itemPointCnt) * sizeof(float));
                     else

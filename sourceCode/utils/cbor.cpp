@@ -68,6 +68,7 @@ void CCbor::appendUCharArray(const unsigned char* v, size_t cnt)
 
 void CCbor::appendIntArray(const int* v, size_t cnt)
 {
+    /*
     openArray(); // _handleDataField() called in there
 
     unsigned char* w = (unsigned char*)v;
@@ -95,6 +96,11 @@ void CCbor::appendIntArray(const int* v, size_t cnt)
     }
 
     closeArrayOrMap();
+*/
+    _buff.push_back(0xD8); // Tag header
+    _buff.push_back(0x4c); // 76
+    _appendItemTypeAndLength(0, cnt * sizeof(int));
+    _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(int));
 }
 
 void CCbor::appendIntArray(const long long int* v, size_t cnt)
@@ -148,6 +154,7 @@ void CCbor::appendFloat(float v)
 
 void CCbor::appendFloatArray(const float* v, size_t cnt)
 {
+    /*
     openArray(); // _handleDataField() called in there
 
     const unsigned char* w = (const unsigned char*)v;
@@ -162,6 +169,11 @@ void CCbor::appendFloatArray(const float* v, size_t cnt)
     }
 
     closeArrayOrMap();
+    */
+    _buff.push_back(0xD8); // Tag header
+    _buff.push_back(0x55); // 85
+    _appendItemTypeAndLength(0, cnt * sizeof(float));
+    _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(float));
 }
 
 void CCbor::appendDouble(double v)
