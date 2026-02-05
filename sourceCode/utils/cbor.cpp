@@ -68,7 +68,7 @@ void CCbor::appendUCharArray(const unsigned char* v, size_t cnt)
     */
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x40); // 64
-    _appendItemTypeAndLength(0x40, cnt * sizeof(int));
+    _appendItemTypeAndLength(0x40, cnt);
     _buff.insert(_buff.end(), v, v + cnt);
 }
 
@@ -150,8 +150,8 @@ void CCbor::appendIntArray(const long long int* v, size_t cnt)
     */
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x4f); // 79
-    _appendItemTypeAndLength(0x40, cnt * sizeof(int));
-    _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(int));
+    _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
+    _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(long long int));
 }
 
 void CCbor::appendFloat(float v)
@@ -248,8 +248,8 @@ void CCbor::appendDoubleArray(const double* v, size_t cnt)
 */
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x56); // 86
-    _appendItemTypeAndLength(0x40, cnt * sizeof(float));
-    _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(float));
+    _appendItemTypeAndLength(0x40, cnt * sizeof(double));
+    _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(double));
 }
 
 void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
