@@ -7774,7 +7774,7 @@ int _simPackInt64Table(luaWrap_lua_State* L)
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
-                            int v = luaToInt(L, -1);
+                            long long int v = luaWrap_lua_tointeger(L, -1);
                             data[8 * i + 0] = ((char*)&v)[0];
                             data[8 * i + 1] = ((char*)&v)[1];
                             data[8 * i + 2] = ((char*)&v)[2];
@@ -7896,7 +7896,7 @@ int _simPackUInt64Table(luaWrap_lua_State* L)
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
-                            unsigned int v = (unsigned int)luaToInt(L, -1);
+                            unsigned long long int v = (unsigned long long int)luaWrap_lua_tointeger(L, -1);
                             data[8 * i + 0] = ((char*)&v)[0];
                             data[8 * i + 1] = ((char*)&v)[1];
                             data[8 * i + 2] = ((char*)&v)[2];
