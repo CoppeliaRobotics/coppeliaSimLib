@@ -29,7 +29,7 @@ class CCbor
     void appendInt(long long int v);
     void appendUCharArray(const unsigned char* v, size_t cnt);
     void appendIntArray(const int* v, size_t cnt);
-    void appendIntArray(const long long int* v, size_t cnt);
+    void appendLongArray(const long long int* v, size_t cnt);
     void appendFloat(float v);
     void appendFloatArray(const float* v, size_t cnt);
     void appendDouble(double v);
@@ -47,7 +47,7 @@ class CCbor
     void appendKeyInt(const char* key, long long int v);
     void appendKeyUCharArray(const char* key, const unsigned char* v, size_t cnt);
     void appendKeyIntArray(const char* key, const int* v, size_t cnt);
-    void appendKeyIntArray(const char* key, const long long int* v, size_t cnt);
+    void appendKeyLongArray(const char* key, const long long int* v, size_t cnt);
     void appendKeyFloat(const char* key, float v);
     void appendKeyFloatArray(const char* key, const float* v, size_t cnt);
     void appendKeyDouble(const char* key, double v);

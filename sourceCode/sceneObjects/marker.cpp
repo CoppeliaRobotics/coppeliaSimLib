@@ -455,9 +455,9 @@ void CMarker::scaleObject(double scalingFactor)
     if ( (_isInScene && App::worldContainer->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
     {
         CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "vertices", true);
-        ev->appendKeyBuff(propMarker_vertices.name, (unsigned char*)_vertices.data(), _vertices.size() * sizeof(float));
-        ev->appendKeyBuff(propMarker_indices.name, (unsigned char*)_indices.data(), _indices.size() * sizeof(int));
-        ev->appendKeyBuff(propMarker_normals.name, (unsigned char*)_normals.data(), _normals.size() * sizeof(float));
+        ev->appendKeyFloatArray(propMarker_vertices.name, _vertices.data(), _vertices.size());
+        ev->appendKeyIntArray(propMarker_indices.name, _indices.data(), _indices.size());
+        ev->appendKeyFloatArray(propMarker_normals.name, _normals.data(), _normals.size());
         App::worldContainer->pushEvent();
     }
 }
@@ -475,9 +475,9 @@ void CMarker::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propMarker_overlay.name, _itemOptions & sim_markeropts_overlay);
     if (_itemType == sim_markertype_custom)
     {
-        ev->appendKeyBuff(propMarker_vertices.name, (unsigned char*)_vertices.data(), _vertices.size() * sizeof(float));
-        ev->appendKeyBuff(propMarker_indices.name, (unsigned char*)_indices.data(), _indices.size() * sizeof(int));
-        ev->appendKeyBuff(propMarker_normals.name, (unsigned char*)_normals.data(), _normals.size() * sizeof(float));
+        ev->appendKeyFloatArray(propMarker_vertices.name, _vertices.data(), _vertices.size());
+        ev->appendKeyIntArray(propMarker_indices.name, _indices.data(), _indices.size());
+        ev->appendKeyFloatArray(propMarker_normals.name, _normals.data(), _normals.size());
     }
     _updateMarkerEvent(false, ev);
 }
@@ -1167,12 +1167,11 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             if (evv == nullptr)
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
-//            ev->appendKeyBuff("pts", (unsigned char*)_pts.data(), _pts.size() * sizeof(float));
-            ev->appendKeyFloatArray("pts", _pts.data(), _pts.size());
-            ev->appendKeyBuff("quats", (unsigned char*)_quats.data(), _quats.size() * sizeof(float));
-            ev->appendKeyBuff("sizes", (unsigned char*)_sizes.data(), _sizes.size() * sizeof(float));
-            ev->appendKeyBuff("rgba", _rgba.data(), _rgba.size());
-            ev->appendKeyBuff("ids", (unsigned char*)_ids.data(), _ids.size() * sizeof(long long int));
+            ev->appendKeyFloatArray(propMarker_points.name, _pts.data(), _pts.size());
+            ev->appendKeyFloatArray(propMarker_quaternions.name, _quats.data(), _quats.size());
+            ev->appendKeyFloatArray(propMarker_sizes.name, _sizes.data(), _sizes.size());
+            ev->appendKeyBuff(propMarker_colors.name, _rgba.data(), _rgba.size());
+            ev->appendKeyLongArray("ids", _ids.data(), _ids.size());
             ev->closeArrayOrMap();
             if (evv == nullptr)
                 App::worldContainer->pushEvent();
@@ -1186,24 +1185,23 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 if (_newItemsCnt > 0)
                 {
                     ev->openKeyMap("add");
-//                    ev->appendKeyBuff("pts", (unsigned char*)(_pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
-                    ev->appendKeyFloatArray("pts", _pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * 3 * _itemPointCnt);
+                    ev->appendKeyFloatArray(propMarker_points.name, _pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * 3 * _itemPointCnt);
                     if (_quats.size() > 0)
-                        ev->appendKeyBuff("quats", (unsigned char*)(_quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt)), (_newItemsCnt * 4 * _itemPointCnt) * sizeof(float));
+                        ev->appendKeyFloatArray(propMarker_quaternions.name, _quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt), _newItemsCnt * 4 * _itemPointCnt);
                     else
-                        ev->appendKeyBuff("quats", nullptr, 0);
+                        ev->appendKeyFloatArray(propMarker_quaternions.name, nullptr, 0);
                     if (_sizes.size() > 0)
-                        ev->appendKeyBuff("sizes", (unsigned char*)(_sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt)), (_newItemsCnt * 3 * _itemPointCnt) * sizeof(float));
+                        ev->appendKeyFloatArray(propMarker_sizes.name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * 3 * _itemPointCnt);
                     else
-                        ev->appendKeyBuff("sizes", nullptr, 0);
-                    ev->appendKeyBuff("rgba", (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
-                    ev->appendKeyBuff("ids", (unsigned char*)(_ids.data() + _ids.size() - _newItemsCnt), _newItemsCnt * sizeof(long long int));
+                        ev->appendKeyFloatArray(propMarker_sizes.name, nullptr, 0);
+                    ev->appendKeyBuff(propMarker_colors.name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
+                    ev->appendKeyLongArray("ids", _ids.data() + _ids.size() - _newItemsCnt, _newItemsCnt);
                     ev->closeArrayOrMap();
                 }
                 if (_remIds.size() > 0)
                 {
                     ev->openKeyMap("rem");
-                    ev->appendKeyBuff("ids", (unsigned char*)_remIds.data(), _remIds.size() * sizeof(long long int));
+                    ev->appendKeyLongArray("ids", _remIds.data(), _remIds.size());
                     ev->closeArrayOrMap();
                 }
                 if (evv == nullptr)

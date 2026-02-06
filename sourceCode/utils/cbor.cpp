@@ -109,7 +109,7 @@ void CCbor::appendIntArray(const int* v, size_t cnt)
     _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(int));
 }
 
-void CCbor::appendIntArray(const long long int* v, size_t cnt)
+void CCbor::appendLongArray(const long long int* v, size_t cnt)
 {
 /*
     openArray(); // _handleDataField() called in there
@@ -587,10 +587,10 @@ void CCbor::appendKeyIntArray(const char* key, const int* v, size_t cnt)
     appendIntArray(v, cnt);
 }
 
-void CCbor::appendKeyIntArray(const char* key, const long long int* v, size_t cnt)
+void CCbor::appendKeyLongArray(const char* key, const long long int* v, size_t cnt)
 {
     appendText(key);
-    appendIntArray(v, cnt);
+    appendLongArray(v, cnt);
 }
 
 void CCbor::appendKeyFloat(const char* key, float v)
