@@ -140,6 +140,7 @@ void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const floa
 void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField);
 void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField);
 void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField);
+void pushULongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned long long int* arrayField);
 void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField);
 void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField);
 void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);

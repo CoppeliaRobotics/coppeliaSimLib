@@ -1136,6 +1136,17 @@ void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long lo
     }
 }
 
+void pushULongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned long long int* arrayField)
+{
+    lua_createtable((lua_State*)L, int(intCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < intCount; i++)
+    {
+        lua_pushinteger((lua_State*)L, arrayField[i]);
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+}
+
 void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField)
 {
     lua_createtable((lua_State*)L, int(intCount), 0);

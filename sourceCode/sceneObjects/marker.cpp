@@ -471,6 +471,7 @@ void CMarker::addSpecializedObjectEventData(CCbor* ev)
 {
     ev->appendKeyInt(propMarker_itemType.name, _itemType);
     ev->appendKeyBool(propMarker_cyclic.name, _itemOptions & sim_markeropts_cyclic);
+    ev->appendKeyBool(propMarker_local.name, _itemOptions & sim_markeropts_local);
     ev->appendKeyBool(propMarker_overlay.name, _itemOptions & sim_markeropts_overlay);
     if (_itemType == sim_markertype_custom)
     {
@@ -819,6 +820,11 @@ int CMarker::getBoolProperty(const char* ppName, bool& pState) const
         else if (strcmp(propMarker_overlay.name, ppName) == 0)
         {
             pState = _itemOptions & sim_markeropts_overlay;
+            retVal = 1;
+        }
+        else if (strcmp(propMarker_local.name, ppName) == 0)
+        {
+            pState = _itemOptions & sim_markeropts_local;
             retVal = 1;
         }
     }
@@ -1335,6 +1341,18 @@ void CMarker::_drawTriangles(int displayAttrib, const double normalVectorForLine
 
 void CMarker::_drawQuadPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    {
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0, 0.0, 0.0);
+    }
     for (size_t i = 0; i < _pts.size() / 3; i++)
     {
         glPushMatrix();
@@ -1352,10 +1370,7 @@ void CMarker::_drawQuadPoints(int displayAttrib, const double normalVectorForLin
         glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
 
         if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        {
-            float col[3] = {float(_rgba[4 * i + 0]) / 255.0f, float(_rgba[4 * i + 1]) / 255.0f, float(_rgba[4 * i + 2]) / 255.0f};
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, col);
-        }
+            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
 
         glBegin(GL_QUADS);
         glNormal3f(0.0f, 0.0f, 1.0f);
@@ -1366,10 +1381,24 @@ void CMarker::_drawQuadPoints(int displayAttrib, const double normalVectorForLin
         glEnd();
         glPopMatrix();
     }
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        glDisable(GL_COLOR_MATERIAL);
 }
 
 void CMarker::_drawDiscPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    {
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0, 0.0, 0.0);
+    }
     for (size_t i = 0; i < _pts.size() / 3; i++)
     {
         glPushMatrix();
@@ -1387,10 +1416,7 @@ void CMarker::_drawDiscPoints(int displayAttrib, const double normalVectorForLin
         glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
 
         if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        {
-            float col[3] = {float(_rgba[4 * i + 0]) / 255.0f, float(_rgba[4 * i + 1]) / 255.0f, float(_rgba[4 * i + 2]) / 255.0f};
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, col);
-        }
+            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
 
         glBegin(GL_TRIANGLE_FAN); // GL_POLYGON is problematic on certain graphic cards!
         glNormal3f(0.0f, 0.0f, 1.0f);
@@ -1411,10 +1437,24 @@ void CMarker::_drawDiscPoints(int displayAttrib, const double normalVectorForLin
         glEnd();
         glPopMatrix();
     }
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        glDisable(GL_COLOR_MATERIAL);
 }
 
 void CMarker::_drawCubePoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    {
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0, 0.0, 0.0);
+    }
     for (size_t i = 0; i < _pts.size() / 3; i++)
     {
         glPushMatrix();
@@ -1432,10 +1472,7 @@ void CMarker::_drawCubePoints(int displayAttrib, const double normalVectorForLin
         glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
 
         if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        {
-            float col[3] = {float(_rgba[4 * i + 0]) / 255.0f, float(_rgba[4 * i + 1]) / 255.0f, float(_rgba[4 * i + 2]) / 255.0f};
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, col);
-        }
+            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
 
         glBegin(GL_QUADS);
         glNormal3f(0.0f, 0.0f, 1.0f);
@@ -1471,10 +1508,24 @@ void CMarker::_drawCubePoints(int displayAttrib, const double normalVectorForLin
         glEnd();
         glPopMatrix();
     }
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        glDisable(GL_COLOR_MATERIAL);
 }
 
 void CMarker::_drawSpherePoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    {
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0, 0.0, 0.0);
+    }
     for (size_t i = 0; i < _pts.size() / 3; i++)
     {
         glPushMatrix();
@@ -1492,10 +1543,7 @@ void CMarker::_drawSpherePoints(int displayAttrib, const double normalVectorForL
         glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
 
         if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        {
-            float col[3] = {float(_rgba[4 * i + 0]) / 255.0f, float(_rgba[4 * i + 1]) / 255.0f, float(_rgba[4 * i + 2]) / 255.0f};
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, col);
-        }
+            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
 
         int slices = 12;  // Longitude divisions
         int stacks = 12;  // Latitude divisions
@@ -1528,10 +1576,24 @@ void CMarker::_drawSpherePoints(int displayAttrib, const double normalVectorForL
         }
         glPopMatrix();
     }
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        glDisable(GL_COLOR_MATERIAL);
 }
 
 void CMarker::_drawCylinderPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    {
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0, 0.0, 0.0);
+    }
     for (size_t i = 0; i < _pts.size() / 3; i++)
     {
         glPushMatrix();
@@ -1549,10 +1611,7 @@ void CMarker::_drawCylinderPoints(int displayAttrib, const double normalVectorFo
         glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
 
         if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        {
-            float col[3] = {float(_rgba[4 * i + 0]) / 255.0f, float(_rgba[4 * i + 1]) / 255.0f, float(_rgba[4 * i + 2]) / 255.0f};
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, col);
-        }
+            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
 
         int slices = 16;
 
@@ -1593,10 +1652,24 @@ void CMarker::_drawCylinderPoints(int displayAttrib, const double normalVectorFo
         glEnd();
         glPopMatrix();
     }
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        glDisable(GL_COLOR_MATERIAL);
 }
 
 void CMarker::_drawCustomPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 { // we ignore the normals. Those display routines are anyways just temp.
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    {
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0, 0.0, 0.0);
+    }
     for (size_t i = 0; i < _pts.size() / 3; i++)
     {
         glPushMatrix();
@@ -1614,10 +1687,7 @@ void CMarker::_drawCustomPoints(int displayAttrib, const double normalVectorForL
         glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
 
         if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        {
-            float col[3] = {float(_rgba[4 * i + 0]) / 255.0f, float(_rgba[4 * i + 1]) / 255.0f, float(_rgba[4 * i + 2]) / 255.0f};
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, col);
-        }
+            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
 
         for (size_t i = 0; i < _indices.size() / 3; i++)
         {
@@ -1655,6 +1725,8 @@ void CMarker::_drawCustomPoints(int displayAttrib, const double normalVectorForL
         }
         glPopMatrix();
     }
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        glDisable(GL_COLOR_MATERIAL);
 }
 
 void CMarker::drawItems(int displayAttrib, const double normalVectorForLinesAndPoints[3], bool overlay) const

@@ -240,12 +240,16 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.transformImage", _simTransformImage},
     {"sim.packInt32Table", _simPackInt32Table},
     {"sim.packUInt32Table", _simPackUInt32Table},
+    {"sim.packInt64Table", _simPackInt64Table},
+    {"sim.packUInt64Table", _simPackUInt64Table},
     {"sim.packFloatTable", _simPackFloatTable},
     {"sim.packDoubleTable", _simPackDoubleTable},
     {"sim.packUInt8Table", _simPackUInt8Table},
     {"sim.packUInt16Table", _simPackUInt16Table},
     {"sim.unpackInt32Table", _simUnpackInt32Table},
     {"sim.unpackUInt32Table", _simUnpackUInt32Table},
+    {"sim.unpackInt64Table", _simUnpackInt64Table},
+    {"sim.unpackUInt64Table", _simUnpackUInt64Table},
     {"sim.unpackFloatTable", _simUnpackFloatTable},
     {"sim.unpackDoubleTable", _simUnpackDoubleTable},
     {"sim.unpackUInt8Table", _simUnpackUInt8Table},
@@ -7735,6 +7739,69 @@ int _simPackInt32Table(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simPackInt64Table(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.packInt64Table");
+
+    if (luaWrap_lua_gettop(L) > 0)
+    {
+        if (luaWrap_lua_isnonbuffertable(L, 1))
+        {
+            int startIndex = 0;
+            int count = 0;
+            int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 0, true, false, &errorString, argOffset);
+            if ((res == 0) || (res == 2))
+            {
+                if (res == 2)
+                    startIndex = luaToInt(L, 2);
+
+                res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, false, &errorString, argOffset);
+                if ((res == 0) || (res == 2))
+                {
+                    if (res == 2)
+                        count = luaToInt(L, 3);
+
+                    int tableSize = int(luaWrap_lua_rawlen(L, 1));
+
+                    if (count == 0)
+                        count = tableSize - startIndex;
+                    if (count > tableSize - startIndex)
+                        count = tableSize - startIndex;
+                    if (count > 0)
+                    {
+                        char* data = new char[sizeof(long long int) * count];
+                        for (int i = 0; i < count; i++)
+                        {
+                            luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
+                            int v = luaToInt(L, -1);
+                            data[8 * i + 0] = ((char*)&v)[0];
+                            data[8 * i + 1] = ((char*)&v)[1];
+                            data[8 * i + 2] = ((char*)&v)[2];
+                            data[8 * i + 3] = ((char*)&v)[3];
+                            data[8 * i + 4] = ((char*)&v)[4];
+                            data[8 * i + 5] = ((char*)&v)[5];
+                            data[8 * i + 6] = ((char*)&v)[6];
+                            data[8 * i + 7] = ((char*)&v)[7];
+                            luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+                        }
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(long long int));
+                        delete[] data;
+                        LUA_END(1);
+                    }
+                }
+            }
+        }
+        else
+            errorString = SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
+    }
+    else
+        errorString = SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
 int _simPackUInt32Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -7778,6 +7845,69 @@ int _simPackUInt32Table(luaWrap_lua_State* L)
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
                         luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(unsigned int));
+                        delete[] data;
+                        LUA_END(1);
+                    }
+                }
+            }
+        }
+        else
+            errorString = SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
+    }
+    else
+        errorString = SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simPackUInt64Table(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.packUInt64Table");
+
+    if (luaWrap_lua_gettop(L) > 0)
+    {
+        if (luaWrap_lua_isnonbuffertable(L, 1))
+        {
+            int startIndex = 0;
+            int count = 0;
+            int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 0, true, false, &errorString, argOffset);
+            if ((res == 0) || (res == 2))
+            {
+                if (res == 2)
+                    startIndex = luaToInt(L, 2);
+
+                res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, false, &errorString, argOffset);
+                if ((res == 0) || (res == 2))
+                {
+                    if (res == 2)
+                        count = luaToInt(L, 3);
+
+                    int tableSize = int(luaWrap_lua_rawlen(L, 1));
+
+                    if (count == 0)
+                        count = tableSize - startIndex;
+                    if (count > tableSize - startIndex)
+                        count = tableSize - startIndex;
+                    if (count > 0)
+                    {
+                        char* data = new char[sizeof(unsigned long long int) * count];
+                        for (int i = 0; i < count; i++)
+                        {
+                            luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
+                            unsigned int v = (unsigned int)luaToInt(L, -1);
+                            data[8 * i + 0] = ((char*)&v)[0];
+                            data[8 * i + 1] = ((char*)&v)[1];
+                            data[8 * i + 2] = ((char*)&v)[2];
+                            data[8 * i + 3] = ((char*)&v)[3];
+                            data[8 * i + 4] = ((char*)&v)[4];
+                            data[8 * i + 5] = ((char*)&v)[5];
+                            data[8 * i + 6] = ((char*)&v)[6];
+                            data[8 * i + 7] = ((char*)&v)[7];
+                            luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
+                        }
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(unsigned long long int));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -8100,6 +8230,81 @@ int _simUnpackInt32Table(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simUnpackInt64Table(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.unpackInt64Table");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
+    {
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 0, true, false, &errorString, argOffset);
+        if ((res == 0) || (res == 2))
+        {
+            if (res == 2)
+                startIndex = luaToInt(L, 2);
+
+            res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, false, &errorString, argOffset);
+            if ((res == 0) || (res == 2))
+            {
+                if (res == 2)
+                    count = luaToInt(L, 3);
+
+                res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 0, true, false, &errorString, argOffset);
+                if ((res == 0) || (res == 2))
+                {
+                    if (res == 2)
+                        additionalCharOffset = luaToInt(L, 4);
+
+                    size_t dataLength;
+                    char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
+                    dataLength = sizeof(long long int) * ((dataLength - additionalCharOffset) / sizeof(long long int));
+                    int packetCount = int(dataLength / sizeof(long long int));
+                    if (count == 0)
+                        count = int(1999999999);
+
+                    if (dataLength == 0)
+                    { // since 20.03.2024: empty buffer results in an empty table
+                        luaWrap_lua_newtable(L);
+                        LUA_END(1);
+                    }
+                    else
+                    {
+                        if ((startIndex >= 0) && (startIndex < packetCount))
+                        {
+                            if (startIndex + count > packetCount)
+                                count = packetCount - startIndex;
+
+                            long long int* theInts = new long long int[count];
+                            for (int i = 0; i < int(count); i++)
+                            {
+                                long long int v;
+                                ((char*)&v)[0] = data[sizeof(long long int) * (i + startIndex) + 0];
+                                ((char*)&v)[1] = data[sizeof(long long int) * (i + startIndex) + 1];
+                                ((char*)&v)[2] = data[sizeof(long long int) * (i + startIndex) + 2];
+                                ((char*)&v)[3] = data[sizeof(long long int) * (i + startIndex) + 3];
+                                ((char*)&v)[4] = data[sizeof(long long int) * (i + startIndex) + 4];
+                                ((char*)&v)[5] = data[sizeof(long long int) * (i + startIndex) + 5];
+                                ((char*)&v)[6] = data[sizeof(long long int) * (i + startIndex) + 6];
+                                ((char*)&v)[7] = data[sizeof(long long int) * (i + startIndex) + 7];
+                                theInts[i] = v;
+                            }
+                            pushLongTableOntoStack(L, count, theInts);
+                            delete[] theInts;
+                            LUA_END(1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
 int _simUnpackUInt32Table(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -8158,6 +8363,81 @@ int _simUnpackUInt32Table(luaWrap_lua_State* L)
                                 theInts[i] = v;
                             }
                             pushUIntTableOntoStack(L, count, theInts);
+                            delete[] theInts;
+                            LUA_END(1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simUnpackUInt64Table(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.unpackUInt64Table");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
+    {
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 0, true, false, &errorString, argOffset);
+        if ((res == 0) || (res == 2))
+        {
+            if (res == 2)
+                startIndex = luaToInt(L, 2);
+
+            res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, false, &errorString, argOffset);
+            if ((res == 0) || (res == 2))
+            {
+                if (res == 2)
+                    count = luaToInt(L, 3);
+
+                res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 0, true, false, &errorString, argOffset);
+                if ((res == 0) || (res == 2))
+                {
+                    if (res == 2)
+                        additionalCharOffset = luaToInt(L, 4);
+
+                    size_t dataLength;
+                    char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
+                    dataLength = sizeof(unsigned long long int) * ((dataLength - additionalCharOffset) / sizeof(unsigned long long int));
+                    int packetCount = int(dataLength / sizeof(unsigned long long int));
+                    if (count == 0)
+                        count = int(1999999999);
+
+                    if (dataLength == 0)
+                    { // since 20.03.2024: empty buffer results in an empty table
+                        luaWrap_lua_newtable(L);
+                        LUA_END(1);
+                    }
+                    else
+                    {
+                        if ((startIndex >= 0) && (startIndex < packetCount))
+                        {
+                            if (startIndex + count > packetCount)
+                                count = packetCount - startIndex;
+
+                            unsigned long long int* theInts = new unsigned long long int[count];
+                            for (int i = 0; i < int(count); i++)
+                            {
+                                unsigned long long int v;
+                                ((char*)&v)[0] = data[sizeof(unsigned long long int) * (i + startIndex) + 0];
+                                ((char*)&v)[1] = data[sizeof(unsigned long long int) * (i + startIndex) + 1];
+                                ((char*)&v)[2] = data[sizeof(unsigned long long int) * (i + startIndex) + 2];
+                                ((char*)&v)[3] = data[sizeof(unsigned long long int) * (i + startIndex) + 3];
+                                ((char*)&v)[4] = data[sizeof(unsigned long long int) * (i + startIndex) + 4];
+                                ((char*)&v)[5] = data[sizeof(unsigned long long int) * (i + startIndex) + 5];
+                                ((char*)&v)[6] = data[sizeof(unsigned long long int) * (i + startIndex) + 6];
+                                ((char*)&v)[7] = data[sizeof(unsigned long long int) * (i + startIndex) + 7];
+                                theInts[i] = v;
+                            }
+                            pushULongTableOntoStack(L, count, theInts);
                             delete[] theInts;
                             LUA_END(1);
                         }
