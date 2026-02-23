@@ -2027,9 +2027,9 @@ void CConvexVolume::sendEventData(CCbor* eev)
     double agl[2] = {angle, insideAngleThing};
     ev->appendKeyDoubleArray(propVolume_angle.name, agl, 2);
     int faceN[2] = {faceNumber, faceNumberFar};
-    ev->appendKeyIntArray(propVolume_faces.name, faceN, 2);
+    ev->appendKeyInt32Array(propVolume_faces.name, faceN, 2);
     int subdivs[2] = {subdivisions, subdivisionsFar};
-    ev->appendKeyIntArray(propVolume_subdivisions.name, subdivs, 2);
+    ev->appendKeyInt32Array(propVolume_subdivisions.name, subdivs, 2);
     ev->appendKeyDoubleArray(propVolume_edges.name, volumeEdges.data(), volumeEdges.size());
     ev->appendKeyDoubleArray(propVolume_closeEdges.name, nonDetectingVolumeEdges.data(), nonDetectingVolumeEdges.size());
 

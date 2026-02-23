@@ -496,7 +496,11 @@ void CVisionSensor::_emitImageChangedEvent(CCbor* thirdPartyEv /*= nullptr*/) co
         CCbor* ev = thirdPartyEv;
         if (thirdPartyEv == nullptr)
             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
         ev->appendKeyBuff(cmd, _rgbBuffer, 3 * _resolution[0] * _resolution[1]);
+#else
+        ev->appendKeyUint8Array(cmd, _rgbBuffer, 3 * _resolution[0] * _resolution[1]);
+#endif
         if (thirdPartyEv == nullptr)
             App::worldContainer->pushEvent();
     }
@@ -780,7 +784,7 @@ void CVisionSensor::setRenderMode(int mode)
         {
             const char* cmd = propVisionSensor_renderMode.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _renderMode);
+            ev->appendKeyInt64(cmd, _renderMode);
             App::worldContainer->pushEvent();
         }
     }
@@ -822,7 +826,11 @@ void CVisionSensor::setDefaultBufferValues(const float v[3])
         {
             const char* cmd = propVisionSensor_backgroundCol.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyFloatArray(cmd, _defaultBufferValues, 3);
+#else
+            ev->appendKeyColor(cmd, _defaultBufferValues);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -2149,8 +2157,12 @@ void CVisionSensor::addSpecializedObjectEventData(CCbor* ev)
     color.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propVisionSensor_size.name, _visionSensorSize);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyFloatArray(propVisionSensor_backgroundCol.name, _defaultBufferValues, 3);
-    ev->appendKeyInt(propVisionSensor_renderMode.name, _renderMode);
+#else
+    ev->appendKeyColor(propVisionSensor_backgroundCol.name, _defaultBufferValues);
+#endif
+    ev->appendKeyInt64(propVisionSensor_renderMode.name, _renderMode);
     ev->appendKeyBool(propVisionSensor_backgroundSameAsEnv.name, _useSameBackgroundAsEnvironment);
     ev->appendKeyBool(propVisionSensor_explicitHandling.name, _explicitHandling);
     ev->appendKeyBool(propVisionSensor_useExtImage.name, _useExternalImage);

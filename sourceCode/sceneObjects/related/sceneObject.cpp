@@ -219,7 +219,7 @@ void CSceneObject::setHierarchyColorIndex(int c)
         {
             const char* cmd = propObject_hierarchyColor.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _hierarchyColorIndex);
+            ev->appendKeyInt64(cmd, _hierarchyColorIndex);
             App::worldContainer->pushEvent();
         }
     }
@@ -240,7 +240,7 @@ void CSceneObject::setCollectionSelfCollisionIndicator(int c)
         {
             const char* cmd = propObject_collectionSelfCollInd.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _collectionSelfCollisionIndicator);
+            ev->appendKeyInt64(cmd, _collectionSelfCollisionIndicator);
             App::worldContainer->pushEvent();
         }
     }
@@ -261,7 +261,7 @@ void CSceneObject::setDynamicFlag(int flag)
         {
             const char* cmd = propObject_dynamicFlag.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyInt(cmd, _dynamicFlag);
+            ev->appendKeyInt64(cmd, _dynamicFlag);
             App::worldContainer->pushEvent();
         }
     }
@@ -857,9 +857,9 @@ void CSceneObject::setObjectProperty(int p)
             const char* cmd = propObject_objectProperty.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyInt("objectProperty", _objectProperty); // deprecated
+            ev->appendKeyInt64("objectProperty", _objectProperty); // deprecated
 #endif
-            ev->appendKeyInt(propObject_objectProperty.name, _objectProperty);
+            ev->appendKeyInt64(propObject_objectProperty.name, _objectProperty);
             if (cb & sim_objectproperty_ignoreviewfitting)
                 ev->appendKeyBool(propObject_ignoreViewFitting.name, _objectProperty & sim_objectproperty_ignoreviewfitting);
             if (cb & sim_objectproperty_collapsed)
@@ -971,9 +971,9 @@ bool CSceneObject::setModelProperty(int prop)
             const char* cmd = propObject_modelProperty.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyInt("modelProperty", _modelProperty); // Deprecated
+            ev->appendKeyInt64("modelProperty", _modelProperty); // Deprecated
 #endif
-            ev->appendKeyInt(propObject_modelProperty.name, _modelProperty);
+            ev->appendKeyInt64(propObject_modelProperty.name, _modelProperty);
             if (cb & sim_modelproperty_not_collidable)
                 ev->appendKeyBool(propObject_modelNotCollidable.name, _modelProperty & sim_modelproperty_not_collidable);
             if (cb & sim_modelproperty_not_measurable)
@@ -1476,28 +1476,33 @@ void CSceneObject::pushObjectRefreshEvent()
 void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
 {
     ev->appendKeyText(propObject_objectType.name, getObjectTypeInfo().c_str());
-    ev->appendKeyInt(propObject_layer.name, _visibilityLayer);
-    ev->appendKeyInt(propObject_childOrder.name, _childOrder);
+    ev->appendKeyInt64(propObject_layer.name, _visibilityLayer);
+    ev->appendKeyInt64(propObject_childOrder.name, _childOrder);
     std::vector<int> ch;
     for (size_t i = 0; i < _childList.size(); i++)
         ch.push_back(_childList[i]->getObjectHandle());
-    ev->appendKeyIntArray(propObject_children.name, ch.data(), ch.size());
+    ev->appendKeyInt32Array(propObject_children.name, ch.data(), ch.size());
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
-    ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
     ev->appendKeyDoubleArray(propObject_position.name, p, 3);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
+    ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
     ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
+#else
+    ev->appendKeyPose(propObject_pose.name, p);
+    ev->appendKeyQuaternion(propObject_quaternion.name, p + 3);
+#endif
     ev->appendKeyText(propObject_alias.name, _objectAlias.c_str());
     ev->appendKeyBool(propObject_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(propObject_modelBase.name, _modelBase);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->appendKeyInt("objectProperty", _objectProperty); // deprecated
-    ev->appendKeyInt("dynamicFlag", _dynamicFlag);
+    ev->appendKeyInt64("objectProperty", _objectProperty); // deprecated
+    ev->appendKeyInt64("dynamicFlag", _dynamicFlag);
     ev->appendKeyText("oldName", _objectName_old.c_str());
 #endif
-    ev->appendKeyInt(propObject_objectProperty.name, _objectProperty);
+    ev->appendKeyInt64(propObject_objectProperty.name, _objectProperty);
     ev->appendKeyBool(propObject_ignoreViewFitting.name, _objectProperty & sim_objectproperty_ignoreviewfitting);
     ev->appendKeyBool(propObject_collapsed.name, _objectProperty & sim_objectproperty_collapsed);
     ev->appendKeyBool(propObject_selectable.name, _objectProperty & sim_objectproperty_selectable);
@@ -1509,9 +1514,9 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyBool(propObject_cannotDeleteSim.name, _objectProperty & sim_objectproperty_cannotdeleteduringsim);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->appendKeyInt("modelProperty", _modelProperty); // deprecated
+    ev->appendKeyInt64("modelProperty", _modelProperty); // deprecated
 #endif
-    ev->appendKeyInt(propObject_modelProperty.name, _modelProperty);
+    ev->appendKeyInt64(propObject_modelProperty.name, _modelProperty);
     ev->appendKeyBool(propObject_modelNotCollidable.name, _modelProperty & sim_modelproperty_not_collidable);
     ev->appendKeyBool(propObject_modelNotMeasurable.name, _modelProperty & sim_modelproperty_not_measurable);
     ev->appendKeyBool(propObject_modelNotDetectable.name, _modelProperty & sim_modelproperty_not_detectable);
@@ -1528,12 +1533,12 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
         pUid = _parentObject->getObjectUid();
         pH = _parentObject->getObjectHandle();
     }
-    ev->appendKeyInt(propObject_parentUid.name, pUid);
-    ev->appendKeyInt(propObject_parentHandle.name, pH); // for backw. compatibility
-    ev->appendKeyInt(propObject_parent.name, pH);
+    ev->appendKeyInt64(propObject_parentUid.name, pUid);
+    ev->appendKeyInt64(propObject_parentHandle.name, pH); // for backw. compatibility
+    ev->appendKeyInt64(propObject_parent.name, pH);
     ev->appendKeyBool(propObject_selected.name, _selected);
-    ev->appendKeyInt(propObject_hierarchyColor.name, _hierarchyColorIndex);
-    ev->appendKeyInt(propObject_collectionSelfCollInd.name, _collectionSelfCollisionIndicator);
+    ev->appendKeyInt64(propObject_hierarchyColor.name, _hierarchyColorIndex);
+    ev->appendKeyInt64(propObject_collectionSelfCollInd.name, _collectionSelfCollisionIndicator);
     ev->appendKeyBool(propObject_collidable.name, _localObjectSpecialProperty & sim_objectspecialproperty_collidable);
     ev->appendKeyBool(propObject_measurable.name, _localObjectSpecialProperty & sim_objectspecialproperty_measurable);
     ev->appendKeyBool(propObject_detectable.name, _localObjectSpecialProperty & sim_objectspecialproperty_detectable);
@@ -1543,8 +1548,8 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyDoubleArray(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement.data, 3);
     ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
     ev->appendKeyDouble(propObject_calcRotationVelocity.name, _measuredAngularVelocity_velocityMeasurement);
-    ev->appendKeyInt(propObject_dynamicIcon.name, _dynamicSimulationIconCode);
-    ev->appendKeyInt(propObject_dynamicFlag.name, _dynamicFlag);
+    ev->appendKeyInt64(propObject_dynamicIcon.name, _dynamicSimulationIconCode);
+    ev->appendKeyInt64(propObject_dynamicFlag.name, _dynamicFlag);
 
     _bbFrame.getData(p, true);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -1554,7 +1559,11 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
     ev->closeArrayOrMap();
 #endif
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+#else
+    ev->appendKeyPose(propObject_bbPose.name, p);
+#endif
     ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
 
     customObjectData.appendEventData(nullptr, ev);
@@ -1570,7 +1579,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
             auto it = _customReferencedHandles.find(tags[i]);
             for (size_t j = 0; j < it->second.size(); j++)
                 handles.push_back(it->second[j].generalObjectHandle);
-            ev->appendKeyIntArray((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+            ev->appendKeyInt32Array((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
         }
     }
     tags.clear();
@@ -1583,7 +1592,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
             auto it = _customReferencedOriginalHandles.find(tags[i]);
             for (size_t j = 0; j < it->second.size(); j++)
                 handles.push_back(it->second[j].generalObjectHandle);
-            ev->appendKeyIntArray((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+            ev->appendKeyInt32Array((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
         }
     }
 
@@ -1594,11 +1603,11 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     // deprecated
-    ev->appendKeyInt("movementOptions", _objectMovementOptions);
-    ev->appendKeyInt("movementPreferredAxes", _objectMovementPreferredAxes);
+    ev->appendKeyInt64("movementOptions", _objectMovementOptions);
+    ev->appendKeyInt64("movementPreferredAxes", _objectMovementPreferredAxes);
 #else
-    ev->appendKeyInt(propObject_movementOptions.name, _objectMovementOptions);
-    ev->appendKeyInt(propObject_movementPreferredAxes.name, _objectMovementPreferredAxes);
+    ev->appendKeyInt64(propObject_movementOptions.name, _objectMovementOptions);
+    ev->appendKeyInt64(propObject_movementPreferredAxes.name, _objectMovementPreferredAxes);
 #endif
     ev->appendKeyBool(propObject_movTranslNoSim.name, (_objectMovementOptions & 1) == 0);
     ev->appendKeyBool(propObject_movTranslInSim.name, (_objectMovementOptions & 2) == 0);
@@ -1623,7 +1632,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyBool(propObject_movPrefRotZ.name, _objectMovementPreferredAxes & 32);
 
     ev->appendKeyDoubleArray(propObject_movementStepSize.name, _objectMovementStepSize, 2);
-    ev->appendKeyIntArray(propObject_movementRelativity.name, _objectMovementRelativity, 2);
+    ev->appendKeyInt32Array(propObject_movementRelativity.name, _objectMovementRelativity, 2);
 }
 
 CSceneObject* CSceneObject::copyYourself()
@@ -1828,7 +1837,7 @@ void CSceneObject::setObjectMovementPreferredAxes(int p)
             const char* cmd = propObject_movementPreferredAxes.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyInt("movementPreferredAxes", _objectMovementPreferredAxes); // deprecated
+            ev->appendKeyInt64("movementPreferredAxes", _objectMovementPreferredAxes); // deprecated
 #endif
             if (cb & 1)
                 ev->appendKeyBool(propObject_movPrefTranslX.name, _objectMovementPreferredAxes & 1);
@@ -1864,7 +1873,7 @@ void CSceneObject::setObjectMovementOptions(int p)
             const char* cmd = propObject_movementOptions.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyInt("movementOptions", _objectMovementOptions); // deprecated
+            ev->appendKeyInt64("movementOptions", _objectMovementOptions); // deprecated
 #endif
             if (cb & 1)
                 ev->appendKeyBool(propObject_movTranslNoSim.name, (_objectMovementOptions & 1) == 0);
@@ -1898,7 +1907,7 @@ void CSceneObject::setObjectMovementRelativity(int index, int p)
         {
             const char* cmd = propObject_movementRelativity.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyIntArray(cmd, _objectMovementRelativity, 2);
+            ev->appendKeyInt32Array(cmd, _objectMovementRelativity, 2);
             App::worldContainer->pushEvent();
         }
     }
@@ -2099,7 +2108,11 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
             ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
             ev->closeArrayOrMap();
 #endif
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+#else
+            ev->appendKeyPose(propObject_bbPose.name, p);
+#endif
             ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
             App::worldContainer->pushEvent();
         }
@@ -2135,7 +2148,7 @@ void CSceneObject::setDynamicSimulationIconCode(int c)
         {
             const char* cmd = propObject_dynamicIcon.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _dynamicSimulationIconCode);
+            ev->appendKeyInt64(cmd, _dynamicSimulationIconCode);
             App::worldContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
@@ -2504,9 +2517,9 @@ bool CSceneObject::setParent(CSceneObject* parent)
         {
             const char* cmd = propObject_parentUid.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyInt(cmd, pUid);
-            ev->appendKeyInt(propObject_parent.name, pH);
-            ev->appendKeyInt(propObject_parentHandle.name, pH); // for backward compatibility
+            ev->appendKeyInt64(cmd, pUid);
+            ev->appendKeyInt64(propObject_parent.name, pH);
+            ev->appendKeyInt64(propObject_parentHandle.name, pH); // for backward compatibility
             App::worldContainer->pushEvent();
         }
         _setParent_send(pH);
@@ -4235,7 +4248,7 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const ch
                     auto it = _customReferencedHandles.find(tags[i]);
                     for (size_t j = 0; j < it->second.size(); j++)
                         handles.push_back(it->second[j].generalObjectHandle);
-                    ev->appendKeyIntArray((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+                    ev->appendKeyInt32Array((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
                     usedTags.insert(tags[i]);
                 }
             }
@@ -4368,7 +4381,7 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int* handles, con
                     auto it = _customReferencedOriginalHandles.find(tags[i]);
                     for (size_t j = 0; j < it->second.size(); j++)
                         handles.push_back(it->second[j].generalObjectHandle);
-                    ev->appendKeyIntArray((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+                    ev->appendKeyInt32Array((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
                     usedTags.insert(tags[i]);
                 }
             }
@@ -5321,7 +5334,7 @@ void CSceneObject::setVisibilityLayer(int l)
         {
             const char* cmd = propObject_layer.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyInt(cmd, l);
+            ev->appendKeyInt64(cmd, l);
             App::worldContainer->pushEvent();
         }
     }
@@ -5337,7 +5350,7 @@ void CSceneObject::setChildOrder(int order)
         {
             const char* cmd = propObject_childOrder.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyInt(cmd, order);
+            ev->appendKeyInt64(cmd, order);
             App::worldContainer->pushEvent();
         }
     }
@@ -5402,9 +5415,14 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
             const char* cmd = propObject_pose.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
-            ev->appendKeyDoubleArray(cmd, p, 7);
             ev->appendKeyDoubleArray(propObject_position.name, p, 3);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
+            ev->appendKeyDoubleArray(cmd, p, 7);
             ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
+#else
+            ev->appendKeyPose(cmd, p);
+            ev->appendKeyQuaternion(propObject_quaternion.name, p + 3);
+#endif
             App::worldContainer->pushEvent();
         }
         _setLocalTransformation_send(_localTransformation);
@@ -5424,8 +5442,13 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
             double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                            _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                            _localTransformation.Q(0)};
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, p, 7);
             ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
+#else
+            ev->appendKeyPose(cmd, p);
+            ev->appendKeyQuaternion(propObject_quaternion.name, p + 3);
+#endif
             App::worldContainer->pushEvent();
         }
         C7Vector tr(_localTransformation);
@@ -5448,7 +5471,11 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
                            _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                            _localTransformation.Q(0)};
             ev->appendKeyDoubleArray(propObject_position.name, p, 3);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, p, 7);
+#else
+            ev->appendKeyPose(cmd, p);
+#endif
             App::worldContainer->pushEvent();
         }
         C7Vector tr(_localTransformation);
@@ -5539,7 +5566,7 @@ bool CSceneObject::_setChildren(std::vector<CSceneObject*>* children)
             std::vector<int> ch;
             for (size_t i = 0; i < _childList.size(); i++)
                 ch.push_back(_childList[i]->getObjectHandle());
-            ev->appendKeyIntArray(cmd, ch.data(), ch.size());
+            ev->appendKeyInt32Array(cmd, ch.data(), ch.size());
             App::worldContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI

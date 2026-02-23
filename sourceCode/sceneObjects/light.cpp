@@ -289,7 +289,7 @@ void CLight::setSpotExponent(int e)
         {
             const char* cmd = propLight_spotExponent.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _spotExponent);
+            ev->appendKeyInt64(cmd, _spotExponent);
             App::worldContainer->pushEvent();
         }
     }
@@ -353,8 +353,8 @@ void CLight::addSpecializedObjectEventData(CCbor* ev)
 #endif
     ev->appendKeyDouble(propLight_size.name, _lightSize);
     ev->appendKeyDouble(propLight_spotCutoffAngle.name, _spotCutoffAngle);
-    ev->appendKeyInt(propLight_spotExponent.name, _spotExponent);
-    ev->appendKeyInt(propLight_lightType.name, _lightType);
+    ev->appendKeyInt64(propLight_spotExponent.name, _spotExponent);
+    ev->appendKeyInt64(propLight_lightType.name, _lightType);
     ev->appendKeyBool(propLight_enabled.name, lightActive);
     double arr[3] = {constantAttenuation, linearAttenuation, quadraticAttenuation};
     ev->appendKeyDoubleArray(propLight_attenuationFactors.name, arr, 3);

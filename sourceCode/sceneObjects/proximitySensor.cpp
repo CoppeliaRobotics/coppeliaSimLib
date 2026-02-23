@@ -234,7 +234,7 @@ void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*
         {
             const char* cmd = propProximitySensor_detectedObjectHandle.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _detectedObjectHandle);
+            ev->appendKeyInt64(cmd, _detectedObjectHandle);
             ev->appendKeyDoubleArray(propProximitySensor_detectedPoint.name, _detectedPoint.data, 3);
             ev->appendKeyDoubleArray(propProximitySensor_detectedNormal.name, _detectedNormalVector.data, 3);
             App::worldContainer->pushEvent();
@@ -303,8 +303,8 @@ void CProxSensor::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propProximitySensor_explicitHandling.name, _explicitHandling);
     ev->appendKeyBool(propProximitySensor_showVolume.name, _showVolume);
     ev->appendKeyBool(propProximitySensor_randomizedDetection.name, _randomizedDetection);
-    ev->appendKeyInt(propProximitySensor_sensorType.name, sensorType);
-    ev->appendKeyInt(propProximitySensor_detectedObjectHandle.name, _detectedObjectHandle);
+    ev->appendKeyInt64(propProximitySensor_sensorType.name, sensorType);
+    ev->appendKeyInt64(propProximitySensor_detectedObjectHandle.name, _detectedObjectHandle);
     ev->appendKeyDouble(propProximitySensor_angleThreshold.name, _angleThreshold);
     ev->appendKeyDoubleArray(propProximitySensor_detectedPoint.name, _detectedPoint.data, 3);
     ev->appendKeyDoubleArray(propProximitySensor_detectedNormal.name, _detectedNormalVector.data, 3);

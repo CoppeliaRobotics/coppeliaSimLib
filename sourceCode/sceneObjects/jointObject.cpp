@@ -601,7 +601,7 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
         {
             const char* cmd = propJoint_dependencyMaster.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _dependencyMasterJointHandle);
+            ev->appendKeyInt64(cmd, _dependencyMasterJointHandle);
             App::worldContainer->pushEvent();
         }
         App::currentWorld->sceneObjects->actualizeObjectInformation();
@@ -646,7 +646,7 @@ void CJoint::_sendDependencyChange_old() const
             if (master != nullptr)
                 mast = master->getObjectUid();
         }
-        ev->appendKeyInt("masterUid", mast);
+        ev->appendKeyInt64("masterUid", mast);
         ev->appendKeyDouble("mult", _dependencyJointMult);
         ev->appendKeyDouble("off", _dependencyJointOffset);
         App::worldContainer->pushEvent();
@@ -1150,7 +1150,11 @@ bool CJoint::setScrewLead(double lead)
                     ev->appendKeyDouble(cmd, _screwLead);
                     double p[7];
                     getIntrinsicTransformation(true).getData(p, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
                     ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+#else
+                    ev->appendKeyPose(propJoint_intrinsicPose.name, p);
+#endif
                     App::worldContainer->pushEvent();
                 }
                 _setScrewPitch_sendOldIk(lead / piValT2);
@@ -2024,7 +2028,7 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
         CSceneObject* master = App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
         if (master != nullptr)
         {
-            ev->appendKeyInt("masterUid", master->getObjectUid());
+            ev->appendKeyInt64("masterUid", master->getObjectUid());
             ev->appendKeyDouble("mult", _dependencyJointMult);
             ev->appendKeyDouble("off", _dependencyJointOffset);
         }
@@ -2049,12 +2053,12 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
     }
     ev->appendKeyText("type", tmp.c_str());
     */
-    ev->appendKeyInt(propJoint_jointType.name, _jointType);
-    ev->appendKeyInt(propJoint_jointMode.name, _jointMode);
-    ev->appendKeyInt(propJoint_dynCtrlMode.name, _dynCtrlMode);
-    ev->appendKeyInt(propJoint_dynVelMode.name, _dynVelocityCtrlType);
-    ev->appendKeyInt(propJoint_dynPosMode.name, _dynPositionCtrlType);
-    ev->appendKeyInt(propJoint_dependencyMaster.name, _dependencyMasterJointHandle);
+    ev->appendKeyInt64(propJoint_jointType.name, _jointType);
+    ev->appendKeyInt64(propJoint_jointMode.name, _jointMode);
+    ev->appendKeyInt64(propJoint_dynCtrlMode.name, _dynCtrlMode);
+    ev->appendKeyInt64(propJoint_dynVelMode.name, _dynVelocityCtrlType);
+    ev->appendKeyInt64(propJoint_dynPosMode.name, _dynPositionCtrlType);
+    ev->appendKeyInt64(propJoint_dependencyMaster.name, _dependencyMasterJointHandle);
     double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
     ev->appendKeyDoubleArray(propJoint_dependencyParams.name, arr, 2);
     ev->appendKeyBool(propJoint_cyclic.name, _isCyclic);
@@ -2067,14 +2071,24 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
 
     double q[4];
     _sphericalTransf.getData(q, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyDoubleArray(propJoint_quaternion.name, q, 4);
+#else
+    ev->appendKeyQuaternion(propJoint_quaternion.name, q);
+#endif
     ev->appendKeyDouble(propJoint_position.name, _pos);
     ev->appendKeyDouble(propJoint_screwLead.name, _screwLead);
     double p[7];
+    double p2[7];
     _intrinsicTransformationError.getData(p, true);
+    getIntrinsicTransformation(true).getData(p2, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyDoubleArray(propJoint_intrinsicError.name, p, 7);
-    getIntrinsicTransformation(true).getData(p, true);
-    ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+    ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p2, 7);
+#else
+    ev->appendKeyPose(propJoint_intrinsicError.name, p);
+    ev->appendKeyPose(propJoint_intrinsicPose.name, p2);
+#endif
 
     ev->appendKeyDoubleArray(propJoint_maxVelAccelJerk.name, _maxVelAccelJerk, 3);
     ev->appendKeyDoubleArray(propJoint_springDamperParams.name, _dynCtrl_kc, 2);
@@ -3955,7 +3969,7 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
         {
             const char* cmd = propJoint_jointMode.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _jointMode);
+            ev->appendKeyInt64(cmd, _jointMode);
             App::worldContainer->pushEvent();
         }
         if (_jointMode == sim_jointmode_dependent)
@@ -4029,10 +4043,15 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             double q[4];
             _sphericalTransf.getData(q, true);
-            ev->appendKeyDoubleArray(cmd, q, 4);
             double p[7];
             getIntrinsicTransformation(true).getData(p, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
+            ev->appendKeyDoubleArray(cmd, q, 4);
             ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+#else
+            ev->appendKeyQuaternion(cmd, q);
+            ev->appendKeyPose(propJoint_intrinsicPose.name, p);
+#endif
             App::worldContainer->pushEvent();
         }
         _setSphericalTransformation_sendOldIk(_sphericalTransf);
@@ -4125,7 +4144,11 @@ void CJoint::setPosition(double pos, const CJoint* masterJoint /*=nullptr*/, boo
             ev->appendKeyDouble(cmd, _pos);
             double p[7];
             getIntrinsicTransformation(true).getData(p, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+#else
+            ev->appendKeyPose(propJoint_intrinsicPose.name, p);
+#endif
             App::worldContainer->pushEvent();
         }
         _setPosition_sendOldIk(pos);
@@ -4212,7 +4235,7 @@ void CJoint::setDynCtrlMode(int mode)
         {
             const char* cmd = propJoint_dynCtrlMode.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _dynCtrlMode);
+            ev->appendKeyInt64(cmd, _dynCtrlMode);
             App::worldContainer->pushEvent();
         }
         if ((_dynCtrlMode == sim_jointdynctrl_spring) || (_dynCtrlMode == sim_jointdynctrl_springcb) ||
@@ -4255,7 +4278,7 @@ void CJoint::setDynVelCtrlType(int mode)
         {
             const char* cmd = propJoint_dynVelMode.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _dynVelocityCtrlType);
+            ev->appendKeyInt64(cmd, _dynVelocityCtrlType);
             App::worldContainer->pushEvent();
         }
     }
@@ -4276,7 +4299,7 @@ void CJoint::setDynPosCtrlType(int mode)
         {
             const char* cmd = propJoint_dynPosMode.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _dynPositionCtrlType);
+            ev->appendKeyInt64(cmd, _dynPositionCtrlType);
             App::worldContainer->pushEvent();
         }
     }
@@ -4617,10 +4640,16 @@ void CJoint::setIntrinsicTransformationError(const C7Vector& tr)
             const char* cmd = propJoint_intrinsicError.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             double p[7];
+            double p2[7];
             _intrinsicTransformationError.getData(p, true);
+            getIntrinsicTransformation(true).getData(p2, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, p, 7);
-            getIntrinsicTransformation(true).getData(p, true);
-            ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+            ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p2, 7);
+#else
+            ev->appendKeyPose(cmd, p);
+            ev->appendKeyPose(propJoint_intrinsicPose.name, p2);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -4818,7 +4847,7 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullp
                     {
                         if (ev == nullptr)
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
-                        ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                        ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
                     }
@@ -5475,7 +5504,7 @@ int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* e
                     {
                         if (ev == nullptr)
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
-                        ev->appendKeyIntArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
+                        ev->appendKeyInt32Array(propertyName.c_str(), arr.data() + simiIndex1, 2);
                         if (pName != nullptr)
                             _sendEngineString(ev);
                     }

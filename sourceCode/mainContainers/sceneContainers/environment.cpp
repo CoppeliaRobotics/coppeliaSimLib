@@ -167,19 +167,23 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyBool(propScene_finalSaveRequest.name, _requestFinalSave);
     ev->appendKeyBool(propScene_sceneIsLocked.name, _sceneIsLocked);
     ev->appendKeyBool(propScene_saveCalculationStructs.name, _saveExistingCalculationStructures);
-    ev->appendKeyInt(propScene_sceneUid.name, _sceneUniqueID);
+    ev->appendKeyInt64(propScene_sceneUid.name, _sceneUniqueID);
     int msh = -1;
     CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
         msh = it->getScriptHandle();
-    ev->appendKeyInt(propScene_mainScript.name, msh);
-    ev->appendKeyInt(propScene_handle.name, sim_handle_scene);
-    ev->appendKeyInt(propScene_visibilityLayers.name, _activeLayers);
+    ev->appendKeyInt64(propScene_mainScript.name, msh);
+    ev->appendKeyInt64(propScene_handle.name, sim_handle_scene);
+    ev->appendKeyInt64(propScene_visibilityLayers.name, _activeLayers);
     ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
     ev->appendKeyText(propScene_objectType.name, OBJECT_TYPE.c_str());
     ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
     ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
+#else
+    ev->appendKeyColor(propScene_ambientLight.name, ambientLightColor);
+#endif
 }
 
 void CEnvironment::setAmbientLight(const float c[3])
@@ -193,7 +197,11 @@ void CEnvironment::setAmbientLight(const float c[3])
         {
             const char* cmd = propScene_ambientLight.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
+#else
+            ev->appendKeyColor(cmd, ambientLightColor);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -209,7 +217,7 @@ void CEnvironment::setActiveLayers(int l)
         {
             const char* cmd = propScene_visibilityLayers.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyInt(cmd, _activeLayers);
+            ev->appendKeyInt64(cmd, _activeLayers);
             App::worldContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI

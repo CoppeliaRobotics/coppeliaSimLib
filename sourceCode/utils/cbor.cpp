@@ -35,9 +35,9 @@ void CCbor::swapWithEmptyBuffer(std::vector<unsigned char>* emptyBuff)
     _buff.clear();
 }
 
-void CCbor::appendInt(long long int v)
+void CCbor::appendInt64(long long int v)
 {
-    _handleDataField();
+   // _handleDataField();
     unsigned char add = 0;
     if (v < 0)
     {
@@ -48,106 +48,32 @@ void CCbor::appendInt(long long int v)
     _appendItemTypeAndLength(add, v);
 }
 
-void CCbor::appendUCharArray(const unsigned char* v, size_t cnt)
+void CCbor::appendUint8Array(const unsigned char* v, size_t cnt)
 {
-    /*
-    openArray(); // _handleDataField() called in there
-
-    for (size_t i = 0; i < cnt; i++)
-    {
-        if (v[i] <= 23)
-            _buff.push_back(v[i]);
-        else
-        {
-            _buff.push_back(24);
-            _buff.push_back(v[i]);
-        }
-    }
-
-    closeArrayOrMap();
-    */
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x40); // 64
     _appendItemTypeAndLength(0x40, cnt);
     _buff.insert(_buff.end(), v, v + cnt);
 }
 
-void CCbor::appendIntArray(const int* v, size_t cnt)
+void CCbor::appendInt32Array(const int* v, size_t cnt)
 {
-    /*
-    openArray(); // _handleDataField() called in there
-
-    unsigned char* w = (unsigned char*)v;
-    for (size_t i = 0; i < cnt; i++)
-    {
-        if (v[i] < 0)
-        {
-            int x = -v[i] - 1;
-            _buff.push_back(26 + 32);
-            unsigned char* y = (unsigned char*)&x;
-            _buff.push_back(y[3]);
-            _buff.push_back(y[2]);
-            _buff.push_back(y[1]);
-            _buff.push_back(y[0]);
-        }
-        else
-        {
-            _buff.push_back(26);
-            _buff.push_back(w[3]);
-            _buff.push_back(w[2]);
-            _buff.push_back(w[1]);
-            _buff.push_back(w[0]);
-        }
-        w += 4;
-    }
-
-    closeArrayOrMap();
-*/
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x4e); // 78
     _appendItemTypeAndLength(0x40, cnt * sizeof(int));
     _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(int));
 }
 
-void CCbor::appendLongArray(const long long int* v, size_t cnt)
+void CCbor::appendUint32Array(const unsigned int* v, size_t cnt)
 {
-/*
-    openArray(); // _handleDataField() called in there
+    _buff.push_back(0xD8); // Tag header
+    _buff.push_back(0x46); // 70
+    _appendItemTypeAndLength(0x40, cnt * sizeof(unsigned int));
+    _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(unsigned int));
+}
 
-    unsigned char* w = (unsigned char*)v;
-    for (size_t i = 0; i < cnt; i++)
-    {
-        if (v[i] < 0)
-        {
-            long long int x = -v[i] - 1;
-            _buff.push_back(27 + 32);
-            unsigned char* y = (unsigned char*)&x;
-            _buff.push_back(y[7]);
-            _buff.push_back(y[6]);
-            _buff.push_back(y[5]);
-            _buff.push_back(y[4]);
-            _buff.push_back(y[3]);
-            _buff.push_back(y[2]);
-            _buff.push_back(y[1]);
-            _buff.push_back(y[0]);
-        }
-        else
-        {
-            _buff.push_back(27);
-            _buff.push_back(w[7]);
-            _buff.push_back(w[6]);
-            _buff.push_back(w[5]);
-            _buff.push_back(w[4]);
-            _buff.push_back(w[3]);
-            _buff.push_back(w[2]);
-            _buff.push_back(w[1]);
-            _buff.push_back(w[0]);
-        }
-        w += 8;
-    }
-
-    closeArrayOrMap();
-    */
+void CCbor::appendInt64Array(const long long int* v, size_t cnt)
+{
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x4f); // 79
     _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
@@ -156,7 +82,7 @@ void CCbor::appendLongArray(const long long int* v, size_t cnt)
 
 void CCbor::appendFloat(float v)
 {
-    _handleDataField();
+  //  _handleDataField();
     _buff.push_back(128 + 64 + 32 + 26);
     _buff.push_back(((unsigned char*)&v)[3]);
     _buff.push_back(((unsigned char*)&v)[2]);
@@ -166,22 +92,6 @@ void CCbor::appendFloat(float v)
 
 void CCbor::appendFloatArray(const float* v, size_t cnt)
 {
-    /*
-    openArray(); // _handleDataField() called in there
-
-    const unsigned char* w = (const unsigned char*)v;
-    for (size_t i = 0; i < cnt; i++)
-    {
-        _buff.push_back(128 + 64 + 32 + 26);
-        _buff.push_back(w[3]);
-        _buff.push_back(w[2]);
-        _buff.push_back(w[1]);
-        _buff.push_back(w[0]);
-        w += 4;
-    }
-
-    closeArrayOrMap();
-    */
     size_t d = _buff.size();
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x55); // 85
@@ -210,43 +120,7 @@ void CCbor::appendDouble(double v)
 
 void CCbor::appendDoubleArray(const double* v, size_t cnt)
 {
-    /*
-    openArray(); // _handleDataField() called in there
-
-    if ((_options & 1) == 0)
-    { // treat doubles as floats
-        for (size_t i = 0; i < cnt; i++)
-        {
-            float ww = float(v[i]);
-            const unsigned char* w = (const unsigned char*)&ww;
-            _buff.push_back(128 + 64 + 32 + 26);
-            _buff.push_back(w[3]);
-            _buff.push_back(w[2]);
-            _buff.push_back(w[1]);
-            _buff.push_back(w[0]);
-        }
-    }
-    else
-    {
-        const unsigned char* w = (const unsigned char*)v;
-        for (size_t i = 0; i < cnt; i++)
-        {
-            _buff.push_back(128 + 64 + 32 + 27);
-            _buff.push_back(w[7]);
-            _buff.push_back(w[6]);
-            _buff.push_back(w[5]);
-            _buff.push_back(w[4]);
-            _buff.push_back(w[3]);
-            _buff.push_back(w[2]);
-            _buff.push_back(w[1]);
-            _buff.push_back(w[0]);
-            w += 8;
-        }
-    }
-
-    closeArrayOrMap();
-*/
-    _buff.push_back(0xD8); // Tag header
+    _buff.push_back(0xD8); // Tag header (216)
     _buff.push_back(0x56); // 86
     _appendItemTypeAndLength(0x40, cnt * sizeof(double));
     _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(double));
@@ -254,8 +128,8 @@ void CCbor::appendDoubleArray(const double* v, size_t cnt)
 
 void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
 {
-    _handleDataField();
-    _buff.push_back(216); // major type 6, tag
+    //_handleDataField();
+    _buff.push_back(0xD8); // major type 6, tag header (216)
     _buff.push_back(40); // tag 40 for matrices
     _buff.push_back(82); // array of 2 values (dims + data)
     _buff.push_back(82); // array of 2 values (rows and cols)
@@ -266,28 +140,64 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
 
 void CCbor::appendQuaternion(const double* v)
 {
+//    appendDoubleArray(v, 4);
+
+    _buff.push_back(0xDB); // Tag header (219)
+    long long int w = 4294980000; // Type info (quaternion)
+    _buff.push_back(((unsigned char*)&w)[7]);
+    _buff.push_back(((unsigned char*)&w)[6]);
+    _buff.push_back(((unsigned char*)&w)[5]);
+    _buff.push_back(((unsigned char*)&w)[4]);
+    _buff.push_back(((unsigned char*)&w)[3]);
+    _buff.push_back(((unsigned char*)&w)[2]);
+    _buff.push_back(((unsigned char*)&w)[1]);
+    _buff.push_back(((unsigned char*)&w)[0]);
     appendDoubleArray(v, 4);
 }
 
 void CCbor::appendPose(const double* v)
 {
+//    appendDoubleArray(v, 7);
+
+    _buff.push_back(0xDB); // Tag header (219)
+    long long int w = 4294980500; // Type info (pose)
+    _buff.push_back(((unsigned char*)&w)[7]);
+    _buff.push_back(((unsigned char*)&w)[6]);
+    _buff.push_back(((unsigned char*)&w)[5]);
+    _buff.push_back(((unsigned char*)&w)[4]);
+    _buff.push_back(((unsigned char*)&w)[3]);
+    _buff.push_back(((unsigned char*)&w)[2]);
+    _buff.push_back(((unsigned char*)&w)[1]);
+    _buff.push_back(((unsigned char*)&w)[0]);
     appendDoubleArray(v, 7);
 }
 
 void CCbor::appendColor(const float c[3])
 {
+//    appendFloatArray(c, 3);
+
+    _buff.push_back(0xDB); // Tag header (219)
+    long long int w = 4294970000; // Type info (color)
+    _buff.push_back(((unsigned char*)&w)[7]);
+    _buff.push_back(((unsigned char*)&w)[6]);
+    _buff.push_back(((unsigned char*)&w)[5]);
+    _buff.push_back(((unsigned char*)&w)[4]);
+    _buff.push_back(((unsigned char*)&w)[3]);
+    _buff.push_back(((unsigned char*)&w)[2]);
+    _buff.push_back(((unsigned char*)&w)[1]);
+    _buff.push_back(((unsigned char*)&w)[0]);
     appendFloatArray(c, 3);
 }
 
 void CCbor::appendNull()
 {
-    _handleDataField();
+ //   _handleDataField();
     _buff.push_back(128 + 64 + 32 + 22);
 }
 
 void CCbor::appendBool(bool v)
 {
-    _handleDataField();
+ //   _handleDataField();
     if (v)
         _buff.push_back(128 + 64 + 32 + 21);
     else
@@ -486,9 +396,9 @@ void CCbor::createEvent(const char* event, const char* fieldName, const char* ob
     openMap(); // holding the event
     appendKeyText("event", event);
     if (uid != -1)
-        appendKeyInt("uid", uid);
+        appendKeyInt64("uid", uid);
     if (handle != -1)
-        appendKeyInt("handle", handle);
+        appendKeyInt64("handle", handle);
     if (openDataField)
     {
         appendText("data");
@@ -543,7 +453,7 @@ long long int CCbor::finalizeEvents(long long int nextSeq, bool seqChanges, std:
                 _buff.insert(_buff.end(), events.begin() + _eventInfos[i].pos, events.begin() + _eventInfos[i + 1].pos);
             else
                 _buff.insert(_buff.end(), events.begin() + _eventInfos[i].pos, events.end());
-            appendKeyInt("seq", nextSeq++);
+            appendKeyInt64("seq", nextSeq++);
             closeArrayOrMap(); // to close the event
             n.size = _buff.size() - n.pos;
             if (inf != nullptr)
@@ -569,28 +479,34 @@ size_t CCbor::getEventCnt() const
     return (_eventInfos.size());
 }
 
-void CCbor::appendKeyInt(const char* key, long long int v)
+void CCbor::appendKeyInt64(const char* key, long long int v)
 {
     appendText(key);
-    appendInt(v);
+    appendInt64(v);
 }
 
-void CCbor::appendKeyUCharArray(const char* key, const unsigned char* v, size_t cnt)
+void CCbor::appendKeyUint8Array(const char* key, const unsigned char* v, size_t cnt)
 {
     appendText(key);
-    appendUCharArray(v, cnt);
+    appendUint8Array(v, cnt);
 }
 
-void CCbor::appendKeyIntArray(const char* key, const int* v, size_t cnt)
+void CCbor::appendKeyInt32Array(const char* key, const int* v, size_t cnt)
 {
     appendText(key);
-    appendIntArray(v, cnt);
+    appendInt32Array(v, cnt);
 }
 
-void CCbor::appendKeyLongArray(const char* key, const long long int* v, size_t cnt)
+void CCbor::appendKeyUint32Array(const char* key, const unsigned int* v, size_t cnt)
 {
     appendText(key);
-    appendLongArray(v, cnt);
+    appendUint32Array(v, cnt);
+}
+
+void CCbor::appendKeyInt64Array(const char* key, const long long int* v, size_t cnt)
+{
+    appendText(key);
+    appendInt64Array(v, cnt);
 }
 
 void CCbor::appendKeyFloat(const char* key, float v)
@@ -633,6 +549,30 @@ void CCbor::appendKeyBool(const char* key, bool v)
 {
     appendText(key);
     appendBool(v);
+}
+
+void CCbor::appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols)
+{
+    appendText(key);
+    appendMatrix(v, rows, cols);
+}
+
+void CCbor::appendKeyQuaternion(const char* key, const double* v)
+{
+    appendText(key);
+    appendQuaternion(v);
+}
+
+void CCbor::appendKeyPose(const char* key, const double* v)
+{
+    appendText(key);
+    appendPose(v);
+}
+
+void CCbor::appendKeyColor(const char* key, const float* c)
+{
+    appendText(key);
+    appendColor(c);
 }
 
 void CCbor::appendKeyBuff(const char* key, const unsigned char* v, size_t l)

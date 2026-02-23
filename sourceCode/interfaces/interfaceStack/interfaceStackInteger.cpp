@@ -46,7 +46,7 @@ std::string CInterfaceStackInteger::getObjectData(std::string& /*auxInfos*/) con
 
 void CInterfaceStackInteger::addCborObjectData(CCbor* cborObj) const
 {
-    cborObj->appendInt(_value);
+    cborObj->appendInt64(_value);
 }
 
 unsigned int CInterfaceStackInteger::createFromData(const char* data, unsigned char /*version*/, std::vector<CInterfaceStackObject*>& allCreatedObjects)

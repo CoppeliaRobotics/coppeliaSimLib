@@ -26,10 +26,11 @@ class CCbor
     void swapWithEmptyBuffer(std::vector<unsigned char>* emptyBuff);
     static bool isText(const char* v, size_t l);
 
-    void appendInt(long long int v);
-    void appendUCharArray(const unsigned char* v, size_t cnt);
-    void appendIntArray(const int* v, size_t cnt);
-    void appendLongArray(const long long int* v, size_t cnt);
+    void appendInt64(long long int v);
+    void appendUint8Array(const unsigned char* v, size_t cnt);
+    void appendInt32Array(const int* v, size_t cnt);
+    void appendUint32Array(const unsigned int* v, size_t cnt);
+    void appendInt64Array(const long long int* v, size_t cnt);
     void appendFloat(float v);
     void appendFloatArray(const float* v, size_t cnt);
     void appendDouble(double v);
@@ -44,16 +45,21 @@ class CCbor
     void appendText(const char* v, int l = -1);
     void appendTextArray(const std::vector<std::string>& txtArr);
 
-    void appendKeyInt(const char* key, long long int v);
-    void appendKeyUCharArray(const char* key, const unsigned char* v, size_t cnt);
-    void appendKeyIntArray(const char* key, const int* v, size_t cnt);
-    void appendKeyLongArray(const char* key, const long long int* v, size_t cnt);
+    void appendKeyInt64(const char* key, long long int v);
+    void appendKeyUint8Array(const char* key, const unsigned char* v, size_t cnt);
+    void appendKeyInt32Array(const char* key, const int* v, size_t cnt);
+    void appendKeyUint32Array(const char* key, const unsigned int* v, size_t cnt);
+    void appendKeyInt64Array(const char* key, const long long int* v, size_t cnt);
     void appendKeyFloat(const char* key, float v);
     void appendKeyFloatArray(const char* key, const float* v, size_t cnt);
     void appendKeyDouble(const char* key, double v);
     void appendKeyDoubleArray(const char* key, const double* v, size_t cnt);
     void appendKeyNull(const char* key);
     void appendKeyBool(const char* key, bool v);
+    void appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols);
+    void appendKeyQuaternion(const char* key, const double* v);
+    void appendKeyPose(const char* key, const double* v);
+    void appendKeyColor(const char* key, const float* c);
     void appendKeyBuff(const char* key, const unsigned char* v, size_t l);
     void appendKeyText(const char* key, const char* v, int l = -1);
     void appendKeyTextArray(const char* key, const std::vector<std::string>& txtArr);

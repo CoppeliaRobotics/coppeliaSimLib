@@ -456,7 +456,7 @@ void CMarker::scaleObject(double scalingFactor)
     {
         CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "vertices", true);
         ev->appendKeyFloatArray(propMarker_vertices.name, _vertices.data(), _vertices.size());
-        ev->appendKeyIntArray(propMarker_indices.name, _indices.data(), _indices.size());
+        ev->appendKeyInt32Array(propMarker_indices.name, _indices.data(), _indices.size());
         ev->appendKeyFloatArray(propMarker_normals.name, _normals.data(), _normals.size());
         App::worldContainer->pushEvent();
     }
@@ -469,14 +469,14 @@ void CMarker::removeSceneDependencies()
 
 void CMarker::addSpecializedObjectEventData(CCbor* ev)
 {
-    ev->appendKeyInt(propMarker_itemType.name, _itemType);
+    ev->appendKeyInt64(propMarker_itemType.name, _itemType);
     ev->appendKeyBool(propMarker_cyclic.name, _itemOptions & sim_markeropts_cyclic);
     ev->appendKeyBool(propMarker_local.name, _itemOptions & sim_markeropts_local);
     ev->appendKeyBool(propMarker_overlay.name, _itemOptions & sim_markeropts_overlay);
     if (_itemType == sim_markertype_custom)
     {
         ev->appendKeyFloatArray(propMarker_vertices.name, _vertices.data(), _vertices.size());
-        ev->appendKeyIntArray(propMarker_indices.name, _indices.data(), _indices.size());
+        ev->appendKeyInt32Array(propMarker_indices.name, _indices.data(), _indices.size());
         ev->appendKeyFloatArray(propMarker_normals.name, _normals.data(), _normals.size());
     }
     _updateMarkerEvent(false, ev);
@@ -1170,8 +1170,8 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             ev->appendKeyFloatArray(propMarker_points.name, _pts.data(), _pts.size());
             ev->appendKeyFloatArray(propMarker_quaternions.name, _quats.data(), _quats.size());
             ev->appendKeyFloatArray(propMarker_sizes.name, _sizes.data(), _sizes.size());
-            ev->appendKeyBuff(propMarker_colors.name, _rgba.data(), _rgba.size());
-            ev->appendKeyLongArray("ids", _ids.data(), _ids.size());
+            ev->appendKeyUint8Array(propMarker_colors.name, _rgba.data(), _rgba.size());
+            ev->appendKeyInt64Array("ids", _ids.data(), _ids.size());
             ev->closeArrayOrMap();
             if (evv == nullptr)
                 App::worldContainer->pushEvent();
@@ -1194,14 +1194,14 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                         ev->appendKeyFloatArray(propMarker_sizes.name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * 3 * _itemPointCnt);
                     else
                         ev->appendKeyFloatArray(propMarker_sizes.name, nullptr, 0);
-                    ev->appendKeyBuff(propMarker_colors.name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
-                    ev->appendKeyLongArray("ids", _ids.data() + _ids.size() - _newItemsCnt, _newItemsCnt);
+                    ev->appendKeyUint8Array(propMarker_colors.name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
+                    ev->appendKeyInt64Array("ids", _ids.data() + _ids.size() - _newItemsCnt, _newItemsCnt);
                     ev->closeArrayOrMap();
                 }
                 if (_remIds.size() > 0)
                 {
                     ev->openKeyMap("rem");
-                    ev->appendKeyLongArray("ids", _remIds.data(), _remIds.size());
+                    ev->appendKeyInt64Array("ids", _remIds.data(), _remIds.size());
                     ev->closeArrayOrMap();
                 }
                 if (evv == nullptr)

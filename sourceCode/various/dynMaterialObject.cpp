@@ -1720,7 +1720,7 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                 {
                     if (ev == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
-                    ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                    ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
                         sendEngineString(ev);
                 }

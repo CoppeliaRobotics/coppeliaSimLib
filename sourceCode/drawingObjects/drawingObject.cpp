@@ -503,12 +503,12 @@ void CDrawingObject::pushAddEvent()
                 break;
             }
             ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
-            ev->appendKeyInt(propDrawingObj_handle.name, _objectId);
-            ev->appendKeyInt(propDrawingObj_parent.name, _sceneObjectId);
+            ev->appendKeyInt64(propDrawingObj_handle.name, _objectId);
+            ev->appendKeyInt64(propDrawingObj_parent.name, _sceneObjectId);
             ev->appendKeyText("type", tp.c_str());
-            ev->appendKeyInt("maxCnt", _maxItemCount);
+            ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
-            ev->appendKeyInt("parentUid", _sceneObjectUid);
+            ev->appendKeyInt64("parentUid", _sceneObjectUid);
             ev->appendKeyBool("cyclic", (_objectType & sim_drawing_cyclic) != 0);
             ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
             App::worldContainer->pushEvent();
@@ -551,9 +551,9 @@ void CDrawingObject::pushAddEvent()
             }
             ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
             ev->appendKeyText("type", tp.c_str());
-            ev->appendKeyInt("maxCnt", _maxItemCount);
+            ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
-            ev->appendKeyInt("parentUid", _sceneObjectUid);
+            ev->appendKeyInt64("parentUid", _sceneObjectUid);
             ev->appendKeyBool("cyclic", (_objectType & sim_drawing_cyclic) != 0);
             ev->appendKeyBool("clearPoints", true);
             ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);

@@ -974,7 +974,7 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
             CCbor* ev = worldContainer->createEvent("logMsg", -1, -1, nullptr, false);
             ev->appendKeyText("origin", orig.c_str());
             ev->appendKeyText("msg", msg);
-            ev->appendKeyInt("verbosity", realVerbosityLevel);
+            ev->appendKeyInt64("verbosity", realVerbosityLevel);
             ev->openKeyMap("flags");
             ev->appendKeyBool("undecorated", verbosityLevel & sim_verbosity_undecorated);
             ev->appendKeyBool("onlyterminal", verbosityLevel & sim_verbosity_onlyterminal);
@@ -1160,7 +1160,7 @@ void App::setDlgVerbosity(int v)
         {
             const char* cmd = propApp_dialogVerbosity.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
-            ev->appendKeyInt(cmd, _dlgVerbosity);
+            ev->appendKeyInt64(cmd, _dlgVerbosity);
             App::worldContainer->pushEvent();
         }
     }
@@ -1281,7 +1281,7 @@ void App::setConsoleVerbosity(int v, const char* pluginName /*=nullptr*/)
             {
                 const char* cmd = propApp_consoleVerbosity.name;
                 CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
-                ev->appendKeyInt(cmd, _consoleVerbosity);
+                ev->appendKeyInt64(cmd, _consoleVerbosity);
                 App::worldContainer->pushEvent();
             }
         }
@@ -1321,7 +1321,7 @@ void App::setStatusbarVerbosity(int v, const char* pluginName /*=nullptr*/)
             {
                 const char* cmd = propApp_statusbarVerbosity.name;
                 CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
-                ev->appendKeyInt(cmd, _statusbarVerbosity);
+                ev->appendKeyInt64(cmd, _statusbarVerbosity);
                 App::worldContainer->pushEvent();
             }
         }
@@ -3201,32 +3201,32 @@ void App::pushGenesisEvents()
 #endif
         ev->appendKeyText(propApp_sessionId.name, worldContainer->getSessionId().c_str());
         ev->appendKeyText(propApp_objectType.name, OBJECT_TYPE.c_str());
-        ev->appendKeyInt(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
+        ev->appendKeyInt64(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
         ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
-        ev->appendKeyInt(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);
-        ev->appendKeyInt(propApp_platform.name, getPlatform());
+        ev->appendKeyInt64(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);
+        ev->appendKeyInt64(propApp_platform.name, getPlatform());
 #ifdef SIM_FL
-        ev->appendKeyInt(propApp_flavor.name, SIM_FL);
+        ev->appendKeyInt64(propApp_flavor.name, SIM_FL);
 #else
-        ev->appendKeyInt(propApp_flavor.name, -1);
+        ev->appendKeyInt64(propApp_flavor.name, -1);
 #endif
-        ev->appendKeyInt(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
+        ev->appendKeyInt64(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
         int sbh = -1;
         if (worldContainer->sandboxScript != nullptr)
             sbh = worldContainer->sandboxScript->getScriptHandle();
-        ev->appendKeyInt(propApp_sandbox.name, sbh);
+        ev->appendKeyInt64(propApp_sandbox.name, sbh);
         if (instancesList != nullptr)
         {
-            ev->appendKeyInt(propApp_processId.name, instancesList->thisInstanceId());
-            ev->appendKeyInt(propApp_processCnt.name, instancesList->numInstances());
+            ev->appendKeyInt64(propApp_processId.name, instancesList->thisInstanceId());
+            ev->appendKeyInt64(propApp_processCnt.name, instancesList->numInstances());
         }
-        ev->appendKeyInt(propApp_consoleVerbosity.name, getConsoleVerbosity());
-        ev->appendKeyInt(propApp_statusbarVerbosity.name, getStatusbarVerbosity());
-        ev->appendKeyInt(propApp_dialogVerbosity.name, getDlgVerbosity());
+        ev->appendKeyInt64(propApp_consoleVerbosity.name, getConsoleVerbosity());
+        ev->appendKeyInt64(propApp_statusbarVerbosity.name, getStatusbarVerbosity());
+        ev->appendKeyInt64(propApp_dialogVerbosity.name, getDlgVerbosity());
         ev->appendKeyTextArray(propApp_appArgs.name, _applicationArguments);
         ev->appendKeyTextArray(propApp_pluginNames.name, _pluginNames);
         std::vector<int> addOnList(worldContainer->addOnScriptContainer->getAddOnHandles());
-        ev->appendKeyIntArray(propApp_addOns.name, addOnList.data(), addOnList.size());
+        ev->appendKeyInt32Array(propApp_addOns.name, addOnList.data(), addOnList.size());
 
         for (const auto& pair : _applicationNamedParams)
         {
@@ -3267,7 +3267,7 @@ void App::pushGenesisEvents()
         {
             ev->appendKeyDouble(propApp_defaultTranslationStepSize.name, userSettings->getTranslationStepSize());
             ev->appendKeyDouble(propApp_defaultRotationStepSize.name, userSettings->getRotationStepSize());
-            ev->appendKeyInt(propApp_notifyDeprecated.name, userSettings->notifyDeprecated);
+            ev->appendKeyInt64(propApp_notifyDeprecated.name, userSettings->notifyDeprecated);
             ev->appendKeyBool(propApp_execUnsafe.name, userSettings->execUnsafe);
             ev->appendKeyBool(propApp_execUnsafeExt.name, userSettings->execUnsafeExt);
             ev->appendKeyText(propApp_dongleSerial.name, CSimFlavor::getStringVal(22).c_str());
@@ -3287,7 +3287,7 @@ void App::pushGenesisEvents()
 #endif
         ev->appendKeyBool(propApp_hierarchyEnabled.name, getHierarchyEnabled());
         ev->appendKeyBool(propApp_displayEnabled.name, getOpenGlDisplayEnabled());
-        ev->appendKeyInt(propApp_headlessMode.name, getHeadlessMode());
+        ev->appendKeyInt64(propApp_headlessMode.name, getHeadlessMode());
         ev->appendKeyText(propApp_appArg1.name, getApplicationArgument(0).c_str());
         ev->appendKeyText(propApp_appArg2.name, getApplicationArgument(1).c_str());
         ev->appendKeyText(propApp_appArg3.name, getApplicationArgument(2).c_str());
@@ -3297,10 +3297,10 @@ void App::pushGenesisEvents()
         ev->appendKeyText(propApp_appArg7.name, getApplicationArgument(6).c_str());
         ev->appendKeyText(propApp_appArg8.name, getApplicationArgument(7).c_str());
         ev->appendKeyText(propApp_appArg9.name, getApplicationArgument(8).c_str());
-        ev->appendKeyInt(propApp_pid.name, pid);
+        ev->appendKeyInt64(propApp_pid.name, pid);
 
         if (userSettings != nullptr)
-            ev->appendKeyInt(propApp_idleFps.name, userSettings->getIdleFps());
+            ev->appendKeyInt64(propApp_idleFps.name, userSettings->getIdleFps());
 
         worldContainer->pushEvent();
 

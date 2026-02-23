@@ -252,7 +252,7 @@ void CShape::setRespondableMask(int m)
         {
             const char* cmd = propShape_respondableMask.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _respondableMask);
+            ev->appendKeyInt64(cmd, _respondableMask);
             App::worldContainer->pushEvent();
         }
     }
@@ -1368,7 +1368,7 @@ void CShape::setCulling(bool culState)
         CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->openKeyMap(cmd);
         ev->appendKeyBool("culling", culState);
-        ev->appendKeyInt("index", 0);
+        ev->appendKeyInt64("index", 0);
         App::worldContainer->pushEvent();
     }
 #endif
@@ -1391,7 +1391,7 @@ void CShape::setVisibleEdges(bool v)
         CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, false);
         ev->openKeyMap(cmd);
         ev->appendKeyBool("showEdges", v);
-        ev->appendKeyInt("index", 0);
+        ev->appendKeyInt64("index", 0);
         App::worldContainer->pushEvent();
     }
 #endif
@@ -1565,7 +1565,7 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
             vertices[3 * j + 2] = (float)v(2);
         }
         ev->appendKeyFloatArray("vertices", vertices.data(), vertices.size());
-        ev->appendKeyIntArray("indices", wind->data(), wind->size());
+        ev->appendKeyInt32Array("indices", wind->data(), wind->size());
 
         std::vector<float> normals;
         normals.resize(wind->size() * 3);
@@ -1598,7 +1598,7 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
             options |= 1;
         if (geom->getWireframe_OLD())
             options |= 2;
-        ev->appendKeyInt("options", options);
+        ev->appendKeyInt64("options", options);
 
         CTextureProperty* tp = geom->getTextureProperty();
         CTextureObject* to = nullptr;
@@ -1615,9 +1615,9 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
             to->getTextureSize(tRes[0], tRes[1]);
             ev->openKeyMap("texture");
             ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-            ev->appendKeyIntArray("resolution", tRes, 2);
+            ev->appendKeyInt32Array("resolution", tRes, 2);
             ev->appendKeyFloatArray("coordinates", tc->data(), tc->size());
-            ev->appendKeyInt("applyMode", tp->getApplyMode());
+            ev->appendKeyInt64("applyMode", tp->getApplyMode());
 
             int options = 0;
             if (tp->getRepeatU())
@@ -1626,18 +1626,18 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
                 options |= 2;
             if (tp->getInterpolateColors())
                 options |= 4;
-            ev->appendKeyInt("options", options);
-            ev->appendKeyInt("id", tp->getTextureObjectID());
+            ev->appendKeyInt64("options", options);
+            ev->appendKeyInt64("id", tp->getTextureObjectID());
             ev->closeArrayOrMap(); // texture
         }
         ev->closeArrayOrMap(); // one mesh
 #else
-        ev->appendInt(geom->getUniqueID());
+        ev->appendInt64(geom->getUniqueID());
 #endif
     }
     ev->closeArrayOrMap(); // meshes
 
-    ev->appendKeyInt(propShape_respondableMask.name, _respondableMask);
+    ev->appendKeyInt64(propShape_respondableMask.name, _respondableMask);
     ev->appendKeyBool(propShape_startInDynSleepMode.name, _startInDynamicSleeping);
     ev->appendKeyBool(propShape_dynamic.name, !_shapeIsDynamicallyStatic);
     ev->appendKeyBool(propShape_kinematic.name, _shapeIsDynamicallyKinematic);

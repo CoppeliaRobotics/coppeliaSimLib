@@ -396,7 +396,7 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyInt(tg.c_str(), ((int*)dat.data())[0]);
+                ev->appendKeyInt64(tg.c_str(), ((int*)dat.data())[0]);
             }
             else if (tg.find(proptypetag_float) != std::string::npos)
             {
@@ -469,19 +469,19 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(int));
+                ev->appendKeyInt32Array(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(int));
             }
             else if (tg.find(proptypetag_intarray2) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(int));
+                ev->appendKeyInt32Array(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(int));
             }
             else if (tg.find(proptypetag_long) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(long long int));
+                ev->appendKeyInt32Array(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(long long int));
             }
             else
             {

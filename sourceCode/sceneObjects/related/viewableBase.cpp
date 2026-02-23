@@ -501,7 +501,7 @@ void CViewableBase::setResolution(const int r[2])
         {
             const char* cmd = propViewable_resolution.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyIntArray(cmd, _resolution, 2);
+            ev->appendKeyInt32Array(cmd, _resolution, 2);
             App::worldContainer->pushEvent();
         }
         computeVolumeVectors();
@@ -621,7 +621,7 @@ void CViewableBase::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propViewable_showFrustum.name, _showVolume);
     ev->appendKeyDoubleArray(propViewable_frustumCornerNear.name, _volumeVectorNear.data, 3);
     ev->appendKeyDoubleArray(propViewable_frustumCornerFar.name, _volumeVectorFar.data, 3);
-    ev->appendKeyIntArray(propViewable_resolution.name, _resolution, 2);
+    ev->appendKeyInt32Array(propViewable_resolution.name, _resolution, 2);
 }
 
 int CViewableBase::setBoolProperty(const char* pName, bool pState)

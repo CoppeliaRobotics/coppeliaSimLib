@@ -299,7 +299,7 @@ void CDynamicsContainer::setDynamicEngineType(int t, int version)
         {
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsEngine.name, true);
             int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
-            ev->appendKeyIntArray(propDyn_dynamicsEngine.name, ar, 2);
+            ev->appendKeyInt32Array(propDyn_dynamicsEngine.name, ar, 2);
             App::worldContainer->pushEvent();
         }
         checkIfEngineSettingsAreDefault();
@@ -2296,7 +2296,7 @@ void CDynamicsContainer::appendGenesisData(CCbor* ev)
     ev->appendKeyBool(propDyn_dynamicsEnabled.name, _dynamicsEnabled);
     ev->appendKeyBool(propDyn_showContactPoints.name, _displayContactPoints);
     int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
-    ev->appendKeyIntArray(propDyn_dynamicsEngine.name, ar, 2);
+    ev->appendKeyInt32Array(propDyn_dynamicsEngine.name, ar, 2);
     ev->appendKeyDouble(propDyn_dynamicsStepSize.name, _stepSize);
     ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
 
@@ -2648,7 +2648,7 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
                     {
                         if (ev == nullptr)
                             ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
-                        ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                        ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
                     }

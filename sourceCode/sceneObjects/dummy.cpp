@@ -300,9 +300,9 @@ void CDummy::addSpecializedObjectEventData(CCbor* ev)
     _dummyColor.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
-    ev->appendKeyInt(propDummy_linkedDummy.name, _linkedDummyHandle);
-    ev->appendKeyInt(propDummy_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
-    ev->appendKeyInt(propDummy_dummyType.name, _linkType);
+    ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
+    ev->appendKeyInt64(propDummy_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
+    ev->appendKeyInt64(propDummy_dummyType.name, _linkType);
     ev->appendKeyText(propDummy_assemblyTag.name, _assemblyTag.c_str());
 
     // Engine properties:
@@ -949,12 +949,12 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
         {
             const char* cmd = propDummy_linkedDummy.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _linkedDummyHandle);
+            ev->appendKeyInt64(cmd, _linkedDummyHandle);
             App::worldContainer->pushEvent();
             // --- for backw. compatibility ---
             cmd = propDummy_linkedDummyHandle.name;
             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _linkedDummyHandle);
+            ev->appendKeyInt64(cmd, _linkedDummyHandle);
             App::worldContainer->pushEvent();
             // -----------------------------
         }
@@ -978,7 +978,7 @@ bool CDummy::setDummyType(int lt, bool check)
         {
             const char* cmd = propDummy_dummyType.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _linkType);
+            ev->appendKeyInt64(cmd, _linkType);
             App::worldContainer->pushEvent();
         }
         _setLinkType_sendOldIk(lt);
@@ -1317,7 +1317,7 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullp
                     {
                         if (ev == nullptr)
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
-                        ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                        ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
                     }
@@ -1413,7 +1413,7 @@ int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* e
                     {
                         if (ev == nullptr)
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
-                        ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                        ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
                     }

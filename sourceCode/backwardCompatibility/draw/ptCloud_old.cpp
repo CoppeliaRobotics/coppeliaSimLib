@@ -150,9 +150,9 @@ void CPtCloud_old::pushAddEvent()
         CCbor* ev = App::worldContainer->createEvent("drawingObjectAdded", -1, _uniqueId, nullptr, false);
         ev->appendKeyText("type", "point");
         ev->appendKeyFloatArray("color", c, 9);
-        ev->appendKeyInt("maxCnt", int(_vertices.size() / 3));
+        ev->appendKeyInt64("maxCnt", int(_vertices.size() / 3));
         ev->appendKeyDouble("size", _pointSize);
-        ev->appendKeyInt("parentUid", _parentUniqueId);
+        ev->appendKeyInt64("parentUid", _parentUniqueId);
         ev->appendKeyBool("cyclic", false);
         ev->appendKeyBool("overlay", false);
         ev->appendKeyBool("clearPoints", true);

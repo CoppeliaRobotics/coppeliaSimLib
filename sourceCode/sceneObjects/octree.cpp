@@ -216,11 +216,11 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
         ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
-        ev->appendKeyUCharArray("colors", _colorsByte.data(), _colorsByte.size());
+        ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
         if (evv == nullptr)
             App::worldContainer->pushEvent();
 #else
-        /*
+#if SIM_EVENT_PROTOCOL_VERSION == 3
         const char* cmd = propOctree_voxels.name;
         if (evv == nullptr)
             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
@@ -231,17 +231,16 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
         ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
         if (evv == nullptr)
             App::worldContainer->pushEvent();
-        */
-
+#else
         if (_octreeInfo == nullptr)
         {
             _remBBPts(nullptr, 0);
             if (evv == nullptr)
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
-            ev->appendKeyBuff("pts", nullptr, 0);
-            ev->appendKeyBuff("rgba", nullptr, 0);
-            ev->appendKeyBuff("ids", nullptr, 0);
+            ev->appendKeyFloatArray("pts", nullptr, 0);
+            ev->appendKeyUint8Array("rgba", nullptr, 0);
+            ev->appendKeyUint32Array("ids", nullptr, 0);
             ev->closeArrayOrMap();
             if (evv == nullptr)
             {
@@ -250,7 +249,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                 double p[7];
                 _bbFrame.getData(p, true);
-                ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                ev->appendKeyPose(propObject_bbPose.name, p);
                 ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                 App::worldContainer->pushEvent();
             }
@@ -277,9 +276,9 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
-                    ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
-                    ev->appendKeyBuff("rgba", cols, newCnt * 4);
-                    ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
+                    ev->appendKeyFloatArray("pts", pts, newCnt * 3);
+                    ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                    ev->appendKeyUint32Array("ids", ids, newCnt);
                     ev->closeArrayOrMap();
                     if (evv == nullptr)
                     {
@@ -288,7 +287,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                         double p[7];
                         _bbFrame.getData(p, true);
-                        ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                        ev->appendKeyPose(propObject_bbPose.name, p);
                         ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                         App::worldContainer->pushEvent();
                     }
@@ -303,12 +302,12 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                         if (evv == nullptr)
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                         ev->openKeyMap("add");
-                        ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
-                        ev->appendKeyBuff("rgba", cols, newCnt * 4);
-                        ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
+                        ev->appendKeyFloatArray("pts", pts, newCnt * 3);
+                        ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                        ev->appendKeyUint32Array("ids", ids, newCnt);
                         ev->closeArrayOrMap();
                         ev->openKeyMap("rem");
-                        ev->appendKeyBuff("ids", (unsigned char*)remIds, remCnt * sizeof(unsigned int));
+                        ev->appendKeyUint32Array("ids", remIds, remCnt);
                         ev->closeArrayOrMap();
                         if (evv == nullptr)
                         {
@@ -317,7 +316,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                             double p[7];
                             _bbFrame.getData(p, true);
-                            ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                            ev->appendKeyPose(propObject_bbPose.name, p);
                             ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                             App::worldContainer->pushEvent();
                         }
@@ -329,7 +328,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 delete[] remIds;
             }
         }
-
+#endif
 #endif
     }
 }
@@ -820,7 +819,7 @@ void COcTree::addSpecializedObjectEventData(CCbor* ev)
     ev->openKeyMap(getObjectTypeInfo().c_str());
     ev->openKeyMap("voxels");
     ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
-    ev->appendKeyUCharArray("colors", _colorsByte.data(), _colorsByte.size());
+    ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
     ev->closeArrayOrMap(); // voxels
     ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
     ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);

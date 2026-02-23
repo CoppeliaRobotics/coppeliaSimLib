@@ -560,7 +560,7 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
 #if SIM_EVENT_PROTOCOL_VERSION >= 3
             {
                 CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _collectionHandle, _collectionHandle, nullptr, false);
-                ev->appendKeyIntArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+                ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
                 App::worldContainer->pushEvent();
             }
 #endif
@@ -568,7 +568,7 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
             // For backw. compatibility
             {
                 CCbor* ev = App::worldContainer->createEvent("collectionChanged", -1, _collectionHandle, nullptr, false);
-                ev->appendKeyIntArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+                ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
                 App::worldContainer->pushEvent();
             }
 #endif
@@ -661,8 +661,8 @@ void CCollection::pushCreationEvent() const
         {
             CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _collectionHandle, _collectionHandle, nullptr, false);
             ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
-            ev->appendKeyIntArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-            ev->appendKeyInt(propCollection_handle.name, _collectionHandle);
+            ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+            ev->appendKeyInt64(propCollection_handle.name, _collectionHandle);
             App::worldContainer->pushEvent();
         }
 #endif
@@ -671,7 +671,7 @@ void CCollection::pushCreationEvent() const
         {
             CCbor* ev = App::worldContainer->createEvent("collectionAdded", -1, _collectionHandle, nullptr, false);
             ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
-            ev->appendKeyIntArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+            ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             App::worldContainer->pushEvent();
         }
 #endif

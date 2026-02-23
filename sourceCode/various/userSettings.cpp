@@ -436,7 +436,7 @@ void CUserSettings::setIdleFps_session(int fps)
         {
             const char* cmd = propApp_idleFps.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
-            ev->appendKeyInt(cmd, _idleFps_session);
+            ev->appendKeyInt64(cmd, _idleFps_session);
             App::worldContainer->pushEvent();
         }
     }

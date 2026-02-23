@@ -662,7 +662,7 @@ void CWorldContainer::dispatchEvents()
         {
             _eventMutex.unlock();
             CCbor* ev_ = _createGeneralEvent(EVENTTYPE_MSGDISPATCHTIME, -1, -1, nullptr, nullptr, false);
-            ev_->appendKeyInt("time", VDateTime::getUnixTimeInMs());
+            ev_->appendKeyInt64("time", VDateTime::getUnixTimeInMs());
             pushEvent();
             _eventMutex.lock("CWorldContainer::dispatchEvents");
 

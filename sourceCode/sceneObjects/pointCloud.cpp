@@ -268,11 +268,11 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
-        ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
+        ev->appendKeyUint8Array("colors", _displayColorsByte.data(), _displayColorsByte.size());
         if (evv == nullptr)
             App::worldContainer->pushEvent();
 #else
-        /*
+#if SIM_EVENT_PROTOCOL_VERSION == 3
         const char* cmd = propPointCloud_points.name;
         if (evv == nullptr)
             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
@@ -280,16 +280,16 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
         ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
         if (evv == nullptr)
             App::worldContainer->pushEvent();
-*/
+#else
         if (_pointCloudInfo == nullptr)
         {
             _remBBPts(nullptr, 0);
             if (evv == nullptr)
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
-            ev->appendKeyBuff("pts", nullptr, 0);
-            ev->appendKeyBuff("rgba", nullptr, 0);
-            ev->appendKeyBuff("ids", nullptr, 0);
+            ev->appendKeyFloatArray("pts", nullptr, 0);
+            ev->appendKeyUint8Array("rgba", nullptr, 0);
+            ev->appendKeyUint32Array("ids", nullptr, 0);
             ev->closeArrayOrMap();
             if (evv == nullptr)
             {
@@ -298,7 +298,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                 double p[7];
                 _bbFrame.getData(p, true);
-                ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                ev->appendKeyPose(propObject_bbPose.name, p);
                 ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                 App::worldContainer->pushEvent();
             }
@@ -325,9 +325,9 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
-                    ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
-                    ev->appendKeyBuff("rgba", cols, newCnt * 4);
-                    ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
+                    ev->appendKeyFloatArray("pts", pts, newCnt * 3);
+                    ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                    ev->appendKeyUint32Array("ids", ids, newCnt);
                     ev->closeArrayOrMap();
                     if (evv == nullptr)
                     {
@@ -336,7 +336,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                         double p[7];
                         _bbFrame.getData(p, true);
-                        ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                        ev->appendKeyPose(propObject_bbPose.name, p);
                         ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                         App::worldContainer->pushEvent();
                     }
@@ -351,12 +351,12 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                         if (evv == nullptr)
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                         ev->openKeyMap("add");
-                        ev->appendKeyBuff("pts", (unsigned char*)pts, newCnt * 3 * sizeof(float));
-                        ev->appendKeyBuff("rgba", cols, newCnt * 4);
-                        ev->appendKeyBuff("ids", (unsigned char*)ids, newCnt * sizeof(unsigned int));
+                        ev->appendKeyFloatArray("pts", pts, newCnt * 3);
+                        ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                        ev->appendKeyUint32Array("ids", ids, newCnt);
                         ev->closeArrayOrMap();
                         ev->openKeyMap("rem");
-                        ev->appendKeyBuff("ids", (unsigned char*)remIds, remCnt * sizeof(unsigned int));
+                        ev->appendKeyUint32Array("ids", remIds, remCnt);
                         ev->closeArrayOrMap();
                         if (evv == nullptr)
                         {
@@ -365,7 +365,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                             double p[7];
                             _bbFrame.getData(p, true);
-                            ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                            ev->appendKeyPose(propObject_bbPose.name, p);
                             ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                             App::worldContainer->pushEvent();
                         }
@@ -377,6 +377,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                 delete[] remIds;
             }
         }
+#endif
 #endif
     }
 }
@@ -854,15 +855,15 @@ void CPointCloud::addSpecializedObjectEventData(CCbor* ev)
     ev->openKeyMap(getObjectTypeInfo().c_str());
     ev->openKeyMap("points");
     ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
-    ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
+    ev->appendKeyUint8Array("colors", _displayColorsByte.data(), _displayColorsByte.size());
     ev->closeArrayOrMap(); // points
     ev->closeArrayOrMap(); // pointCloud
 #else
     color.addGenesisEventData(ev);
     ev->appendKeyBool(propPointCloud_ocTreeStruct.name, !_doNotUseOctreeStructure);
     ev->appendKeyBool(propPointCloud_randomColors.name, _useRandomColors);
-    ev->appendKeyInt(propPointCloud_pointSize.name, _pointSize);
-    ev->appendKeyInt(propPointCloud_maxPtsInCell.name, _maxPointCountPerCell);
+    ev->appendKeyInt64(propPointCloud_pointSize.name, _pointSize);
+    ev->appendKeyInt64(propPointCloud_maxPtsInCell.name, _maxPointCountPerCell);
     ev->appendKeyDouble(propPointCloud_cellSize.name, _cellSize);
     ev->appendKeyDouble(propPointCloud_pointDisplayFraction.name, _pointDisplayRatio);
     _updatePointCloudEvent(false, ev);
@@ -935,7 +936,7 @@ void CPointCloud::setMaxPointCountPerCell(int cnt)
         {
             const char* cmd = propPointCloud_maxPtsInCell.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _maxPointCountPerCell);
+            ev->appendKeyInt64(cmd, _maxPointCountPerCell);
             App::worldContainer->pushEvent();
         }
         std::vector<double> pts(_points);
@@ -985,7 +986,7 @@ void CPointCloud::setPointSize(int s)
         {
             const char* cmd = propPointCloud_pointSize.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _pointSize);
+            ev->appendKeyInt64(cmd, _pointSize);
             App::worldContainer->pushEvent();
         }
     }

@@ -92,7 +92,7 @@ void CForceSensor::setFilterSampleSize(int c)
         {
             const char* cmd = propFSensor_filterSampleSize.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _filterSampleSize);
+            ev->appendKeyInt64(cmd, _filterSampleSize);
             App::worldContainer->pushEvent();
         }
     }
@@ -116,7 +116,7 @@ void CForceSensor::setFilterType(int t)
         {
             const char* cmd = propFSensor_filterType.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _filterType);
+            ev->appendKeyInt64(cmd, _filterType);
             App::worldContainer->pushEvent();
         }
     }
@@ -226,7 +226,7 @@ void CForceSensor::setConsecutiveViolationsToTrigger(int count)
         {
             const char* cmd = propFSensor_consecutiveViolationsToTrigger.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _consecutiveViolationsToTrigger);
+            ev->appendKeyInt64(cmd, _consecutiveViolationsToTrigger);
             App::worldContainer->pushEvent();
         }
     }
@@ -495,7 +495,11 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             double p[7];
             _intrinsicTransformationError.getData(p, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, p, 7);
+#else
+            ev->appendKeyPose(cmd, p);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -662,16 +666,20 @@ void CForceSensor::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDouble(propFSensor_size.name, _forceSensorSize);
     double p[7];
     _intrinsicTransformationError.getData(p, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyDoubleArray(propFSensor_intrinsicError.name, p, 7);
+#else
+    ev->appendKeyPose(propFSensor_intrinsicError.name, p);
+#endif
     ev->appendKeyDoubleArray(propFSensor_sensorForce.name, _lastForce_dynStep.data, 3);
     ev->appendKeyDoubleArray(propFSensor_sensorTorque.name, _lastTorque_dynStep.data, 3);
     ev->appendKeyDoubleArray(propFSensor_filteredSensorForce.name, _filteredDynamicForces.data, 3);
     ev->appendKeyDoubleArray(propFSensor_filteredSensorTorque.name, _filteredDynamicTorques.data, 3);
     ev->appendKeyBool(propFSensor_forceThresholdEnabled.name, _forceThresholdEnabled);
     ev->appendKeyBool(propFSensor_torqueThresholdEnabled.name, _torqueThresholdEnabled);
-    ev->appendKeyInt(propFSensor_filterType.name, _filterType);
-    ev->appendKeyInt(propFSensor_filterSampleSize.name, _filterSampleSize);
-    ev->appendKeyInt(propFSensor_consecutiveViolationsToTrigger.name, _consecutiveViolationsToTrigger);
+    ev->appendKeyInt64(propFSensor_filterType.name, _filterType);
+    ev->appendKeyInt64(propFSensor_filterSampleSize.name, _filterSampleSize);
+    ev->appendKeyInt64(propFSensor_consecutiveViolationsToTrigger.name, _consecutiveViolationsToTrigger);
     ev->appendKeyDouble(propFSensor_forceThreshold.name, _forceThreshold);
     ev->appendKeyDouble(propFSensor_torqueThreshold.name, _torqueThreshold);
 #if SIM_EVENT_PROTOCOL_VERSION == 2

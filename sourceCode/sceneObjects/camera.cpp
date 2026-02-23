@@ -946,7 +946,7 @@ void CCamera::setTrackedObjectHandle(int trackedObjHandle)
         {
             const char* cmd = propCamera_trackedObjectHandle.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt(cmd, _trackedObjectHandle);
+            ev->appendKeyInt64(cmd, _trackedObjectHandle);
             App::worldContainer->pushEvent();
         }
         handleCameraTracking();
@@ -994,7 +994,7 @@ void CCamera::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propCamera_parentAsManipProxy.name, _useParentObjectAsManipulationProxy);
     ev->appendKeyBool(propCamera_translationEnabled.name, _allowTranslation);
     ev->appendKeyBool(propCamera_rotationEnabled.name, _allowRotation);
-    ev->appendKeyInt(propCamera_trackedObjectHandle.name, _trackedObjectHandle);
+    ev->appendKeyInt64(propCamera_trackedObjectHandle.name, _trackedObjectHandle);
     CViewableBase::addSpecializedObjectEventData(ev);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); //"camera"

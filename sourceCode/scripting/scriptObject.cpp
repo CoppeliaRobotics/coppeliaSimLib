@@ -1099,9 +1099,9 @@ void CScriptObject::pushObjectCreationEvent()
     ev->appendKeyText(propScriptObj_objectType.name, "detachedScript");
     ev->appendKeyBool(propScriptObj_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propScriptObj_restartOnError.name, _autoRestartOnError);
-    ev->appendKeyInt(propScriptObj_execPriority.name, getScriptExecPriority());
-    ev->appendKeyInt(propScriptObj_scriptType.name, _scriptType);
-    ev->appendKeyInt(propScriptObj_scriptState.name, _scriptState);
+    ev->appendKeyInt64(propScriptObj_execPriority.name, getScriptExecPriority());
+    ev->appendKeyInt64(propScriptObj_scriptType.name, _scriptType);
+    ev->appendKeyInt64(propScriptObj_scriptState.name, _scriptState);
     ev->appendKeyText(propScriptObj_language.name, _lang.c_str());
     ev->appendKeyText(propScriptObj_code.name, _scriptText.c_str());
     ev->appendKeyText(propScriptObj_scriptName.name, getScriptName().c_str());
@@ -1130,7 +1130,7 @@ void CScriptObject::setScriptState(int state)
 //                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
 //            else
             ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptPseudoHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
-            ev->appendKeyInt(cmd, _scriptState);
+            ev->appendKeyInt64(cmd, _scriptState);
             App::worldContainer->pushEvent();
         }
     }
@@ -1165,7 +1165,7 @@ void CScriptObject::setScriptExecPriority(int priority)
 //                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
 //            else
             ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptPseudoHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
-            ev->appendKeyInt(cmd, priority);
+            ev->appendKeyInt64(cmd, priority);
             App::worldContainer->pushEvent();
         }
     }
