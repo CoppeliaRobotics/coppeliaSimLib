@@ -219,6 +219,8 @@ class App
     static bool canSave();
     static int getHeadlessMode();
     static int getPlatform();
+    static int getEventProtocolVersion();
+    static void setEventProtocolVersion(int v);
     static void asyncResetScript(int scriptHandle);
     static bool appSemaphore(bool acquire, bool block = true);
     static bool systemSemaphore(const char* key, bool acquire);
@@ -252,6 +254,7 @@ class App
     static VArchive* _consoleMsgsArchive;
     static bool _hierarchyEnabled;
     static bool _openGlDisplayEnabled;
+    static int _eventProtocolVersion;
 
     static long long int _nextUniqueId;
     static SignalHandler* _sigHandler;

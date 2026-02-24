@@ -86,6 +86,7 @@ std::vector<int> App::_scriptsToReset;
 VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
+int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 
 long long int App::_nextUniqueId = SIM_UIDSTART;
 #ifdef USE_LONG_LONG_HANDLES
@@ -1657,7 +1658,12 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
+        if (strcmp(pName, propApp_protocolVersion.name) == 0)
+        {
+            setEventProtocolVersion(pState);
+            retVal = 1;
+        }
+        else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
         {
             setConsoleVerbosity(pState);
             retVal = 1;
@@ -1695,7 +1701,7 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
     {
         if (strcmp(pName, propApp_protocolVersion.name) == 0)
         {
-            pState = SIM_EVENT_PROTOCOL_VERSION;
+            pState = _eventProtocolVersion;
             retVal = 1;
         }
         else if (strcmp(pName, propApp_productVersionNb.name) == 0)
@@ -3186,6 +3192,20 @@ int App::getPlatform()
     return retVal;
 }
 
+int App::getEventProtocolVersion()
+{
+    return _eventProtocolVersion;
+}
+
+void App::setEventProtocolVersion(int v)
+{
+    if (v != _eventProtocolVersion)
+    {
+        _eventProtocolVersion = v;
+        pushGenesisEvents();
+    }
+}
+
 void App::pushGenesisEvents()
 {
     if ((worldContainer != nullptr) && worldContainer->getEventsEnabled())
@@ -3194,14 +3214,13 @@ void App::pushGenesisEvents()
         CCbor* ev = worldContainer->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
         worldContainer->pushEvent();
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-        ev = worldContainer->createEvent("appSession", sim_handle_app, sim_handle_app, nullptr, false);
-#else
-        ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
-#endif
+        if (App::getEventProtocolVersion() == 2)
+            ev = worldContainer->createEvent("appSession", sim_handle_app, sim_handle_app, nullptr, false);
+        else
+            ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
         ev->appendKeyText(propApp_sessionId.name, worldContainer->getSessionId().c_str());
         ev->appendKeyText(propApp_objectType.name, OBJECT_TYPE.c_str());
-        ev->appendKeyInt64(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
+        ev->appendKeyInt64(propApp_protocolVersion.name, _eventProtocolVersion);
         ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
         ev->appendKeyInt64(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);
         ev->appendKeyInt64(propApp_platform.name, getPlatform());
@@ -3267,10 +3286,11 @@ void App::pushGenesisEvents()
             ev->appendKeyText(propApp_defaultPython.name, userSettings->defaultPython.c_str());
             ev->appendKeyText(propApp_sandboxLang.name, userSettings->preferredSandboxLang.c_str());
         }
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-        worldContainer->pushEvent();
-        ev = worldContainer->createEvent("appSettingsChanged", sim_handle_app, sim_handle_app, nullptr, false);
-#endif
+        if (App::getEventProtocolVersion() == 2)
+        {
+            worldContainer->pushEvent();
+            ev = worldContainer->createEvent("appSettingsChanged", sim_handle_app, sim_handle_app, nullptr, false);
+        }
         if (userSettings != nullptr)
         {
             ev->appendKeyDouble(propApp_defaultTranslationStepSize.name, userSettings->getTranslationStepSize());

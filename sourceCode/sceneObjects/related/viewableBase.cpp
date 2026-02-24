@@ -150,17 +150,20 @@ void CViewableBase::setClippingPlanes(double nearPlane, double farPlane)
         _farClippingPlane = farPlane;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            const char* cmd = "nearClippingPlane";
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _nearClippingPlane);
-            ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
-#else
-            const char* cmd = propViewable_clippingPlanes.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            double arr[2] = {_nearClippingPlane, _farClippingPlane};
-            ev->appendKeyDoubleArray(cmd, arr, 2);
-#endif
+            if (App::getEventProtocolVersion() == 2)
+            {
+                const char* cmd = "nearClippingPlane";
+                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyDouble(cmd, _nearClippingPlane);
+                ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
+            }
+            else
+            {
+                const char* cmd = propViewable_clippingPlanes.name;
+                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                double arr[2] = {_nearClippingPlane, _farClippingPlane};
+                ev->appendKeyDoubleArray(cmd, arr, 2);
+            }
             App::worldContainer->pushEvent();
         }
         computeVolumeVectors();
@@ -205,13 +208,13 @@ void CViewableBase::setOrthoViewSize(double theSize)
         _orthoViewSize = theSize;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            const char* cmd = "orthoSize";
-#else
-            const char* cmd = propViewable_viewSize.name;
-#endif
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _orthoViewSize);
+            std::string cmd;
+            if (App::getEventProtocolVersion() == 2)
+                cmd = "orthoSize";
+            else
+                cmd = propViewable_viewSize.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
+            ev->appendKeyDouble(cmd.c_str(), _orthoViewSize);
             App::worldContainer->pushEvent();
         }
         computeVolumeVectors();
@@ -479,13 +482,13 @@ void CViewableBase::setPerspective(bool p)
         computeVolumeVectors();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            const char* cmd = "perspectiveMode";
-#else
-            const char* cmd = propViewable_perspective.name;
-#endif
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyBool(cmd, _perspective);
+            std::string cmd;
+            if (App::getEventProtocolVersion() == 2)
+                cmd = "perspectiveMode";
+            else
+                cmd = propViewable_perspective.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
+            ev->appendKeyBool(cmd.c_str(), _perspective);
             App::worldContainer->pushEvent();
         }
     }
@@ -566,23 +569,26 @@ void CViewableBase::computeVolumeVectors()
             _volumeVectorFar = farV;
             if (_isInScene && App::worldContainer->getEventsEnabled())
             {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-                const char* cmd = "frustumVectors";
-                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->openKeyMap(cmd);
-                ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
-                ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
-#else
-                const char* cmd = propViewable_frustumCornerNear.name;
-                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                if (App::getEventProtocolVersion() == 2)
+                {
+                    const char* cmd = "frustumVectors";
+                    CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                    ev->openKeyMap(cmd);
+                    ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
+                    ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
+                }
+                else
+                {
+                    const char* cmd = propViewable_frustumCornerNear.name;
+                    CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
-                ev->appendKeyDoubleArray(cmd, _volumeVectorNear.data, 3);
-                ev->appendKeyDoubleArray(propViewable_frustumCornerFar.name, _volumeVectorFar.data, 3);
+                    ev->appendKeyDoubleArray(cmd, _volumeVectorNear.data, 3);
+                    ev->appendKeyDoubleArray(propViewable_frustumCornerFar.name, _volumeVectorFar.data, 3);
 #else
-                ev->appendKeyVector3(cmd, _volumeVectorNear);
-                ev->appendKeyVector3(propViewable_frustumCornerFar.name, _volumeVectorFar);
+                    ev->appendKeyVector3(cmd, _volumeVectorNear);
+                    ev->appendKeyVector3(propViewable_frustumCornerFar.name, _volumeVectorFar);
 #endif
-#endif
+                }
                 App::worldContainer->pushEvent();
             }
         }

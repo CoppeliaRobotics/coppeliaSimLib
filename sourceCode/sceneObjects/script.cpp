@@ -172,18 +172,19 @@ void CScript::removeSceneDependencies()
 
 void CScript::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    ev->openKeyArray("colors");
-    float c[9];
-    _scriptColor.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _scriptColor.getColor(c + 3, sim_colorcomponent_specular);
-    _scriptColor.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    ev->closeArrayOrMap(); // colors
-#else
-    _scriptColor.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyArray("colors");
+        float c[9];
+        _scriptColor.getColor(c, sim_colorcomponent_ambient_diffuse);
+        _scriptColor.getColor(c + 3, sim_colorcomponent_specular);
+        _scriptColor.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        ev->closeArrayOrMap(); // colors
+    }
+    else
+        _scriptColor.addGenesisEventData(ev);
     ev->appendKeyDouble(propScript_size.name, _scriptSize);
     ev->appendKeyBool(propScript_resetAfterSimError.name, _resetAfterSimError);
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
@@ -191,9 +192,8 @@ void CScript::addSpecializedObjectEventData(CCbor* ev)
 #else
     ev->appendKeyHandle(propScript_detachedScript.name, scriptObject->getScriptPseudoHandle());
 #endif
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // script
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // script
 }
 
 CSceneObject* CScript::copyYourself()

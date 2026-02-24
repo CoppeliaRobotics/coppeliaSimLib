@@ -209,101 +209,77 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
     CCbor* ev = evv;
     if ((evv != nullptr) || (_isInScene && App::worldContainer->getEventsEnabled()))
     {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-        const char* cmd = "voxels";
-        if (evv == nullptr)
-            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-        ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
-        ev->openKeyMap(cmd);
-        ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
-        ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
-        if (evv == nullptr)
-            App::worldContainer->pushEvent();
-#else
-#if SIM_EVENT_PROTOCOL_VERSION == 3
-        const char* cmd = propOctree_voxels.name;
-        if (evv == nullptr)
-            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-        ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
-        ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
-        ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
-        ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
-        ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
-        if (evv == nullptr)
-            App::worldContainer->pushEvent();
-#else
-        if (_octreeInfo == nullptr)
+        if (App::getEventProtocolVersion() == 2)
         {
-            _remBBPts(nullptr, 0);
+            const char* cmd = "voxels";
             if (evv == nullptr)
-                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
-            ev->openKeyMap("set");
-            ev->appendKeyFloatArray("pts", nullptr, 0);
-            ev->appendKeyUint8Array("rgba", nullptr, 0);
-            ev->appendKeyUint32Array("ids", nullptr, 0);
-            ev->closeArrayOrMap();
+                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+            ev->openKeyMap(cmd);
+            ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
+            ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
             if (evv == nullptr)
-            {
                 App::worldContainer->pushEvent();
-                computeBoundingBox();
-                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
-                App::worldContainer->pushEvent();
-            }
         }
         else
         {
-            if (_refreshDisplay)
+#if SIM_EVENT_PROTOCOL_VERSION == 3
+            const char* cmd = propOctree_voxels.name;
+            if (evv == nullptr)
+                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
+            ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
+            ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+            ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
+            ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
+            if (evv == nullptr)
+                App::worldContainer->pushEvent();
+#else
+            if (_octreeInfo == nullptr)
             {
-                App::worldContainer->pluginContainer->geomPlugin_refreshDisplayOctreeData(_octreeInfo);
-                _refreshDisplay = false;
-            }
-            float* pts;
-            unsigned char* cols;
-            unsigned int* ids;
-            unsigned int* remIds;
-            int newCnt, remCnt;
-            int r = App::worldContainer->pluginContainer->geomPlugin_getDisplayOctreeData(_octreeInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
-            if (r >= 0)
-            {
-                if (r == 1)
+                _remBBPts(nullptr, 0);
+                if (evv == nullptr)
+                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                ev->openKeyMap("set");
+                ev->appendKeyFloatArray("pts", nullptr, 0);
+                ev->appendKeyUint8Array("rgba", nullptr, 0);
+                ev->appendKeyUint32Array("ids", nullptr, 0);
+                ev->closeArrayOrMap();
+                if (evv == nullptr)
                 {
-                    _remBBPts(nullptr, 0);
-                    _addBBPts(pts, ids, newCnt);
-                    if (evv == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
-                    ev->openKeyMap("set");
-                    ev->appendKeyFloatArray("pts", pts, newCnt * 3);
-                    ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
-                    ev->appendKeyUint32Array("ids", ids, newCnt);
-                    ev->closeArrayOrMap();
-                    if (evv == nullptr)
-                    {
-                        App::worldContainer->pushEvent();
-                        computeBoundingBox();
-                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                        ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                        ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
-                        App::worldContainer->pushEvent();
-                    }
+                    App::worldContainer->pushEvent();
+                    computeBoundingBox();
+                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                    ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
+                    ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                    App::worldContainer->pushEvent();
                 }
-                else
+            }
+            else
+            {
+                if (_refreshDisplay)
                 {
-                    if (remCnt > 0)
-                        _remBBPts(remIds, remCnt);
-                    _addBBPts(pts, ids, newCnt);
-                    if (newCnt + remCnt > 0)
+                    App::worldContainer->pluginContainer->geomPlugin_refreshDisplayOctreeData(_octreeInfo);
+                    _refreshDisplay = false;
+                }
+                float* pts;
+                unsigned char* cols;
+                unsigned int* ids;
+                unsigned int* remIds;
+                int newCnt, remCnt;
+                int r = App::worldContainer->pluginContainer->geomPlugin_getDisplayOctreeData(_octreeInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
+                if (r >= 0)
+                {
+                    if (r == 1)
                     {
+                        _remBBPts(nullptr, 0);
+                        _addBBPts(pts, ids, newCnt);
                         if (evv == nullptr)
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
-                        ev->openKeyMap("add");
+                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                        ev->openKeyMap("set");
                         ev->appendKeyFloatArray("pts", pts, newCnt * 3);
                         ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
                         ev->appendKeyUint32Array("ids", ids, newCnt);
-                        ev->closeArrayOrMap();
-                        ev->openKeyMap("rem");
-                        ev->appendKeyUint32Array("ids", remIds, remCnt);
                         ev->closeArrayOrMap();
                         if (evv == nullptr)
                         {
@@ -315,15 +291,42 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             App::worldContainer->pushEvent();
                         }
                     }
+                    else
+                    {
+                        if (remCnt > 0)
+                            _remBBPts(remIds, remCnt);
+                        _addBBPts(pts, ids, newCnt);
+                        if (newCnt + remCnt > 0)
+                        {
+                            if (evv == nullptr)
+                                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                            ev->openKeyMap("add");
+                            ev->appendKeyFloatArray("pts", pts, newCnt * 3);
+                            ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                            ev->appendKeyUint32Array("ids", ids, newCnt);
+                            ev->closeArrayOrMap();
+                            ev->openKeyMap("rem");
+                            ev->appendKeyUint32Array("ids", remIds, remCnt);
+                            ev->closeArrayOrMap();
+                            if (evv == nullptr)
+                            {
+                                App::worldContainer->pushEvent();
+                                computeBoundingBox();
+                                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                                ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
+                                ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                                App::worldContainer->pushEvent();
+                            }
+                        }
+                    }
+                    delete[] pts;
+                    delete[] cols;
+                    delete[] ids;
+                    delete[] remIds;
                 }
-                delete[] pts;
-                delete[] cols;
-                delete[] ids;
-                delete[] remIds;
             }
+#endif
         }
-#endif
-#endif
     }
 }
 
@@ -809,23 +812,26 @@ void COcTree::removeSceneDependencies()
 
 void COcTree::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    ev->openKeyMap("voxels");
-    ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
-    ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
-    ev->closeArrayOrMap(); // voxels
-    ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
-    ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
-    ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
-    ev->closeArrayOrMap(); // octree
-#else
-    color.addGenesisEventData(ev);
-    ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
-    ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
-    ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
-    _updateOctreeEvent(false, ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap("voxels");
+        ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
+        ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
+        ev->closeArrayOrMap(); // voxels
+        ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+        ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
+        ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
+        ev->closeArrayOrMap(); // octree
+    }
+    else
+    {
+        color.addGenesisEventData(ev);
+        ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+        ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
+        ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
+        _updateOctreeEvent(false, ev);
+    }
 }
 
 CSceneObject* COcTree::copyYourself()

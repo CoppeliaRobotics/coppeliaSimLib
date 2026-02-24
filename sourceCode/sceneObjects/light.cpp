@@ -334,23 +334,26 @@ void CLight::removeSceneDependencies()
 
 void CLight::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    ev->openKeyArray("colors");
-    float c[9];
-    objectColor.getColor(c, sim_colorcomponent_ambient_diffuse);
-    objectColor.getColor(c + 3, sim_colorcomponent_specular);
-    objectColor.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    lightColor.getColor(c, sim_colorcomponent_diffuse);
-    lightColor.getColor(c + 3, sim_colorcomponent_specular);
-    lightColor.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    ev->closeArrayOrMap(); // colors
-#else
-    objectColor.addGenesisEventData(ev);
-    lightColor.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyArray("colors");
+        float c[9];
+        objectColor.getColor(c, sim_colorcomponent_ambient_diffuse);
+        objectColor.getColor(c + 3, sim_colorcomponent_specular);
+        objectColor.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        lightColor.getColor(c, sim_colorcomponent_diffuse);
+        lightColor.getColor(c + 3, sim_colorcomponent_specular);
+        lightColor.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        ev->closeArrayOrMap(); // colors
+    }
+    else
+    {
+        objectColor.addGenesisEventData(ev);
+        lightColor.addGenesisEventData(ev);
+    }
     ev->appendKeyDouble(propLight_size.name, _lightSize);
     ev->appendKeyDouble(propLight_spotCutoffAngle.name, _spotCutoffAngle);
     ev->appendKeyInt64(propLight_spotExponent.name, _spotExponent);
@@ -359,9 +362,8 @@ void CLight::addSpecializedObjectEventData(CCbor* ev)
     double arr[3] = {constantAttenuation, linearAttenuation, quadraticAttenuation};
     ev->appendKeyDoubleArray(propLight_attenuationFactors.name, arr, 3);
     // todo
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // light
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // light
 }
 
 CSceneObject* CLight::copyYourself()

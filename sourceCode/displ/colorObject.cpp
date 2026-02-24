@@ -261,9 +261,8 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
     }
 }
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
 void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
-{
+{ // only with event protocol version 2
     if ((objectHandle != -1) && App::worldContainer->getEventsEnabled())
     {
         const char* cmd = "color";
@@ -285,7 +284,7 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
 }
 
 void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float col2[9], float col3[9], float col4[9])
-{
+{ // only with event protocol version 2
     if ((objectHandle != -1) && App::worldContainer->getEventsEnabled())
     {
         const char* cmd = "colors";
@@ -301,7 +300,6 @@ void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float c
         App::worldContainer->pushEvent();
     }
 }
-#endif
 
 bool CColorObject::setColor(float r, float g, float b, unsigned char colorMode)
 {

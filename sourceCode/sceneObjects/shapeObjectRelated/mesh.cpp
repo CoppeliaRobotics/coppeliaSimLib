@@ -704,24 +704,28 @@ void CMesh::setColor(const CShape* shape, int& elementIndex, const char* colorNa
         bool compoundColors = (colorName != nullptr) && (strcmp(colorName, "@compound") == 0);
         if (colorComponent < sim_colorcomponent_transparency)
         { // regular components
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            for (int i = 0; i < 3; i++)
-                color.getColorsPtr()[colorComponent * 3 + i] = rgbData[rgbDataOffset + i];
-#else
-            setColor(rgbData + rgbDataOffset, colorComponent);
-#endif
+            if (App::getEventProtocolVersion() == 2)
+            {
+                for (int i = 0; i < 3; i++)
+                    color.getColorsPtr()[colorComponent * 3 + i] = rgbData[rgbDataOffset + i];
+            }
+            else
+                setColor(rgbData + rgbDataOffset, colorComponent);
             if (compoundColors)
                 rgbDataOffset += 3;
         }
         if (colorComponent == sim_colorcomponent_transparency)
         {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            color.setOpacity(rgbData[rgbDataOffset + 0]);
-            color.setTranslucid(rgbData[rgbDataOffset + 0] < 1.0);
-#else
-            float ccol = 1.0f - rgbData[rgbDataOffset];
-            setColor(&ccol, colorComponent);
-#endif
+            if (App::getEventProtocolVersion() == 2)
+            {
+                color.setOpacity(rgbData[rgbDataOffset + 0]);
+                color.setTranslucid(rgbData[rgbDataOffset + 0] < 1.0);
+            }
+            else
+            {
+                float ccol = 1.0f - rgbData[rgbDataOffset];
+                setColor(&ccol, colorComponent);
+            }
             if (compoundColors)
                 rgbDataOffset += 1;
         }
@@ -732,10 +736,11 @@ void CMesh::setColor(const CShape* shape, int& elementIndex, const char* colorNa
             if (compoundColors)
                 rgbDataOffset += 3;
         }
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-        if (shape != nullptr)
-            color.pushShapeColorChangeEvent(shape->getObjectHandle(), elementIndex);
-#endif
+        if (App::getEventProtocolVersion() == 2)
+        {
+            if (shape != nullptr)
+                color.pushShapeColorChangeEvent(shape->getObjectHandle(), elementIndex);
+        }
     }
     if ((colorName != nullptr) && (insideColor_DEPRECATED.getColorName().compare(colorName) == 0))
     { // OLD, deprecated
@@ -781,13 +786,14 @@ void CMesh::setColor(const CShape* shape, int& elementIndex, const char* colorNa
                 hsl[1] = tt::getLimitedFloat(0.0, 1.0, hsl[1] + rgbData[rgbDataOffset + 1]);
                 hsl[2] = tt::getLimitedFloat(0.0, 1.0, hsl[2] + rgbData[rgbDataOffset + 2]);
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-                tt::hslToRgb(hsl, color.getColorsPtr() + colorComponent * 3);
-#else
-                float rgb[3];
-                tt::hslToRgb(hsl, rgb);
-                setColor(rgb, colorComponent);
-#endif
+                if (App::getEventProtocolVersion() == 2)
+                    tt::hslToRgb(hsl, color.getColorsPtr() + colorComponent * 3);
+                else
+                {
+                    float rgb[3];
+                    tt::hslToRgb(hsl, rgb);
+                    setColor(rgb, colorComponent);
+                }
             }
             if (colorComponent == 4)
             {

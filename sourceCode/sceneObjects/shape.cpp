@@ -1374,17 +1374,18 @@ bool CShape::getCulling() const
 void CShape::setCulling(bool culState)
 {
     _mesh->setCulling(culState);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    if (_isInScene && App::worldContainer->getEventsEnabled())
+    if (App::getEventProtocolVersion() == 2)
     {
-        const char* cmd = "color";
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-        ev->openKeyMap(cmd);
-        ev->appendKeyBool("culling", culState);
-        ev->appendKeyInt64("index", 0);
-        App::worldContainer->pushEvent();
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = "color";
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->openKeyMap(cmd);
+            ev->appendKeyBool("culling", culState);
+            ev->appendKeyInt64("index", 0);
+            App::worldContainer->pushEvent();
+        }
     }
-#endif
 }
 
 bool CShape::getVisibleEdges() const
@@ -1397,17 +1398,18 @@ bool CShape::getVisibleEdges() const
 void CShape::setVisibleEdges(bool v)
 {
     _mesh->setVisibleEdges(v);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    if (_isInScene && App::worldContainer->getEventsEnabled())
+    if (App::getEventProtocolVersion() == 2)
     {
-        const char* cmd = "color";
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, false);
-        ev->openKeyMap(cmd);
-        ev->appendKeyBool("showEdges", v);
-        ev->appendKeyInt64("index", 0);
-        App::worldContainer->pushEvent();
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char* cmd = "color";
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, false);
+            ev->openKeyMap(cmd);
+            ev->appendKeyBool("showEdges", v);
+            ev->appendKeyInt64("index", 0);
+            App::worldContainer->pushEvent();
+        }
     }
-#endif
 }
 
 double CShape::getShadingAngle() const
@@ -1542,9 +1544,8 @@ void CShape::removeSceneDependencies()
 
 void CShape::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->openKeyMap(getObjectTypeInfo().c_str());
     _dynMaterial->setBoolProperty(nullptr, false, ev);
     _dynMaterial->setIntProperty(nullptr, 0, ev);
     _dynMaterial->setFloatProperty(nullptr, 0.0, ev);
@@ -1552,110 +1553,113 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
     _dynMaterial->setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->sendEngineString(ev);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyArray(propShape_meshes.name);
-    std::vector<CMesh*> all;
-    std::vector<C7Vector> allTr;
-    getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
-    for (size_t i = 0; i < all.size(); i++)
+    if (App::getEventProtocolVersion() == 2)
     {
-        CMesh* geom = all[i];
-        C7Vector tr(allTr[i]);
-        ev->openMap();
-
-        const std::vector<float>* wvert = geom->getVerticesForDisplayAndDisk();
-        const std::vector<int>* wind = geom->getIndices();
-        const std::vector<float>* wnorm = geom->getNormalsForDisplayAndDisk();
-        std::vector<float> vertices;
-        vertices.resize(wvert->size());
-        for (size_t j = 0; j < wvert->size() / 3; j++)
+        ev->openKeyArray(propShape_meshes.name);
+        std::vector<CMesh*> all;
+        std::vector<C7Vector> allTr;
+        getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
+        for (size_t i = 0; i < all.size(); i++)
         {
-            C3Vector v;
-            v.setData(wvert->data() + j * 3);
-            v = tr * v;
-            vertices[3 * j + 0] = (float)v(0);
-            vertices[3 * j + 1] = (float)v(1);
-            vertices[3 * j + 2] = (float)v(2);
-        }
-        ev->appendKeyFloatArray("vertices", vertices.data(), vertices.size());
-        ev->appendKeyInt32Array("indices", wind->data(), wind->size());
+            CMesh* geom = all[i];
+            C7Vector tr(allTr[i]);
+            ev->openMap();
 
-        std::vector<float> normals;
-        normals.resize(wind->size() * 3);
-        for (size_t j = 0; j < wind->size(); j++)
-        {
-            C3Vector n;
-            n.setData(&(wnorm[0])[0] + j * 3);
-            n = tr.Q * n; // only orientation
-            normals[3 * j + 0] = (float)n(0);
-            normals[3 * j + 1] = (float)n(1);
-            normals[3 * j + 2] = (float)n(2);
-        }
-        ev->appendKeyFloatArray("normals", normals.data(), normals.size());
+            const std::vector<float>* wvert = geom->getVerticesForDisplayAndDisk();
+            const std::vector<int>* wind = geom->getIndices();
+            const std::vector<float>* wnorm = geom->getNormalsForDisplayAndDisk();
+            std::vector<float> vertices;
+            vertices.resize(wvert->size());
+            for (size_t j = 0; j < wvert->size() / 3; j++)
+            {
+                C3Vector v;
+                v.setData(wvert->data() + j * 3);
+                v = tr * v;
+                vertices[3 * j + 0] = (float)v(0);
+                vertices[3 * j + 1] = (float)v(1);
+                vertices[3 * j + 2] = (float)v(2);
+            }
+            ev->appendKeyFloatArray("vertices", vertices.data(), vertices.size());
+            ev->appendKeyInt32Array("indices", wind->data(), wind->size());
 
-        float c[9];
-        geom->color.getColor(c + 0, sim_colorcomponent_ambient_diffuse);
-        geom->color.getColor(c + 3, sim_colorcomponent_specular);
-        geom->color.getColor(c + 6, sim_colorcomponent_emission);
-        ev->appendKeyFloatArray("color", c, 9);
-        ev->appendKeyDouble("shadingAngle", geom->getShadingAngle());
-        ev->appendKeyBool("showEdges", geom->getVisibleEdges());
-        ev->appendKeyBool("culling", geom->getCulling());
-        double transp = 0.0;
-        if (geom->color.getTranslucid())
-            transp = 1.0 - geom->color.getOpacity();
-        ev->appendKeyDouble("transparency", transp);
+            std::vector<float> normals;
+            normals.resize(wind->size() * 3);
+            for (size_t j = 0; j < wind->size(); j++)
+            {
+                C3Vector n;
+                n.setData(&(wnorm[0])[0] + j * 3);
+                n = tr.Q * n; // only orientation
+                normals[3 * j + 0] = (float)n(0);
+                normals[3 * j + 1] = (float)n(1);
+                normals[3 * j + 2] = (float)n(2);
+            }
+            ev->appendKeyFloatArray("normals", normals.data(), normals.size());
 
-        int options = 0;
-        if (geom->getCulling())
-            options |= 1;
-        if (geom->getWireframe_OLD())
-            options |= 2;
-        ev->appendKeyInt64("options", options);
-
-        CTextureProperty* tp = geom->getTextureProperty();
-        CTextureObject* to = nullptr;
-        const std::vector<float>* tc = nullptr;
-        if (tp != nullptr)
-        {
-            to = tp->getTextureObject();
-            tc = tp->getTextureCoordinates(-1, wvert[0], wind[0]);
-        }
-
-        if ((to != nullptr) && (tc != nullptr))
-        {
-            int tRes[2];
-            to->getTextureSize(tRes[0], tRes[1]);
-            ev->openKeyMap("texture");
-            ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-            ev->appendKeyInt32Array("resolution", tRes, 2);
-            ev->appendKeyFloatArray("coordinates", tc->data(), tc->size());
-            ev->appendKeyInt64("applyMode", tp->getApplyMode());
+            float c[9];
+            geom->color.getColor(c + 0, sim_colorcomponent_ambient_diffuse);
+            geom->color.getColor(c + 3, sim_colorcomponent_specular);
+            geom->color.getColor(c + 6, sim_colorcomponent_emission);
+            ev->appendKeyFloatArray("color", c, 9);
+            ev->appendKeyDouble("shadingAngle", geom->getShadingAngle());
+            ev->appendKeyBool("showEdges", geom->getVisibleEdges());
+            ev->appendKeyBool("culling", geom->getCulling());
+            double transp = 0.0;
+            if (geom->color.getTranslucid())
+                transp = 1.0 - geom->color.getOpacity();
+            ev->appendKeyDouble("transparency", transp);
 
             int options = 0;
-            if (tp->getRepeatU())
+            if (geom->getCulling())
                 options |= 1;
-            if (tp->getRepeatV())
+            if (geom->getWireframe_OLD())
                 options |= 2;
-            if (tp->getInterpolateColors())
-                options |= 4;
             ev->appendKeyInt64("options", options);
-            ev->appendKeyInt64("id", tp->getTextureObjectID());
-            ev->closeArrayOrMap(); // texture
+
+            CTextureProperty* tp = geom->getTextureProperty();
+            CTextureObject* to = nullptr;
+            const std::vector<float>* tc = nullptr;
+            if (tp != nullptr)
+            {
+                to = tp->getTextureObject();
+                tc = tp->getTextureCoordinates(-1, wvert[0], wind[0]);
+            }
+
+            if ((to != nullptr) && (tc != nullptr))
+            {
+                int tRes[2];
+                to->getTextureSize(tRes[0], tRes[1]);
+                ev->openKeyMap("texture");
+                ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
+                ev->appendKeyInt32Array("resolution", tRes, 2);
+                ev->appendKeyFloatArray("coordinates", tc->data(), tc->size());
+                ev->appendKeyInt64("applyMode", tp->getApplyMode());
+
+                int options = 0;
+                if (tp->getRepeatU())
+                    options |= 1;
+                if (tp->getRepeatV())
+                    options |= 2;
+                if (tp->getInterpolateColors())
+                    options |= 4;
+                ev->appendKeyInt64("options", options);
+                ev->appendKeyInt64("id", tp->getTextureObjectID());
+                ev->closeArrayOrMap(); // texture
+            }
+            ev->closeArrayOrMap(); // one mesh
         }
-        ev->closeArrayOrMap(); // one mesh
+        ev->closeArrayOrMap(); // meshes
     }
-    ev->closeArrayOrMap(); // meshes
-#else
-    ev->openKeyArray(propShape_meshes.name);
-    std::vector<CMesh*> all;
-    std::vector<C7Vector> allTr;
-    getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
-    std::vector<long long int> mmid;
-    for (size_t i = 0; i < all.size(); i++)
-        mmid.push_back(all[i]->getUniqueID());
-    ev->appendKeyHandleArray(propShape_meshes.name, mmid.data(), mmid.size());
-#endif
+    else
+    {
+        ev->openKeyArray(propShape_meshes.name);
+        std::vector<CMesh*> all;
+        std::vector<C7Vector> allTr;
+        getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
+        std::vector<long long int> mmid;
+        for (size_t i = 0; i < all.size(); i++)
+            mmid.push_back(all[i]->getUniqueID());
+        ev->appendKeyHandleArray(propShape_meshes.name, mmid.data(), mmid.size());
+    }
 
     ev->appendKeyInt64(propShape_respondableMask.name, _respondableMask);
     ev->appendKeyBool(propShape_startInDynSleepMode.name, _startInDynamicSleeping);
@@ -1679,9 +1683,8 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propShape_compound.name, (_mesh->getComponentCount() > 1));
     _mesh->addSpecializedObjectEventData(_objectHandle, ev);
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // shape
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // shape
 }
 
 void CShape::copyAttributesTo(CShape* target)

@@ -295,12 +295,13 @@ void CProxSensor::removeSceneDependencies()
 
 void CProxSensor::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("proxSensor");
-#else
-    volumeColor.addGenesisEventData(ev);
-    detectionRayColor.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->openKeyMap("proxSensor");
+    else
+    {
+        volumeColor.addGenesisEventData(ev);
+        detectionRayColor.addGenesisEventData(ev);
+    }
     ev->appendKeyDouble(propProximitySensor_size.name, _proxSensorSize);
     ev->appendKeyBool(propProximitySensor_frontFaceDetection.name, _frontFaceDetection);
     ev->appendKeyBool(propProximitySensor_backFaceDetection.name, _backFaceDetection);
@@ -319,9 +320,8 @@ void CProxSensor::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyVector3(propProximitySensor_detectedNormal.name, _detectedNormalVector);
 #endif
     convexVolume->sendEventData(ev);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // proxSensor
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // proxSensor
 }
 
 CSceneObject* CProxSensor::copyYourself()

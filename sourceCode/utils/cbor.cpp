@@ -98,7 +98,7 @@ void CCbor::appendInt64Array(const long long int* v, size_t cnt)
 void CCbor::appendHandleArray(const long long int* h, size_t cnt)
 {
     _buff.push_back(0xDB); // Tag header (219)
-    long long int w = 4294999999; // Type info (handle)
+    long long int w = 4294999998; // Type info (handle array)
     _buff.push_back(((unsigned char*)&w)[7]);
     _buff.push_back(((unsigned char*)&w)[6]);
     _buff.push_back(((unsigned char*)&w)[5]);
@@ -113,18 +113,11 @@ void CCbor::appendHandleArray(const long long int* h, size_t cnt)
 
 void CCbor::appendHandleArray(const int* h, size_t cnt)
 {
-    _buff.push_back(0xDB); // Tag header (219)
-    long long int w = 4294999999; // Type info (handle)
-    _buff.push_back(((unsigned char*)&w)[7]);
-    _buff.push_back(((unsigned char*)&w)[6]);
-    _buff.push_back(((unsigned char*)&w)[5]);
-    _buff.push_back(((unsigned char*)&w)[4]);
-    _buff.push_back(((unsigned char*)&w)[3]);
-    _buff.push_back(((unsigned char*)&w)[2]);
-    _buff.push_back(((unsigned char*)&w)[1]);
-    _buff.push_back(((unsigned char*)&w)[0]);
-    _appendItemTypeAndLength(0x40, cnt * sizeof(int));
-    _buff.insert(_buff.end(), (unsigned char*)h, ((unsigned char*)h) + cnt * sizeof(int));
+    std::vector<long long int> arr;
+    arr.resize(cnt);
+    for (size_t i = 0; i < cnt; i++)
+        arr[i] = h[i];
+    appendHandleArray(arr.data(), cnt);
 }
 
 void CCbor::appendFloat(float v)
@@ -139,7 +132,7 @@ void CCbor::appendFloat(float v)
 
 void CCbor::appendFloatArray(const float* v, size_t cnt)
 {
-    size_t d = _buff.size();
+    //size_t d = _buff.size();
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x55); // 85
     _appendItemTypeAndLength(0x40, cnt * sizeof(float));
@@ -496,13 +489,14 @@ void CCbor::createEvent(const char* event, const char* fieldName, const char* ob
         appendText("data");
         openMap(); // holding the data
         _inDataField = true;
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-        if (objType != nullptr)
+        if (App::getEventProtocolVersion() == 2)
         {
-            appendString(objType);
-            openMap(); // holding the scene object's data specific to the object type
+            if (objType != nullptr)
+            {
+                appendText(objType);
+                openMap(); // holding the scene object's data specific to the object type
+            }
         }
-#endif
     }
     // Do not open any other map or array below here
 }

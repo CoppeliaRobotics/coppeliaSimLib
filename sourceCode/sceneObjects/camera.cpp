@@ -725,13 +725,13 @@ void CCamera::setAllowTranslation(bool allow)
         _allowTranslation = allow;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            const char* cmd = "allowTranslation";
-#else
-            const char* cmd = propCamera_translationEnabled.name;
-#endif
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyBool(cmd, _allowTranslation);
+            std::string cmd;
+            if (App::getEventProtocolVersion() == 2)
+                cmd = "allowTranslation";
+            else
+                cmd = propCamera_translationEnabled.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
+            ev->appendKeyBool(cmd.c_str(), _allowTranslation);
             App::worldContainer->pushEvent();
         }
     }
@@ -749,13 +749,13 @@ void CCamera::setAllowRotation(bool allow)
         _allowRotation = allow;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            const char* cmd = "allowRotation";
-#else
-            const char* cmd = propCamera_rotationEnabled.name;
-#endif
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyBool(cmd, _allowRotation);
+            std::string cmd;
+            if (App::getEventProtocolVersion() == 2)
+                cmd = "allowRotation";
+            else
+                cmd = propCamera_rotationEnabled.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
+            ev->appendKeyBool(cmd.c_str(), _allowRotation);
             App::worldContainer->pushEvent();
         }
     }
@@ -964,41 +964,41 @@ void CCamera::removeSceneDependencies()
 
 void CCamera::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    ev->openKeyArray("colors");
-    float c[9];
-    _color.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _color.getColor(c + 3, sim_colorcomponent_specular);
-    _color.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
-    _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    ev->closeArrayOrMap(); // "colors"
-    ev->appendKeyBool("perspectiveMode", _perspective);
-    ev->appendKeyBool("allowTranslation", _allowTranslation);
-    ev->appendKeyBool("allowRotation", _allowRotation);
-    ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
-    ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
-    ev->appendKeyDouble("orthoSize", _orthoViewSize);
-    ev->openKeyMap("frustumVectors");
-    ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
-    ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
-    ev->closeArrayOrMap(); // "frustumVectors"
-#else
-    _color.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyArray("colors");
+        float c[9];
+        _color.getColor(c, sim_colorcomponent_ambient_diffuse);
+        _color.getColor(c + 3, sim_colorcomponent_specular);
+        _color.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
+        _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
+        _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        ev->closeArrayOrMap(); // "colors"
+        ev->appendKeyBool("perspectiveMode", _perspective);
+        ev->appendKeyBool("allowTranslation", _allowTranslation);
+        ev->appendKeyBool("allowRotation", _allowRotation);
+        ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
+        ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
+        ev->appendKeyDouble("orthoSize", _orthoViewSize);
+        ev->openKeyMap("frustumVectors");
+        ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
+        ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
+        ev->closeArrayOrMap(); // "frustumVectors"
+    }
+    else
+        _color.addGenesisEventData(ev);
     ev->appendKeyDouble(propCamera_size.name, _cameraSize);
     ev->appendKeyBool(propCamera_parentAsManipProxy.name, _useParentObjectAsManipulationProxy);
     ev->appendKeyBool(propCamera_translationEnabled.name, _allowTranslation);
     ev->appendKeyBool(propCamera_rotationEnabled.name, _allowRotation);
     ev->appendKeyInt64(propCamera_trackedObjectHandle.name, _trackedObjectHandle);
     CViewableBase::addSpecializedObjectEventData(ev);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); //"camera"
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); //"camera"
 }
 
 CSceneObject* CCamera::copyYourself()

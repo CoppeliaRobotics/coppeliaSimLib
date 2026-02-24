@@ -626,9 +626,8 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
             }
             updateSelfAsSlave();
         }
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-        _sendDependencyChange_old();
-#endif
+        if (App::getEventProtocolVersion() == 2)
+            _sendDependencyChange_old();
     }
 }
 
@@ -699,9 +698,8 @@ void CJoint::setDependencyParams(double off, double mult)
                 ev->appendKeyDoubleArray(cmd, arr, 2);
                 App::worldContainer->pushEvent();
             }
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            _sendDependencyChange_old();
-#endif
+            if (App::getEventProtocolVersion() == 2)
+                _sendDependencyChange_old();
             _setDependencyJointOffset_sendOldIk(off);
             _setDependencyJointMult_sendOldIk(mult);
             updateSelfAsSlave();
@@ -1212,10 +1210,11 @@ void CJoint::setInterval(double minV, double maxV)
         {
             const char* cmd = propJoint_interval.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyDouble("min", _posMin);
-            ev->appendKeyDouble("range", _posRange);
-#endif
+            if (App::getEventProtocolVersion() == 2)
+            {
+                ev->appendKeyDouble("min", _posMin);
+                ev->appendKeyDouble("range", _posRange);
+            }
             double arr[2] = {_posMin, _posMin + _posRange};
             ev->appendKeyDoubleArray(cmd, arr, 2);
             App::worldContainer->pushEvent();
@@ -2005,54 +2004,39 @@ void CJoint::removeSceneDependencies()
 
 void CJoint::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    ev->openKeyArray("colors");
-    float c[9];
-    _color.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _color.getColor(c + 3, sim_colorcomponent_specular);
-    _color.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
-    _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    ev->closeArrayOrMap(); // colors
-    ev->appendKeyDouble("length", _length);
-    ev->appendKeyDouble("diameter", _diameter);
-    ev->appendKeyDouble("min", _posMin);
-    ev->appendKeyDouble("range", _posRange);
-    ev->openKeyMap("dependency");
-    if (_dependencyMasterJointHandle != -1)
+    if (App::getEventProtocolVersion() == 2)
     {
-        CSceneObject* master = App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
-        if (master != nullptr)
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyArray("colors");
+        float c[9];
+        _color.getColor(c, sim_colorcomponent_ambient_diffuse);
+        _color.getColor(c + 3, sim_colorcomponent_specular);
+        _color.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
+        _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
+        _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        ev->closeArrayOrMap(); // colors
+        ev->appendKeyDouble("length", _length);
+        ev->appendKeyDouble("diameter", _diameter);
+        ev->appendKeyDouble("min", _posMin);
+        ev->appendKeyDouble("range", _posRange);
+        ev->openKeyMap("dependency");
+        if (_dependencyMasterJointHandle != -1)
         {
-            ev->appendKeyInt64("masterUid", master->getObjectUid());
-            ev->appendKeyDouble("mult", _dependencyJointMult);
-            ev->appendKeyDouble("off", _dependencyJointOffset);
+            CSceneObject* master = App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
+            if (master != nullptr)
+            {
+                ev->appendKeyInt64("masterUid", master->getObjectUid());
+                ev->appendKeyDouble("mult", _dependencyJointMult);
+                ev->appendKeyDouble("off", _dependencyJointOffset);
+            }
         }
+        ev->closeArrayOrMap(); // dependency
     }
-    ev->closeArrayOrMap(); // dependency
-#else
-    _color.addGenesisEventData(ev);
-#endif
-    /*
-    std::string tmp;
-    switch (_jointType)
-    {
-    case sim_joint_revolute:
-        tmp = "revolute";
-        break;
-    case sim_joint_prismatic:
-        tmp = "prismatic";
-        break;
-    case sim_joint_spherical:
-        tmp = "spherical";
-        break;
-    }
-    ev->appendKeyText("type", tmp.c_str());
-    */
+    else
+        _color.addGenesisEventData(ev);
     ev->appendKeyInt64(propJoint_jointType.name, _jointType);
     ev->appendKeyInt64(propJoint_jointMode.name, _jointMode);
     ev->appendKeyInt64(propJoint_dynCtrlMode.name, _dynCtrlMode);
@@ -2110,9 +2094,8 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
     setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _sendEngineString(ev);
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // joint
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // joint
 }
 
 CSceneObject* CJoint::copyYourself()

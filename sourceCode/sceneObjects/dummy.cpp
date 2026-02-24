@@ -287,18 +287,19 @@ void CDummy::removeSceneDependencies()
 
 void CDummy::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    float c[9];
-    _dummyColor.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _dummyColor.getColor(c + 3, sim_colorcomponent_specular);
-    _dummyColor.getColor(c + 6, sim_colorcomponent_emission);
-    ev->openKeyArray("colors");
-    ev->appendFloatArray(c, 9);
-    ev->closeArrayOrMap(); // colors
-#else
-    _dummyColor.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        float c[9];
+        _dummyColor.getColor(c, sim_colorcomponent_ambient_diffuse);
+        _dummyColor.getColor(c + 3, sim_colorcomponent_specular);
+        _dummyColor.getColor(c + 6, sim_colorcomponent_emission);
+        ev->openKeyArray("colors");
+        ev->appendFloatArray(c, 9);
+        ev->closeArrayOrMap(); // colors
+    }
+    else
+        _dummyColor.addGenesisEventData(ev);
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
@@ -317,9 +318,8 @@ void CDummy::addSpecializedObjectEventData(CCbor* ev)
     setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _sendEngineString(ev);
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // dummy
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // dummy
 }
 
 CSceneObject* CDummy::copyYourself()

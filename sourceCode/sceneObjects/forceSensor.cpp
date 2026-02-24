@@ -657,22 +657,23 @@ void CForceSensor::removeSceneDependencies()
 
 void CForceSensor::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    ev->openKeyArray("colors");
-    float c[9];
-    _color.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _color.getColor(c + 3, sim_colorcomponent_specular);
-    _color.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
-    _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    ev->closeArrayOrMap(); // colors
-#else
-    _color.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyArray("colors");
+        float c[9];
+        _color.getColor(c, sim_colorcomponent_ambient_diffuse);
+        _color.getColor(c + 3, sim_colorcomponent_specular);
+        _color.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
+        _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
+        _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
+        ev->appendFloatArray(c, 9);
+        ev->closeArrayOrMap(); // colors
+    }
+    else
+        _color.addGenesisEventData(ev);
     ev->appendKeyDouble(propFSensor_size.name, _forceSensorSize);
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
     double p[7];
@@ -696,9 +697,8 @@ void CForceSensor::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyInt64(propFSensor_consecutiveViolationsToTrigger.name, _consecutiveViolationsToTrigger);
     ev->appendKeyDouble(propFSensor_forceThreshold.name, _forceThreshold);
     ev->appendKeyDouble(propFSensor_torqueThreshold.name, _torqueThreshold);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // forceSensor
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // forceSensor
 }
 
 CSceneObject* CForceSensor::copyYourself()

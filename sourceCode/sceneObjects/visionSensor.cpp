@@ -2143,19 +2143,20 @@ void CVisionSensor::removeSceneDependencies()
 
 void CVisionSensor::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    ev->appendKeyBool("perspectiveMode", _perspective);
-    ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
-    ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
-    ev->appendKeyDouble("orthoSize", _orthoViewSize);
-    ev->openKeyMap("frustumVectors");
-    ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
-    ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
-    ev->closeArrayOrMap(); // frustumVectors
-#else
-    color.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->appendKeyBool("perspectiveMode", _perspective);
+        ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
+        ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
+        ev->appendKeyDouble("orthoSize", _orthoViewSize);
+        ev->openKeyMap("frustumVectors");
+        ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
+        ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
+        ev->closeArrayOrMap(); // frustumVectors
+    }
+    else
+        color.addGenesisEventData(ev);
     ev->appendKeyDouble(propVisionSensor_size.name, _visionSensorSize);
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyFloatArray(propVisionSensor_backgroundCol.name, _defaultBufferValues, 3);
@@ -2175,9 +2176,8 @@ void CVisionSensor::addSpecializedObjectEventData(CCbor* ev)
     _emitDepthChangedEvent(ev);
     _emitTriggerStateAndPacketChangeEvents(ev);
     CViewableBase::addSpecializedObjectEventData(ev);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // visionSensor
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // visionSensor
 }
 
 CSceneObject* CVisionSensor::copyYourself()

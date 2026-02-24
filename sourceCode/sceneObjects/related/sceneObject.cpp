@@ -861,9 +861,8 @@ void CSceneObject::setObjectProperty(int p)
         {
             const char* cmd = propObject_objectProperty.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyInt64("objectProperty", _objectProperty); // deprecated
-#endif
+            if (App::getEventProtocolVersion() == 2)
+                ev->appendKeyInt64("objectProperty", _objectProperty); // deprecated
             ev->appendKeyInt64(propObject_objectProperty.name, _objectProperty);
             if (cb & sim_objectproperty_ignoreviewfitting)
                 ev->appendKeyBool(propObject_ignoreViewFitting.name, _objectProperty & sim_objectproperty_ignoreviewfitting);
@@ -975,9 +974,8 @@ bool CSceneObject::setModelProperty(int prop)
         {
             const char* cmd = propObject_modelProperty.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyInt64("modelProperty", _modelProperty); // Deprecated
-#endif
+            if (App::getEventProtocolVersion() == 2)
+                ev->appendKeyInt64("modelProperty", _modelProperty); // Deprecated
             ev->appendKeyInt64(propObject_modelProperty.name, _modelProperty);
             if (cb & sim_modelproperty_not_collidable)
                 ev->appendKeyBool(propObject_modelNotCollidable.name, _modelProperty & sim_modelproperty_not_collidable);
@@ -1504,11 +1502,12 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyBool(propObject_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(propObject_modelBase.name, _modelBase);
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->appendKeyInt64("objectProperty", _objectProperty); // deprecated
-    ev->appendKeyInt64("dynamicFlag", _dynamicFlag);
-    ev->appendKeyText("oldName", _objectName_old.c_str());
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->appendKeyInt64("objectProperty", _objectProperty); // deprecated
+        ev->appendKeyInt64("dynamicFlag", _dynamicFlag);
+        ev->appendKeyText("oldName", _objectName_old.c_str());
+    }
     ev->appendKeyInt64(propObject_objectProperty.name, _objectProperty);
     ev->appendKeyBool(propObject_ignoreViewFitting.name, _objectProperty & sim_objectproperty_ignoreviewfitting);
     ev->appendKeyBool(propObject_collapsed.name, _objectProperty & sim_objectproperty_collapsed);
@@ -1520,9 +1519,8 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyBool(propObject_cannotDelete.name, _objectProperty & sim_objectproperty_cannotdelete);
     ev->appendKeyBool(propObject_cannotDeleteSim.name, _objectProperty & sim_objectproperty_cannotdeleteduringsim);
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->appendKeyInt64("modelProperty", _modelProperty); // deprecated
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->appendKeyInt64("modelProperty", _modelProperty); // deprecated
     ev->appendKeyInt64(propObject_modelProperty.name, _modelProperty);
     ev->appendKeyBool(propObject_modelNotCollidable.name, _modelProperty & sim_modelproperty_not_collidable);
     ev->appendKeyBool(propObject_modelNotMeasurable.name, _modelProperty & sim_modelproperty_not_measurable);
@@ -1567,14 +1565,16 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyInt64(propObject_dynamicIcon.name, _dynamicSimulationIconCode);
     ev->appendKeyInt64(propObject_dynamicFlag.name, _dynamicFlag);
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    // deprecated
-    ev->openKeyMap("boundingBox");
-    _bbFrame.getData(p, true);
-    ev->appendKeyDoubleArray("pose", p, 7);
-    ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
-    ev->closeArrayOrMap();
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        // deprecated
+        ev->openKeyMap("boundingBox");
+        double p[7];
+        _bbFrame.getData(p, true);
+        ev->appendKeyDoubleArray("pose", p, 7);
+        ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
+        ev->closeArrayOrMap();
+    }
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
     _bbFrame.getData(p, true);
     ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
@@ -1619,14 +1619,17 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     //    customObjectData_volatile.appendEventData(ev);
     //    ev->closeArrayOrMap(); // customData
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    // deprecated
-    ev->appendKeyInt64("movementOptions", _objectMovementOptions);
-    ev->appendKeyInt64("movementPreferredAxes", _objectMovementPreferredAxes);
-#else
-    ev->appendKeyInt64(propObject_movementOptions.name, _objectMovementOptions);
-    ev->appendKeyInt64(propObject_movementPreferredAxes.name, _objectMovementPreferredAxes);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        // deprecated
+        ev->appendKeyInt64("movementOptions", _objectMovementOptions);
+        ev->appendKeyInt64("movementPreferredAxes", _objectMovementPreferredAxes);
+    }
+    else
+    {
+        ev->appendKeyInt64(propObject_movementOptions.name, _objectMovementOptions);
+        ev->appendKeyInt64(propObject_movementPreferredAxes.name, _objectMovementPreferredAxes);
+    }
     ev->appendKeyBool(propObject_movTranslNoSim.name, (_objectMovementOptions & 1) == 0);
     ev->appendKeyBool(propObject_movTranslInSim.name, (_objectMovementOptions & 2) == 0);
     ev->appendKeyBool(propObject_movRotNoSim.name, (_objectMovementOptions & 4) == 0);
@@ -1854,9 +1857,8 @@ void CSceneObject::setObjectMovementPreferredAxes(int p)
         {
             const char* cmd = propObject_movementPreferredAxes.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyInt64("movementPreferredAxes", _objectMovementPreferredAxes); // deprecated
-#endif
+            if (App::getEventProtocolVersion() == 2)
+                ev->appendKeyInt64("movementPreferredAxes", _objectMovementPreferredAxes); // deprecated
             if (cb & 1)
                 ev->appendKeyBool(propObject_movPrefTranslX.name, _objectMovementPreferredAxes & 1);
             if (cb & 2)
@@ -1890,9 +1892,8 @@ void CSceneObject::setObjectMovementOptions(int p)
         {
             const char* cmd = propObject_movementOptions.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->appendKeyInt64("movementOptions", _objectMovementOptions); // deprecated
-#endif
+            if (App::getEventProtocolVersion() == 2)
+                ev->appendKeyInt64("movementOptions", _objectMovementOptions); // deprecated
             if (cb & 1)
                 ev->appendKeyBool(propObject_movTranslNoSim.name, (_objectMovementOptions & 1) == 0);
             if (cb & 2)
@@ -2118,14 +2119,15 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
         {
             const char* cmd = "boundingBox";
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
-                           _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
-            ev->openKeyMap(cmd);
-            ev->appendKeyDoubleArray("pose", p, 7);
-            ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
-            ev->closeArrayOrMap();
-#endif
+            if (App::getEventProtocolVersion() == 2)
+            {
+                double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
+                               _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
+                ev->openKeyMap(cmd);
+                ev->appendKeyDoubleArray("pose", p, 7);
+                ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
+                ev->closeArrayOrMap();
+            }
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
             double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
                            _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};

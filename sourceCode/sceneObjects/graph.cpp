@@ -636,11 +636,10 @@ void CGraph::removeSceneDependencies()
 
 void CGraph::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-#else
-    color.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+    else
+        color.addGenesisEventData(ev);
     ev->appendKeyDouble(propGraph_size.name, _graphSize);
     ev->appendKeyInt64(propGraph_bufferSize.name, bufferSize);
     ev->appendKeyBool(propGraph_cyclic.name, cyclic);
@@ -651,9 +650,8 @@ void CGraph::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyColor(propGraph_backgroundColor.name, backgroundColor);
     ev->appendKeyColor(propGraph_foregroundColor.name, foregroundColor);
 #endif
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->closeArrayOrMap(); // graph
-#endif
+    if (App::getEventProtocolVersion() == 2)
+        ev->closeArrayOrMap(); // graph
 }
 
 CSceneObject* CGraph::copyYourself()

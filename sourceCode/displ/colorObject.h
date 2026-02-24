@@ -23,12 +23,12 @@ class CColorObject
     void setEventParams(bool belongsToSceneObject, int eventObjectHandle, int eventFlags = -1, const char* eventPrefix = nullptr);
     bool setColor(const float theColor[3], unsigned char colorMode);
     bool setColor(float r, float g, float b, unsigned char colorMode);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
+
+    // Only with event protocol version 2:
     void pushShapeColorChangeEvent(int objectHandle, int colorIndex);
     static void pushColorChangeEvent(int objectHandle, float col1[9], float col2[9] = nullptr, float col3[9] = nullptr, float col4[9] = nullptr);
-#else
+
     void addGenesisEventData(CCbor* ev) const;
-#endif
     void getNewColors(float cols[9]) const;
     void copyYourselfInto(CColorObject* it) const;
     void serialize(CSer& ar, int objType); // 0=3d mesh, 1=3d lines, 2=3d points, 3=3d light, 4=2d thing

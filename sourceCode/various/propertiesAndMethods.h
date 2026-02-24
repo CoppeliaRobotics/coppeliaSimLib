@@ -303,7 +303,7 @@ struct SJointProperty
     FUNCX(propApp_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
     FUNCX(propApp_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Session ID"}, {"description", ""}}), "") \
-    FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Protocol"}, {"description", "Protocol version"}}), "") \
+    FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, 0,  jsonStr({{"label", "Protocol"}, {"description", "Protocol version"}}), "") \
     FUNCX(propApp_productVersion, "productVersion", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Product string"}, {"description", "Product version (string)"}}), "") \
     FUNCX(propApp_productVersionNb, "productVersionNb", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Product"}, {"description", "Product version (number)"}}), "") \
     FUNCX(propApp_platform, "platform", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Platform"}, {"description", "Platform (0: Windows, 1: macOS, 2: Linux)"}}), "") \

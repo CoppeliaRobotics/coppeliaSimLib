@@ -195,12 +195,13 @@ void CMirror::removeSceneDependencies()
 
 void CMirror::addSpecializedObjectEventData(CCbor* ev)
 {
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap(getObjectTypeInfo().c_str());
-    ev->closeArrayOrMap(); // mirror
-#else
-    clipPlaneColor.addGenesisEventData(ev);
-#endif
+    if (App::getEventProtocolVersion() == 2)
+    {
+        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->closeArrayOrMap(); // mirror
+    }
+    else
+        clipPlaneColor.addGenesisEventData(ev);
 }
 
 CSceneObject* CMirror::copyYourself()
