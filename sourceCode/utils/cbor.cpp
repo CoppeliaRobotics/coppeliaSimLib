@@ -287,7 +287,7 @@ void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
 void CCbor::appendPose(const C7Vector& p)
 {
     double w[7] = {p.X(0), p.X(1), p.X(2), p.Q(1), p.Q(2), p.Q(3), p.Q(0)};
-    appendPose(w, false);
+    appendPose(w, true);
 }
 
 void CCbor::appendColor(const float c[3])
