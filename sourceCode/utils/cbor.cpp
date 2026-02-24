@@ -138,6 +138,28 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
     appendDoubleArray(v, rows * cols);
 }
 
+void CCbor::appendMatrix(const C3X3Matrix& m)
+{
+    double v[9];
+    m.getData(v);
+    appendMatrix(v, 3, 3);
+}
+
+void CCbor::appendMatrix(const CMatrix& m)
+{
+    appendMatrix(m.data.data(), m.rows, m.cols);
+}
+
+void CCbor::appendVector3(const double* v)
+{
+    appendMatrix(v, 3, 1);
+}
+
+void CCbor::appendVector3(const C3Vector& v)
+{
+    appendMatrix(v.data, 3, 1);
+}
+
 void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
 {
 //    appendDoubleArray(v, 4);
@@ -578,6 +600,30 @@ void CCbor::appendKeyMatrix(const char* key, const double* v, size_t rows, size_
 {
     appendText(key);
     appendMatrix(v, rows, cols);
+}
+
+void CCbor::appendKeyMatrix(const char* key, const C3X3Matrix& m)
+{
+    appendText(key);
+    appendMatrix(m);
+}
+
+void CCbor::appendKeyMatrix(const char* key, const CMatrix& m)
+{
+    appendText(key);
+    appendMatrix(m);
+}
+
+void CCbor::appendKeyVector3(const char* key, const double* v)
+{
+    appendText(key);
+    appendVector3(v);
+}
+
+void CCbor::appendKeyVector3(const char* key, const C3Vector& v)
+{
+    appendText(key);
+    appendVector3(v);
 }
 
 void CCbor::appendKeyQuaternion(const char* key, const double* v, bool xyzwLayout /*= false*/)

@@ -161,8 +161,13 @@ void CSceneObject::_setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang
         {
             const char* cmd = propObject_calcLinearVelocity.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, _measuredLinearVelocity_velocityMeasurement.data, 3);
             ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
+#else
+            ev->appendKeyVector3(cmd, _measuredLinearVelocity_velocityMeasurement);
+            ev->appendKeyVector3(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement);
+#endif
             ev->appendKeyDouble(propObject_calcRotationVelocity.name, _measuredAngularVelocity_velocityMeasurement);
             App::worldContainer->pushEvent();
         }
@@ -1490,7 +1495,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
     ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
 #else
-    ev->appendKeyDoubleArray(propObject_position.name, _localTransformation.X.data, 3);
+    ev->appendKeyVector3(propObject_position.name, _localTransformation.X);
     ev->appendKeyPose(propObject_pose.name, _localTransformation);
     ev->appendKeyQuaternion(propObject_quaternion.name, _localTransformation.Q);
 #endif
@@ -1546,8 +1551,13 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyText(propObject_modelAcknowledgment.name, _modelAcknowledgement.c_str());
     ev->appendKeyBuff(propObject_dna.name, (unsigned char*)_dnaString.data(), _dnaString.size());
     ev->appendKeyText(propObject_persistentUid.name, _uniquePersistentIdString.c_str());
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyDoubleArray(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement.data, 3);
     ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
+#else
+    ev->appendKeyVector3(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement);
+    ev->appendKeyVector3(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement);
+#endif
     ev->appendKeyDouble(propObject_calcRotationVelocity.name, _measuredAngularVelocity_velocityMeasurement);
     ev->appendKeyInt64(propObject_dynamicIcon.name, _dynamicSimulationIconCode);
     ev->appendKeyInt64(propObject_dynamicFlag.name, _dynamicFlag);
@@ -1563,10 +1573,11 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
     _bbFrame.getData(p, true);
     ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+    ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
 #else
     ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
+    ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
 #endif
-    ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
 
     customObjectData.appendEventData(nullptr, ev);
     customObjectData_volatile.appendEventData(nullptr, ev);
@@ -2114,10 +2125,11 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
             double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
                            _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
             ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+            ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
 #else
             ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
+            ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
 #endif
-            ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
             App::worldContainer->pushEvent();
         }
     }
@@ -5424,7 +5436,7 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
             ev->appendKeyDoubleArray(cmd, p, 7);
             ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
 #else
-            ev->appendKeyDoubleArray(propObject_position.name, tr.X.data, 3);
+            ev->appendKeyVector3(propObject_position.name, tr.X);
             ev->appendKeyPose(cmd, tr);
             ev->appendKeyQuaternion(propObject_quaternion.name, tr.Q);
 #endif
@@ -5479,7 +5491,7 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
             ev->appendKeyDoubleArray(propObject_position.name, p, 3);
             ev->appendKeyDoubleArray(cmd, p, 7);
 #else
-            ev->appendKeyDoubleArray(propObject_position.name, _localTransformation.X.data, 3);
+            ev->appendKeyVector3(propObject_position.name, _localTransformation.X);
             ev->appendKeyPose(cmd, _localTransformation);
 #endif
             App::worldContainer->pushEvent();

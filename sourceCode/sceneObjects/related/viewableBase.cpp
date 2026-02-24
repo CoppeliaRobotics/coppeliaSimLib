@@ -575,8 +575,13 @@ void CViewableBase::computeVolumeVectors()
 #else
                 const char* cmd = propViewable_frustumCornerNear.name;
                 CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
                 ev->appendKeyDoubleArray(cmd, _volumeVectorNear.data, 3);
                 ev->appendKeyDoubleArray(propViewable_frustumCornerFar.name, _volumeVectorFar.data, 3);
+#else
+                ev->appendKeyVector3(cmd, _volumeVectorNear);
+                ev->appendKeyVector3(propViewable_frustumCornerFar.name, _volumeVectorFar);
+#endif
 #endif
                 App::worldContainer->pushEvent();
             }
@@ -619,8 +624,13 @@ void CViewableBase::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDoubleArray(propViewable_clippingPlanes.name, arr, 2);
     ev->appendKeyBool(propViewable_perspective.name, _perspective);
     ev->appendKeyBool(propViewable_showFrustum.name, _showVolume);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyDoubleArray(propViewable_frustumCornerNear.name, _volumeVectorNear.data, 3);
     ev->appendKeyDoubleArray(propViewable_frustumCornerFar.name, _volumeVectorFar.data, 3);
+#else
+    ev->appendKeyVector3(propViewable_frustumCornerNear.name, _volumeVectorNear);
+    ev->appendKeyVector3(propViewable_frustumCornerFar.name, _volumeVectorFar);
+#endif
     ev->appendKeyInt32Array(propViewable_resolution.name, _resolution, 2);
 }
 

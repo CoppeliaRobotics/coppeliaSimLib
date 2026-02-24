@@ -291,8 +291,13 @@ void CForceSensor::_setForceAndTorque(bool valid, const C3Vector* f /*= nullptr*
         {
             const char* cmd = propFSensor_sensorForce.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, _lastForce_dynStep.data, 3);
             ev->appendKeyDoubleArray(propFSensor_sensorTorque.name, _lastTorque_dynStep.data, 3);
+#else
+            ev->appendKeyVector3(cmd, _lastForce_dynStep);
+            ev->appendKeyVector3(propFSensor_sensorTorque.name, _lastTorque_dynStep);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -319,8 +324,13 @@ void CForceSensor::_setFilteredForceAndTorque(bool valid, const C3Vector* f /*= 
         {
             const char* cmd = propFSensor_filteredSensorForce.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, _filteredDynamicForces.data, 3);
             ev->appendKeyDoubleArray(propFSensor_filteredSensorTorque.name, _filteredDynamicTorques.data, 3);
+#else
+            ev->appendKeyVector3(cmd, _filteredDynamicForces);
+            ev->appendKeyVector3(propFSensor_filteredSensorTorque.name, _filteredDynamicTorques);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -668,13 +678,17 @@ void CForceSensor::addSpecializedObjectEventData(CCbor* ev)
     double p[7];
     _intrinsicTransformationError.getData(p, true);
     ev->appendKeyDoubleArray(propFSensor_intrinsicError.name, p, 7);
-#else
-    ev->appendKeyPose(propFSensor_intrinsicError.name, _intrinsicTransformationError);
-#endif
     ev->appendKeyDoubleArray(propFSensor_sensorForce.name, _lastForce_dynStep.data, 3);
     ev->appendKeyDoubleArray(propFSensor_sensorTorque.name, _lastTorque_dynStep.data, 3);
     ev->appendKeyDoubleArray(propFSensor_filteredSensorForce.name, _filteredDynamicForces.data, 3);
     ev->appendKeyDoubleArray(propFSensor_filteredSensorTorque.name, _filteredDynamicTorques.data, 3);
+#else
+    ev->appendKeyPose(propFSensor_intrinsicError.name, _intrinsicTransformationError);
+    ev->appendKeyVector3(propFSensor_sensorForce.name, _lastForce_dynStep);
+    ev->appendKeyVector3(propFSensor_sensorTorque.name, _lastTorque_dynStep);
+    ev->appendKeyVector3(propFSensor_filteredSensorForce.name, _filteredDynamicForces);
+    ev->appendKeyVector3(propFSensor_filteredSensorTorque.name, _filteredDynamicTorques);
+#endif
     ev->appendKeyBool(propFSensor_forceThresholdEnabled.name, _forceThresholdEnabled);
     ev->appendKeyBool(propFSensor_torqueThresholdEnabled.name, _torqueThresholdEnabled);
     ev->appendKeyInt64(propFSensor_filterType.name, _filterType);

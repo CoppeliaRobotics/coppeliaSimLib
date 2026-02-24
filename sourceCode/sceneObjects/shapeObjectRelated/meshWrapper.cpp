@@ -449,7 +449,11 @@ void CMeshWrapper::setCOM(const C3Vector& com)
         {
             const char* cmd = propMeshWrap_com.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, _com.data, 3);
+#else
+            ev->appendKeyVector3(cmd, _com);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -1261,7 +1265,11 @@ void CMeshWrapper::addSpecializedObjectEventData(int parentObjectHandle, CCbor* 
     if (_parentObjectHandle >= 0)
     {
         ev->appendKeyDouble(propMeshWrap_mass.name, _mass);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
         ev->appendKeyDoubleArray(propMeshWrap_com.name, _com.data, 3);
+#else
+        ev->appendKeyVector3(propMeshWrap_com.name, _com);
+#endif
         C3X3Matrix inertia(_iMatrix * _mass);
         double dat[9];
         inertia.getData(dat);

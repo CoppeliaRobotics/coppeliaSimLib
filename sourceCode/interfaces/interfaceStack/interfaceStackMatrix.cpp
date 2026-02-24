@@ -71,7 +71,7 @@ std::string CInterfaceStackMatrix::getObjectData(std::string& /*auxInfos*/) cons
 
 void CInterfaceStackMatrix::addCborObjectData(CCbor* cborObj) const
 {
-    cborObj->appendMatrix(_matrix.data.data(), _matrix.rows, _matrix.cols);
+    cborObj->appendMatrix(_matrix);
 }
 
 unsigned int CInterfaceStackMatrix::createFromData(const char* data, unsigned char /*version*/, std::vector<CInterfaceStackObject*>& allCreatedObjects)

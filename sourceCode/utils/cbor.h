@@ -5,7 +5,11 @@
 #include <map>
 #include <set>
 #include <simLib/simTypes.h>
+#include <simMath/3Vector.h>
+#include <simMath/4Vector.h>
 #include <simMath/7Vector.h>
+#include <simMath/mXnMatrix.h>
+#include <simMath/3X3Matrix.h>
 
 struct SEventInf
 {
@@ -37,6 +41,10 @@ class CCbor
     void appendDouble(double v);
     void appendDoubleArray(const double* v, size_t cnt);
     void appendMatrix(const double* v, size_t rows, size_t cols);
+    void appendMatrix(const C3X3Matrix& m);
+    void appendMatrix(const CMatrix& m);
+    void appendVector3(const double* v);
+    void appendVector3(const C3Vector& v);
     void appendQuaternion(const double* v, bool xyzwLayout = false);
     void appendQuaternion(const C4Vector& q);
     void appendPose(const double* v, bool xyzqxqyqzqwLayout = false);
@@ -60,6 +68,10 @@ class CCbor
     void appendKeyNull(const char* key);
     void appendKeyBool(const char* key, bool v);
     void appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols);
+    void appendKeyMatrix(const char* key, const C3X3Matrix& m);
+    void appendKeyMatrix(const char* key, const CMatrix& m);
+    void appendKeyVector3(const char* key, const double* v);
+    void appendKeyVector3(const char* key, const C3Vector& v);
     void appendKeyQuaternion(const char* key, const double* v, bool xyzwLayout = false);
     void appendKeyQuaternion(const char* key, const C4Vector& q);
     void appendKeyPose(const char* key, const double* v, bool xyzqxqyqzqwLayout = false);
