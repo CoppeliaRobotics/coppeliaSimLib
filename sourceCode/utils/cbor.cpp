@@ -107,8 +107,12 @@ void CCbor::appendHandleArray(const long long int* h, size_t cnt)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
-    _buff.insert(_buff.end(), (unsigned char*)h, ((unsigned char*)h) + cnt * sizeof(long long int));
+    //    _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
+    //    _buff.insert(_buff.end(), (unsigned char*)h, ((unsigned char*)h) + cnt * sizeof(long long int));
+    openArray();
+    for (size_t i = 0; i < cnt; i++)
+        appendInt64(h[i]);
+    closeArrayOrMap();
 }
 
 void CCbor::appendHandleArray(const int* h, size_t cnt)
