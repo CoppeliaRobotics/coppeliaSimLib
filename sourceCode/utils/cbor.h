@@ -32,10 +32,13 @@ class CCbor
     static bool isText(const char* v, size_t l);
 
     void appendInt64(long long int v);
+    void appendHandle(long long int h);
     void appendUint8Array(const unsigned char* v, size_t cnt);
     void appendInt32Array(const int* v, size_t cnt);
     void appendUint32Array(const unsigned int* v, size_t cnt);
     void appendInt64Array(const long long int* v, size_t cnt);
+    void appendHandleArray(const long long int* h, size_t cnt);
+    void appendHandleArray(const int* h, size_t cnt);
     void appendFloat(float v);
     void appendFloatArray(const float* v, size_t cnt);
     void appendDouble(double v);
@@ -61,6 +64,8 @@ class CCbor
     void appendKeyInt32Array(const char* key, const int* v, size_t cnt);
     void appendKeyUint32Array(const char* key, const unsigned int* v, size_t cnt);
     void appendKeyInt64Array(const char* key, const long long int* v, size_t cnt);
+    void appendKeyHandleArray(const char* key, const long long int* h, size_t cnt);
+    void appendKeyHandleArray(const char* key, const int* h, size_t cnt);
     void appendKeyFloat(const char* key, float v);
     void appendKeyFloatArray(const char* key, const float* v, size_t cnt);
     void appendKeyDouble(const char* key, double v);

@@ -48,6 +48,21 @@ void CCbor::appendInt64(long long int v)
     _appendItemTypeAndLength(add, v);
 }
 
+void CCbor::appendHandle(long long int h)
+{
+    _buff.push_back(0xDB); // Tag header (219)
+    long long int w = 4294999999; // Type info (handle)
+    _buff.push_back(((unsigned char*)&w)[7]);
+    _buff.push_back(((unsigned char*)&w)[6]);
+    _buff.push_back(((unsigned char*)&w)[5]);
+    _buff.push_back(((unsigned char*)&w)[4]);
+    _buff.push_back(((unsigned char*)&w)[3]);
+    _buff.push_back(((unsigned char*)&w)[2]);
+    _buff.push_back(((unsigned char*)&w)[1]);
+    _buff.push_back(((unsigned char*)&w)[0]);
+    appendInt64(h);
+}
+
 void CCbor::appendUint8Array(const unsigned char* v, size_t cnt)
 {
     _buff.push_back(0xD8); // Tag header
@@ -78,6 +93,38 @@ void CCbor::appendInt64Array(const long long int* v, size_t cnt)
     _buff.push_back(0x4f); // 79
     _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
     _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(long long int));
+}
+
+void CCbor::appendHandleArray(const long long int* h, size_t cnt)
+{
+    _buff.push_back(0xDB); // Tag header (219)
+    long long int w = 4294999999; // Type info (handle)
+    _buff.push_back(((unsigned char*)&w)[7]);
+    _buff.push_back(((unsigned char*)&w)[6]);
+    _buff.push_back(((unsigned char*)&w)[5]);
+    _buff.push_back(((unsigned char*)&w)[4]);
+    _buff.push_back(((unsigned char*)&w)[3]);
+    _buff.push_back(((unsigned char*)&w)[2]);
+    _buff.push_back(((unsigned char*)&w)[1]);
+    _buff.push_back(((unsigned char*)&w)[0]);
+    _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
+    _buff.insert(_buff.end(), (unsigned char*)h, ((unsigned char*)h) + cnt * sizeof(long long int));
+}
+
+void CCbor::appendHandleArray(const int* h, size_t cnt)
+{
+    _buff.push_back(0xDB); // Tag header (219)
+    long long int w = 4294999999; // Type info (handle)
+    _buff.push_back(((unsigned char*)&w)[7]);
+    _buff.push_back(((unsigned char*)&w)[6]);
+    _buff.push_back(((unsigned char*)&w)[5]);
+    _buff.push_back(((unsigned char*)&w)[4]);
+    _buff.push_back(((unsigned char*)&w)[3]);
+    _buff.push_back(((unsigned char*)&w)[2]);
+    _buff.push_back(((unsigned char*)&w)[1]);
+    _buff.push_back(((unsigned char*)&w)[0]);
+    _appendItemTypeAndLength(0x40, cnt * sizeof(int));
+    _buff.insert(_buff.end(), (unsigned char*)h, ((unsigned char*)h) + cnt * sizeof(int));
 }
 
 void CCbor::appendFloat(float v)
@@ -131,8 +178,8 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
     //_handleDataField();
     _buff.push_back(0xD8); // major type 6, tag header (216)
     _buff.push_back(40); // tag 40 for matrices
-    _buff.push_back(82); // array of 2 values (dims + data)
-    _buff.push_back(82); // array of 2 values (rows and cols)
+    _buff.push_back(0x82); // array of 2 values (dims + data)
+    _buff.push_back(0x82); // array of 2 values (rows and cols)
     _appendItemTypeAndLength(0, rows);
     _appendItemTypeAndLength(0, cols);
     appendDoubleArray(v, rows * cols);
@@ -552,6 +599,18 @@ void CCbor::appendKeyInt64Array(const char* key, const long long int* v, size_t 
 {
     appendText(key);
     appendInt64Array(v, cnt);
+}
+
+void CCbor::appendKeyHandleArray(const char* key, const long long int* h, size_t cnt)
+{
+    appendText(key);
+    appendHandleArray(h, cnt);
+}
+
+void CCbor::appendKeyHandleArray(const char* key, const int* h, size_t cnt)
+{
+    appendText(key);
+    appendHandleArray(h, cnt);
 }
 
 void CCbor::appendKeyFloat(const char* key, float v)
