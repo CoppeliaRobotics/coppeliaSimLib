@@ -214,12 +214,17 @@ void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
+    _appendItemTypeAndLength(0x40, 4 * sizeof(double));
     if (xyzwLayout)
-        appendDoubleArray(v, 4);
+    {
+        // appendDoubleArray(v, 4);
+        _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + 4 * sizeof(double));
+    }
     else
     {
         double w[4] = {v[1], v[2], v[3], v[0]};
-        appendDoubleArray(w, 4);
+        // appendDoubleArray(w, 4);
+        _buff.insert(_buff.end(), (unsigned char*)w, ((unsigned char*)w) + 4 * sizeof(double));
     }
 }
 
@@ -242,12 +247,17 @@ void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
+    _appendItemTypeAndLength(0x40, 7 * sizeof(double));
     if (xyzqxqyqzqwLayout)
-        appendDoubleArray(v, 7);
+    {
+        // appendDoubleArray(v, 7);
+        _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + 7 * sizeof(double));
+    }
     else
     {
         double w[7] = {v[0], v[1], v[2], v[4], v[5], v[6], v[3]};
-        appendDoubleArray(w, 7);
+        // appendDoubleArray(w, 7);
+        _buff.insert(_buff.end(), (unsigned char*)w, ((unsigned char*)w) + 7 * sizeof(double));
     }
 }
 
