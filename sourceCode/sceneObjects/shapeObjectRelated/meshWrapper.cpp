@@ -494,11 +494,11 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
             ev->appendKeyDoubleArray(cmd, dat, 9);
             C3Vector pmi(_pmi * _mass);
             ev->appendKeyDoubleArray(propMeshWrap_pmi.name, pmi.data, 3);
-            _pmiRotFrame.getData(dat, true);
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
+            _pmiRotFrame.getData(dat, true);
             ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
 #else
-            ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, dat);
+            ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, _pmiRotFrame);
 #endif
             App::worldContainer->pushEvent();
         }
@@ -1268,11 +1268,11 @@ void CMeshWrapper::addSpecializedObjectEventData(int parentObjectHandle, CCbor* 
         ev->appendKeyDoubleArray(propMeshWrap_inertia.name, dat, 9);
         C3Vector pmi(_pmi * _mass);
         ev->appendKeyDoubleArray(propMeshWrap_pmi.name, pmi.data, 3);
-        _pmiRotFrame.getData(dat, true);
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
+        _pmiRotFrame.getData(dat, true);
         ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
 #else
-        ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, dat);
+        ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, _pmiRotFrame);
 #endif
     }
 }

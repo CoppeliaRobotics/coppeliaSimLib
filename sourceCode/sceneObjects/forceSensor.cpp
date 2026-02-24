@@ -493,12 +493,12 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
         {
             const char* cmd = propFSensor_intrinsicError.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             double p[7];
             _intrinsicTransformationError.getData(p, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyDoubleArray(cmd, p, 7);
 #else
-            ev->appendKeyPose(cmd, p);
+            ev->appendKeyPose(cmd, _intrinsicTransformationError);
 #endif
             App::worldContainer->pushEvent();
         }
@@ -664,12 +664,12 @@ void CForceSensor::addSpecializedObjectEventData(CCbor* ev)
     _color.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propFSensor_size.name, _forceSensorSize);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     double p[7];
     _intrinsicTransformationError.getData(p, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyDoubleArray(propFSensor_intrinsicError.name, p, 7);
 #else
-    ev->appendKeyPose(propFSensor_intrinsicError.name, p);
+    ev->appendKeyPose(propFSensor_intrinsicError.name, _intrinsicTransformationError);
 #endif
     ev->appendKeyDoubleArray(propFSensor_sensorForce.name, _lastForce_dynStep.data, 3);
     ev->appendKeyDoubleArray(propFSensor_sensorTorque.name, _lastTorque_dynStep.data, 3);

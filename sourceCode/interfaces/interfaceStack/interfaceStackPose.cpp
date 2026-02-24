@@ -57,9 +57,7 @@ std::string CInterfaceStackPose::getObjectData(std::string& /*auxInfos*/) const
 
 void CInterfaceStackPose::addCborObjectData(CCbor* cborObj) const
 {
-    double dat[7];
-    _pose.getData(dat, true);
-    cborObj->appendPose(dat);
+    cborObj->appendPose(_pose);
 }
 
 unsigned int CInterfaceStackPose::createFromData(const char* data, unsigned char /*version*/, std::vector<CInterfaceStackObject*>& allCreatedObjects)

@@ -296,9 +296,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                 App::worldContainer->pushEvent();
                 computeBoundingBox();
                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                double p[7];
-                _bbFrame.getData(p, true);
-                ev->appendKeyPose(propObject_bbPose.name, p);
+                ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
                 ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                 App::worldContainer->pushEvent();
             }
@@ -334,9 +332,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                         App::worldContainer->pushEvent();
                         computeBoundingBox();
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                        double p[7];
-                        _bbFrame.getData(p, true);
-                        ev->appendKeyPose(propObject_bbPose.name, p);
+                        ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
                         ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                         App::worldContainer->pushEvent();
                     }
@@ -363,9 +359,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                             App::worldContainer->pushEvent();
                             computeBoundingBox();
                             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                            double p[7];
-                            _bbFrame.getData(p, true);
-                            ev->appendKeyPose(propObject_bbPose.name, p);
+                            ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
                             ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
                             App::worldContainer->pushEvent();
                         }

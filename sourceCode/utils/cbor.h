@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <simLib/simTypes.h>
+#include <simMath/7Vector.h>
 
 struct SEventInf
 {
@@ -36,8 +37,10 @@ class CCbor
     void appendDouble(double v);
     void appendDoubleArray(const double* v, size_t cnt);
     void appendMatrix(const double* v, size_t rows, size_t cols);
-    void appendQuaternion(const double* v);
-    void appendPose(const double* v);
+    void appendQuaternion(const double* v, bool xyzwLayout = false);
+    void appendQuaternion(const C4Vector& q);
+    void appendPose(const double* v, bool xyzqxqyqzqwLayout = false);
+    void appendPose(const C7Vector& p);
     void appendColor(const float c[3]);
     void appendNull();
     void appendBool(bool v);
@@ -57,8 +60,10 @@ class CCbor
     void appendKeyNull(const char* key);
     void appendKeyBool(const char* key, bool v);
     void appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols);
-    void appendKeyQuaternion(const char* key, const double* v);
-    void appendKeyPose(const char* key, const double* v);
+    void appendKeyQuaternion(const char* key, const double* v, bool xyzwLayout = false);
+    void appendKeyQuaternion(const char* key, const C4Vector& q);
+    void appendKeyPose(const char* key, const double* v, bool xyzqxqyqzqwLayout = false);
+    void appendKeyPose(const char* key, const C7Vector& p);
     void appendKeyColor(const char* key, const float* c);
     void appendKeyBuff(const char* key, const unsigned char* v, size_t l);
     void appendKeyText(const char* key, const char* v, int l = -1);

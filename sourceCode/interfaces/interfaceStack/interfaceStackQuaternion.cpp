@@ -57,9 +57,7 @@ std::string CInterfaceStackQuaternion::getObjectData(std::string& /*auxInfos*/) 
 
 void CInterfaceStackQuaternion::addCborObjectData(CCbor* cborObj) const
 {
-    double dat[4];
-    _quaternion.getData(dat, true);
-    cborObj->appendQuaternion(dat);
+    cborObj->appendQuaternion(_quaternion);
 }
 
 unsigned int CInterfaceStackQuaternion::createFromData(const char* data, unsigned char /*version*/, std::vector<CInterfaceStackObject*>& allCreatedObjects)

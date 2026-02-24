@@ -694,9 +694,9 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
         cmd = propObjCont_objectHandles.name;
         ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
+        App::worldContainer->pushEvent();
         // ----------------------------------
 #endif
-        App::worldContainer->pushEvent();
 
         if (obj->getParent() == nullptr)
         { // We need to "fake" adding that orphan:

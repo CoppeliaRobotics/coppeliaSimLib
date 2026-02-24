@@ -138,7 +138,7 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
     appendDoubleArray(v, rows * cols);
 }
 
-void CCbor::appendQuaternion(const double* v)
+void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
 {
 //    appendDoubleArray(v, 4);
 
@@ -152,10 +152,21 @@ void CCbor::appendQuaternion(const double* v)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    appendDoubleArray(v, 4);
+    if (xyzwLayout)
+        appendDoubleArray(v, 4);
+    else
+    {
+        double w[4] = {v[1], v[2], v[3], v[0]};
+        appendDoubleArray(w, 4);
+    }
 }
 
-void CCbor::appendPose(const double* v)
+void CCbor::appendQuaternion(const C4Vector& q)
+{
+    appendQuaternion(q.data, false);
+}
+
+void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
 {
 //    appendDoubleArray(v, 7);
 
@@ -169,7 +180,19 @@ void CCbor::appendPose(const double* v)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    appendDoubleArray(v, 7);
+    if (xyzqxqyqzqwLayout)
+        appendDoubleArray(v, 7);
+    else
+    {
+        double w[7] = {v[0], v[1], v[2], v[4], v[5], v[6], v[3]};
+        appendDoubleArray(w, 7);
+    }
+}
+
+void CCbor::appendPose(const C7Vector& p)
+{
+    double w[7] = {p.X(0), p.X(1), p.X(2), p.Q(1), p.Q(2), p.Q(3), p.Q(0)};
+    appendPose(w, false);
 }
 
 void CCbor::appendColor(const float c[3])
@@ -557,16 +580,28 @@ void CCbor::appendKeyMatrix(const char* key, const double* v, size_t rows, size_
     appendMatrix(v, rows, cols);
 }
 
-void CCbor::appendKeyQuaternion(const char* key, const double* v)
+void CCbor::appendKeyQuaternion(const char* key, const double* v, bool xyzwLayout /*= false*/)
 {
     appendText(key);
-    appendQuaternion(v);
+    appendQuaternion(v, xyzwLayout);
 }
 
-void CCbor::appendKeyPose(const char* key, const double* v)
+void CCbor::appendKeyQuaternion(const char* key, const C4Vector& q)
 {
     appendText(key);
-    appendPose(v);
+    appendQuaternion(q);
+}
+
+void CCbor::appendKeyPose(const char* key, const double* v, bool xyzqxqyqzqwLayout /*= false*/)
+{
+    appendText(key);
+    appendPose(v, xyzqxqyqzqwLayout);
+}
+
+void CCbor::appendKeyPose(const char* key, const C7Vector& p)
+{
+    appendText(key);
+    appendPose(p);
 }
 
 void CCbor::appendKeyColor(const char* key, const float* c)
