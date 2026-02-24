@@ -172,7 +172,6 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
         msh = it->getScriptHandle();
-    ev->appendKeyInt64(propScene_mainScript.name, msh);
     ev->appendKeyInt64(propScene_handle.name, sim_handle_scene);
     ev->appendKeyInt64(propScene_visibilityLayers.name, _activeLayers);
     ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
@@ -180,8 +179,10 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
     ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
+    ev->appendKeyInt64(propScene_mainScript.name, msh);
     ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
 #else
+    ev->appendKeyHandle(propScene_mainScript.name, msh);
     ev->appendKeyColor(propScene_ambientLight.name, ambientLightColor);
 #endif
 }

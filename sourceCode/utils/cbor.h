@@ -60,6 +60,7 @@ class CCbor
     void appendTextArray(const std::vector<std::string>& txtArr);
 
     void appendKeyInt64(const char* key, long long int v);
+    void appendKeyHandle(const char* key, long long int h);
     void appendKeyUint8Array(const char* key, const unsigned char* v, size_t cnt);
     void appendKeyInt32Array(const char* key, const int* v, size_t cnt);
     void appendKeyUint32Array(const char* key, const unsigned int* v, size_t cnt);

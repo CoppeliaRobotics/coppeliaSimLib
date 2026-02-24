@@ -117,7 +117,11 @@ bool CScript::canDestroyNow()
             { // indicate that this object does not have any detachedScript attached anymore
                 const char* cmd = propScript_detachedScript.name;
                 CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
                 ev->appendKeyInt64(cmd, -1);
+#else
+                ev->appendKeyHandle(cmd, -1);
+#endif
                 App::worldContainer->pushEvent();
             }
         }
@@ -182,7 +186,11 @@ void CScript::addSpecializedObjectEventData(CCbor* ev)
 #endif
     ev->appendKeyDouble(propScript_size.name, _scriptSize);
     ev->appendKeyBool(propScript_resetAfterSimError.name, _resetAfterSimError);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyInt64(propScript_detachedScript.name, scriptObject->getScriptPseudoHandle());
+#else
+    ev->appendKeyHandle(propScript_detachedScript.name, scriptObject->getScriptPseudoHandle());
+#endif
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // script
 #endif

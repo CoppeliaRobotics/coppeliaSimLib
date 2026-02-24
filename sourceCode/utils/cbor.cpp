@@ -577,6 +577,12 @@ void CCbor::appendKeyInt64(const char* key, long long int v)
     appendInt64(v);
 }
 
+void CCbor::appendKeyHandle(const char* key, long long int h)
+{
+    appendText(key);
+    appendHandle(h);
+}
+
 void CCbor::appendKeyUint8Array(const char* key, const unsigned char* v, size_t cnt)
 {
     appendText(key);

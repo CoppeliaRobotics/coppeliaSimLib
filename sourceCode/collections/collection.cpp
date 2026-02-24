@@ -560,7 +560,11 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
 #if SIM_EVENT_PROTOCOL_VERSION >= 3
             {
                 CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _collectionHandle, _collectionHandle, nullptr, false);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+#else
+                ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+#endif
                 App::worldContainer->pushEvent();
             }
 #endif
@@ -661,7 +665,11 @@ void CCollection::pushCreationEvent() const
         {
             CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _collectionHandle, _collectionHandle, nullptr, false);
             ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+#else
+            ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+#endif
             ev->appendKeyInt64(propCollection_handle.name, _collectionHandle);
             App::worldContainer->pushEvent();
         }

@@ -504,7 +504,11 @@ void CDrawingObject::pushAddEvent()
             }
             ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
             ev->appendKeyInt64(propDrawingObj_handle.name, _objectId);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyInt64(propDrawingObj_parent.name, _sceneObjectId);
+#else
+            ev->appendKeyHandle(propDrawingObj_parent.name, _sceneObjectId);
+#endif
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);

@@ -531,7 +531,11 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
     _isInSceneShapeUid = shapeUid;
     CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, nullptr, false);
 
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyInt64(propMesh_shape.name, _isInSceneShapeHandle);
+#else
+    ev->appendKeyHandle(propMesh_shape.name, _isInSceneShapeHandle);
+#endif
     ev->appendKeyInt64(propMesh_shapeUid.name, _isInSceneShapeUid);
     ev->appendKeyInt64(propMesh_primitiveType.name, _purePrimitive);
     ev->appendKeyText(propMesh_objectType.name, OBJECT_TYPE.c_str());

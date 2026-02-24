@@ -67,7 +67,11 @@ void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
         }
         const char* cmd = propDrawCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
         ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
+#else
+        ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
+#endif
         App::worldContainer->pushEvent();
     }
 }
@@ -147,7 +151,11 @@ void CDrawingContainer::pushGenesisEvents()
         addedObjects.push_back(dr->getObjectId());
         const char* cmd = propDrawCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
         ev->appendKeyInt32Array(cmd, addedObjects.data(), addedObjects.size());
+#else
+        ev->appendKeyHandleArray(cmd, addedObjects.data(), addedObjects.size());
+#endif
         App::worldContainer->pushEvent();
     }
 }

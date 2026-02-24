@@ -1552,6 +1552,7 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
     _dynMaterial->setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->sendEngineString(ev);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyArray(propShape_meshes.name);
     std::vector<CMesh*> all;
     std::vector<C7Vector> allTr;
@@ -1559,7 +1560,6 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     for (size_t i = 0; i < all.size(); i++)
     {
         CMesh* geom = all[i];
-#if SIM_EVENT_PROTOCOL_VERSION == 2
         C7Vector tr(allTr[i]);
         ev->openMap();
 
@@ -1644,11 +1644,18 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
             ev->closeArrayOrMap(); // texture
         }
         ev->closeArrayOrMap(); // one mesh
-#else
-        ev->appendInt64(geom->getUniqueID());
-#endif
     }
     ev->closeArrayOrMap(); // meshes
+#else
+    ev->openKeyArray(propShape_meshes.name);
+    std::vector<CMesh*> all;
+    std::vector<C7Vector> allTr;
+    getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
+    std::vector<long long int> mmid;
+    for (size_t i = 0; i < all.size(); i++)
+        mmid.push_back(all[i]->getUniqueID());
+    ev->appendKeyHandleArray(propShape_meshes.name, mmid.data(), mmid.size());
+#endif
 
     ev->appendKeyInt64(propShape_respondableMask.name, _respondableMask);
     ev->appendKeyBool(propShape_startInDynSleepMode.name, _startInDynamicSleeping);

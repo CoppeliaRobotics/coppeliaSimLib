@@ -1486,8 +1486,8 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     std::vector<int> ch;
     for (size_t i = 0; i < _childList.size(); i++)
         ch.push_back(_childList[i]->getObjectHandle());
-    ev->appendKeyInt32Array(propObject_children.name, ch.data(), ch.size());
 #if SIM_EVENT_PROTOCOL_VERSION <= 3
+    ev->appendKeyInt32Array(propObject_children.name, ch.data(), ch.size());
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
@@ -1495,6 +1495,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
     ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
 #else
+    ev->appendKeyHandleArray(propObject_children.name, ch.data(), ch.size());
     ev->appendKeyVector3(propObject_position.name, _localTransformation.X);
     ev->appendKeyPose(propObject_pose.name, _localTransformation);
     ev->appendKeyQuaternion(propObject_quaternion.name, _localTransformation.Q);
@@ -1541,7 +1542,11 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     }
     ev->appendKeyInt64(propObject_parentUid.name, pUid);
     ev->appendKeyInt64(propObject_parentHandle.name, pH); // for backw. compatibility
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
     ev->appendKeyInt64(propObject_parent.name, pH);
+#else
+    ev->appendKeyHandle(propObject_parent.name, pH);
+#endif
     ev->appendKeyBool(propObject_selected.name, _selected);
     ev->appendKeyInt64(propObject_hierarchyColor.name, _hierarchyColorIndex);
     ev->appendKeyInt64(propObject_collectionSelfCollInd.name, _collectionSelfCollisionIndicator);
@@ -2534,7 +2539,11 @@ bool CSceneObject::setParent(CSceneObject* parent)
             const char* cmd = propObject_parentUid.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt64(cmd, pUid);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyInt64(propObject_parent.name, pH);
+#else
+            ev->appendKeyHandle(propObject_parent.name, pH);
+#endif
             ev->appendKeyInt64(propObject_parentHandle.name, pH); // for backward compatibility
             App::worldContainer->pushEvent();
         }
@@ -5584,7 +5593,11 @@ bool CSceneObject::_setChildren(std::vector<CSceneObject*>* children)
             std::vector<int> ch;
             for (size_t i = 0; i < _childList.size(); i++)
                 ch.push_back(_childList[i]->getObjectHandle());
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
             ev->appendKeyInt32Array(cmd, ch.data(), ch.size());
+#else
+            ev->appendKeyHandleArray(cmd, ch.data(), ch.size());
+#endif
             App::worldContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI

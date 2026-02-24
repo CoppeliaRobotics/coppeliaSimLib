@@ -457,7 +457,11 @@ void CCollectionContainer::_addCollection(CCollection* collection)
             handles.push_back(_allCollections[i]->getCollectionHandle());
         const char* cmd = propCollCont_collections.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
         ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
+#else
+        ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
+#endif
         App::worldContainer->pushEvent();
     }
 }
@@ -515,7 +519,11 @@ void CCollectionContainer::pushGenesisEvents() const
         addedCollections.push_back(coll->getCollectionHandle());
         const char* cmd = propCollCont_collections.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION <= 3
         ev->appendKeyInt32Array(cmd, addedCollections.data(), addedCollections.size());
+#else
+        ev->appendKeyHandleArray(cmd, addedCollections.data(), addedCollections.size());
+#endif
         App::worldContainer->pushEvent();
     }
 }
