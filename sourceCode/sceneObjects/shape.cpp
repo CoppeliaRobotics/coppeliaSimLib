@@ -1651,13 +1651,13 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     }
     else
     {
-        ev->openKeyArray(propShape_meshes.name);
         std::vector<CMesh*> all;
         std::vector<C7Vector> allTr;
         getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
         std::vector<long long int> mmid;
+        mmid.resize(all.size());
         for (size_t i = 0; i < all.size(); i++)
-            mmid.push_back(all[i]->getUniqueID());
+            mmid[i] = all[i]->getUniqueID();
         ev->appendKeyHandleArray(propShape_meshes.name, mmid.data(), mmid.size());
     }
 
