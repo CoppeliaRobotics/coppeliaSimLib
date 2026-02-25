@@ -735,11 +735,10 @@ void CDynamicsContainer::setGravity(C3Vector gr)
         if (App::worldContainer->getEventsEnabled())
         {
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_gravity.name, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
-#else
-            ev->appendKeyVector3(propDyn_gravity.name, _gravity);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
+            else
+                ev->appendKeyVector3(propDyn_gravity.name, _gravity);
             App::worldContainer->pushEvent();
         }
     }
@@ -2302,11 +2301,10 @@ void CDynamicsContainer::appendGenesisData(CCbor* ev)
     int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
     ev->appendKeyInt32Array(propDyn_dynamicsEngine.name, ar, 2);
     ev->appendKeyDouble(propDyn_dynamicsStepSize.name, _stepSize);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
-#else
-    ev->appendKeyVector3(propDyn_gravity.name, _gravity);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
+    else
+        ev->appendKeyVector3(propDyn_gravity.name, _gravity);
 
     // Engine properties:
     setBoolProperty(nullptr, false, ev);

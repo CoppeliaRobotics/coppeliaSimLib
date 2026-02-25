@@ -190,11 +190,10 @@ void CShape::setInitialDynamicLinearVelocity(const C3Vector& vel)
         {
             const char* cmd = propShape_initLinearVelocity.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyDoubleArray(cmd, _initialDynamicLinearVelocity.data, 3);
-#else
-            ev->appendKeyVector3(cmd, _initialDynamicLinearVelocity);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDoubleArray(cmd, _initialDynamicLinearVelocity.data, 3);
+            else
+                ev->appendKeyVector3(cmd, _initialDynamicLinearVelocity);
             App::worldContainer->pushEvent();
         }
     }
@@ -215,11 +214,10 @@ void CShape::setInitialDynamicAngularVelocity(const C3Vector& vel)
         {
             const char* cmd = propShape_initAngularVelocity.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyDoubleArray(cmd, _initialDynamicAngularVelocity.data, 3);
-#else
-            ev->appendKeyVector3(cmd, _initialDynamicAngularVelocity);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDoubleArray(cmd, _initialDynamicAngularVelocity.data, 3);
+            else
+                ev->appendKeyVector3(cmd, _initialDynamicAngularVelocity);
             App::worldContainer->pushEvent();
         }
     }
@@ -396,13 +394,16 @@ void CShape::setDynamicVelocity(const C3Vector& linearV, const C3Vector& angular
         {
             const char* cmd = propShape_dynLinearVelocity.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyDoubleArray(cmd, _dynamicLinearVelocity.data, 3);
-            ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
-#else
-            ev->appendKeyVector3(cmd, _dynamicLinearVelocity);
-            ev->appendKeyVector3(propShape_dynAngularVelocity.name, _dynamicAngularVelocity);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                ev->appendKeyDoubleArray(cmd, _dynamicLinearVelocity.data, 3);
+                ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
+            }
+            else
+            {
+                ev->appendKeyVector3(cmd, _dynamicLinearVelocity);
+                ev->appendKeyVector3(propShape_dynAngularVelocity.name, _dynamicAngularVelocity);
+            }
             App::worldContainer->pushEvent();
         }
     }
@@ -1667,17 +1668,20 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propShape_kinematic.name, _shapeIsDynamicallyKinematic);
     ev->appendKeyBool(propShape_respondable.name, _shapeIsDynamicallyRespondable);
     ev->appendKeyBool(propShape_setToDynamicWithParent.name, _setAutomaticallyToNonStaticIfGetsParent);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyDoubleArray(propShape_initLinearVelocity.name, _initialDynamicLinearVelocity.data, 3);
-    ev->appendKeyDoubleArray(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity.data, 3);
-    ev->appendKeyDoubleArray(propShape_dynLinearVelocity.name, _dynamicLinearVelocity.data, 3);
-    ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
-#else
-    ev->appendKeyVector3(propShape_initLinearVelocity.name, _initialDynamicLinearVelocity);
-    ev->appendKeyVector3(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity);
-    ev->appendKeyVector3(propShape_dynLinearVelocity.name, _dynamicLinearVelocity);
-    ev->appendKeyVector3(propShape_dynAngularVelocity.name, _dynamicAngularVelocity);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyDoubleArray(propShape_initLinearVelocity.name, _initialDynamicLinearVelocity.data, 3);
+        ev->appendKeyDoubleArray(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity.data, 3);
+        ev->appendKeyDoubleArray(propShape_dynLinearVelocity.name, _dynamicLinearVelocity.data, 3);
+        ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
+    }
+    else
+    {
+        ev->appendKeyVector3(propShape_initLinearVelocity.name, _initialDynamicLinearVelocity);
+        ev->appendKeyVector3(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity);
+        ev->appendKeyVector3(propShape_dynLinearVelocity.name, _dynamicLinearVelocity);
+        ev->appendKeyVector3(propShape_dynAngularVelocity.name, _dynamicAngularVelocity);
+    }
     ev->appendKeyBool(propShape_convex.name, _mesh->isConvex());
     ev->appendKeyBool(propShape_primitive.name, _mesh->isPure());
     ev->appendKeyBool(propShape_compound.name, (_mesh->getComponentCount() > 1));

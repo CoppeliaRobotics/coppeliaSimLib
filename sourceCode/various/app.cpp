@@ -3233,11 +3233,10 @@ void App::pushGenesisEvents()
         int sbh = -1;
         if (worldContainer->sandboxScript != nullptr)
             sbh = worldContainer->sandboxScript->getScriptHandle();
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyInt64(propApp_sandbox.name, sbh);
-#else
-        ev->appendKeyHandle(propApp_sandbox.name, sbh);
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyInt64(propApp_sandbox.name, sbh);
+        else
+            ev->appendKeyHandle(propApp_sandbox.name, sbh);
         if (instancesList != nullptr)
         {
             ev->appendKeyInt64(propApp_processId.name, instancesList->thisInstanceId());
@@ -3249,11 +3248,10 @@ void App::pushGenesisEvents()
         ev->appendKeyTextArray(propApp_appArgs.name, _applicationArguments);
         ev->appendKeyTextArray(propApp_pluginNames.name, _pluginNames);
         std::vector<int> addOnList(worldContainer->addOnScriptContainer->getAddOnHandles());
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyInt32Array(propApp_addOns.name, addOnList.data(), addOnList.size());
-#else
-        ev->appendKeyHandleArray(propApp_addOns.name, addOnList.data(), addOnList.size());
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyInt32Array(propApp_addOns.name, addOnList.data(), addOnList.size());
+        else
+            ev->appendKeyHandleArray(propApp_addOns.name, addOnList.data(), addOnList.size());
 
         for (const auto& pair : _applicationNamedParams)
         {

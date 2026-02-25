@@ -275,87 +275,63 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
         }
         else
         {
-#if SIM_EVENT_PROTOCOL_VERSION == 3
-            const char* cmd = propPointCloud_points.name;
-            if (evv == nullptr)
-                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDoubleArray(cmd, _displayPoints.data(), _displayPoints.size());
-            ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
-            if (evv == nullptr)
-                App::worldContainer->pushEvent();
-#else
-            if (_pointCloudInfo == nullptr)
+            if (App::getEventProtocolVersion() == 3)
             {
-                _remBBPts(nullptr, 0);
+                const char* cmd = propPointCloud_points.name;
                 if (evv == nullptr)
-                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
-                ev->openKeyMap("set");
-                ev->appendKeyFloatArray("pts", nullptr, 0);
-                ev->appendKeyUint8Array("rgba", nullptr, 0);
-                ev->appendKeyUint32Array("ids", nullptr, 0);
-                ev->closeArrayOrMap();
+                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyDoubleArray(cmd, _displayPoints.data(), _displayPoints.size());
+                ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
                 if (evv == nullptr)
-                {
                     App::worldContainer->pushEvent();
-                    computeBoundingBox();
-                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                    ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                    ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
-                    App::worldContainer->pushEvent();
-                }
             }
             else
             {
-                if (_refreshDisplay)
+                if (_pointCloudInfo == nullptr)
                 {
-                    App::worldContainer->pluginContainer->geomPlugin_refreshDisplayPtcloudData(_pointCloudInfo);
-                    _refreshDisplay = false;
-                }
-                float* pts;
-                unsigned char* cols;
-                unsigned int* ids;
-                unsigned int* remIds;
-                int newCnt, remCnt;
-                int r = App::worldContainer->pluginContainer->geomPlugin_getDisplayPtcloudData(_pointCloudInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
-                if (r >= 0)
-                {
-                    if (r == 1)
+                    _remBBPts(nullptr, 0);
+                    if (evv == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                    ev->openKeyMap("set");
+                    ev->appendKeyFloatArray("pts", nullptr, 0);
+                    ev->appendKeyUint8Array("rgba", nullptr, 0);
+                    ev->appendKeyUint32Array("ids", nullptr, 0);
+                    ev->closeArrayOrMap();
+                    if (evv == nullptr)
                     {
-                        _remBBPts(nullptr, 0);
-                        _addBBPts(pts, ids, newCnt);
-                        if (evv == nullptr)
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
-                        ev->openKeyMap("set");
-                        ev->appendKeyFloatArray("pts", pts, newCnt * 3);
-                        ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
-                        ev->appendKeyUint32Array("ids", ids, newCnt);
-                        ev->closeArrayOrMap();
-                        if (evv == nullptr)
-                        {
-                            App::worldContainer->pushEvent();
-                            computeBoundingBox();
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                            ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                            ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
-                            App::worldContainer->pushEvent();
-                        }
+                        App::worldContainer->pushEvent();
+                        computeBoundingBox();
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                        ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
+                        ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                        App::worldContainer->pushEvent();
                     }
-                    else
+                }
+                else
+                {
+                    if (_refreshDisplay)
                     {
-                        if (remCnt > 0)
-                            _remBBPts(remIds, remCnt);
-                        _addBBPts(pts, ids, newCnt);
-                        if (newCnt + remCnt > 0)
+                        App::worldContainer->pluginContainer->geomPlugin_refreshDisplayPtcloudData(_pointCloudInfo);
+                        _refreshDisplay = false;
+                    }
+                    float* pts;
+                    unsigned char* cols;
+                    unsigned int* ids;
+                    unsigned int* remIds;
+                    int newCnt, remCnt;
+                    int r = App::worldContainer->pluginContainer->geomPlugin_getDisplayPtcloudData(_pointCloudInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
+                    if (r >= 0)
+                    {
+                        if (r == 1)
                         {
+                            _remBBPts(nullptr, 0);
+                            _addBBPts(pts, ids, newCnt);
                             if (evv == nullptr)
-                                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
-                            ev->openKeyMap("add");
+                                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                            ev->openKeyMap("set");
                             ev->appendKeyFloatArray("pts", pts, newCnt * 3);
                             ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
-                            ev->closeArrayOrMap();
-                            ev->openKeyMap("rem");
-                            ev->appendKeyUint32Array("ids", remIds, remCnt);
                             ev->closeArrayOrMap();
                             if (evv == nullptr)
                             {
@@ -367,14 +343,41 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                                 App::worldContainer->pushEvent();
                             }
                         }
+                        else
+                        {
+                            if (remCnt > 0)
+                                _remBBPts(remIds, remCnt);
+                            _addBBPts(pts, ids, newCnt);
+                            if (newCnt + remCnt > 0)
+                            {
+                                if (evv == nullptr)
+                                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                                ev->openKeyMap("add");
+                                ev->appendKeyFloatArray("pts", pts, newCnt * 3);
+                                ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                                ev->appendKeyUint32Array("ids", ids, newCnt);
+                                ev->closeArrayOrMap();
+                                ev->openKeyMap("rem");
+                                ev->appendKeyUint32Array("ids", remIds, remCnt);
+                                ev->closeArrayOrMap();
+                                if (evv == nullptr)
+                                {
+                                    App::worldContainer->pushEvent();
+                                    computeBoundingBox();
+                                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                                    ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
+                                    ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                                    App::worldContainer->pushEvent();
+                                }
+                            }
+                        }
+                        delete[] pts;
+                        delete[] cols;
+                        delete[] ids;
+                        delete[] remIds;
                     }
-                    delete[] pts;
-                    delete[] cols;
-                    delete[] ids;
-                    delete[] remIds;
                 }
             }
-#endif
         }
     }
 }

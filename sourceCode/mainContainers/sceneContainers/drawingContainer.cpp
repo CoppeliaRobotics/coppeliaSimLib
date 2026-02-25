@@ -67,11 +67,10 @@ void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
         }
         const char* cmd = propDrawCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
-#else
-        ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
+        else
+            ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
         App::worldContainer->pushEvent();
     }
 }
@@ -84,19 +83,16 @@ void CDrawingContainer::removeObject(int objectId)
         {
             if (App::worldContainer->getEventsEnabled())
             {
-#if SIM_EVENT_PROTOCOL_VERSION >= 3
+                if (App::getEventProtocolVersion()  >= 3)
                 {
                     App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,  _allObjects[i]->getObjectId(), _allObjects[i]->getObjectId(), nullptr, false);
                     App::worldContainer->pushEvent();
                 }
-#endif
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-                // For backw. compatibility
-                {
+                if (App::getEventProtocolVersion() <= 3)
+                { // For backw. compatibility
                     App::worldContainer->createEvent("drawingObjectRemoved",  _allObjects[i]->getObjectId(), _allObjects[i]->getObjectId(), nullptr, false);
                     App::worldContainer->pushEvent();
                 }
-#endif
             }
 
             delete _allObjects[i];
@@ -151,11 +147,10 @@ void CDrawingContainer::pushGenesisEvents()
         addedObjects.push_back(dr->getObjectId());
         const char* cmd = propDrawCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyInt32Array(cmd, addedObjects.data(), addedObjects.size());
-#else
-        ev->appendKeyHandleArray(cmd, addedObjects.data(), addedObjects.size());
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyInt32Array(cmd, addedObjects.data(), addedObjects.size());
+        else
+            ev->appendKeyHandleArray(cmd, addedObjects.data(), addedObjects.size());
         App::worldContainer->pushEvent();
     }
 }

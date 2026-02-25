@@ -178,13 +178,16 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyText(propScene_objectType.name, OBJECT_TYPE.c_str());
     ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
     ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt64(propScene_mainScript.name, msh);
-    ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
-#else
-    ev->appendKeyHandle(propScene_mainScript.name, msh);
-    ev->appendKeyColor(propScene_ambientLight.name, ambientLightColor);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyInt64(propScene_mainScript.name, msh);
+        ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
+    }
+    else
+    {
+        ev->appendKeyHandle(propScene_mainScript.name, msh);
+        ev->appendKeyColor(propScene_ambientLight.name, ambientLightColor);
+    }
 }
 
 void CEnvironment::setAmbientLight(const float c[3])
@@ -198,11 +201,10 @@ void CEnvironment::setAmbientLight(const float c[3])
         {
             const char* cmd = propScene_ambientLight.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
-#else
-            ev->appendKeyColor(cmd, ambientLightColor);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
+            else
+                ev->appendKeyColor(cmd, ambientLightColor);
             App::worldContainer->pushEvent();
         }
     }

@@ -160,7 +160,7 @@ bool CDrawingObject::addItem(const double* itemData)
 
         if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
         {
-#if SIM_EVENT_PROTOCOL_VERSION >= 3
+            if (App::getEventProtocolVersion()  >= 3)
             {
                 CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectId, _objectId, nullptr, false);
                 ev->appendKeyFloatArray("points", nullptr, 0);
@@ -168,15 +168,12 @@ bool CDrawingObject::addItem(const double* itemData)
                 ev->appendKeyFloatArray("colors", nullptr, 0);
                 App::worldContainer->pushEvent();
             }
-#endif
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            // For backw. compatibility
-            {
+            if (App::getEventProtocolVersion() <= 3)
+            { // For backw. compatibility
                 CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectId, _objectId, nullptr, false);
                 ev->appendKeyBool("clearPoints", true);
                 App::worldContainer->pushEvent();
             }
-#endif
         }
 
         return (false);
@@ -468,7 +465,7 @@ void CDrawingObject::pushAddEvent()
 {
     if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
     {
-#if SIM_EVENT_PROTOCOL_VERSION >= 3
+        if (App::getEventProtocolVersion()  >= 3)
         {
             CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectId, _objectId, nullptr, false);
             std::string tp;
@@ -504,11 +501,10 @@ void CDrawingObject::pushAddEvent()
             }
             ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
             ev->appendKeyInt64(propDrawingObj_handle.name, _objectId);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt64(propDrawingObj_parent.name, _sceneObjectId);
-#else
-            ev->appendKeyHandle(propDrawingObj_parent.name, _sceneObjectId);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64(propDrawingObj_parent.name, _sceneObjectId);
+            else
+                ev->appendKeyHandle(propDrawingObj_parent.name, _sceneObjectId);
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
@@ -517,10 +513,8 @@ void CDrawingObject::pushAddEvent()
             ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
             App::worldContainer->pushEvent();
         }
-#endif
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        // For backw. compatibility
-        {
+        if (App::getEventProtocolVersion() <= 3)
+        { // For backw. compatibility
             CCbor* ev = App::worldContainer->createEvent("drawingObjectAdded", _objectId, _objectId, nullptr, false);
             std::string tp;
             switch (_objectType & 0x001f)
@@ -563,7 +557,6 @@ void CDrawingObject::pushAddEvent()
             ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
             App::worldContainer->pushEvent();
         }
-#endif
 
         _initBufferedEventData();
     }
@@ -578,7 +571,7 @@ void CDrawingObject::pushAppendNewPointEvent()
         std::vector<float> colors;
         _getEventData(points, quaternions, colors);
 
-#if SIM_EVENT_PROTOCOL_VERSION >= 3
+        if (App::getEventProtocolVersion()  >= 3)
         {
             CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectId, _objectId, nullptr, false);
             if (_rebuildRemoteItems)
@@ -595,10 +588,8 @@ void CDrawingObject::pushAppendNewPointEvent()
             }
             App::worldContainer->pushEvent();
         }
-#endif
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        // For backw. compatibility
-        {
+        if (App::getEventProtocolVersion() <= 3)
+        { // For backw. compatibility
             CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectId, _objectId, nullptr, false);
             ev->appendKeyFloatArray("points", points.data(), points.size());
             ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
@@ -606,7 +597,6 @@ void CDrawingObject::pushAppendNewPointEvent()
             ev->appendKeyBool("clearPoints", _rebuildRemoteItems);
             App::worldContainer->pushEvent();
         }
-#endif
 
         _bufferedEventData.clear();
         _rebuildRemoteItems = false;

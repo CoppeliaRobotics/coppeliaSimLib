@@ -449,11 +449,10 @@ void CMeshWrapper::setCOM(const C3Vector& com)
         {
             const char* cmd = propMeshWrap_com.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyDoubleArray(cmd, _com.data, 3);
-#else
-            ev->appendKeyVector3(cmd, _com);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDoubleArray(cmd, _com.data, 3);
+            else
+                ev->appendKeyVector3(cmd, _com);
             App::worldContainer->pushEvent();
         }
     }
@@ -498,12 +497,13 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
             ev->appendKeyDoubleArray(cmd, dat, 9);
             C3Vector pmi(_pmi * _mass);
             ev->appendKeyDoubleArray(propMeshWrap_pmi.name, pmi.data, 3);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            _pmiRotFrame.getData(dat, true);
-            ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
-#else
-            ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, _pmiRotFrame);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                _pmiRotFrame.getData(dat, true);
+                ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
+            }
+            else
+                ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, _pmiRotFrame);
             App::worldContainer->pushEvent();
         }
     }
@@ -1265,23 +1265,23 @@ void CMeshWrapper::addSpecializedObjectEventData(int parentObjectHandle, CCbor* 
     if (_parentObjectHandle >= 0)
     {
         ev->appendKeyDouble(propMeshWrap_mass.name, _mass);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyDoubleArray(propMeshWrap_com.name, _com.data, 3);
-#else
-        ev->appendKeyVector3(propMeshWrap_com.name, _com);
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyDoubleArray(propMeshWrap_com.name, _com.data, 3);
+        else
+            ev->appendKeyVector3(propMeshWrap_com.name, _com);
         C3X3Matrix inertia(_iMatrix * _mass);
         double dat[9];
         inertia.getData(dat);
         ev->appendKeyDoubleArray(propMeshWrap_inertia.name, dat, 9);
         C3Vector pmi(_pmi * _mass);
         ev->appendKeyDoubleArray(propMeshWrap_pmi.name, pmi.data, 3);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        _pmiRotFrame.getData(dat, true);
-        ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
-#else
-        ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, _pmiRotFrame);
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+        {
+            _pmiRotFrame.getData(dat, true);
+            ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
+        }
+        else
+            ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, _pmiRotFrame);
     }
 }
 

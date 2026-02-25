@@ -1146,13 +1146,14 @@ bool CJoint::setScrewLead(double lead)
                     const char* cmd = propJoint_screwLead.name;
                     CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
                     ev->appendKeyDouble(cmd, _screwLead);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-                    double p[7];
-                    getIntrinsicTransformation(true).getData(p, true);
-                    ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
-#else
-                    ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
-#endif
+                    if (App::getEventProtocolVersion() <= 3)
+                    {
+                        double p[7];
+                        getIntrinsicTransformation(true).getData(p, true);
+                        ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+                    }
+                    else
+                        ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
                     App::worldContainer->pushEvent();
                 }
                 _setScrewPitch_sendOldIk(lead / piValT2);
@@ -2053,26 +2054,30 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDouble(propJoint_averageJointForce.name, _filteredForceOrTorque);
     ev->appendKeyDouble(propJoint_jointForce.name, _lastForceOrTorque_dynStep);
 
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    double q[4];
-    _sphericalTransf.getData(q, true);
-    ev->appendKeyDoubleArray(propJoint_quaternion.name, q, 4);
-#else
-    ev->appendKeyQuaternion(propJoint_quaternion.name, _sphericalTransf);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        double q[4];
+        _sphericalTransf.getData(q, true);
+        ev->appendKeyDoubleArray(propJoint_quaternion.name, q, 4);
+    }
+    else
+        ev->appendKeyQuaternion(propJoint_quaternion.name, _sphericalTransf);
     ev->appendKeyDouble(propJoint_position.name, _pos);
     ev->appendKeyDouble(propJoint_screwLead.name, _screwLead);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    double p[7];
-    double p2[7];
-    _intrinsicTransformationError.getData(p, true);
-    getIntrinsicTransformation(true).getData(p2, true);
-    ev->appendKeyDoubleArray(propJoint_intrinsicError.name, p, 7);
-    ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p2, 7);
-#else
-    ev->appendKeyPose(propJoint_intrinsicError.name, _intrinsicTransformationError);
-    ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        double p[7];
+        double p2[7];
+        _intrinsicTransformationError.getData(p, true);
+        getIntrinsicTransformation(true).getData(p2, true);
+        ev->appendKeyDoubleArray(propJoint_intrinsicError.name, p, 7);
+        ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p2, 7);
+    }
+    else
+    {
+        ev->appendKeyPose(propJoint_intrinsicError.name, _intrinsicTransformationError);
+        ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
+    }
 
     ev->appendKeyDoubleArray(propJoint_maxVelAccelJerk.name, _maxVelAccelJerk, 3);
     ev->appendKeyDoubleArray(propJoint_springDamperParams.name, _dynCtrl_kc, 2);
@@ -4025,17 +4030,20 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
         {
             const char* cmd = propJoint_quaternion.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            double q[4];
-            _sphericalTransf.getData(q, true);
-            double p[7];
-            getIntrinsicTransformation(true).getData(p, true);
-            ev->appendKeyDoubleArray(cmd, q, 4);
-            ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
-#else
-            ev->appendKeyQuaternion(cmd, _sphericalTransf);
-            ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                double q[4];
+                _sphericalTransf.getData(q, true);
+                double p[7];
+                getIntrinsicTransformation(true).getData(p, true);
+                ev->appendKeyDoubleArray(cmd, q, 4);
+                ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+            }
+            else
+            {
+                ev->appendKeyQuaternion(cmd, _sphericalTransf);
+                ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
+            }
             App::worldContainer->pushEvent();
         }
         _setSphericalTransformation_sendOldIk(_sphericalTransf);
@@ -4126,13 +4134,14 @@ void CJoint::setPosition(double pos, const CJoint* masterJoint /*=nullptr*/, boo
             const char* cmd = propJoint_position.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _pos);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            double p[7];
-            getIntrinsicTransformation(true).getData(p, true);
-            ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
-#else
-            ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                double p[7];
+                getIntrinsicTransformation(true).getData(p, true);
+                ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+            }
+            else
+                ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
             App::worldContainer->pushEvent();
         }
         _setPosition_sendOldIk(pos);
@@ -4623,17 +4632,20 @@ void CJoint::setIntrinsicTransformationError(const C7Vector& tr)
         {
             const char* cmd = propJoint_intrinsicError.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            double p[7];
-            double p2[7];
-            _intrinsicTransformationError.getData(p, true);
-            getIntrinsicTransformation(true).getData(p2, true);
-            ev->appendKeyDoubleArray(cmd, p, 7);
-            ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p2, 7);
-#else
-            ev->appendKeyPose(cmd, _intrinsicTransformationError);
-            ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                double p[7];
+                double p2[7];
+                _intrinsicTransformationError.getData(p, true);
+                getIntrinsicTransformation(true).getData(p2, true);
+                ev->appendKeyDoubleArray(cmd, p, 7);
+                ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p2, 7);
+            }
+            else
+            {
+                ev->appendKeyPose(cmd, _intrinsicTransformationError);
+                ev->appendKeyPose(propJoint_intrinsicPose.name, getIntrinsicTransformation(true));
+            }
             App::worldContainer->pushEvent();
         }
     }

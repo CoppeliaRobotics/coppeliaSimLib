@@ -531,11 +531,10 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
     _isInSceneShapeUid = shapeUid;
     CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, nullptr, false);
 
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt64(propMesh_shape.name, _isInSceneShapeHandle);
-#else
-    ev->appendKeyHandle(propMesh_shape.name, _isInSceneShapeHandle);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyInt64(propMesh_shape.name, _isInSceneShapeHandle);
+    else
+        ev->appendKeyHandle(propMesh_shape.name, _isInSceneShapeHandle);
     ev->appendKeyInt64(propMesh_shapeUid.name, _isInSceneShapeUid);
     ev->appendKeyInt64(propMesh_primitiveType.name, _purePrimitive);
     ev->appendKeyText(propMesh_objectType.name, OBJECT_TYPE.c_str());
@@ -585,11 +584,10 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
     {
         int tRes[2];
         to->getTextureSize(tRes[0], tRes[1]);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyBuff(propMesh_texture.name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-#else
-        ev->appendKeyUint8Array(propMesh_texture.name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyBuff(propMesh_texture.name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
+        else
+            ev->appendKeyUint8Array(propMesh_texture.name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
         ev->appendKeyInt32Array(propMesh_textureResolution.name, tRes, 2);
         ev->appendKeyFloatArray(propMesh_textureCoordinates.name, tc->data(), tc->size());
         ev->appendKeyInt64(propMesh_textureApplyMode.name, _textureProperty->getApplyMode());

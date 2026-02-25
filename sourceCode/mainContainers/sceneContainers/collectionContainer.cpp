@@ -424,19 +424,16 @@ void CCollectionContainer::_removeCollection(int collectionHandle)
         {
             if (App::worldContainer->getEventsEnabled())
             {
-#if SIM_EVENT_PROTOCOL_VERSION >= 3
+                if (App::getEventProtocolVersion()  >= 3)
                 {
                     App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, collectionHandle, collectionHandle, nullptr, false);
                     App::worldContainer->pushEvent();
                 }
-#endif
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-                // For backw. compatibility
-                {
+                if (App::getEventProtocolVersion() <= 3)
+                { // For backw. compatibility
                     App::worldContainer->createEvent("collectionRemoved", -1, collectionHandle, nullptr, false);
                     App::worldContainer->pushEvent();
                 }
-#endif
             }
             delete _allCollections[i];
             _allCollections.erase(_allCollections.begin() + i);
@@ -457,11 +454,10 @@ void CCollectionContainer::_addCollection(CCollection* collection)
             handles.push_back(_allCollections[i]->getCollectionHandle());
         const char* cmd = propCollCont_collections.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
-#else
-        ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
+        else
+            ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
         App::worldContainer->pushEvent();
     }
 }
@@ -519,11 +515,10 @@ void CCollectionContainer::pushGenesisEvents() const
         addedCollections.push_back(coll->getCollectionHandle());
         const char* cmd = propCollCont_collections.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyInt32Array(cmd, addedCollections.data(), addedCollections.size());
-#else
-        ev->appendKeyHandleArray(cmd, addedCollections.data(), addedCollections.size());
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyInt32Array(cmd, addedCollections.data(), addedCollections.size());
+        else
+            ev->appendKeyHandleArray(cmd, addedCollections.data(), addedCollections.size());
         App::worldContainer->pushEvent();
     }
 }

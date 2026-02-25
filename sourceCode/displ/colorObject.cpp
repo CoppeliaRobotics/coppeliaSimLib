@@ -200,11 +200,10 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_eventObjectHandle, false, cmd.c_str(), true);
             else
                 ev = App::worldContainer->createObjectChangedEvent(_eventObjectHandle, cmd.c_str(), true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyFloatArray(cmd.c_str(), col + offset, 3);
-#else
-            ev->appendKeyColor(cmd.c_str(), col + offset);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyFloatArray(cmd.c_str(), col + offset, 3);
+            else
+                ev->appendKeyColor(cmd.c_str(), col + offset);
             App::worldContainer->pushEvent();
         }
     }
@@ -217,38 +216,34 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
     if (_eventFlags & 1)
     { // objects only (no lights)
         c = _eventPrefix + propCol_colDiffuse.name;
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyFloatArray(c.c_str(), _colors, 3);
-#else
-        ev->appendKeyColor(c.c_str(), _colors);
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyFloatArray(c.c_str(), _colors, 3);
+        else
+            ev->appendKeyColor(c.c_str(), _colors);
     }
     if (_eventFlags & 2)
     { // lights only (no objects)
         c = _eventPrefix + propCol_colDiffuse.name;
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
-#else
-        ev->appendKeyColor(c.c_str(), _colors + 3);
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
+        else
+            ev->appendKeyColor(c.c_str(), _colors + 3);
     }
     if (_eventFlags & 4)
     {
         c = _eventPrefix + propCol_colSpecular.name;
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
-#else
-        ev->appendKeyColor(c.c_str(), _colors + 6);
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
+        else
+            ev->appendKeyColor(c.c_str(), _colors + 6);
     }
     if (_eventFlags & 8)
     {
         c = _eventPrefix + propCol_colEmission.name;
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyFloatArray(c.c_str(), _colors + 9, 3);
-#else
-        ev->appendKeyColor(c.c_str(), _colors + 9);
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyFloatArray(c.c_str(), _colors + 9, 3);
+        else
+            ev->appendKeyColor(c.c_str(), _colors + 9);
     }
 
     if (_eventFlags & 16)

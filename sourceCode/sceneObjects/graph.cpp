@@ -89,11 +89,10 @@ void CGraph::_setBackgroundColor(const float col[3])
         {
             const char* cmd = propGraph_backgroundColor.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyFloatArray(cmd, backgroundColor, 3);
-#else
-            ev->appendKeyColor(cmd, backgroundColor);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyFloatArray(cmd, backgroundColor, 3);
+            else
+                ev->appendKeyColor(cmd, backgroundColor);
             App::worldContainer->pushEvent();
         }
     }
@@ -110,11 +109,10 @@ void CGraph::_setForegroundColor(const float col[3])
         {
             const char* cmd = propGraph_foregroundColor.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyFloatArray(cmd, foregroundColor, 3);
-#else
-            ev->appendKeyColor(cmd, foregroundColor);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyFloatArray(cmd, foregroundColor, 3);
+            else
+                ev->appendKeyColor(cmd, foregroundColor);
             App::worldContainer->pushEvent();
         }
     }
@@ -643,13 +641,16 @@ void CGraph::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDouble(propGraph_size.name, _graphSize);
     ev->appendKeyInt64(propGraph_bufferSize.name, bufferSize);
     ev->appendKeyBool(propGraph_cyclic.name, cyclic);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyFloatArray(propGraph_backgroundColor.name, backgroundColor, 3);
-    ev->appendKeyFloatArray(propGraph_foregroundColor.name, foregroundColor, 3);
-#else
-    ev->appendKeyColor(propGraph_backgroundColor.name, backgroundColor);
-    ev->appendKeyColor(propGraph_foregroundColor.name, foregroundColor);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyFloatArray(propGraph_backgroundColor.name, backgroundColor, 3);
+        ev->appendKeyFloatArray(propGraph_foregroundColor.name, foregroundColor, 3);
+    }
+    else
+    {
+        ev->appendKeyColor(propGraph_backgroundColor.name, backgroundColor);
+        ev->appendKeyColor(propGraph_foregroundColor.name, foregroundColor);
+    }
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // graph
 }

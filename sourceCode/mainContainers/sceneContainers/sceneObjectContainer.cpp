@@ -687,40 +687,36 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
         f_objectHandles.push_back(obj->getObjectHandle());
         const char* cmd = propObjCont_objects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
-#else
-        ev->appendKeyHandleArray(cmd, f_objectHandles.data(), f_objectHandles.size());
-#endif
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
+        else
+            ev->appendKeyHandleArray(cmd, f_objectHandles.data(), f_objectHandles.size());
         App::worldContainer->pushEvent();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-        // --- For backward compatibility ---
-        cmd = propObjCont_objectHandles.name;
-        ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-        ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
-        App::worldContainer->pushEvent();
-        // ----------------------------------
-#endif
+        if (App::getEventProtocolVersion() < 4)
+        { // --- For backward compatibility ---
+            cmd = propObjCont_objectHandles.name;
+            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
+            App::worldContainer->pushEvent();
+        }
 
         if (obj->getParent() == nullptr)
         { // We need to "fake" adding that orphan:
             f_orphanHandles.push_back(obj->getObjectHandle());
             cmd = propObjCont_orphans.name;
             ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt32Array(cmd, f_orphanHandles.data(), f_orphanHandles.size());
-#else
-            ev->appendKeyHandleArray(cmd, f_orphanHandles.data(), f_orphanHandles.size());
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt32Array(cmd, f_orphanHandles.data(), f_orphanHandles.size());
+            else
+                ev->appendKeyHandleArray(cmd, f_orphanHandles.data(), f_orphanHandles.size());
             App::worldContainer->pushEvent();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-            // --- For backward compatibility ---
-            cmd = propObjCont_orphanHandles.name;
-            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyInt32Array(cmd, f_orphanHandles.data(), f_orphanHandles.size());
-            App::worldContainer->pushEvent();
-            // ----------------------------------
-#endif
+            if (App::getEventProtocolVersion() < 4)
+            { // --- For backward compatibility ---
+                cmd = propObjCont_orphanHandles.name;
+                ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev->appendKeyInt32Array(cmd, f_orphanHandles.data(), f_orphanHandles.size());
+                App::worldContainer->pushEvent();
+            }
         }
     }
 
@@ -730,20 +726,18 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
         arr.push_back(_allObjects[i]->getObjectHandle());
     const char* cmd = propObjCont_objects.name;
     CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-#else
-    ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+    else
+        ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
     App::worldContainer->pushEvent();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-    // --- For backward compatibility ---
-    cmd = propObjCont_objectHandles.name;
-    ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-    ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-    App::worldContainer->pushEvent();
-    // ----------------------------------
-#endif
+    if (App::getEventProtocolVersion() < 4)
+    { // --- For backward compatibility ---
+        cmd = propObjCont_objectHandles.name;
+        ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+        App::worldContainer->pushEvent();
+    }
 
     // Make sure the orphan list has the same order:
     arr.clear();
@@ -751,39 +745,35 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
         arr.push_back(_orphanObjects[i]->getObjectHandle());
     cmd = propObjCont_orphans.name;
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-#else
-    ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+    else
+        ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
     App::worldContainer->pushEvent();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-    // --- For backward compatibility ---
-    cmd = propObjCont_orphanHandles.name;
-    ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-    ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-    App::worldContainer->pushEvent();
-    // ----------------------------------
-#endif
+    if (App::getEventProtocolVersion() < 4)
+    { // --- For backward compatibility ---
+        cmd = propObjCont_orphanHandles.name;
+        ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+        App::worldContainer->pushEvent();
+    }
 
 
     // Update the selection list:
     cmd = propObjCont_selection.name;
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-#else
-    ev->appendKeyHandleArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
+    else
+        ev->appendKeyHandleArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
     App::worldContainer->pushEvent();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-    // --- For backward compatibility ---
-    cmd = propObjCont_selectionHandles.name;
-    ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-    ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-    App::worldContainer->pushEvent();
-    // ----------------------------------
-#endif
+    if (App::getEventProtocolVersion() < 4)
+    { // --- For backward compatibility ---
+        cmd = propObjCont_selectionHandles.name;
+        ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
+        App::worldContainer->pushEvent();
+    }
 
     // Handle the main script and old associated scripts:
     embeddedScriptContainer->pushObjectGenesisEvents();
@@ -792,25 +782,27 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
 void CSceneObjectContainer::appendNonObjectGenesisData(CCbor* ev) const
 { // Append data as for an empty scene:
     std::vector<int> arr;
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt32Array(propObjCont_objects.name, arr.data(), arr.size());
-    ev->appendKeyInt32Array(propObjCont_orphans.name, arr.data(), arr.size());
-#else
-    ev->appendKeyHandleArray(propObjCont_objects.name, arr.data(), arr.size());
-    ev->appendKeyHandleArray(propObjCont_orphans.name, arr.data(), arr.size());
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyInt32Array(propObjCont_objects.name, arr.data(), arr.size());
+        ev->appendKeyInt32Array(propObjCont_orphans.name, arr.data(), arr.size());
+    }
+    else
+    {
+        ev->appendKeyHandleArray(propObjCont_objects.name, arr.data(), arr.size());
+        ev->appendKeyHandleArray(propObjCont_orphans.name, arr.data(), arr.size());
+    }
     ev->appendText(propObjCont_selection.name);
     ev->openArray();
     ev->closeArrayOrMap();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-    // --- For backward compatibility ---
-    ev->appendKeyInt32Array(propObjCont_objectHandles.name, arr.data(), arr.size());
-    ev->appendKeyInt32Array(propObjCont_orphanHandles.name, arr.data(), arr.size());
-    ev->appendText(propObjCont_selectionHandles.name);
-    ev->openArray();
-    ev->closeArrayOrMap();
-    // ----------------------------------
-#endif
+    if (App::getEventProtocolVersion() < 4)
+    { // --- For backward compatibility ---
+        ev->appendKeyInt32Array(propObjCont_objectHandles.name, arr.data(), arr.size());
+        ev->appendKeyInt32Array(propObjCont_orphanHandles.name, arr.data(), arr.size());
+        ev->appendText(propObjCont_selectionHandles.name);
+        ev->openArray();
+        ev->closeArrayOrMap();
+    }
 }
 
 void CSceneObjectContainer::getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject*>* exceptionObjects,
@@ -1765,19 +1757,18 @@ bool CSceneObjectContainer::setSelectedObjectHandles(const int* v, size_t length
         {
             const char* cmd = propObjCont_selection.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-#else
-            ev->appendKeyHandleArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
+            else
+                ev->appendKeyHandleArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
             App::worldContainer->pushEvent();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-            // --- For backward compatibility ---
-            cmd = propObjCont_selectionHandles.name;
-            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-            App::worldContainer->pushEvent();
-#endif
+            if (App::getEventProtocolVersion() < 4)
+            { // --- For backward compatibility ---
+                cmd = propObjCont_selectionHandles.name;
+                ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
+                App::worldContainer->pushEvent();
+            }
         }
     }
     return (diff);
@@ -7117,19 +7108,18 @@ void CSceneObjectContainer::_setOrphanObjects(const std::vector<CSceneObject*>& 
                 arr.push_back(_orphanObjects[i]->getObjectHandle());
             const char* cmd = propObjCont_orphans.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-#else
-            ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+            else
+                ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
             App::worldContainer->pushEvent();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-            // --- For backward compatibility ---
-            cmd = propObjCont_orphanHandles.name;
-            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-            App::worldContainer->pushEvent();
-#endif
+            if (App::getEventProtocolVersion() < 4)
+            { // --- For backward compatibility ---
+                cmd = propObjCont_orphanHandles.name;
+                ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+                App::worldContainer->pushEvent();
+            }
         }
     }
 }
@@ -7158,19 +7148,18 @@ void CSceneObjectContainer::_setAllObjects(const std::vector<CSceneObject*>& new
                 arr.push_back(_allObjects[i]->getObjectHandle());
             const char* cmd = propObjCont_objects.name;
             CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-#else
-            ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+            else
+                ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
             App::worldContainer->pushEvent();
-#if SIM_EVENT_PROTOCOL_VERSION < 4
-            // --- For backward compatibility ---
-            cmd = propObjCont_objectHandles.name;
-            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-            App::worldContainer->pushEvent();
-#endif
+            if (App::getEventProtocolVersion() < 4)
+            { // --- For backward compatibility ---
+                cmd = propObjCont_objectHandles.name;
+                ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+                App::worldContainer->pushEvent();
+            }
         }
     }
 }

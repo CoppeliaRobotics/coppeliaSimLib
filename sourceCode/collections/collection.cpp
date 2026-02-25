@@ -557,25 +557,21 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
     {
         if (App::worldContainer->getEventsEnabled())
         {
-#if SIM_EVENT_PROTOCOL_VERSION >= 3
+            if (App::getEventProtocolVersion()  >= 3)
             {
                 CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _collectionHandle, _collectionHandle, nullptr, false);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-                ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-#else
-                ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-#endif
+                if (App::getEventProtocolVersion() <= 3)
+                    ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+                else
+                    ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
                 App::worldContainer->pushEvent();
             }
-#endif
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            // For backw. compatibility
-            {
+            if (App::getEventProtocolVersion() <= 3)
+            { // For backw. compatibility
                 CCbor* ev = App::worldContainer->createEvent("collectionChanged", -1, _collectionHandle, nullptr, false);
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
                 App::worldContainer->pushEvent();
             }
-#endif
         }
 
     }
@@ -661,27 +657,23 @@ void CCollection::pushCreationEvent() const
 {
     if (App::worldContainer->getEventsEnabled())
     {
-#if SIM_EVENT_PROTOCOL_VERSION >= 3
+        if (App::getEventProtocolVersion()  >= 3)
         {
             CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _collectionHandle, _collectionHandle, nullptr, false);
             ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-#else
-            ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+            else
+                ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             ev->appendKeyInt64(propCollection_handle.name, _collectionHandle);
             App::worldContainer->pushEvent();
         }
-#endif
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-        // For backw. compatibility
-        {
+        if (App::getEventProtocolVersion() <= 3)
+        { // For backw. compatibility
             CCbor* ev = App::worldContainer->createEvent("collectionAdded", -1, _collectionHandle, nullptr, false);
             ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
             ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             App::worldContainer->pushEvent();
         }
-#endif
     }
 }

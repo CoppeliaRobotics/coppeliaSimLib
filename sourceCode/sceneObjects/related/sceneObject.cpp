@@ -161,13 +161,16 @@ void CSceneObject::_setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang
         {
             const char* cmd = propObject_calcLinearVelocity.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyDoubleArray(cmd, _measuredLinearVelocity_velocityMeasurement.data, 3);
-            ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
-#else
-            ev->appendKeyVector3(cmd, _measuredLinearVelocity_velocityMeasurement);
-            ev->appendKeyVector3(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                ev->appendKeyDoubleArray(cmd, _measuredLinearVelocity_velocityMeasurement.data, 3);
+                ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
+            }
+            else
+            {
+                ev->appendKeyVector3(cmd, _measuredLinearVelocity_velocityMeasurement);
+                ev->appendKeyVector3(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement);
+            }
             ev->appendKeyDouble(propObject_calcRotationVelocity.name, _measuredAngularVelocity_velocityMeasurement);
             App::worldContainer->pushEvent();
         }
@@ -1484,20 +1487,23 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     std::vector<int> ch;
     for (size_t i = 0; i < _childList.size(); i++)
         ch.push_back(_childList[i]->getObjectHandle());
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt32Array(propObject_children.name, ch.data(), ch.size());
-    double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
-                   _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
-                   _localTransformation.Q(0)};
-    ev->appendKeyDoubleArray(propObject_position.name, p, 3);
-    ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
-    ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
-#else
-    ev->appendKeyHandleArray(propObject_children.name, ch.data(), ch.size());
-    ev->appendKeyVector3(propObject_position.name, _localTransformation.X);
-    ev->appendKeyPose(propObject_pose.name, _localTransformation);
-    ev->appendKeyQuaternion(propObject_quaternion.name, _localTransformation.Q);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyInt32Array(propObject_children.name, ch.data(), ch.size());
+        double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
+                       _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
+                       _localTransformation.Q(0)};
+        ev->appendKeyDoubleArray(propObject_position.name, p, 3);
+        ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
+        ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
+    }
+    else
+    {
+        ev->appendKeyHandleArray(propObject_children.name, ch.data(), ch.size());
+        ev->appendKeyVector3(propObject_position.name, _localTransformation.X);
+        ev->appendKeyPose(propObject_pose.name, _localTransformation);
+        ev->appendKeyQuaternion(propObject_quaternion.name, _localTransformation.Q);
+    }
     ev->appendKeyText(propObject_alias.name, _objectAlias.c_str());
     ev->appendKeyBool(propObject_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(propObject_modelBase.name, _modelBase);
@@ -1540,11 +1546,10 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     }
     ev->appendKeyInt64(propObject_parentUid.name, pUid);
     ev->appendKeyInt64(propObject_parentHandle.name, pH); // for backw. compatibility
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt64(propObject_parent.name, pH);
-#else
-    ev->appendKeyHandle(propObject_parent.name, pH);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyInt64(propObject_parent.name, pH);
+    else
+        ev->appendKeyHandle(propObject_parent.name, pH);
     ev->appendKeyBool(propObject_selected.name, _selected);
     ev->appendKeyInt64(propObject_hierarchyColor.name, _hierarchyColorIndex);
     ev->appendKeyInt64(propObject_collectionSelfCollInd.name, _collectionSelfCollisionIndicator);
@@ -1554,13 +1559,16 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     ev->appendKeyText(propObject_modelAcknowledgment.name, _modelAcknowledgement.c_str());
     ev->appendKeyBuff(propObject_dna.name, (unsigned char*)_dnaString.data(), _dnaString.size());
     ev->appendKeyText(propObject_persistentUid.name, _uniquePersistentIdString.c_str());
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyDoubleArray(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement.data, 3);
-    ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
-#else
-    ev->appendKeyVector3(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement);
-    ev->appendKeyVector3(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyDoubleArray(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement.data, 3);
+        ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
+    }
+    else
+    {
+        ev->appendKeyVector3(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement);
+        ev->appendKeyVector3(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement);
+    }
     ev->appendKeyDouble(propObject_calcRotationVelocity.name, _measuredAngularVelocity_velocityMeasurement);
     ev->appendKeyInt64(propObject_dynamicIcon.name, _dynamicSimulationIconCode);
     ev->appendKeyInt64(propObject_dynamicFlag.name, _dynamicFlag);
@@ -1575,14 +1583,18 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
         ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
         ev->closeArrayOrMap();
     }
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    _bbFrame.getData(p, true);
-    ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
-    ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
-#else
-    ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-    ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        double p[7];
+        _bbFrame.getData(p, true);
+        ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+        ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+    }
+    else
+    {
+        ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
+        ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+    }
 
     customObjectData.appendEventData(nullptr, ev);
     customObjectData_volatile.appendEventData(nullptr, ev);
@@ -2128,15 +2140,18 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
                 ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
                 ev->closeArrayOrMap();
             }
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
-                           _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
-            ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
-            ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
-#else
-            ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-            ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
+                               _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
+                ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
+                ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
+            }
+            else
+            {
+                ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
+                ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+            }
             App::worldContainer->pushEvent();
         }
     }
@@ -2541,11 +2556,10 @@ bool CSceneObject::setParent(CSceneObject* parent)
             const char* cmd = propObject_parentUid.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt64(cmd, pUid);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt64(propObject_parent.name, pH);
-#else
-            ev->appendKeyHandle(propObject_parent.name, pH);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64(propObject_parent.name, pH);
+            else
+                ev->appendKeyHandle(propObject_parent.name, pH);
             ev->appendKeyInt64(propObject_parentHandle.name, pH); // for backward compatibility
             App::worldContainer->pushEvent();
         }
@@ -5441,16 +5455,19 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
         {
             const char* cmd = propObject_pose.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
-            ev->appendKeyDoubleArray(propObject_position.name, p, 3);
-            ev->appendKeyDoubleArray(cmd, p, 7);
-            ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
-#else
-            ev->appendKeyVector3(propObject_position.name, tr.X);
-            ev->appendKeyPose(cmd, tr);
-            ev->appendKeyQuaternion(propObject_quaternion.name, tr.Q);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
+                ev->appendKeyDoubleArray(propObject_position.name, p, 3);
+                ev->appendKeyDoubleArray(cmd, p, 7);
+                ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
+            }
+            else
+            {
+                ev->appendKeyVector3(propObject_position.name, tr.X);
+                ev->appendKeyPose(cmd, tr);
+                ev->appendKeyQuaternion(propObject_quaternion.name, tr.Q);
+            }
             App::worldContainer->pushEvent();
         }
         _setLocalTransformation_send(_localTransformation);
@@ -5467,16 +5484,19 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
         {
             const char* cmd = propObject_pose.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
-                           _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
-                           _localTransformation.Q(0)};
-            ev->appendKeyDoubleArray(cmd, p, 7);
-            ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
-#else
-            ev->appendKeyPose(cmd, _localTransformation);
-            ev->appendKeyQuaternion(propObject_quaternion.name, _localTransformation.Q);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
+                               _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
+                               _localTransformation.Q(0)};
+                ev->appendKeyDoubleArray(cmd, p, 7);
+                ev->appendKeyDoubleArray(propObject_quaternion.name, p + 3, 4);
+            }
+            else
+            {
+                ev->appendKeyPose(cmd, _localTransformation);
+                ev->appendKeyQuaternion(propObject_quaternion.name, _localTransformation.Q);
+            }
             App::worldContainer->pushEvent();
         }
         C7Vector tr(_localTransformation);
@@ -5495,16 +5515,19 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
         {
             const char* cmd = propObject_pose.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
-                           _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
-                           _localTransformation.Q(0)};
-            ev->appendKeyDoubleArray(propObject_position.name, p, 3);
-            ev->appendKeyDoubleArray(cmd, p, 7);
-#else
-            ev->appendKeyVector3(propObject_position.name, _localTransformation.X);
-            ev->appendKeyPose(cmd, _localTransformation);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
+                               _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
+                               _localTransformation.Q(0)};
+                ev->appendKeyDoubleArray(propObject_position.name, p, 3);
+                ev->appendKeyDoubleArray(cmd, p, 7);
+            }
+            else
+            {
+                ev->appendKeyVector3(propObject_position.name, _localTransformation.X);
+                ev->appendKeyPose(cmd, _localTransformation);
+            }
             App::worldContainer->pushEvent();
         }
         C7Vector tr(_localTransformation);
@@ -5595,11 +5618,10 @@ bool CSceneObject::_setChildren(std::vector<CSceneObject*>* children)
             std::vector<int> ch;
             for (size_t i = 0; i < _childList.size(); i++)
                 ch.push_back(_childList[i]->getObjectHandle());
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt32Array(cmd, ch.data(), ch.size());
-#else
-            ev->appendKeyHandleArray(cmd, ch.data(), ch.size());
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt32Array(cmd, ch.data(), ch.size());
+            else
+                ev->appendKeyHandleArray(cmd, ch.data(), ch.size());
             App::worldContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI

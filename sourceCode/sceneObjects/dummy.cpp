@@ -301,11 +301,10 @@ void CDummy::addSpecializedObjectEventData(CCbor* ev)
     else
         _dummyColor.addGenesisEventData(ev);
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-    ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
-#else
-    ev->appendKeyHandle(propDummy_linkedDummy.name, _linkedDummyHandle);
-#endif
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
+    else
+        ev->appendKeyHandle(propDummy_linkedDummy.name, _linkedDummyHandle);
     ev->appendKeyInt64(propDummy_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
     ev->appendKeyInt64(propDummy_dummyType.name, _linkType);
     ev->appendKeyText(propDummy_assemblyTag.name, _assemblyTag.c_str());
@@ -953,11 +952,10 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
         {
             const char* cmd = propDummy_linkedDummy.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION <= 3
-            ev->appendKeyInt64(cmd, _linkedDummyHandle);
-#else
-            ev->appendKeyHandle(cmd, _linkedDummyHandle);
-#endif
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64(cmd, _linkedDummyHandle);
+            else
+                ev->appendKeyHandle(cmd, _linkedDummyHandle);
             App::worldContainer->pushEvent();
             // --- for backw. compatibility ---
             cmd = propDummy_linkedDummyHandle.name;
