@@ -11,7 +11,9 @@
 #include <interfaceStackPose.h>
 #include <interfaceStackHandle.h>
 #include <interfaceStackColor.h>
+#ifdef SIM_WITH_GUI
 #include <guiApp.h>
+#endif
 #include <fileOperations.h>
 #include <collisionRoutines.h>
 #include <distanceRoutines.h>
