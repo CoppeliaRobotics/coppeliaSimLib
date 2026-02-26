@@ -80,6 +80,37 @@ CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= 
                 _normals.resize(_vertices.size());
             }
         }
+        for (size_t i = 0; i < _vertices.size() / 3; i++)
+        {
+            float xyz[3] = {_vertices[3 * i + 0], _vertices[3 * i + 1], _vertices[3 * i + 2]};
+            if (i == 0)
+            {
+                _customItemExtentX[0] = _customItemExtentX[1] = xyz[0];
+                _customItemExtentY[0] = _customItemExtentY[1] = xyz[1];
+                _customItemExtentZ[0] = _customItemExtentZ[1] = xyz[2];
+            }
+            else
+            {
+                if (xyz[0] < _customItemExtentX[0])
+                    _customItemExtentX[0] = xyz[0];
+                if (xyz[0] > _customItemExtentX[1])
+                    _customItemExtentX[1] = xyz[0];
+                if (xyz[1] < _customItemExtentY[0])
+                    _customItemExtentY[0] = xyz[1];
+                if (xyz[1] > _customItemExtentY[1])
+                    _customItemExtentY[1] = xyz[1];
+                if (xyz[2] < _customItemExtentZ[0])
+                    _customItemExtentZ[0] = xyz[2];
+                if (xyz[2] > _customItemExtentZ[1])
+                    _customItemExtentZ[1] = xyz[2];
+            }
+        }
+    }
+    else
+    {
+        _customItemExtentX[0] = _customItemExtentX[1] = 0.0;
+        _customItemExtentY[0] = _customItemExtentY[1] = 0.0;
+        _customItemExtentZ[0] = _customItemExtentZ[1] = 0.0;
     }
 
     _initialize();
@@ -124,13 +155,87 @@ void CMarker::_rebuildMarkerBoundingBox()
     for (size_t i = 0; i < _ids.size(); i++)
     {
         CItemPointIts its;
-        for (int j = 0; j < _itemPointCnt; j++)
+        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles) )
         {
-            CMultiSIt it;
-            it.itX = _xs.insert(_pts[i * 3 * _itemPointCnt + j * 3 + 0]);
-            it.itY = _ys.insert(_pts[i * 3 * _itemPointCnt + j * 3 + 1]);
-            it.itZ = _zs.insert(_pts[i * 3 * _itemPointCnt + j * 3 + 2]);
-            its.its[j] = it;
+            if (_itemType != sim_markertype_custom)
+            {
+                const float* q = _quats.data() + i * 4;
+                C3X3Matrix m(C4Vector(q[3], q[0], q[1], q[2]));
+                C3Vector p(_pts.data() + i * 3);
+                CMultiSIt it;
+                double s[3] = {_sizes[i * 3 + 0] * 0.5, _sizes[i * 3 + 1] * 0.5, _sizes[i * 3 + 2] * 0.5};
+                float xm = float(fabs(m.axis[0](0)) * s[0] + fabs(m.axis[1](0)) * s[1] + fabs(m.axis[2](0)) * s[2]);
+                float ym = float(fabs(m.axis[0](1)) * s[0] + fabs(m.axis[1](1)) * s[1] + fabs(m.axis[2](1)) * s[2]);
+                float zm = float(fabs(m.axis[0](2)) * s[0] + fabs(m.axis[1](2)) * s[1] + fabs(m.axis[2](2)) * s[2]);
+                it.itX = _xs.insert(p(0) + xm);
+                it.itY = _ys.insert(p(1) + ym);
+                it.itZ = _zs.insert(p(2) + zm);
+                it.itnX = _xs.insert(p(0) - xm);
+                it.itnY = _ys.insert(p(1) - ym);
+                it.itnZ = _zs.insert(p(2) - zm);
+                its.its[0] = it;
+            }
+            else
+            { // custom, non-symmetrical items
+                const float* q = _quats.data() + i * 4;
+                C3X3Matrix m(C4Vector(q[3], q[0], q[1], q[2]));
+                C3Vector p(_pts.data() + i * 3);
+                CMultiSIt it;
+                double s[3] = {_sizes[i * 3 + 0], _sizes[i * 3 + 1], _sizes[i * 3 + 2]};
+
+                double minX =  DBL_MAX, minY =  DBL_MAX, minZ =  DBL_MAX;
+                double maxX = -DBL_MAX, maxY = -DBL_MAX, maxZ = -DBL_MAX;
+
+                for (int ix = 0; ix < 2; ++ix)
+                {
+                    for (int iy = 0; iy < 2; ++iy)
+                    {
+                        for (int iz = 0; iz < 2; ++iz)
+                        {
+                            const double x = _customItemExtentX[ix] * s[0];
+                            const double y = _customItemExtentY[iy] * s[1];
+                            const double z = _customItemExtentZ[iz] * s[2];
+                            const double wx = m.axis[0](0) * x + m.axis[1](0) * y + m.axis[2](0) * z;
+                            const double wy = m.axis[0](1) * x + m.axis[1](1) * y + m.axis[2](1) * z;
+                            const double wz = m.axis[0](2) * x + m.axis[1](2) * y + m.axis[2](2) * z;
+                            if (wx < minX)
+                                minX = wx;
+                            if (wx > maxX)
+                                maxX = wx;
+                            if (wy < minY)
+                                minY = wy;
+                            if (wy > maxY)
+                                maxY = wy;
+                            if (wz < minZ)
+                                minZ = wz;
+                            if (wz > maxZ)
+                                maxZ = wz;
+                        }
+                    }
+                }
+                it.itX = _xs.insert(p(0) + maxX);
+                it.itY = _ys.insert(p(1) + maxY);
+                it.itZ = _zs.insert(p(2) + maxZ);
+                it.itnX = _xs.insert(p(0) + minX);
+                it.itnY = _ys.insert(p(1) + minY);
+                it.itnZ = _zs.insert(p(2) + minZ);
+                its.its[0] = it;
+            }
+        }
+        else
+        { // points, lines and triangles
+            for (int j = 0; j < _itemPointCnt; j++)
+            {
+                C3Vector p(_pts.data() + i * 3 * _itemPointCnt + j * 3);
+                CMultiSIt it;
+                it.itX = _xs.insert(p(0));
+                it.itY = _ys.insert(p(1));
+                it.itZ = _zs.insert(p(2));
+                it.itnX = _xs.insert(p(0));
+                it.itnY = _ys.insert(p(1));
+                it.itnZ = _zs.insert(p(2));
+                its.its[j] = it;
+            }
         }
         _itemIts[_nextId] = its;
     }
@@ -152,6 +257,9 @@ void CMarker::remItems(const std::vector<long long int>* ids)
                 _xs.erase(iph.its[j].itX);
                 _ys.erase(iph.its[j].itY);
                 _zs.erase(iph.its[j].itZ);
+                _xs.erase(iph.its[j].itnX);
+                _ys.erase(iph.its[j].itnY);
+                _zs.erase(iph.its[j].itnZ);
             }
             _itemIts.erase(it);
             // Find and remove the item:
@@ -210,6 +318,9 @@ void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
                     _xs.erase(iph.its[j].itX);
                     _ys.erase(iph.its[j].itY);
                     _zs.erase(iph.its[j].itZ);
+                    _xs.erase(iph.its[j].itnX);
+                    _ys.erase(iph.its[j].itnY);
+                    _zs.erase(iph.its[j].itnZ);
                 }
                 _itemIts.erase(it);
             }
@@ -261,46 +372,30 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
     // handle coords
     C7Vector tr(getFullCumulativeTransformation());
     C7Vector trInv(tr.getInverse());
-    std::vector<C7Vector> trs;
-    if (transform)
+    std::vector<C4X4Matrix> trs;
+    if (transform && ((_itemOptions & sim_markeropts_local) == 0))
     {
-        if ((_itemOptions & sim_markeropts_local) != 0)
+        for (int i = 0; i < ptsCnt; i++)
         {
-            for (int i = 0; i < ptsCnt; i++)
-            {
-                C7Vector t;
-                t.X.setData(pts->data() + i * 3);
-                if (quats != nullptr)
-                    t.Q.setData(quats->data() + i * 4, true);
-                else
-                    t.Q.setIdentity();
-                trs.push_back(t);
-            }
-        }
-        else
-        {
-            for (int i = 0; i < ptsCnt; i++)
-            {
-                C7Vector t;
-                t.X.setData(pts->data() + i * 3);
-                if (quats != nullptr)
-                    t.Q.setData(quats->data() + i * 4, true);
-                else
-                    t.Q.setIdentity();
-                trs.push_back(trInv * t);
-            }
+            C4X4Matrix t;
+            t.X.setData(pts->data() + i * 3);
+            if (quats != nullptr)
+                t.M = C4Vector(quats->at(i * 4 + 3), quats->at(i * 4 + 0), quats->at(i * 4 + 1), quats->at(i * 4 + 2)).getMatrix();
+            else
+                t.M.setIdentity();
+            trs.push_back(trInv * t);
         }
     }
     else
     {
         for (int i = 0; i < ptsCnt; i++)
         {
-            C7Vector t;
+            C4X4Matrix t;
             t.X.setData(pts->data() + i * 3);
             if (quats != nullptr)
-                t.Q.setData(quats->data() + i * 4, true);
+                t.M = C4Vector(quats->at(i * 4 + 3), quats->at(i * 4 + 0), quats->at(i * 4 + 1), quats->at(i * 4 + 2)).getMatrix();
             else
-                t.Q.setIdentity();
+                t.M.setIdentity();
             trs.push_back(t);
         }
     }
@@ -324,18 +419,120 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
         if (!skip)
         {
             CItemPointIts its;
-            for (int j = 0; j < _itemPointCnt; j++)
+            if (hasDim)
             {
-                C3Vector p = trs[i * _itemPointCnt + j].X;
-                _pts.push_back((float)p(0));
-                _pts.push_back((float)p(1));
-                _pts.push_back((float)p(2));
-                CMultiSIt it;
-                it.itX = _xs.insert(p(0));
-                it.itY = _ys.insert(p(1));
-                it.itZ = _zs.insert(p(2));
-                its.its[j] = it;
+                if (_itemType != sim_markertype_custom)
+                {
+                    const C3X3Matrix* m = &trs[i * _itemPointCnt].M;
+                    C3Vector p = trs[i * _itemPointCnt].X;
+                    _pts.push_back((float)p(0));
+                    _pts.push_back((float)p(1));
+                    _pts.push_back((float)p(2));
+                    CMultiSIt it;
+                    double s[3];
+                    if (sizes != nullptr)
+                    {
+                        s[0] = sizes->at(i * 3 + 0) * 0.5;
+                        s[1] = sizes->at(i * 3 + 1) * 0.5;
+                        s[2] = sizes->at(i * 3 + 2) * 0.5;
+                    }
+                    else
+                    {
+                        s[0] = _itemSize[0] * 0.5;
+                        s[1] = _itemSize[1] * 0.5;
+                        s[2] = _itemSize[2] * 0.5;
+                    }
+                    float xm = float(fabs(m->axis[0](0)) * s[0] + fabs(m->axis[1](0)) * s[1] + fabs(m->axis[2](0)) * s[2]);
+                    float ym = float(fabs(m->axis[0](1)) * s[0] + fabs(m->axis[1](1)) * s[1] + fabs(m->axis[2](1)) * s[2]);
+                    float zm = float(fabs(m->axis[0](2)) * s[0] + fabs(m->axis[1](2)) * s[1] + fabs(m->axis[2](2)) * s[2]);
+                    it.itX = _xs.insert(p(0) + xm);
+                    it.itY = _ys.insert(p(1) + ym);
+                    it.itZ = _zs.insert(p(2) + zm);
+                    it.itnX = _xs.insert(p(0) - xm);
+                    it.itnY = _ys.insert(p(1) - ym);
+                    it.itnZ = _zs.insert(p(2) - zm);
+                    its.its[0] = it;
+                }
+                else
+                { // custom, non-symmetrical items
+                    const C3X3Matrix* m = &trs[i * _itemPointCnt].M;
+                    C3Vector p = trs[i * _itemPointCnt].X;
+                    _pts.push_back((float)p(0));
+                    _pts.push_back((float)p(1));
+                    _pts.push_back((float)p(2));
+                    CMultiSIt it;
+                    double s[3];
+                    if (sizes != nullptr)
+                    {
+                        s[0] = sizes->at(i * 3 + 0);
+                        s[1] = sizes->at(i * 3 + 1);
+                        s[2] = sizes->at(i * 3 + 2);
+                    }
+                    else
+                    {
+                        s[0] = _itemSize[0];
+                        s[1] = _itemSize[1];
+                        s[2] = _itemSize[2];
+                    }
+
+                    double minX =  DBL_MAX, minY =  DBL_MAX, minZ =  DBL_MAX;
+                    double maxX = -DBL_MAX, maxY = -DBL_MAX, maxZ = -DBL_MAX;
+
+                    for (int ix = 0; ix < 2; ++ix)
+                    {
+                        for (int iy = 0; iy < 2; ++iy)
+                        {
+                            for (int iz = 0; iz < 2; ++iz)
+                            {
+                                const double x = _customItemExtentX[ix] * s[0];
+                                const double y = _customItemExtentY[iy] * s[1];
+                                const double z = _customItemExtentZ[iz] * s[2];
+                                const double wx = m->axis[0](0) * x + m->axis[1](0) * y + m->axis[2](0) * z;
+                                const double wy = m->axis[0](1) * x + m->axis[1](1) * y + m->axis[2](1) * z;
+                                const double wz = m->axis[0](2) * x + m->axis[1](2) * y + m->axis[2](2) * z;
+                                if (wx < minX)
+                                    minX = wx;
+                                if (wx > maxX)
+                                    maxX = wx;
+                                if (wy < minY)
+                                    minY = wy;
+                                if (wy > maxY)
+                                    maxY = wy;
+                                if (wz < minZ)
+                                    minZ = wz;
+                                if (wz > maxZ)
+                                    maxZ = wz;
+                            }
+                        }
+                    }
+                    it.itX = _xs.insert(p(0) + maxX);
+                    it.itY = _ys.insert(p(1) + maxY);
+                    it.itZ = _zs.insert(p(2) + maxZ);
+                    it.itnX = _xs.insert(p(0) + minX);
+                    it.itnY = _ys.insert(p(1) + minY);
+                    it.itnZ = _zs.insert(p(2) + minZ);
+                    its.its[0] = it;
+                }
             }
+            else
+            { // points, lines and triangles
+                for (int j = 0; j < _itemPointCnt; j++)
+                {
+                    C3Vector p = trs[i * _itemPointCnt + j].X;
+                    _pts.push_back((float)p(0));
+                    _pts.push_back((float)p(1));
+                    _pts.push_back((float)p(2));
+                    CMultiSIt it;
+                    it.itX = _xs.insert(p(0));
+                    it.itY = _ys.insert(p(1));
+                    it.itZ = _zs.insert(p(2));
+                    it.itnX = _xs.insert(p(0));
+                    it.itnY = _ys.insert(p(1));
+                    it.itnZ = _zs.insert(p(2));
+                    its.its[j] = it;
+                }
+            }
+
             _itemIts[_nextId] = its;
             _ids.push_back(_nextId);
             if (newIds != nullptr)
@@ -357,10 +554,11 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
             }
             if (hasDim)
             {
-                _quats.push_back((float)trs[i].Q(1));
-                _quats.push_back((float)trs[i].Q(2));
-                _quats.push_back((float)trs[i].Q(3));
-                _quats.push_back((float)trs[i].Q(0));
+                C4Vector q(trs[i].M.getQuaternion());
+                _quats.push_back((float)q(1));
+                _quats.push_back((float)q(2));
+                _quats.push_back((float)q(3));
+                _quats.push_back((float)q(0));
                 if (sizes != nullptr)
                 {
                     for (int j = 0; j < 3 ; j++)
@@ -427,9 +625,9 @@ void CMarker::computeBoundingBox()
         c(1) = (maxY + minY) * 0.5;
         c(2) = (maxZ + minZ) * 0.5;
     }
-    s(0) += 0.02;
-    s(1) += 0.02;
-    s(2) += 0.02;
+    s(0) += 0.002;
+    s(1) += 0.002;
+    s(2) += 0.002;
     C7Vector tr;
     tr.Q.setIdentity();
     tr.X = c;
@@ -441,6 +639,12 @@ void CMarker::scaleObject(double scalingFactor)
     _itemSize[0] *= scalingFactor;
     _itemSize[1] *= scalingFactor;
     _itemSize[2] *= scalingFactor;
+    for (size_t i = 0; i < 2; i++)
+    {
+        _customItemExtentX[i] *= scalingFactor;
+        _customItemExtentY[i] *= scalingFactor;
+        _customItemExtentZ[i] *= scalingFactor;
+    }
     _itemDuplicateTol *= scalingFactor;
 
     for (size_t i = 0; i < _pts.size(); i++)
@@ -495,6 +699,12 @@ CSceneObject* CMarker::copyYourself()
         newMarker->_itemCol[i] =_itemCol[i];
     for (size_t i = 0; i < 3; i++)
         newMarker->_itemSize[i] =_itemSize[i];
+    for (size_t i = 0; i < 2; i++)
+    {
+        newMarker->_customItemExtentX[i] = _customItemExtentX[i];
+        newMarker->_customItemExtentY[i] = _customItemExtentY[i];
+        newMarker->_customItemExtentZ[i] = _customItemExtentZ[i];
+    }
 
     newMarker->_pts.assign(_pts.begin(), _pts.end());
     newMarker->_quats.assign(_quats.begin(), _quats.end());
@@ -556,6 +766,15 @@ void CMarker::serialize(CSer& ar)
                 ar << _itemCol[i];
             for (size_t i = 0; i < 3; i++)
                 ar << _itemSize[i];
+            ar.flush();
+
+            ar.storeDataName("Ext");
+            ar << _customItemExtentX[0];
+            ar << _customItemExtentX[1];
+            ar << _customItemExtentY[0];
+            ar << _customItemExtentY[1];
+            ar << _customItemExtentZ[0];
+            ar << _customItemExtentZ[1];
             ar.flush();
 
             ar.storeDataName("Pts");
@@ -633,6 +852,18 @@ void CMarker::serialize(CSer& ar)
                             ar >> _itemCol[i];
                         for (size_t i = 0; i < 3; i++)
                             ar >> _itemSize[i];
+                    }
+
+                    if (theName.compare("Ext") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _customItemExtentX[0];
+                        ar >> _customItemExtentX[1];
+                        ar >> _customItemExtentY[0];
+                        ar >> _customItemExtentY[1];
+                        ar >> _customItemExtentZ[0];
+                        ar >> _customItemExtentZ[1];
                     }
 
                     if (theName.compare("Pts") == 0)
@@ -745,6 +976,10 @@ void CMarker::serialize(CSer& ar)
             ar.xmlAddNode_ints("defaultColor", rgba, 4);
             ar.xmlAddNode_floats("defaultSize", _itemSize, 3);
 
+            ar.xmlAddNode_floats("customItemExtentX", _customItemExtentX, 2);
+            ar.xmlAddNode_floats("customItemExtentY", _customItemExtentY, 2);
+            ar.xmlAddNode_floats("customItemExtentZ", _customItemExtentZ, 2);
+
             ar.xmlAddNode_floats("points", _pts.data(), _pts.size());
             ar.xmlAddNode_floats("quaternions", _quats.data(), _quats.size());
             std::vector<int> cols;
@@ -777,6 +1012,10 @@ void CMarker::serialize(CSer& ar)
             for (size_t i = 0; i< 4; i++)
                 _rgba[i] = (unsigned char)rgba[i];
             ar.xmlGetNode_floats("defaultSize", _itemSize, 3, exhaustiveXml);
+
+            ar.xmlGetNode_floats("customItemExtentX", _customItemExtentX, 2, exhaustiveXml);
+            ar.xmlGetNode_floats("customItemExtentY", _customItemExtentY, 2, exhaustiveXml);
+            ar.xmlGetNode_floats("customItemExtentZ", _customItemExtentZ, 2, exhaustiveXml);
 
             ar.xmlGetNode_floats("points", _pts, exhaustiveXml);
             ar.xmlGetNode_floats("quaternions", _quats, exhaustiveXml);

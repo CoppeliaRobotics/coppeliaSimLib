@@ -16,6 +16,9 @@ struct CMultiSIt
     std::multiset<float>::iterator itX;
     std::multiset<float>::iterator itY;
     std::multiset<float>::iterator itZ;
+    std::multiset<float>::iterator itnX;
+    std::multiset<float>::iterator itnY;
+    std::multiset<float>::iterator itnZ;
 };
 
 struct CItemPointIts {
@@ -77,6 +80,9 @@ class CMarker : public CSceneObject
     int _itemType;
     unsigned char _itemCol[4];
     double _itemSize[3];
+    double _customItemExtentX[2];
+    double _customItemExtentY[2];
+    double _customItemExtentZ[2];
     int _itemMaxCnt;
     int _itemOptions;
     float _itemDuplicateTol;
