@@ -106,3 +106,9 @@ extern std::string _method_getObjects(int targetObj, const char* method, CScript
 extern std::string _method_addItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_clearItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_callFunction(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_executeString(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getApiInfo(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getApiFunc(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getStackTraceback(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_init(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

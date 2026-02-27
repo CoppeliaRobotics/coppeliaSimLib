@@ -37,7 +37,7 @@ void CCbor::swapWithEmptyBuffer(std::vector<unsigned char>* emptyBuff)
 
 void CCbor::appendInt64(long long int v)
 {
-   // _handleDataField();
+    _handleDataField();
     unsigned char add = 0;
     if (v < 0)
     {
@@ -50,6 +50,7 @@ void CCbor::appendInt64(long long int v)
 
 void CCbor::appendHandle(long long int h)
 {
+    _handleDataField();
     _buff.push_back(0xDB); // Tag header (219)
     long long int w = 4294999999; // Type info (handle)
     _buff.push_back(((unsigned char*)&w)[7]);
@@ -65,6 +66,7 @@ void CCbor::appendHandle(long long int h)
 
 void CCbor::appendUint8Array(const unsigned char* v, size_t cnt)
 {
+    _handleDataField();
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x40); // 64
     _appendItemTypeAndLength(0x40, cnt);
@@ -73,6 +75,7 @@ void CCbor::appendUint8Array(const unsigned char* v, size_t cnt)
 
 void CCbor::appendInt32Array(const int* v, size_t cnt)
 {
+    _handleDataField();
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x4e); // 78
     _appendItemTypeAndLength(0x40, cnt * sizeof(int));
@@ -81,6 +84,7 @@ void CCbor::appendInt32Array(const int* v, size_t cnt)
 
 void CCbor::appendUint32Array(const unsigned int* v, size_t cnt)
 {
+    _handleDataField();
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x46); // 70
     _appendItemTypeAndLength(0x40, cnt * sizeof(unsigned int));
@@ -89,6 +93,7 @@ void CCbor::appendUint32Array(const unsigned int* v, size_t cnt)
 
 void CCbor::appendInt64Array(const long long int* v, size_t cnt)
 {
+    _handleDataField();
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x4f); // 79
     _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
@@ -97,6 +102,7 @@ void CCbor::appendInt64Array(const long long int* v, size_t cnt)
 
 void CCbor::appendHandleArray(const long long int* h, size_t cnt)
 {
+    _handleDataField();
     _buff.push_back(0xDB); // Tag header (219)
     long long int w = 4294999998; // Type info (handle array)
     _buff.push_back(((unsigned char*)&w)[7]);
@@ -107,8 +113,6 @@ void CCbor::appendHandleArray(const long long int* h, size_t cnt)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    //    _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
-    //    _buff.insert(_buff.end(), (unsigned char*)h, ((unsigned char*)h) + cnt * sizeof(long long int));
     openArray();
     for (size_t i = 0; i < cnt; i++)
         appendInt64(h[i]);
@@ -117,6 +121,7 @@ void CCbor::appendHandleArray(const long long int* h, size_t cnt)
 
 void CCbor::appendHandleArray(const int* h, size_t cnt)
 {
+    _handleDataField();
     std::vector<long long int> arr;
     arr.resize(cnt);
     for (size_t i = 0; i < cnt; i++)
@@ -136,7 +141,7 @@ void CCbor::appendFloat(float v)
 
 void CCbor::appendFloatArray(const float* v, size_t cnt)
 {
-    //size_t d = _buff.size();
+    _handleDataField();
     _buff.push_back(0xD8); // Tag header
     _buff.push_back(0x55); // 85
     _appendItemTypeAndLength(0x40, cnt * sizeof(float));
@@ -164,6 +169,7 @@ void CCbor::appendDouble(double v)
 
 void CCbor::appendDoubleArray(const double* v, size_t cnt)
 {
+    _handleDataField();
     _buff.push_back(0xD8); // Tag header (216)
     _buff.push_back(0x56); // 86
     _appendItemTypeAndLength(0x40, cnt * sizeof(double));
@@ -172,14 +178,13 @@ void CCbor::appendDoubleArray(const double* v, size_t cnt)
 
 void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
 {
-    //_handleDataField();
+    _handleDataField();
     _buff.push_back(0xD8); // major type 6, tag header (216)
     _buff.push_back(40); // tag 40 for matrices
     _buff.push_back(0x82); // array of 2 values (dims + data)
     _buff.push_back(0x82); // array of 2 values (rows and cols)
     _appendItemTypeAndLength(0, rows);
     _appendItemTypeAndLength(0, cols);
-    //appendDoubleArray(v, rows * cols);
     openArray();
     for (size_t i = 0; i < rows * cols; i++)
         appendDouble(v[i]);
@@ -188,6 +193,7 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
 
 void CCbor::appendMatrix(const C3X3Matrix& m)
 {
+    _handleDataField();
     double v[9];
     m.getData(v);
     appendMatrix(v, 3, 3);
@@ -210,7 +216,7 @@ void CCbor::appendVector3(const C3Vector& v)
 
 void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
 {
-//    appendDoubleArray(v, 4);
+    _handleDataField();
     _buff.push_back(0xDB); // Tag header (219)
     long long int w = 4294980000; // Type info (quaternion)
     _buff.push_back(((unsigned char*)&w)[7]);
@@ -225,7 +231,6 @@ void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
     openArray();
     if (xyzwLayout)
     {
-        //appendDoubleArray(v, 4);
         appendDouble(v[0]);
         appendDouble(v[1]);
         appendDouble(v[2]);
@@ -233,8 +238,6 @@ void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
     }
     else
     {
-        // double w[4] = {v[1], v[2], v[3], v[0]};
-        // appendDoubleArray(w, 4);
         appendDouble(v[1]);
         appendDouble(v[2]);
         appendDouble(v[3]);
@@ -250,7 +253,7 @@ void CCbor::appendQuaternion(const C4Vector& q)
 
 void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
 {
-//    appendDoubleArray(v, 7);
+    _handleDataField();
     _buff.push_back(0xDB); // Tag header (219)
     long long int w = 4294980500; // Type info (pose)
     _buff.push_back(((unsigned char*)&w)[7]);
@@ -264,7 +267,6 @@ void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
     openArray();
     if (xyzqxqyqzqwLayout)
     {
-        //appendDoubleArray(v, 7);
         appendDouble(v[0]);
         appendDouble(v[1]);
         appendDouble(v[2]);
@@ -275,8 +277,6 @@ void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
     }
     else
     {
-        //double w[7] = {v[0], v[1], v[2], v[4], v[5], v[6], v[3]};
-        //appendDoubleArray(w, 7);
         appendDouble(v[0]);
         appendDouble(v[1]);
         appendDouble(v[2]);
@@ -296,7 +296,7 @@ void CCbor::appendPose(const C7Vector& p)
 
 void CCbor::appendColor(const float c[3])
 {
-//    appendFloatArray(c, 3);
+    _handleDataField();
 
     _buff.push_back(0xDB); // Tag header (219)
     long long int w = 4294970000; // Type info (color)
@@ -308,7 +308,6 @@ void CCbor::appendColor(const float c[3])
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    //appendFloatArray(c, 3);
     openArray();
     appendDouble(c[0]);
     appendDouble(c[1]);
@@ -318,13 +317,13 @@ void CCbor::appendColor(const float c[3])
 
 void CCbor::appendNull()
 {
- //   _handleDataField();
+    _handleDataField();
     _buff.push_back(128 + 64 + 32 + 22);
 }
 
 void CCbor::appendBool(bool v)
 {
- //   _handleDataField();
+    _handleDataField();
     if (v)
         _buff.push_back(128 + 64 + 32 + 21);
     else

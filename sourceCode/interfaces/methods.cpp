@@ -11,6 +11,7 @@
 #include <interfaceStackPose.h>
 #include <interfaceStackHandle.h>
 #include <interfaceStackColor.h>
+#include <boost/algorithm/string.hpp>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
 #endif
@@ -79,6 +80,12 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["addItems"] = _method_addItems;
         funcTable["clearItems"] = _method_clearItems;
         funcTable["removeItems"] = _method_removeItems;
+        funcTable["callFunction"] = _method_callFunction;
+        funcTable["executeString"] = _method_executeString;
+        funcTable["getApiInfo"] = _method_getApiInfo;
+        funcTable["getApiFunc"] = _method_getApiFunc;
+        funcTable["getStackTraceback"] = _method_getStackTraceback;
+        funcTable["init"] = _method_init;
     }
 
     std::string retVal("__notFound__");
@@ -2459,6 +2466,169 @@ std::string _method_removeItems(int targetObj, const char* method, CScriptObject
         std::vector<long long int> ids;
         fetchLongArray(inStack, 0, ids);
         target->remItems(&ids);
+    }
+    return errMsg;
+}
+
+std::string _method_callFunction(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string funcName = fetchText(inStack, 0);
+        if (target->hasInterpreterState())
+        {
+            CInterfaceStack* inStack2 = App::worldContainer->interfaceStackContainer->createStackCopy(inStack);
+            delete inStack2->detachStackObjectFromIndex(0);
+            int rr = target->callCustomScriptFunction(funcName.c_str(), inStack2, outStack);
+            App::worldContainer->interfaceStackContainer->destroyStack(inStack2);
+            if (rr != 1)
+            {
+                if (rr == -1)
+                    errMsg = SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                else // rr==0
+                    errMsg = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
+            }
+        }
+        else
+            errMsg = SIM_ERROR_SCRIPT_NOT_INITIALIZED;
+    }
+    return errMsg;
+}
+
+std::string _method_executeString(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string stringToExecute = fetchText(inStack, 0);
+        if (target->hasInterpreterState())
+        {
+            int lang = sim_lang_undefined;
+            if (boost::algorithm::ends_with(stringToExecute.c_str(), "@lua"))
+            {
+                lang = sim_lang_lua;
+                stringToExecute.resize(stringToExecute.size() - 4);
+            }
+            else if (boost::algorithm::ends_with(stringToExecute.c_str(), "@python"))
+            {
+                lang = sim_lang_python;
+                stringToExecute.resize(stringToExecute.size() - 7);
+            }
+
+            int retVal = -1; // error
+            if ((target->getLang() == "lua") || (lang == sim_lang_lua))
+                retVal = target->executeScriptString(stringToExecute.c_str(), outStack);
+            else
+            {
+                if (target->getLang() == "python")
+                {
+                    if (target->getScriptState() == CScriptObject::scriptState_initialized)
+                    {
+                        CInterfaceStack* tmpStack = App::worldContainer->interfaceStackContainer->createStack();
+                        tmpStack->pushTextOntoStack(stringToExecute.c_str());
+                        retVal = target->callCustomScriptFunction("_evalExecRet", tmpStack, outStack);
+                        App::worldContainer->interfaceStackContainer->destroyStack(tmpStack);
+                        if (retVal == 1)
+                        {
+                            retVal = 0;
+                            CInterfaceStackObject* obj = outStack->getStackObjectFromIndex(0);
+                            if (obj->getObjectType() == sim_stackitem_string)
+                            {
+                                CInterfaceStackString* str = (CInterfaceStackString*)obj;
+                                std::string tmp(str->getValue(nullptr));
+                                if (tmp == "_*empty*_")
+                                    outStack->clear();
+                            }
+                        }
+                    }
+                    else
+                        errMsg = SIM_ERROR_SCRIPT_NOT_INITIALIZED;
+                }
+                else
+                    errMsg = "script has unsupported language.";
+            }
+            if (retVal != 0)
+                errMsg = SIM_ERROR_OPERATION_FAILED;
+        }
+        else
+            errMsg = SIM_ERROR_SCRIPT_NOT_INITIALIZED;
+    }
+    return errMsg;
+}
+
+std::string _method_getApiInfo(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string apiWord = fetchText(inStack, 0);
+        if (apiWord.size() > 0)
+        {
+            std::string tip(CScriptObject::getFunctionCalltip(apiWord.c_str(), target));
+            outStack->pushTextOntoStack(tip.c_str());
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+    }
+    return errMsg;
+}
+
+std::string _method_getApiFunc(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string apiW = fetchText(inStack, 0);
+        bool funcs = true;
+        bool vars = true;
+        if (apiW.size() > 0)
+        {
+            if ((apiW[0] == '+') || (apiW[0] == '-'))
+            {
+                vars = (apiW[0] != '+');
+                funcs = (apiW[0] != '-');
+                apiW.erase(0, 1);
+            }
+        }
+        std::set<std::string> t;
+        if (funcs)
+            CScriptObject::getMatchingFunctions(apiW.c_str(), t, target);
+        if (vars)
+            CScriptObject::getMatchingConstants(apiW.c_str(), t, target);
+        std::vector<std::string> theWords;
+        for (const auto& str : t)
+            theWords.push_back(str);
+        outStack->pushTextArrayOntoStack(theWords.data(), theWords.size());
+    }
+    return errMsg;
+}
+
+std::string _method_getStackTraceback(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        outStack->pushTextOntoStack(target->getAndClearLastStackTraceback().c_str());
+    }
+    return errMsg;
+}
+
+std::string _method_init(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        if (currentScript == target)
+            App::asyncResetScript(targetObj); // delayed
+        else
+            target->initScript();
     }
     return errMsg;
 }

@@ -5026,6 +5026,7 @@ int _simGetStringProperty(luaWrap_lua_State* L)
             luaWrap_lua_pushnil(L);
             LUA_END(1);
         }
+        printf("Target: %i, prop: %s\n", target, pName.c_str());
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

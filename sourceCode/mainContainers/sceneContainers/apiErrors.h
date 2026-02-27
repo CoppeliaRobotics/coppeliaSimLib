@@ -38,7 +38,7 @@
 #define SIM_ERROR_SCRIPT_INEXISTANT "script does not exist."
 #define SIM_ERROR_INVALID_SCRIPT_TYPE "invalid script type."
 #define SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST "invalid script type, or script does not exist."
-#define SIM_ERROR_SCRIPT_NOT_INITIALIZED "script is not initialized (or has already ended)"
+#define SIM_ERROR_SCRIPT_NOT_INITIALIZED "script is not initialized (or has already ended)."
 #define SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND "no associated simulation script found."
 #define SIM_ERROR_PAGE_INEXISTANT "page does not exist."
 #define SIM_ERROR_ILLEGAL_OBJECT_NAME "illegal object name."

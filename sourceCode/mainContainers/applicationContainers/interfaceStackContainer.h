@@ -9,7 +9,7 @@ class CInterfaceStackContainer
     virtual ~CInterfaceStackContainer();
 
     CInterfaceStack* createStack();
-    CInterfaceStack* createStackCopy(CInterfaceStack* original);
+    CInterfaceStack* createStackCopy(const CInterfaceStack* original);
     bool destroyStack(int id);
     bool destroyStack(CInterfaceStack* stack);
     CInterfaceStack* getStack(int id);

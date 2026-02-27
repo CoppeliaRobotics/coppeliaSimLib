@@ -22,7 +22,7 @@ CInterfaceStack* CInterfaceStackContainer::createStack()
     return (stack);
 }
 
-CInterfaceStack* CInterfaceStackContainer::createStackCopy(CInterfaceStack* original)
+CInterfaceStack* CInterfaceStackContainer::createStackCopy(const CInterfaceStack* original)
 {
     int id = SIM_IDSTART_INTERFACESTACK;
     while (getStack(id) != nullptr)
