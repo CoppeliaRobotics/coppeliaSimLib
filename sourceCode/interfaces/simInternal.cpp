@@ -8357,8 +8357,7 @@ unsigned char* simGetVisionSensorImg_internal(int sensorHandle, int options, dou
     return (nullptr);
 }
 
-int simSetVisionSensorImg_internal(int sensorHandle, const unsigned char* img, int options, const int* pos,
-                                   const int* size)
+int simSetVisionSensorImg_internal(int sensorHandle, const unsigned char* img, int options, const int* pos, const int* size)
 {
     C_API_START;
 

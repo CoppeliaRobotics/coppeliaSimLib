@@ -202,8 +202,8 @@ class CSceneObject
     size_t getAttachedScripts(std::vector<CScriptObject*>& scripts, int scriptType, bool legacyEmbeddedScripts);
 
     void scalePosition(double scalingFactor);
-    void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList, bool baseIncluded = true,
-                                bool start = true) const;
+    void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList, bool baseIncluded = true, bool start = true) const;
+    void getAllHandlesRecursive(std::vector<int>* handlesList, bool baseIncluded = true, bool start = true) const;
     void getChain(std::vector<CSceneObject*>& objectList, bool tipIncluded = true, bool start = true) const;
 
     void setReferencedHandles(size_t cnt, const int* handles, const char* tag);

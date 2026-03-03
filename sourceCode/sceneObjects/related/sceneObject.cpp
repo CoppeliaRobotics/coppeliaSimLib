@@ -1395,6 +1395,15 @@ void CSceneObject::getAllObjectsRecursive(std::vector<CSceneObject*>* objectList
         getChildFromIndex(i)->getAllObjectsRecursive(objectList, true, false);
 }
 
+void CSceneObject::getAllHandlesRecursive(std::vector<int>* handlesList, bool baseIncluded, bool start) const
+{ // baseIncluded and start are true by default.
+    // Returns all handles build on this (including children of children of...)
+    if (baseIncluded || (!start))
+        handlesList->push_back(_objectHandle);
+    for (size_t i = 0; i < getChildCount(); i++)
+        getChildFromIndex(i)->getAllHandlesRecursive(handlesList, true, false);
+}
+
 void CSceneObject::getChain(std::vector<CSceneObject*>& objectList, bool tipIncluded, bool start) const
 { // tipIncluded and start are true by default.
     // Returns the chain with this object as tip

@@ -11,6 +11,8 @@
 #include <interfaceStackPose.h>
 #include <interfaceStackHandle.h>
 #include <interfaceStackColor.h>
+#include <sceneObjectOperations.h>
+#include <imgLoaderSaver.h>
 #include <boost/algorithm/string.hpp>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
@@ -86,6 +88,20 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["getApiFunc"] = _method_getApiFunc;
         funcTable["getStackTraceback"] = _method_getStackTraceback;
         funcTable["init"] = _method_init;
+        funcTable["scale"] = _method_scale;
+        funcTable["scaleTree"] = _method_scaleTree;
+        funcTable["startSimulation"] = _method_startSimulation;
+        funcTable["pauseSimulation"] = _method_pauseSimulation;
+        funcTable["stopSimulation"] = _method_stopSimulation;
+        funcTable["getName"] = _method_getName;
+        funcTable["dynamicReset"] = _method_dynamicReset;
+        funcTable["loadImage"] = _method_loadImage;
+        funcTable["loadImageFromBuffer"] = _method_loadImageFromBuffer;
+        funcTable["saveImage"] = _method_saveImage;
+        funcTable["saveImageToBuffer"] = _method_saveImageToBuffer;
+        funcTable["transformImage"] = _method_transformImage;
+        funcTable["getImage"] = _method_getImage;
+        funcTable["setImage"] = _method_setImage;
     }
 
     std::string retVal("__notFound__");
@@ -2189,92 +2205,160 @@ std::string _method_checkDistance(int targetObj, const char* method, CScriptObje
 std::string _method_checkSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CProxSensor* target = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_integer | arg_optional, arg_double | arg_optional}))
+    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
+    CProxSensor* proxSensor = nullptr;
+    if (visionSensor == nullptr)
+        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
+    if ((visionSensor != nullptr) || (proxSensor != nullptr))
     {
-        int entity = fetchHandle(inStack, 0, sim_handle_all);
-        int options = fetchInt(inStack, 1, -1);
-        double maxNormal = fetchDouble(inStack, 2, 0.0);
-        if ((entity == sim_handle_all) || doesEntityExist(entity, &errMsg, 0))
+        if (proxSensor != nullptr)
         {
-            if (entity == sim_handle_all)
-                entity = -1;
-            if (options == -1)
+            if (checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_integer | arg_optional, arg_double | arg_optional}))
             {
-                options = 0;
-                if (target->getFrontFaceDetection())
-                    options = options | 1;
-                if (target->getBackFaceDetection())
-                    options = options | 2;
-                if (!target->getExactMode())
-                    options = options | 4;
+                int entity = fetchHandle(inStack, 0, sim_handle_all);
+                int options = fetchInt(inStack, 1, -1);
+                double maxNormal = fetchDouble(inStack, 2, 0.0);
+                if ((entity == sim_handle_all) || doesEntityExist(entity, &errMsg, 0))
+                {
+                    if (entity == sim_handle_all)
+                        entity = -1;
+                    if (options == -1)
+                    {
+                        options = 0;
+                        if (proxSensor->getFrontFaceDetection())
+                            options = options | 1;
+                        if (proxSensor->getBackFaceDetection())
+                            options = options | 2;
+                        if (!proxSensor->getExactMode())
+                            options = options | 4;
+                    }
+                    if (maxNormal == 0.0)
+                        maxNormal = proxSensor->getAllowedNormal();
+                    if (maxNormal != 0.0)
+                        options = options | 8;
+                    bool frontFace = (options & 1);
+                    bool backFace = (options & 2);
+                    if (!(frontFace || backFace))
+                        frontFace = true;
+                    bool fastDetection = (options & 4);
+                    int detectedObj;
+                    C3Vector dPoint;
+                    dPoint.clear();
+                    double minThreshold = -1.0;
+                    if (proxSensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
+                        minThreshold = proxSensor->convexVolume->getSmallestDistanceAllowed();
+                    C3Vector normV;
+                    normV.clear();
+                    double dist = DBL_MAX;
+                    bool detected = CProxSensorRoutine::detectEntity(targetObj, entity, !fastDetection, maxNormal > 0.0, maxNormal, dPoint, dist, frontFace, backFace, detectedObj, minThreshold, normV, true);
+                    if (!detected)
+                        dist = 0.0;
+                    pushBool(outStack, detected);
+                    pushDouble(outStack, dist);
+                    pushVector3(outStack, dPoint);
+                    pushHandle(outStack, detectedObj);
+                    pushVector3(outStack, normV);
+                }
             }
-            if (maxNormal == 0.0)
-                maxNormal = target->getAllowedNormal();
-            if (maxNormal != 0.0)
-                options = options | 8;
-            bool frontFace = (options & 1);
-            bool backFace = (options & 2);
-            if (!(frontFace || backFace))
-                frontFace = true;
-            bool fastDetection = (options & 4);
-            int detectedObj;
-            C3Vector dPoint;
-            dPoint.clear();
-            double minThreshold = -1.0;
-            if (target->convexVolume->getSmallestDistanceAllowed() > 0.0)
-                minThreshold = target->convexVolume->getSmallestDistanceAllowed();
-            C3Vector normV;
-            normV.clear();
-            double dist = DBL_MAX;
-            bool detected = CProxSensorRoutine::detectEntity(targetObj, entity, !fastDetection, maxNormal > 0.0, maxNormal, dPoint, dist, frontFace, backFace, detectedObj, minThreshold, normV, true);
-            if (!detected)
-                dist = 0.0;
-            pushBool(outStack, detected);
-            pushDouble(outStack, dist);
-            pushVector3(outStack, dPoint);
-            pushHandle(outStack, detectedObj);
-            pushVector3(outStack, normV);
+        }
+        if (visionSensor != nullptr)
+        {
+            if (checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional}))
+            {
+                int entity = fetchHandle(inStack, 0, sim_handle_all);
+                if ((entity == sim_handle_all) || doesEntityExist(entity, &errMsg, 0))
+                {
+                    bool detection;
+                    std::vector<std::vector<double>> packets;
+                    visionSensor->checkSensor(entity, true, &detection, &packets);
+                    pushBool(outStack, detection);
+                    if (packets.size() >= 1)
+                        pushDoubleArray(outStack, packets[0].data(), packets[0].size());
+                    else
+                        pushDoubleArray(outStack, nullptr, 0);
+                    if (packets.size() >= 2)
+                        pushDoubleArray(outStack, packets[1].data(), packets[1].size());
+                    else
+                        pushDoubleArray(outStack, nullptr, 0);
+                }
+            }
         }
     }
+    else
+        errMsg = SIM_ERROR_METHOD_NOT_AVAILABLE_FOR_THAT_OBJECT;
     return errMsg;
 }
 
 std::string _method_resetSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CProxSensor* target = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
+    CProxSensor* proxSensor = nullptr;
+    if (visionSensor == nullptr)
+        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
+    if ((visionSensor != nullptr) || (proxSensor != nullptr))
     {
-        target->resetSensor(false);
+        if (checkInputArguments(method, inStack, &errMsg, {}))
+        {
+            if (visionSensor != nullptr)
+                visionSensor->resetSensor();
+            if (proxSensor != nullptr)
+                proxSensor->resetSensor(false);
+        }
     }
+    else
+        errMsg = SIM_ERROR_METHOD_NOT_AVAILABLE_FOR_THAT_OBJECT;
     return errMsg;
 }
 
 std::string _method_handleSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CProxSensor* target = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
+    CProxSensor* proxSensor = nullptr;
+    if (visionSensor == nullptr)
+        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
+    if ((visionSensor != nullptr) || (proxSensor != nullptr))
     {
-        C3Vector smallest;
-        smallest.clear();
-        double smallestL = 0.0;
-        int detectedObj = -1;
-        C3Vector detectedN;
-        detectedN.clear();
-        bool detected = target->handleSensor(false, detectedObj, detectedN);
-        pushBool(outStack, detected);
-        if (detected)
+        if (checkInputArguments(method, inStack, &errMsg, {}))
         {
-            smallest = target->getDetectedPoint();
-            smallestL = smallest.getLength();
+            if (proxSensor != nullptr)
+            {
+                C3Vector smallest;
+                smallest.clear();
+                double smallestL = 0.0;
+                int detectedObj = -1;
+                C3Vector detectedN;
+                detectedN.clear();
+                bool detected = proxSensor->handleSensor(false, detectedObj, detectedN);
+                pushBool(outStack, detected);
+                if (detected)
+                {
+                    smallest = proxSensor->getDetectedPoint();
+                    smallestL = smallest.getLength();
+                }
+                pushDouble(outStack, smallestL);
+                pushVector3(outStack, smallest);
+                pushHandle(outStack, detectedObj);
+                pushVector3(outStack, detectedN);
+            }
+            if (visionSensor != nullptr)
+            {
+                bool detection = visionSensor->handleSensor();
+                pushBool(outStack, detection);
+                if (visionSensor->sensorAuxiliaryResult.size() >= 1)
+                    pushDoubleArray(outStack, visionSensor->sensorAuxiliaryResult[0].data(), visionSensor->sensorAuxiliaryResult[0].size());
+                else
+                    pushDoubleArray(outStack, nullptr, 0);
+                if (visionSensor->sensorAuxiliaryResult.size() >= 2)
+                    pushDoubleArray(outStack, visionSensor->sensorAuxiliaryResult[1].data(), visionSensor->sensorAuxiliaryResult[1].size());
+                else
+                    pushDoubleArray(outStack, nullptr, 0);
+            }
         }
-        pushDouble(outStack, smallestL);
-        pushVector3(outStack, smallest);
-        pushHandle(outStack, detectedObj);
-        pushVector3(outStack, detectedN);
     }
+    else
+        errMsg = SIM_ERROR_METHOD_NOT_AVAILABLE_FOR_THAT_OBJECT;
     return errMsg;
 }
 
@@ -2629,6 +2713,443 @@ std::string _method_init(int targetObj, const char* method, CScriptObject* curre
             App::asyncResetScript(targetObj); // delayed
         else
             target->initScript();
+    }
+    return errMsg;
+}
+
+std::string _method_scale(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3}))
+    {
+        C3Vector s = fetchVector3(inStack, 0);
+        if ((s(0) >= 0.0001) && (s(1) >= 0.0001) && (s(2) >= 0.0001))
+            target->scaleObjectNonIsometrically(s(0), s(1), s(2));
+        else
+            errMsg = SIM_ERROR_INVALID_INPUT;
+    }
+    return errMsg;
+}
+
+std::string _method_scaleTree(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if (checkInputArguments(method, inStack, &errMsg, {arg_double, arg_bool | arg_optional}))
+    {
+        double scalingFactor = fetchDouble(inStack, 0);
+        bool rootPositionIsScaled = fetchBool(inStack, 1, true);
+        std::vector<int> sel;
+        target->getAllHandlesRecursive(&sel);
+        if (scalingFactor >= 0.0001)
+        {
+            CSceneObjectOperations::scaleObjects(sel, scalingFactor, true, !rootPositionIsScaled);
+#ifdef SIM_WITH_GUI
+            GuiApp::setFullDialogRefreshFlag();
+#endif
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_INPUT;
+    }
+    return errMsg;
+}
+
+std::string _method_startSimulation(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        if (!App::currentWorld->simulation->isSimulationRunning())
+            App::currentWorld->simulation->startOrResumeSimulation();
+    }
+    return errMsg;
+}
+
+std::string _method_pauseSimulation(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        if (App::currentWorld->simulation->isSimulationRunning())
+            App::currentWorld->simulation->pauseSimulation();
+    }
+    return errMsg;
+}
+
+std::string _method_stopSimulation(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        if (!App::currentWorld->simulation->isSimulationStopped())
+        {
+            App::currentWorld->simulation->incrementStopRequestCounter();
+            App::currentWorld->simulation->stopSimulation();
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_getName(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer | arg_optional}))
+    {
+        int t = fetchInt(inStack, 0, -1);
+        std::string nm;
+        if (t == -1)
+            nm = target->getObjectAlias(); // just the alias, e.g. "alias"
+        if (t == 0)
+            nm = target->getObjectAliasAndOrderIfRequired(); // the alias with order, e.g. "alias[0]"
+        if (t == 1)
+            nm = target->getObjectAlias_shortPath(); // the alias with unique path, short, e.g. "/obj/alias[0]"
+        if (t == 2)
+            nm = target->getObjectAlias_fullPath(); // the alias with full path, e.g. "/obj/obj2/alias[0]"
+        if (t == 3)
+        { // just the alias, if unique, e.g. "alias", otherwise the alias with handle, e.g. "alias__42__"
+            if (App::currentWorld->sceneObjects->getObjectFromPath(
+                    nullptr, (std::string("/") + target->getObjectAlias()).c_str(), 1) == nullptr)
+                nm = target->getObjectAlias();
+            else
+                t = 4;
+        }
+        if (t == 4)
+        { // the alias with object handle, e.g. "alias__42__"
+            nm = target->getObjectAlias() + "__";
+            nm += std::to_string(target->getObjectHandle());
+            nm += "__";
+        }
+        if (t == 5)
+            nm = target->getObjectAlias_printPath(); // the print version, not guaranteed to be unique, e.g.
+                                                 // "/obj/.../alias[0]"
+        if (t == 6)
+            nm = target->getObjectPathAndIndex(0); // the path with index, e.g. "/alias{3}"
+        if (t == 7)
+            nm = target->getObjectPathAndIndex(1); // the path with index, e.g. "/parentModel{1}/alias{3}"
+        if (t == 8)
+            nm = target->getObjectPathAndIndex(2); // the path with index, e.g. "/greatParent{0}/parentModel{1}/alias{3}"
+        if (t == 9)
+            nm = target->getObjectPathAndIndex(999); // the path with index, e.g. "/.../.../greatParent{0}/parentModel{1}/alias{3}"
+        pushText(outStack, nm.c_str());
+    }
+    return errMsg;
+}
+
+std::string _method_dynamicReset(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_bool | arg_optional}))
+    {
+        bool wholeTree = fetchBool(inStack, 0, false);
+        target->setDynamicsResetFlag(true, wholeTree);
+    }
+    return errMsg;
+}
+
+std::string _method_loadImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string filename = fetchText(inStack, 0);
+        int res[2];
+        bool hasAlpha;
+        unsigned char* img = CImageLoaderSaver::load(res, -1, filename.c_str(), nullptr, &hasAlpha);
+        if (img != nullptr)
+        {
+            int b = 3;
+            if (hasAlpha)
+                b = 4;
+            pushBuffer(outStack, (char*)img, b * res[0] * res [1]);
+            pushIntArray(outStack, res, 2);
+            pushInt(outStack, b);
+            delete[]((char*)img);
+        }
+        else
+            errMsg = SIM_ERROR_FAILED_LOADING_IMAGE;
+    }
+    return errMsg;
+}
+
+std::string _method_loadImageFromBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string buff = fetchBuffer(inStack, 0);
+        int res[2];
+        bool hasAlpha;
+        int reserved[1] = {(int)buff.size()};
+        unsigned char* img = CImageLoaderSaver::load(res, -1, (char*)buff.c_str(), reserved, &hasAlpha);
+        if (img != nullptr)
+        {
+            int b = 3;
+            if (hasAlpha)
+                b = 4;
+            pushBuffer(outStack, (char*)img, b * res[0] * res [1]);
+            pushIntArray(outStack, res, 2);
+            pushInt(outStack, b);
+            delete[]((char*)img);
+        }
+        else
+            errMsg = SIM_ERROR_FAILED_LOADING_IMAGE;
+    }
+    return errMsg;
+}
+
+std::string _method_saveImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string, arg_integer | arg_optional}))
+    {
+        std::string img = fetchBuffer(inStack, 0);
+        std::vector<int> res;
+        fetchIntArray(inStack, 1, res);
+        std::string filename = fetchText(inStack, 2);
+        int quality = fetchInt(inStack, 3, -1);
+        int options = 0;
+        int channels = 3;
+        if (img.size() == res[0] * res[1])
+        {
+            channels = 1;
+            options = 2;
+        }
+        if (img.size() == (res[0] * res[1]) * 4)
+        {
+            channels = 4;
+            options = 1;
+        }
+        if ((img.size() == res[0] * res[1] * channels) && (res[0] > 0) && (res[1] > 0))
+        {
+            if (filename.size() > 0)
+            {
+                if (!CImageLoaderSaver::save((unsigned char*)img.c_str(), res.data(), options, filename.c_str(), quality, nullptr))
+                    errMsg = SIM_ERROR_OPERATION_FAILED;
+            }
+            else
+                errMsg = SIM_ERROR_INVALID_FILENAME;
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_RESOLUTION;
+    }
+    return errMsg;
+}
+
+std::string _method_saveImageToBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string img = fetchBuffer(inStack, 0);
+        std::vector<int> res;
+        fetchIntArray(inStack, 1, res);
+        std::string ext = fetchText(inStack, 2, "png");
+        ext = "." + ext;
+        int quality = fetchInt(inStack, 3, -1);
+        int options = 0;
+        int channels = 3;
+        if (img.size() == res[0] * res[1])
+        {
+            channels = 1;
+            options = 2;
+        }
+        if (img.size() == (res[0] * res[1]) * 4)
+        {
+            channels = 4;
+            options = 1;
+        }
+        if ((img.size() == res[0] * res[1] * channels) && (res[0] > 0) && (res[1] > 0))
+        {
+            std::string retBuff;
+            if (CImageLoaderSaver::save((unsigned char*)img.c_str(), res.data(), options, ext.c_str(), quality, &retBuff))
+                pushBuffer(outStack, retBuff.data(), retBuff.size());
+            else
+                errMsg = SIM_ERROR_OPERATION_FAILED;
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_RESOLUTION;
+    }
+    return errMsg;
+}
+
+std::string _method_transformImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_table, 2, arg_integer, arg_integer | arg_optional}))
+    {
+        std::string img = fetchBuffer(inStack, 0);
+        std::vector<int> inRes;
+        fetchIntArray(inStack, 1, inRes);
+        std::vector<int> outRes;
+        fetchIntArray(inStack, 2, outRes);
+        int options = fetchInt(inStack, 3, 0);
+        int optionsS = options & 0x0003;
+        options |= 1;
+        options -= 1;
+        int channels = 3;
+        if (img.size() == inRes[0] * inRes[1])
+            channels = 1;
+        if (img.size() == (inRes[0] * inRes[1]) * 4)
+        {
+            channels = 4;
+            options |= 1;
+        }
+        if ((img.size() == inRes[0] * inRes[1] * channels) && (inRes[0] > 0) && (inRes[1] > 0))
+        {
+            if (channels == 1)
+            {
+                std::string img2;
+                img2.reserve(img.size() * 3);
+                for (size_t i = 0; i < img.size(); i++)
+                {
+                    img2[3 * i + 0] = img[i];
+                    img2[3 * i + 1] = img[i];
+                    img2[3 * i + 2] = img[i];
+                }
+                img.swap(img2);
+            }
+            options |= 2;
+            if ((optionsS == 0) || (optionsS == 2))
+                options -= 2;
+            unsigned char* retVal = CImageLoaderSaver::getScaledImage((unsigned char*)img.data(), inRes.data(), outRes.data(), options);
+            std::vector<unsigned char> imgOut;
+            channels = 3;
+            if (optionsS == 0)
+                imgOut.assign(retVal, retVal + outRes[0] * outRes[1] * 3);
+            else if (optionsS == 1)
+            {
+                imgOut.assign(retVal, retVal + outRes[0] * outRes[1] * 4);
+                channels = 4;
+            }
+            else if (optionsS == 2)
+            {
+                channels = 1;
+                imgOut.resize(outRes[0] * outRes[1]);
+                for (size_t i = 0; i < outRes[0] * outRes[1]; i++)
+                {
+                    int g = int(retVal[3 * i + 0]) + int(retVal[3 * i + 1]) + int(retVal[3 * i + 2]);
+                    if (g > 255)
+                        g = 255;
+                    imgOut[i] = (unsigned char)g;
+                }
+            }
+            delete[] retVal;
+            std::vector<unsigned char> imgOut2(imgOut);
+            for (int x = 0; x < outRes[0]; x++)
+            {
+                int x2 = x;
+                if (options & 32)
+                    x2 = outRes[0] - 1 - x;
+                for (int y = 0; y < outRes[1]; y++)
+                {
+                    int y2 = y;
+                    if (options & 64)
+                        y2 = outRes[1] - 1 - y;
+                    if (channels >= 1)
+                        imgOut[channels * (x + y * outRes[0]) + 0] = imgOut2[channels * (x2 + y2 * outRes[0]) + 0];
+                    if (channels >= 3)
+                    {
+                        imgOut[channels * (x + y * outRes[0]) + 1] = imgOut2[channels * (x2 + y2 * outRes[0]) + 1];
+                        imgOut[channels * (x + y * outRes[0]) + 2] = imgOut2[channels * (x2 + y2 * outRes[0]) + 2];
+                        if (channels >= 4)
+                            imgOut[channels * (x + y * outRes[0]) + 3] = imgOut2[channels * (x2 + y2 * outRes[0]) + 3];
+                    }
+                }
+            }
+            pushBuffer(outStack, (char*)imgOut.data(), channels * outRes[0] * outRes[1]);
+            pushIntArray(outStack, outRes.data(), 2);
+            pushInt(outStack, channels);
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_RESOLUTION;
+    }
+    return errMsg;
+}
+
+std::string _method_getImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table | arg_optional, 2, arg_integer, arg_table | arg_optional, 2, arg_integer, arg_integer | arg_optional, arg_double | arg_optional}))
+    {
+        std::vector<int> pos;
+        fetchIntArray(inStack, 0, pos, {0, 0});
+        std::vector<int> size;
+        fetchIntArray(inStack, 1, size, {0, 0});
+        int options = fetchInt(inStack, 2, 0); // rgb
+        double rgbaCutOff = fetchDouble(inStack, 3, 0.999);
+        int res[2];
+        target->getResolution(res);
+        options &= 0x003;
+        int opts = options;
+        if (options == 1)
+            options = 2;
+        else if (options == 2)
+            options = 1;
+        if (size[0] == 0)
+            size[0] = res[0];
+        if (size[1] == 0)
+            size[1] = res[1];
+        unsigned char* img = target->readPortionOfCharImage(pos[0], pos[1], size[0], size[1], rgbaCutOff, options);
+        if (img != nullptr)
+        {
+            int s = 3;
+            if (opts == 2)
+                s = 1; // greyscale
+            if (opts == 1)
+                s = 4; // + alpha channel
+            pushBuffer(outStack, (char*)img, s * size[0] * size[1]);
+            delete[]((char*)img);
+            pushIntArray(outStack, res, 2);
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+    }
+    return errMsg;
+}
+
+std::string _method_setImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table | arg_optional, 2, arg_integer, arg_table | arg_optional, 2, arg_integer}))
+    {
+        std::vector<char> img;
+        fetchBuffer(inStack, 0, img);
+        std::vector<int> pos;
+        fetchIntArray(inStack, 1, pos, {0, 0});
+        std::vector<int> size;
+        fetchIntArray(inStack, 2, size, {0, 0});
+        int res[2];
+        target->getResolution(res);
+        if (size[0] == 0)
+            size[0] = res[0];
+        if (size[1] == 0)
+            size[1] = res[1];
+        int s = 0;
+        int opt = 0;
+        if (size[0] * size[1] == img.size())
+        {
+            s = 1;
+            opt = 1;
+        }
+        else if (size[0] * size[1] * 3 == img.size())
+            s = 3;
+        else if (size[0] * size[1] * 4 == img.size())
+        {
+            s = 4;
+            opt = 2;
+        }
+        if (s > 0)
+        {
+            if (!target->writePortionOfCharImage((unsigned char*)img.data(), pos[0], pos[1], size[0], size[1], opt))
+                errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+        }
+        else
+            errMsg = SIM_ERROR_INCORRECT_BUFFER_SIZE;
     }
     return errMsg;
 }

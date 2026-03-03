@@ -10,7 +10,7 @@
 class CSceneObjectOperations
 {
   public:
-    static void scaleObjects(const std::vector<int>& selection, double scalingFactor, bool scalePositionsToo);
+    static void scaleObjects(const std::vector<int>& selection, double scalingFactor, bool scalePositionsToo, bool doNotScaleFirstItemPos = false);
     static int groupSelection(std::vector<int>* selection);
     static void ungroupSelection(std::vector<int>* selection, bool fullUngroup = false);
     static int mergeSelection(std::vector<int>* selection);

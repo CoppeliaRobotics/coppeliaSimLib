@@ -244,8 +244,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
-                    ev->appendKeyFloatArray("pts", nullptr, 0);
-                    ev->appendKeyUint8Array("rgba", nullptr, 0);
+                    ev->appendKeyFloatArray(propOctree_voxels.name, nullptr, 0);
+                    ev->appendKeyUint8Array(propOctree_colors.name, nullptr, 0);
                     ev->appendKeyUint32Array("ids", nullptr, 0);
                     ev->closeArrayOrMap();
                     if (evv == nullptr)
@@ -280,8 +280,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             if (evv == nullptr)
                                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                             ev->openKeyMap("set");
-                            ev->appendKeyFloatArray("pts", pts, newCnt * 3);
-                            ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                            ev->appendKeyFloatArray(propOctree_voxels.name, pts, newCnt * 3);
+                            ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
                             ev->closeArrayOrMap();
                             if (evv == nullptr)
@@ -304,8 +304,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                 if (evv == nullptr)
                                     ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                                 ev->openKeyMap("add");
-                                ev->appendKeyFloatArray("pts", pts, newCnt * 3);
-                                ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                                ev->appendKeyFloatArray(propOctree_voxels.name, pts, newCnt * 3);
+                                ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
                                 ev->appendKeyUint32Array("ids", ids, newCnt);
                                 ev->closeArrayOrMap();
                                 ev->openKeyMap("rem");

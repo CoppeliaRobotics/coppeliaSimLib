@@ -98,10 +98,8 @@ class CVisionSensor : public CViewableBase
     bool getExplicitHandling() const;
     void resetSensor();
     bool handleSensor();
-    bool checkSensor(int entityID, bool overrideRenderableFlagsForNonCollections);
-    float* checkSensorEx(int entityID, bool imageBuffer,
-                         bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, bool hideEdgesIfModel,
-                         bool overrideRenderableFlagsForNonCollections);
+    bool checkSensor(int entityID, bool overrideRenderableFlagsForNonCollections, bool* triggered = nullptr, std::vector<std::vector<double>>* packets = nullptr);
+    float* checkSensorEx(int entityID, bool imageBuffer, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, bool hideEdgesIfModel, bool overrideRenderableFlagsForNonCollections);
     void setDepthBuffer(const float* img);
 
     void setIgnoreRGBInfo(bool ignore);

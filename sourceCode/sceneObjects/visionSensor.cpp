@@ -990,8 +990,8 @@ void CVisionSensor::_emitTriggerStateAndPacketChangeEvents(CCbor* thirdPartyEv /
     }
 }
 
-bool CVisionSensor::checkSensor(int entityID, bool overrideRenderableFlagsForNonCollections)
-{                          // This function should only be used by simCheckVisionSensor(Ex) functions! It will temporarily buffer current result
+bool CVisionSensor::checkSensor(int entityID, bool overrideRenderableFlagsForNonCollections, bool* triggered /*= nullptr*/, std::vector<std::vector<double>>* packets /*= nullptr*/)
+{ // This function should only be used by simCheckVisionSensor(Ex) functions! It will temporarily buffer current result
     if (_useExternalImage) // added those 2 lines on 2010/12/21
         return (false);
 
@@ -1022,6 +1022,10 @@ bool CVisionSensor::checkSensor(int entityID, bool overrideRenderableFlagsForNon
     // 2. Do the detection:
     bool all = (entityID == -1);
     bool retVal = detectEntity(entityID, all, false, false, overrideRenderableFlagsForNonCollections); // We don't swap image buffers!
+    if (triggered != nullptr)
+        triggered[0] = retVal;
+    if (packets != nullptr)
+        packets[0] = sensorAuxiliaryResult;
     // 3. Restore previous state:
     sensorResult.sensorWasTriggered = cop.sensorWasTriggered;
     sensorResult.sensorResultIsValid = cop.sensorResultIsValid;

@@ -152,6 +152,12 @@ struct SJointProperty
         "getObjects": "sim-2.callMethod",
         "createObject": "sim-2.callMethod",
         "duplicateObjects": "sim-2.callMethod",
+        "removeObjects": "sim-2.callMethod",
+        "loadImage": "sim-2.callMethod",
+        "loadImageFromBuffer": "sim-2.callMethod",
+        "saveImage": "sim-2.callMethod",
+        "saveImageToBuffer": "sim-2.callMethod",
+        "transformImage": "sim-2.callMethod",
         "removeObjects": "sim-2.callMethod")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callMethod",
@@ -169,10 +175,7 @@ struct SJointProperty
         "remove": "sim-2.callMethod",
         "checkDistance": "sim-2.callMethod")"
 
-#define DRAWINGOBJECT_META_METHODS R"("addItems": "sim-2._addDrawingObjectItems",
-        "clearItems": "sim-2._clearDrawingObjectItems",
-        "remove": "sim-2.callMethod",
-        "addPackedItems": "sim-2._addDrawingObjectPackedItems")"
+#define DRAWINGOBJECT_META_METHODS R"("remove": "sim-2.callMethod")"
 
 #define MESH_META_METHODS R"("__": "__")"
 
@@ -181,7 +184,6 @@ struct SJointProperty
         "duplicateObjects": "sim-2.callMethod",
         "handleSimulationScripts": "sim-2.callMethod",
         "handleCustomizationScripts": "sim-2.callMethod",
-        "scaleObjects": "sim-2._scaleObjects",
         "getAncestors": "sim-2.callMethod",
         "getDescendants": "sim-2.callMethod",
         "getObjects": "sim-2.callMethod",
@@ -192,7 +194,10 @@ struct SJointProperty
         "saveScene": "sim-2.callMethod",
         "saveSceneToBuffer": "sim-2.callMethod",
         "loadScene": "sim-2.callMethod",
-        "loadSceneFromBuffer": "sim-2.callMethod")"
+        "loadSceneFromBuffer": "sim-2.callMethod",
+        "startSimulation": "sim-2.callMethod",
+        "pauseSimulation": "sim-2.callMethod",
+        "stopSimulation": "sim-2.callMethod")"
 
 #define SCENEOBJECT_META_METHODS R"("getAncestors": "sim-2.callMethod",
         "getDescendants": "sim-2.callMethod",
@@ -202,8 +207,7 @@ struct SJointProperty
         "saveModelToBuffer": "sim-2.callMethod",
         "checkCollision": "sim-2.callMethod",
         "checkDistance": "sim-2.callMethod",
-        "getAlias": "sim-2.getObjectAlias",
-        "setAlias": "sim-2.setObjectAlias",
+        "getName": "sim-2.callMethod",
         "getPose": "sim-2.callMethod",
         "getPosition": "sim-2.callMethod",
         "getQuaternion": "sim-2.callMethod",
@@ -211,11 +215,10 @@ struct SJointProperty
         "setPosition": "sim-2.callMethod",
         "setQuaternion": "sim-2.callMethod",
         "setParent": "sim-2.callMethod",
-        "scale": "sim-2._scaleObject",
-
-        "getVelocity": "sim-2.getObjectVelocity",
-        "visitTree": "sim-2.visitTree",
-        "dynamicReset": "sim-2.resetDynamicObject",
+        "scale": "sim-2.callMethod",
+        "scaleTree": "sim-2.callMethod",
+        "dynamicReset": "sim-2.callMethod",
+        "visitTree": "sim-2.callMethod",
         )" OBJECT_META_METHODS
 
 #define SHAPE_META_METHODS R"("addForce": "sim-2.addForce",
@@ -276,11 +279,11 @@ struct SJointProperty
         "resetSensor": "sim-2.callMethod",
         "checkSensor": "sim-2.callMethod")"
 
-#define VISIONSENSOR_META_METHODS R"("handleSensor": "sim-2.handleVisionSensor",
-        "resetSensor": "sim-2.resetVisionSensor",
-        "checkSensor": "sim-2.checkVisionSensor",
-        "getImage": "sim-2.getVisionSensorImg",
-        "setImage": "sim-2.setVisionSensorImg")"
+#define VISIONSENSOR_META_METHODS R"("handleSensor": "sim-2.callMethod",
+        "resetSensor": "sim-2.callMethod",
+        "checkSensor": "sim-2.callMethod",
+        "getImage": "sim-2.callMethod",
+        "setImage": "sim-2.callMethod")"
 
 #define OBJECT_TYPE_NAME "objectType"
 #define OBJECT_TYPE_TYPE (sim_propertytype_string)
@@ -757,7 +760,8 @@ struct SJointProperty
     FUNCX(propObject_absPosition, "absPosition", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Position"}, {"description", "Scene object absolute position"}}), "") \
     FUNCX(propObject_absQuaternion, "absQuaternion", sim_propertytype_quaternion, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Quaternion"}, {"description", "Scene object absolute quaternion"}}), "") \
     FUNCX(propObject_absEulerAngles, "absEulerAngles", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Euler angles"}, {"description", "Scene object absolute Euler angles"}}), "") \
-    FUNCX(propObject_alias, "alias", sim_propertytype_string, 0,  jsonStr({{"label", "Alias"}, {"description", "Scene object alias"}}), "") \
+    FUNCX(propObject_alias, "alias", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Name"}, {"description", "Scene object name"}}), "") \
+    FUNCX(propObject_name, "name", sim_propertytype_string, 0,  jsonStr({{"label", "Name"}, {"description", "Scene object name"}}), "") \
     FUNCX(propObject_deprecatedName, "deprecatedName", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Deprecated name"}, {"description", ""}}), "") \
     FUNCX(propObject_bbPose, "bbPose", sim_propertytype_pose, sim_propertyinfo_notwritable,  jsonStr({{"label", "Bounding box pose"}, {"description", "Bounding box local pose"}}), "") \
     FUNCX(propObject_bbHsize, "bbHSize", sim_propertytype_vector3, sim_propertyinfo_notwritable,  jsonStr({{"label", "Bounding box half sizes"}, {"description", ""}}), "") \

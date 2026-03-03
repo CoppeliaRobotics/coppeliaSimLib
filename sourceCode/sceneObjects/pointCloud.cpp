@@ -293,8 +293,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
-                    ev->appendKeyFloatArray("pts", nullptr, 0);
-                    ev->appendKeyUint8Array("rgba", nullptr, 0);
+                    ev->appendKeyFloatArray(propPointCloud_points.name, nullptr, 0);
+                    ev->appendKeyUint8Array(propPointCloud_colors.name, nullptr, 0);
                     ev->appendKeyUint32Array("ids", nullptr, 0);
                     ev->closeArrayOrMap();
                     if (evv == nullptr)
@@ -329,8 +329,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                             if (evv == nullptr)
                                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                             ev->openKeyMap("set");
-                            ev->appendKeyFloatArray("pts", pts, newCnt * 3);
-                            ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                            ev->appendKeyFloatArray(propPointCloud_points.name, pts, newCnt * 3);
+                            ev->appendKeyUint8Array(propPointCloud_colors.name, cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
                             ev->closeArrayOrMap();
                             if (evv == nullptr)
@@ -353,8 +353,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                                 if (evv == nullptr)
                                     ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                                 ev->openKeyMap("add");
-                                ev->appendKeyFloatArray("pts", pts, newCnt * 3);
-                                ev->appendKeyUint8Array("rgba", cols, newCnt * 4);
+                                ev->appendKeyFloatArray(propPointCloud_points.name, pts, newCnt * 3);
+                                ev->appendKeyUint8Array(propPointCloud_colors.name, cols, newCnt * 4);
                                 ev->appendKeyUint32Array("ids", ids, newCnt);
                                 ev->closeArrayOrMap();
                                 ev->openKeyMap("rem");

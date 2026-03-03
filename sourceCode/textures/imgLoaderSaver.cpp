@@ -91,15 +91,13 @@ unsigned char* CImageLoaderSaver::load(const char* filename, int* resX, int* res
     return (data);
 }
 
-unsigned char* CImageLoaderSaver::loadQTgaImageData(const char* fileAndPath, int& resX, int& resY, bool& rgba,
-                                                    unsigned char invisibleColor[3], int bitsPerPixel[1])
+unsigned char* CImageLoaderSaver::loadQTgaImageData(const char* fileAndPath, int& resX, int& resY, bool& rgba, unsigned char invisibleColor[3], int bitsPerPixel[1])
 {
     unsigned char* data = CTGAFormat::getQ_ImageData(fileAndPath, resX, resY, rgba, invisibleColor, bitsPerPixel);
     return (data);
 }
 
-unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalImg, int colorComponents, int originalX,
-                                                 int originalY, int newX, int newY)
+unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalImg, int colorComponents, int originalX, int originalY, int newX, int newY)
 {
     QImage::Format f = QImage::Format_RGB888;
     unsigned char* im = new unsigned char[originalX * originalY * colorComponents];
@@ -181,8 +179,7 @@ bool CImageLoaderSaver::transformImage(unsigned char* img, int resX, int resY, i
     return (true);
 }
 
-unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalImg, const int resolIn[2],
-                                                 int resolOut[2], int options)
+unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalImg, const int resolIn[2], int resolOut[2], int options)
 {
     int compIn = 3;
     int compOut = 3;
@@ -307,8 +304,8 @@ bool CImageLoaderSaver::save(const unsigned char* data, const int resolution[2],
     return retVal;
 }
 
-unsigned char* CImageLoaderSaver::load(int resolution[2], int options, const char* filename, void* reserved)
-{
+unsigned char* CImageLoaderSaver::load(int resolution[2], int options, const char* filename, void* reserved, bool* hasAlpha /*= nullptr*/)
+{ // if options==-1, it will use use rgba only if the file has an alpha channel
     unsigned char* retVal = nullptr;
     QImage image;
     bool loadRes = false;
@@ -319,8 +316,18 @@ unsigned char* CImageLoaderSaver::load(int resolution[2], int options, const cha
 
     if (loadRes)
     {
+        if (options == -1)
+        {
+            options = 0;
+            if (image.hasAlphaChannel())
+                options |= 1;
+        }
         if (options & 1)
+        {
             retVal = new unsigned char[image.height() * image.width() * 4];
+            if (hasAlpha != nullptr)
+                hasAlpha[0] = ((options & 1) != 0);
+        }
         else
             retVal = new unsigned char[image.height() * image.width() * 3];
         resolution[0] = image.width();

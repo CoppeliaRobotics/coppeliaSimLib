@@ -1101,15 +1101,14 @@ bool CSceneObjectOperations::_divideShape(CShape* it, std::vector<CShape*>& newS
     return (newShapes.size() > 0);
 }
 
-void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection, double scalingFactor,
-                                          bool scalePositionsToo)
+void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection, double scalingFactor, bool scalePositionsToo, bool doNotScaleFirstItemPos /*= false*/)
 {
     std::vector<int> sel(selection);
     App::currentWorld->sceneObjects->addModelObjects(sel);
     for (size_t i = 0; i < sel.size(); i++)
     {
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
-        if (scalePositionsToo)
+        if (scalePositionsToo && ((i != 0) || (!doNotScaleFirstItemPos)))
             it->scalePosition(scalingFactor);
         else
         { // If one parent is a root object (model base) and in this selection, then we also scale the position here!!
