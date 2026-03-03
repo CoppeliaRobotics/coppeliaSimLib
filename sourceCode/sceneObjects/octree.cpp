@@ -244,7 +244,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     if (evv == nullptr)
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
-                    ev->appendKeyFloatArray(propOctree_voxels.name, nullptr, 0);
+                    ev->appendKeyFloatArray(propOctree_points.name, nullptr, 0);
                     ev->appendKeyUint8Array(propOctree_colors.name, nullptr, 0);
                     ev->appendKeyUint32Array("ids", nullptr, 0);
                     ev->closeArrayOrMap();
@@ -280,7 +280,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             if (evv == nullptr)
                                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
                             ev->openKeyMap("set");
-                            ev->appendKeyFloatArray(propOctree_voxels.name, pts, newCnt * 3);
+                            ev->appendKeyFloatArray(propOctree_points.name, pts, newCnt * 3);
                             ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
                             ev->closeArrayOrMap();
@@ -304,7 +304,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                 if (evv == nullptr)
                                     ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                                 ev->openKeyMap("add");
-                                ev->appendKeyFloatArray(propOctree_voxels.name, pts, newCnt * 3);
+                                ev->appendKeyFloatArray(propOctree_points.name, pts, newCnt * 3);
                                 ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
                                 ev->appendKeyUint32Array("ids", ids, newCnt);
                                 ev->closeArrayOrMap();
@@ -1550,7 +1550,7 @@ int COcTree::getFloatArrayProperty(const char* ppName, std::vector<double>& pSta
     int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propOctree_voxels.name)
+        if ((_pName == propOctree_voxels.name) || (_pName == propOctree_points.name))
         {
             retVal = 1;
             pState.assign(_voxelPositions.begin(), _voxelPositions.end());
@@ -1651,7 +1651,7 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
         }
         if (retVal != -1)
         {
-            if (_pName == propOctree_voxels.name)
+            if ((_pName == propOctree_voxels.name) || (_pName == propOctree_points.name))
             {
                 if (_voxelPositions.size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
