@@ -1513,7 +1513,10 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
         ev->appendKeyPose(propObject_pose.name, _localTransformation);
         ev->appendKeyQuaternion(propObject_quaternion.name, _localTransformation.Q);
     }
-    ev->appendKeyText(propObject_alias.name, _objectAlias.c_str());
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyText(propObject_alias.name, _objectAlias.c_str());
+    else
+        ev->appendKeyText(propObject_name.name, _objectAlias.c_str());
     ev->appendKeyBool(propObject_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(propObject_modelBase.name, _modelBase);
 
@@ -5436,9 +5439,11 @@ void CSceneObject::setObjectAlias_direct(const char* newName)
         _objectAlias = newName;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propObject_alias.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyText(cmd, newName);
+            std::string cmd = propObject_name.name;
+            if (App::getEventProtocolVersion() <= 3)
+                cmd = propObject_alias.name;
+            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd.c_str(), true);
+            ev->appendKeyText(cmd.c_str(), newName);
             App::worldContainer->pushEvent();
         }
     }
@@ -6293,7 +6298,7 @@ int CSceneObject::setStringProperty(const char* ppName, const char* pState)
     std::string _pName(ppName);
     int retVal = -1;
 
-    if (_pName == propObject_alias.name)
+    if ((_pName == propObject_alias.name) || (_pName == propObject_name.name))
     {
         App::currentWorld->sceneObjects->setObjectAlias(this, pState, false);
         retVal = 1;
@@ -6317,7 +6322,7 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
     std::string _pName(ppName);
     int retVal = -1;
 
-    if (_pName == propObject_alias.name)
+    if ((_pName == propObject_alias.name) || (_pName == propObject_name.name))
     {
         retVal = 1;
         pState = _objectAlias;
