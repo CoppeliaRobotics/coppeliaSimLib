@@ -57,6 +57,7 @@ void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length);
 void pushLongArray(CInterfaceStack* outStack, const long long int* v, size_t length);
 void pushHandleArray(CInterfaceStack* outStack, const long long int* v, size_t length);
 void pushShortHandleArray(CInterfaceStack* outStack, const int* v, size_t length);
+void pushFloatArray(CInterfaceStack* outStack, const double* v, size_t length);
 void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length);
 void pushTextArray(CInterfaceStack* outStack, const std::string* v, size_t length);
 
@@ -126,3 +127,4 @@ extern std::string _method_saveImageToBuffer(int targetObj, const char* method, 
 extern std::string _method_transformImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getDepth(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

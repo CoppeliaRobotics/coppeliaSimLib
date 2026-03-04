@@ -102,6 +102,7 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["transformImage"] = _method_transformImage;
         funcTable["getImage"] = _method_getImage;
         funcTable["setImage"] = _method_setImage;
+        funcTable["getDepth"] = _method_getDepth;
     }
 
     std::string retVal("__notFound__");
@@ -899,6 +900,11 @@ void pushHandleArray(CInterfaceStack* outStack, const long long int* v, size_t l
 void pushShortHandleArray(CInterfaceStack* outStack, const int* v, size_t length)
 {
     outStack->pushShortHandleArrayOntoStack(v, length);
+}
+
+void pushFloatArray(CInterfaceStack* outStack, const float* v, size_t length)
+{
+    outStack->pushFloatArrayOntoStack(v, length);
 }
 
 void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length)
@@ -3150,6 +3156,43 @@ std::string _method_setImage(int targetObj, const char* method, CScriptObject* c
         }
         else
             errMsg = SIM_ERROR_INCORRECT_BUFFER_SIZE;
+    }
+    return errMsg;
+}
+
+std::string _method_getDepth(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table | arg_optional, 2, arg_integer, arg_table | arg_optional, 2, arg_integer}))
+    {
+        std::vector<int> pos;
+        fetchIntArray(inStack, 0, pos, {0, 0});
+        std::vector<int> size;
+        fetchIntArray(inStack, 1, size, {0, 0});
+        int res[2];
+        target->getResolution(res);
+        if ((size[0] == 0) && (size[1] == 0))
+        {
+            size[0] = res[0];
+            size[1] = res[1];
+        }
+        float* buff = target->readPortionOfImage(pos[0], pos[1], size[0], size[1], 2);
+        if (buff != nullptr)
+        {
+            double np, fp;
+            target->getClippingPlanes(np, fp);
+            float n = (float)np;
+            float f = (float)fp;
+            float fmn = f - n;
+            for (int i = 0; i < size[0] * size[1]; i++)
+                buff[i] = n + fmn * buff[i];
+            pushFloatArray(outStack, buff, size[0] * size[1]);
+            delete[]((char*)buff);
+            pushIntArray(outStack, res, 2);
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_ARGUMENTS;
     }
     return errMsg;
 }

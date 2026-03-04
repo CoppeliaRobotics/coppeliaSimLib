@@ -282,6 +282,7 @@ struct SJointProperty
 #define VISIONSENSOR_META_METHODS R"("handleSensor": "sim-2.callMethod",
         "resetSensor": "sim-2.callMethod",
         "checkSensor": "sim-2.callMethod",
+        "getDepth": "sim-2.callMethod",
         "getImage": "sim-2.callMethod",
         "setImage": "sim-2.callMethod")"
 
