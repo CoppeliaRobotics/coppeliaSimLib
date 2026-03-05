@@ -7496,13 +7496,22 @@ int _registerScriptFuncHook(luaWrap_lua_State* L)
     LUA_START("registerScriptFuncHook");
 
     int retVal = -1;
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_string, 0, lua_arg_bool, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_string, 0, lua_arg_bool, 0, lua_arg_bool | lua_arg_optional, 0))
     {
         const char* systemFunc = luaWrap_lua_tostring(L, 1);
         const char* userFunc = luaWrap_lua_tostring(L, 2);
         bool execBefore = luaToBool(L, 3);
-        retVal = CALL_C_API(simRegisterScriptFuncHook, CScriptObject::getScriptHandleFromInterpreterState_lua(L),
-                                                    systemFunc, userFunc, execBefore, 0);
+        if (luaWrap_lua_gettop(L) >= 4)
+        {
+            bool onlyUnregister = luaToBool(L, 4);
+            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+            it->removeFunctionHook(systemFunc, userFunc, execBefore);
+            if (!onlyUnregister)
+                it->registerFunctionHook(systemFunc, userFunc, execBefore);
+        }
+        else
+            retVal = CALL_C_API(simRegisterScriptFuncHook, CScriptObject::getScriptHandleFromInterpreterState_lua(L), systemFunc, userFunc, execBefore, 0); // compatibility version
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

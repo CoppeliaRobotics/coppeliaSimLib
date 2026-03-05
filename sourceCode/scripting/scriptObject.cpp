@@ -2789,12 +2789,16 @@ int CScriptObject::getScriptHandleFromInterpreterState_lua(void* LL)
     return (retVal);
 }
 
-void CScriptObject::_setScriptHandleToInterpreterState_lua(void* LL, int h)
+void CScriptObject::_setScriptHandleToInterpreterState_lua(void* LL)
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     std::string tmp(SIM_SCRIPT_HANDLE);
     tmp += "=";
-    tmp += std::to_string(h);
+    tmp += std::to_string(_scriptHandle);
+    tmp += ";";
+    tmp += SIM_DETACHEDSCRIPT_HANDLE;
+    tmp += "=";
+    tmp += std::to_string(_scriptPseudoHandle);
     luaWrap_luaL_dostring(L, tmp.c_str());
 }
 
@@ -2996,8 +3000,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     _interpreterState = L;
     luaWrap_luaL_openlibs(L);
     _execSimpleString_safe_lua(L, "os.setlocale'C'");
-
-    _setScriptHandleToInterpreterState_lua(L, _scriptHandle);
+    _setScriptHandleToInterpreterState_lua(L);
     _execSimpleString_safe_lua(L, (std::string(SIM_PLUGIN_NAMESPACES) + "={}").c_str());
     setScriptNameIndexToInterpreterState_lua_old(L, _getScriptNameIndexNumber_old());
 
@@ -3366,6 +3369,52 @@ int CScriptObject::registerFunctionHook(const char* sysFunc, const char* userFun
                 setFuncAndHookCnt(sysFuncNb, 2, getFuncAndHookCnt(sysFuncNb, 2) + 1);
         }
         return (1); // successful register
+    }
+}
+
+void CScriptObject::removeFunctionHook(const char* sysFunc, const char* userFunc, bool before)
+{
+    int sysFuncNb = getSystemCallbackFromString(sysFunc);
+    std::vector<std::string>* l = &_functionHooks_after;
+    if (before)
+        l = &_functionHooks_before;
+    bool userFuncEmpty = strlen(userFunc) == 0;
+    size_t i = 0;
+    while (i < l->size() / 2)
+    {
+        if (l->at(2 * i + 0).compare(sysFunc) == 0)
+        {
+            if (userFuncEmpty)
+                l->erase(l->begin() + 2 * i, l->begin() + 2 * i + 2); // remove all hooks for that system function
+            else
+            {
+                if (l->at(2 * i + 1).compare(userFunc) == 0)
+                { // function already registered. Unregister it:
+                    l->erase(l->begin() + 2 * i, l->begin() + 2 * i + 2);
+                    if (sysFuncNb >= 0)
+                    {
+                        if (before)
+                            setFuncAndHookCnt(sysFuncNb, 1, getFuncAndHookCnt(sysFuncNb, 1) - 1);
+                        else
+                            setFuncAndHookCnt(sysFuncNb, 2, getFuncAndHookCnt(sysFuncNb, 2) - 1);
+                    }
+                    return; // successful unregister
+                }
+                i++;
+            }
+        }
+        else
+            i++;
+    }
+    if (userFuncEmpty)
+    {
+        if (sysFuncNb >= 0)
+        {
+            if (before)
+                setFuncAndHookCnt(sysFuncNb, 1, 0);
+            else
+                setFuncAndHookCnt(sysFuncNb, 2, 0);
+        }
     }
 }
 

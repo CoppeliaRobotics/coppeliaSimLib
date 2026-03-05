@@ -15,8 +15,9 @@
 #define DEFAULT_THREADEDCHILDSCRIPT "simulationScript-threaded"
 #define DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT "customizationScript"
 #define DEFAULT_THREADEDCUSTOMIZATIONSCRIPT "customizationScript-threaded"
-#define SIM_SCRIPT_HANDLE "sim_script_handle"         // keep this global, e.g. not _S.sim_script_handle
-#define SIM_PLUGIN_NAMESPACES "sim_plugin_namespaces" // keep this global, e.g. not _S.sim_plugin_handles
+#define SIM_SCRIPT_HANDLE "sim_script_handle"                   // keep this global
+#define SIM_DETACHEDSCRIPT_HANDLE "sim_detachedscript_handle"   // keep this global
+#define SIM_PLUGIN_NAMESPACES "sim_plugin_namespaces"           // keep this global
 
 // Old:
 #include <userParameters.h>
@@ -195,6 +196,7 @@ class CScriptObject
     int getFuncAndHookCnt(int sysCall, size_t what) const;
     void setFuncAndHookCnt(int sysCall, size_t what, int cnt);
     int registerFunctionHook(const char* sysFunc, const char* userFunc, bool before);
+    void removeFunctionHook(const char* sysFunc, const char* userFunc, bool before);
     bool replaceScriptText(const char* oldTxt, const char* newTxt);
 
     static void getMatchingFunctions(const char* txt, std::set<std::string>& v, const CScriptObject* requestOrigin);
@@ -264,6 +266,7 @@ class CScriptObject
     int _callScriptFunc(const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg);
     bool _execScriptString(const char* scriptString, CInterfaceStack* outStack);
     void _handleInfoCallback();
+    void _setScriptHandleToInterpreterState_lua(void* LL);
 
     int _scriptHandle;        // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
     int _scriptPseudoHandle;  // normally same as _scriptHandle, except for new script objects. In that case, this pseudo handle can be used to access properties of the "naked script"
@@ -343,7 +346,6 @@ class CScriptObject
     static int _countInterpreterStackTableEntries_lua(void* LL, int index);
     static void _pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj, bool pushOnlySimpleTypes = false);
     static void _hookFunction_lua(void* LL, void* arr);
-    static void _setScriptHandleToInterpreterState_lua(void* LL, int h);
     // -----------------------------
 
     // Old:

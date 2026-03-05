@@ -105,6 +105,8 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["getDepth"] = _method_getDepth;
         funcTable["relocateFrame"] = _method_relocateFrame;
         funcTable["alignBoundingBox"] = _method_alignBoundingBox;
+        funcTable["addLog"] = _method_addLog;
+        funcTable["quit"] = _method_quit;
     }
 
     std::string retVal("__notFound__");
@@ -3258,6 +3260,49 @@ std::string _method_alignBoundingBox(int targetObj, const char* method, CScriptO
             else
                 target->alignBB("mesh");
         }
+    }
+    return errMsg;
+}
+
+std::string _method_addLog(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string msg = fetchText(inStack, 0);
+        if (hasArg(inStack, 0))
+        {
+            if (currentScript != nullptr)
+            {
+                int verb = fetchInt(inStack, 1, sim_verbosity_msgs);
+                App::logScriptMsg(currentScript, verb, msg.c_str());
+            }
+            else
+            {
+                int verb = fetchInt(inStack, 1, sim_verbosity_loadinfos);
+                App::logMsg(verb, msg.c_str());
+            }
+        }
+#ifdef SIM_WITH_GUI
+        else
+            GuiApp::clearStatusbar();
+#endif
+    }
+    return errMsg;
+}
+
+std::string _method_quit(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {}))
+    {
+#ifdef SIM_WITH_GUI
+        SSimulationThreadCommand cmd;
+        cmd.cmdId = EXIT_REQUEST_CMD;
+        App::appendSimulationThreadCommand(cmd);
+#else
+        App::postExitRequest();
+#endif
     }
     return errMsg;
 }

@@ -158,7 +158,9 @@ struct SJointProperty
         "saveImage": "sim-2.callMethod",
         "saveImageToBuffer": "sim-2.callMethod",
         "transformImage": "sim-2.callMethod",
-        "removeObjects": "sim-2.callMethod")"
+        "removeObjects": "sim-2.callMethod",
+        "addLog": "sim-2.callMethod",
+        "quit": "sim-2.callMethod")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callMethod",
         "getFunctions": "sim-2.callMethod",
@@ -167,6 +169,10 @@ struct SJointProperty
         "getApiInfo": "sim-2.callMethod",
         "getStackTraceback": "sim-2.callMethod",
         "remove": "sim-2.callMethod",
+        "registerFunctionHook": "sim-2.callMethod",
+        "removeFunctionHook": "sim-2.callMethod",
+        "acquireLock": "sim-2.callMethod",
+        "releaseLock": "sim-2.callMethod",
         "init": "sim-2.callMethod")"
 
 #define COLLECTION_META_METHODS R"("addItem": "sim-2.callMethod",
