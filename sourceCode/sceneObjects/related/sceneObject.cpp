@@ -1605,7 +1605,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
     else
     {
         ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-        ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+        ev->appendKeyVector3(propObject_size.name, _bbHalfSize * 2.0);
     }
 
     customObjectData.appendEventData(nullptr, ev);
@@ -2162,7 +2162,7 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
             else
             {
                 ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                ev->appendKeyVector3(propObject_size.name, _bbHalfSize * 2.0);
             }
             App::worldContainer->pushEvent();
         }
@@ -6490,6 +6490,17 @@ int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
         tr.Q = C4Vector(pState);
         setAbsoluteTransformation(tr);
     }
+    else if (strcmp(ppName, propObject_size.name) == 0)
+    {
+        retVal = 1;
+        C3Vector s(_bbHalfSize * 2.0);
+        for (size_t i = 0; i < 3; i++)
+        {
+            if (s(i) != 0.0)
+                s(i) = pState(i) / s(i);
+        }
+        scaleObjectNonIsometrically(s(0), s(1), s(2));
+    }
 
     return retVal;
 }
@@ -6508,6 +6519,11 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
     {
         retVal = 1;
         pState = _measuredAngularVelocityAxis_velocityMeasurement;
+    }
+    else if (_pName == propObject_size.name)
+    {
+        retVal = 1;
+        pState = _bbHalfSize * 2.0;
     }
     else if (_pName == propObject_bbHsize.name)
     {

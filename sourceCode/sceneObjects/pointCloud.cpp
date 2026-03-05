@@ -303,7 +303,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                         computeBoundingBox();
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                         ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                        ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                        ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
                         App::worldContainer->pushEvent();
                     }
                 }
@@ -339,7 +339,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                                 computeBoundingBox();
                                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                                 ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                                ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                                ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
                                 App::worldContainer->pushEvent();
                             }
                         }
@@ -366,7 +366,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                                     computeBoundingBox();
                                     ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                                     ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                                    ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                                    ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
                                     App::worldContainer->pushEvent();
                                 }
                             }

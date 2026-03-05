@@ -103,6 +103,8 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["getImage"] = _method_getImage;
         funcTable["setImage"] = _method_setImage;
         funcTable["getDepth"] = _method_getDepth;
+        funcTable["relocateFrame"] = _method_relocateFrame;
+        funcTable["alignBoundingBox"] = _method_alignBoundingBox;
     }
 
     std::string retVal("__notFound__");
@@ -352,6 +354,11 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
         }
     }
     return retVal;
+}
+
+bool hasArg(const CInterfaceStack* inStack, int index)
+{
+    return inStack->getStackSize() > index;
 }
 
 bool fetchBool(const CInterfaceStack* inStack, int index, bool defaultValue /*= false*/)
@@ -3193,6 +3200,64 @@ std::string _method_getDepth(int targetObj, const char* method, CScriptObject* c
         }
         else
             errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+    }
+    return errMsg;
+}
+
+std::string _method_relocateFrame(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_pose | arg_optional}))
+    {
+        C7Vector tr = fetchPose(inStack, 0);
+        if ((!target->getMesh()->isPure()) || (target->isCompound()))
+        { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
+            if (hasArg(inStack, 0))
+            {
+                if ((tr.Q(0) == 0.0) && (tr.Q(1) == 0.0) && (tr.Q(2) == 0.0) && (tr.Q(3) == 0.0))
+                    target->relocateFrame("mesh");
+                else
+                {
+                    tr.Q.normalize();
+                    C7Vector x(tr.getInverse() * target->getCumulativeTransformation());
+                    target->setLocalTransformation(target->getFullParentCumulativeTransformation().getInverse() * x);
+                    target->relocateFrame("world");
+                    target->setLocalTransformation(target->getLocalTransformation() * tr);
+                }
+            }
+            else
+                target->relocateFrame("mesh");
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_alignBoundingBox(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_quaternion | arg_optional}))
+    {
+        C4Vector q = fetchQuaternion(inStack, 0);
+        if ((!target->getMesh()->isPure()) || (target->isCompound()))
+        { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
+            if (hasArg(inStack, 0))
+            {
+                C7Vector tr;
+                tr.X = C3Vector::zeroVector;
+                tr.Q = q;
+                if ((tr.Q(0) == 0.0) && (tr.Q(1) == 0.0) && (tr.Q(2) == 0.0) && (tr.Q(3) == 0.0))
+                    target->alignBB("mesh");
+                else
+                {
+                    tr.Q.normalize();
+                    target->alignBB("custom", &tr);
+                }
+            }
+            else
+                target->alignBB("mesh");
+        }
     }
     return errMsg;
 }

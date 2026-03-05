@@ -254,7 +254,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                         computeBoundingBox();
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                         ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                        ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                        ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
                         App::worldContainer->pushEvent();
                     }
                 }
@@ -290,7 +290,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                 computeBoundingBox();
                                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                                 ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                                ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                                ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
                                 App::worldContainer->pushEvent();
                             }
                         }
@@ -317,7 +317,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                     computeBoundingBox();
                                     ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                                     ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                                    ev->appendKeyVector3(propObject_bbHsize.name, _bbHalfSize);
+                                    ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
                                     App::worldContainer->pushEvent();
                                 }
                             }

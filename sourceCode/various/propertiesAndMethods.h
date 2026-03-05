@@ -228,9 +228,10 @@ struct SJointProperty
         "checkDistance": "sim-2.checkDistance",
         "computeMassAndInertia": "sim-2.computeMassAndInertia",
         "getAppearance": "sim-2.getShapeAppearance",
-        "relocateFrame": "sim-2._relocateShapeFrame",
-        "setAppearance": "sim-2.setShapeAppearance",
+        "relocateFrame": "sim-2.callMethod",
+        "alignBoundingBox": "sim-2.callMethod",
         "setShapeBB": "sim-2.setShapeBB",
+        "setAppearance": "sim-2.setShapeAppearance",
         "ungroup": "sim-2.ungroupShape",
         "getMeshData": "sim-2.getShapeMesh")"
 
@@ -765,7 +766,8 @@ struct SJointProperty
     FUNCX(propObject_name, "name", sim_propertytype_string, 0,  jsonStr({{"label", "Name"}, {"description", "Scene object name"}}), "") \
     FUNCX(propObject_deprecatedName, "deprecatedName", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Deprecated name"}, {"description", ""}}), "") \
     FUNCX(propObject_bbPose, "bbPose", sim_propertytype_pose, sim_propertyinfo_notwritable,  jsonStr({{"label", "Bounding box pose"}, {"description", "Bounding box local pose"}}), "") \
-    FUNCX(propObject_bbHsize, "bbHSize", sim_propertytype_vector3, sim_propertyinfo_notwritable,  jsonStr({{"label", "Bounding box half sizes"}, {"description", ""}}), "") \
+    FUNCX(propObject_bbHsize, "bbHSize", sim_propertytype_vector3, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable,  jsonStr({{"label", "Bounding box half sizes"}, {"description", ""}}), "") \
+    FUNCX(propObject_size, "size", sim_propertytype_vector3, 0,  jsonStr({{"label", "Bounding box size"}, {"description", ""}}), "") \
     FUNCX(propObject_movementOptionsDEPRECATED, "movementOptionsFlags", sim_propertytype_int, sim_propertyinfo_deprecated,  jsonStr({{"label", "Movement flags"}, {"description", "Scene object movement flags"}}), "") \
     FUNCX(propObject_movementStepSizeDEPRECATED, "movementStepSize", sim_propertytype_floatarray, sim_propertyinfo_deprecated,  jsonStr({{"label", "Movement step sizes"}, {"description", "Linear and angular step sizes"}}), "") \
     FUNCX(propObject_movementRelativityDEPRECATED, "movementRelativity", sim_propertytype_intarray, sim_propertyinfo_deprecated,  jsonStr({{"label", "Movement relativity"}, {"description", "Movement relativity, linear and angular"}}), "") \

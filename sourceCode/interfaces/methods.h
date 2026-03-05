@@ -8,6 +8,7 @@
 extern std::string callMethod(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std::string* errStr, std::vector<int> inargs);
 
+bool hasArg(const CInterfaceStack* inStack, int index);
 bool fetchBool(const CInterfaceStack* inStack, int index, bool defaultValue = false);
 long long int fetchLong(const CInterfaceStack* inStack, int index, long long int defaultValue = -1);
 int fetchInt(const CInterfaceStack* inStack, int index, int defaultValue = -1);
@@ -128,3 +129,5 @@ extern std::string _method_transformImage(int targetObj, const char* method, CSc
 extern std::string _method_getImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getDepth(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_relocateFrame(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_alignBoundingBox(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
