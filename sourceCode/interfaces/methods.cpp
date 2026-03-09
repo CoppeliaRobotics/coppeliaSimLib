@@ -3380,25 +3380,11 @@ std::string _method_getObject(int targetObj, const char* method, CScriptObject* 
         if (targetObj >= 0)
         {
             prox = App::currentWorld->sceneObjects->getObjectFromHandle(targetObj);
+            if ((prox == nullptr) && (currentScript->getScriptHandle() <= SIM_IDEND_SCENEOBJECT))
+                prox = App::currentWorld->sceneObjects->getScriptFromHandle(currentScript->getScriptHandle());
+//                prox = App::currentWorld->getScriptObjectFromHandle(targetObj);
         }
-        const CSceneObject* emittingObj = nullptr;
-        if (prox == nullptr)
-        {
-            if ((currentScript != nullptr) && (currentScript->getScriptHandle() <= SIM_IDEND_SCENEOBJECT))
-            {
-                CScript* its = App::currentWorld->sceneObjects->getScriptFromHandle(currentScript->getScriptHandle());
-                if (its != nullptr)
-                {
-                    if (its->scriptObject->getParentIsProxy())
-                        emittingObj = its->getParent();
-                    else
-                        emittingObj = its;
-                }
-            }
-        }
-        else
-            emittingObj = prox;
-        it = App::currentWorld->sceneObjects->getObjectFromPath(emittingObj, path.c_str(), index);
+        it = App::currentWorld->sceneObjects->getObjectFromPath(prox, path.c_str(), index);
 
         if (it != nullptr)
             pushHandle(outStack, it->getObjectHandle());

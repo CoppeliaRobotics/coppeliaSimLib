@@ -173,6 +173,7 @@ struct SJointProperty
         "registerFunctionHook": "sim-2.callMethod",
         "removeFunctionHook": "sim-2.callMethod",
         "lock": "sim-2.callMethod",
+        "getObject": "sim-2.callMethod",
         "setStepping": "sim-2.callMethod",
         "getStepping": "sim-2.callMethod",
         "yield": "sim-2.callMethod",
