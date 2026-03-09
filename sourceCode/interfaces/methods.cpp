@@ -107,6 +107,10 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["alignBoundingBox"] = _method_alignBoundingBox;
         funcTable["addLog"] = _method_addLog;
         funcTable["quit"] = _method_quit;
+        funcTable["systemLock"] = _method_systemLock;
+        funcTable["setStepping"] = _method_setStepping;
+        funcTable["getStepping"] = _method_getStepping;
+        funcTable["getObject"] = _method_getObject;
     }
 
     std::string retVal("__notFound__");
@@ -3303,6 +3307,110 @@ std::string _method_quit(int targetObj, const char* method, CScriptObject* curre
 #else
         App::postExitRequest();
 #endif
+    }
+    return errMsg;
+}
+
+std::string _method_systemLock(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool}))
+    {
+        std::string key = fetchText(inStack, 0);
+        bool acquire = fetchBool(inStack, 1);
+        App::systemSemaphore(key.c_str(), acquire);
+    }
+    return errMsg;
+}
+
+std::string _method_setStepping(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_bool}))
+    {
+        bool enable = fetchBool(inStack, 0);
+        if (enable)
+            target->changeAutoYieldingForbidLevel(1, false);
+        else
+            target->changeAutoYieldingForbidLevel(-1, false);
+    }
+    return errMsg;
+}
+
+std::string _method_getStepping(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        pushBool(outStack, target->getAutoYieldingForbidLevel() > 0);
+    }
+    return errMsg;
+}
+
+std::string _method_getObject(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table | arg_optional, 0, arg_any}))
+    {
+        std::string origPath = fetchText(inStack, 0);
+        std::string path(origPath);
+        if ((path.size() == 0) || ((path[0] != '.') && (path[0] != '/')))
+            path = "./" + path;
+        int index = -1;
+        int options = 0;
+        if (hasArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            CInterfaceStackObject* obj = map->getMapObject("index");
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_integer))
+                index = (int)((CInterfaceStackInteger*)obj)->getValue();
+            obj = map->getMapObject("noError");
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+            {
+                if (((CInterfaceStackBool*)obj)->getValue())
+                    options = 1;
+            }
+        }
+        CSceneObject* it = nullptr;
+        CSceneObject* prox = nullptr;
+        if (targetObj >= 0)
+        {
+            prox = App::currentWorld->sceneObjects->getObjectFromHandle(targetObj);
+        }
+        const CSceneObject* emittingObj = nullptr;
+        if (prox == nullptr)
+        {
+            if ((currentScript != nullptr) && (currentScript->getScriptHandle() <= SIM_IDEND_SCENEOBJECT))
+            {
+                CScript* its = App::currentWorld->sceneObjects->getScriptFromHandle(currentScript->getScriptHandle());
+                if (its != nullptr)
+                {
+                    if (its->scriptObject->getParentIsProxy())
+                        emittingObj = its->getParent();
+                    else
+                        emittingObj = its;
+                }
+            }
+        }
+        else
+            emittingObj = prox;
+        it = App::currentWorld->sceneObjects->getObjectFromPath(emittingObj, path.c_str(), index);
+
+        if (it != nullptr)
+            pushHandle(outStack, it->getObjectHandle());
+        else
+        {
+            if ((options & 1) != 0)
+                pushHandle(outStack, -1);
+            else
+            {
+                errMsg = "object does not exist, or name/path ('";
+                errMsg += origPath;
+                errMsg += "') is ill formatted.";
+            }
+        }
     }
     return errMsg;
 }

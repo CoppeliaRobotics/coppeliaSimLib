@@ -160,6 +160,7 @@ struct SJointProperty
         "transformImage": "sim-2.callMethod",
         "removeObjects": "sim-2.callMethod",
         "addLog": "sim-2.callMethod",
+        "systemLock": "sim-2.callMethod",
         "quit": "sim-2.callMethod")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callMethod",
@@ -171,8 +172,11 @@ struct SJointProperty
         "remove": "sim-2.callMethod",
         "registerFunctionHook": "sim-2.callMethod",
         "removeFunctionHook": "sim-2.callMethod",
-        "acquireLock": "sim-2.callMethod",
-        "releaseLock": "sim-2.callMethod",
+        "lock": "sim-2.callMethod",
+        "setStepping": "sim-2.callMethod",
+        "getStepping": "sim-2.callMethod",
+        "yield": "sim-2.callMethod",
+        "step": "sim-2.callMethod",
         "init": "sim-2.callMethod")"
 
 #define COLLECTION_META_METHODS R"("addItem": "sim-2.callMethod",
@@ -201,6 +205,7 @@ struct SJointProperty
         "saveSceneToBuffer": "sim-2.callMethod",
         "loadScene": "sim-2.callMethod",
         "loadSceneFromBuffer": "sim-2.callMethod",
+        "getObject": "sim-2.callMethod",
         "startSimulation": "sim-2.callMethod",
         "pauseSimulation": "sim-2.callMethod",
         "stopSimulation": "sim-2.callMethod")"
@@ -225,6 +230,7 @@ struct SJointProperty
         "scaleTree": "sim-2.callMethod",
         "dynamicReset": "sim-2.callMethod",
         "visitTree": "sim-2.callMethod",
+        "getObject": "sim-2.callMethod",
         )" OBJECT_META_METHODS
 
 #define SHAPE_META_METHODS R"("addForce": "sim-2.addForce",
