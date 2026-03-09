@@ -113,6 +113,8 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["getObject"] = _method_getObject;
         funcTable["announceChange"] = _method_announceChange;
         funcTable["getObjectFromUid"] = _method_getObjectFromUid;
+        funcTable["getInertia"] = _method_getInertia;
+        funcTable["setInertia"] = _method_setInertia;
     }
 
     std::string retVal("__notFound__");
@@ -895,6 +897,13 @@ void pushVector(CInterfaceStack* outStack, const double* v, size_t length)
 void pushMatrix(CInterfaceStack* outStack, const CMatrix& v)
 {
     outStack->pushMatrixOntoStack(v.data.data(), v.rows, v.cols);
+}
+
+void pushMatrix(CInterfaceStack* outStack, const C3X3Matrix& v)
+{
+    double dat[9];
+    v.getData(dat);
+    outStack->pushMatrixOntoStack(dat, 3, 3);
 }
 
 void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length)
@@ -3438,6 +3447,34 @@ std::string _method_getObjectFromUid(int targetObj, const char* method, CScriptO
             else
                 errMsg = SIM_ERROR_OBJECT_INEXISTANT;
         }
+    }
+    return errMsg;
+}
+
+std::string _method_getInertia(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        C3X3Matrix m(shape->getMesh()->getInertia());
+        m *= shape->getMesh()->getMass();
+        pushMatrix(outStack, m);
+        pushVector3(outStack, shape->getMesh()->getCOM());
+    }
+    return errMsg;
+}
+
+std::string _method_setInertia(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        C3X3Matrix m(shape->getMesh()->getInertia());
+        m *= shape->getMesh()->getMass();
+        pushMatrix(outStack, m);
+//        pushVector3(outStack, shape->getMesh()->getCOM())
     }
     return errMsg;
 }

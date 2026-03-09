@@ -1770,6 +1770,11 @@ bool CSceneObjectContainer::setSelectedObjectHandles(const int* v, size_t length
                 App::worldContainer->pushEvent();
             }
         }
+#ifdef SIM_WITH_GUI
+        if (GuiApp::mainWindow != nullptr)
+            GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
+        GuiApp::setLightDialogRefreshFlag();
+#endif
     }
     return (diff);
 }

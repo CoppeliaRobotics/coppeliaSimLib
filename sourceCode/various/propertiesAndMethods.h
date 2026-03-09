@@ -245,6 +245,8 @@ struct SJointProperty
         "getAppearance": "sim-2.getShapeAppearance",
         "relocateFrame": "sim-2.callMethod",
         "alignBoundingBox": "sim-2.callMethod",
+        "getInertia": "sim-2.callMethod",
+        "setInertia": "sim-2.callMethod",
         "setShapeBB": "sim-2.setShapeBB",
         "setAppearance": "sim-2.setShapeAppearance",
         "ungroup": "sim-2.ungroupShape",

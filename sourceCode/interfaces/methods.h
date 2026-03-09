@@ -54,6 +54,7 @@ void pushPose(CInterfaceStack* outStack, const C7Vector& v);
 void pushVector3(CInterfaceStack* outStack, const C3Vector& v);
 void pushVector(CInterfaceStack* outStack, const double* v, size_t length);
 void pushMatrix(CInterfaceStack* outStack, const CMatrix& v);
+void pushMatrix(CInterfaceStack* outStack, const C3X3Matrix& v);
 void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length);
 void pushLongArray(CInterfaceStack* outStack, const long long int* v, size_t length);
 void pushHandleArray(CInterfaceStack* outStack, const long long int* v, size_t length);
@@ -139,3 +140,5 @@ extern std::string _method_getStepping(int targetObj, const char* method, CScrip
 extern std::string _method_getObject(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_announceChange(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getObjectFromUid(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getInertia(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setInertia(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
