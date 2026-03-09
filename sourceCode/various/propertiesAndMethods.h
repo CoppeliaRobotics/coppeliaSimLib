@@ -206,6 +206,8 @@ struct SJointProperty
         "loadScene": "sim-2.callMethod",
         "loadSceneFromBuffer": "sim-2.callMethod",
         "getObject": "sim-2.callMethod",
+        "announceChange": "sim-2.callMethod",
+        "getObjectFromUid": "sim-2.callMethod",
         "startSimulation": "sim-2.callMethod",
         "pauseSimulation": "sim-2.callMethod",
         "stopSimulation": "sim-2.callMethod")"
@@ -921,7 +923,8 @@ struct SJointProperty
     FUNCX(propJoint_averageJointForce, "averageJointForce", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Average force"}, {"description", "Force applied on average (in a simulation step)"}}), "") \
     FUNCX(propJoint_jointMode, "jointMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Mode"}, {"description", "Joint mode"}}), "") \
     FUNCX(propJoint_dynCtrlMode, "dynCtrlMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1, jsonStr({{"label", "Control mode" }, {"description", "Joint control mode, when in dynamic mode"}, {"enum", "jointDynCtrlMode"}}), "") \
-    FUNCX(propJoint_dependencyMaster, "dependencyMasterHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dependency master"}, {"description", "Handle of master joint (in a dependency relationship)"}}), "") \
+    FUNCX(propJoint_dependencyMasterOLD, "dependencyMasterHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dependency master"}, {"description", "Handle of master joint (in a dependency relationship)"}}), "") \
+    FUNCX(propJoint_dependencyMaster, "dependencyMaster", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dependency master"}, {"description", "Handle of master joint (in a dependency relationship)"}, {"handleType", "joint"}}), "") \
     FUNCX(propJoint_dependencyParams, "dependencyParams", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dependency parameters"}, {"description", "Dependency parameters (offset and coefficient)"}}), "") \
     FUNCX(propJoint_maxVelAccelJerk, "maxVelAccelJerk", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Maximum velocity, acceleration and jerk"}, {"description", ""}}), "") \
     FUNCX(propJoint_springDamperParams, "springDamperParams", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Spring damper parameters"}, {"description", ""}}), "") \

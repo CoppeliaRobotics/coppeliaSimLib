@@ -111,6 +111,8 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["setStepping"] = _method_setStepping;
         funcTable["getStepping"] = _method_getStepping;
         funcTable["getObject"] = _method_getObject;
+        funcTable["announceChange"] = _method_announceChange;
+        funcTable["getObjectFromUid"] = _method_getObjectFromUid;
     }
 
     std::string retVal("__notFound__");
@@ -3359,7 +3361,7 @@ std::string _method_getObject(int targetObj, const char* method, CScriptObject* 
         if ((path.size() == 0) || ((path[0] != '.') && (path[0] != '/')))
             path = "./" + path;
         int index = -1;
-        int options = 0;
+        bool noError = false;
         if (hasArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
@@ -3370,7 +3372,7 @@ std::string _method_getObject(int targetObj, const char* method, CScriptObject* 
             if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
             {
                 if (((CInterfaceStackBool*)obj)->getValue())
-                    options = 1;
+                    noError = true;
             }
         }
         CSceneObject* it = nullptr;
@@ -3402,7 +3404,7 @@ std::string _method_getObject(int targetObj, const char* method, CScriptObject* 
             pushHandle(outStack, it->getObjectHandle());
         else
         {
-            if ((options & 1) != 0)
+            if (noError)
                 pushHandle(outStack, -1);
             else
             {
@@ -3410,6 +3412,45 @@ std::string _method_getObject(int targetObj, const char* method, CScriptObject* 
                 errMsg += origPath;
                 errMsg += "') is ill formatted.";
             }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_announceChange(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional}))
+    {
+        std::string changeName = fetchText(inStack, 0);
+        App::currentWorld->undoBufferContainer->announceChange();
+    }
+    return errMsg;
+}
+
+std::string _method_getObjectFromUid(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_table | arg_optional, 0, arg_any}))
+    {
+        long long int uid = fetchLong(inStack, 0);
+        bool noError = false;
+        if (hasArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            CInterfaceStackObject* obj = map->getMapObject("noError");
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                noError = ((CInterfaceStackBool*)obj)->getValue();
+        }
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromUid(uid);
+        if (it != nullptr)
+            pushHandle(outStack, it->getObjectHandle());
+        else
+        {
+            if (noError)
+                pushHandle(outStack, -1);
+            else
+                errMsg = SIM_ERROR_OBJECT_INEXISTANT;
         }
     }
     return errMsg;

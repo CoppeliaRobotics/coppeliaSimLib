@@ -4061,6 +4061,38 @@ void CScriptObject::_printContext(const char* str, size_t p)
     }
 }
 
+int CScriptObject::_getInterpreterStackArraySize_lua(void* LL, int index)
+{ // with a map, return value is -1
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
+    int cnt = 0;
+    luaWrap_lua_pushvalue(L, index); // copy of the table to the top
+    luaWrap_lua_pushnil(L);          // nil on top
+    bool map = false;
+    while (luaWrap_lua_next(L, -2))  // pops a value, then pushes a key-value pair (if table is not empty)
+    {                                // stack now contains at -1 the value, at -2 the key, at -3 the table
+        luaWrap_lua_pop(L, 1);       // pop 1 value (the value), key is now at -1
+        if (luaWrap_lua_isinteger(L, -1))
+        {
+            int ind = luaWrap_lua_tointeger(L, -1);
+            if (ind == cnt + 1)
+                cnt++;
+            else
+                map = true;
+        }
+        else
+            map = true;
+        if (map)
+        {
+            luaWrap_lua_pop(L, 1); // key
+            break;
+        }
+    }
+    luaWrap_lua_pop(L, 1); // table copy
+    if (map)
+        cnt = -1;
+    return cnt;
+}
+
 int CScriptObject::_countInterpreterStackTableEntries_lua(void* LL, int index)
 { // !! LL is not the same for a script when in normal or inside a coroutine !!
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
@@ -4227,18 +4259,20 @@ CInterfaceStackTable* CScriptObject::_getTableFromInterpreterStack_lua(void* LL,
     index = luaWrap_lua_absindex(L, index);
     int typeIndex = index + 1;
     CInterfaceStackTable* table = new CInterfaceStackTable();
-    int tableValueCnt = _countInterpreterStackTableEntries_lua(L, index);
-    int arraySize = int(luaWrap_lua_rawlen(L, index)); // same as # operator
-    if (tableValueCnt == arraySize)
+
+    //int tableValueCnt = _countInterpreterStackTableEntries_lua(L, index);
+    //size_t arraySize = luaWrap_lua_rawlen(L, index); // same as # operator
+    //if (tableValueCnt == arraySize)
+    int arraySize = _getInterpreterStackArraySize_lua(L, index);
+    if (arraySize >= 0)
     { // we have an array
-        size_t arraySize = luaWrap_lua_rawlen(L, index);
-        for (size_t i = 0; i < arraySize; i++)
+        for (int i = 0; i < arraySize; i++)
         {
             CInterfaceStackObject* obj;
-            luaWrap_lua_rawgeti(L, index, int(i + 1));
+            luaWrap_lua_rawgeti(L, index, i + 1);
             if (hasTypeHints)
             {
-                luaWrap_lua_rawgeti(L, typeIndex, int(i + 1));
+                luaWrap_lua_rawgeti(L, typeIndex, i + 1);
                 obj = _getObjectFromInterpreterStack_lua(L, -2, visitedTables, hasTypeHints);
                 luaWrap_lua_pop(L, 2);
             }
@@ -4311,6 +4345,7 @@ CInterfaceStackTable* CScriptObject::_getTableFromInterpreterStack_lua(void* LL,
         }
         luaWrap_lua_pop(L, 1); // pop the table copy
     }
+
     return table;
 }
 

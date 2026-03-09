@@ -137,3 +137,5 @@ extern std::string _method_systemLock(int targetObj, const char* method, CScript
 extern std::string _method_setStepping(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getStepping(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getObject(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_announceChange(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getObjectFromUid(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

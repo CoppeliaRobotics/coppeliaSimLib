@@ -343,6 +343,7 @@ class CScriptObject
     static CInterfaceStackObject* _getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints = false);
     static CInterfaceStackTable* _getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints = false);
 
+    static int _getInterpreterStackArraySize_lua(void* LL, int index);
     static int _countInterpreterStackTableEntries_lua(void* LL, int index);
     static void _pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj, bool pushOnlySimpleTypes = false);
     static void _hookFunction_lua(void* LL, void* arr);

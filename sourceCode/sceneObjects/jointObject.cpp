@@ -599,9 +599,18 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
         _dependencyMasterJointHandle = depJointID;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propJoint_dependencyMaster.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt64(cmd, _dependencyMasterJointHandle);
+            if (App::getEventProtocolVersion() == 3)
+            {
+                const char* cmd = propJoint_dependencyMasterOLD.name;
+                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyInt64(cmd, _dependencyMasterJointHandle);
+            }
+            else
+            {
+                const char* cmd = propJoint_dependencyMaster.name;
+                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyHandle(cmd, _dependencyMasterJointHandle);
+            }
             App::worldContainer->pushEvent();
         }
         App::currentWorld->sceneObjects->actualizeObjectInformation();
@@ -2043,7 +2052,7 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyInt64(propJoint_dynCtrlMode.name, _dynCtrlMode);
     ev->appendKeyInt64(propJoint_dynVelMode.name, _dynVelocityCtrlType);
     ev->appendKeyInt64(propJoint_dynPosMode.name, _dynPositionCtrlType);
-    ev->appendKeyInt64(propJoint_dependencyMaster.name, _dependencyMasterJointHandle);
+    ev->appendKeyInt64(propJoint_dependencyMasterOLD.name, _dependencyMasterJointHandle);
     double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
     ev->appendKeyDoubleArray(propJoint_dependencyParams.name, arr, 2);
     ev->appendKeyBool(propJoint_cyclic.name, _isCyclic);
@@ -4809,7 +4818,7 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullp
                 setDynCtrlMode(pState);
                 retVal = 1;
             }
-            else if (_pName == propJoint_dependencyMaster.name)
+            else if (_pName == propJoint_dependencyMasterOLD.name)
             {
                 setDependencyMasterJointHandle(pState);
                 retVal = 1;
@@ -4885,7 +4894,7 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
             retVal = 1;
             pState = _dynCtrlMode;
         }
-        else if (_pName == propJoint_dependencyMaster.name)
+        else if (_pName == propJoint_dependencyMasterOLD.name)
         {
             retVal = 1;
             pState = _dependencyMasterJointHandle;
@@ -4919,6 +4928,50 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
             pState = _vortexIntParams[simi_vortex_joint_frictionproportionalbc];
         }
         // ------------------------
+    }
+
+    return retVal;
+}
+
+int CJoint::setHandleProperty(const char* ppName, long long int pState, CCbor* eev /* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+
+    if ((eev == nullptr) && (pName != nullptr))
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setHandleProperty(pName, pState);
+        if (retVal == -1)
+        {
+            if (_pName == propJoint_dependencyMaster.name)
+            {
+                setDependencyMasterJointHandle(pState);
+                retVal = 1;
+            }
+        }
+    }
+
+    return retVal;
+}
+
+int CJoint::getHandleProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::getHandleProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propJoint_dependencyMaster.name)
+        {
+            retVal = 1;
+            pState = _dependencyMasterJointHandle;
+        }
     }
 
     return retVal;
