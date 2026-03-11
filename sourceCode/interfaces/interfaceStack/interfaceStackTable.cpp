@@ -703,8 +703,7 @@ void CInterfaceStackTable::appendArrayObject_int64Array(const long long int* arr
 
 void CInterfaceStackTable::appendArrayObject_handleArray(const long long int* arr, size_t l)
 {
-    CInterfaceStackTable* newObj = new CInterfaceStackTable();
-    newObj->setHandleArray(arr, l);
+    CInterfaceStackHandleArray* newObj = new CInterfaceStackHandleArray(arr, l);
     appendArrayObject(newObj);
 }
 
@@ -819,8 +818,7 @@ void CInterfaceStackTable::appendMapObject_int64Array(const char* key, const lon
 
 void CInterfaceStackTable::appendMapObject_handleArray(const char* key, const long long int* arr, size_t l)
 {
-    CInterfaceStackTable* obj = new CInterfaceStackTable();
-    obj->setHandleArray(arr, l);
+    CInterfaceStackHandleArray* obj = new CInterfaceStackHandleArray(arr, l);
     appendArrayOrMapObject(new CInterfaceStackString(key), obj);
 }
 

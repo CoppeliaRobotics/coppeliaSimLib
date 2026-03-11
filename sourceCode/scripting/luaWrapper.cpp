@@ -858,8 +858,7 @@ void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* hand
                     lua_rawseti((lua_State*)L, -2, i + 1);
                 }
                 lua_pcall((lua_State*)L, 1, 1, 0);
-
-                lua_pop((lua_State*)L, 1); // sim
+                lua_remove((lua_State*)L, -2); // remove sim, leave result
             }
             else
                 lua_pop((lua_State*)L, 2); // sim + ObjectArray

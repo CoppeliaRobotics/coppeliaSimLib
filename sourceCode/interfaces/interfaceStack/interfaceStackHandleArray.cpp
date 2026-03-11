@@ -78,7 +78,7 @@ unsigned int CInterfaceStackHandleArray::createFromData(const char* data, unsign
 bool CInterfaceStackHandleArray::checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version)
 {
     bool retVal = false;
-    if (l >= sizeof(size_t) + sizeof(long long int))
+    if (l >= sizeof(size_t))
     {
         size_t s;
         std::memcpy(&s, data + 0, sizeof(s));

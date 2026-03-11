@@ -816,7 +816,8 @@ struct SJointProperty
     FUNCX(propObject_movPrefRotZ, "mov.prefRotZ", sim_propertytype_bool, 0,  jsonStr({{"label", "Preferred Z-axis rotation"}, {"description", ""}}), "") \
     FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Visible"}, {"description", "Whether the scene object is currently visible"}}), "") \
     FUNCX(propObject_children, "children", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Children handles"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
-    FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Model hash"}, {"description", ""}}), "")
+    FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Model hash"}, {"description", ""}}), "") \
+    FUNCX(propObject_method_getObject, "getObject", sim_propertytype_method, 0,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define SCENEOBJECT_PROPERTIES \
     SCENEOBJECT_PROPERTIES_1 \
