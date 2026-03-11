@@ -495,6 +495,7 @@ HEADERS += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackQuaternion.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackPose.h \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackColor.h \
+    $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackHandleArray.h \
 
 HEADERS += $$PWD/sourceCode/menusAndSimilar/fileOperations.h \
     $$PWD/sourceCode/menusAndSimilar/addOperations.h \
@@ -889,6 +890,7 @@ SOURCES += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackQuaternion.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackPose.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackColor.cpp \
+    $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackHandleArray.cpp \
 
 SOURCES += $$PWD/sourceCode/menusAndSimilar/addOperations.cpp \
     $$PWD/sourceCode/menusAndSimilar/fileOperations.cpp \

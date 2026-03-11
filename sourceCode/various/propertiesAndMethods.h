@@ -236,20 +236,17 @@ struct SJointProperty
         "getObject": "sim-2.callMethod",
         )" OBJECT_META_METHODS
 
-#define SHAPE_META_METHODS R"("addForce": "sim-2.addForce",
-        "addForceAndTorque": "sim-2.addForceAndTorque",
-        "alignBoundingBox": "sim-2._alignShapeBB",
-        "checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
-        "computeMassAndInertia": "sim-2.computeMassAndInertia",
-        "getAppearance": "sim-2.getShapeAppearance",
+#define SHAPE_META_METHODS R"("addForce": "sim-2.callMethod",
+        "addTorque": "sim-2.callMethod",
         "relocateFrame": "sim-2.callMethod",
         "alignBoundingBox": "sim-2.callMethod",
         "getInertia": "sim-2.callMethod",
         "setInertia": "sim-2.callMethod",
-        "setShapeBB": "sim-2.setShapeBB",
+        "computeInertia": "sim-2.callMethod",
+        "ungroup": "sim-2.callMethod",
+        "divide": "sim-2.callMethod",
+        "getAppearance": "sim-2.getShapeAppearance",
         "setAppearance": "sim-2.setShapeAppearance",
-        "ungroup": "sim-2.ungroupShape",
         "getMeshData": "sim-2.getShapeMesh")"
 
 #define CAMERA_META_METHODS R"("__": "__")"

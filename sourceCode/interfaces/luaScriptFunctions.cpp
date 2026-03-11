@@ -1035,6 +1035,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.stackitem_pose", sim_stackitem_pose},
     {"sim.stackitem_handle", sim_stackitem_handle},
     {"sim.stackitem_color", sim_stackitem_color},
+    {"sim.stackitem_handlearray", sim_stackitem_handlearray},
     // property info
     {"sim.propertyinfo_notwritable", sim_propertyinfo_notwritable},
     {"sim.propertyinfo_notreadable", sim_propertyinfo_notreadable},

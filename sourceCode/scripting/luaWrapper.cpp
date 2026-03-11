@@ -455,6 +455,51 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx)
     return retVal;
 }
 
+bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long long int>* handles /*= nullptr*/, bool strict /*= false*/)
+{
+    bool retVal = false;
+    int abs_idx = lua_absindex((lua_State*)L, idx);
+    if (luaL_callmeta((lua_State*)L, abs_idx, "__isobjectarray") == 1)
+    {
+        retVal = lua_toboolean((lua_State*)L, -1);
+        lua_pop((lua_State*)L,1);
+        if (retVal)
+        {
+            if (handles != nullptr)
+            {
+                lua_getfield((lua_State*)L, -1, "__objects");
+                {
+                    lua_getfield((lua_State*)L, -1, "n");
+                    lua_Integer n = lua_tointeger((lua_State*)L, -1);
+                    lua_pop((lua_State*)L, 1); // n
+                    handles->resize(n);
+                    for (int i = 1; i <= n; i++)
+                    {
+                        lua_geti((lua_State*)L, -1, i);
+                        if (lua_isnil((lua_State*)L, -1))
+                            handles->at(i - 1) = -1;
+                        else
+                            handles->at(i - 1) = luaWrap_lua_tohandle(L, -1);
+                        lua_pop((lua_State*)L, 1);
+                    }
+                }
+                lua_pop((lua_State*)L, 1); // __objects
+            }
+        }
+    }
+    if ((!retVal) && (!strict) && (lua_getmetatable((lua_State*)L, abs_idx) == 0) && luaWrap_lua_isnonbuffertable((lua_State*)L, abs_idx))
+    {
+        retVal = true;
+        if (handles != nullptr)
+        {
+            size_t cnt = luaWrap_lua_rawlen(L, abs_idx);
+            handles->resize(cnt);
+            getLongsFromTable(L, abs_idx, cnt, handles->data());
+        }
+    }
+    return retVal;
+}
+
 bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal /*= nullptr*/)
 {
     bool retVal = false;
@@ -788,6 +833,52 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int h)
     if (!retVal)
         lua_pushnil((lua_State*)L);
     return retVal;
+}
+
+void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* handles, int cnt)
+{
+    lua_getglobal((lua_State*)L, "_ObjectArray__");
+    if (lua_isnil((lua_State*)L, -1))
+    {
+        lua_pop((lua_State*)L, 1); // pop nil
+        bool err = true;
+        lua_getglobal((lua_State*)L, "sim");
+        if (lua_istable((lua_State*)L, -1))
+        {
+            lua_getfield((lua_State*)L, -1, "ObjectArray");
+            if (!lua_isnil((lua_State*)L, -1))
+            {
+                err = false;
+                lua_pushvalue((lua_State*)L, -1); // copy
+                lua_setglobal((lua_State*)L, "_ObjectArray__");
+                lua_createtable((lua_State*)L, cnt, 0);
+                for (int i = 0; i < cnt; i++)
+                {
+                    lua_pushinteger((lua_State*)L, handles[i]);
+                    lua_rawseti((lua_State*)L, -2, i + 1);
+                }
+                lua_pcall((lua_State*)L, 1, 1, 0);
+
+                lua_pop((lua_State*)L, 1); // sim
+            }
+            else
+                lua_pop((lua_State*)L, 2); // sim + ObjectArray
+        }
+        else
+            lua_pop((lua_State*)L, 1); // sim
+        if (err)
+            App::logMsg(sim_verbosity_errors, "failed to fetch sim.ObjectArray in luaWrap_lua_pushhandlearray.");
+    }
+    else
+    {
+        lua_createtable((lua_State*)L, cnt, 0);
+        for (int i = 0; i < cnt; i++)
+        {
+            lua_pushinteger((lua_State*)L, handles[i]);
+            lua_rawseti((lua_State*)L, -2, i + 1);
+        }
+        lua_pcall((lua_State*)L, 1, 1, 0);
+    }
 }
 
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols)

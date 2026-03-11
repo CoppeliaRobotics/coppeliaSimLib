@@ -14,6 +14,7 @@
 #include <interfaceStackQuaternion.h>
 #include <interfaceStackPose.h>
 #include <interfaceStackColor.h>
+#include <interfaceStackHandleArray.h>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
 #endif
@@ -4420,14 +4421,28 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                if (it != nullptr)
                 {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                    size_t arrSize = tbl->getArraySize();
-                    if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 2))
+                    if (it->getObjectType() == sim_stackitem_matrix)
                     {
-                        tbl->getDoubleArray(pState, int(arrSize));
-                        retVal = 1;
+                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                        const CMatrix* M = m->getValue();
+                        if (((M->cols == 1) && (M->rows == 2)) || ((M->cols == 2) && (M->rows == 1)))
+                        {
+                            pState[0] = M->data[0];
+                            pState[1] = M->data[1];
+                            retVal = 1;
+                        }
+                    }
+                    else if (it->getObjectType() == sim_stackitem_table)
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 2))
+                        {
+                            tbl->getDoubleArray(pState, int(arrSize));
+                            retVal = 1;
+                        }
                     }
                 }
             }
@@ -4442,14 +4457,28 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
                         it = tbl->getArrayItemAtIndex(arrIndex);
                     else
                         it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    if (it != nullptr)
                     {
-                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                        size_t arrSize = tbl->getArraySize();
-                        if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 2))
+                        if (it->getObjectType() == sim_stackitem_matrix)
                         {
-                            tbl->getDoubleArray(pState, int(arrSize));
-                            retVal = 1;
+                            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                            const CMatrix* M = m->getValue();
+                            if (((M->cols == 1) && (M->rows == 2)) || ((M->cols == 2) && (M->rows == 1)))
+                            {
+                                pState[0] = M->data[0];
+                                pState[1] = M->data[1];
+                                retVal = 1;
+                            }
+                        }
+                        else if (it->getObjectType() == sim_stackitem_table)
+                        {
+                            CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                            size_t arrSize = tbl->getArraySize();
+                            if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 2))
+                            {
+                                tbl->getDoubleArray(pState, int(arrSize));
+                                retVal = 1;
+                            }
                         }
                     }
                 }
@@ -4622,14 +4651,27 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                if (it != nullptr)
                 {
-                    CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
-                    const CMatrix* w = m->getValue();
-                    if ((w->rows == 3) && (w->cols == 1))
+                    if (it->getObjectType() == sim_stackitem_matrix)
                     {
-                        pState.setData(w->data.data());
-                        retVal = 1;
+                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                        const CMatrix* w = m->getValue();
+                        if (((w->rows == 3) && (w->cols == 1)) || ((w->rows == 1) && (w->cols == 3)))
+                        {
+                            pState.setData(w->data.data());
+                            retVal = 1;
+                        }
+                    }
+                    else if (it->getObjectType() == sim_stackitem_table)
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 3))
+                        {
+                            tbl->getDoubleArray(pState.data, 3);
+                            retVal = 1;
+                        }
                     }
                 }
             }
@@ -4644,14 +4686,27 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
                         it = tbl->getArrayItemAtIndex(arrIndex);
                     else
                         it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_matrix) )
+                    if (it != nullptr)
                     {
-                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
-                        const CMatrix* w = m->getValue();
-                        if ((w->rows == 3) && (w->cols == 1))
+                        if (it->getObjectType() == sim_stackitem_matrix)
                         {
-                            pState.setData(w->data.data());
-                            retVal = 1;
+                            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                            const CMatrix* w = m->getValue();
+                            if (((w->rows == 3) && (w->cols == 1)) || ((w->rows == 1) && (w->cols == 3)))
+                            {
+                                pState.setData(w->data.data());
+                                retVal = 1;
+                            }
+                        }
+                        else if (it->getObjectType() == sim_stackitem_table)
+                        {
+                            CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                            size_t arrSize = tbl->getArraySize();
+                            if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 3))
+                            {
+                                tbl->getDoubleArray(pState.data, 3);
+                                retVal = 1;
+                            }
                         }
                     }
                 }
@@ -4820,11 +4875,26 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_quaternion) )
+                if (it != nullptr)
                 {
-                    CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
-                    pState = q->getValue()[0];
-                    retVal = 1;
+                    if (it->getObjectType() == sim_stackitem_quaternion)
+                    {
+                        CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
+                        pState = q->getValue()[0];
+                        retVal = 1;
+                    }
+                    else if (it->getObjectType() == sim_stackitem_table)
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 4))
+                        {
+                            double q[4];
+                            tbl->getDoubleArray(q, 4);
+                            pState.setData(q, true);
+                            retVal = 1;
+                        }
+                    }
                 }
             }
             else
@@ -4838,11 +4908,26 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
                         it = tbl->getArrayItemAtIndex(arrIndex);
                     else
                         it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_quaternion) )
+                    if (it != nullptr)
                     {
-                        CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
-                        pState = q->getValue()[0];
-                        retVal = 1;
+                        if (it->getObjectType() == sim_stackitem_quaternion)
+                        {
+                            CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
+                            pState = q->getValue()[0];
+                            retVal = 1;
+                        }
+                        else if (it->getObjectType() == sim_stackitem_table)
+                        {
+                            CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                            size_t arrSize = tbl->getArraySize();
+                            if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 4))
+                            {
+                                double q[4];
+                                tbl->getDoubleArray(q, 4);
+                                pState.setData(q, true);
+                                retVal = 1;
+                            }
+                        }
                     }
                 }
             }
@@ -5012,11 +5097,26 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_pose) )
+                if (it != nullptr)
                 {
-                    CInterfaceStackPose* q = (CInterfaceStackPose*)it;
-                    pState = q->getValue()[0];
-                    retVal = 1;
+                    if (it->getObjectType() == sim_stackitem_pose)
+                    {
+                        CInterfaceStackPose* q = (CInterfaceStackPose*)it;
+                        pState = q->getValue()[0];
+                        retVal = 1;
+                    }
+                    else if (it->getObjectType() == sim_stackitem_table)
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 7))
+                        {
+                            double p[7];
+                            tbl->getDoubleArray(p, 7);
+                            pState.setData(p, true);
+                            retVal = 1;
+                        }
+                    }
                 }
             }
             else
@@ -5030,11 +5130,26 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
                         it = tbl->getArrayItemAtIndex(arrIndex);
                     else
                         it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_pose) )
+                    if (it != nullptr)
                     {
-                        CInterfaceStackPose* q = (CInterfaceStackPose*)it;
-                        pState = q->getValue()[0];
-                        retVal = 1;
+                        if (it->getObjectType() == sim_stackitem_pose)
+                        {
+                            CInterfaceStackPose* q = (CInterfaceStackPose*)it;
+                            pState = q->getValue()[0];
+                            retVal = 1;
+                        }
+                        else if (it->getObjectType() == sim_stackitem_table)
+                        {
+                            CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                            size_t arrSize = tbl->getArraySize();
+                            if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 7))
+                            {
+                                double p[7];
+                                tbl->getDoubleArray(p, 7);
+                                pState.setData(p, true);
+                                retVal = 1;
+                            }
+                        }
                     }
                 }
             }
@@ -5206,13 +5321,26 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_color) )
+                if (it != nullptr)
                 {
-                    CInterfaceStackColor* c = (CInterfaceStackColor*)it;
-                    pState[0] = c->getValue()[0];
-                    pState[1] = c->getValue()[1];
-                    pState[2] = c->getValue()[2];
-                    retVal = 1;
+                    if (it->getObjectType() == sim_stackitem_color)
+                    {
+                        CInterfaceStackColor* c = (CInterfaceStackColor*)it;
+                        pState[0] = c->getValue()[0];
+                        pState[1] = c->getValue()[1];
+                        pState[2] = c->getValue()[2];
+                        retVal = 1;
+                    }
+                }
+                else if (it->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 3))
+                    {
+                        tbl->getFloatArray(pState, 3);
+                        retVal = 1;
+                    }
                 }
             }
             else
@@ -5226,13 +5354,26 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
                         it = tbl->getArrayItemAtIndex(arrIndex);
                     else
                         it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_color) )
+                    if (it != nullptr)
                     {
-                        CInterfaceStackColor* c = (CInterfaceStackColor*)it;
-                        pState[0] = c->getValue()[0];
-                        pState[1] = c->getValue()[1];
-                        pState[2] = c->getValue()[2];
-                        retVal = 1;
+                        if (it->getObjectType() == sim_stackitem_color)
+                        {
+                            CInterfaceStackColor* c = (CInterfaceStackColor*)it;
+                            pState[0] = c->getValue()[0];
+                            pState[1] = c->getValue()[1];
+                            pState[2] = c->getValue()[2];
+                            retVal = 1;
+                        }
+                        else if (it->getObjectType() == sim_stackitem_table)
+                        {
+                            CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                            size_t arrSize = tbl->getArraySize();
+                            if (tbl->areAllValuesThis(sim_stackitem_double, true) && (arrSize == 3))
+                            {
+                                tbl->getFloatArray(pState, 3);
+                                retVal = 1;
+                            }
+                        }
                     }
                 }
             }
@@ -5824,15 +5965,26 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                if (it != nullptr)
                 {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                    size_t arrSize = tbl->getArraySize();
-                    if (tbl->areAllValuesThis(sim_stackitem_handle, true))
+                    if (it->getObjectType() == sim_stackitem_handlearray)
                     {
-                        pState.resize(arrSize);
-                        tbl->getHandleArray(pState.data(), int(arrSize));
+                        CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
+                        size_t cnt;
+                        const long long int* a = arr->getValue(&cnt);
+                        pState.assign(a, a + cnt);
                         retVal = 1;
+                    }
+                    else if (it->getObjectType() == sim_stackitem_table)
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        size_t arrSize = tbl->getArraySize();
+                        if (tbl->areAllValuesThis(sim_stackitem_handle, true))
+                        {
+                            pState.resize(arrSize);
+                            tbl->getHandleArray(pState.data(), int(arrSize));
+                            retVal = 1;
+                        }
                     }
                 }
             }
@@ -5847,15 +5999,26 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
                         it = tbl->getArrayItemAtIndex(arrIndex);
                     else
                         it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    if (it != nullptr)
                     {
-                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                        size_t arrSize = tbl->getArraySize();
-                        if (tbl->areAllValuesThis(sim_stackitem_handle, true))
+                        if (it->getObjectType() == sim_stackitem_handlearray)
                         {
-                            pState.resize(arrSize);
-                            tbl->getHandleArray(pState.data(), int(arrSize));
+                            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
+                            size_t cnt;
+                            const long long int* a = arr->getValue(&cnt);
+                            pState.assign(a, a + cnt);
                             retVal = 1;
+                        }
+                        else if (it->getObjectType() == sim_stackitem_table)
+                        {
+                            CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                            size_t arrSize = tbl->getArraySize();
+                            if (tbl->areAllValuesThis(sim_stackitem_handle, true))
+                            {
+                                pState.resize(arrSize);
+                                tbl->getHandleArray(pState.data(), int(arrSize));
+                                retVal = 1;
+                            }
                         }
                     }
                 }
@@ -6351,6 +6514,11 @@ int CWorld::_getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::
         {
             retVal = sim_propertytype_color;
             str = "color";
+        }
+        else if (t == sim_stackitem_handlearray)
+        {
+            retVal = sim_propertytype_handlearray;
+            str = "handlearray";
         }
         else if (t == sim_stackitem_matrix)
         {

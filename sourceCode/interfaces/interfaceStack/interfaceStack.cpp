@@ -11,6 +11,7 @@
 #include <interfaceStackPose.h>
 #include <interfaceStackHandle.h>
 #include <interfaceStackColor.h>
+#include <interfaceStackHandleArray.h>
 #include <cbor.h>
 #include <algorithm>
 
@@ -307,23 +308,79 @@ int CInterfaceStack::getStackTableInfo(int infoType) const
             CInterfaceStackTable* table = (CInterfaceStackTable*)it;
             retVal = table->getTableInfo(infoType);
         }
-        else
-        { // if we have a string (text, binary or buffer), it can identify as a table too:
-            if (it->getObjectType() == sim_stackitem_string)
+        else if (it->getObjectType() == sim_stackitem_string)
+        { // if we have a string (text, binary or buffer), it can identify as a table too
+            CInterfaceStackString* str = (CInterfaceStackString*)it;
+            if (infoType == 0)
+            { // array size
+                size_t s;
+                str->getValue(&s);
+                retVal = int(s);
+            }
+            else
+                retVal = 0;
+        }
+        else if (it->getObjectType() == sim_stackitem_handlearray)
+        { // can also identify as a table
+            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
+            if (infoType == 0)
+            { // array size
+                size_t s;
+                arr->getValue(&s);
+                retVal = int(s);
+            }
+            else if (infoType == 2)
+                retVal = 1;
+            else if (infoType == 9)
+                retVal = 1;
+            else
+                retVal = 0;
+        }
+        else if (it->getObjectType() == sim_stackitem_quaternion)
+        { // can also identify as a table
+            if (infoType == 0)
+                retVal = 4;
+            else if (infoType == 2)
+                retVal = 1;
+            else
+                retVal = 0;
+        }
+        else if (it->getObjectType() == sim_stackitem_pose)
+        { // can also identify as a table
+            if (infoType == 0)
+                retVal = 7;
+            else if (infoType == 2)
+                retVal = 1;
+            else
+                retVal = 0;
+        }
+        else if (it->getObjectType() == sim_stackitem_color)
+        { // can also identify as a table
+            if (infoType == 0)
+                retVal = 3;
+            else if (infoType == 2)
+                retVal = 1;
+            else
+                retVal = 0;
+        }
+        else if (it->getObjectType() == sim_stackitem_matrix)
+        { // can also identify as a table when one dimension is 1
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+            const CMatrix* M = m->getValue();
+            if ((M->cols == 1) || (M->rows == 1))
             {
-                CInterfaceStackString* str = (CInterfaceStackString*)it;
                 if (infoType == 0)
-                { // array size
-                    size_t s;
-                    str->getValue(&s);
-                    retVal = int(s);
-                }
+                    retVal = M->cols * M->rows;
+                else if (infoType == 2)
+                    retVal = 1;
                 else
                     retVal = 0;
             }
             else
                 retVal = sim_stack_table_not_table;
         }
+        else
+            retVal = sim_stack_table_not_table;
     }
     return retVal;
 }
@@ -374,6 +431,69 @@ bool CInterfaceStack::getStackUCharArray(unsigned char* array, int count) const
                 array[i] = 0;
             retVal = true;
         }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        { // handle arrays can also be seen as arrays
+            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
+            size_t l = 0;
+            const long long int* v = arr->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (unsigned char)v[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_quaternion)
+        { // can also be seen as an array
+            CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
+            const C4Vector* Q = q->getValue();
+            double dat[4];
+            Q->getData(dat, true);
+            size_t ml = std::min<size_t>(4, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (unsigned char)dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_pose)
+        { // can also be seen as an array
+            CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
+            const C7Vector* P = p->getValue();
+            double dat[7];
+            P->getData(dat, true);
+            size_t ml = std::min<size_t>(7, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (unsigned char)dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_color)
+        { // can also be seen as an array
+            CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
+            const float* C = c->getValue();
+            size_t ml = std::min<size_t>(3, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (unsigned char)C[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_matrix)
+        { // can also be seen as an array, when one dimension is 1
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            const CMatrix* M = m->getValue();
+            if ((M->cols == 1) || (M->rows == 1))
+            {
+                size_t ml = std::min<size_t>(M->cols * M->rows, size_t(count));
+                for (size_t i = 0; i < ml; i++)
+                    array[i] = (unsigned char)M->data[i];
+                for (size_t i = ml; i < size_t(count); i++)
+                    array[i] = 0;
+                retVal = true;
+            }
+        }
     }
     return retVal;
 }
@@ -401,6 +521,69 @@ bool CInterfaceStack::getStackInt32Array(int* array, int count) const
             for (size_t i = ml; i < size_t(count); i++)
                 array[i] = 0;
             retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        { // handle arrays can also be seen as arrays
+            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
+            size_t l = 0;
+            const long long int* v = arr->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (int)v[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_quaternion)
+        { // can also be seen as an array
+            CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
+            const C4Vector* Q = q->getValue();
+            double dat[4];
+            Q->getData(dat, true);
+            size_t ml = std::min<size_t>(4, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (int)dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_pose)
+        { // can also be seen as an array
+            CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
+            const C7Vector* P = p->getValue();
+            double dat[7];
+            P->getData(dat, true);
+            size_t ml = std::min<size_t>(7, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (int)dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_color)
+        { // can also be seen as an array
+            CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
+            const float* C = c->getValue();
+            size_t ml = std::min<size_t>(3, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (int)C[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_matrix)
+        { // can also be seen as an array, when one dimension is 1
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            const CMatrix* M = m->getValue();
+            if ((M->cols == 1) || (M->rows == 1))
+            {
+                size_t ml = std::min<size_t>(M->cols * M->rows, size_t(count));
+                for (size_t i = 0; i < ml; i++)
+                    array[i] = (int)M->data[i];
+                for (size_t i = ml; i < size_t(count); i++)
+                    array[i] = 0;
+                retVal = true;
+            }
         }
     }
     return retVal;
@@ -430,6 +613,69 @@ bool CInterfaceStack::getStackInt64Array(long long int* array, int count) const
                 array[i] = 0;
             retVal = true;
         }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        { // handle arrays can also be seen as arrays
+            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
+            size_t l = 0;
+            const long long int* v = arr->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = v[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_quaternion)
+        { // can also be seen as an array
+            CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
+            const C4Vector* Q = q->getValue();
+            double dat[4];
+            Q->getData(dat, true);
+            size_t ml = std::min<size_t>(4, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_pose)
+        { // can also be seen as an array
+            CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
+            const C7Vector* P = p->getValue();
+            double dat[7];
+            P->getData(dat, true);
+            size_t ml = std::min<size_t>(7, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_color)
+        { // can also be seen as an array
+            CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
+            const float* C = c->getValue();
+            size_t ml = std::min<size_t>(3, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = C[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_matrix)
+        { // can also be seen as an array, when one dimension is 1
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            const CMatrix* M = m->getValue();
+            if ((M->cols == 1) || (M->rows == 1))
+            {
+                size_t ml = std::min<size_t>(M->cols * M->rows, size_t(count));
+                for (size_t i = 0; i < ml; i++)
+                    array[i] = M->data[i];
+                for (size_t i = ml; i < size_t(count); i++)
+                    array[i] = 0;
+                retVal = true;
+            }
+        }
     }
     return retVal;
 }
@@ -445,6 +691,17 @@ bool CInterfaceStack::getStackHandleArray(long long int* array, int count) const
             CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
             if (table->isTableArray())
                 retVal = table->getHandleArray(array, count);
+        }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        {
+            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
+            size_t cnt;
+            const long long int* v = arr->getValue(&cnt);
+            size_t ml = std::min<size_t>(cnt, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = v[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = -1;
         }
     }
     return retVal;
@@ -474,6 +731,69 @@ bool CInterfaceStack::getStackFloatArray(float* array, int count) const
                 array[i] = 0.0f;
             retVal = true;
         }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        { // handle arrays can also be seen as arrays
+            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
+            size_t l = 0;
+            const long long int* v = arr->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (float)v[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0f;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_quaternion)
+        { // can also be seen as an array
+            CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
+            const C4Vector* Q = q->getValue();
+            double dat[4];
+            Q->getData(dat, true);
+            size_t ml = std::min<size_t>(4, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (float)dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0f;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_pose)
+        { // can also be seen as an array
+            CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
+            const C7Vector* P = p->getValue();
+            double dat[7];
+            P->getData(dat, true);
+            size_t ml = std::min<size_t>(7, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (float)dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0f;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_color)
+        { // can also be seen as an array
+            CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
+            const float* C = c->getValue();
+            size_t ml = std::min<size_t>(3, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (float)C[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0f;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_matrix)
+        { // can also be seen as an array, when one dimension is 1
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            const CMatrix* M = m->getValue();
+            if ((M->cols == 1) || (M->rows == 1))
+            {
+                size_t ml = std::min<size_t>(M->cols * M->rows, size_t(count));
+                for (size_t i = 0; i < ml; i++)
+                    array[i] = (float)M->data[i];
+                for (size_t i = ml; i < size_t(count); i++)
+                    array[i] = 0.0f;
+                retVal = true;
+            }
+        }
     }
     return retVal;
 }
@@ -501,6 +821,69 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
             for (size_t i = ml; i < size_t(count); i++)
                 array[i] = 0.0;
             retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        { // handle arrays can also be seen as arrays
+            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
+            size_t l = 0;
+            const long long int* v = arr->getValue(&l);
+            size_t ml = std::min<size_t>(l, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (double)v[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_quaternion)
+        { // can also be seen as an array
+            CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
+            const C4Vector* Q = q->getValue();
+            double dat[4];
+            Q->getData(dat, true);
+            size_t ml = std::min<size_t>(4, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_pose)
+        { // can also be seen as an array
+            CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
+            const C7Vector* P = p->getValue();
+            double dat[7];
+            P->getData(dat, true);
+            size_t ml = std::min<size_t>(7, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = dat[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_color)
+        { // can also be seen as an array
+            CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
+            const float* C = c->getValue();
+            size_t ml = std::min<size_t>(3, size_t(count));
+            for (size_t i = 0; i < ml; i++)
+                array[i] = (double)C[i];
+            for (size_t i = ml; i < size_t(count); i++)
+                array[i] = 0.0;
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_matrix)
+        { // can also be seen as an array, when one dimension is 1
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            const CMatrix* M = m->getValue();
+            if ((M->cols == 1) || (M->rows == 1))
+            {
+                size_t ml = std::min<size_t>(M->cols * M->rows, size_t(count));
+                for (size_t i = 0; i < ml; i++)
+                    array[i] = M->data[i];
+                for (size_t i = ml; i < size_t(count); i++)
+                    array[i] = 0.0;
+                retVal = true;
+            }
         }
     }
     return retVal;
@@ -964,22 +1347,20 @@ void CInterfaceStack::pushInt64ArrayOntoStack(const long long int* arr, size_t l
 
 void CInterfaceStack::pushHandleArrayOntoStack(const long long int* arr, size_t l, bool toFront /*=false*/)
 {
-    CInterfaceStackTable* table = new CInterfaceStackTable();
-    table->setHandleArray(arr, l);
     if (toFront)
-        _stackObjects.insert(_stackObjects.begin(), table);
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackHandleArray(arr, l));
     else
-        _stackObjects.push_back(table);
+        _stackObjects.push_back(new CInterfaceStackHandleArray(arr, l));
 }
 
 void CInterfaceStack::pushShortHandleArrayOntoStack(const int* arr, size_t l, bool toFront /*=false*/)
 {
-    CInterfaceStackTable* table = new CInterfaceStackTable();
-    table->setShortHandleArray(arr, l);
+    CInterfaceStackHandleArray* o = new CInterfaceStackHandleArray(nullptr, 0);
+    o->setValue(arr, l);
     if (toFront)
-        _stackObjects.insert(_stackObjects.begin(), table);
+        _stackObjects.insert(_stackObjects.begin(), o);
     else
-        _stackObjects.push_back(table);
+        _stackObjects.push_back(o);
 }
 
 void CInterfaceStack::pushUCharArrayOntoStack(const unsigned char* arr, size_t l, bool toFront /*=false*/)

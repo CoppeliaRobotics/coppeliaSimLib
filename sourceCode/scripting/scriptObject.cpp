@@ -15,6 +15,7 @@
 #include <interfaceStackPose.h>
 #include <interfaceStackColor.h>
 #include <interfaceStackHandle.h>
+#include <interfaceStackHandleArray.h>
 #include <simFlavor.h>
 #include <luaScriptFunctions.h>
 #include <luaWrapper.h>
@@ -4185,6 +4186,14 @@ CInterfaceStackObject* CScriptObject::_getObjectFromInterpreterStack_lua(void* L
         getFloatsFromTable(L, index, 3, dat);
         retVal = new CInterfaceStackColor(dat);
     }
+    else if (t == sim_stackitem_handlearray)
+    { // handle array as simple table, via type hint
+        size_t arraySize = luaWrap_lua_rawlen(L, index);
+        std::vector<long long int> dat;
+        dat.resize(arraySize);
+        getLongsFromTable(L, index, arraySize, dat.data());
+        retVal = new CInterfaceStackHandleArray(dat.data(), arraySize);
+    }
     else if (t == sim_stackitem_table)
     { // this part is more tricky:
         if (!luaWrap_lua_ismetatable(L, index))
@@ -4211,6 +4220,7 @@ CInterfaceStackObject* CScriptObject::_getObjectFromInterpreterStack_lua(void* L
             int handleVal;
             size_t rows, cols;
             std::vector<double> dat;
+            std::vector<long long int> handleArray;
             float color[3];
             if (luaWrap_lua_isbuffer(L, index))
             {
@@ -4228,6 +4238,8 @@ CInterfaceStackObject* CScriptObject::_getObjectFromInterpreterStack_lua(void* L
                 retVal = new CInterfaceStackMatrix(dat.data(), rows, cols);
             else if (luaWrap_lua_iscolor(L, index, color))
                 retVal = new CInterfaceStackColor(color);
+            else if (luaWrap_lua_ishandlearray(L, index, &handleArray, true))
+                retVal = new CInterfaceStackHandleArray(handleArray.data(), handleArray.size());
         }
     }
     else
@@ -4422,6 +4434,15 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObjec
             pushFloatTableOntoStack(L, 3, col);
         else
             luaWrap_lua_pushcolor(L, col);
+    }
+    else if (t == sim_stackitem_handlearray)
+    {
+        size_t cnt;
+        const long long int* v = ((CInterfaceStackHandleArray*)obj)->getValue(&cnt);
+        if (pushOnlySimpleTypes)
+            pushLongTableOntoStack(L, cnt, v);
+        else
+            luaWrap_lua_pushhandlearray(L, v, int(cnt));
     }
     else if (t == sim_stackitem_table)
     {

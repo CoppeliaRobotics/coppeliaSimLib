@@ -10,6 +10,7 @@
 #include <interfaceStackQuaternion.h>
 #include <interfaceStackPose.h>
 #include <interfaceStackColor.h>
+#include <interfaceStackHandleArray.h>
 #include <algorithm> // std::sort, etc.
 
 CInterfaceStackTable::CInterfaceStackTable()
@@ -251,6 +252,13 @@ void CInterfaceStackTable::getItemsAsConsecutiveFloats(std::vector<float>& array
                 for (size_t j = 0; j < m->data.size(); j++)
                     array.push_back((float)m->data[j]);
             }
+            else if (t == sim_stackitem_handlearray)
+            {
+                size_t cnt;
+                const long long int* v = ((CInterfaceStackHandleArray*)_tableObjects[i])->getValue(&cnt);
+                for (size_t j = 0; j < cnt; j++)
+                    array.push_back((float)v[j]);
+            }
             else if (t == sim_stackitem_table)
                 ((CInterfaceStackTable*)_tableObjects[i])->getItemsAsConsecutiveFloats(array);
             else
@@ -304,6 +312,13 @@ void CInterfaceStackTable::getItemsAsConsecutiveDoubles(std::vector<double>& arr
             {
                 const CMatrix* m = ((CInterfaceStackMatrix*)_tableObjects[i])->getValue();
                 array.insert(array.end(), m->data.begin(), m->data.end());
+            }
+            else if (t == sim_stackitem_handlearray)
+            {
+                size_t cnt;
+                const long long int* v = ((CInterfaceStackHandleArray*)_tableObjects[i])->getValue(&cnt);
+                for (size_t j = 0; j < cnt; j++)
+                    array.push_back((double)v[j]);
             }
             else if (t == sim_stackitem_table)
                 ((CInterfaceStackTable*)_tableObjects[i])->getItemsAsConsecutiveDoubles(array);
@@ -1116,6 +1131,20 @@ bool CInterfaceStackTable::_isEquivalent(int what, CInterfaceStackObject* obj)
                 return false;
         }
     }
+    else if (what == sim_stackitem_handlearray)
+    {
+        if (obj->getObjectType() != sim_stackitem_handlearray)
+        {
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* t = (CInterfaceStackTable*)obj;
+                if ( (!t->isTableArray()) || (!t->areAllValuesThis(sim_stackitem_integer, true)) )
+                    return false;
+            }
+            else
+                return false;
+        }
+    }
     else if (what != sim_stackitem_exany)
     {
         return (what == obj->getObjectType());
@@ -1124,7 +1153,7 @@ bool CInterfaceStackTable::_isEquivalent(int what, CInterfaceStackObject* obj)
 }
 
 bool CInterfaceStackTable::areAllValuesThis(int what, bool tolerant) const
-{ // tolerant: double/integer/handle, exvector/table, exvector3/table3, quaternion/table, pose/table, color/table
+{ // tolerant: double/integer/handle, exvector/table, exvector3/table3, quaternion/table, pose/table, color/table, handleArray/table
     if (_tableObjects.size() == 0)
         return true;
     if (_isTableArray)
@@ -1457,6 +1486,8 @@ bool CInterfaceStackTable::checkCreateFromData(const char* data, unsigned int& w
             res = CInterfaceStackPose::checkCreateFromData(data + w, v, l - w, version);
         if (t == sim_stackitem_color)
             res = CInterfaceStackColor::checkCreateFromData(data + w, v, l - w, version);
+        if (t == sim_stackitem_handlearray)
+            res = CInterfaceStackHandleArray::checkCreateFromData(data + w, v, l - w, version);
         if (!res)
             return (false);
         w += v;

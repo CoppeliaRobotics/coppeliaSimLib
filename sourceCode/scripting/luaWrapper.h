@@ -56,6 +56,7 @@ void luaWrap_lua_pushnumber(luaWrap_lua_State* L, luaWrap_lua_Number n);
 void luaWrap_lua_pushtext(luaWrap_lua_State* L, const char* str);
 void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l);       // replaces luaWrap_lua_pushlstring !
 bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int h);
+void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* handles, int cnt);
 void luaWrap_lua_pushbinarystring(luaWrap_lua_State* L, const char* str, size_t l); // is actually luaWrap_lua_pushlstring, for very special cases !
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols);
 void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* vector3);
@@ -83,6 +84,7 @@ bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State* L, int idx); // a table tha
 bool luaWrap_lua_ismetatable(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx);         // a buffer (a 'buffer' metatable)
 bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal = nullptr);         // a metatable with a 'handle' field
+bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long long int>* handles = nullptr, bool strict = false);         // a objectArray metatable
 bool luaWrap_lua_ismatrix(luaWrap_lua_State* L, int idx, size_t* rows = nullptr, size_t* cols = nullptr, std::vector<double>* matrixData = nullptr);
 bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData = nullptr, bool strict = false);
 bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, std::vector<double>* quaternionData = nullptr, bool strict = false);

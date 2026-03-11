@@ -115,6 +115,11 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["getObjectFromUid"] = _method_getObjectFromUid;
         funcTable["getInertia"] = _method_getInertia;
         funcTable["setInertia"] = _method_setInertia;
+        funcTable["computeInertia"] = _method_computeInertia;
+        funcTable["addForce"] = _method_addForce;
+        funcTable["addTorque"] = _method_addTorque;
+        funcTable["ungroup"] = _method_ungroup;
+        funcTable["divide"] = _method_divide;
     }
 
     std::string retVal("__notFound__");
@@ -3469,12 +3474,139 @@ std::string _method_setInertia(int targetObj, const char* method, CScriptObject*
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, 3, arg_pose}))
+    {
+        CMatrix _m = fetchMatrix(inStack, 0);
+        C3X3Matrix m;
+        m.setData(_m.data.data());
+        m.axis[0](1) = m.axis[1](0);
+        m.axis[0](2) = m.axis[2](0);
+        m.axis[1](2) = m.axis[2](1);
+        m /= shape->getMesh()->getMass(); // in CoppeliaSim we work with the "massless inertia"
+        C7Vector tr = fetchPose(inStack, 1);
+
+        shape->getMesh()->setCOM(tr.X);
+        m = CMeshWrapper::getInertiaInNewFrame(tr.Q, m, C4Vector::identityRotation);
+        shape->getMesh()->setInertia(m);
+        shape->setDynamicsResetFlag(true, false);
+    }
+    return errMsg;
+}
+
+std::string _method_computeInertia(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_double}))
+    {
+        double density = fetchDouble(inStack, 0);
+        shape->computeMassAndInertia(density);
+    }
+    return errMsg;
+}
+
+std::string _method_addForce(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_vector3 | arg_optional, arg_table | arg_optional, 0, arg_any}))
+    {
+        C3Vector force = fetchVector3(inStack, 0);
+        C3Vector pos;
+        pos.clear();
+        if (hasArg(inStack, 1))
+            pos = fetchVector3(inStack, 1);
+        bool reset = false;
+        bool relative = false;
+        if (hasArg(inStack, 2))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
+            CInterfaceStackObject* obj = map->getMapObject("reset");
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                reset = ((CInterfaceStackBool*)obj)->getValue();
+            obj = map->getMapObject("relative");
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                relative = ((CInterfaceStackBool*)obj)->getValue();
+        }
+        C3Vector t(pos ^ force);
+        // force & t are relative to the shape's frame now
+        if (relative)
+        {
+            C4Vector q(shape->getCumulativeTransformation().Q);
+            force = q * force;
+            t = q * t;
+        }
+        if (reset)
+            shape->clearAdditionalForce();
+        shape->addAdditionalForceAndTorque(force, t);
+    }
+    return errMsg;
+}
+
+std::string _method_addTorque(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_table | arg_optional, 0, arg_any}))
+    {
+        C3Vector torque = fetchVector3(inStack, 0);
+        bool reset = false;
+        bool relative = false;
+        if (hasArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            CInterfaceStackObject* obj = map->getMapObject("reset");
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                reset = ((CInterfaceStackBool*)obj)->getValue();
+            obj = map->getMapObject("relative");
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                relative = ((CInterfaceStackBool*)obj)->getValue();
+        }
+        C3Vector force;
+        force.clear();
+        if (relative)
+            torque = shape->getCumulativeTransformation().Q * torque;
+        if (reset)
+            shape->clearAdditionalTorque();
+        shape->addAdditionalForceAndTorque(force, torque);
+    }
+    return errMsg;
+}
+
+std::string _method_ungroup(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
     if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
     {
-        C3X3Matrix m(shape->getMesh()->getInertia());
-        m *= shape->getMesh()->getMass();
-        pushMatrix(outStack, m);
-//        pushVector3(outStack, shape->getMesh()->getCOM())
+        std::vector<int> sel;
+        sel.push_back(shape->getObjectHandle());
+        if (!shape->getMesh()->isMesh())
+            CSceneObjectOperations::ungroupSelection(&sel, true);
+        if (sel.size() <= 1)
+            sel.clear();
+        pushShortHandleArray(outStack, sel.data(), sel.size());
+    }
+    return errMsg;
+}
+
+std::string _method_divide(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        std::vector<int> sel;
+        sel.push_back(shape->getObjectHandle());
+        if (shape->getMesh()->isMesh())
+        {
+            CSceneObjectOperations::divideSelection(&sel);
+            if (sel.size() <= 1)
+                sel.clear();
+            pushShortHandleArray(outStack, sel.data(), sel.size());
+        }
+        else
+            errMsg = SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE;
     }
     return errMsg;
 }
