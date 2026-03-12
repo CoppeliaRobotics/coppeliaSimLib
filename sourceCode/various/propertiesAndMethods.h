@@ -139,7 +139,53 @@ struct SJointProperty
         "getProperty": "sim-2.callMethod",
         "getPropertyTypeString": "sim-2.callMethod")"
 
-#define APP_META_METHODS R"()"
+#define APP_META_METHODS R"("handleAddOnScripts": "sim-2.callMethod",
+        "handleSandboxScript": "sim-2.callMethod",
+        "loadModel": "sim-2.callMethod",
+        "loadModelFromBuffer": "sim-2.callMethod",
+        "loadModelThumbnail": "sim-2.callMethod",
+        "loadModelThumbnailFromBuffer": "sim-2.callMethod",
+        "saveScene": "sim-2.callMethod",
+        "saveSceneToBuffer": "sim-2.callMethod",
+        "loadScene": "sim-2.callMethod",
+        "loadSceneFromBuffer": "sim-2.callMethod",
+        "getObjects": "sim-2.callMethod",
+        "createObject": "sim-2.callMethod",
+        "duplicateObjects": "sim-2.callMethod",
+        "removeObjects": "sim-2.callMethod",
+        "loadImage": "sim-2.callMethod",
+        "loadImageFromBuffer": "sim-2.callMethod",
+        "saveImage": "sim-2.callMethod",
+        "saveImageToBuffer": "sim-2.callMethod",
+        "transformImage": "sim-2.callMethod",
+        "removeObjects": "sim-2.callMethod",
+        "logInfo": "sim-2.callMethod",
+        "logWarn": "sim-2.callMethod",
+        "logError": "sim-2.callMethod",
+        "systemLock": "sim-2.callMethod",
+        "packTable": "sim-2.callMethod",
+        "unpackTable": "sim-2.callMethod",
+        "serialize": "sim-2.callMethod",
+        "deserialize": "sim-2.callMethod",
+        "packDoubleTable": "sim-2.callMethod",
+        "packFloatTable": "sim-2.callMethod",
+        "packInt64Table": "sim-2.callMethod",
+        "packInt32Table": "sim-2.callMethod",
+        "packUInt32Table": "sim-2.callMethod",
+        "packInt16Table": "sim-2.callMethod",
+        "packUInt16Table": "sim-2.callMethod",
+        "packInt8Table": "sim-2.callMethod",
+        "packUInt8Table": "sim-2.callMethod",
+        "unpackDoubleTable": "sim-2.callMethod",
+        "unpackFloatTable": "sim-2.callMethod",
+        "unpackInt64Table": "sim-2.callMethod",
+        "unpackInt32Table": "sim-2.callMethod",
+        "unpackUInt32Table": "sim-2.callMethod",
+        "unpackInt16Table": "sim-2.callMethod",
+        "unpackUInt16Table": "sim-2.callMethod",
+        "unpackInt8Table": "sim-2.callMethod",
+        "unpackUInt8Table": "sim-2.callMethod",
+        "quit": "sim-2.callMethod")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callMethod",
         "getFunctions": "sim-2.callMethod",
@@ -369,51 +415,7 @@ struct SJointProperty
     FUNCX(propApp_machineID1, "machineID1", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propApp_machineID2, "machineID2", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "PID"}, {"description", ""}}), "") \
-    FUNCX(propApp_method_handleAddOnScripts, "handleAddOnScripts", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_handleSandboxScript, "handleSandboxScript", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_loadModel, "loadModel", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_loadModelFromBuffer, "loadModelFromBuffer", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_loadModelThumbnail, "loadModelThumbnail", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_loadModelThumbnailFromBuffer, "loadModelThumbnailFromBuffer", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_saveScene, "saveScene", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_saveSceneToBuffer, "saveSceneToBuffer", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_loadScene, "loadScene", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_loadSceneFromBuffer, "loadSceneFromBuffer", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_getObjects, "getObjects", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_createObject, "createObject", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_duplicateObjects, "duplicateObjects", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_loadImage, "loadImage", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_loadImageFromBuffer, "loadImageFromBuffer", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_saveImage, "saveImage", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_saveImageToBuffer, "saveImageToBuffer", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_transformImage, "transformImage", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_removeObjects, "removeObjects", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_addLog, "addLog", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_systemLock, "systemLock", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packTable, "packTable", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackTable, "unpackTable", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_serialize, "serialize", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_deserialize, "deserialize", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packDoubleTable, "packDoubleTable", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packFloatTable, "packFloatTable", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packInt64Table, "packInt64Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packInt32Table, "packInt32Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packUInt32Table, "packUInt32Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packInt16Table, "packInt16Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packUInt16Table, "packUInt16Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packInt8Table, "packInt8Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_packUInt8Table, "packUInt8Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackDoubleTable, "unpackDoubleTable", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackFloatTable, "unpackFloatTable", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackInt64Table, "unpackInt64Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackInt32Table, "unpackInt32Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackUInt32Table, "unpackUInt32Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackInt16Table, "unpackInt16Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackUInt16Table, "unpackUInt16Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackInt8Table, "unpackInt8Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_unpackUInt8Table, "unpackUInt8Table", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propApp_method_quit, "quit", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "")
+    FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "PID"}, {"description", ""}}), "")
 
 #define DETACHEDSCRIPT_PROPERTIES \
     FUNCX(propScriptObj_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
@@ -836,8 +838,7 @@ struct SJointProperty
     FUNCX(propObject_movPrefRotZ, "mov.prefRotZ", sim_propertytype_bool, 0,  jsonStr({{"label", "Preferred Z-axis rotation"}, {"description", ""}}), "") \
     FUNCX(propObject_visible, "visible", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Visible"}, {"description", "Whether the scene object is currently visible"}}), "") \
     FUNCX(propObject_children, "children", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Children handles"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
-    FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Model hash"}, {"description", ""}}), "") \
-    FUNCX(propObject_method_getObject, "getObject", sim_propertytype_method, sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "")
+    FUNCX(propObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Model hash"}, {"description", ""}}), "")
 
 #define SHAPE_PROPERTIES \
     FUNCX(propShape_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \

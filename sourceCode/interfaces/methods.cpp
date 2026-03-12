@@ -105,7 +105,9 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["getDepth"] = _method_getDepth;
         funcTable["relocateFrame"] = _method_relocateFrame;
         funcTable["alignBoundingBox"] = _method_alignBoundingBox;
-        funcTable["addLog"] = _method_addLog;
+        funcTable["logInfo"] = _method_logInfo;
+        funcTable["logWarn"] = _method_logWarn;
+        funcTable["logError"] = _method_logError;
         funcTable["quit"] = _method_quit;
         funcTable["systemLock"] = _method_systemLock;
         funcTable["setStepping"] = _method_setStepping;
@@ -3309,22 +3311,145 @@ std::string _method_alignBoundingBox(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method_addLog(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_logInfo(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
     {
         std::string msg = fetchText(inStack, 0);
         if (hasArg(inStack, 0))
         {
+            int verb = 0;
+            if (hasArg(inStack, 1))
+            {
+                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                CInterfaceStackObject* obj = map->getMapObject("undecorated");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_undecorated;
+                }
+                obj = map->getMapObject("onlyterminal");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_onlyterminal;
+                }
+                obj = map->getMapObject("once");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_once;
+                }
+            }
             if (currentScript != nullptr)
             {
-                int verb = fetchInt(inStack, 1, sim_verbosity_msgs);
+                verb += sim_verbosity_scriptinfos;
                 App::logScriptMsg(currentScript, verb, msg.c_str());
             }
             else
             {
-                int verb = fetchInt(inStack, 1, sim_verbosity_loadinfos);
+                verb += sim_verbosity_loadinfos;
+                App::logMsg(verb, msg.c_str());
+            }
+        }
+#ifdef SIM_WITH_GUI
+        else
+            GuiApp::clearStatusbar();
+#endif
+    }
+    return errMsg;
+}
+
+std::string _method_logWarn(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
+    {
+        std::string msg = fetchText(inStack, 0);
+        if (hasArg(inStack, 0))
+        {
+            int verb = 0;
+            if (hasArg(inStack, 1))
+            {
+                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                CInterfaceStackObject* obj = map->getMapObject("undecorated");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_undecorated;
+                }
+                obj = map->getMapObject("onlyterminal");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_onlyterminal;
+                }
+                obj = map->getMapObject("once");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_once;
+                }
+            }
+            if (currentScript != nullptr)
+            {
+                verb += sim_verbosity_scriptwarnings;
+                App::logScriptMsg(currentScript, verb, msg.c_str());
+            }
+            else
+            {
+                verb += sim_verbosity_warnings;
+                App::logMsg(verb, msg.c_str());
+            }
+        }
+#ifdef SIM_WITH_GUI
+        else
+            GuiApp::clearStatusbar();
+#endif
+    }
+    return errMsg;
+}
+
+std::string _method_logError(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
+    {
+        std::string msg = fetchText(inStack, 0);
+        if (hasArg(inStack, 0))
+        {
+            int verb = 0;
+            if (hasArg(inStack, 1))
+            {
+                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                CInterfaceStackObject* obj = map->getMapObject("undecorated");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_undecorated;
+                }
+                obj = map->getMapObject("onlyterminal");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_onlyterminal;
+                }
+                obj = map->getMapObject("once");
+                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                {
+                    if (((CInterfaceStackBool*)obj)->getValue())
+                        verb |= sim_verbosity_once;
+                }
+            }
+            if (currentScript != nullptr)
+            {
+                verb += sim_verbosity_scripterrors;
+                App::logScriptMsg(currentScript, verb, msg.c_str());
+            }
+            else
+            {
+                verb += sim_verbosity_errors;
                 App::logMsg(verb, msg.c_str());
             }
         }
