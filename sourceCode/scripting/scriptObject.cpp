@@ -4196,26 +4196,7 @@ CInterfaceStackObject* CScriptObject::_getObjectFromInterpreterStack_lua(void* L
     }
     else if (t == sim_stackitem_table)
     { // this part is more tricky:
-        if (!luaWrap_lua_ismetatable(L, index))
-        { // Regular table. Following to avoid getting trapped in circular references:
-            void* p = (void*)luaWrap_lua_topointer(L, index);
-            std::map<void*, bool>::iterator it = visitedTables.find(p);
-            CInterfaceStackTable* table = nullptr;
-            if (it != visitedTables.end())
-            { // we have a circular reference!
-                table = new CInterfaceStackTable();
-                table->setCircularRef();
-            }
-            else
-            {
-                visitedTables[p] = true;
-                table = _getTableFromInterpreterStack_lua(L, index, visitedTables, hasTypeHints);
-                it = visitedTables.find(p);
-                visitedTables.erase(it);
-            }
-            retVal = table;
-        }
-        else
+        if (luaWrap_lua_ismetatable(L, index))
         { // we have a metatable (not via type hint):
             int handleVal;
             size_t rows, cols;
@@ -4240,6 +4221,25 @@ CInterfaceStackObject* CScriptObject::_getObjectFromInterpreterStack_lua(void* L
                 retVal = new CInterfaceStackColor(color);
             else if (luaWrap_lua_ishandlearray(L, index, &handleArray, true))
                 retVal = new CInterfaceStackHandleArray(handleArray.data(), handleArray.size());
+        }
+        if (retVal == nullptr)
+        { // Regular table (or metatable type we don't know). Following to avoid getting trapped in circular references:
+            void* p = (void*)luaWrap_lua_topointer(L, index);
+            std::map<void*, bool>::iterator it = visitedTables.find(p);
+            CInterfaceStackTable* table = nullptr;
+            if (it != visitedTables.end())
+            { // we have a circular reference!
+                table = new CInterfaceStackTable();
+                table->setCircularRef();
+            }
+            else
+            {
+                visitedTables[p] = true;
+                table = _getTableFromInterpreterStack_lua(L, index, visitedTables, hasTypeHints);
+                it = visitedTables.find(p);
+                visitedTables.erase(it);
+            }
+            retVal = table;
         }
     }
     else

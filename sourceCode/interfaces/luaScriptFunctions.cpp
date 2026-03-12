@@ -13486,8 +13486,6 @@ int _simUnpackTable(luaWrap_lua_State* L)
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
         if (stack->pushTableFromBuffer(s, (unsigned int)l))
         {
-            std::string tmp;
-            stack->printContent(-1, tmp);
             CScriptObject::buildOntoInterpreterStack_lua(L, stack, true);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
             LUA_END(1);

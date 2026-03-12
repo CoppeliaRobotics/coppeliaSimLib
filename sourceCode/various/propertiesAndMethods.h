@@ -161,6 +161,10 @@ struct SJointProperty
         "removeObjects": "sim-2.callMethod",
         "addLog": "sim-2.callMethod",
         "systemLock": "sim-2.callMethod",
+        "packTable": "sim-2.callMethod",
+        "unpackTable": "sim-2.callMethod",
+        "serialize": "sim-2.callMethod",
+        "deserialize": "sim-2.callMethod",
         "quit": "sim-2.callMethod")"
 
 #define DETACHEDSCRIPT_META_METHODS R"("callFunction": "sim-2.callMethod",

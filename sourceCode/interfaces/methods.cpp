@@ -120,6 +120,8 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["addTorque"] = _method_addTorque;
         funcTable["ungroup"] = _method_ungroup;
         funcTable["divide"] = _method_divide;
+        funcTable["packTable"] = _method_packTable;
+        funcTable["unpackTable"] = _method_unpackTable;
     }
 
     std::string retVal("__notFound__");
@@ -944,6 +946,11 @@ void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length)
 void pushTextArray(CInterfaceStack* outStack, const std::string* v, size_t length)
 {
     outStack->pushTextArrayOntoStack(v, length);
+}
+
+void pushObject(CInterfaceStack* outStack, CInterfaceStackObject* obj)
+{
+    outStack->pushObjectOntoStack(obj);
 }
 
 CSceneObject* getSceneObject(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
@@ -3607,6 +3614,76 @@ std::string _method_divide(int targetObj, const char* method, CScriptObject* cur
         }
         else
             errMsg = SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE;
+    }
+    return errMsg;
+}
+
+std::string _method_packTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_any}))
+    {
+        if (inStack->getStackObjectFromIndex(0)->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+            // Following is the version of the pack format. 0 was when all numbers would be packed as double
+            // (Lua5.1) 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua
+            // for details.
+            // Make sure not to use any byte value that could be a first byte in a cbor string!
+            unsigned char version = 5;
+            std::string auxInfos;
+            std::string s = (char)version + table->getObjectData(auxInfos);
+            // Following are auxiliary string infos (text/binary string/buffer) we append to the end, in order
+            // to keep backward compatible. The aux infos can be any byte value, except for 255. One aux. value
+            // per string object:
+            s += auxInfos + (char)255;
+            pushBuffer(outStack, s.c_str(), s.size());
+        }
+        else
+            pushBuffer(outStack, "", 0);
+    }
+    return errMsg;
+}
+
+std::string _method_unpackTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string data = fetchBuffer(inStack, 0);
+        if (data.size() > 0)
+        {
+            if ((data[0] == 0) || (data[0] == 5))
+            {
+                unsigned char version = data[0]; // the version of the pack format
+                unsigned int w = 0;
+                if (CInterfaceStackTable::checkCreateFromData(data.data() + 1, w, data.size() - 1, version))
+                {
+                    std::vector<CInterfaceStackObject*> allCreatedObjects;
+                    CInterfaceStackTable* table = new CInterfaceStackTable();
+                    int mainDataSize = 1 + table->createFromData(data.data() + 1, version, allCreatedObjects);
+                    if (mainDataSize < int(data.size()))
+                    {
+                        size_t strCnt = 0;
+                        for (size_t i = 0; i < allCreatedObjects.size(); i++)
+                        {
+                            if (allCreatedObjects[i]->getObjectType() == sim_stackitem_string)
+                            {
+                                ((CInterfaceStackString*)allCreatedObjects[i])->setAuxData((unsigned char)data[mainDataSize + strCnt]);
+                                strCnt++;
+                            }
+                        }
+                    }
+                    pushObject(outStack, table);
+                }
+                else
+                    errMsg = SIM_ERROR_INVALID_DATA;
+            }
+            else
+                errMsg = SIM_ERROR_INVALID_DATA;
+        }
+        else
+            pushIntArray(outStack, nullptr, 0); // empty buffer results in an empty table
     }
     return errMsg;
 }

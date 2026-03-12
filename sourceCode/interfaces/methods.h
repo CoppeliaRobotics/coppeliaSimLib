@@ -62,6 +62,7 @@ void pushShortHandleArray(CInterfaceStack* outStack, const int* v, size_t length
 void pushFloatArray(CInterfaceStack* outStack, const double* v, size_t length);
 void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length);
 void pushTextArray(CInterfaceStack* outStack, const std::string* v, size_t length);
+void pushObject(CInterfaceStack* outStack, CInterfaceStackObject* obj);
 
 CSceneObject* getSceneObject(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
 CSceneObject* getSpecificSceneObjectType(int identifier, int type, std::string* errMsg = nullptr, size_t argPos = -1);
@@ -147,3 +148,5 @@ extern std::string _method_addForce(int targetObj, const char* method, CScriptOb
 extern std::string _method_addTorque(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_ungroup(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_divide(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_packTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_unpackTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
