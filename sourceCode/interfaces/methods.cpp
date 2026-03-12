@@ -122,6 +122,24 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["divide"] = _method_divide;
         funcTable["packTable"] = _method_packTable;
         funcTable["unpackTable"] = _method_unpackTable;
+        funcTable["packDoubleTable"] = _method_packDoubleTable;
+        funcTable["packFloatTable"] = _method_packFloatTable;
+        funcTable["packInt64Table"] = _method_packInt64Table;
+        funcTable["packInt32Table"] = _method_packInt32Table;
+        funcTable["packUInt32Table"] = _method_packUInt32Table;
+        funcTable["packInt16Table"] = _method_packInt16Table;
+        funcTable["packUInt16Table"] = _method_packUInt16Table;
+        funcTable["packInt8Table"] = _method_packInt8Table;
+        funcTable["packUInt8Table"] = _method_packUInt8Table;
+        funcTable["unpackDoubleTable"] = _method_unpackDoubleTable;
+        funcTable["unpackFloatTable"] = _method_unpackFloatTable;
+        funcTable["unpackInt64Table"] = _method_unpackInt64Table;
+        funcTable["unpackInt32Table"] = _method_unpackInt32Table;
+        funcTable["unpackUInt32Table"] = _method_unpackUInt32Table;
+        funcTable["unpackInt16Table"] = _method_unpackInt16Table;
+        funcTable["unpackUInt16Table"] = _method_unpackUInt16Table;
+        funcTable["unpackInt8Table"] = _method_unpackInt8Table;
+        funcTable["unpackUInt8Table"] = _method_unpackUInt8Table;
     }
 
     std::string retVal("__notFound__");
@@ -3688,3 +3706,857 @@ std::string _method_unpackTable(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
+std::string _method_packDoubleTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<double> arr;
+        fetchDoubleArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(double) * count);
+            for (int i = 0; i < count; i++)
+            {
+                double v = arr[startIndex + i];
+                data[sizeof(double) * i + 0] = ((char*)&v)[0];
+                data[sizeof(double) * i + 1] = ((char*)&v)[1];
+                data[sizeof(double) * i + 2] = ((char*)&v)[2];
+                data[sizeof(double) * i + 3] = ((char*)&v)[3];
+                data[sizeof(double) * i + 4] = ((char*)&v)[4];
+                data[sizeof(double) * i + 5] = ((char*)&v)[5];
+                data[sizeof(double) * i + 6] = ((char*)&v)[6];
+                data[sizeof(double) * i + 7] = ((char*)&v)[7];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_packFloatTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<double> arr;
+        fetchDoubleArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(float) * count);
+            for (int i = 0; i < count; i++)
+            {
+                float v;
+                double x = arr[startIndex + i];
+                if (x > double(std::numeric_limits<float>::max()))
+                    v = std::numeric_limits<float>::max();
+                else if (x < -double(std::numeric_limits<float>::max()))
+                    v = -std::numeric_limits<float>::max();
+                else
+                    v = float(x);
+                data[sizeof(float) * i + 0] = ((char*)&v)[0];
+                data[sizeof(float) * i + 1] = ((char*)&v)[1];
+                data[sizeof(float) * i + 2] = ((char*)&v)[2];
+                data[sizeof(float) * i + 3] = ((char*)&v)[3];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_packInt64Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<int64_t> arr;
+        fetchLongArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(int64_t) * count);
+            for (int i = 0; i < count; i++)
+            {
+                int64_t v = arr[startIndex + i];
+                data[sizeof(int64_t) * i + 0] = ((char*)&v)[0];
+                data[sizeof(int64_t) * i + 1] = ((char*)&v)[1];
+                data[sizeof(int64_t) * i + 2] = ((char*)&v)[2];
+                data[sizeof(int64_t) * i + 3] = ((char*)&v)[3];
+                data[sizeof(int64_t) * i + 4] = ((char*)&v)[4];
+                data[sizeof(int64_t) * i + 5] = ((char*)&v)[5];
+                data[sizeof(int64_t) * i + 6] = ((char*)&v)[6];
+                data[sizeof(int64_t) * i + 7] = ((char*)&v)[7];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_packInt32Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<int64_t> arr;
+        fetchLongArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(int32_t) * count);
+            for (int i = 0; i < count; i++)
+            {
+                int32_t v;
+                int64_t x = arr[startIndex + i];
+                if (x > std::numeric_limits<int32_t>::max())
+                    v = std::numeric_limits<int32_t>::max();
+                else if (x < std::numeric_limits<int32_t>::min())
+                    v = std::numeric_limits<int32_t>::min();
+                else
+                    v = int32_t(x);
+                data[sizeof(int32_t) * i + 0] = ((char*)&v)[0];
+                data[sizeof(int32_t) * i + 1] = ((char*)&v)[1];
+                data[sizeof(int32_t) * i + 2] = ((char*)&v)[2];
+                data[sizeof(int32_t) * i + 3] = ((char*)&v)[3];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_packUInt32Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<int64_t> arr;
+        fetchLongArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(uint32_t) * count);
+            for (int i = 0; i < count; i++)
+            {
+                uint32_t v;
+                int64_t x = arr[startIndex + i];
+                if (x > int64_t(std::numeric_limits<uint32_t>::max()))
+                    v = std::numeric_limits<uint32_t>::max();
+                else if (x < 0)
+                    v = 0;
+                else
+                    v = uint32_t(x);
+                data[sizeof(uint32_t) * i + 0] = ((char*)&v)[0];
+                data[sizeof(uint32_t) * i + 1] = ((char*)&v)[1];
+                data[sizeof(uint32_t) * i + 2] = ((char*)&v)[2];
+                data[sizeof(uint32_t) * i + 3] = ((char*)&v)[3];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_packInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<int64_t> arr;
+        fetchLongArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(int16_t) * count);
+            for (int i = 0; i < count; i++)
+            {
+                int16_t v;
+                int64_t x = arr[startIndex + i];
+                if (x > int64_t(std::numeric_limits<int16_t>::max()))
+                    v = std::numeric_limits<int16_t>::max();
+                else if (x < std::numeric_limits<int16_t>::min())
+                    v = std::numeric_limits<int16_t>::min();
+                else
+                    v = int16_t(x);
+                data[sizeof(int16_t) * i + 0] = ((char*)&v)[0];
+                data[sizeof(int16_t) * i + 1] = ((char*)&v)[1];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_packUInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<int64_t> arr;
+        fetchLongArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(uint16_t) * count);
+            for (int i = 0; i < count; i++)
+            {
+                uint16_t v;
+                int64_t x = arr[startIndex + i];
+                if (x > int64_t(std::numeric_limits<uint16_t>::max()))
+                    v = std::numeric_limits<uint16_t>::max();
+                else if (x < 0)
+                    v = 0;
+                else
+                    v = uint16_t(x);
+                data[sizeof(uint16_t) * i + 0] = ((char*)&v)[0];
+                data[sizeof(uint16_t) * i + 1] = ((char*)&v)[1];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_packInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<int64_t> arr;
+        fetchLongArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(int8_t) * count);
+            for (int i = 0; i < count; i++)
+            {
+                int8_t v;
+                int64_t x = arr[startIndex + i];
+                if (x > int64_t(std::numeric_limits<int8_t>::max()))
+                    v = std::numeric_limits<int8_t>::max();
+                else if (x < std::numeric_limits<int8_t>::min())
+                    v = std::numeric_limits<int8_t>::min();
+                else
+                    v = int8_t(x);
+                data[i] = ((char*)&v)[0];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_packUInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::vector<int64_t> arr;
+        fetchLongArray(inStack, 0, arr);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int tableSize = int(arr.size());
+
+        if (count < 0)
+            count = 0;
+        if ((startIndex < 0) || (startIndex >= tableSize))
+            count = 0;
+        else
+        {
+            if (count == 0)
+                count = tableSize - startIndex;
+            if (count > tableSize - startIndex)
+                count = tableSize - startIndex;
+        }
+        std::string data;
+        if (count > 0)
+        {
+            data.resize(sizeof(uint8_t) * count);
+            for (int i = 0; i < count; i++)
+            {
+                uint8_t v;
+                int64_t x = arr[startIndex + i];
+                if (x > int64_t(std::numeric_limits<uint8_t>::max()))
+                    v = std::numeric_limits<uint8_t>::max();
+                else if (x < 0)
+                    v = 0;
+                else
+                    v = uint8_t(x);
+                data[i] = ((char*)&v)[0];
+            }
+        }
+        pushBuffer(outStack, data.data(), data.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackDoubleTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(double) * (remainingLength / sizeof(double));
+        int packetCount = int(dataLength / sizeof(double));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<double> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    double v;
+                    ((char*)&v)[0] = data[sizeof(double) * (i + startIndex) + 0];
+                    ((char*)&v)[1] = data[sizeof(double) * (i + startIndex) + 1];
+                    ((char*)&v)[2] = data[sizeof(double) * (i + startIndex) + 2];
+                    ((char*)&v)[3] = data[sizeof(double) * (i + startIndex) + 3];
+                    ((char*)&v)[4] = data[sizeof(double) * (i + startIndex) + 4];
+                    ((char*)&v)[5] = data[sizeof(double) * (i + startIndex) + 5];
+                    ((char*)&v)[6] = data[sizeof(double) * (i + startIndex) + 6];
+                    ((char*)&v)[7] = data[sizeof(double) * (i + startIndex) + 7];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushDoubleArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackFloatTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(float) * (remainingLength / sizeof(float));
+        int packetCount = int(dataLength / sizeof(float));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<float> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    float v;
+                    ((char*)&v)[0] = data[sizeof(float) * (i + startIndex) + 0];
+                    ((char*)&v)[1] = data[sizeof(float) * (i + startIndex) + 1];
+                    ((char*)&v)[2] = data[sizeof(float) * (i + startIndex) + 2];
+                    ((char*)&v)[3] = data[sizeof(float) * (i + startIndex) + 3];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushFloatArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackInt64Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(int64_t) * (remainingLength / sizeof(int64_t));
+        int packetCount = int(dataLength / sizeof(int64_t));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<int64_t> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    int64_t v;
+                    ((char*)&v)[0] = data[sizeof(int64_t) * (i + startIndex) + 0];
+                    ((char*)&v)[1] = data[sizeof(int64_t) * (i + startIndex) + 1];
+                    ((char*)&v)[2] = data[sizeof(int64_t) * (i + startIndex) + 2];
+                    ((char*)&v)[3] = data[sizeof(int64_t) * (i + startIndex) + 3];
+                    ((char*)&v)[4] = data[sizeof(int64_t) * (i + startIndex) + 4];
+                    ((char*)&v)[5] = data[sizeof(int64_t) * (i + startIndex) + 5];
+                    ((char*)&v)[6] = data[sizeof(int64_t) * (i + startIndex) + 6];
+                    ((char*)&v)[7] = data[sizeof(int64_t) * (i + startIndex) + 7];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushLongArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackInt32Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(int32_t) * (remainingLength / sizeof(int32_t));
+        int packetCount = int(dataLength / sizeof(int32_t));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<int> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    int32_t v;
+                    ((char*)&v)[0] = data[sizeof(int32_t) * (i + startIndex) + 0];
+                    ((char*)&v)[1] = data[sizeof(int32_t) * (i + startIndex) + 1];
+                    ((char*)&v)[2] = data[sizeof(int32_t) * (i + startIndex) + 2];
+                    ((char*)&v)[3] = data[sizeof(int32_t) * (i + startIndex) + 3];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushIntArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackUInt32Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(uint32_t) * (remainingLength / sizeof(uint32_t));
+        int packetCount = int(dataLength / sizeof(uint32_t));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<int64_t> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    uint32_t v;
+                    ((char*)&v)[0] = data[sizeof(uint32_t) * (i + startIndex) + 0];
+                    ((char*)&v)[1] = data[sizeof(uint32_t) * (i + startIndex) + 1];
+                    ((char*)&v)[2] = data[sizeof(uint32_t) * (i + startIndex) + 2];
+                    ((char*)&v)[3] = data[sizeof(uint32_t) * (i + startIndex) + 3];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushLongArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(int16_t) * (remainingLength / sizeof(int16_t));
+        int packetCount = int(dataLength / sizeof(int16_t));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<int> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    int16_t v;
+                    ((char*)&v)[0] = data[sizeof(int16_t) * (i + startIndex) + 0];
+                    ((char*)&v)[1] = data[sizeof(int16_t) * (i + startIndex) + 1];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushIntArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackUInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(uint16_t) * (remainingLength / sizeof(uint16_t));
+        int packetCount = int(dataLength / sizeof(uint16_t));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<int> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    uint16_t v;
+                    ((char*)&v)[0] = data[sizeof(uint16_t) * (i + startIndex) + 0];
+                    ((char*)&v)[1] = data[sizeof(uint16_t) * (i + startIndex) + 1];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushIntArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(int8_t) * (remainingLength / sizeof(int8_t));
+        int packetCount = int(dataLength / sizeof(int8_t));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<int> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    int8_t v;
+                    ((char*)&v)[0] = data[i + startIndex];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushIntArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
+
+std::string _method_unpackUInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    {
+        std::string dat = fetchBuffer(inStack, 0);
+        int startIndex = fetchInt(inStack, 1, 0);
+        int count = fetchInt(inStack, 2, 0);
+        int additionalCharOffset = fetchInt(inStack, 3, 0);
+
+        if (additionalCharOffset < 0)
+            additionalCharOffset = 0;
+        if (additionalCharOffset > int(dat.size()))
+            additionalCharOffset = int(dat.size());
+
+        size_t offset = size_t(additionalCharOffset);
+        size_t remainingLength = dat.size() - offset;
+        const char* data = dat.data() + offset;
+        size_t dataLength = sizeof(uint8_t) * (remainingLength / sizeof(uint8_t));
+        int packetCount = int(dataLength / sizeof(uint8_t));
+
+        if (count < 0)
+            count = 0;
+        if (count == 0)
+            count = int(1999999999);
+
+        std::vector<int> outData;
+        if (dataLength != 0)
+        {
+            if ((startIndex >= 0) && (startIndex < packetCount))
+            {
+                if (count > packetCount - startIndex)
+                    count = packetCount - startIndex;
+                outData.reserve(count);
+                for (int i = 0; i < count; i++)
+                {
+                    uint8_t v;
+                    ((char*)&v)[0] = data[i + startIndex];
+                    outData.push_back(v);
+                }
+            }
+        }
+        pushIntArray(outStack, outData.data(), outData.size());
+    }
+    return errMsg;
+}
