@@ -18,10 +18,6 @@ static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "object",
     "namespaces": {
-    },
-    "methods": {
-        )" MESH_META_METHODS R"(,
-        )" OBJECT_META_METHODS R"(
     }
 }
 )";
@@ -3370,11 +3366,15 @@ int CMesh::removeProperty(const char* ppName)
 
 int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject, int excludeFlags)
 {
-    int retVal = -1;
-    if (targetObject != nullptr)
-        retVal = targetObject->color.getPropertyName(index, pName, excludeFlags);
-    else
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8 + 16, "", excludeFlags);
+    std::string dummyApp;
+    int retVal = Obj::getPropertyName_static(index, pName, dummyApp, excludeFlags);
+    if (retVal == -1)
+    {
+        if (targetObject != nullptr)
+            retVal = targetObject->color.getPropertyName(index, pName, excludeFlags);
+        else
+            retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8 + 16, "", excludeFlags);
+    }
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mesh.size(); i++)
@@ -3402,13 +3402,16 @@ int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject, 
 
 int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, CMesh* targetObject)
 {
+    int retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
     std::string _pName(ppName);
     const char* pName = ppName;
-    int retVal = -1;
-    if (targetObject != nullptr)
-        retVal = targetObject->color.getPropertyInfo(pName, info, infoTxt);
-    else
-        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8 + 16, "");
+    if (retVal == -1)
+    {
+        if (targetObject != nullptr)
+            retVal = targetObject->color.getPropertyInfo(pName, info, infoTxt);
+        else
+            retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8 + 16, "");
+    }
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mesh.size(); i++)

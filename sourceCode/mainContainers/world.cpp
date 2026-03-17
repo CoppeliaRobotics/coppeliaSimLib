@@ -6225,7 +6225,8 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
     if (target == sim_handle_scene)
     {
         appartenance = "scene";
-        if (App::currentWorld->dynamicsContainer != nullptr)
+        retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
+        if ((retVal == -1) && (App::currentWorld->dynamicsContainer != nullptr))
             retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
         if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
             retVal = App::currentWorld->simulation->getPropertyName(index, pName, excludeFlags);
@@ -6282,20 +6283,24 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
         {
-            int flags = (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude);
-            for (size_t i = 0; i < stack->getStackSize(); i++)
+            retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
+            if (retVal == -1)
             {
-                if (pName.size() == 0)
+                int flags = (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude);
+                for (size_t i = 0; i < stack->getStackSize(); i++)
                 {
-                    if ((flags & excludeFlags) == 0)
+                    if (pName.size() == 0)
                     {
-                        index--;
-                        if (index == -1)
+                        if ((flags & excludeFlags) == 0)
                         {
-                            pName = std::to_string(i);
-                            retVal = 1;
-                            appartenance = "stack";
-                            break;
+                            index--;
+                            if (index == -1)
+                            {
+                                pName = std::to_string(i);
+                                retVal = 1;
+                                appartenance = "stack";
+                                break;
+                            }
                         }
                     }
                 }
@@ -6487,7 +6492,8 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (App::currentWorld->dynamicsContainer != nullptr)
+        retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
+        if ((retVal == -1) && (App::currentWorld->dynamicsContainer != nullptr))
             retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
         if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
             retVal = App::currentWorld->simulation->getPropertyInfo(pName, info, infoTxt);
@@ -6568,18 +6574,22 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
         {
-            int stackIndex;
-            if (tt::stringToInt(ppName, stackIndex))
+            retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
+            if (retVal == -1)
             {
-                if (stackIndex < 0)
-                    stackIndex += stack->getStackSize();
-                if (stackIndex < stack->getStackSize())
+                int stackIndex;
+                if (tt::stringToInt(ppName, stackIndex))
                 {
-                    CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                    if (obj != nullptr)
+                    if (stackIndex < 0)
+                        stackIndex += stack->getStackSize();
+                    if (stackIndex < stack->getStackSize())
                     {
-                        info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
-                        retVal = _getPropertyTypeForStackItem(obj, infoTxt);
+                        CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
+                        if (obj != nullptr)
+                        {
+                            info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
+                            retVal = _getPropertyTypeForStackItem(obj, infoTxt);
+                        }
                     }
                 }
             }

@@ -43,10 +43,6 @@ static std::string OBJECT_META_INFO = R"(
         "namedParam": {},
         "customData": {},
         "signal": {}
-    },
-    "methods": {
-        )" APP_META_METHODS R"(,
-        )" OBJECT_META_METHODS R"(
     }
 }
 )";
@@ -87,6 +83,7 @@ VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
+Obj* App::_obj = nullptr;
 
 long long int App::_nextUniqueId = SIM_UIDSTART;
 #ifdef USE_LONG_LONG_HANDLES
@@ -1560,6 +1557,8 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
 
 int App::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1592,6 +1591,8 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
 
 int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1651,6 +1652,8 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 
 int App::setIntProperty(long long int target, const char* ppName, int pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1692,6 +1695,8 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
 
 int App::getIntProperty(long long int target, const char* ppName, int& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1788,6 +1793,8 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
 
 int App::setLongProperty(long long int target, const char* ppName, long long int pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1803,6 +1810,8 @@ int App::setLongProperty(long long int target, const char* ppName, long long int
 
 int App::getLongProperty(long long int target, const char* ppName, long long int& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1828,6 +1837,8 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
 
 int App::setHandleProperty(long long int target, const char* ppName, long long int pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1843,6 +1854,8 @@ int App::setHandleProperty(long long int target, const char* ppName, long long i
 
 int App::getHandleProperty(long long int target, const char* ppName, long long int& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1866,6 +1879,8 @@ int App::getHandleProperty(long long int target, const char* ppName, long long i
 
 int App::setFloatProperty(long long int target, const char* ppName, double pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1893,6 +1908,8 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
 
 int App::getFloatProperty(long long int target, const char* ppName, double& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -1929,6 +1946,8 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
 
 int App::setStringProperty(long long int target, const char* ppName, const char* pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2049,6 +2068,8 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
 
 int App::getStringProperty(long long int target, const char* ppName, std::string& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2347,6 +2368,8 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
 
 int App::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2402,6 +2425,8 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
 
 int App::getBufferProperty(long long int target, const char* ppName, std::string& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2442,6 +2467,8 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
 
 int App::setIntArray2Property(long long int target, const char* ppName, const int* pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2457,6 +2484,8 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
 
 int App::getIntArray2Property(long long int target, const char* ppName, int* pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2472,6 +2501,8 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
 
 int App::setVector2Property(long long int target, const char* ppName, const double* pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2487,6 +2518,8 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
 
 int App::getVector2Property(long long int target, const char* ppName, double* pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2502,6 +2535,8 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
 
 int App::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2517,6 +2552,8 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
 
 int App::getVector3Property(long long int target, const char* ppName, C3Vector& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2532,6 +2569,8 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
 
 int App::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2547,6 +2586,8 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
 
 int App::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2567,6 +2608,8 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
 
 int App::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2582,6 +2625,8 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
 
 int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2597,6 +2642,8 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
 
 int App::setColorProperty(long long int target, const char* ppName, const float* pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2612,6 +2659,8 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
 
 int App::getColorProperty(long long int target, const char* ppName, float* pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2627,6 +2676,8 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
 
 int App::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2642,6 +2693,8 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
 
 int App::getFloatArrayProperty(long long int target, const char* ppName, std::vector<double>& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2658,6 +2711,8 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
 
 int App::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2673,6 +2728,8 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
 
 int App::getIntArrayProperty(long long int target, const char* ppName, std::vector<int>& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2689,6 +2746,8 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
 
 int App::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2704,6 +2763,8 @@ int App::setHandleArrayProperty(long long int target, const char* ppName, const 
 
 int App::getHandleArrayProperty(long long int target, const char* ppName, std::vector<long long int>& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2727,6 +2788,8 @@ int App::getHandleArrayProperty(long long int target, const char* ppName, std::v
 
 int App::setStringArrayProperty(long long int target, const char* ppName, const std::vector<std::string>& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
 //    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
 //        target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2750,6 +2813,8 @@ int App::setStringArrayProperty(long long int target, const char* ppName, const 
 
 int App::getStringArrayProperty(long long int target, const char* ppName, std::vector<std::string>& pState)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
 //    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
 //        target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2776,6 +2841,8 @@ int App::getStringArrayProperty(long long int target, const char* ppName, std::v
 
 int App::removeProperty(long long int target, const char* ppName)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2783,55 +2850,59 @@ int App::removeProperty(long long int target, const char* ppName)
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        retVal = _obj->removeProperty(ppName);
+        if (retVal == -1)
         {
-            pN += "&customData"; // we add a suffix to separate user and system data
-            //CPersistentDataContainer cont("appStorage.dat");
-            int tp = _appStorage->hasData(pN.c_str(), true);
-            if (tp >= 0)
+            std::string pN(pName);
+            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             {
-                if (_appStorage->clearData((propertyStrings[tp] + pN).c_str(), true))
+                pN += "&customData"; // we add a suffix to separate user and system data
+                //CPersistentDataContainer cont("appStorage.dat");
+                int tp = _appStorage->hasData(pN.c_str(), true);
+                if (tp >= 0)
                 {
-                    if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+                    if (_appStorage->clearData((propertyStrings[tp] + pN).c_str(), true))
                     {
-                        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
-                        _appStorage->appendEventData(pN.c_str(), ev, true);
-                        App::worldContainer->pushEvent();
-                    }
-                }
-                retVal = 1;
-            }
-        }
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
-        {
-            if (pN.size() > 0)
-            {
-                if (worldContainer != nullptr)
-                {
-                    int tp = worldContainer->customAppData_volatile.hasData(pN.c_str(), true);
-                    if (tp >= 0)
-                    {
-                        bool diff = worldContainer->customAppData_volatile.clearData((propertyStrings[tp] + pN).c_str());
-                        if (diff && worldContainer->getEventsEnabled())
+                        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
                         {
-                            CCbor* ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
-                            worldContainer->customAppData_volatile.appendEventData(pN.c_str(), ev, true);
-                            worldContainer->pushEvent();
+                            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                            _appStorage->appendEventData(pN.c_str(), ev, true);
+                            App::worldContainer->pushEvent();
                         }
-                        retVal = 1;
+                    }
+                    retVal = 1;
+                }
+            }
+            else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            {
+                if (pN.size() > 0)
+                {
+                    if (worldContainer != nullptr)
+                    {
+                        int tp = worldContainer->customAppData_volatile.hasData(pN.c_str(), true);
+                        if (tp >= 0)
+                        {
+                            bool diff = worldContainer->customAppData_volatile.clearData((propertyStrings[tp] + pN).c_str());
+                            if (diff && worldContainer->getEventsEnabled())
+                            {
+                                CCbor* ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                                worldContainer->customAppData_volatile.appendEventData(pN.c_str(), ev, true);
+                                worldContainer->pushEvent();
+                            }
+                            retVal = 1;
+                        }
                     }
                 }
             }
-        }
-        else if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
-        {
-            if (pN.size() > 0)
+            else if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
             {
-                if (removeAppNamedParam(pN.c_str()))
-                    retVal = 1;
-                else
-                    retVal = 0;
+                if (pN.size() > 0)
+                {
+                    if (removeAppNamedParam(pN.c_str()))
+                        retVal = 1;
+                    else
+                        retVal = 0;
+                }
             }
         }
     }
@@ -2842,64 +2913,70 @@ int App::removeProperty(long long int target, const char* ppName)
 
 int App::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing, int excludeFlags)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
     int retVal = -1;
     appartenance = OBJECT_TYPE;
     if (target == sim_handle_app)
     {
-        for (size_t i = 0; i < allProps_app.size(); i++)
+        retVal = _obj->getPropertyName(index, pName, appartenance, excludeFlags);
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_app[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_app.size(); i++)
             {
-                if ((allProps_app[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_app[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_app[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_app[i].name;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_app[i].name;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (!staticParsing)
-        {
-            if (retVal == -1)
+            if (!staticParsing)
             {
-                //CPersistentDataContainer cont("appStorage.dat");
-                if (_appStorage->getPropertyName(index, pName, excludeFlags))
+                if (retVal == -1)
                 {
-                    pName = CUSTOMDATAPREFIX + pName;
-                    retVal = 1;
-                }
-            }
-            if ((retVal == -1) && (worldContainer != nullptr))
-            {
-                if (worldContainer->customAppData_volatile.getPropertyName(index, pName, excludeFlags))
-                {
-                    pName = SIGNALPREFIX + pName;
-                    retVal = 1;
-                }
-            }
-            if (retVal == -1)
-            {
-                for (const auto& pair : _applicationNamedParams)
-                {
-                    int flags = NAMEDPARAMFLAGS;
-                    if (pair.second.size() > LARGE_PROPERTY_SIZE)
-                        flags |= sim_propertyinfo_largedata;
-                    if ((pName.size() == 0) || utils::startsWith((NAMEDPARAMPREFIX + pair.first).c_str(), pName.c_str()))
+                    //CPersistentDataContainer cont("appStorage.dat");
+                    if (_appStorage->getPropertyName(index, pName, excludeFlags))
                     {
-                        if ((flags & excludeFlags) == 0)
+                        pName = CUSTOMDATAPREFIX + pName;
+                        retVal = 1;
+                    }
+                }
+                if ((retVal == -1) && (worldContainer != nullptr))
+                {
+                    if (worldContainer->customAppData_volatile.getPropertyName(index, pName, excludeFlags))
+                    {
+                        pName = SIGNALPREFIX + pName;
+                        retVal = 1;
+                    }
+                }
+                if (retVal == -1)
+                {
+                    for (const auto& pair : _applicationNamedParams)
+                    {
+                        int flags = NAMEDPARAMFLAGS;
+                        if (pair.second.size() > LARGE_PROPERTY_SIZE)
+                            flags |= sim_propertyinfo_largedata;
+                        if ((pName.size() == 0) || utils::startsWith((NAMEDPARAMPREFIX + pair.first).c_str(), pName.c_str()))
                         {
-                            index--;
-                            if (index == -1)
+                            if ((flags & excludeFlags) == 0)
                             {
-                                pName = NAMEDPARAMPREFIX + pair.first;
-                                retVal = 1;
-                                break;
+                                index--;
+                                if (index == -1)
+                                {
+                                    pName = NAMEDPARAMPREFIX + pair.first;
+                                    retVal = 1;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -2928,6 +3005,8 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
 
 int App::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt, bool staticParsing)
 {
+    if (_obj == nullptr)
+        _obj = new Obj();
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
         target = worldContainer->sandboxScript->getScriptHandle();
 
@@ -2935,77 +3014,81 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        for (size_t i = 0; i < allProps_app.size(); i++)
+        retVal = _obj->getPropertyInfo(ppName, info, infoTxt);
+        if (retVal == -1)
         {
-            if (strcmp(allProps_app[i].name, pName) == 0)
+            for (size_t i = 0; i < allProps_app.size(); i++)
             {
-                retVal = allProps_app[i].type;
-                info = allProps_app[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_app[i].shortInfoTxt;
-                else
+                if (strcmp(allProps_app[i].name, pName) == 0)
                 {
-                    auto w = QJsonDocument::fromJson(allProps_app[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
+                    retVal = allProps_app[i].type;
+                    info = allProps_app[i].flags;
+                    if (infoTxt == "j")
+                        infoTxt = allProps_app[i].shortInfoTxt;
                     else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-        if (!staticParsing)
-        {
-            if (retVal == -1)
-            {
-                std::string pN(pName);
-                if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
-                {
-                    pN += "&customData";
-                    //CPersistentDataContainer cont("appStorage.dat");
-                    int s;
-                    retVal = _appStorage->hasData(pN.c_str(), true, &s);
-                    if (retVal >= 0)
                     {
-                        info = CUSTOMDATAFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
-                        infoTxt = "";
+                        auto w = QJsonDocument::fromJson(allProps_app[i].shortInfoTxt.c_str()).object();
+                        std::string descr = w["description"].toString().toStdString();
+                        std::string label = w["label"].toString().toStdString();
+                        if ( (infoTxt == "s") || (descr == "") )
+                            infoTxt = label;
+                        else
+                            infoTxt = descr;
+                    }
+                    break;
+                }
+            }
+            if (!staticParsing)
+            {
+                if (retVal == -1)
+                {
+                    std::string pN(pName);
+                    if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+                    {
+                        pN += "&customData";
+                        //CPersistentDataContainer cont("appStorage.dat");
+                        int s;
+                        retVal = _appStorage->hasData(pN.c_str(), true, &s);
+                        if (retVal >= 0)
+                        {
+                            info = CUSTOMDATAFLAGS;
+                            if (s > LARGE_PROPERTY_SIZE)
+                                info = info | sim_propertyinfo_largedata;
+                            infoTxt = "";
+                        }
                     }
                 }
-            }
-            if ((retVal == -1) && (worldContainer != nullptr))
-            {
-                std::string pN(pName);
-                if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+                if ((retVal == -1) && (worldContainer != nullptr))
                 {
-                    int s;
-                    retVal = worldContainer->customAppData_volatile.hasData(pN.c_str(), true, &s);
-                    if (retVal >= 0)
+                    std::string pN(pName);
+                    if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
                     {
-                        info = SIGNALFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
-                        infoTxt = "";
+                        int s;
+                        retVal = worldContainer->customAppData_volatile.hasData(pN.c_str(), true, &s);
+                        if (retVal >= 0)
+                        {
+                            info = SIGNALFLAGS;
+                            if (s > LARGE_PROPERTY_SIZE)
+                                info = info | sim_propertyinfo_largedata;
+                            infoTxt = "";
+                        }
                     }
                 }
-            }
-            if (retVal == -1)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                if (pN.size() > 0)
+                if (retVal == -1)
                 {
-                    std::string param;
-                    if (getAppNamedParam(pN.c_str(), param))
+                    std::string pN(pName);
+                    pN.erase(0, 11);
+                    if (pN.size() > 0)
                     {
-                        retVal = sim_propertytype_string;
-                        info = NAMEDPARAMFLAGS;
-                        if (param.size() > LARGE_PROPERTY_SIZE)
-                            info = info | 0x100;
-                        infoTxt = "";
+                        std::string param;
+                        if (getAppNamedParam(pN.c_str(), param))
+                        {
+                            retVal = sim_propertytype_string;
+                            info = NAMEDPARAMFLAGS;
+                            if (param.size() > LARGE_PROPERTY_SIZE)
+                                info = info | 0x100;
+                            infoTxt = "";
+                        }
                     }
                 }
             }

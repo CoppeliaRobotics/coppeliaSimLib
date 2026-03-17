@@ -2,6 +2,7 @@
 
 #include <simLib/simConst.h>
 #include <collectionElement.h>
+#include <obj.h>
 #include <propertiesAndMethods.h>
 
 // ----------------------------------------------------------------------------------------------
@@ -11,7 +12,7 @@ COLLECTION_PROPERTIES
 extern const std::vector<SProperty> allProps_collection;
 // ----------------------------------------------------------------------------------------------
 
-class CCollection
+class CCollection : public Obj
 {
   public:
     CCollection(int creatorHandle);

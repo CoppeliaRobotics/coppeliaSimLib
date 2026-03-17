@@ -2,6 +2,7 @@
 
 #include <colorObject.h>
 #include <simMath/4X4Matrix.h>
+#include <obj.h>
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
@@ -12,7 +13,7 @@ extern const std::vector<SProperty> allProps_drawingObj;
 
 class CSceneObject;
 
-class CDrawingObject
+class CDrawingObject : public Obj
 {
   public:
     CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int creatorHandle);

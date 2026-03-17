@@ -321,7 +321,7 @@ int CCollectionContainer::getHandleArrayProperty(long long int target, const cha
     pState.clear();
     if (target == -1)
     {
-        if (strcmp(pName, propCollCont_collections.name) == 0)
+        if (strcmp(pName, propCollectionCont_collections.name) == 0)
         {
             for (size_t i = 0; i < _allCollections.size(); i++)
                 pState.push_back(_allCollections[i]->getCollectionHandle());
@@ -452,7 +452,7 @@ void CCollectionContainer::_addCollection(CCollection* collection)
         std::vector<int> handles;
         for (size_t i = 0; i < _allCollections.size(); i++)
             handles.push_back(_allCollections[i]->getCollectionHandle());
-        const char* cmd = propCollCont_collections.name;
+        const char* cmd = propCollectionCont_collections.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
@@ -513,7 +513,7 @@ void CCollectionContainer::pushGenesisEvents() const
 
         // We need to "fake" adding that collection:
         addedCollections.push_back(coll->getCollectionHandle());
-        const char* cmd = propCollCont_collections.name;
+        const char* cmd = propCollectionCont_collections.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedCollections.data(), addedCollections.size());

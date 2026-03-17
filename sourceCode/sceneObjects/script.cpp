@@ -18,10 +18,6 @@ static std::string OBJECT_META_INFO = R"(
         "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
         "customData": {},
         "signal": {}
-    },
-    "methods": {
-        )" SCRIPT_META_METHODS R"(,
-        )" SCENEOBJECT_META_METHODS R"(
     }
 }
 )";
@@ -788,24 +784,7 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
         retVal = _scriptColor.getPropertyName(index, pName, excludeFlags);
     }
     if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_script.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
-            {
-                if ((allProps_script[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_script[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
+        retVal = getPropertyName_localStatic(index, pName, appartenance, excludeFlags);
     return retVal;
 }
 
@@ -818,20 +797,25 @@ int CScript::getPropertyName_static(int& index, std::string& pName, std::string&
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
     }
     if (retVal == -1)
+        retVal = getPropertyName_localStatic(index, pName, appartenance, excludeFlags);
+    return retVal;
+}
+
+int CScript::getPropertyName_localStatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_script.size(); i++)
     {
-        for (size_t i = 0; i < allProps_script.size(); i++)
+        if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
+            if ((allProps_script[i].flags & excludeFlags) == 0)
             {
-                if ((allProps_script[i].flags & excludeFlags) == 0)
+                index--;
+                if (index == -1)
                 {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_script[i].name;
-                        retVal = 1;
-                        break;
-                    }
+                    pName = allProps_script[i].name;
+                    retVal = 1;
+                    break;
                 }
             }
         }
@@ -846,29 +830,7 @@ int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
     if (retVal == -1)
         retVal = _scriptColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_script.size(); i++)
-        {
-            if (strcmp(allProps_script[i].name, ppName) == 0)
-            {
-                retVal = allProps_script[i].type;
-                info = allProps_script[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_script[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_script[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
+        retVal = getPropertyInfo_localStatic(ppName, info, infoTxt);
     return retVal;
 }
 
@@ -879,27 +841,32 @@ int CScript::getPropertyInfo_static(const char* ppName, int& info, std::string& 
     if (retVal == -1)
         retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
+        retVal = getPropertyInfo_localStatic(ppName, info, infoTxt);
+    return retVal;
+}
+
+int CScript::getPropertyInfo_localStatic(const char* ppName, int& info, std::string& infoTxt)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_script.size(); i++)
     {
-        for (size_t i = 0; i < allProps_script.size(); i++)
+        if (strcmp(allProps_script[i].name, ppName) == 0)
         {
-            if (strcmp(allProps_script[i].name, ppName) == 0)
+            retVal = allProps_script[i].type;
+            info = allProps_script[i].flags;
+            if (infoTxt == "j")
+                infoTxt = allProps_script[i].shortInfoTxt;
+            else
             {
-                retVal = allProps_script[i].type;
-                info = allProps_script[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_script[i].shortInfoTxt;
+                auto w = QJsonDocument::fromJson(allProps_script[i].shortInfoTxt.c_str()).object();
+                std::string descr = w["description"].toString().toStdString();
+                std::string label = w["label"].toString().toStdString();
+                if ( (infoTxt == "s") || (descr == "") )
+                    infoTxt = label;
                 else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_script[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
+                    infoTxt = descr;
             }
+            break;
         }
     }
     return retVal;

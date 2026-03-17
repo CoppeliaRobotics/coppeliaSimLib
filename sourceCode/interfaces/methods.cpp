@@ -142,6 +142,9 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["unpackUInt16Table"] = _method_unpackUInt16Table;
         funcTable["unpackInt8Table"] = _method_unpackInt8Table;
         funcTable["unpackUInt8Table"] = _method_unpackUInt8Table;
+        funcTable["_createCamera"] = _method__createCamera;
+        funcTable["_createLight"] = _method__createLight;
+        funcTable["_createGraph"] = _method__createGraph;
     }
 
     std::string retVal("__notFound__");
@@ -4685,3 +4688,79 @@ std::string _method_unpackUInt8Table(int targetObj, const char* method, CScriptO
     }
     return errMsg;
 }
+
+std::string _method__createCamera(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))
+    {
+        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+        double clipp[2] = {0.05, 30.0};
+        map->fetchDoubleArrayFromKey("clippingPlanes", clipp, 2, &errMsg);
+        double viewAngle = 60.0 * degToRad;
+        map->fetchDoubleFromKey("viewAngle", viewAngle, &errMsg);
+        double viewSize = 2.0;
+        bool perspective = !map->fetchDoubleFromKey("viewSize", viewSize, &errMsg);
+        if (errMsg.size() == 0)
+        {
+            CCamera* it = new CCamera();
+            it->setViewAngle(viewAngle);
+            it->setOrthoViewSize(viewSize);
+            it->setPerspective(perspective);
+            it->setClippingPlanes(clipp[0], clipp[1]);
+            App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+            pushHandle(outStack, it->getObjectHandle());
+        }
+    }
+    return errMsg;
+}
+
+std::string _method__createLight(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))
+    {
+        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+        int lightType = sim_light_omnidirectional;
+        map->fetchInt32FromKey("lightType", lightType, &errMsg);
+        if (errMsg.size() == 0)
+        {
+            CLight* it = new CLight(lightType);
+            App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+            pushHandle(outStack, it->getObjectHandle());
+        }
+    }
+    return errMsg;
+}
+
+std::string _method__createGraph(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))
+    {
+        float backgroundColor[3] = {0.1f, 0.1f, 0.1f};
+        float foregroundColor[3] = {0.8f, 0.8f, 0.8f};
+        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+        map->fetchFloatArrayFromKey("backgroundColor", backgroundColor, 3, &errMsg);
+        map->fetchFloatArrayFromKey("foregroundColor", foregroundColor, 3, &errMsg);
+        if (errMsg.size() == 0)
+        {
+            CGraph* it = new CGraph();
+            for (size_t i = 0; i < 3; i++)
+            {
+                it->backgroundColor[i] = backgroundColor[i];
+                it->foregroundColor[i] = foregroundColor[i];
+            }
+            App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+            CScript* script = new CScript(sim_scripttype_customization, "graph = require('models.graph_customization-2')", 0, "lua");
+            script->setScriptExecPriority_raw(sim_scriptexecorder_last);
+            App::currentWorld->sceneObjects->addObjectToScene(script, false, true);
+            App::currentWorld->sceneObjects->setObjectParent(script, it, true);
+            it->setObjectProperty(it->getObjectProperty() | sim_objectproperty_collapsed);
+            it->setModelBase(true);
+            pushHandle(outStack, it->getObjectHandle());
+        }
+    }
+    return errMsg;
+}
+

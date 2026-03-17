@@ -10,6 +10,7 @@
 #include <cbor.h>
 #include <simLib/simConst.h>
 #include <propertiesAndMethods.h>
+#include <obj.h>
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
@@ -53,7 +54,7 @@ class CViewableBase;
 class CScriptObject;
 class CInterfaceStack;
 
-class CSceneObject
+class CSceneObject : public Obj
 {
   public:
     CSceneObject();
@@ -150,8 +151,10 @@ class CSceneObject
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     static int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
+    static int getPropertyName_localBstatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_bstatic(const char* pName, int& info, std::string& infoTxt);
+    static int getPropertyInfo_localBstatic(const char* pName, int& info, std::string& infoTxt);
 
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;

@@ -65,7 +65,7 @@ void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
             CDrawingObject* dr = _allObjects[i];
             handles.push_back(dr->getObjectId());
         }
-        const char* cmd = propDrawCont_drawingObjects.name;
+        const char* cmd = propDrawingObjectCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
@@ -145,7 +145,7 @@ void CDrawingContainer::pushGenesisEvents()
         dr->pushAddEvent();
         // We need to "fake" adding that drawing object:
         addedObjects.push_back(dr->getObjectId());
-        const char* cmd = propDrawCont_drawingObjects.name;
+        const char* cmd = propDrawingObjectCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedObjects.data(), addedObjects.size());
@@ -215,7 +215,7 @@ int CDrawingContainer::getHandleArrayProperty(long long int target, const char* 
     pState.clear();
     if (target == -1)
     {
-        if (strcmp(pName, propDrawCont_drawingObjects.name) == 0)
+        if (strcmp(pName, propDrawingObjectCont_drawingObjects.name) == 0)
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
                 pState.push_back(_allObjects[i]->getObjectId());

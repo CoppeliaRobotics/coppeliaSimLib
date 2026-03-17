@@ -22,10 +22,6 @@ static std::string OBJECT_META_INFO = R"(
     "namespaces": {
         "customData": {},
         "signal": {}
-    },
-    "methods": {
-        )" SCENE_META_METHODS R"(,
-        )" OBJECT_META_METHODS R"(
     }
 }
 )";

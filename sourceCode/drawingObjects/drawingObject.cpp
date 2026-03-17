@@ -12,10 +12,6 @@ static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "object",
     "namespaces": {
-    },
-    "methods": {
-        )" DRAWINGOBJECT_META_METHODS R"(,
-        )" OBJECT_META_METHODS R"(
     }
 }
 )";
@@ -499,12 +495,12 @@ void CDrawingObject::pushAddEvent()
                 tp = "spherePoint";
                 break;
             }
-            ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
-            ev->appendKeyInt64(propDrawingObj_handle.name, _objectId);
+            ev->appendKeyText(propDrawingObject_objectType.name, OBJECT_TYPE.c_str());
+            ev->appendKeyInt64(propDrawingObject_handle.name, _objectId);
             if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyInt64(propDrawingObj_parent.name, _sceneObjectId);
+                ev->appendKeyInt64(propDrawingObject_parent.name, _sceneObjectId);
             else
-                ev->appendKeyHandle(propDrawingObj_parent.name, _sceneObjectId);
+                ev->appendKeyHandle(propDrawingObject_parent.name, _sceneObjectId);
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
@@ -547,7 +543,7 @@ void CDrawingObject::pushAddEvent()
                 tp = "spherePoint";
                 break;
             }
-            ev->appendKeyText(propDrawingObj_objectType.name, OBJECT_TYPE.c_str());
+            ev->appendKeyText(propDrawingObject_objectType.name, OBJECT_TYPE.c_str());
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
@@ -608,7 +604,7 @@ int CDrawingObject::getLongProperty(const char* ppName, long long int& pState) c
     std::string _pName(ppName);
     int retVal = -1;
 
-    if (_pName == propDrawingObj_handle.name)
+    if (_pName == propDrawingObject_handle.name)
     {
         retVal = 1;
         pState = _objectId;
@@ -622,7 +618,7 @@ int CDrawingObject::getHandleProperty(const char* ppName, long long int& pState)
     std::string _pName(ppName);
     int retVal = -1;
 
-    if (_pName == propDrawingObj_parent.name)
+    if (_pName == propDrawingObject_parent.name)
     {
         retVal = 1;
         pState = _sceneObjectId;
@@ -636,12 +632,12 @@ int CDrawingObject::getStringProperty(const char* ppName, std::string& pState) c
     std::string _pName(ppName);
     int retVal = -1;
 
-    if (_pName == propDrawingObj_objectType.name)
+    if (_pName == propDrawingObject_objectType.name)
     {
         retVal = 1;
         pState = OBJECT_TYPE;
     }
-    else if (_pName == propDrawingObj_objectMetaInfo.name)
+    else if (_pName == propDrawingObject_objectMetaInfo.name)
     {
         retVal = 1;
         pState = OBJECT_META_INFO;
@@ -652,19 +648,22 @@ int CDrawingObject::getStringProperty(const char* ppName, std::string& pState) c
 
 int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_drawingObj.size(); i++)
+    int retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
+    if (retVal == -1)
     {
-        if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
+        for (size_t i = 0; i < allProps_drawingObj.size(); i++)
         {
-            if ((allProps_drawingObj[i].flags & excludeFlags) == 0)
+            if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_drawingObj[i].flags & excludeFlags) == 0)
                 {
-                    pName = allProps_drawingObj[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_drawingObj[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -674,27 +673,29 @@ int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string&
 
 int CDrawingObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 {
-    const char* pName = ppName;
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_drawingObj.size(); i++)
+    int retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
+    if (retVal == -1)
     {
-        if (strcmp(allProps_drawingObj[i].name, pName) == 0)
+        for (size_t i = 0; i < allProps_drawingObj.size(); i++)
         {
-            retVal = allProps_drawingObj[i].type;
-            info = allProps_drawingObj[i].flags;
-            if (infoTxt == "j")
-                infoTxt = allProps_drawingObj[i].shortInfoTxt;
-            else
+            if (strcmp(allProps_drawingObj[i].name, ppName) == 0)
             {
-                auto w = QJsonDocument::fromJson(allProps_drawingObj[i].shortInfoTxt.c_str()).object();
-                std::string descr = w["description"].toString().toStdString();
-                std::string label = w["label"].toString().toStdString();
-                if ( (infoTxt == "s") || (descr == "") )
-                    infoTxt = label;
+                retVal = allProps_drawingObj[i].type;
+                info = allProps_drawingObj[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_drawingObj[i].shortInfoTxt;
                 else
-                    infoTxt = descr;
+                {
+                    auto w = QJsonDocument::fromJson(allProps_drawingObj[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
             }
-            break;
         }
     }
     return retVal;

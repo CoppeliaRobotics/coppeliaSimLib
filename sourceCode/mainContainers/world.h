@@ -23,6 +23,7 @@
 #include <collisionObjectContainer_old.h>
 #include <ikGroupContainer.h>
 #include <sceneObjectContainer.h>
+#include <obj.h>
 
 struct SLoadOperationIssue
 {
@@ -31,7 +32,7 @@ struct SLoadOperationIssue
     int objectHandle;
 };
 
-class CWorld
+class CWorld : public Obj
 {
   public:
     CWorld();

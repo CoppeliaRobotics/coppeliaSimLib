@@ -22,10 +22,6 @@ static std::string OBJECT_META_INFO = R"(
         "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
         "customData": {},
         "signal": {}
-    },
-    "methods": {
-        )" SHAPE_META_METHODS R"(,
-        )" SCENEOBJECT_META_METHODS R"(
     }
 }
 )";

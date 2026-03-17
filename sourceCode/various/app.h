@@ -7,9 +7,8 @@
 #include <simThread.h>
 #include <gm.h>
 #include <instance_id.h>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QSystemSemaphore>
+#include <obj.h>
 #include <propertiesAndMethods.h>
 #ifndef SIM_WITH_GUI
 #include <simQApp.h>
@@ -21,62 +20,6 @@ APP_PROPERTIES
 #undef FUNCX
 extern const std::vector<SProperty> allProps_app;
 // ----------------------------------------------------------------------------------------------
-
-static std::vector<std::pair<int, std::string>> propertyTypes = {
-    {sim_propertytype_bool, proptypetag_bool},
-    {sim_propertytype_int, proptypetag_int},
-    {sim_propertytype_float, proptypetag_float},
-    {sim_propertytype_string, proptypetag_string},
-    {sim_propertytype_intarray2, proptypetag_intarray2},
-    {sim_propertytype_long, proptypetag_long},
-    {sim_propertytype_vector2, proptypetag_vector2},
-    {sim_propertytype_vector3, proptypetag_vector3},
-    {sim_propertytype_quaternion, proptypetag_quaternion},
-    {sim_propertytype_pose, proptypetag_pose},
-    {sim_propertytype_matrix3x3, proptypetag_matrix3x3},
-    {sim_propertytype_matrix4x4, proptypetag_matrix4x4},
-    {sim_propertytype_color, proptypetag_color},
-    {sim_propertytype_floatarray, proptypetag_floatarray},
-    {sim_propertytype_intarray, proptypetag_intarray},
-    {sim_propertytype_table, proptypetag_table},
-    {sim_propertytype_matrix, proptypetag_matrix},
-    {sim_propertytype_null, proptypetag_null},
-    {sim_propertytype_array, proptypetag_array},
-    {sim_propertytype_map, proptypetag_map},
-    {sim_propertytype_handle, proptypetag_handle},
-    {sim_propertytype_handlearray, proptypetag_handlearray},
-    {sim_propertytype_stringarray, proptypetag_stringarray},
-
-    {sim_propertytype_buffer, proptypetag_buffer}, // keep always at the end
-};
-
-static std::map<int, std::string> propertyStrings = {
-    {sim_propertytype_bool, proptypetag_bool},
-    {sim_propertytype_int, proptypetag_int},
-    {sim_propertytype_float, proptypetag_float},
-    {sim_propertytype_string, proptypetag_string},
-    {sim_propertytype_intarray2, proptypetag_intarray2},
-    {sim_propertytype_long, proptypetag_long},
-    {sim_propertytype_vector2, proptypetag_vector2},
-    {sim_propertytype_vector3, proptypetag_vector3},
-    {sim_propertytype_quaternion, proptypetag_quaternion},
-    {sim_propertytype_pose, proptypetag_pose},
-    {sim_propertytype_matrix3x3, proptypetag_matrix3x3},
-    {sim_propertytype_matrix4x4, proptypetag_matrix4x4},
-    {sim_propertytype_color, proptypetag_color},
-    {sim_propertytype_floatarray, proptypetag_floatarray},
-    {sim_propertytype_intarray, proptypetag_intarray},
-    {sim_propertytype_table, proptypetag_table},
-    {sim_propertytype_matrix, proptypetag_matrix},
-    {sim_propertytype_null, proptypetag_null},
-    {sim_propertytype_array, proptypetag_array},
-    {sim_propertytype_map, proptypetag_map},
-    {sim_propertytype_handle, proptypetag_handle},
-    {sim_propertytype_handlearray, proptypetag_handlearray},
-    {sim_propertytype_stringarray, proptypetag_stringarray},
-
-    {sim_propertytype_buffer, proptypetag_buffer},
-};
 
 struct SSysSemaphore
 {
@@ -272,6 +215,7 @@ class App
     static int _exitCode;
     static bool _exitRequest;
     static volatile int _appStage;
+    static Obj* _obj;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
     static std::map<std::string /*originName*/, std::map<int /*verbosityLevel*/, std::map<std::string /*msg*/, bool>>> _logOnceMessages;

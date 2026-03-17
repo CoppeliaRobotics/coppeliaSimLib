@@ -921,12 +921,22 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
                        "0000e+00,7.0711e-01,-7.0711e-01,9.7545e-02,-2.3549e-01,0.0000e+00,0.0000e+00,0.0000e+00,5."
                        "5557e-01,-8.3147e-01,1.8024e-01,-1.8024e-01,0.0000e+00,0.0000e+00,0.0000e+00,3.8268e-01,-9."
                        "2388e-01,2.3549e-01,-9.7545e-02,0.0000e+00,-2.2352e-08,0.0000e+00,1.9509e-01,-9.8079e-01}";
-            txt += "\nlocal path=sim.createPath(pathData,";
-            int opt = 0;
-            if (commandID == ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
-                opt += 2;
-            txt += std::to_string(opt) + ",100)\nsim.setObjectSel({path})";
-
+            if (App::worldContainer->sandboxScript->getSimVersion() == 2)
+            {
+                if (commandID == ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
+                    txt += "\nlocal closed = true";
+                txt += "\nlocal n = #pathData // 7";
+                txt += "\nsimEigen = require'simEigen'";
+                txt += "\nlocal path = __2.locals.createObject(sim.scene, 'createObject', {objectType = 'path', closed = closed, ctrlPts = simEigen.Matrix(n, 7, pathData)})\nsim.scene.selection = {path}";
+            }
+            else
+            {
+                txt += "\nlocal path=sim.createPath(pathData,";
+                int opt = 0;
+                if (commandID == ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
+                    opt += 2;
+                txt += std::to_string(opt) + ",100)\nsim.setObjectSel({path})";
+            }
             CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
             if (App::worldContainer->sandboxScript->executeScriptString(txt.c_str(), stack) == -1)
             {

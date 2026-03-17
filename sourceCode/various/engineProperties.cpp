@@ -1370,20 +1370,20 @@ void CEngineProperties::_writeGlobal(int engine, CAnnJson& annJson) const
     if (engine == sim_physics_bullet)
     {
         QJsonObject jbullet;
-        iv = _getGlobalIntParam(propDyn_bulletSolver.name, comment,
+        iv = _getGlobalIntParam(propDynCont_bulletSolver.name, comment,
                                 "0=sequential impulse, 1=NNCG, 2=dantzig, 3=projected Gauss-Seidel");
         annJson.addJson(jbullet, "solver", iv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_bulletIterations.name, comment);
+        iv = _getGlobalIntParam(propDynCont_bulletIterations.name, comment);
         annJson.addJson(jbullet, "iterations", iv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_bulletComputeInertias.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_bulletComputeInertias.name, comment);
         annJson.addJson(jbullet, "computeInertias", bv, comment.c_str());
         QJsonObject jbulletInternalScaling;
-        bv = _getGlobalBoolParam(propDyn_bulletInternalScalingFull.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_bulletInternalScalingFull.name, comment);
         annJson.addJson(jbulletInternalScaling, "full", bv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_bulletInternalScalingScaling.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_bulletInternalScalingScaling.name, comment);
         annJson.addJson(jbulletInternalScaling, "value", fv, comment.c_str());
         annJson.addJson(jbullet, "internalScaling", jbulletInternalScaling);
-        fv = _getGlobalFloatParam(propDyn_bulletCollMarginScaling.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_bulletCollMarginScaling.name, comment);
         annJson.addJson(jbullet, "collisionMarginScaling", fv, comment.c_str());
         annJson.addJson(annJson.getMainObject()[0], "bullet", jbullet);
     }
@@ -1392,22 +1392,22 @@ void CEngineProperties::_writeGlobal(int engine, CAnnJson& annJson) const
     {
         QJsonObject jode;
         QJsonObject jodeQuickstep;
-        bv = _getGlobalBoolParam(propDyn_odeQuickStepEnabled.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_odeQuickStepEnabled.name, comment);
         annJson.addJson(jodeQuickstep, "enabled", bv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_odeQuickStepIterations.name, comment);
+        iv = _getGlobalIntParam(propDynCont_odeQuickStepIterations.name, comment);
         annJson.addJson(jodeQuickstep, "iterations", iv, comment.c_str());
         annJson.addJson(jode, "quickStep", jodeQuickstep);
-        bv = _getGlobalBoolParam(propDyn_odeComputeInertias.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_odeComputeInertias.name, comment);
         annJson.addJson(jode, "computeInertias", bv, comment.c_str());
         QJsonObject jodeInternalScaling;
-        bv = _getGlobalBoolParam(propDyn_odeInternalScalingFull.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_odeInternalScalingFull.name, comment);
         annJson.addJson(jodeInternalScaling, "full", bv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_odeInternalScalingScaling.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_odeInternalScalingScaling.name, comment);
         annJson.addJson(jodeInternalScaling, "value", fv, comment.c_str());
         annJson.addJson(jode, "internalScaling", jodeInternalScaling);
-        fv = _getGlobalFloatParam(propDyn_odeGlobalErp.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_odeGlobalErp.name, comment);
         annJson.addJson(jode, "globalErp", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_odeGlobalCfm.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_odeGlobalCfm.name, comment);
         annJson.addJson(jode, "globalCfm", fv, comment.c_str());
         annJson.addJson(annJson.getMainObject()[0], "ode", jode);
     }
@@ -1415,17 +1415,17 @@ void CEngineProperties::_writeGlobal(int engine, CAnnJson& annJson) const
     if (engine == sim_physics_newton)
     {
         QJsonObject jnewton;
-        iv = _getGlobalIntParam(propDyn_newtonIterations.name, comment);
+        iv = _getGlobalIntParam(propDynCont_newtonIterations.name, comment);
         annJson.addJson(jnewton, "iterations", iv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_newtonComputeInertias.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_newtonComputeInertias.name, comment);
         annJson.addJson(jnewton, "computeInertias", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_newtonMultithreading.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_newtonMultithreading.name, comment);
         annJson.addJson(jnewton, "multithreading", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_newtonExactSolver.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_newtonExactSolver.name, comment);
         annJson.addJson(jnewton, "exactSolver", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_newtonHighJointAccuracy.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_newtonHighJointAccuracy.name, comment);
         annJson.addJson(jnewton, "highJointAccuracy", bv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_newtonContactMergeTolerance.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_newtonContactMergeTolerance.name, comment);
         annJson.addJson(jnewton, "contactMergeTolerance", fv, comment.c_str());
         annJson.addJson(annJson.getMainObject()[0], "newton", jnewton);
     }
@@ -1433,121 +1433,121 @@ void CEngineProperties::_writeGlobal(int engine, CAnnJson& annJson) const
     if (engine == sim_physics_mujoco)
     {
         QJsonObject jmujoco;
-        iv = _getGlobalIntParam(propDyn_mujocoIntegrator.name, comment, "0=euler, 1=rk4, 2=implicit, 3=implicitfast");
+        iv = _getGlobalIntParam(propDynCont_mujocoIntegrator.name, comment, "0=euler, 1=rk4, 2=implicit, 3=implicitfast");
         annJson.addJson(jmujoco, "integrator", iv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoSolver.name, comment, "0=pgs, 1=cg, 2=newton");
+        iv = _getGlobalIntParam(propDynCont_mujocoSolver.name, comment, "0=pgs, 1=cg, 2=newton");
         annJson.addJson(jmujoco, "solver", iv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoJacobian.name, comment, "-1=auto 0=dense, 1=sparse");
+        iv = _getGlobalIntParam(propDynCont_mujocoJacobian.name, comment, "-1=auto 0=dense, 1=sparse");
         annJson.addJson(jmujoco, "jacobian", iv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoIterations.name, comment);
+        iv = _getGlobalIntParam(propDynCont_mujocoIterations.name, comment);
         annJson.addJson(jmujoco, "iterations", iv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoTolerance.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoTolerance.name, comment);
         annJson.addJson(jmujoco, "tolerance", fv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoLs_iterations.name, comment);
+        iv = _getGlobalIntParam(propDynCont_mujocoLs_iterations.name, comment);
         annJson.addJson(jmujoco, "ls_iterations", iv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoLs_tolerance.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoLs_tolerance.name, comment);
         annJson.addJson(jmujoco, "ls_tolerance", fv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoNoslip_iterations.name, comment);
+        iv = _getGlobalIntParam(propDynCont_mujocoNoslip_iterations.name, comment);
         annJson.addJson(jmujoco, "noslip_iterations", iv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoNoslip_tolerance.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoNoslip_tolerance.name, comment);
         annJson.addJson(jmujoco, "noslip_tolerance", fv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoCcd_iterations.name, comment);
+        iv = _getGlobalIntParam(propDynCont_mujocoCcd_iterations.name, comment);
         annJson.addJson(jmujoco, "ccd_iterations", iv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoCcd_tolerance.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoCcd_tolerance.name, comment);
         annJson.addJson(jmujoco, "ccd_tolerance", fv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoSdf_iterations.name, comment);
+        iv = _getGlobalIntParam(propDynCont_mujocoSdf_iterations.name, comment);
         annJson.addJson(jmujoco, "sdf_iterations", iv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoSdf_initpoints.name, comment);
+        iv = _getGlobalIntParam(propDynCont_mujocoSdf_initpoints.name, comment);
         annJson.addJson(jmujoco, "sdf_initpoints", iv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoRebuildTrigger.name, comment,
+        iv = _getGlobalIntParam(propDynCont_mujocoRebuildTrigger.name, comment,
                                 "bit coded: bit0=object added, bit1=object removed, bit2=hierarchy changed, "
                                 "bit3=dynamic refresh flag found,  bit4=xml injections, bit5=CoppeliaSim particles");
         annJson.addJson(jmujoco, "rebuildTrigger", iv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoComputeInertias.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoComputeInertias.name, comment);
         annJson.addJson(jmujoco, "computeInertias", bv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoMbMemory.name, comment);
+        iv = _getGlobalIntParam(propDynCont_mujocoMbMemory.name, comment);
         annJson.addJson(jmujoco, "mbMemory", iv, comment.c_str());
-        iv = _getGlobalIntParam(propDyn_mujocoCone.name, comment, "0=pyramidal, 1=elliptic");
+        iv = _getGlobalIntParam(propDynCont_mujocoCone.name, comment, "0=pyramidal, 1=elliptic");
         annJson.addJson(jmujoco, "cone", iv, comment.c_str());
         QJsonObject jmujocoKinematic;
-        iv = _getGlobalIntParam(propDyn_mujocoKinematicBodiesOverrideFlags.name, comment,
+        iv = _getGlobalIntParam(propDynCont_mujocoKinematicBodiesOverrideFlags.name, comment,
                                 "0=do not override, 1=all disabled, 2=all enabled");
         annJson.addJson(jmujocoKinematic, "overrideFlags", iv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoKinematicBodiesMass.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoKinematicBodiesMass.name, comment);
         annJson.addJson(jmujocoKinematic, "mass", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoKinematicBodiesInertia.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoKinematicBodiesInertia.name, comment);
         annJson.addJson(jmujocoKinematic, "inertia", fv, comment.c_str());
         annJson.addJson(jmujoco, "kinematicBodies", jmujocoKinematic);
-        fv = _getGlobalFloatParam(propDyn_mujocoBoundMass.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoBoundMass.name, comment);
         annJson.addJson(jmujoco, "boundMass", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoBoundInertia.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoBoundInertia.name, comment);
         annJson.addJson(jmujoco, "boundInertia", fv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoBalanceInertias.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoBalanceInertias.name, comment);
         annJson.addJson(jmujoco, "balanceInertias", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoMultithreaded.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoMultithreaded.name, comment);
         annJson.addJson(jmujoco, "multithreaded", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoMulticcd.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoMulticcd.name, comment);
         annJson.addJson(jmujoco, "multiccd", bv, comment.c_str());
         QJsonObject jmujocoContacts;
-        bv = _getGlobalBoolParam(propDyn_mujocoContactParamsOverride.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoContactParamsOverride.name, comment);
         annJson.addJson(jmujocoContacts, "override", bv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoContactParamsMargin.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoContactParamsMargin.name, comment);
         annJson.addJson(jmujocoContacts, "margin", fv, comment.c_str());
         double w[5];
-        _getGlobalFloatParams(propDyn_mujocoContactParamsSolref.name, w, comment);
+        _getGlobalFloatParams(propDynCont_mujocoContactParamsSolref.name, w, comment);
         annJson.addJson(jmujocoContacts, "solref", w, 2, comment.c_str());
-        _getGlobalFloatParams(propDyn_mujocoContactParamsSolimp.name, w, comment);
+        _getGlobalFloatParams(propDynCont_mujocoContactParamsSolimp.name, w, comment);
         annJson.addJson(jmujocoContacts, "solimp", w, 5, comment.c_str());
         annJson.addJson(jmujoco, "contactParams", jmujocoContacts);
         QJsonObject jmujocoKinematicWeld;
-        fv = _getGlobalFloatParam(propDyn_mujocoKinematicWeldTorqueScale.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoKinematicWeldTorqueScale.name, comment);
         annJson.addJson(jmujocoKinematicWeld, "torquescale", fv, comment.c_str());
-        _getGlobalFloatParams(propDyn_mujocoKinematicWeldSolref.name, w, comment);
+        _getGlobalFloatParams(propDynCont_mujocoKinematicWeldSolref.name, w, comment);
         annJson.addJson(jmujocoKinematicWeld, "solref", w, 2, comment.c_str());
-        _getGlobalFloatParams(propDyn_mujocoKinematicWeldSolimp.name, w, comment);
+        _getGlobalFloatParams(propDynCont_mujocoKinematicWeldSolimp.name, w, comment);
         annJson.addJson(jmujocoKinematicWeld, "solimp", w, 5, comment.c_str());
         annJson.addJson(jmujoco, "kinematicWeld", jmujocoKinematicWeld);
-        fv = _getGlobalFloatParam(propDyn_mujocoImpRatio.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoImpRatio.name, comment);
         annJson.addJson(jmujoco, "impratio", fv, comment.c_str());
-        _getGlobalFloatParams(propDyn_mujocoWind.name, w, comment);
+        _getGlobalFloatParams(propDynCont_mujocoWind.name, w, comment);
         annJson.addJson(jmujoco, "wind", w, 3, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoDensity.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoDensity.name, comment);
         annJson.addJson(jmujoco, "density", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_mujocoViscosity.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_mujocoViscosity.name, comment);
         annJson.addJson(jmujoco, "viscosity", fv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoEqualityEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoEqualityEnable.name, comment);
         annJson.addJson(jmujoco, "equalityEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoFrictionlossEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoFrictionlossEnable.name, comment);
         annJson.addJson(jmujoco, "frictionlossEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoLimitEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoLimitEnable.name, comment);
         annJson.addJson(jmujoco, "limitEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoContactEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoContactEnable.name, comment);
         annJson.addJson(jmujoco, "contactEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoPassiveEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoPassiveEnable.name, comment);
         annJson.addJson(jmujoco, "passiveEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoGravityEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoGravityEnable.name, comment);
         annJson.addJson(jmujoco, "gravityEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoWarmstartEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoWarmstartEnable.name, comment);
         annJson.addJson(jmujoco, "warmstartEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoActuationEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoActuationEnable.name, comment);
         annJson.addJson(jmujoco, "actuationEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoRefsafeEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoRefsafeEnable.name, comment);
         annJson.addJson(jmujoco, "refsafeEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoSensorEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoSensorEnable.name, comment);
         annJson.addJson(jmujoco, "sensorEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoMidphaseEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoMidphaseEnable.name, comment);
         annJson.addJson(jmujoco, "midphaseEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoEulerdampEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoEulerdampEnable.name, comment);
         annJson.addJson(jmujoco, "eulerdampEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoAutoresetEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoAutoresetEnable.name, comment);
         annJson.addJson(jmujoco, "autoresetEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoEnergyEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoEnergyEnable.name, comment);
         annJson.addJson(jmujoco, "energyEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoInvdiscreteEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoInvdiscreteEnable.name, comment);
         annJson.addJson(jmujoco, "invdiscreteEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoNativeccdEnable.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoNativeccdEnable.name, comment);
         annJson.addJson(jmujoco, "nativeccdEnable", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_mujocoAlignfree.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_mujocoAlignfree.name, comment);
         annJson.addJson(jmujoco, "alignfree", bv, comment.c_str());
 
         annJson.addJson(annJson.getMainObject()[0], "mujoco", jmujoco);
@@ -1556,26 +1556,26 @@ void CEngineProperties::_writeGlobal(int engine, CAnnJson& annJson) const
     if (engine == sim_physics_vortex)
     {
         QJsonObject jvortex;
-        bv = _getGlobalBoolParam(propDyn_vortexComputeInertias.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_vortexComputeInertias.name, comment);
         annJson.addJson(jvortex, "computeInertias", bv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_vortexContactTolerance.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_vortexContactTolerance.name, comment);
         annJson.addJson(jvortex, "contactTolerance", fv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_vortexAutoSleep.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_vortexAutoSleep.name, comment);
         annJson.addJson(jvortex, "autoSleep", bv, comment.c_str());
-        bv = _getGlobalBoolParam(propDyn_vortexMultithreading.name, comment);
+        bv = _getGlobalBoolParam(propDynCont_vortexMultithreading.name, comment);
         annJson.addJson(jvortex, "multithreading", bv, comment.c_str());
         QJsonObject jvortexConstr;
-        fv = _getGlobalFloatParam(propDyn_vortexConstraintsLinearCompliance.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_vortexConstraintsLinearCompliance.name, comment);
         annJson.addJson(jvortexConstr, "linearCompliance", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_vortexConstraintsLinearDamping.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_vortexConstraintsLinearDamping.name, comment);
         annJson.addJson(jvortexConstr, "linearDamping", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_vortexConstraintsLinearKineticLoss.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_vortexConstraintsLinearKineticLoss.name, comment);
         annJson.addJson(jvortexConstr, "linearKineticLoss", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_vortexConstraintsAngularCompliance.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_vortexConstraintsAngularCompliance.name, comment);
         annJson.addJson(jvortexConstr, "angularCompliance", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_vortexConstraintsAngularDamping.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_vortexConstraintsAngularDamping.name, comment);
         annJson.addJson(jvortexConstr, "angularDamping", fv, comment.c_str());
-        fv = _getGlobalFloatParam(propDyn_vortexConstraintsAngularKineticLoss.name, comment);
+        fv = _getGlobalFloatParam(propDynCont_vortexConstraintsAngularKineticLoss.name, comment);
         annJson.addJson(jvortexConstr, "angularKineticLoss", fv, comment.c_str());
         annJson.addJson(jvortex, "constraints", jvortexConstr);
         annJson.addJson(annJson.getMainObject()[0], "vortex", jvortex);
@@ -1592,26 +1592,26 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* 
         {
             QJsonObject bullet(val.toObject());
             if (annJson.getValue(bullet, "solver", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_bulletSolver.name,
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_bulletSolver.name,
                                                                      val.toInt());
             if (annJson.getValue(bullet, "iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_bulletIterations.name,
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_bulletIterations.name,
                                                                      val.toInt());
             if (annJson.getValue(bullet, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_bulletComputeInertias.name,
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_bulletComputeInertias.name,
                                                                       val.toBool());
             if (annJson.getValue(bullet, "internalScaling", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "full", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_bulletInternalScalingFull.name,
+                    App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_bulletInternalScalingFull.name,
                                                                           val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_bulletInternalScalingScaling.name,
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_bulletInternalScalingScaling.name,
                                                                            val.toDouble());
             }
             if (annJson.getValue(bullet, "collisionMarginScaling", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_bulletCollMarginScaling.name,
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_bulletCollMarginScaling.name,
                                                                        val.toDouble());
         }
     }
@@ -1625,26 +1625,26 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* 
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "enabled", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_odeQuickStepEnabled.name, val.toBool());
+                    App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_odeQuickStepEnabled.name, val.toBool());
                 if (annJson.getValue(sub, "iterations", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setIntProperty(propDyn_odeQuickStepIterations.name, val.toInt());
+                    App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_odeQuickStepIterations.name, val.toInt());
             }
             if (annJson.getValue(ode, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_odeComputeInertias.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_odeComputeInertias.name, val.toBool());
             if (annJson.getValue(ode, "internalScaling", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "full", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_odeInternalScalingFull.name,
+                    App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_odeInternalScalingFull.name,
                                                                           val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeInternalScalingScaling.name,
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_odeInternalScalingScaling.name,
                                                                            val.toDouble());
             }
             if (annJson.getValue(ode, "globalErp", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeGlobalErp.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalErp.name, val.toDouble());
             if (annJson.getValue(ode, "globalCfm", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeGlobalCfm.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalCfm.name, val.toDouble());
         }
     }
 
@@ -1654,21 +1654,21 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* 
         {
             QJsonObject newton(val.toObject());
             if (annJson.getValue(newton, "iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_newtonIterations.name,
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_newtonIterations.name,
                                                                      val.toInt());
             if (annJson.getValue(newton, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_newtonComputeInertias.name,
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_newtonComputeInertias.name,
                                                                       val.toBool());
             if (annJson.getValue(newton, "multithreading", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_newtonMultithreading.name,
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_newtonMultithreading.name,
                                                                       val.toBool());
             if (annJson.getValue(newton, "exactSolver", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_newtonExactSolver.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_newtonExactSolver.name, val.toBool());
             if (annJson.getValue(newton, "highJointAccuracy", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_newtonHighJointAccuracy.name,
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_newtonHighJointAccuracy.name,
                                                                       val.toBool());
             if (annJson.getValue(newton, "contactMergeTolerance", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_newtonContactMergeTolerance.name,
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_newtonContactMergeTolerance.name,
                                                                        val.toDouble());
         }
     }
@@ -1680,130 +1680,130 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* 
             double w[5];
             QJsonObject mujoco(val.toObject());
             if (annJson.getValue(mujoco, "integrator", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoIntegrator.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoIntegrator.name, val.toInt());
             if (annJson.getValue(mujoco, "solver", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoSolver.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoSolver.name, val.toInt());
             if (annJson.getValue(mujoco, "jacobian", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoJacobian.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoJacobian.name, val.toInt());
             if (annJson.getValue(mujoco, "iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoIterations.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoIterations.name, val.toInt());
             if (annJson.getValue(mujoco, "tolerance", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoTolerance.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoTolerance.name, val.toDouble());
             if (annJson.getValue(mujoco, "ls_iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoLs_iterations.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoLs_iterations.name, val.toInt());
             if (annJson.getValue(mujoco, "ls_tolerance", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoLs_tolerance.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoLs_tolerance.name, val.toDouble());
             if (annJson.getValue(mujoco, "noslip_iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoNoslip_iterations.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoNoslip_iterations.name, val.toInt());
             if (annJson.getValue(mujoco, "noslip_tolerance", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoNoslip_tolerance.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoNoslip_tolerance.name, val.toDouble());
             if (annJson.getValue(mujoco, "ccd_iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoCcd_iterations.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoCcd_iterations.name, val.toInt());
             if (annJson.getValue(mujoco, "ccd_tolerance", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoCcd_tolerance.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoCcd_tolerance.name, val.toDouble());
             if (annJson.getValue(mujoco, "sdf_iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoSdf_iterations.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoSdf_iterations.name, val.toInt());
             if (annJson.getValue(mujoco, "sdf_initpoints", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoSdf_initpoints.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoSdf_initpoints.name, val.toInt());
             if (annJson.getValue(mujoco, "rebuildTrigger", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoRebuildTrigger.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoRebuildTrigger.name, val.toInt());
             if (annJson.getValue(mujoco, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoComputeInertias.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoComputeInertias.name, val.toBool());
             if (annJson.getValue(mujoco, "mbMemory", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoMbMemory.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoMbMemory.name, val.toInt());
             if (annJson.getValue(mujoco, "cone", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoCone.name, val.toInt());
+                App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoCone.name, val.toInt());
             if (annJson.getValue(mujoco, "kinematicBodies", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "overrideFlags", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setIntProperty(propDyn_mujocoKinematicBodiesOverrideFlags.name, val.toInt());
+                    App::currentWorld->dynamicsContainer->setIntProperty(propDynCont_mujocoKinematicBodiesOverrideFlags.name, val.toInt());
                 if (annJson.getValue(sub, "mass", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoKinematicBodiesMass.name,
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoKinematicBodiesMass.name,
                                                                            val.toDouble());
                 if (annJson.getValue(sub, "inertia", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoKinematicBodiesInertia.name,
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoKinematicBodiesInertia.name,
                                                                            val.toDouble());
             }
             if (annJson.getValue(mujoco, "boundMass", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoBoundMass.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoBoundMass.name, val.toDouble());
             if (annJson.getValue(mujoco, "boundInertia", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoBoundInertia.name,
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoBoundInertia.name,
                                                                        val.toDouble());
             if (annJson.getValue(mujoco, "balanceInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoBalanceInertias.name,
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoBalanceInertias.name,
                                                                       val.toBool());
             if (annJson.getValue(mujoco, "multithreaded", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoMultithreaded.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoMultithreaded.name, val.toBool());
             if (annJson.getValue(mujoco, "multiccd", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoMulticcd.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoMulticcd.name, val.toBool());
             if (annJson.getValue(mujoco, "contactParams", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "override", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoContactParamsOverride.name, val.toBool());
+                    App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoContactParamsOverride.name, val.toBool());
                 if (annJson.getValue(sub, "margin", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoContactParamsMargin.name, val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoContactParamsMargin.name, val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDyn_mujocoContactParamsSolref.name, w, 2);
+                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoContactParamsSolref.name, w, 2);
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDyn_mujocoContactParamsSolimp.name, w, 5);
+                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoContactParamsSolimp.name, w, 5);
             }
             if (annJson.getValue(mujoco, "kinematicWeld", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "torquescale", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoKinematicWeldTorqueScale.name, val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoKinematicWeldTorqueScale.name, val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDyn_mujocoKinematicWeldSolref.name, w, 2);
+                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoKinematicWeldSolref.name, w, 2);
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDyn_mujocoKinematicWeldSolimp.name, w, 5);
+                    App::currentWorld->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoKinematicWeldSolimp.name, w, 5);
             }
             if (annJson.getValue(mujoco, "impratio", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoImpRatio.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoImpRatio.name, val.toDouble());
             if (annJson.getValue(mujoco, "wind", w, 3, allErrors))
             {
                 C3Vector w3(w);
-                App::currentWorld->dynamicsContainer->setVector3Property(propDyn_mujocoWind.name, &w3);
+                App::currentWorld->dynamicsContainer->setVector3Property(propDynCont_mujocoWind.name, &w3);
             }
             if (annJson.getValue(mujoco, "density", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoDensity.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoDensity.name, val.toDouble());
             if (annJson.getValue(mujoco, "viscosity", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_mujocoViscosity.name, val.toDouble());
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_mujocoViscosity.name, val.toDouble());
             if (annJson.getValue(mujoco, "equalityEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoEqualityEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoEqualityEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "frictionlossEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoFrictionlossEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoFrictionlossEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "limitEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoLimitEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoLimitEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "contactEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoContactEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoContactEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "passiveEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoPassiveEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoPassiveEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "gravityEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoGravityEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoGravityEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "warmstartEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoWarmstartEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoWarmstartEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "actuationEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoActuationEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoActuationEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "refsafeEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoRefsafeEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoRefsafeEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "sensorEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoSensorEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoSensorEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "midphaseEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoMidphaseEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoMidphaseEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "eulerdampEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoEulerdampEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoEulerdampEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "autoresetEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoAutoresetEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoAutoresetEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "energyEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoEnergyEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoEnergyEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "invdiscreteEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoInvdiscreteEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoInvdiscreteEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "nativeccdEnable", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoNativeccdEnable.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoNativeccdEnable.name, val.toBool());
             if (annJson.getValue(mujoco, "alignfree", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_mujocoAlignfree.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_mujocoAlignfree.name, val.toBool());
         }
     }
 
@@ -1813,31 +1813,31 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* 
         {
             QJsonObject vortex(val.toObject());
             if (annJson.getValue(vortex, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_vortexComputeInertias.name,
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_vortexComputeInertias.name,
                                                                       val.toBool());
             if (annJson.getValue(vortex, "contactTolerance", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_vortexContactTolerance.name,
+                App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_vortexContactTolerance.name,
                                                                        val.toDouble());
             if (annJson.getValue(vortex, "autoSleep", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_vortexAutoSleep.name, val.toBool());
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_vortexAutoSleep.name, val.toBool());
             if (annJson.getValue(vortex, "multithreading", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_vortexMultithreading.name,
+                App::currentWorld->dynamicsContainer->setBoolProperty(propDynCont_vortexMultithreading.name,
                                                                       val.toBool());
             if (annJson.getValue(vortex, "constraints", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "linearCompliance", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_vortexConstraintsLinearCompliance.name, val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_vortexConstraintsLinearCompliance.name, val.toDouble());
                 if (annJson.getValue(sub, "linearDamping", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_vortexConstraintsLinearDamping.name, val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_vortexConstraintsLinearDamping.name, val.toDouble());
                 if (annJson.getValue(sub, "linearKineticLoss", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_vortexConstraintsLinearKineticLoss.name, val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_vortexConstraintsLinearKineticLoss.name, val.toDouble());
                 if (annJson.getValue(sub, "angularCompliance", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_vortexConstraintsAngularCompliance.name, val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_vortexConstraintsAngularCompliance.name, val.toDouble());
                 if (annJson.getValue(sub, "angularDamping", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_vortexConstraintsAngularDamping.name, val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_vortexConstraintsAngularDamping.name, val.toDouble());
                 if (annJson.getValue(sub, "angularKineticLoss", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_vortexConstraintsAngularKineticLoss.name, val.toDouble());
+                    App::currentWorld->dynamicsContainer->setFloatProperty(propDynCont_vortexConstraintsAngularKineticLoss.name, val.toDouble());
             }
         }
     }

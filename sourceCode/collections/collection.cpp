@@ -13,10 +13,6 @@ static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "object",
     "namespaces": {
-    },
-    "methods": {
-        )" COLLECTION_META_METHODS R"(,
-        )" OBJECT_META_METHODS R"(
     }
 }
 )";
@@ -343,19 +339,22 @@ int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long lon
 
 int CCollection::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_collection.size(); i++)
+    int retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
+    if (retVal == -1)
     {
-        if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
+        for (size_t i = 0; i < allProps_collection.size(); i++)
         {
-            if ((allProps_collection[i].flags & excludeFlags) == 0)
+            if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_collection[i].flags & excludeFlags) == 0)
                 {
-                    pName = allProps_collection[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_collection[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -365,27 +364,29 @@ int CCollection::getPropertyName(int& index, std::string& pName, std::string& ap
 
 int CCollection::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 {
-    const char* pName = ppName;
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_collection.size(); i++)
+    int retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
+    if (retVal == -1)
     {
-        if (strcmp(allProps_collection[i].name, pName) == 0)
+        for (size_t i = 0; i < allProps_collection.size(); i++)
         {
-            retVal = allProps_collection[i].type;
-            info = allProps_collection[i].flags;
-            if (infoTxt == "j")
-                infoTxt = allProps_collection[i].shortInfoTxt;
-            else
+            if (strcmp(allProps_collection[i].name, ppName) == 0)
             {
-                auto w = QJsonDocument::fromJson(allProps_collection[i].shortInfoTxt.c_str()).object();
-                std::string descr = w["description"].toString().toStdString();
-                std::string label = w["label"].toString().toStdString();
-                if ( (infoTxt == "s") || (descr == "") )
-                    infoTxt = label;
+                retVal = allProps_collection[i].type;
+                info = allProps_collection[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_collection[i].shortInfoTxt;
                 else
-                    infoTxt = descr;
+                {
+                    auto w = QJsonDocument::fromJson(allProps_collection[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
             }
-            break;
         }
     }
     return retVal;

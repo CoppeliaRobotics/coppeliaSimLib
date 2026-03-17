@@ -1380,7 +1380,6 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
     int modelSel_dynShapeCnt = 0;
     for (size_t i = 0; i < modelSel.size(); i++)
     {
-        printf("Alias: %s\n", modelSel[i]->getObjectAlias().c_str());
         int t = modelSel[i]->getObjectType();
         if (t == sim_sceneobject_shape)
         {

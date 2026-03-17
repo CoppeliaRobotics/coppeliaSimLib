@@ -8,6 +8,7 @@
 #include <plugin.h>
 #include <random>
 #include <propertiesAndMethods.h>
+#include <obj.h>
 
 #define PROXY_FUNC_NAME_STR "__proxyFuncName__"
 #define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
@@ -33,7 +34,7 @@ extern const std::vector<SProperty> allProps_scriptObject;
 
 class CSceneObject;
 
-class CScriptObject
+class CScriptObject : public Obj
 {
     friend class CScript;
 
@@ -106,8 +107,10 @@ class CScriptObject
     int getStringProperty(const char* pName, std::string& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string* appartenance, int excludeFlags) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string* appartenance, int excludeFlags);
+    static int getPropertyName_localStatic(int& index, std::string& pName, std::string* appartenance, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool detachedScript) const;
     static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt, bool detachedScript);
+    static int getPropertyInfo_localStatic(const char* pName, int& info, std::string& infoTxt, bool detachedScript);
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
 
@@ -134,6 +137,7 @@ class CScriptObject
     bool getScriptDisabledAndNoErrorRaised() const;
     void getPreviousEditionWindowPosAndSize(int posAndSize[4]) const;
     void setPreviousEditionWindowPosAndSize(const int posAndSize[4]);
+    int getSimVersion() const;
 
     int getScriptExecutionTimeInMs() const;
     void resetScriptExecutionTime();

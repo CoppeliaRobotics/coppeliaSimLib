@@ -99,6 +99,15 @@ class CInterfaceStackTable : public CInterfaceStackObject
     CInterfaceStackObject* getMapObject(const char* fieldName) const;
     CInterfaceStackObject* getIntMapObject(const long long int key) const;
     bool containsKey(const char* fieldName) const;
+    bool fetchBoolFromKey(const char* fieldName, bool& v, std::string* errMsg = nullptr) const;
+    bool fetchStringFromKey(const char* fieldName, std::string& v, std::string* errMsg = nullptr) const;
+    bool fetchDoubleFromKey(const char* fieldName, double& v, std::string* errMsg = nullptr) const;
+    bool fetchInt32FromKey(const char* fieldName, int& v, std::string* errMsg = nullptr) const;
+    bool fetchInt64FromKey(const char* fieldName, long long int& v, std::string* errMsg = nullptr) const;
+    bool fetchDoubleArrayFromKey(const char* fieldName, double* arr, size_t cnt, std::string* errMsg = nullptr) const;
+    bool fetchFloatArrayFromKey(const char* fieldName, float* arr, size_t cnt, std::string* errMsg = nullptr) const;
+    bool fetchInt32ArrayFromKey(const char* fieldName, int* arr, size_t cnt, std::string* errMsg = nullptr) const;
+    bool fetchInt64ArrayFromKey(const char* fieldName, long long int* arr, size_t cnt, std::string* errMsg = nullptr) const;
 
     bool removeFromKey(const char* keyToRemove);
     bool removeFromKey(const CInterfaceStackObject* keyToRemove);

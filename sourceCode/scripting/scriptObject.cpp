@@ -36,10 +36,6 @@ static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "object",
     "namespaces": {
-    },
-    "methods": {
-        )" DETACHEDSCRIPT_META_METHODS R"(,
-        )" OBJECT_META_METHODS R"(
     }
 }
 )";
@@ -1050,6 +1046,22 @@ void CScriptObject::setPreviousEditionWindowPosAndSize(const int posAndSize[4])
         _previousEditionWindowPosAndSize[i] = posAndSize[i];
 }
 
+int CScriptObject::getSimVersion() const
+{
+    int retVal = 0;
+    lua_State* L = (lua_State*)_interpreterState;
+    lua_getglobal(L, "sim");
+    if (lua_istable(L, -1))
+    {
+        lua_getfield(L, -1, "version");
+        if (lua_isinteger(L, -1))
+            retVal = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    return retVal;
+}
+
 std::string CScriptObject::getScriptName() const
 {
     if (_scriptType == sim_scripttype_main)
@@ -1097,17 +1109,17 @@ int CScriptObject::getScriptState() const
 void CScriptObject::pushObjectCreationEvent()
 {
     CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _scriptPseudoHandle, _scriptUid, nullptr, false);
-    ev->appendKeyText(propScriptObj_objectType.name, "detachedScript");
-    ev->appendKeyBool(propScriptObj_scriptDisabled.name, _scriptIsDisabled);
-    ev->appendKeyBool(propScriptObj_restartOnError.name, _autoRestartOnError);
-    ev->appendKeyInt64(propScriptObj_execPriority.name, getScriptExecPriority());
-    ev->appendKeyInt64(propScriptObj_scriptType.name, _scriptType);
-    ev->appendKeyInt64(propScriptObj_scriptState.name, _scriptState);
-    ev->appendKeyText(propScriptObj_language.name, _lang.c_str());
-    ev->appendKeyText(propScriptObj_code.name, _scriptText.c_str());
-    ev->appendKeyText(propScriptObj_scriptName.name, getScriptName().c_str());
-    ev->appendKeyText(propScriptObj_addOnPath.name, _addOnPath.c_str());
-    ev->appendKeyText(propScriptObj_addOnMenuPath.name, _addOnMenuPath.c_str());
+    ev->appendKeyText(propDetachedScript_objectType.name, "detachedScript");
+    ev->appendKeyBool(propDetachedScript_scriptDisabled.name, _scriptIsDisabled);
+    ev->appendKeyBool(propDetachedScript_restartOnError.name, _autoRestartOnError);
+    ev->appendKeyInt64(propDetachedScript_execPriority.name, getScriptExecPriority());
+    ev->appendKeyInt64(propDetachedScript_scriptType.name, _scriptType);
+    ev->appendKeyInt64(propDetachedScript_scriptState.name, _scriptState);
+    ev->appendKeyText(propDetachedScript_language.name, _lang.c_str());
+    ev->appendKeyText(propDetachedScript_code.name, _scriptText.c_str());
+    ev->appendKeyText(propDetachedScript_scriptName.name, getScriptName().c_str());
+    ev->appendKeyText(propDetachedScript_addOnPath.name, _addOnPath.c_str());
+    ev->appendKeyText(propDetachedScript_addOnMenuPath.name, _addOnMenuPath.c_str());
     App::worldContainer->pushEvent();
 }
 
@@ -1125,7 +1137,7 @@ void CScriptObject::setScriptState(int state)
         _scriptState = state;
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propScriptObj_scriptState.name;
+            const char* cmd = propDetachedScript_scriptState.name;
             CCbor* ev;
 //            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
 //                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
@@ -1160,7 +1172,7 @@ void CScriptObject::setScriptExecPriority(int priority)
     {
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propScriptObj_execPriority.name;
+            const char* cmd = propDetachedScript_execPriority.name;
             CCbor* ev;
 //            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
 //                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
@@ -1236,7 +1248,7 @@ void CScriptObject::setScriptIsDisabled(bool isDisabled)
         _scriptIsDisabled = isDisabled;
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propScriptObj_scriptDisabled.name;
+            const char* cmd = propDetachedScript_scriptDisabled.name;
             CCbor* ev;
 //            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
 //                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
@@ -1296,7 +1308,7 @@ void CScriptObject::setAutoRestartOnError(bool restart)
         _autoRestartOnError = restart;
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propScriptObj_restartOnError.name;
+            const char* cmd = propDetachedScript_restartOnError.name;
             CCbor* ev;
 //            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
 //                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
@@ -1374,7 +1386,7 @@ void CScriptObject::setScriptText(const char* scriptTxt, bool toFileIfApplicable
             _scriptText = scriptTxt;
         if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propScriptObj_code.name;
+            const char* cmd = propDetachedScript_code.name;
             CCbor* ev;
 //            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
 //                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
@@ -4502,12 +4514,12 @@ int CScriptObject::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = -1;
 
-    if (strcmp(propScriptObj_scriptDisabled.name, pName) == 0)
+    if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
     {
         retVal = 1;
         setScriptIsDisabled(pState);
     }
-    else if (strcmp(propScriptObj_restartOnError.name, pName) == 0)
+    else if (strcmp(propDetachedScript_restartOnError.name, pName) == 0)
     {
         retVal = 1;
         setAutoRestartOnError(pState);
@@ -4520,12 +4532,12 @@ int CScriptObject::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = -1;
 
-    if (strcmp(propScriptObj_scriptDisabled.name, pName) == 0)
+    if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
     {
         retVal = 1;
         pState = _scriptIsDisabled;
     }
-    else if (strcmp(propScriptObj_restartOnError.name, pName) == 0)
+    else if (strcmp(propDetachedScript_restartOnError.name, pName) == 0)
     {
         retVal = 1;
         pState = _autoRestartOnError;
@@ -4538,7 +4550,7 @@ int CScriptObject::setIntProperty(const char* pName, int pState)
 {
     int retVal = -1;
 
-    if (strcmp(propScriptObj_execPriority.name, pName) == 0)
+    if (strcmp(propDetachedScript_execPriority.name, pName) == 0)
     {
         retVal = 1;
         setScriptExecPriority(pState);
@@ -4551,22 +4563,22 @@ int CScriptObject::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = -1;
 
-    if (strcmp(propScriptObj_execPriority.name, pName) == 0)
+    if (strcmp(propDetachedScript_execPriority.name, pName) == 0)
     {
         retVal = 1;
         pState = getScriptExecPriority();
     }
-    else if (strcmp(propScriptObj_scriptType.name, pName) == 0)
+    else if (strcmp(propDetachedScript_scriptType.name, pName) == 0)
     {
         retVal = 1;
         pState = _scriptType;
     }
-    else if (strcmp(propScriptObj_executionDepth.name, pName) == 0)
+    else if (strcmp(propDetachedScript_executionDepth.name, pName) == 0)
     {
         retVal = 1;
         pState = _executionDepth;
     }
-    else if (strcmp(propScriptObj_scriptState.name, pName) == 0)
+    else if (strcmp(propDetachedScript_scriptState.name, pName) == 0)
     {
         retVal = 1;
         pState = _scriptState;
@@ -4586,7 +4598,7 @@ int CScriptObject::getLongProperty(const char* pName, long long int& pState) con
 {
     int retVal = -1;
 
-    if (strcmp(propScriptObj_handle.name, pName) == 0)
+    if (strcmp(propDetachedScript_handle.name, pName) == 0)
     {
         retVal = 1;
         pState = _scriptPseudoHandle;
@@ -4606,7 +4618,7 @@ int CScriptObject::setStringProperty(const char* pName, const char* pState)
 {
     int retVal = -1;
 
-    if (strcmp(propScriptObj_code.name, pName) == 0)
+    if (strcmp(propDetachedScript_code.name, pName) == 0)
     {
         retVal = 1;
         setScriptText(pState);
@@ -4619,7 +4631,7 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
 {
     int retVal = -1;
 
-    if (strcmp(propScriptObj_code.name, pName) == 0)
+    if (strcmp(propDetachedScript_code.name, pName) == 0)
     {
         retVal = 1;
 #ifdef SIM_WITH_GUI
@@ -4628,32 +4640,32 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
 #endif
         pState = _scriptText;
     }
-    else if (strcmp(propScriptObj_language.name, pName) == 0)
+    else if (strcmp(propDetachedScript_language.name, pName) == 0)
     {
         retVal = 1;
         pState = _lang;
     }
-    else if (strcmp(propScriptObj_objectType.name, pName) == 0)
+    else if (strcmp(propDetachedScript_objectType.name, pName) == 0)
     {
         retVal = 1;
         pState = "detachedScript";
     }
-    else if (strcmp(propScriptObj_scriptName.name, pName) == 0)
+    else if (strcmp(propDetachedScript_scriptName.name, pName) == 0)
     {
         retVal = 1;
         pState = getScriptName();
     }
-    else if (strcmp(propScriptObj_addOnPath.name, pName) == 0)
+    else if (strcmp(propDetachedScript_addOnPath.name, pName) == 0)
     {
         retVal = 1;
         pState = _addOnPath;
     }
-    else if (strcmp(propScriptObj_addOnMenuPath.name, pName) == 0)
+    else if (strcmp(propDetachedScript_addOnMenuPath.name, pName) == 0)
     {
         retVal = 1;
         pState = _addOnMenuPath;
     }
-    else if (strcmp(propScriptObj_objectMetaInfo.name, pName) == 0)
+    else if (strcmp(propDetachedScript_objectMetaInfo.name, pName) == 0)
     {
         retVal = 1;
         pState = OBJECT_META_INFO;
@@ -4666,11 +4678,21 @@ int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* 
 {
     if (appartenance != nullptr)
         appartenance[0] = "detachedScript";
-    int retVal = CScriptObject::getPropertyName_static(index, pName, appartenance, excludeFlags);
+    int retVal = Obj::getPropertyName(index, pName, appartenance[0], excludeFlags);
+    if (retVal == -1)
+        retVal = getPropertyName_localStatic(index, pName, appartenance, excludeFlags);
     return retVal;
 }
 
 int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::string* appartenance, int excludeFlags)
+{
+    int retVal = Obj::getPropertyName_static(index, pName, appartenance[0], excludeFlags);
+    if (retVal == -1)
+        retVal = getPropertyName_localStatic(index, pName, appartenance, excludeFlags);
+    return retVal;
+}
+
+int CScriptObject::getPropertyName_localStatic(int& index, std::string& pName, std::string* appartenance, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
@@ -4694,10 +4716,12 @@ int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::s
 
 int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool detachedScript) const
 {
-    int retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt, detachedScript);
+    int retVal = Obj::getPropertyInfo(pName, info, infoTxt);
+    if (retVal == -1)
+        retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt, detachedScript);
     if (retVal != -1)
     {
-        if (strcmp(propScriptObj_code.name, pName) == 0)
+        if (strcmp(propDetachedScript_code.name, pName) == 0)
         {
             if (_scriptText.size() > LARGE_PROPERTY_SIZE)
                 info = info | sim_propertyinfo_largedata;
@@ -4708,11 +4732,18 @@ int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& in
 
 int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt, bool detachedScript)
 {
-    const char* pName = ppName;
+    int retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
+    if (retVal == -1)
+        retVal = getPropertyInfo_localStatic(ppName, info, infoTxt, detachedScript);
+    return retVal;
+}
+
+int CScriptObject::getPropertyInfo_localStatic(const char* ppName, int& info, std::string& infoTxt, bool detachedScript)
+{
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
     {
-        if (strcmp(allProps_scriptObject[i].name, pName) == 0)
+        if (strcmp(allProps_scriptObject[i].name, ppName) == 0)
         {
             retVal = allProps_scriptObject[i].type;
             info = allProps_scriptObject[i].flags;

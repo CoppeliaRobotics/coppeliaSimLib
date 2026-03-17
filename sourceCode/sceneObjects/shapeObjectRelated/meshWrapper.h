@@ -5,6 +5,7 @@
 #include <simMath/3Vector.h>
 #include <simMath/7Vector.h>
 #include <dynMaterialObject.h>
+#include <obj.h>
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
@@ -18,7 +19,7 @@ class CShape;
 class CMesh;
 class CSceneObject;
 
-class CMeshWrapper
+class CMeshWrapper : public Obj
 {
   public:
     CMeshWrapper();

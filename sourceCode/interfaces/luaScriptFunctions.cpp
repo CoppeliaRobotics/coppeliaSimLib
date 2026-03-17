@@ -6797,157 +6797,6 @@ int _simTest(luaWrap_lua_State* L)
     if (checkInputArguments(L, nullptr, argOffset, lua_arg_string, 0))
     {
         std::string cmd = luaWrap_lua_tostring(L, 1);
-        if (cmd.compare("testHandles") == 0)
-        {
-            if (checkInputArguments(L, nullptr, argOffset, lua_arg_string, 0, lua_arg_handle, -1))
-            {
-                printf("Is a table of handles\n");
-                std::vector<int> h;
-                fetchHandleArrayArg(L, 2, h);
-                for (int i = 0; i < h.size(); i++)
-                    printf("handle %i: %i\n", i, h[i]);
-                pushHandleTableOntoStack(L, h.size(), h.data());
-                LUA_END(1);
-            }
-            else
-                printf("not a table of handles\n");
-        }
-        if (cmd.compare("testMatrix") == 0)
-        {
-            size_t rows, cols;
-            std::vector<double> matrixData;
-            if (luaWrap_lua_ismatrix(L, 2, &rows, &cols, &matrixData))
-            {
-                luaWrap_lua_pushmatrix(L, matrixData.data(), rows, cols);
-                LUA_END(1);
-            }
-        }
-
-        if (cmd.compare("testVector3") == 0)
-        {
-            std::vector<double> dat;
-
-            int startT = VDateTime::getTimeDiffInMs(-1);
-            for (size_t i = 0; i < 100000; i++)
-                luaWrap_lua_isvector3(L, 2, &dat);
-            printf("luaWrap_lua_isvector3 speed: %f\n", float(VDateTime::getTimeDiffInMs(startT))/100000.0);
-
-            startT = VDateTime::getTimeDiffInMs(-1);
-            for (size_t i = 0; i < 100000; i++)
-            {
-                if (luaWrap_lua_isnonbuffertable(L, 2))
-                {
-                    int l = luaWrap_lua_rawlen(L, 2);
-                    getDoublesFromTable(L, 2, l, dat.data());
-                }
-            }
-            printf("luaWrap_lua_isgeneraltable speed: %f\n", float(VDateTime::getTimeDiffInMs(startT))/100000.0);
-
-            startT = VDateTime::getTimeDiffInMs(-1);
-            for (size_t j = 0; j < 1000; j++)
-            {
-                for (size_t i = 0; i < 100; i++)
-                {
-                    luaWrap_lua_pushvector3(L, dat.data());
-                }
-                luaWrap_lua_pop(L, 100);
-            }
-            printf("luaWrap_lua_pushvector3 speed: %f\n", float(VDateTime::getTimeDiffInMs(startT))/100000.0);
-
-            startT = VDateTime::getTimeDiffInMs(-1);
-            for (size_t j = 0; j < 1000; j++)
-            {
-                for (size_t i = 0; i < 100; i++)
-                {
-                    pushDoubleTableOntoStack(L, dat.size(), dat.data());
-                }
-                luaWrap_lua_pop(L, 100);
-            }
-            printf("pushDoubleTableOntoStack speed: %f\n", float(VDateTime::getTimeDiffInMs(startT))/100000.0);
-
-            if (luaWrap_lua_isvector3(L, 2, &dat))
-            {
-                luaWrap_lua_pushvector3(L, dat.data());
-                LUA_END(1);
-            }
-        }
-
-        if (cmd.compare("vectorSpeedTest-inOnly") == 0)
-        {
-            std::vector<double> dat;
-            luaWrap_lua_isvector3(L, 2, &dat);
-            LUA_END(0);
-        }
-        if (cmd.compare("vectorSpeedTest-outOnly") == 0)
-        {
-            std::vector<double> dat({1,2,3});
-            luaWrap_lua_pushvector3(L, dat.data());
-            LUA_END(1);
-        }
-        if (cmd.compare("vectorSpeedTest") == 0)
-        {
-            std::vector<double> dat;
-            if (luaWrap_lua_isvector3(L, 2, &dat))
-            {
-                luaWrap_lua_pushvector3(L, dat.data());
-                LUA_END(1);
-            }
-        }
-        if (cmd.compare("arraySpeedTest-inOnly") == 0)
-        {
-            std::vector<double> dat;
-            if (luaWrap_lua_isnonbuffertable(L, 2))
-            {
-                int l = luaWrap_lua_rawlen(L, 2);
-                if (l == 3)
-                {
-                    dat.resize(3);
-                    getDoublesFromTable(L, 2, 3, dat.data());
-                    LUA_END(0);
-                }
-            }
-        }
-        if (cmd.compare("arraySpeedTest-outOnly") == 0)
-        {
-            std::vector<double> dat({1,2,3});
-            pushDoubleTableOntoStack(L, dat.size(), dat.data());
-            LUA_END(1);
-        }
-        if (cmd.compare("arraySpeedTest") == 0)
-        {
-            std::vector<double> dat;
-            if (luaWrap_lua_isnonbuffertable(L, 2))
-            {
-                int l = luaWrap_lua_rawlen(L, 2);
-                if (l == 3)
-                {
-                    dat.resize(3);
-                    getDoublesFromTable(L, 2, 3, dat.data());
-                    pushDoubleTableOntoStack(L, dat.size(), dat.data());
-                    LUA_END(1);
-                }
-            }
-        }
-
-        if (cmd.compare("testQuaternion") == 0)
-        {
-            std::vector<double> dat;
-            if (luaWrap_lua_isquaternion(L, 2, &dat))
-            {
-                luaWrap_lua_pushquaternion(L, dat.data());
-                LUA_END(1);
-            }
-        }
-
-        if (cmd.compare("testPose") == 0)
-        {
-            std::vector<double> dat;
-            if (luaWrap_lua_ispose(L, 2, &dat))
-            {
-                luaWrap_lua_pushpose(L, dat.data());
-                LUA_END(1);
-            }
-        }
 
         if (cmd.compare("mjcf") == 0)
         {
@@ -7025,8 +6874,9 @@ int _simTest(luaWrap_lua_State* L)
         }
         if (cmd.compare("createStack") == 0)
         {
-            int stack = CALL_C_API(simCreateStack);
-            luaWrap_lua_pushinteger(L, stack);
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 1, 0);
+            luaWrap_lua_pushinteger(L, stack->getId());
             LUA_END(1);
         }
         if (cmd.compare("printStack") == 0)

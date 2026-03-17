@@ -289,7 +289,7 @@ void CMeshWrapper::setMass(double m)
         _mass = m;
         if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propMeshWrap_mass.name;
+            const char* cmd = propMeshWrapper_mass.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             ev->appendKeyDouble(cmd, _mass);
             App::worldContainer->pushEvent();
@@ -447,7 +447,7 @@ void CMeshWrapper::setCOM(const C3Vector& com)
         _com = com;
         if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propMeshWrap_com.name;
+            const char* cmd = propMeshWrapper_com.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _com.data, 3);
@@ -489,21 +489,21 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
         getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
         if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
         {
-            const char* cmd = propMeshWrap_inertia.name;
+            const char* cmd = propMeshWrapper_inertia.name;
             CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             double dat[9];
             _in *= _mass;
             _in.getData(dat);
             ev->appendKeyDoubleArray(cmd, dat, 9);
             C3Vector pmi(_pmi * _mass);
-            ev->appendKeyDoubleArray(propMeshWrap_pmi.name, pmi.data, 3);
+            ev->appendKeyDoubleArray(propMeshWrapper_pmi.name, pmi.data, 3);
             if (App::getEventProtocolVersion() <= 3)
             {
                 _pmiRotFrame.getData(dat, true);
-                ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
+                ev->appendKeyDoubleArray(propMeshWrapper_pmiQuaternion.name, dat, 4);
             }
             else
-                ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, _pmiRotFrame);
+                ev->appendKeyQuaternion(propMeshWrapper_pmiQuaternion.name, _pmiRotFrame);
             App::worldContainer->pushEvent();
         }
     }
@@ -1264,24 +1264,24 @@ void CMeshWrapper::addSpecializedObjectEventData(int parentObjectHandle, CCbor* 
 
     if (_parentObjectHandle >= 0)
     {
-        ev->appendKeyDouble(propMeshWrap_mass.name, _mass);
+        ev->appendKeyDouble(propMeshWrapper_mass.name, _mass);
         if (App::getEventProtocolVersion() <= 3)
-            ev->appendKeyDoubleArray(propMeshWrap_com.name, _com.data, 3);
+            ev->appendKeyDoubleArray(propMeshWrapper_com.name, _com.data, 3);
         else
-            ev->appendKeyVector3(propMeshWrap_com.name, _com);
+            ev->appendKeyVector3(propMeshWrapper_com.name, _com);
         C3X3Matrix inertia(_iMatrix * _mass);
         double dat[9];
         inertia.getData(dat);
-        ev->appendKeyDoubleArray(propMeshWrap_inertia.name, dat, 9);
+        ev->appendKeyDoubleArray(propMeshWrapper_inertia.name, dat, 9);
         C3Vector pmi(_pmi * _mass);
-        ev->appendKeyDoubleArray(propMeshWrap_pmi.name, pmi.data, 3);
+        ev->appendKeyDoubleArray(propMeshWrapper_pmi.name, pmi.data, 3);
         if (App::getEventProtocolVersion() <= 3)
         {
             _pmiRotFrame.getData(dat, true);
-            ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
+            ev->appendKeyDoubleArray(propMeshWrapper_pmiQuaternion.name, dat, 4);
         }
         else
-            ev->appendKeyQuaternion(propMeshWrap_pmiQuaternion.name, _pmiRotFrame);
+            ev->appendKeyQuaternion(propMeshWrapper_pmiQuaternion.name, _pmiRotFrame);
     }
 }
 
@@ -1289,7 +1289,7 @@ int CMeshWrapper::setFloatProperty_wrapper(const char* pName, double pState)
 {
     int retVal = -1;
 
-    if (strcmp(propMeshWrap_mass.name, pName) == 0)
+    if (strcmp(propMeshWrapper_mass.name, pName) == 0)
     {
         retVal = 1;
         setMass(pState);
@@ -1302,7 +1302,7 @@ int CMeshWrapper::getFloatProperty_wrapper(const char* pName, double& pState) co
 {
     int retVal = -1;
 
-    if (strcmp(propMeshWrap_mass.name, pName) == 0)
+    if (strcmp(propMeshWrapper_mass.name, pName) == 0)
     {
         retVal = 1;
         pState = _mass;
@@ -1315,7 +1315,7 @@ int CMeshWrapper::setVector3Property_wrapper(const char* pName, const C3Vector& 
 {
     int retVal = -1;
 
-    if (strcmp(propMeshWrap_com.name, pName) == 0)
+    if (strcmp(propMeshWrapper_com.name, pName) == 0)
     {
         retVal = 1;
         setCOM(pState);
@@ -1328,7 +1328,7 @@ int CMeshWrapper::getVector3Property_wrapper(const char* pName, C3Vector& pState
 {
     int retVal = -1;
 
-    if (strcmp(propMeshWrap_com.name, pName) == 0)
+    if (strcmp(propMeshWrapper_com.name, pName) == 0)
     {
         retVal = 1;
         pState = _com;
@@ -1348,7 +1348,7 @@ int CMeshWrapper::getQuaternionProperty_wrapper(const char* pName, C4Vector& pSt
 {
     int retVal = -1;
 
-    if (strcmp(propMeshWrap_pmiQuaternion.name, pName) == 0)
+    if (strcmp(propMeshWrapper_pmiQuaternion.name, pName) == 0)
     {
         retVal = 1;
         pState = _pmiRotFrame;
@@ -1361,7 +1361,7 @@ int CMeshWrapper::setFloatArrayProperty_wrapper(const char* pName, const double*
 {
     int retVal = -1;
 
-    if (strcmp(propMeshWrap_inertia.name, pName) == 0)
+    if (strcmp(propMeshWrapper_inertia.name, pName) == 0)
     {
         if (vL >= 9)
         {
@@ -1382,13 +1382,13 @@ int CMeshWrapper::getFloatArrayProperty_wrapper(const char* pName, std::vector<d
     int retVal = -1;
     pState.clear();
 
-    if (strcmp(propMeshWrap_inertia.name, pName) == 0)
+    if (strcmp(propMeshWrapper_inertia.name, pName) == 0)
     {
         pState.resize(9, 0.0);
         _iMatrix.getData(pState.data());
         retVal = 1;
     }
-    else if (strcmp(propMeshWrap_pmi.name, pName) == 0)
+    else if (strcmp(propMeshWrapper_pmi.name, pName) == 0)
     {
         retVal = 1;
         pState.push_back(_pmi(0));

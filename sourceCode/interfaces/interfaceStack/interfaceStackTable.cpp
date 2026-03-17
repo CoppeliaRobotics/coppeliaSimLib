@@ -394,6 +394,381 @@ bool CInterfaceStackTable::containsKey(const char* fieldName) const
     return false;
 }
 
+bool CInterfaceStackTable::fetchBoolFromKey(const char* fieldName, bool& v, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_bool)
+        {
+            v = ((CInterfaceStackBool*)obj)->getValue();
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_integer)
+        {
+            v = (((CInterfaceStackInteger*)obj)->getValue() != 0);
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchStringFromKey(const char* fieldName, std::string& v, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_string)
+        {
+            size_t l;
+            const char* c = ((CInterfaceStackString*)obj)->getValue(&l);
+            v.assign(c, c + l);
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchDoubleFromKey(const char* fieldName, double& v, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_double)
+        {
+            v = ((CInterfaceStackNumber*)obj)->getValue();
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_integer)
+        {
+            v = (double)((CInterfaceStackInteger*)obj)->getValue();
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchInt32FromKey(const char* fieldName, int& v, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_double)
+        {
+            double d = ((CInterfaceStackNumber*)obj)->getValue();
+            if (double(int(d)) == d)
+            {
+                v = int(d);
+                retVal = true;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_integer)
+        {
+            v = (int)((CInterfaceStackInteger*)obj)->getValue();
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_handle)
+        {
+            v = (int)((CInterfaceStackHandle*)obj)->getValue();
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchInt64FromKey(const char* fieldName, long long int& v, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_double)
+        {
+            double d = ((CInterfaceStackNumber*)obj)->getValue();
+            if (double(int64_t(d)) == d)
+            {
+                v = int64_t(d);
+                retVal = true;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_integer)
+        {
+            v = ((CInterfaceStackInteger*)obj)->getValue();
+            retVal = true;
+        }
+        else if (obj->getObjectType() == sim_stackitem_handle)
+        {
+            v = ((CInterfaceStackHandle*)obj)->getValue();
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchDoubleArrayFromKey(const char* fieldName, double* arr, size_t cnt, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            if (table->getArraySize() == cnt)
+            {
+                table->getDoubleArray(arr, int(cnt));
+                retVal = true;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            const CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            const CMatrix* matr = m->getValue();
+            if (matr->rows * matr->cols == cnt)
+            {
+                std::memcpy(arr, matr->data.data(), cnt);
+                retVal = true;
+            }
+        }
+        else if ((obj->getObjectType() == sim_stackitem_quaternion) && (cnt == 4))
+        {
+            const CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
+            const C4Vector* Q = q->getValue();
+            Q->getData(arr, true);
+            retVal = true;
+        }
+        else if ((obj->getObjectType() == sim_stackitem_pose) && (cnt == 7))
+        {
+            const CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
+            const C7Vector* P = p->getValue();
+            P->getData(arr, true);
+            retVal = true;
+        }
+        else if ((obj->getObjectType() == sim_stackitem_color) && (cnt == 3))
+        {
+            const CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
+            const float* C = c->getValue();
+            arr[0] = (double)C[0];
+            arr[1] = (double)C[1];
+            arr[2] = (double)C[2];
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchFloatArrayFromKey(const char* fieldName, float* arr, size_t cnt, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            if (table->getArraySize() == cnt)
+            {
+                table->getFloatArray(arr, int(cnt));
+                retVal = true;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            const CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            const CMatrix* matr = m->getValue();
+            if (matr->rows * matr->cols == cnt)
+            {
+                for (size_t i = 0; i < cnt; i++)
+                    arr[i] = (float)matr->data[i];
+                retVal = true;
+            }
+        }
+        else if ((obj->getObjectType() == sim_stackitem_quaternion) && (cnt == 4))
+        {
+            const CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
+            const C4Vector* Q = q->getValue();
+            double dat[4];
+            Q->getData(dat, true);
+            for (size_t i = 0; i < cnt; i++)
+                arr[i] = (float)dat[i];
+            retVal = true;
+        }
+        else if ((obj->getObjectType() == sim_stackitem_pose) && (cnt == 7))
+        {
+            const CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
+            const C7Vector* P = p->getValue();
+            double dat[7];
+            P->getData(dat, true);
+            for (size_t i = 0; i < cnt; i++)
+                arr[i] = (float)dat[i];
+            retVal = true;
+        }
+        else if ((obj->getObjectType() == sim_stackitem_color) && (cnt == 3))
+        {
+            const CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
+            const float* C = c->getValue();
+            std::memcpy(arr, C, cnt);
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchInt32ArrayFromKey(const char* fieldName, int* arr, size_t cnt, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            if (table->getArraySize() == cnt)
+            {
+                table->getInt32Array(arr, int(cnt));
+                retVal = true;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        {
+            const CInterfaceStackHandleArray* a = (CInterfaceStackHandleArray*)obj;
+            size_t c;
+            const long long int* A = a->getValue(&c);
+            if (c == cnt)
+            {
+                for (size_t i = 0; i < cnt; i++)
+                    arr[i] = (int)A[i];
+                retVal = true;
+            }
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchInt64ArrayFromKey(const char* fieldName, long long int* arr, size_t cnt, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            if (table->getArraySize() == cnt)
+            {
+                table->getInt64Array(arr, int(cnt));
+                retVal = true;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        {
+            const CInterfaceStackHandleArray* a = (CInterfaceStackHandleArray*)obj;
+            size_t c;
+            const long long int* A = a->getValue(&c);
+            if (c == cnt)
+            {
+                std::memcpy(arr, A, cnt);
+                retVal = true;
+            }
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "Invalid ";
+        errMsg[0] += fieldName;
+        errMsg[0] = " field.";
+    }
+    return retVal;
+}
+
 void CInterfaceStackTable::getMapKeys(std::vector<std::string>* stringKeys, std::vector<long long int>* intKeys) const
 {
     if (!_isTableArray)

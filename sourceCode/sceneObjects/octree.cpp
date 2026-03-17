@@ -18,10 +18,6 @@ static std::string OBJECT_META_INFO = R"(
         "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
         "customData": {},
         "signal": {}
-    },
-    "methods": {
-        )" OCTREE_META_METHODS R"(,
-        )" SCENEOBJECT_META_METHODS R"(
     }
 }
 )";
@@ -253,8 +249,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                         App::worldContainer->pushEvent();
                         computeBoundingBox();
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                        ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                        ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
+                        ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
+                        ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
                         App::worldContainer->pushEvent();
                     }
                 }
@@ -289,8 +285,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                 App::worldContainer->pushEvent();
                                 computeBoundingBox();
                                 ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                                ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                                ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
+                                ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
+                                ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
                                 App::worldContainer->pushEvent();
                             }
                         }
@@ -316,8 +312,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                     App::worldContainer->pushEvent();
                                     computeBoundingBox();
                                     ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
-                                    ev->appendKeyPose(propObject_bbPose.name, _bbFrame);
-                                    ev->appendKeyVector3(propObject_size.name, _bbHalfSize);
+                                    ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
+                                    ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
                                     App::worldContainer->pushEvent();
                                 }
                             }

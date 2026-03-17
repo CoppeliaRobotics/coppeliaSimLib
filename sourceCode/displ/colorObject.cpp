@@ -165,25 +165,25 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
         { // objects only (no lights)
             offset = 0;
             if ((_eventFlags & 1) && (_eventObjectHandle != -1))
-                cmd = propCol_colDiffuse.name;
+                cmd = propColor_colDiffuse.name;
         }
         else if (colorMode == sim_colorcomponent_diffuse)
         { // lights only (no objects)
             offset = 3;
             if ((_eventFlags & 2) && (_eventObjectHandle != -1))
-                cmd = propCol_colDiffuse.name;
+                cmd = propColor_colDiffuse.name;
         }
         else if (colorMode == sim_colorcomponent_specular)
         {
             offset = 6;
             if ((_eventFlags & 4) && (_eventObjectHandle != -1))
-                cmd = propCol_colSpecular.name;
+                cmd = propColor_colSpecular.name;
         }
         else if (colorMode == sim_colorcomponent_emission)
         {
             offset = 9;
             if ((_eventFlags & 8) && (_eventObjectHandle != -1))
-                cmd = propCol_colEmission.name;
+                cmd = propColor_colEmission.name;
         }
         else if (colorMode == sim_colorcomponent_auxiliary)
             offset = 12;
@@ -215,7 +215,7 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
     std::string c;
     if (_eventFlags & 1)
     { // objects only (no lights)
-        c = _eventPrefix + propCol_colDiffuse.name;
+        c = _eventPrefix + propColor_colDiffuse.name;
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyFloatArray(c.c_str(), _colors, 3);
         else
@@ -223,7 +223,7 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
     }
     if (_eventFlags & 2)
     { // lights only (no objects)
-        c = _eventPrefix + propCol_colDiffuse.name;
+        c = _eventPrefix + propColor_colDiffuse.name;
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
         else
@@ -231,7 +231,7 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
     }
     if (_eventFlags & 4)
     {
-        c = _eventPrefix + propCol_colSpecular.name;
+        c = _eventPrefix + propColor_colSpecular.name;
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
         else
@@ -239,7 +239,7 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
     }
     if (_eventFlags & 8)
     {
-        c = _eventPrefix + propCol_colEmission.name;
+        c = _eventPrefix + propColor_colEmission.name;
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyFloatArray(c.c_str(), _colors + 9, 3);
         else
@@ -248,7 +248,7 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
 
     if (_eventFlags & 16)
     {
-        c = _eventPrefix + propCol_transparency.name;
+        c = _eventPrefix + propColor_transparency.name;
         float transparency = 0.0f;
         if (_translucid)
             transparency = 1.0f - _opacity;
@@ -744,7 +744,7 @@ bool CColorObject::setTransparency(float t)
         setOpacity(1.0f - t);
         if ((_eventFlags & 16) && (_eventObjectHandle != -1) && App::worldContainer->getEventsEnabled())
         {
-            std::string cmd = _eventPrefix + propCol_transparency.name;
+            std::string cmd = _eventPrefix + propColor_transparency.name;
             CCbor* ev;
             if (_belongsToSceneObject)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_eventObjectHandle, false, cmd.c_str(), true);
@@ -890,7 +890,7 @@ int CColorObject::setFloatProperty(const char* ppName, double pState)
     {
         std::string pName(ppName);
         pName.erase(0, _eventPrefix.size());
-        if ((pName == propCol_transparency.name) && (_eventFlags & 16))
+        if ((pName == propColor_transparency.name) && (_eventFlags & 16))
         {
             setTransparency(pState);
             retVal = 1;
@@ -906,7 +906,7 @@ int CColorObject::getFloatProperty(const char* ppName, double& pState) const
     {
         std::string pName(ppName);
         pName.erase(0, _eventPrefix.size());
-        if ((pName == propCol_transparency.name) && (_eventFlags & 16))
+        if ((pName == propColor_transparency.name) && (_eventFlags & 16))
         {
             pState = getTransparency();
             retVal = 1;
@@ -922,22 +922,22 @@ int CColorObject::setColorProperty(const char* ppName, const float* pState)
     {
         std::string pName(ppName);
         pName.erase(0, _eventPrefix.size());
-        if ((pName == propCol_colDiffuse.name) && (_eventFlags & 1))
+        if ((pName == propColor_colDiffuse.name) && (_eventFlags & 1))
         { // objects only (no lights)
             setColor(pState, sim_colorcomponent_ambient_diffuse);
             retVal = 1;
         }
-        else if ((pName == propCol_colDiffuse.name) && (_eventFlags & 2))
+        else if ((pName == propColor_colDiffuse.name) && (_eventFlags & 2))
         { // lights only (no objects)
             setColor(pState, sim_colorcomponent_diffuse);
             retVal = 1;
         }
-        else if ((pName == propCol_colSpecular.name) && (_eventFlags & 4))
+        else if ((pName == propColor_colSpecular.name) && (_eventFlags & 4))
         {
             setColor(pState, sim_colorcomponent_specular);
             retVal = 1;
         }
-        else if ((pName == propCol_colEmission.name) && (_eventFlags & 8))
+        else if ((pName == propColor_colEmission.name) && (_eventFlags & 8))
         {
             setColor(pState, sim_colorcomponent_emission);
             retVal = 1;
@@ -953,22 +953,22 @@ int CColorObject::getColorProperty(const char* ppName, float* pState) const
     {
         std::string pName(ppName);
         pName.erase(0, _eventPrefix.size());
-        if ((pName == propCol_colDiffuse.name) && (_eventFlags & 1))
+        if ((pName == propColor_colDiffuse.name) && (_eventFlags & 1))
         { // objects only (no lights)
             getColor(pState, sim_colorcomponent_ambient_diffuse);
             retVal = 1;
         }
-        else if ((pName == propCol_colDiffuse.name) && (_eventFlags & 2))
+        else if ((pName == propColor_colDiffuse.name) && (_eventFlags & 2))
         { // lights only (no objects)
             getColor(pState, sim_colorcomponent_diffuse);
             retVal = 1;
         }
-        else if ((pName == propCol_colSpecular.name) && (_eventFlags & 4))
+        else if ((pName == propColor_colSpecular.name) && (_eventFlags & 4))
         {
             getColor(pState, sim_colorcomponent_specular);
             retVal = 1;
         }
-        else if ((pName == propCol_colEmission.name) && (_eventFlags & 8))
+        else if ((pName == propColor_colEmission.name) && (_eventFlags & 8))
         {
             getColor(pState, sim_colorcomponent_emission);
             retVal = 1;

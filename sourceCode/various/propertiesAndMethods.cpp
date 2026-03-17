@@ -68,10 +68,10 @@ static std::string jsonStr(const QJsonObject& obj)
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name = {str, v1, v2, t1, t2};
-    ENVIRONMENT_PROPERTIES
+    SCENE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-    extern const std::vector<SProperty> allProps_scene = {ENVIRONMENT_PROPERTIES};
+    extern const std::vector<SProperty> allProps_scene = {SCENE_PROPERTIES};
 #undef FUNCX
 // ----------------------------------------------------------------------------------------------
 
@@ -279,6 +279,15 @@ static std::string jsonStr(const QJsonObject& obj)
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
     extern const std::vector<SProperty> allProps_app = {APP_PROPERTIES};
+#undef FUNCX
+// ----------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name = {str, v1, v2, t1, t2};
+    OBJECT_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, t1, t2) name,
+        extern const std::vector<SProperty> allProps_obj = {OBJECT_PROPERTIES};
 #undef FUNCX
 // ----------------------------------------------------------------------------------------------
 
