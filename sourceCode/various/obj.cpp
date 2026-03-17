@@ -256,17 +256,8 @@ int Obj::getPropertyName_static(int& index, std::string& pName, std::string& app
             }
         }
     }
-    /*
     if (retVal == 1)
-    { // Following needed to accomodate for Lua's object representation
-        if (pName == "objectType")
-            appartenance = "object";
-        else if (pName == "objectMetaInfo")
-            appartenance = "object";
-        else if (pName == "handle")
-            appartenance = "object";
-    }
-*/
+        appartenance = "object";
     return retVal;
 }
 
