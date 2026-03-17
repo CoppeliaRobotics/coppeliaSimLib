@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <simMath/3vector.h>
-#include <simMath/4vector.h>
+#include <simMath/3Vector.h>
+#include <simMath/4Vector.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <propertiesAndMethods.h>
