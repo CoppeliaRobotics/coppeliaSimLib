@@ -433,11 +433,20 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx)
 {
     bool retVal = false;
 
+    /* (FF 2026-03-17) this is not very generic, as it is using private implementation details:
     if (lua_getmetatable((lua_State*)L, idx)) // Get the metatable of the object at 'idx'
     {
         lua_getglobal((lua_State*)L, "__buffmetatable__"); // Get the global metatable
         retVal = (lua_rawequal((lua_State*)L, -1, -2));    // Compare the two metatables
         lua_pop((lua_State*)L, 2);                         // Remove both metatables from the stack
+    }
+    */
+    // (FF 2026-03-17) better to use __isbuffer metamethod:
+    int abs_idx = lua_absindex((lua_State*)L, idx);
+    if (luaL_callmeta((lua_State*)L, abs_idx, "__isbuffer") == 1)
+    {
+        retVal = lua_toboolean((lua_State*)L, -1);
+        lua_pop((lua_State*)L,1);
     }
 
     /* old, less reliable way
@@ -451,7 +460,6 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx)
         lua_pop((lua_State *)L, 1);
     }
     */
-
     return retVal;
 }
 

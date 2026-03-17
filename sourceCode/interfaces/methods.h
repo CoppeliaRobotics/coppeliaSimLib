@@ -170,6 +170,8 @@ extern std::string _method_unpackInt16Table(int targetObj, const char* method, C
 extern std::string _method_unpackUInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_unpackInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_unpackUInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_groupShapes(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_mergeShapes(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 extern std::string _method__createCamera(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method__createLight(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

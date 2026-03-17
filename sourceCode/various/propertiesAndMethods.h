@@ -513,7 +513,9 @@ struct SJointProperty
     FUNCX(propScene_METHOD_getObjectFromUid, "getObjectFromUid", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_startSimulation, "startSimulation", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_pauseSimulation, "pauseSimulation", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propScene_METHOD_stopSimulation, "stopSimulation", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
+    FUNCX(propScene_METHOD_stopSimulation, "stopSimulation", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propScene_METHOD_groupShapes, "groupShapes", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propScene_METHOD_mergeShapes, "mergeShapes", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define SIMULATION_PROPERTIES \
     FUNCX(propSimulation_removeNewObjectsAtEnd, "removeNewObjectsAtEnd", sim_propertytype_bool, 0,  jsonStr({{"label", "Remove new objects"}, {"description", "Remove new scene objects at simulation end"}}), "") \

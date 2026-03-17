@@ -142,6 +142,8 @@ std::string callMethod(int targetObj, const char* method, CScriptObject* current
         funcTable["unpackUInt16Table"] = _method_unpackUInt16Table;
         funcTable["unpackInt8Table"] = _method_unpackInt8Table;
         funcTable["unpackUInt8Table"] = _method_unpackUInt8Table;
+        funcTable["groupShapes"] = _method_groupShapes;
+        funcTable["mergeShapes"] = _method_mergeShapes;
         funcTable["_createCamera"] = _method__createCamera;
         funcTable["_createLight"] = _method__createLight;
         funcTable["_createGraph"] = _method__createGraph;
@@ -1139,7 +1141,7 @@ std::string _method_test(int targetObj, const char* method, CScriptObject* curre
         std::vector<std::string> strArrArg;
         fetchTextArray(inStack, 9, strArrArg);
         pushTextArray(outStack, strArrArg.data(), strArrArg.size());
-        printf("string array arg: size %i, data: %s, %s\n", strArrArg.size(), strArrArg[0].c_str(), strArrArg[1].c_str());
+        printf("string array arg: size %zu, data: %s, %s\n", strArrArg.size(), strArrArg[0].c_str(), strArrArg[1].c_str());
         CMatrix matrixArg = fetchMatrix(inStack, 10);
         pushMatrix(outStack, matrixArg);
         printf("Matrix arg: ");
@@ -1152,7 +1154,7 @@ std::string _method_test(int targetObj, const char* method, CScriptObject* curre
         std::vector<double> vectArg;
         fetchVector(inStack, 12, vectArg);
         pushVector(outStack, vectArg.data(), vectArg.size());
-        printf("Vector arg: size %i, data: %f, %f\n", vectArg.size(), vectArg[0], vectArg[1]);
+        printf("Vector arg: size %zu, data: %f, %f\n", vectArg.size(), vectArg[0], vectArg[1]);
     }
 
 //    outStack->copyFrom(inStack);
@@ -3760,6 +3762,56 @@ std::string _method_divide(int targetObj, const char* method, CScriptObject* cur
         }
         else
             errMsg = SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE;
+    }
+    return errMsg;
+}
+
+std::string _method_groupShapes(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle}))
+    {
+        std::vector<long long int> objectHandles;
+        fetchHandleArray(inStack, 0, objectHandles);
+        std::vector<int> shapeHandles;
+        for (size_t i = 0; i < objectHandles.size(); i++)
+        {
+            CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(objectHandles[i]);
+            if (it != nullptr)
+                shapeHandles.push_back(objectHandles[i]);
+        }
+        if ((shapeHandles.size() > 1) && (shapeHandles.size() == objectHandles.size()))
+        {
+            int h = CSceneObjectOperations::groupSelection(&shapeHandles);
+            pushHandle(outStack, h);
+        }
+        else
+            errMsg = "invalid objects, or not enough shapes.";
+    }
+    return errMsg;
+}
+
+std::string _method_mergeShapes(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle}))
+    {
+        std::vector<long long int> objectHandles;
+        fetchHandleArray(inStack, 0, objectHandles);
+        std::vector<int> shapeHandles;
+        for (size_t i = 0; i < objectHandles.size(); i++)
+        {
+            CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(objectHandles[i]);
+            if (it != nullptr)
+                shapeHandles.push_back(objectHandles[i]);
+        }
+        if ((shapeHandles.size() > 1) && (shapeHandles.size() == objectHandles.size()))
+        {
+            int h = CSceneObjectOperations::mergeSelection(&shapeHandles);
+            pushHandle(outStack, h);
+        }
+        else
+            errMsg = "invalid objects, or not enough shapes.";
     }
     return errMsg;
 }
