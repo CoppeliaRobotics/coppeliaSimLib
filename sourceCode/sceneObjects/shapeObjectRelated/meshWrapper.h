@@ -84,7 +84,7 @@ class CMeshWrapper : public Obj
     virtual CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
     virtual void appendMeshes(std::vector<CMesh*>& meshes);
 
-    void addSpecializedObjectEventData(int parentObjectHandle, CCbor* ev);
+    void addObjectEventData(int parentObjectHandle, CCbor* ev);
     int setFloatProperty_wrapper(const char* pName, double pState);
     int getFloatProperty_wrapper(const char* pName, double& pState) const;
     int setVector3Property_wrapper(const char* pName, const C3Vector& pState);
@@ -93,8 +93,8 @@ class CMeshWrapper : public Obj
     int getQuaternionProperty_wrapper(const char* pName, C4Vector& pState) const;
     int setFloatArrayProperty_wrapper(const char* pName, const double* v, int vL);
     int getFloatArrayProperty_wrapper(const char* pName, std::vector<double>& pState) const;
-    int getPropertyName_wrapper(int& index, std::string& pName, int excludeFlags) const;
-    static int getPropertyName_static_wrapper(int& index, std::string& pName, int excludeFlags);
+    int getPropertyName_wrapper(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    static int getPropertyName_static_wrapper(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     int getPropertyInfo_wrapper(const char* pName, int& info, std::string& infoTxt) const;
     static int getPropertyInfo_static_wrapper(const char* pName, int& info, std::string& infoTxt);
 

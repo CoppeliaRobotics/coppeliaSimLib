@@ -1,6 +1,6 @@
 #pragma once
 
-#include <scriptObject.h>
+#include <detachedScript.h>
 #include <vector>
 #include <QString>
 #include <tinyxml2.h>
@@ -45,7 +45,7 @@ class CCodeEditorContainer
     std::string openModalTextEditor(const char* initText, const char* xml, int windowSizeAndPos[4],
                                     bool oldXml) const; // modal C func. sim.openTextEditor
     int openTextEditor_old(const char* initText, const char* xml, const char* callback,
-                           const CScriptObject* requestOrigin); // deprec. func. sim.openTextEditor
+                           const CDetachedScript* requestOrigin); // deprec. func. sim.openTextEditor
     bool close(int handle, int posAndSize[4], std::string* txt, std::string* callback);
     void applyChanges(int handle) const;
     bool closeFromScriptUid(long long int scriptUid, int posAndSize[4], bool ignoreChange);
@@ -70,12 +70,12 @@ class CCodeEditorContainer
     void sceneClosed(int sceneUniqueId);
     static std::string getColorStr(const int rgbCol[3]);
     static void getKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                            const CScriptObject* requestOrigin);
+                            const CDetachedScript* requestOrigin);
     static void getFuncKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                                const CScriptObject* requestOrigin);
+                                const CDetachedScript* requestOrigin);
     static void getVarKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                               const CScriptObject* requestOrigin);
-    static std::string translateXml(const char* oldXml, const char* callback, const CScriptObject* requestOrigin);
+                               const CDetachedScript* requestOrigin);
+    static std::string translateXml(const char* oldXml, const char* callback, const CDetachedScript* requestOrigin);
     static const char* toBoolStr(bool v);
 
   protected:

@@ -40,9 +40,9 @@ namespace {
     constexpr int arg_optional      = sim_stackitem_exoptional;
 }
 
-std::string callMethod(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string callMethod(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
-    static std::map<std::string, std::function<std::string(int, const char*, CScriptObject*, const CInterfaceStack*, CInterfaceStack*)>> funcTable;
+    static std::map<std::string, std::function<std::string(int, const char*, CDetachedScript*, const CInterfaceStack*, CInterfaceStack*)>> funcTable;
     if (funcTable.size() == 0)
     {
         funcTable["test"] = _method_test;
@@ -1057,11 +1057,11 @@ CDrawingObject* getDrawingObject(int identifier, std::string* errMsg /*= nullptr
     return retVal;
 }
 
-CScriptObject* getDetachedScript(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+CDetachedScript* getDetachedScript(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
-    CScriptObject* retVal = nullptr;
+    CDetachedScript* retVal = nullptr;
     if (identifier > SIM_IDEND_SCENEOBJECT)
-        retVal = App::worldContainer->getScriptObjectFromHandle(identifier);
+        retVal = App::worldContainer->getDetachedScriptFromHandle(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
         if (argPos == -1)
@@ -1106,7 +1106,7 @@ std::string getInvalidArgString(size_t argPos)
 }
 
 
-std::string _method_test(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_test(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1164,7 +1164,7 @@ std::string _method_test(int targetObj, const char* method, CScriptObject* curre
     return errMsg;
 }
 
-std::string _method_getPosition(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1212,7 +1212,7 @@ std::string _method_getPosition(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_setPosition(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1278,7 +1278,7 @@ std::string _method_setPosition(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_getQuaternion(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getQuaternion(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1333,7 +1333,7 @@ std::string _method_getQuaternion(int targetObj, const char* method, CScriptObje
     return errMsg;
 }
 
-std::string _method_setQuaternion(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setQuaternion(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1407,7 +1407,7 @@ std::string _method_setQuaternion(int targetObj, const char* method, CScriptObje
     return errMsg;
 }
 
-std::string _method_getPose(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getPose(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1453,7 +1453,7 @@ std::string _method_getPose(int targetObj, const char* method, CScriptObject* cu
     return errMsg;
 }
 
-std::string _method_setPose(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setPose(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1507,7 +1507,7 @@ std::string _method_setPose(int targetObj, const char* method, CScriptObject* cu
     return errMsg;
 }
 
-std::string _method_setParent(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setParent(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1558,7 +1558,7 @@ std::string _method_setParent(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_handleSandboxScript(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleSandboxScript(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
@@ -1579,7 +1579,7 @@ std::string _method_handleSandboxScript(int targetObj, const char* method, CScri
     return errMsg;
 }
 
-std::string _method_handleAddOnScripts(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleAddOnScripts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
@@ -1602,7 +1602,7 @@ std::string _method_handleAddOnScripts(int targetObj, const char* method, CScrip
     return errMsg;
 }
 
-std::string _method_handleSimulationScripts(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleSimulationScripts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
@@ -1630,7 +1630,7 @@ std::string _method_handleSimulationScripts(int targetObj, const char* method, C
     return errMsg;
 }
 
-std::string _method_handleCustomizationScripts(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleCustomizationScripts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
@@ -1658,7 +1658,7 @@ std::string _method_handleCustomizationScripts(int targetObj, const char* method
     return errMsg;
 }
 
-std::string _method_loadModel(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModel(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
@@ -1678,7 +1678,7 @@ std::string _method_loadModel(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_loadModelFromBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
@@ -1699,7 +1699,7 @@ std::string _method_loadModelFromBuffer(int targetObj, const char* method, CScri
     return errMsg;
 }
 
-std::string _method_loadModelThumbnail(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
@@ -1728,7 +1728,7 @@ std::string _method_loadModelThumbnail(int targetObj, const char* method, CScrip
     return errMsg;
 }
 
-std::string _method_loadModelThumbnailFromBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModelThumbnailFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
@@ -1758,7 +1758,7 @@ std::string _method_loadModelThumbnailFromBuffer(int targetObj, const char* meth
     return errMsg;
 }
 
-std::string _method_saveModel(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveModel(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1782,7 +1782,7 @@ std::string _method_saveModel(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_saveModelToBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveModelToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1811,7 +1811,7 @@ std::string _method_saveModelToBuffer(int targetObj, const char* method, CScript
     return errMsg;
 }
 
-std::string _method_loadScene(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadScene(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
@@ -1847,7 +1847,7 @@ std::string _method_loadScene(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
@@ -1872,7 +1872,7 @@ std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CScri
     return errMsg;
 }
 
-std::string _method_saveScene(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveScene(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation)))
@@ -1906,7 +1906,7 @@ std::string _method_saveScene(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_saveSceneToBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveSceneToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation)))
@@ -1942,7 +1942,7 @@ std::string _method_saveSceneToBuffer(int targetObj, const char* method, CScript
     return errMsg;
 }
 
-std::string _method_removeModel(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeModel(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -1963,7 +1963,7 @@ std::string _method_removeModel(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_remove(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_bool | arg_optional}))
@@ -1972,7 +1972,7 @@ std::string _method_remove(int targetObj, const char* method, CScriptObject* cur
         CSceneObject* sceneObj = getSceneObject(targetObj);
         CCollection* coll = getCollection(targetObj);
         CDrawingObject* draw = getDrawingObject(targetObj);
-        CScriptObject* script = getDetachedScript(targetObj);
+        CDetachedScript* script = getDetachedScript(targetObj);
         if (sceneObj != nullptr)
         {
             std::vector<int> sel;
@@ -1994,7 +1994,7 @@ std::string _method_remove(int targetObj, const char* method, CScriptObject* cur
     return errMsg;
 }
 
-std::string _method_removeObjects(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle, arg_bool | arg_optional}))
@@ -2009,7 +2009,7 @@ std::string _method_removeObjects(int targetObj, const char* method, CScriptObje
             CSceneObject* sceneObj = getSceneObject(objectHandle);
             CCollection* coll = getCollection(objectHandle);
             CDrawingObject* draw = getDrawingObject(objectHandle);
-            CScriptObject* script = getDetachedScript(objectHandle);
+            CDetachedScript* script = getDetachedScript(objectHandle);
             if (sceneObj != nullptr)
                 sceneObjectHandles.push_back(objectHandle);
             else if (coll != nullptr)
@@ -2035,7 +2035,7 @@ std::string _method_removeObjects(int targetObj, const char* method, CScriptObje
     return errMsg;
 }
 
-std::string _method_duplicateObjects(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_duplicateObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle, arg_integer | arg_optional}))
@@ -2135,7 +2135,7 @@ std::string _method_duplicateObjects(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method_addItem(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addItem(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CCollection* target = getCollection(targetObj, &errMsg, -1);
@@ -2176,7 +2176,7 @@ std::string _method_addItem(int targetObj, const char* method, CScriptObject* cu
     return errMsg;
 }
 
-std::string _method_removeItem(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeItem(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CCollection* target = getCollection(targetObj, &errMsg, -1);
@@ -2217,7 +2217,7 @@ std::string _method_removeItem(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
-std::string _method_checkCollision(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkCollision(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (doesEntityExist(targetObj, &errMsg, -1) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional}))
@@ -2235,7 +2235,7 @@ std::string _method_checkCollision(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_checkDistance(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkDistance(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (doesEntityExist(targetObj, &errMsg, -1) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_double | arg_optional}))
@@ -2269,7 +2269,7 @@ std::string _method_checkDistance(int targetObj, const char* method, CScriptObje
     return errMsg;
 }
 
-std::string _method_checkSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkSensor(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
@@ -2356,7 +2356,7 @@ std::string _method_checkSensor(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_resetSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_resetSensor(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
@@ -2378,7 +2378,7 @@ std::string _method_resetSensor(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_handleSensor(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleSensor(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
@@ -2429,7 +2429,7 @@ std::string _method_handleSensor(int targetObj, const char* method, CScriptObjec
     return errMsg;
 }
 
-std::string _method_getObjects(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((targetObj == sim_handle_app) || (targetObj == sim_handle_scene))
@@ -2532,12 +2532,12 @@ std::string _method_getObjects(int targetObj, const char* method, CScriptObject*
                 else if (t == "drawingObject")
                 {
                     for (size_t i = 0; i < App::currentWorld->drawingCont->getObjectCount(); i++)
-                        objects.push_back(App::currentWorld->drawingCont->getObjectFromIndex(i)->getObjectId());
+                        objects.push_back(App::currentWorld->drawingCont->getObjectFromIndex(i)->getObjectHandle());
                 }
                 else if (t == "collection")
                 {
                     for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
-                        objects.push_back(App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle());
+                        objects.push_back(int(App::currentWorld->collections->getObjectFromIndex(i)->getObjectHandle()));
                 }
                 else if (t == "detachedScript")
                 {
@@ -2552,7 +2552,7 @@ std::string _method_getObjects(int targetObj, const char* method, CScriptObject*
                     std::vector<CMesh*> meshes;
                     App::currentWorld->sceneObjects->getAllMeshes(meshes);
                     for (size_t i = 0; i < meshes.size(); i++)
-                        objects.push_back(int(meshes[i]->getUniqueID()));
+                        objects.push_back(int(meshes[i]->getObjectHandle()));
                 }
                 else
                 {
@@ -2568,7 +2568,7 @@ std::string _method_getObjects(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
-std::string _method_addItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addItems(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
@@ -2597,7 +2597,7 @@ std::string _method_addItems(int targetObj, const char* method, CScriptObject* c
     return errMsg;
 }
 
-std::string _method_clearItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_clearItems(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
@@ -2608,7 +2608,7 @@ std::string _method_clearItems(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
-std::string _method_removeItems(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeItems(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
@@ -2621,10 +2621,10 @@ std::string _method_removeItems(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_callFunction(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_callFunction(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
     {
         std::string funcName = fetchText(inStack, 0);
@@ -2648,10 +2648,10 @@ std::string _method_callFunction(int targetObj, const char* method, CScriptObjec
     return errMsg;
 }
 
-std::string _method_executeString(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_executeString(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
     {
         std::string stringToExecute = fetchText(inStack, 0);
@@ -2676,7 +2676,7 @@ std::string _method_executeString(int targetObj, const char* method, CScriptObje
             {
                 if (target->getLang() == "python")
                 {
-                    if (target->getScriptState() == CScriptObject::scriptState_initialized)
+                    if (target->getScriptState() == CDetachedScript::scriptState_initialized)
                     {
                         CInterfaceStack* tmpStack = App::worldContainer->interfaceStackContainer->createStack();
                         tmpStack->pushTextOntoStack(stringToExecute.c_str());
@@ -2710,16 +2710,16 @@ std::string _method_executeString(int targetObj, const char* method, CScriptObje
     return errMsg;
 }
 
-std::string _method_getApiInfo(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getApiInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
     {
         std::string apiWord = fetchText(inStack, 0);
         if (apiWord.size() > 0)
         {
-            std::string tip(CScriptObject::getFunctionCalltip(apiWord.c_str(), target));
+            std::string tip(CDetachedScript::getFunctionCalltip(apiWord.c_str(), target));
             outStack->pushTextOntoStack(tip.c_str());
         }
         else
@@ -2728,10 +2728,10 @@ std::string _method_getApiInfo(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
-std::string _method_getApiFunc(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getApiFunc(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
     {
         std::string apiW = fetchText(inStack, 0);
@@ -2748,9 +2748,9 @@ std::string _method_getApiFunc(int targetObj, const char* method, CScriptObject*
         }
         std::set<std::string> t;
         if (funcs)
-            CScriptObject::getMatchingFunctions(apiW.c_str(), t, target);
+            CDetachedScript::getMatchingFunctions(apiW.c_str(), t, target);
         if (vars)
-            CScriptObject::getMatchingConstants(apiW.c_str(), t, target);
+            CDetachedScript::getMatchingConstants(apiW.c_str(), t, target);
         std::vector<std::string> theWords;
         for (const auto& str : t)
             theWords.push_back(str);
@@ -2759,10 +2759,10 @@ std::string _method_getApiFunc(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
-std::string _method_getStackTraceback(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getStackTraceback(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
     {
         outStack->pushTextOntoStack(target->getAndClearLastStackTraceback().c_str());
@@ -2770,10 +2770,10 @@ std::string _method_getStackTraceback(int targetObj, const char* method, CScript
     return errMsg;
 }
 
-std::string _method_init(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_init(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
     {
         if (currentScript == target)
@@ -2784,7 +2784,7 @@ std::string _method_init(int targetObj, const char* method, CScriptObject* curre
     return errMsg;
 }
 
-std::string _method_scale(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_scale(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -2799,7 +2799,7 @@ std::string _method_scale(int targetObj, const char* method, CScriptObject* curr
     return errMsg;
 }
 
-std::string _method_scaleTree(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_scaleTree(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -2822,7 +2822,7 @@ std::string _method_scaleTree(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_startSimulation(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_startSimulation(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {}))
@@ -2833,7 +2833,7 @@ std::string _method_startSimulation(int targetObj, const char* method, CScriptOb
     return errMsg;
 }
 
-std::string _method_pauseSimulation(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_pauseSimulation(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {}))
@@ -2844,7 +2844,7 @@ std::string _method_pauseSimulation(int targetObj, const char* method, CScriptOb
     return errMsg;
 }
 
-std::string _method_stopSimulation(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_stopSimulation(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {}))
@@ -2858,7 +2858,7 @@ std::string _method_stopSimulation(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_getName(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getName(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -2904,7 +2904,7 @@ std::string _method_getName(int targetObj, const char* method, CScriptObject* cu
     return errMsg;
 }
 
-std::string _method_dynamicReset(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamicReset(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
@@ -2916,7 +2916,7 @@ std::string _method_dynamicReset(int targetObj, const char* method, CScriptObjec
     return errMsg;
 }
 
-std::string _method_loadImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
@@ -2941,7 +2941,7 @@ std::string _method_loadImage(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_loadImageFromBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadImageFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
@@ -2967,7 +2967,7 @@ std::string _method_loadImageFromBuffer(int targetObj, const char* method, CScri
     return errMsg;
 }
 
-std::string _method_saveImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string, arg_integer | arg_optional}))
@@ -3005,7 +3005,7 @@ std::string _method_saveImage(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_saveImageToBuffer(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string | arg_optional, arg_integer | arg_optional}))
@@ -3042,7 +3042,7 @@ std::string _method_saveImageToBuffer(int targetObj, const char* method, CScript
     return errMsg;
 }
 
-std::string _method_transformImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_transformImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_table, 2, arg_integer, arg_integer | arg_optional}))
@@ -3136,7 +3136,7 @@ std::string _method_transformImage(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_getImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
@@ -3178,7 +3178,7 @@ std::string _method_getImage(int targetObj, const char* method, CScriptObject* c
     return errMsg;
 }
 
-std::string _method_setImage(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
@@ -3221,7 +3221,7 @@ std::string _method_setImage(int targetObj, const char* method, CScriptObject* c
     return errMsg;
 }
 
-std::string _method_getDepth(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getDepth(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
@@ -3258,7 +3258,7 @@ std::string _method_getDepth(int targetObj, const char* method, CScriptObject* c
     return errMsg;
 }
 
-std::string _method_relocateFrame(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_relocateFrame(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3287,7 +3287,7 @@ std::string _method_relocateFrame(int targetObj, const char* method, CScriptObje
     return errMsg;
 }
 
-std::string _method_alignBoundingBox(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_alignBoundingBox(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3316,7 +3316,7 @@ std::string _method_alignBoundingBox(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method_logInfo(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_logInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
@@ -3366,7 +3366,7 @@ std::string _method_logInfo(int targetObj, const char* method, CScriptObject* cu
     return errMsg;
 }
 
-std::string _method_logWarn(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_logWarn(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
@@ -3416,7 +3416,7 @@ std::string _method_logWarn(int targetObj, const char* method, CScriptObject* cu
     return errMsg;
 }
 
-std::string _method_logError(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_logError(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
@@ -3466,7 +3466,7 @@ std::string _method_logError(int targetObj, const char* method, CScriptObject* c
     return errMsg;
 }
 
-std::string _method_quit(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_quit(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {}))
@@ -3482,7 +3482,7 @@ std::string _method_quit(int targetObj, const char* method, CScriptObject* curre
     return errMsg;
 }
 
-std::string _method_systemLock(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_systemLock(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool}))
@@ -3494,10 +3494,10 @@ std::string _method_systemLock(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
-std::string _method_setStepping(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setStepping(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_bool}))
     {
         bool enable = fetchBool(inStack, 0);
@@ -3509,10 +3509,10 @@ std::string _method_setStepping(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_getStepping(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getStepping(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CScriptObject* target = getDetachedScript(targetObj, &errMsg, -1);
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
     {
         pushBool(outStack, target->getAutoYieldingForbidLevel() > 0);
@@ -3520,7 +3520,7 @@ std::string _method_getStepping(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_getObject(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table | arg_optional, 0, arg_any}))
@@ -3551,7 +3551,7 @@ std::string _method_getObject(int targetObj, const char* method, CScriptObject* 
             prox = App::currentWorld->sceneObjects->getObjectFromHandle(targetObj);
             if ((prox == nullptr) && (currentScript->getScriptHandle() <= SIM_IDEND_SCENEOBJECT))
                 prox = App::currentWorld->sceneObjects->getScriptFromHandle(currentScript->getScriptHandle());
-//                prox = App::currentWorld->getScriptObjectFromHandle(targetObj);
+//                prox = App::currentWorld->getDetachedScriptFromHandle(targetObj);
         }
         it = App::currentWorld->sceneObjects->getObjectFromPath(prox, path.c_str(), index);
 
@@ -3572,7 +3572,7 @@ std::string _method_getObject(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_announceChange(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_announceChange(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional}))
@@ -3583,7 +3583,7 @@ std::string _method_announceChange(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_getObjectFromUid(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getObjectFromUid(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_table | arg_optional, 0, arg_any}))
@@ -3611,7 +3611,7 @@ std::string _method_getObjectFromUid(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method_getInertia(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getInertia(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3625,7 +3625,7 @@ std::string _method_getInertia(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
-std::string _method_setInertia(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setInertia(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3648,7 +3648,7 @@ std::string _method_setInertia(int targetObj, const char* method, CScriptObject*
     return errMsg;
 }
 
-std::string _method_computeInertia(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_computeInertia(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3660,7 +3660,7 @@ std::string _method_computeInertia(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_addForce(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addForce(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3698,7 +3698,7 @@ std::string _method_addForce(int targetObj, const char* method, CScriptObject* c
     return errMsg;
 }
 
-std::string _method_addTorque(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addTorque(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3728,7 +3728,7 @@ std::string _method_addTorque(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_ungroup(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_ungroup(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3745,7 +3745,7 @@ std::string _method_ungroup(int targetObj, const char* method, CScriptObject* cu
     return errMsg;
 }
 
-std::string _method_divide(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_divide(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -3766,7 +3766,7 @@ std::string _method_divide(int targetObj, const char* method, CScriptObject* cur
     return errMsg;
 }
 
-std::string _method_groupShapes(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_groupShapes(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle}))
@@ -3791,7 +3791,7 @@ std::string _method_groupShapes(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_mergeShapes(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_mergeShapes(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle}))
@@ -3816,7 +3816,7 @@ std::string _method_mergeShapes(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_packTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_any}))
@@ -3843,7 +3843,7 @@ std::string _method_packTable(int targetObj, const char* method, CScriptObject* 
     return errMsg;
 }
 
-std::string _method_unpackTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
@@ -3886,7 +3886,7 @@ std::string _method_unpackTable(int targetObj, const char* method, CScriptObject
     return errMsg;
 }
 
-std::string _method_packDoubleTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packDoubleTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -3930,7 +3930,7 @@ std::string _method_packDoubleTable(int targetObj, const char* method, CScriptOb
     return errMsg;
 }
 
-std::string _method_packFloatTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packFloatTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -3977,7 +3977,7 @@ std::string _method_packFloatTable(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_packInt64Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packInt64Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4021,7 +4021,7 @@ std::string _method_packInt64Table(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_packInt32Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4068,7 +4068,7 @@ std::string _method_packInt32Table(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_packUInt32Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packUInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4115,7 +4115,7 @@ std::string _method_packUInt32Table(int targetObj, const char* method, CScriptOb
     return errMsg;
 }
 
-std::string _method_packInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4160,7 +4160,7 @@ std::string _method_packInt16Table(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_packUInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packUInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4205,7 +4205,7 @@ std::string _method_packUInt16Table(int targetObj, const char* method, CScriptOb
     return errMsg;
 }
 
-std::string _method_packInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4249,7 +4249,7 @@ std::string _method_packInt8Table(int targetObj, const char* method, CScriptObje
     return errMsg;
 }
 
-std::string _method_packUInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packUInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4293,7 +4293,7 @@ std::string _method_packUInt8Table(int targetObj, const char* method, CScriptObj
     return errMsg;
 }
 
-std::string _method_unpackDoubleTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackDoubleTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4347,7 +4347,7 @@ std::string _method_unpackDoubleTable(int targetObj, const char* method, CScript
     return errMsg;
 }
 
-std::string _method_unpackFloatTable(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackFloatTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4397,7 +4397,7 @@ std::string _method_unpackFloatTable(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method_unpackInt64Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackInt64Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4451,7 +4451,7 @@ std::string _method_unpackInt64Table(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method_unpackInt32Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4501,7 +4501,7 @@ std::string _method_unpackInt32Table(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method_unpackUInt32Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackUInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4551,7 +4551,7 @@ std::string _method_unpackUInt32Table(int targetObj, const char* method, CScript
     return errMsg;
 }
 
-std::string _method_unpackInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4599,7 +4599,7 @@ std::string _method_unpackInt16Table(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method_unpackUInt16Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackUInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4647,7 +4647,7 @@ std::string _method_unpackUInt16Table(int targetObj, const char* method, CScript
     return errMsg;
 }
 
-std::string _method_unpackInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4694,7 +4694,7 @@ std::string _method_unpackInt8Table(int targetObj, const char* method, CScriptOb
     return errMsg;
 }
 
-std::string _method_unpackUInt8Table(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackUInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
@@ -4741,7 +4741,7 @@ std::string _method_unpackUInt8Table(int targetObj, const char* method, CScriptO
     return errMsg;
 }
 
-std::string _method__createCamera(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method__createCamera(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))
@@ -4767,7 +4767,7 @@ std::string _method__createCamera(int targetObj, const char* method, CScriptObje
     return errMsg;
 }
 
-std::string _method__createLight(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method__createLight(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))
@@ -4785,7 +4785,7 @@ std::string _method__createLight(int targetObj, const char* method, CScriptObjec
     return errMsg;
 }
 
-std::string _method__createGraph(int targetObj, const char* method, CScriptObject* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method__createGraph(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))

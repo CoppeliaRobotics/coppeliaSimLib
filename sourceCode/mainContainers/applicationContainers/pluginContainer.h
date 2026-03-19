@@ -6,7 +6,7 @@
 #include <vMutex.h>
 #include <set>
 #include <string>
-#include <scriptObject.h>
+#include <detachedScript.h>
 
 class CPluginContainer
 {

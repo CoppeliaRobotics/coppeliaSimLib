@@ -307,7 +307,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_MODULE_ENTRY_CMD)
     {
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(cmd.intParams[0]);
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(cmd.intParams[0]);
         if (script != nullptr)
         {
             CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
@@ -325,7 +325,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_USER_CONFIG_CALLBACK_CMD)
     { // cmd.intParams[0] is an object handle
-        CScriptObject* script = App::currentWorld->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
+        CDetachedScript* script = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(cmd.intParams[0]);
         if (script == nullptr)
             script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, cmd.intParams[0]);
         if ((script != nullptr) && (script->hasSystemFunctionOrHook(sim_syscb_userconfig)))
@@ -354,7 +354,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         if ((GuiApp::getEditModeType() == NO_EDIT_MODE) && (GuiApp::mainWindow != nullptr))
         {
-            CScriptObject* it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
+            CDetachedScript* it = App::currentWorld->getDetachedScriptFromHandle(cmd.intParams[0]);
             if (it != nullptr)
             {
                 if (it->getScriptType() == sim_scripttype_customization)
@@ -509,7 +509,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == RESTART_SCRIPT_CMD)
     {
-        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(cmd.intParams[0]);
+        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && it->resetScript())
         {
             std::string msg(it->getDescriptiveName());
@@ -751,7 +751,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         cmd2.cmdId = CALL_DIALOG_FUNCTION_GUITRIGGEREDCMD;
         cmd2.intParams.push_back(COLLECTION_DLG);
         cmd2.intParams.push_back(0);
-        cmd2.intParams.push_back(newGroup->getCollectionHandle());
+        cmd2.intParams.push_back(int(newGroup->getObjectHandle()));
         App::appendSimulationThreadCommand(cmd2);
     }
     if (cmd.cmdId == TOGGLE_OVERRIDE_COLLECTIONGUITRIGGEREDCMD)
@@ -773,7 +773,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 theGroup->removeCollectionElementFromHandle(cmd.intParams[i]);
             if (theGroup->getElementCount() == 0)
             { // The group is empty and we have to remove it
-                App::currentWorld->collections->removeCollection(theGroup->getCollectionHandle());
+                App::currentWorld->collections->removeCollection(theGroup->getObjectHandle());
             }
         }
     }
@@ -2513,7 +2513,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 for (size_t j = 0; j < components.size(); j++)
                 {
                     CMesh* geom = components[j];
-                    textureObj->addDependentObject(shape->getObjectHandle(), geom->getUniqueID());
+                    textureObj->addDependentObject(shape->getObjectHandle(), geom->getObjectHandle());
                 }
             }
 
@@ -2671,7 +2671,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             textureObj->setImage(rgba, false, false, &cmd.uint8Params[0]); // keep false,false
             textureObj->setObjectName(cmd.stringParams[0].c_str());
             if (geom != nullptr)
-                textureObj->addDependentObject(cmd.intParams[1], geom->getUniqueID());
+                textureObj->addDependentObject(cmd.intParams[1], geom->getObjectHandle());
             else
             {
                 if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
@@ -2716,7 +2716,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 if (tp != nullptr)
                 { // remove the texture
-                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], geom->getUniqueID());
+                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], geom->getObjectHandle());
                     delete tp;
                     geom->setTextureProperty(nullptr);
                 }
@@ -2727,7 +2727,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         if (tObject > SIM_IDEND_SCENEOBJECT)
                         {
                             CTextureObject* to = App::currentWorld->textureContainer->getObject(tObject);
-                            to->addDependentObject(cmd.intParams[1], geom->getUniqueID());
+                            to->addDependentObject(cmd.intParams[1], geom->getObjectHandle());
                             tp = new CTextureProperty(tObject);
                             geom->setTextureProperty(tp);
                             tp->setTextureObjectID(tObject);
@@ -3363,7 +3363,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
     {
         int scriptID = cmd.intParams[0];
-        CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
+        CDetachedScript* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptID);
         if (script != nullptr)
         {
             if (GuiApp::mainWindow != nullptr)
@@ -3373,7 +3373,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_ENABLED_SCRIPTGUITRIGGEREDCMD)
     {
-        CScriptObject* it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
+        CDetachedScript* it = App::currentWorld->getDetachedScriptFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (it->getScriptType() == sim_scripttype_customization)
@@ -3384,15 +3384,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == TOGGLE_RESETAFTERSIMERROR_SCRIPTGUITRIGGEREDCMD)
     {
         CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
-        if ((it != nullptr) && (it->scriptObject != nullptr))
+        if ((it != nullptr) && (it->detachedScript != nullptr))
         {
-            if (it->scriptObject->getScriptType() == sim_scripttype_customization)
+            if (it->detachedScript->getScriptType() == sim_scripttype_customization)
                 it->resetAfterSimError(!it->getResetAfterSimError());
         }
     }
     if (cmd.cmdId == PARENTPROXY_OFF_SCRIPTGUITRIGGEREDCMD)
     {
-        CScriptObject* it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
+        CDetachedScript* it = App::currentWorld->getDetachedScriptFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->setParentIsProxy(false);
@@ -3436,7 +3436,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
     {
         int scriptID = cmd.intParams[0];
-        CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
+        CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptID);
     }
     if (cmd.cmdId == SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
     {
@@ -3446,7 +3446,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it->getObjectType() == sim_sceneobject_script)
             {
                 CScript* scr = (CScript*)it;
-                scr->scriptObject->setScriptExecPriority(cmd.intParams[1]); // new script objects
+                scr->detachedScript->setScriptExecPriority(cmd.intParams[1]); // new script objects
             }
             else
                 it->setScriptExecPriority_raw(cmd.intParams[1]); // old scripts
@@ -4423,7 +4423,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CTextureObject* to = App::currentWorld->textureContainer->getObject(toid);
             if ((to != nullptr) && (newShape->getSingleMesh()->getTextureProperty() != nullptr))
             {
-                to->addDependentObject(newShape->getObjectHandle(), newShape->getSingleMesh()->getUniqueID());
+                to->addDependentObject(newShape->getObjectHandle(), newShape->getSingleMesh()->getObjectHandle());
                 newShape->getSingleMesh()->getTextureProperty()->setTextureObjectID(toid);
             }
         }

@@ -17,227 +17,69 @@ Obj::Obj()
 {
 }
 
+Obj::Obj(long long int objectHandle, const char* objectTypeStr, const char* objectMetaInfo)
+{
+    _objectHandle = objectHandle;
+    _objectTypeStr = objectTypeStr;
+    _objectMetaInfo =objectMetaInfo;
+}
+
 Obj::~Obj()
 {
 }
 
-int Obj::setBoolProperty(const char* ppName, bool pState)
+void Obj::addObjectEventData(CCbor* ev)
 {
-    int retVal = -1;
-    return retVal;
+    ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
 }
 
-int Obj::getBoolProperty(const char* ppName, bool& pState) const
+long long int Obj::getObjectHandle() const
 {
-    int retVal = -1;
-    return retVal;
+    return _objectHandle;
 }
 
-int Obj::setIntProperty(const char* ppName, int pState)
+std::string Obj::getObjectTypeStr() const
 {
-    int retVal = -1;
-    return retVal;
+    return _objectTypeStr;
 }
 
-int Obj::getIntProperty(const char* ppName, int& pState) const
+std::string Obj::getObjectMetaInfo() const
 {
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setLongProperty(const char* ppName, long long int pState)
-{
-    int retVal = -1;
-    return retVal;
+    return _objectMetaInfo;
 }
 
 int Obj::getLongProperty(const char* ppName, long long int& pState) const
 {
     int retVal = -1;
-    return retVal;
-}
 
-int Obj::setHandleProperty(const char* ppName, long long int pState)
-{
-    int retVal = -1;
-    return retVal;
-}
+    if (strcmp(ppName, propObject_handle.name) == 0)
+    {
+        pState = _objectHandle;
+        retVal = 1;
+    }
 
-int Obj::getHandleProperty(const char* ppName, long long int& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setFloatProperty(const char* ppName, double pState)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getFloatProperty(const char* ppName, double& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setStringProperty(const char* ppName, const char* pState)
-{
-    int retVal = -1;
     return retVal;
 }
 
 int Obj::getStringProperty(const char* ppName, std::string& pState) const
 {
     int retVal = -1;
-    return retVal;
-}
 
-int Obj::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
-{
-    int retVal = -1;
-    return retVal;
-}
+    if (strcmp(ppName, propObject_objectType.name) == 0)
+    {
+        pState = _objectTypeStr;
+        retVal = 1;
+    }
+    else if (strcmp(ppName, propObject_objectMetaInfo.name) == 0)
+    {
+        pState = _objectMetaInfo;
+        retVal = 1;
+    }
 
-int Obj::getBufferProperty(const char* ppName, std::string& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setIntArray2Property(const char* ppName, const int* pState)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getIntArray2Property(const char* ppName, int* pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setVector2Property(const char* ppName, const double* pState)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getVector2Property(const char* ppName, double* pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setVector3Property(const char* ppName, const C3Vector& pState)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getVector3Property(const char* ppName, C3Vector& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setQuaternionProperty(const char* ppName, const C4Vector& pState)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getQuaternionProperty(const char* ppName, C4Vector& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setPoseProperty(const char* ppName, const C7Vector& pState)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getPoseProperty(const char* ppName, C7Vector& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setColorProperty(const char* ppName, const float* pState)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getColorProperty(const char* ppName, float* pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setFloatArrayProperty(const char* ppName, const double* v, int vL)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setIntArrayProperty(const char* ppName, const int* v, int vL)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setHandleArrayProperty(const char* ppName, const long long int* v, int vL)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::setStringArrayProperty(const char* ppName, const std::vector<std::string>& pState)
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::getStringArrayProperty(const char* ppName, std::vector<std::string>& pState) const
-{
-    int retVal = -1;
-    return retVal;
-}
-
-int Obj::removeProperty(const char* ppName)
-{
-    int retVal = -1;
     return retVal;
 }
 
 int Obj::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
-{
-    int retVal = getPropertyName_static(index, pName, appartenance, excludeFlags);
-    return retVal;
-}
-
-int Obj::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_obj.size(); i++)
@@ -250,24 +92,17 @@ int Obj::getPropertyName_static(int& index, std::string& pName, std::string& app
                 if (index == -1)
                 {
                     pName = allProps_obj[i].name;
+                    appartenance = "object";
                     retVal = 1;
                     break;
                 }
             }
         }
     }
-    if (retVal == 1)
-        appartenance = "object";
     return retVal;
 }
 
 int Obj::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
-{
-    int retVal = getPropertyInfo_static(ppName, info, infoTxt);
-    return retVal;
-}
-
-int Obj::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_obj.size(); i++)

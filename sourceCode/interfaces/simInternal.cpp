@@ -202,7 +202,7 @@ bool doesObjectOrScriptExist(const char* functionName, int identifier)
 {
     bool retVal;
     if (identifier > SIM_IDEND_SCENEOBJECT)
-        retVal = (App::worldContainer->getScriptObjectFromHandle(identifier) != nullptr);
+        retVal = (App::worldContainer->getDetachedScriptFromHandle(identifier) != nullptr);
     else
         retVal = (App::currentWorld->sceneObjects->getObjectFromHandle(identifier) != nullptr);
     if (!retVal)
@@ -703,7 +703,7 @@ int simSetBoolProperty_internal(long long int target, const char* ppName, int pS
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -775,7 +775,7 @@ int simGetBoolProperty_internal(long long int target, const char* ppName, int* p
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -826,7 +826,7 @@ int simSetIntProperty_internal(long long int target, const char* ppName, int pSt
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -894,7 +894,7 @@ int simGetIntProperty_internal(long long int target, const char* ppName, int* pS
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -945,7 +945,7 @@ int simSetHandleProperty_internal(long long int target, const char* ppName, long
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1013,7 +1013,7 @@ int simGetHandleProperty_internal(long long int target, const char* ppName, long
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1064,7 +1064,7 @@ int simSetLongProperty_internal(long long int target, const char* ppName, long l
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1132,7 +1132,7 @@ int simGetLongProperty_internal(long long int target, const char* ppName, long l
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1183,7 +1183,7 @@ int simSetFloatProperty_internal(long long int target, const char* ppName, doubl
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1251,7 +1251,7 @@ int simGetFloatProperty_internal(long long int target, const char* ppName, doubl
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1302,7 +1302,7 @@ int simSetStringProperty_internal(long long int target, const char* ppName, cons
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1374,7 +1374,7 @@ int simGetStringProperty_internal(long long int target, const char* ppName, char
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1428,7 +1428,7 @@ int simSetTableProperty_internal(long long int target, const char* ppName, const
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1491,7 +1491,7 @@ int simGetTableProperty_internal(long long int target, const char* ppName, char*
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1541,7 +1541,7 @@ int simSetBufferProperty_internal(long long int target, const char* ppName, cons
                     utils::replaceSubstring(pN, propertyTypes[i].second.c_str(), "");
                 int info;
                 std::string infoTxt;
-                int p = App::getPropertyInfo(target, pN.c_str(), info, infoTxt, false);
+                int p = App::getPropertyInfo(target, pN.c_str(), info, infoTxt);
                 if (p < 0)
                 {
                     CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1598,7 +1598,7 @@ int simGetBufferProperty_internal(long long int target, const char* ppName, char
                     utils::replaceSubstring(pN, propertyTypes[i].second.c_str(), "");
                 int info;
                 std::string infoTxt;
-                int p = App::getPropertyInfo(target, pN.c_str(), info, infoTxt, false);
+                int p = App::getPropertyInfo(target, pN.c_str(), info, infoTxt);
                 if (p < 0)
                 {
                     CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1648,7 +1648,7 @@ int simSetIntArray2Property_internal(long long int target, const char* ppName, c
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1719,7 +1719,7 @@ int simGetIntArray2Property_internal(long long int target, const char* ppName, i
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1770,7 +1770,7 @@ int simSetVector2Property_internal(long long int target, const char* ppName, con
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1841,7 +1841,7 @@ int simGetVector2Property_internal(long long int target, const char* ppName, dou
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1893,7 +1893,7 @@ int simSetVector3Property_internal(long long int target, const char* ppName, con
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -1968,7 +1968,7 @@ int simGetVector3Property_internal(long long int target, const char* ppName, dou
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2020,7 +2020,7 @@ int simSetQuaternionProperty_internal(long long int target, const char* ppName, 
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2095,7 +2095,7 @@ int simGetQuaternionProperty_internal(long long int target, const char* ppName, 
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2148,7 +2148,7 @@ int simSetPoseProperty_internal(long long int target, const char* ppName, const 
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2223,7 +2223,7 @@ int simGetPoseProperty_internal(long long int target, const char* ppName, double
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2274,7 +2274,7 @@ int simSetColorProperty_internal(long long int target, const char* ppName, const
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2345,7 +2345,7 @@ int simGetColorProperty_internal(long long int target, const char* ppName, float
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2398,7 +2398,7 @@ int simSetFloatArrayProperty_internal(long long int target, const char* ppName, 
                     {
                         int info;
                         std::string infoTxt;
-                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < 0)
                         {
                             CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2470,7 +2470,7 @@ int simGetFloatArrayProperty_internal(long long int target, const char* ppName, 
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2523,7 +2523,7 @@ int simSetIntArrayProperty_internal(long long int target, const char* ppName, co
                     {
                         int info;
                         std::string infoTxt;
-                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < 0)
                         {
                             CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2595,7 +2595,7 @@ int simGetIntArrayProperty_internal(long long int target, const char* ppName, in
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2648,7 +2648,7 @@ int simSetHandleArrayProperty_internal(long long int target, const char* ppName,
                     {
                         int info;
                         std::string infoTxt;
-                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < 0)
                         {
                             CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2720,7 +2720,7 @@ int simGetHandleArrayProperty_internal(long long int target, const char* ppName,
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2783,7 +2783,7 @@ int simSetStringArrayProperty_internal(long long int target, const char* ppName,
                     {
                         int info;
                         std::string infoTxt;
-                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < 0)
                         {
                             CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2868,7 +2868,7 @@ int simGetStringArrayProperty_internal(long long int target, const char* ppName,
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2914,7 +2914,7 @@ int simRemoveProperty_internal(long long int target, const char* ppName)
                 {
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(target, ppName, info, infoTxt, false);
+                    int p = App::getPropertyInfo(target, ppName, info, infoTxt);
                     if (p < 0)
                     {
                         CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
@@ -2943,21 +2943,22 @@ char* simGetPropertyName_internal(long long int target, int index, SPropertyOpti
         char* retVal = nullptr;
         std::string pName;
         std::string appartenance;
-        bool staticParsing = false;
         int excludeFlags = sim_propertyinfo_deprecated;
         if (options != nullptr)
         {
+            /* not supported anymore since 19.03.2026
             if ((options->structSize >= 8) && (options->objectType != -1))
             {
                 target = options->objectType;
                 staticParsing = true;
             }
+            */
             if ((options->structSize >= 24) && (options->prefix != nullptr))
                 pName = options->prefix;
             if ((options->structSize >= 32) && (options->excludeFlags != -1))
                 excludeFlags = options->excludeFlags;
         }
-        int res = App::getPropertyName(target, index, pName, appartenance, staticParsing, excludeFlags);
+        int res = App::getPropertyName(target, index, pName, appartenance, excludeFlags);
         if (res == -2)
             CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
         else if ((res == 1) && (pName.size() > 0))
@@ -2984,7 +2985,6 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
         int retVal = -1;
         // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            bool staticParsing = false;
             std::string infoTxt;
             if (options != nullptr)
             {
@@ -2992,13 +2992,15 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
                     infoTxt = "s";
                 if ((options->structSize >= 32) && (options->bitCoded & 1))
                     infoTxt = "j";
+                /* not supported anymore since 19.03.2026
                 if ((options->structSize >= 8) && (options->objectType != -1))
                 {
                     target = options->objectType;
                     staticParsing = true;
                 }
+                */
             }
-            int res = App::getPropertyInfo(target, ppName, infos->flags, infoTxt, staticParsing);
+            int res = App::getPropertyInfo(target, ppName, infos->flags, infoTxt);
             if (res == -2)
             {
                 CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
@@ -3046,7 +3048,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                 _outStack = App::worldContainer->interfaceStackContainer->createStack();
             _outStack->clear();
 
-            std::string err(callMethod(target, name, (CScriptObject*)currentScript, _inStack, _outStack));
+            std::string err(callMethod(target, name, (CDetachedScript*)currentScript, _inStack, _outStack));
 
             if (inStack == nullptr)
                 App::worldContainer->interfaceStackContainer->destroyStack(_inStack);
@@ -3152,7 +3154,7 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
                 CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(_currentScriptHandle);
                 if (it != nullptr)
                 {
-                    if (it->scriptObject->getParentIsProxy())
+                    if (it->detachedScript->getParentIsProxy())
                         emittingObj = it->getParent();
                     else
                         emittingObj = it;
@@ -3224,7 +3226,7 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CScriptObject* it = nullptr;
+        CDetachedScript* it = nullptr;
         if (scriptType == sim_scripttype_main)
             it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (scriptType == sim_scripttype_sandbox)
@@ -3239,7 +3241,7 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
                 CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (obj != nullptr)
                 {
-                    std::vector<CScriptObject*> scripts;
+                    std::vector<CDetachedScript*> scripts;
                     obj->getAttachedScripts(scripts, scriptType, false);
                     if (scripts.size() > 0)
                         it = scripts[0];
@@ -3250,7 +3252,7 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
             it = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);
         if (it == nullptr)
         { // new scripts:
-            it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(objectHandle);
+            it = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(objectHandle);
             if (it != nullptr)
             {
                 if (it->getScriptType() != scriptType)
@@ -3267,9 +3269,9 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
                         if (c->getObjectType() == sim_sceneobject_script)
                         {
                             CScript* s = (CScript*)c;
-                            if (s->scriptObject->getScriptType() == scriptType)
+                            if (s->detachedScript->getScriptType() == scriptType)
                             {
-                                it = s->scriptObject;
+                                it = s->detachedScript;
                                 break;
                             }
                         }
@@ -5036,7 +5038,7 @@ int simResetScript_internal(int scriptHandle)
             App::currentWorld->sceneObjects->embeddedScriptContainer->killAllSimulationLuaStates();
             return (1);
         }
-        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5353,7 +5355,7 @@ int simRegisterScriptFuncHook_internal(int scriptHandle, const char* funcToHook,
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
         if (it != nullptr)
             retVal = it->registerFunctionHook(funcToHook, userFunction, executeBefore);
         else
@@ -7275,7 +7277,7 @@ int simCreateShape_internal(int options, double shadingAngle, const double* vert
             CTextureObject* textureObj = new CTextureObject(textureRes[0], textureRes[1]);
             textureObj->setImage(options & 16, options & 32, (options & 64) == 0, texture);
             textureObj->setObjectName("importedTexture");
-            textureObj->addDependentObject(h, shape->getSingleMesh()->getUniqueID());
+            textureObj->addDependentObject(h, shape->getSingleMesh()->getObjectHandle());
             int h = App::currentWorld->textureContainer->addObject(
                 textureObj, false); // might erase the textureObj and return a similar object already present!!
             shape->getSingleMesh()->getTextureProperty()->setTextureObjectID(h);
@@ -8067,7 +8069,7 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
             (App::currentWorld->collections->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_script_type)) &&
-            (App::worldContainer->getScriptObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::worldContainer->getDetachedScriptFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_texture)) &&
             (App::currentWorld->textureContainer->getObject(generalObjectHandle) != nullptr))
@@ -9034,7 +9036,7 @@ int simInitScript_internal(int scriptHandle)
         int h = scriptHandle;
         if (h < 0)
             h = - h - 1;
-        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(h);
+        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(h);
         if (it != nullptr)
         {
             if (scriptHandle < 0)
@@ -9100,12 +9102,12 @@ int simCheckExecAuthorization_internal(const char* what, const char* args, int s
             bool auth = false;
             int h = scriptHandle;
             if (h < 0)
-                h = CScriptObject::getInExternalCall();
-            CScriptObject* it = nullptr;
+                h = CDetachedScript::getInExternalCall();
+            CDetachedScript* it = nullptr;
             std::string x, y;
             if (h >= 0)
             {
-                it = App::worldContainer->getScriptObjectFromHandle(h);
+                it = App::worldContainer->getDetachedScriptFromHandle(h);
                 if (it != nullptr)
                 {
                     x = x + args + " ";
@@ -9459,7 +9461,7 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                     textureObj->setImage(rgba, false, false, data); // keep false,false
                     textureObj->setObjectName(App::folders->getNameFromFull(fileName).c_str());
                     delete[] data;
-                    textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getUniqueID());
+                    textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
                     int texID = App::currentWorld->textureContainer->addObject(
                         textureObj, false); // might erase the textureObj and return a similar object already present!!
                     CTextureProperty* tp = new CTextureProperty(texID);
@@ -9513,7 +9515,7 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                 CTextureObject* textureObj = new CTextureObject(resolution[0], resolution[1]);
                 textureObj->setRandomContent();
                 textureObj->setObjectName(App::folders->getNameFromFull(fileName).c_str());
-                textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getUniqueID());
+                textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
                 int texID = App::currentWorld->textureContainer->addObject(
                     textureObj, false); // might erase the textureObj and return a similar object already present!!
                 CTextureProperty* tp = new CTextureProperty(texID);
@@ -9765,7 +9767,7 @@ int simSetShapeTexture_internal(int shapeHandle, int textureId, int mappingMode,
                 }
                 if (to != nullptr)
                 {
-                    to->addDependentObject(shape->getObjectHandle(), mesh->getUniqueID());
+                    to->addDependentObject(shape->getObjectHandle(), mesh->getObjectHandle());
                     tp = new CTextureProperty(textureId);
                     mesh->setTextureProperty(tp);
                     tp->setTextureMapMode(mappingMode);
@@ -9804,7 +9806,7 @@ int simCreateCollectionEx_internal(int options)
         it->setCollectionName("___col___", false); // is actually not used anymore
         App::currentWorld->collections->addCollection(it, false);
         it->setOverridesObjectMainProperties((options & 1) != 0);
-        return (it->getCollectionHandle());
+        return (int(it->getObjectHandle()));
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
@@ -10129,7 +10131,7 @@ int simGetDecimatedMesh_internal(const double* inVertices, int inVerticesL, cons
 int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName, int stackId)
 {
     C_API_START;
-    CScriptObject* script = nullptr;
+    CDetachedScript* script = nullptr;
     std::string funcName;
 
     // printf("ScriptHandle, funcName: %i, %s\n", scriptHandle, functionName);
@@ -10166,7 +10168,7 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
         funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
     else
         funcName = funcNameAtScriptName;
-    script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+    script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
 
     std::string tmp("External call to simCallScriptFunction failed ('");
     tmp += functionName;
@@ -10327,7 +10329,7 @@ int simCreateStack_internal()
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
-        return (stack->getId());
+        return (stack->getObjectHandle());
     }
 
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -10357,7 +10359,7 @@ int simCopyStack_internal(int stackHandle)
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
-            return (App::worldContainer->interfaceStackContainer->createStackCopy(stack)->getId());
+            return (App::worldContainer->interfaceStackContainer->createStackCopy(stack)->getObjectHandle());
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
@@ -11411,6 +11413,21 @@ int simDebugStack_internal(int stackHandle, int cIndex)
         {
             std::string buffer;
             stack->printContent(cIndex, buffer);
+            if (cIndex < 0)
+            {
+                buffer = "STACK CONTENT:\n--------------\n" + buffer;
+                buffer += "--------------";
+            }
+            else
+            {
+                if (cIndex < int(stack->getStackSize()))
+                {
+                    buffer = "STACK CONTENT at index " + std::to_string(cIndex) + ":\n--------------\n" + buffer;
+                    buffer += "--------------";
+                }
+                else
+                    buffer = "STACK CONTENT: <invalid index>";
+            }
             App::logMsg(sim_verbosity_none, buffer.c_str());
             return (1);
         }
@@ -12250,7 +12267,7 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CScriptObject* script = nullptr;
+        CDetachedScript* script = nullptr;
         std::string stringToExec;
 
         std::string strAtScriptName(stringToExecute);
@@ -12271,7 +12288,7 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
             stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
         else
             stringToExec = strAtScriptName;
-        script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
 
         if (script != nullptr)
         {
@@ -12291,7 +12308,7 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
                 {
                     if (script->getLang() == "python")
                     {
-                        if (script->getScriptState() == CScriptObject::scriptState_initialized)
+                        if (script->getScriptState() == CDetachedScript::scriptState_initialized)
                         {
                             CInterfaceStack* tmpStack = App::worldContainer->interfaceStackContainer->createStack();
                             CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
@@ -12347,9 +12364,9 @@ char* simGetApiFunc_internal(int scriptHandle, const char* apiWord)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CScriptObject* script = nullptr;
+        CDetachedScript* script = nullptr;
         if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
-            script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+            script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
         std::string apiW(apiWord);
         bool funcs = true;
         bool vars = true;
@@ -12364,9 +12381,9 @@ char* simGetApiFunc_internal(int scriptHandle, const char* apiWord)
         }
         std::set<std::string> t;
         if (funcs)
-            CScriptObject::getMatchingFunctions(apiW.c_str(), t, script);
+            CDetachedScript::getMatchingFunctions(apiW.c_str(), t, script);
         if (vars)
-            CScriptObject::getMatchingConstants(apiW.c_str(), t, script);
+            CDetachedScript::getMatchingConstants(apiW.c_str(), t, script);
         std::string theWords;
         for (const auto& str : t)
         {
@@ -12393,12 +12410,12 @@ char* simGetApiInfo_internal(int scriptHandle, const char* apiWord)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CScriptObject* script = nullptr;
+        CDetachedScript* script = nullptr;
         if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
-            script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+            script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
         if (strlen(apiWord) > 0)
         {
-            std::string tip(CScriptObject::getFunctionCalltip(apiWord, script));
+            std::string tip(CDetachedScript::getFunctionCalltip(apiWord, script));
             char* buff = new char[tip.size() + 1];
             strcpy(buff, tip.c_str());
             return (buff);
@@ -12564,7 +12581,7 @@ int simEventNotification_internal(const char* event)
                                     stack->pushTextOntoStack(txt.c_str());
                                     stack->pushInt32ArrayOntoStack(posAndSize + 0, 2);
                                     stack->pushInt32ArrayOntoStack(posAndSize + 2, 2);
-                                    simCallScriptFunctionEx_internal(callingScript, data, stack->getId());
+                                    simCallScriptFunctionEx_internal(callingScript, data, stack->getObjectHandle());
                                     App::worldContainer->interfaceStackContainer->destroyStack(stack);
                                 }
                                 if ((strlen(data) == 0) ||
@@ -12620,7 +12637,7 @@ int simApplyTexture_internal(int shapeHandle, const double* textureCoordinates, 
                     CTextureObject* textureObj = new CTextureObject(textureResolution[0], textureResolution[1]);
                     textureObj->setImage(options & 16, options & 32, (options & 64) == 0, texture);
                     textureObj->setObjectName("importedTexture");
-                    textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getUniqueID());
+                    textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
                     retVal = App::currentWorld->textureContainer->addObject(
                         textureObj, false); // might erase the textureObj and return a similar object already present!!
                     tp = new CTextureProperty(retVal);

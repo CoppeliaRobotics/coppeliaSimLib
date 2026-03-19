@@ -21,8 +21,8 @@ class CCollectionContainer
     void simulationEnded();
     void newScene();
     void actualizeAllCollections();
-    void announceObjectWillBeErased(int objectHandle);
-    void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceObjectWillBeErased(long long int objectHandle);
+    void announceScriptStateWillBeErased(long long int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void setUpDefaultValues();
     void removeAllCollections();
 
@@ -31,20 +31,19 @@ class CCollectionContainer
     void getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const;
     bool canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1, int suffix2);
-    void removeCollection(int collectionHandle);
+    void removeCollection(long long int collectionHandle);
 
     size_t getObjectCount() const;
     CCollection* getObjectFromIndex(size_t index) const;
-    CCollection* getObjectFromHandle(int collectionHandle) const;
+    CCollection* getObjectFromHandle(long long int collectionHandle) const;
     CCollection* getObjectFromName(const char* collectionName) const;
-    void getCollidableObjectsFromCollection(int collectionHandle, std::vector<CSceneObject*>& objects) const;
-    void getMeasurableObjectsFromCollection(int collectionHandle, std::vector<CSceneObject*>& objects) const;
-    void getDetectableObjectsFromCollection(int collectionHandle, std::vector<CSceneObject*>& objects,
-                                            int detectableMask) const;
+    void getCollidableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects) const;
+    void getMeasurableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects) const;
+    void getDetectableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects, int detectableMask) const;
 
     void performObjectLoadingMapping(const std::map<int, int>* map);
 
-    void addCollectionToSelection(int collectionHandle) const;
+    void addCollectionToSelection(long long int collectionHandle) const;
     void pushGenesisEvents() const;
 
     int getLongProperty(long long int target, const char* pName, long long int& pState) const;
@@ -56,7 +55,7 @@ class CCollectionContainer
 
   protected:
     void _addCollection(CCollection* collection);
-    void _removeCollection(int collectionHandle);
+    void _removeCollection(long long int collectionHandle);
 
     std::vector<CCollection*> _allCollections;
 };

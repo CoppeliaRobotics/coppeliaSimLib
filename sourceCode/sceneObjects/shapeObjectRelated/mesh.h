@@ -60,8 +60,6 @@ class CMesh : public CMeshWrapper
     void getColorStrings(std::string& colorStrings, bool onlyNamed) const override;
     void setHeightfieldDiamonds(bool d);
 
-    long long int getUniqueID() const;
-
     void setHeightfieldData(const std::vector<double>& heights, int xCount, int yCount);
     double* getHeightfieldData(int& xCount, int& yCount, double& minHeight, double& maxHeight);
     void getPurePrimitiveSizes(C3Vector& s) const;
@@ -145,8 +143,8 @@ class CMesh : public CMeshWrapper
     int setIntArrayProperty(const char* pName, const int* v, int vL, const C7Vector& shapeRelTr);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr) const;
     int removeProperty(const char* pName);
-    static int getPropertyName(int& index, std::string& pName, CMesh* targetObject, int excludeFlags);
-    static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt, CMesh* targetObject);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
     std::string getMeshState() const;
 
@@ -207,7 +205,6 @@ class CMesh : public CMeshWrapper
     int _isInSceneShapeUid;
 
     CTextureProperty* _textureProperty;
-    long long int _uniqueID;
 
     int _purePrimitive;
     double _purePrimitiveXSizeOrDiameter;

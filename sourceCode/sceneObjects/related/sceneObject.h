@@ -51,7 +51,7 @@ struct SScriptInfo
 class CShape;
 class CCustomData_old;
 class CViewableBase;
-class CScriptObject;
+class CDetachedScript;
 class CInterfaceStack;
 
 class CSceneObject : public Obj
@@ -64,7 +64,7 @@ class CSceneObject : public Obj
     virtual void connect_oldIk();
     virtual void remove_oldIk();
 
-    virtual void addSpecializedObjectEventData(CCbor* ev);
+    virtual void addObjectEventData(CCbor* ev) override;
     virtual CSceneObject* copyYourself();
     virtual void removeSceneDependencies();
     virtual void scaleObject(double scalingFactor);
@@ -100,7 +100,6 @@ class CSceneObject : public Obj
     virtual void initializeInitialValues(bool simulationAlreadyRunning);
     virtual void computeBoundingBox();
 
-    virtual std::string getObjectTypeInfo() const;
     virtual std::string getObjectTypeInfoExtended() const;
     virtual bool isPotentiallyCollidable() const;
     virtual bool isPotentiallyMeasurable() const;
@@ -119,13 +118,13 @@ class CSceneObject : public Obj
     virtual int setIntProperty(const char* pName, int pState);
     virtual int getIntProperty(const char* pName, int& pState) const;
     virtual int setLongProperty(const char* pName, long long int pState);
-    virtual int getLongProperty(const char* pName, long long int& pState) const;
+    virtual int getLongProperty(const char* pName, long long int& pState) const override;
     virtual int setHandleProperty(const char* pName, long long int pState);
     virtual int getHandleProperty(const char* pName, long long int& pState) const;
     virtual int setFloatProperty(const char* pName, double pState);
     virtual int getFloatProperty(const char* pName, double& pState) const;
     virtual int setStringProperty(const char* pName, const char* pState);
-    virtual int getStringProperty(const char* pName, std::string& pState) const;
+    virtual int getStringProperty(const char* pName, std::string& pState) const override;
     virtual int setBufferProperty(const char* pName, const char* buffer, int bufferL);
     virtual int getBufferProperty(const char* pName, std::string& pState) const;
     virtual int setIntArray2Property(const char* pName, const int* pState);
@@ -149,19 +148,14 @@ class CSceneObject : public Obj
     virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState);
     virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
     virtual int removeProperty(const char* pName);
-    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
-    static int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
-    static int getPropertyName_localBstatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
-    virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
-    static int getPropertyInfo_bstatic(const char* pName, int& info, std::string& infoTxt);
-    static int getPropertyInfo_localBstatic(const char* pName, int& info, std::string& infoTxt);
+    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
 
     int getObjectType() const;
     CSceneObject* getParent() const;
-    int getObjectHandle() const;
     long long int getObjectUid() const;
     bool getSelected() const;
     bool getIsInScene() const;
@@ -202,7 +196,7 @@ class CSceneObject : public Obj
 
     int getScriptsInTree(std::vector<SScriptInfo>& scripts, int scriptType, bool legacyEmbeddedScripts, int depth = 0);
     void getScriptsInChain(std::vector<int>& scripts, int scriptType, bool legacyEmbeddedScripts);
-    size_t getAttachedScripts(std::vector<CScriptObject*>& scripts, int scriptType, bool legacyEmbeddedScripts);
+    size_t getAttachedScripts(std::vector<CDetachedScript*>& scripts, int scriptType, bool legacyEmbeddedScripts);
 
     void scalePosition(double scalingFactor);
     void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList, bool baseIncluded = true, bool start = true) const;
@@ -381,9 +375,7 @@ class CSceneObject : public Obj
     void _setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang, const C3Vector& rotAxis, double angle);
     void _setModelInvisible(bool inv);
     void _setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize);
-    void _addCommonObjectEventData(CCbor* ev) const;
 
-    int _objectHandle;
     long long int _objectUid; // valid for a given session (non-persistent)
     std::string _extensionString;
     int _visibilityLayer;

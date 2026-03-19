@@ -386,11 +386,11 @@ void CWorldContainer::getAllSceneNames(std::vector<std::string>& l) const
         l.push_back(VVarious::splitPath_fileBase(_worlds[i]->environment->getScenePathAndName().c_str()));
 }
 
-CScriptObject* CWorldContainer::getScriptObjectFromHandle(int scriptHandle) const
+CDetachedScript* CWorldContainer::getDetachedScriptFromHandle(int scriptHandle) const
 {
-    CScriptObject* retVal = nullptr;
+    CDetachedScript* retVal = nullptr;
     if (currentWorld != nullptr)
-        retVal = currentWorld->getScriptObjectFromHandle(scriptHandle);
+        retVal = currentWorld->getDetachedScriptFromHandle(scriptHandle);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromHandle(scriptHandle);
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptHandle() == scriptHandle))
@@ -398,11 +398,11 @@ CScriptObject* CWorldContainer::getScriptObjectFromHandle(int scriptHandle) cons
     return (retVal);
 }
 
-CScriptObject* CWorldContainer::getScriptObjectFromUid(int uid) const
+CDetachedScript* CWorldContainer::getDetachedScriptFromUid(int uid) const
 {
-    CScriptObject* retVal = nullptr;
+    CDetachedScript* retVal = nullptr;
     if (currentWorld != nullptr)
-        retVal = currentWorld->getScriptObjectFromUid(uid);
+        retVal = currentWorld->getDetachedScriptFromUid(uid);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromUid(uid);
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptUid() == uid))
@@ -422,12 +422,12 @@ int CWorldContainer::getSysFuncAndHookCnt(int sysCall) const
     return (retVal);
 }
 
-void CWorldContainer::getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+void CWorldContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
 {
     TRACE_INTERNAL;
     if (reverse)
     {
-        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CScriptObject::scriptState_initialized))
+        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CDetachedScript::scriptState_initialized))
             scripts.push_back(sandboxScript);
         addOnScriptContainer->getActiveScripts(scripts);
         if (currentWorld != nullptr)
@@ -438,7 +438,7 @@ void CWorldContainer::getActiveScripts(std::vector<CScriptObject*>& scripts, boo
         if (currentWorld != nullptr)
             currentWorld->getActiveScripts(scripts, reverse, alsoLegacyScripts);
         addOnScriptContainer->getActiveScripts(scripts);
-        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CScriptObject::scriptState_initialized))
+        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CDetachedScript::scriptState_initialized))
             scripts.push_back(sandboxScript);
     }
 }
@@ -446,8 +446,8 @@ void CWorldContainer::getActiveScripts(std::vector<CScriptObject*>& scripts, boo
 void CWorldContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
-    bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
-    if (CScriptObject::isSystemCallbackInReverseOrder(callType))
+    bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
+    if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
         if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
         {
@@ -681,11 +681,11 @@ void CWorldContainer::dispatchEvents()
             {
                 CInterfaceStack* fullEventsStack = nullptr;
 
-                std::vector<CScriptObject*> scripts;
+                std::vector<CDetachedScript*> scripts;
                 getActiveScripts(scripts, false, true);
                 for (size_t sc = 0; sc < scripts.size(); sc++)
                 {
-                    CScriptObject* script = scripts[sc];
+                    CDetachedScript* script = scripts[sc];
                     if (script->hasSystemFunctionOrHook(sim_syscb_event))
                     {
                         std::vector<unsigned char> ew;
@@ -833,8 +833,6 @@ void CWorldContainer::simulationEnded(bool removeNewObjects)
 
 void CWorldContainer::announceObjectWillBeErased(const CSceneObject* object)
 {
-    //    announceScriptStateWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
-    //    announceScriptWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
     currentWorld->announceObjectWillBeErased(object);
 }
 

@@ -19,6 +19,17 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_TYPE = "scene";
+static std::string OBJECT_META_INFO = R"(
+{
+    "superclass": "object",
+    "namespaces": {
+        "customData": {},
+        "signal": {}
+    }
+}
+)";
+
 std::vector<SLoadOperationIssue> CWorld::_loadOperationIssues;
 #ifdef USE_LONG_LONG_HANDLES
 std::vector<bool> CWorld::oldHandles(SIM_OLDIDEND_MESH, false);
@@ -33,6 +44,9 @@ std::map<UID, S_OID> CWorld::oldSerializationHandleFromUid;
 #endif
 CWorld::CWorld()
 {
+    _objectHandle = sim_handle_scene;
+    _objectTypeStr = OBJECT_TYPE;
+    _objectMetaInfo = OBJECT_META_INFO;
     collections = nullptr;
     distances_old = nullptr;
     collisions_old = nullptr;
@@ -571,7 +585,7 @@ void CWorld::saveScene(CSer& ar, bool regularSave /*= true*/)
     // We serialize the old scripts (not the add-on scripts nor the sandbox script):
     for (size_t i = 0; i < sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->allScripts[i];
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->allScripts[i];
         if (it->isSimulatonCustomizationOrMainScript())
         {
             if (ar.isBinary())
@@ -701,7 +715,7 @@ void CWorld::simulationAboutToStart()
 
 void CWorld::simulationPaused()
 {
-    CScriptObject* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
+    CDetachedScript* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
     if (mainScript != nullptr)
         mainScript->systemCallMainScript(sim_syscb_suspend, nullptr, nullptr);
 
@@ -713,7 +727,7 @@ void CWorld::simulationPaused()
 
 void CWorld::simulationAboutToResume()
 {
-    CScriptObject* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
+    CDetachedScript* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
     if (mainScript != nullptr)
         mainScript->systemCallMainScript(sim_syscb_resume, nullptr, nullptr);
 
@@ -814,7 +828,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     std::vector<CSceneObject*>* loadedObjectList, std::vector<CCollection*>* loadedCollectionList,
     std::vector<CCollisionObject_old*>* loadedCollisionList, std::vector<CDistanceObject_old*>* loadedDistanceList,
     std::vector<CIkGroup_old*>* loadedIkGroupList, std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
-    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CScriptObject*>* loadedLuaScriptList,
+    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CDetachedScript*>* loadedLuaScriptList,
     std::vector<CTextureObject*>& loadedTextureObjectList,
     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList, bool model, int fileSimVersion,
     bool forceModelAsCopy)
@@ -900,9 +914,9 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     std::map<int, int> collectionMapping;
     for (size_t i = 0; i < loadedCollectionList->size(); i++)
     {
-        int oldHandle = loadedCollectionList->at(i)->getCollectionHandle();
+        int oldHandle = int(loadedCollectionList->at(i)->getObjectHandle());
         collections->addCollectionWithSuffixOffset(loadedCollectionList->at(i), objectIsACopy, suffixOffset);
-        collectionMapping[oldHandle] = loadedCollectionList->at(i)->getCollectionHandle();
+        collectionMapping[oldHandle] = int(loadedCollectionList->at(i)->getObjectHandle());
     }
     // We add all the collisions:
     std::map<int, int> collisionMapping;
@@ -1012,7 +1026,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     // We do the mapping for the Lua scripts:
     for (size_t i = 0; i < loadedLuaScriptList->size(); i++)
     {
-        CScriptObject* it = loadedLuaScriptList->at(i);
+        CDetachedScript* it = loadedLuaScriptList->at(i);
         it->performSceneObjectLoadingMapping(&objectMapping);
     }
 
@@ -1084,17 +1098,13 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
             uniquePersistentIds[obj->getUniquePersistentIdString()] = obj->getObjectHandle();
         }
         for (size_t i = 0; i < collisions_old->getObjectCount(); i++)
-            uniquePersistentIds[collisions_old->getObjectFromIndex(i)->getUniquePersistentIdString()] =
-                collisions_old->getObjectFromIndex(i)->getObjectHandle();
+            uniquePersistentIds[collisions_old->getObjectFromIndex(i)->getUniquePersistentIdString()] = collisions_old->getObjectFromIndex(i)->getObjectHandle();
         for (size_t i = 0; i < distances_old->getObjectCount(); i++)
-            uniquePersistentIds[distances_old->getObjectFromIndex(i)->getUniquePersistentIdString()] =
-                distances_old->getObjectFromIndex(i)->getObjectHandle();
+            uniquePersistentIds[distances_old->getObjectFromIndex(i)->getUniquePersistentIdString()] = distances_old->getObjectFromIndex(i)->getObjectHandle();
         for (size_t i = 0; i < ikGroups_old->getObjectCount(); i++)
-            uniquePersistentIds[ikGroups_old->getObjectFromIndex(i)->getUniquePersistentIdString()] =
-                ikGroups_old->getObjectFromIndex(i)->getObjectHandle();
+            uniquePersistentIds[ikGroups_old->getObjectFromIndex(i)->getUniquePersistentIdString()] = ikGroups_old->getObjectFromIndex(i)->getObjectHandle();
         for (size_t i = 0; i < collections->getObjectCount(); i++)
-            uniquePersistentIds[collections->getObjectFromIndex(i)->getUniquePersistentIdString()] =
-                collections->getObjectFromIndex(i)->getCollectionHandle();
+            uniquePersistentIds[collections->getObjectFromIndex(i)->getUniquePersistentIdString()] = int(collections->getObjectFromIndex(i)->getObjectHandle());
         for (size_t i = 0; i < loadedObjectList->size(); i++)
             loadedObjectList->at(i)->checkReferencesToOriginal(uniquePersistentIds);
     }
@@ -1106,7 +1116,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
         int handle = _loadOperationIssues[i].objectHandle;
         std::string newTxt("NAME_NOT_FOUND");
         int handle2 = getLoadingMapping(&luaScriptMapping, handle);
-        CScriptObject* script = sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(handle2);
+        CDetachedScript* script = sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(handle2);
         if (script != nullptr)
             newTxt = script->getShortDescriptiveName();
         std::string msg(_loadOperationIssues[i].message);
@@ -1189,23 +1199,23 @@ void CWorld::announceScriptStateWillBeErased(int scriptHandle, bool simulationSc
     drawingCont->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-CScriptObject* CWorld::getScriptObjectFromHandle(int scriptHandle) const
+CDetachedScript* CWorld::getDetachedScriptFromHandle(int scriptHandle) const
 {
-    CScriptObject* retVal = nullptr;
+    CDetachedScript* retVal = nullptr;
     if (sceneObjects != nullptr)
-        retVal = sceneObjects->getScriptObjectFromHandle(scriptHandle);
+        retVal = sceneObjects->getDetachedScriptFromHandle(scriptHandle);
     return (retVal);
 }
 
-CScriptObject* CWorld::getScriptObjectFromUid(int uid) const
+CDetachedScript* CWorld::getDetachedScriptFromUid(int uid) const
 {
-    CScriptObject* retVal = nullptr;
+    CDetachedScript* retVal = nullptr;
     if (sceneObjects != nullptr)
-        retVal = sceneObjects->getScriptObjectFromUid(uid);
+        retVal = sceneObjects->getDetachedScriptFromUid(uid);
     return (retVal);
 }
 
-void CWorld::getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+void CWorld::getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
 {
     TRACE_INTERNAL;
     sceneObjects->getActiveScripts(scripts, reverse, alsoLegacyScripts);
@@ -1220,6 +1230,8 @@ void CWorld::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack
 void CWorld::pushGenesisEvents()
 {
     CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+    ev->appendKeyInt64(propObject_handle.name, _objectHandle);
+    ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
     simulation->appendGenesisData(ev);
     environment->appendGenesisData(ev);
     customSceneData.appendEventData(nullptr, ev);
@@ -1293,7 +1305,7 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
     std::vector<CIkGroup_old*> loadedIkGroupList;
     std::vector<CPathPlanningTask*> pathPlanningTaskList;
     std::vector<CButtonBlock*> loadedButtonBlockList;
-    std::vector<CScriptObject*> loadedLuaScriptList;
+    std::vector<CDetachedScript*> loadedLuaScriptList;
 
     bool hasThumbnail = false;
     if (ar.isBinary())
@@ -1437,7 +1449,7 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                 if (theName.compare(SER_LUA_SCRIPT) == 0)
                 {
                     ar >> byteQuantity;
-                    CScriptObject* it = new CScriptObject(-1);
+                    CDetachedScript* it = new CDetachedScript(-1);
                     it->serialize(ar);
                     if ((it->getScriptType() == sim_scripttype_jointctrlcallback_old) ||
                         (it->getScriptType() == sim_scripttype_generalcallback_old) ||
@@ -1460,7 +1472,7 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                                  "instead. Following the script content:\n" +
                                  ml;
                         App::logMsg(sim_verbosity_errors, ml.c_str());
-                        CScriptObject::destroy(it, false);
+                        CDetachedScript::destroy(it, false);
                     }
                     else
                         loadedLuaScriptList.push_back(it);
@@ -1654,7 +1666,7 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         {
             while (true)
             {
-                CScriptObject* it = new CScriptObject(-1);
+                CDetachedScript* it = new CDetachedScript(-1);
                 it->serialize(ar);
                 loadedLuaScriptList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_LUA_SCRIPT, false))
@@ -1718,11 +1730,11 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         if (txt.size() > 0)
         {
             cf->scriptEquivalent.clear();
-            CScriptObject* script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, it->getObjectHandle());
+            CDetachedScript* script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, it->getObjectHandle());
             if (script == nullptr)
             {
                 txt = std::string("function sysCall_init()\nend\n\n") + txt;
-                script = new CScriptObject(sim_scripttype_customization);
+                script = new CDetachedScript(sim_scripttype_customization);
                 script->setLang("lua");
                 sceneObjects->embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
@@ -1736,7 +1748,7 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
     // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i = 0; i < loadedLuaScriptList.size(); i++)
     {
-        CScriptObject* script = sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(loadedLuaScriptList[i]->getScriptHandle());
+        CDetachedScript* script = sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(loadedLuaScriptList[i]->getScriptHandle());
         if (script != nullptr)
         {
             CUserParameters* params = script->getScriptParametersObject_backCompatibility();
@@ -1772,12 +1784,12 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
     { // convert from old to new (except for very old threaded scripts (blue icon)):
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {
-            CScriptObject* scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, loadedObjectList[i]->getObjectHandle());
-            if (scriptObject != nullptr)
+            CDetachedScript* detachedScript = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, loadedObjectList[i]->getObjectHandle());
+            if (detachedScript != nullptr)
             {
-                sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
-                CScript* script = new CScript(scriptObject);
-                scriptObject->setParentIsProxy(true);
+                sceneObjects->embeddedScriptContainer->extractScript(detachedScript->getScriptHandle());
+                CScript* script = new CScript(detachedScript);
+                detachedScript->setParentIsProxy(true);
                 script->setVisibilityLayer(0);
                 sceneObjects->addObjectToScene(script, false, false);
                 sceneObjects->setObjectParent(script, loadedObjectList[i], false);
@@ -1792,12 +1804,12 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                 nn += loadedObjectList[i]->getObjectName_old();
                 sceneObjects->setObjectName_old(script, nn.c_str(), false);
             }
-            scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, loadedObjectList[i]->getObjectHandle());
-            if (scriptObject != nullptr)
+            detachedScript = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, loadedObjectList[i]->getObjectHandle());
+            if (detachedScript != nullptr)
             {
-                sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
-                CScript* script = new CScript(scriptObject);
-                scriptObject->setParentIsProxy(true);
+                sceneObjects->embeddedScriptContainer->extractScript(detachedScript->getScriptHandle());
+                CScript* script = new CScript(detachedScript);
+                detachedScript->setParentIsProxy(true);
                 script->setVisibilityLayer(0);
                 sceneObjects->addObjectToScene(script, false, false);
                 sceneObjects->setObjectParent(script, loadedObjectList[i], false);
@@ -1831,17 +1843,17 @@ bool CWorld::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                     {
                         CScript* script = (CScript*)c;
                         int id = itemDone;
-                        if (((itemDone & 1) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_simulation))
+                        if (((itemDone & 1) == 0) && (script->detachedScript->getScriptType() == sim_scripttype_simulation))
                             itemDone |= 1;
-                        if (((itemDone & 2) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_customization))
+                        if (((itemDone & 2) == 0) && (script->detachedScript->getScriptType() == sim_scripttype_customization))
                             itemDone |= 2;
                         if (itemDone != id)
                         {
-                            script->scriptObject->setHandle();
-                            sceneObjects->embeddedScriptContainer->insertScript(script->scriptObject);
-                            script->scriptObject->setIsSceneObjectScript(false);
-                            script->scriptObject->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
-                            script->scriptObject = nullptr;
+                            script->detachedScript->setHandle();
+                            sceneObjects->embeddedScriptContainer->insertScript(script->detachedScript);
+                            script->detachedScript->setIsSceneObjectScript(false);
+                            script->detachedScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
+                            script->detachedScript = nullptr;
                         }
                         objectsToRemove.push_back(script->getObjectHandle());
                     }
@@ -1932,8 +1944,8 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
     {
         CSceneObject* it = simpleXmlObjects[i].object;
         CSceneObject* pit = simpleXmlObjects[i].parentObject;
-        CScriptObject* childScript = simpleXmlObjects[i].childScript;
-        CScriptObject* customizationScript = simpleXmlObjects[i].customizationScript;
+        CDetachedScript* childScript = simpleXmlObjects[i].childScript;
+        CDetachedScript* customizationScript = simpleXmlObjects[i].customizationScript;
         allLoadedObjects.push_back(it);
         if (it->getObjectType() == sim_sceneobject_camera)
         {
@@ -2196,7 +2208,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
                         std::map<std::string, CCollection*>::const_iterator itColl =
                             _collectionLoadNamesMap.find(proxSensor->getSensableObjectLoadName_old());
                         if (itColl != _collectionLoadNamesMap.end())
-                            proxSensor->setSensableObject(itColl->second->getCollectionHandle());
+                            proxSensor->setSensableObject(int(itColl->second->getObjectHandle()));
                     }
                 }
             }
@@ -2221,7 +2233,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
                         std::map<std::string, CCollection*>::const_iterator itColl =
                             _collectionLoadNamesMap.find(visionSensor->getDetectableEntityLoadName_old());
                         if (itColl != _collectionLoadNamesMap.end())
-                            visionSensor->setDetectableEntityHandle(itColl->second->getCollectionHandle());
+                            visionSensor->setDetectableEntityHandle(int(itColl->second->getObjectHandle()));
                     }
                 }
             }
@@ -2327,7 +2339,7 @@ int CWorld::_getSuffixOffsetForGeneralObjectToAdd(
     bool tempNames, std::vector<CSceneObject*>* loadedObjectList, std::vector<CCollection*>* loadedCollectionList,
     std::vector<CCollisionObject_old*>* loadedCollisionList, std::vector<CDistanceObject_old*>* loadedDistanceList,
     std::vector<CIkGroup_old*>* loadedIkGroupList, std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
-    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CScriptObject*>* loadedLuaScriptList) const
+    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CDetachedScript*>* loadedLuaScriptList) const
 {
     // 1. We find out about the smallest suffix to paste:
     int smallestSuffix = SIM_MAX_INT;
@@ -2654,80 +2666,11 @@ int CWorld::getWorldHandle() const
     return (_worldHandle);
 }
 
-bool CWorld::_getStackLocation_write(const char* ppName, int& ind, std::string& key, CInterfaceStack* stack)
-{
-    int retVal = -2;
-    if (stack != nullptr)
-    {
-        std::string ll(ppName);
-        size_t p = ll.find(".");
-        if (p != std::string::npos)
-        {
-            key.assign(ll.begin() + p + 1, ll.end());
-            if (key.size() == 0)
-                key = "@arrayAppend@";
-            ll.resize(p);
-        }
-        retVal = -1;
-        if ((ll.size() == 0) || tt::stringToInt(ll.c_str(), ind))
-        {
-            if (ll.size() == 0)
-            { // append item to stack
-                if (key.size() != 0)
-                    stack->pushTableOntoStack(); // in order to later be able to append an array or map item
-                else
-                    stack->pushNullOntoStack(); // doesn't matter what we push, will be overwritten later
-                ind = stack->getStackSize() - 1;
-                retVal = 0;
-            }
-            else
-            {
-                if (ind < 0)
-                    ind += stack->getStackSize();
-                if (ind < stack->getStackSize())
-                    retVal = 0;
-            }
-        }
-    }
-    return retVal;
-}
-
-bool CWorld::_getStackLocation_read(const char* ppName, int& ind, std::string& key, int& arrIndex, CInterfaceStack* stack)
-{
-    int retVal = -2; // error, target does not exist
-    if (stack != nullptr)
-    {
-        std::string ll(ppName);
-        size_t p = ll.find(".");
-        if (p != std::string::npos)
-        {
-            key.assign(ll.begin() + p + 1, ll.end());
-            if (key.size() == 0)
-                ll.clear(); // index/key not specified: error
-            else
-            {
-                ll.resize(p);
-                if (!tt::stringToInt(key.c_str(), arrIndex))
-                    arrIndex = -1; // key is a map key
-            }
-        }
-        retVal = -1; // error
-        if (tt::stringToInt(ll.c_str(), ind))
-        {
-            if (ind < 0)
-                ind += stack->getStackSize();
-            if (ind < stack->getStackSize())
-                retVal = 0;
-        }
-    }
-    return retVal;
-}
-
 int CWorld::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -2759,7 +2702,7 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -2770,42 +2713,8 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackBool(pState));
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            tbl->appendArrayObject_bool(pState);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            tbl->appendMapObject_bool(key.c_str(), pState);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setBoolProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -2826,7 +2735,7 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -2858,7 +2767,7 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -2869,41 +2778,8 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
-                {
-                    pState = ((CInterfaceStackBool*)it)->getValue();
-                    retVal = 1;
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
-                    {
-                        pState = ((CInterfaceStackBool*)it)->getValue();
-                        retVal = 1;
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getBoolProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -2924,7 +2800,7 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -2956,7 +2832,7 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             const char* pName = ppName;
@@ -2966,42 +2842,8 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackInteger(pState));
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            tbl->appendArrayObject_int32(pState);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            tbl->appendMapObject_int32(key.c_str(), pState);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setIntProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3022,7 +2864,7 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3054,7 +2896,7 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             const char* pName = ppName;
@@ -3064,41 +2906,8 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
-                {
-                    pState = int(((CInterfaceStackInteger*)it)->getValue());
-                    retVal = 1;
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
-                    {
-                        pState = int(((CInterfaceStackInteger*)it)->getValue());
-                        retVal = 1;
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getIntProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3119,7 +2928,7 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3153,7 +2962,7 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -3164,42 +2973,8 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackInteger(pState));
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            tbl->appendArrayObject_int64(pState);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            tbl->appendMapObject_int64(key.c_str(), pState);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setLongProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3220,7 +2995,7 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3228,7 +3003,9 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        retVal = environment->getLongProperty(ppName, pState);
+        retVal = Obj::getLongProperty(ppName, pState);
+        if (retVal == -1)
+            retVal = environment->getLongProperty(ppName, pState);
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
@@ -3237,7 +3014,7 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -3248,41 +3025,8 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
-                {
-                    pState = ((CInterfaceStackInteger*)it)->getValue();
-                    retVal = 1;
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
-                    {
-                        pState = ((CInterfaceStackInteger*)it)->getValue();
-                        retVal = 1;
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getLongProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3301,7 +3045,7 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3318,7 +3062,7 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -3329,42 +3073,8 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackHandle(pState));
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            tbl->appendArrayObject_handle(pState);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            tbl->appendMapObject_handle(key.c_str(), pState);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setHandleProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3385,7 +3095,7 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3401,48 +3111,15 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getHandleProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_handle) )
-                {
-                    pState = ((CInterfaceStackHandle*)it)->getValue();
-                    retVal = 1;
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_handle) )
-                    {
-                        pState = ((CInterfaceStackHandle*)it)->getValue();
-                        retVal = 1;
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getHandleProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3461,7 +3138,7 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3491,7 +3168,7 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -3502,42 +3179,8 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackNumber(pState));
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            tbl->appendArrayObject_double(pState);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            tbl->appendMapObject_double(key.c_str(), pState);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setFloatProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3558,7 +3201,7 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3588,7 +3231,7 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -3599,41 +3242,8 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_double) )
-                {
-                    pState = ((CInterfaceStackNumber*)it)->getValue();
-                    retVal = 1;
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_double) )
-                    {
-                        pState = ((CInterfaceStackNumber*)it)->getValue();
-                        retVal = 1;
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getFloatProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3654,7 +3264,7 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3684,7 +3294,7 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -3695,42 +3305,8 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(pState));
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            tbl->appendArrayObject_text(pState);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            tbl->appendMapObject_text(key.c_str(), pState);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setStringProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3751,7 +3327,7 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3759,17 +3335,17 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getStringProperty(pName, pState);
+        retVal = Obj::getStringProperty(ppName, pState);
+        if ((retVal == -1) && (dynamicsContainer != nullptr))
+            retVal = dynamicsContainer->getStringProperty(ppName, pState);
         if ((retVal == -1) && (environment != nullptr))
-            retVal = environment->getStringProperty(pName, pState);
+            retVal = environment->getStringProperty(ppName, pState);
         if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getStringProperty(-1, pName, pState); // for the container itself
+            retVal = sceneObjects->getStringProperty(-1, ppName, pState); // for the container itself
         if ((retVal == -1) && (collections != nullptr))
-            retVal = collections->getStringProperty(-1, pName, pState); // for the container itself
+            retVal = collections->getStringProperty(-1, ppName, pState); // for the container itself
         if ((retVal == -1) && (drawingCont != nullptr))
-            retVal = drawingCont->getStringProperty(-1, pName, pState); // for the container itself
+            retVal = drawingCont->getStringProperty(-1, ppName, pState); // for the container itself
         if (retVal == -1)
         {
         }
@@ -3781,7 +3357,7 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -3791,50 +3367,9 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
     }
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
-        if (strcmp(ppName, "objectType") == 0)
-        {
-            pState = "stack";
-            retVal = 1;
-        }
-        else
-        {
-            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-            std::string key;
-            int arrIndex;
-            int stackIndex;
-            retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-            if (retVal == 0)
-            {
-                retVal = -1;
-                if (key.size() == 0)
-                {
-                    CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
-                    {
-                        pState = ((CInterfaceStackString*)it)->getValue(nullptr);
-                        retVal = 1;
-                    }
-                }
-                else
-                { // we want to read a specific array/map item
-                    CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                    if (obj->getObjectType() == sim_stackitem_table)
-                    {
-                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                        CInterfaceStackObject* it = nullptr;
-                        if (arrIndex >= 0)
-                            it = tbl->getArrayItemAtIndex(arrIndex);
-                        else
-                            it = tbl->getMapObject(key.c_str());
-                        if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
-                        {
-                            pState = ((CInterfaceStackString*)it)->getValue(nullptr);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getStringProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3855,7 +3390,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3894,7 +3429,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -3905,42 +3440,8 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                stack->replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(buffer, bufferL, true));
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            tbl->appendArrayObject_buffer(buffer, bufferL);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            tbl->appendMapObject_buffer(key.c_str(), buffer, bufferL);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setBufferProperty(ppName, buffer, bufferL);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -3961,7 +3462,7 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -3995,7 +3496,7 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4006,46 +3507,8 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && (!((CInterfaceStackString*)it)->isText()) )
-                {
-                    size_t l;
-                    const char* val = ((CInterfaceStackString*)it)->getValue(&l);
-                    pState.assign(val, val + l);
-                    retVal = 1;
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && (!((CInterfaceStackString*)it)->isText()) )
-                    {
-                        size_t l;
-                        const char* val = ((CInterfaceStackString*)it)->getValue(&l);
-                        pState.assign(val, val + l);
-                        retVal = 1;
-                    }
-                }
-            }
-        }
-
+        if (stack != nullptr)
+            retVal = stack->getBufferProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4066,7 +3529,7 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4094,7 +3557,7 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4105,48 +3568,8 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackTable* tbl = new CInterfaceStackTable();
-                tbl->setInt32Array(pState, 2);
-                stack->replaceStackObjectFromIndex(stackIndex, tbl);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setInt32Array(pState, 2);
-                            tbl->appendArrayObject(tbl2);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setInt32Array(pState, 2);
-                            tbl->appendMapObject_object(key.c_str(), tbl2);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setIntArray2Property(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4167,7 +3590,7 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4195,7 +3618,7 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4206,51 +3629,8 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                    size_t arrSize = tbl->getArraySize();
-                    if (tbl->areAllValuesThis(sim_stackitem_integer, true) && (arrSize == 2))
-                    {
-                        tbl->getInt32Array(pState, int(arrSize));
-                        retVal = 1;
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
-                    {
-                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                        size_t arrSize = tbl->getArraySize();
-                        if (tbl->areAllValuesThis(sim_stackitem_integer, true) && (arrSize == 2))
-                        {
-                            tbl->getInt32Array(pState, int(arrSize));
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getIntArray2Property(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4271,7 +3651,7 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4299,7 +3679,7 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4310,48 +3690,8 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackTable* tbl = new CInterfaceStackTable();
-                tbl->setDoubleArray(pState, 2);
-                stack->replaceStackObjectFromIndex(stackIndex, tbl);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setDoubleArray(pState, 2);
-                            tbl->appendArrayObject(tbl2);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setDoubleArray(pState, 2);
-                            tbl->appendMapObject_object(key.c_str(), tbl2);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setVector2Property(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4372,7 +3712,7 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4400,7 +3740,7 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4411,59 +3751,8 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if (it != nullptr)
-                {
-                    if (it->getObjectType() == sim_stackitem_matrix)
-                    {
-                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
-                        const CMatrix* M = m->getValue();
-                        if ((M->cols == 1) && (M->rows == 2))
-                        {
-                            pState[0] = M->data[0];
-                            pState[1] = M->data[1];
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if (it != nullptr)
-                    {
-                        if (it->getObjectType() == sim_stackitem_matrix)
-                        {
-                            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
-                            const CMatrix* M = m->getValue();
-                            if ((M->cols == 1) && (M->rows == 2))
-                            {
-                                pState[0] = M->data[0];
-                                pState[1] = M->data[1];
-                                retVal = 1;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getVector2Property(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4484,7 +3773,7 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4512,7 +3801,7 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4523,45 +3812,8 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
-                stack->replaceStackObjectFromIndex(stackIndex, m);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
-                            tbl->appendArrayObject(m);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
-                            tbl->appendMapObject_object(key.c_str(), m);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setVector3Property(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4582,7 +3834,7 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4610,7 +3862,7 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4621,57 +3873,8 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if (it != nullptr)
-                {
-                    if (it->getObjectType() == sim_stackitem_matrix)
-                    {
-                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
-                        const CMatrix* w = m->getValue();
-                        if ((w->rows == 3) && (w->cols == 1))
-                        {
-                            pState.setData(w->data.data());
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if (it != nullptr)
-                    {
-                        if (it->getObjectType() == sim_stackitem_matrix)
-                        {
-                            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
-                            const CMatrix* w = m->getValue();
-                            if ((w->rows == 3) && (w->cols == 1))
-                            {
-                                pState.setData(w->data.data());
-                                retVal = 1;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getVector3Property(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4692,7 +3895,7 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4718,7 +3921,7 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4729,45 +3932,8 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
-                stack->replaceStackObjectFromIndex(stackIndex, q);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
-                            tbl->appendArrayObject(q);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
-                            tbl->appendMapObject_object(key.c_str(), q);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setQuaternionProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4788,7 +3954,7 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4814,7 +3980,7 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4825,49 +3991,8 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if (it != nullptr)
-                {
-                    if (it->getObjectType() == sim_stackitem_quaternion)
-                    {
-                        CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
-                        pState = q->getValue()[0];
-                        retVal = 1;
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if (it != nullptr)
-                    {
-                        if (it->getObjectType() == sim_stackitem_quaternion)
-                        {
-                            CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
-                            pState = q->getValue()[0];
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getQuaternionProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4888,7 +4013,7 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -4914,7 +4039,7 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -4925,47 +4050,8 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            double dat[7];
-            pState.getData(dat);
-            if (key.size() == 0)
-            {
-                CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
-                stack->replaceStackObjectFromIndex(stackIndex, q);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
-                            tbl->appendArrayObject(q);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
-                            tbl->appendMapObject_object(key.c_str(), q);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setPoseProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -4986,7 +4072,7 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5012,7 +4098,7 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5023,49 +4109,8 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if (it != nullptr)
-                {
-                    if (it->getObjectType() == sim_stackitem_pose)
-                    {
-                        CInterfaceStackPose* q = (CInterfaceStackPose*)it;
-                        pState = q->getValue()[0];
-                        retVal = 1;
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if (it != nullptr)
-                    {
-                        if (it->getObjectType() == sim_stackitem_pose)
-                        {
-                            CInterfaceStackPose* q = (CInterfaceStackPose*)it;
-                            pState = q->getValue()[0];
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getPoseProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5086,7 +4131,7 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5114,7 +4159,7 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5125,45 +4170,8 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackColor* c = new CInterfaceStackColor(pState);
-                stack->replaceStackObjectFromIndex(stackIndex, c);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackColor* c = new CInterfaceStackColor(pState);
-                            tbl->appendArrayObject(c);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackColor* c = new CInterfaceStackColor(pState);
-                            tbl->appendMapObject_object(key.c_str(), c);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setColorProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5184,7 +4192,7 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5212,7 +4220,7 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5223,53 +4231,8 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if (it != nullptr)
-                {
-                    if (it->getObjectType() == sim_stackitem_color)
-                    {
-                        CInterfaceStackColor* c = (CInterfaceStackColor*)it;
-                        pState[0] = c->getValue()[0];
-                        pState[1] = c->getValue()[1];
-                        pState[2] = c->getValue()[2];
-                        retVal = 1;
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if (it != nullptr)
-                    {
-                        if (it->getObjectType() == sim_stackitem_color)
-                        {
-                            CInterfaceStackColor* c = (CInterfaceStackColor*)it;
-                            pState[0] = c->getValue()[0];
-                            pState[1] = c->getValue()[1];
-                            pState[2] = c->getValue()[2];
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getColorProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5290,7 +4253,7 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5318,7 +4281,7 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5329,48 +4292,8 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackTable* tbl = new CInterfaceStackTable();
-                tbl->setDoubleArray(v, vL);
-                stack->replaceStackObjectFromIndex(stackIndex, tbl);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setDoubleArray(v, vL);
-                            tbl->appendArrayObject(tbl2);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setDoubleArray(v, vL);
-                            tbl->appendMapObject_object(key.c_str(), tbl2);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setFloatArrayProperty(ppName, v, vL);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5391,7 +4314,7 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5420,7 +4343,7 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5431,53 +4354,8 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                    size_t arrSize = tbl->getArraySize();
-                    if (tbl->areAllValuesThis(sim_stackitem_double, true))
-                    {
-                        pState.resize(arrSize);
-                        tbl->getDoubleArray(pState.data(), int(arrSize));
-                        retVal = 1;
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
-                    {
-                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                        size_t arrSize = tbl->getArraySize();
-                        if (tbl->areAllValuesThis(sim_stackitem_double, true))
-                        {
-                            pState.resize(arrSize);
-                            tbl->getDoubleArray(pState.data(), int(arrSize));
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getFloatArrayProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5498,7 +4376,7 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5526,7 +4404,7 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5537,48 +4415,8 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackTable* tbl = new CInterfaceStackTable();
-                tbl->setInt32Array(v, vL);
-                stack->replaceStackObjectFromIndex(stackIndex, tbl);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setInt32Array(v, vL);
-                            tbl->appendArrayObject(tbl2);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setInt32Array(v, vL);
-                            tbl->appendMapObject_object(key.c_str(), tbl2);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setIntArrayProperty(ppName, v, vL);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5599,7 +4437,7 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5628,7 +4466,7 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5639,53 +4477,8 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                    size_t arrSize = tbl->getArraySize();
-                    if (tbl->areAllValuesThis(sim_stackitem_integer, true))
-                    {
-                        pState.resize(arrSize);
-                        tbl->getInt32Array(pState.data(), int(arrSize));
-                        retVal = 1;
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
-                    {
-                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                        size_t arrSize = tbl->getArraySize();
-                        if (tbl->areAllValuesThis(sim_stackitem_integer, true))
-                        {
-                            pState.resize(arrSize);
-                            tbl->getInt32Array(pState.data(), int(arrSize));
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getIntArrayProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5706,7 +4499,7 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5734,7 +4527,7 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5745,45 +4538,8 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
-                stack->replaceStackObjectFromIndex(stackIndex, arr);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
-                            tbl->appendArrayObject(arr);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
-                            tbl->appendMapObject_object(key.c_str(), arr);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setHandleArrayProperty(ppName, v, vL);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5804,7 +4560,7 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5833,7 +4589,7 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5844,53 +4600,8 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if (it != nullptr)
-                {
-                    if (it->getObjectType() == sim_stackitem_handlearray)
-                    {
-                        CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
-                        size_t cnt;
-                        const long long int* a = arr->getValue(&cnt);
-                        pState.assign(a, a + cnt);
-                        retVal = 1;
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if (it != nullptr)
-                    {
-                        if (it->getObjectType() == sim_stackitem_handlearray)
-                        {
-                            CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
-                            size_t cnt;
-                            const long long int* a = arr->getValue(&cnt);
-                            pState.assign(a, a + cnt);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getHandleArrayProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -5911,7 +4622,7 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -5939,7 +4650,7 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -5950,48 +4661,8 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int stackIndex;
-        retVal = _getStackLocation_write(ppName, stackIndex, key, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackTable* tbl = new CInterfaceStackTable();
-                tbl->setTextArray(pState.data(), pState.size());
-                stack->replaceStackObjectFromIndex(stackIndex, tbl);
-                retVal = 1;
-            }
-            else
-            { // we want to append an array or map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    if (key == "@arrayAppend@")
-                    {
-                        if (tbl->isTableArray())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setTextArray(pState.data(), pState.size());
-                            tbl->appendArrayObject(tbl2);
-                            retVal = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (tbl->isTableMap())
-                        {
-                            CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                            tbl2->setTextArray(pState.data(), pState.size());
-                            tbl->appendMapObject_object(key.c_str(), tbl2);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->setStringArrayProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -6012,7 +4683,7 @@ int CWorld::getStringArrayProperty(long long int target, const char* ppName, std
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -6041,7 +4712,7 @@ int CWorld::getStringArrayProperty(long long int target, const char* ppName, std
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -6052,49 +4723,8 @@ int CWorld::getStringArrayProperty(long long int target, const char* ppName, std
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
-        std::string key;
-        int arrIndex;
-        int stackIndex;
-        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex, stack);
-        if (retVal == 0)
-        {
-            retVal = -1;
-            if (key.size() == 0)
-            {
-                CInterfaceStackObject* it = stack->getStackObjectFromIndex(stackIndex);
-                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                    if (tbl->areAllValuesThis(sim_stackitem_string, true))
-                    {
-                        tbl->getTextArray(pState);
-                        retVal = 1;
-                    }
-                }
-            }
-            else
-            { // we want to read a specific array/map item
-                CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                if (obj->getObjectType() == sim_stackitem_table)
-                {
-                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                    CInterfaceStackObject* it = nullptr;
-                    if (arrIndex >= 0)
-                        it = tbl->getArrayItemAtIndex(arrIndex);
-                    else
-                        it = tbl->getMapObject(key.c_str());
-                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
-                    {
-                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                        if (tbl->areAllValuesThis(sim_stackitem_string, true))
-                        {
-                            tbl->getTextArray(pState);
-                            retVal = 1;
-                        }
-                    }
-                }
-            }
-        }
+        if (stack != nullptr)
+            retVal = stack->getStringArrayProperty(ppName, pState);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
@@ -6115,7 +4745,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
 {
     if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -6169,7 +4799,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
     }
     else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -6181,23 +4811,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
-        {
-            int stackIndex;
-            if (tt::stringToInt(ppName, stackIndex))
-            {
-                if (stackIndex < 0)
-                    stackIndex += stack->getStackSize();
-                if (stackIndex < stack->getStackSize())
-                {
-                    CInterfaceStackObject* obj = stack->detachStackObjectFromIndex(stackIndex);
-                    if (obj != nullptr)
-                    {
-                        delete obj;
-                        retVal = 1;
-                    }
-                }
-            }
-        }
+            retVal = stack->removeProperty(ppName);
         else
             retVal = -2; // target does not exist
     }
@@ -6212,11 +4826,11 @@ int CWorld::removeProperty(long long int target, const char* ppName)
     return retVal;
 }
 
-int CWorld::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject, int excludeFlags)
+int CWorld::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    if ((target == sim_handle_mainscript) && (targetObject != nullptr))
+    if (target == sim_handle_mainscript)
     {
-        CScriptObject* it = targetObject->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -6224,266 +4838,78 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        appartenance = "scene";
-        retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
-        if ((retVal == -1) && (App::currentWorld->dynamicsContainer != nullptr))
-            retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
-        if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
-            retVal = App::currentWorld->simulation->getPropertyName(index, pName, excludeFlags);
-        if ((retVal == -1) && (App::currentWorld->environment != nullptr))
-            retVal = App::currentWorld->environment->getPropertyName(index, pName, excludeFlags);
+        retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
         if (retVal == -1)
         {
-            CSceneObjectContainer* soc = nullptr;
-            if (targetObject != nullptr)
-                soc = targetObject->sceneObjects;
-            retVal = CSceneObjectContainer::getPropertyName(-1, index, pName, appartenance, soc, excludeFlags); // for the container itself
-        }
-        if (retVal == -1)
-        {
-            if (targetObject != nullptr)
+            appartenance = _objectTypeStr;
+            if ((retVal == -1) && (App::currentWorld->dynamicsContainer != nullptr))
+                retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
+            if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
+                retVal = App::currentWorld->simulation->getPropertyName(index, pName, excludeFlags);
+            if ((retVal == -1) && (App::currentWorld->environment != nullptr))
+                retVal = App::currentWorld->environment->getPropertyName(index, pName, excludeFlags);
+            if (retVal == -1)
+                retVal = sceneObjects->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
+            if (retVal == -1)
             {
-                if (targetObject->customSceneData.getPropertyName(index, pName, excludeFlags))
+                if (customSceneData.getPropertyName(index, pName, excludeFlags))
                 {
                     pName = CUSTOMDATAPREFIX + pName;
                     retVal = 1;
                 }
-                else if (targetObject->customSceneData_volatile.getPropertyName(index, pName, excludeFlags))
+                else if (customSceneData_volatile.getPropertyName(index, pName, excludeFlags))
                 {
                     pName = SIGNALPREFIX + pName;
                     retVal = 1;
                 }
             }
+            if (retVal == -1)
+                retVal = collections->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
+            if (retVal == -1)
+                retVal = drawingCont->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
         }
-        if ( (retVal == -1) && (targetObject != nullptr) )
-            retVal = targetObject->collections->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
-        if ( (retVal == -1) && (targetObject != nullptr) )
-            retVal = targetObject->drawingCont->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
     {
-        appartenance = "scene";
-        CSceneObjectContainer* soc = nullptr;
-        if (targetObject != nullptr)
-            soc = targetObject->sceneObjects;
-        retVal = CSceneObjectContainer::getPropertyName(target, index, pName, appartenance, soc, excludeFlags);
+//        appartenance = _objectTypeStr;
+        retVal = sceneObjects->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr))
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
         {
-            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-                appartenance = "scene";
-            retVal = script->getPropertyName(index, pName, &appartenance, excludeFlags);
+//            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
+//                appartenance = _objectTypeStr;
+            retVal = script->getPropertyName(index, pName, appartenance, excludeFlags);
         }
     }
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
-        {
-            retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (retVal == -1)
-            {
-                int flags = (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude);
-                for (size_t i = 0; i < stack->getStackSize(); i++)
-                {
-                    if (pName.size() == 0)
-                    {
-                        if ((flags & excludeFlags) == 0)
-                        {
-                            index--;
-                            if (index == -1)
-                            {
-                                pName = std::to_string(i);
-                                retVal = 1;
-                                appartenance = "stack";
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else
-            retVal = -2; // target does not exist
+            retVal = stack->getPropertyName(index, pName, appartenance, excludeFlags);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
     {
-        appartenance = "scene";
-        if (targetObject != nullptr)
-            retVal = targetObject->collections->getPropertyName(target, index, pName, appartenance, excludeFlags);
+//        appartenance = _objectTypeStr;
+        retVal = collections->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
     {
-        appartenance = "scene";
-        if (targetObject != nullptr)
-            retVal = targetObject->drawingCont->getPropertyName(target, index, pName, appartenance, excludeFlags);
+//        appartenance = _objectTypeStr;
+        retVal = drawingCont->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
     else
         retVal = -2; // target does not exist
     return retVal;
 }
 
-int CWorld::_getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::string& str, bool firstCall /*= true*/)
+int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt)
 {
-    int retVal = -1;
-    str.clear();
-    if (obj != nullptr)
+    if (target == sim_handle_mainscript)
     {
-        int t = obj->getObjectType();
-        if (t == sim_stackitem_null)
-        {
-            retVal = sim_propertytype_null;
-            str = "null";
-        }
-        else if (t == sim_stackitem_bool)
-        {
-            retVal = sim_propertytype_bool;
-            str = "bool";
-        }
-        else if (t == sim_stackitem_integer)
-        {
-            retVal = sim_propertytype_long;
-            str = "long";
-        }
-        else if (t == sim_stackitem_handle)
-        {
-            retVal = sim_propertytype_handle;
-            str = "handle";
-        }
-        else if (t == sim_stackitem_double)
-        {
-            retVal = sim_propertytype_float;
-            str = "float";
-        }
-        else if (t == sim_stackitem_string)
-        {
-            CInterfaceStackString* stritem = (CInterfaceStackString*)obj;
-            if (stritem->isText())
-            {
-                retVal = sim_propertytype_string;
-                str = "string";
-            }
-            else
-            {
-                retVal = sim_propertytype_buffer;
-                str = "buffer";
-            }
-        }
-        else if (t == sim_stackitem_quaternion)
-        {
-            retVal = sim_propertytype_quaternion;
-            str = "quaternion";
-        }
-        else if (t == sim_stackitem_pose)
-        {
-            retVal = sim_propertytype_pose;
-            str = "pose";
-        }
-        else if (t == sim_stackitem_color)
-        {
-            retVal = sim_propertytype_color;
-            str = "color";
-        }
-        else if (t == sim_stackitem_handlearray)
-        {
-            retVal = sim_propertytype_handlearray;
-            str = "handlearray";
-        }
-        else if (t == sim_stackitem_matrix)
-        {
-            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
-            const CMatrix* mat = m->getValue();
-            if ((mat->rows == 3) && (mat->cols == 3))
-            {
-                retVal = sim_propertytype_matrix3x3;
-                str = "matrix3x3";
-            }
-            else if ((mat->rows == 4) && (mat->cols == 4))
-            {
-                retVal = sim_propertytype_matrix4x4;
-                str = "matrix4x4";
-            }
-            else
-            {
-                retVal = sim_propertytype_matrix;
-                str = "matrix" + std::to_string(mat->rows) + "x" + std::to_string(mat->cols);
-            }
-        }
-        else if (t == sim_stackitem_table)
-        {
-            CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-            if (tbl->isTableArray())
-            {
-                if (tbl->areAllValuesThis(sim_stackitem_integer, false))
-                {
-                    retVal = sim_propertytype_intarray;
-                    str = "intarray" + std::to_string(tbl->getArraySize());
-                }
-                else if (tbl->areAllValuesThis(sim_stackitem_double, true))
-                {
-                    retVal = sim_propertytype_floatarray;
-                    str = "floatarray" + std::to_string(tbl->getArraySize());
-                }
-                else
-                { // we have a random array
-                    retVal = sim_propertytype_array;
-                    if (firstCall)
-                    {
-                        for (size_t i = 0; i < tbl->getArraySize(); i++)
-                        {
-                            if (i != 0)
-                                str += ";";
-                            std::string str2;
-                            _getPropertyTypeForStackItem(tbl->getArrayItemAtIndex(i), str2, false);
-                            str += std::to_string(i) + ":" + str2;
-                        }
-                    }
-                    else
-                        str = "array" + std::to_string(tbl->getArraySize());
-                }
-            }
-            else
-            { // we have a map
-                retVal = sim_propertytype_map;
-                if (firstCall)
-                {
-                    size_t i = 0;
-                    while (true)
-                    {
-                        std::string key;
-                        double numberKey;
-                        long long int integerKey;
-                        bool boolKey;
-                        int keyType;
-                        CInterfaceStackObject* it = tbl->getMapItemAtIndex(i, key, numberKey, integerKey, boolKey, keyType);
-                        if (it == nullptr)
-                            break;
-                        if (keyType != sim_stackitem_string)
-                            key = "*";
-                        if (i != 0)
-                            str += ";";
-                        std::string str2;
-                        _getPropertyTypeForStackItem(it, str2, false);
-                        str += key + ":" + str2;
-                        i++;
-                    }
-                }
-                else
-                    str = "map" + std::to_string(tbl->getMapEntryCount());
-            }
-        }
-    }
-    return retVal;
-}
-
-int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt, CWorld* targetObject)
-{
-    if ((target == sim_handle_mainscript) && (targetObject != nullptr))
-    {
-        CScriptObject* it = targetObject->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
             target = it->getScriptHandle();
     }
@@ -6492,7 +4918,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
+        retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
         if ((retVal == -1) && (App::currentWorld->dynamicsContainer != nullptr))
             retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
         if ((retVal == -1) && (App::currentWorld->simulation != nullptr))
@@ -6500,115 +4926,64 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         if ((retVal == -1) && (App::currentWorld->environment != nullptr))
             retVal = App::currentWorld->environment->getPropertyInfo(pName, info, infoTxt);
         if (retVal == -1)
-        {
-            CSceneObjectContainer* soc = nullptr;
-            if (targetObject != nullptr)
-                soc = targetObject->sceneObjects;
-            retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, infoTxt, soc); // for the container itself
-        }
+            retVal = sceneObjects->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
         if (retVal == -1)
         {
             std::string pN(pName);
             if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             {
-                if (targetObject != nullptr)
+                if (pN.size() > 0)
                 {
-                    if (pN.size() > 0)
+                    int s;
+                    retVal = customSceneData.hasData(pN.c_str(), true, &s);
+                    if (retVal >= 0)
                     {
-                        int s;
-                        retVal = targetObject->customSceneData.hasData(pN.c_str(), true, &s);
-                        if (retVal >= 0)
-                        {
-                            info = CUSTOMDATAFLAGS;
-                            if (s > LARGE_PROPERTY_SIZE)
-                                info = info | sim_propertyinfo_largedata;
-                            infoTxt = "";
-                        }
+                        info = CUSTOMDATAFLAGS;
+                        if (s > LARGE_PROPERTY_SIZE)
+                            info = info | sim_propertyinfo_largedata;
+                        infoTxt = "";
                     }
                 }
             }
             else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
             {
-                if (targetObject != nullptr)
+                if (pN.size() > 0)
                 {
-                    if (pN.size() > 0)
+                    int s;
+                    retVal = customSceneData_volatile.hasData(pN.c_str(), true, &s);
+                    if (retVal >= 0)
                     {
-                        int s;
-                        retVal = targetObject->customSceneData_volatile.hasData(pN.c_str(), true, &s);
-                        if (retVal >= 0)
-                        {
-                            info = SIGNALFLAGS;
-                            if (s > LARGE_PROPERTY_SIZE)
-                                info = info | sim_propertyinfo_largedata;
-                            infoTxt = "";
-                        }
+                        info = SIGNALFLAGS;
+                        if (s > LARGE_PROPERTY_SIZE)
+                            info = info | sim_propertyinfo_largedata;
+                        infoTxt = "";
                     }
                 }
             }
         }
-        if ( (retVal == -1) && (targetObject != nullptr) )
-            retVal = targetObject->collections->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
-        if ( (retVal == -1) && (targetObject != nullptr) )
-            retVal = targetObject->drawingCont->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
+        if (retVal == -1)
+            retVal = collections->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
+        if (retVal == -1)
+            retVal = drawingCont->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
     }
     else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
-    {
-        const char* pName = ppName;
-        CSceneObjectContainer* soc = nullptr;
-        if (targetObject != nullptr)
-            soc = targetObject->sceneObjects;
-        retVal = CSceneObjectContainer::getPropertyInfo(target, pName, info, infoTxt, soc);
-    }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr))
+        retVal = sceneObjects->getPropertyInfo(target, ppName, info, infoTxt);
+    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            const char* pName = _pName.c_str();
-            retVal = script->getPropertyInfo(pName, info, infoTxt, true);
-        }
+            retVal = script->getPropertyInfo(ppName, info, infoTxt);
     }
     else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
-        {
-            retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
-            if (retVal == -1)
-            {
-                int stackIndex;
-                if (tt::stringToInt(ppName, stackIndex))
-                {
-                    if (stackIndex < 0)
-                        stackIndex += stack->getStackSize();
-                    if (stackIndex < stack->getStackSize())
-                    {
-                        CInterfaceStackObject* obj = stack->getStackObjectFromIndex(stackIndex);
-                        if (obj != nullptr)
-                        {
-                            info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
-                            retVal = _getPropertyTypeForStackItem(obj, infoTxt);
-                        }
-                    }
-                }
-            }
-        }
-        else
-            retVal = -2; // target does not exist
+            retVal = stack->getPropertyInfo(ppName, info, infoTxt);
     }
     else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
-    {
-        const char* pName = ppName;
-        if (targetObject != nullptr)
-            retVal = targetObject->collections->getPropertyInfo(target, pName, info, infoTxt);
-    }
+        retVal = collections->getPropertyInfo(target, ppName, info, infoTxt);
     else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
-    {
-        const char* pName = ppName;
-        if (targetObject != nullptr)
-            retVal = targetObject->drawingCont->getPropertyInfo(target, pName, info, infoTxt);
-    }
+        retVal = drawingCont->getPropertyInfo(target, ppName, info, infoTxt);
     else
         retVal = -2; // target does not exist
     return retVal;

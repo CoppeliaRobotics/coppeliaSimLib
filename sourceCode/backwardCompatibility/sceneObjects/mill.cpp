@@ -8,6 +8,18 @@
 #include <millRendering.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "superclass": "sceneObject",
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    }
+}
+)";
+
 CMill::CMill(int theType)
 {
     commonInit();
@@ -23,11 +35,6 @@ CMill::CMill()
 CMill::~CMill()
 {
     delete convexVolume;
-}
-
-std::string CMill::getObjectTypeInfo() const
-{
-    return "mill";
 }
 
 std::string CMill::getObjectTypeInfoExtended() const
@@ -60,6 +67,8 @@ bool CMill::isPotentiallyRenderable() const
 
 void CMill::commonInit()
 {
+    _objectTypeStr = "mill";
+    _objectMetaInfo = OBJECT_META_INFO;
     convexVolume = new CConvexVolume();
     _explicitHandling = false;
     _objectType = sim_sceneobject_mill;
@@ -79,8 +88,8 @@ void CMill::commonInit()
     activeVolumeColor.setDefaultValues();
     activeVolumeColor.setColor(1.0f, 0.1f, 0.1f, sim_colorcomponent_ambient_diffuse);
     _visibilityLayer = MILL_LAYER;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
@@ -110,13 +119,14 @@ void CMill::removeSceneDependencies()
     _millableObject = -1;
 }
 
-void CMill::addSpecializedObjectEventData(CCbor* ev)
+void CMill::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->closeArrayOrMap(); // mill
     }
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CMill::copyYourself()

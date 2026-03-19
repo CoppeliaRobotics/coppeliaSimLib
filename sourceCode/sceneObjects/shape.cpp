@@ -285,11 +285,6 @@ void CShape::clearLastParentForLocalGlobalRespondable()
     _lastParentForLocalGlobalRespondable = nullptr;
 }
 
-std::string CShape::getObjectTypeInfo() const
-{
-    return ("shape");
-}
-
 std::string CShape::getObjectTypeInfoExtended() const
 {
     if (getMesh()->isMesh())
@@ -347,6 +342,8 @@ void CShape::computeBoundingBox()
 
 void CShape::commonInit()
 {
+    _objectTypeStr = "shape";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_shape;
     _containsTransparentComponents = false;
     _startInDynamicSleeping = false;
@@ -363,8 +360,8 @@ void CShape::commonInit()
     _visibilityLayer = SHAPE_LAYER;
     _localObjectSpecialProperty = sim_objectspecialproperty_collidable | sim_objectspecialproperty_measurable |
                                   sim_objectspecialproperty_detectable | sim_objectspecialproperty_renderable;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _dynamicLinearVelocity.clear();
@@ -1539,10 +1536,10 @@ void CShape::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CShape::addSpecializedObjectEventData(CCbor* ev)
+void CShape::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
     _dynMaterial->setBoolProperty(nullptr, false, ev);
     _dynMaterial->setIntProperty(nullptr, 0, ev);
     _dynMaterial->setFloatProperty(nullptr, 0.0, ev);
@@ -1654,7 +1651,7 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
         std::vector<long long int> mmid;
         mmid.resize(all.size());
         for (size_t i = 0; i < all.size(); i++)
-            mmid[i] = all[i]->getUniqueID();
+            mmid[i] = all[i]->getObjectHandle();
         ev->appendKeyHandleArray(propShape_meshes.name, mmid.data(), mmid.size());
     }
 
@@ -1681,10 +1678,11 @@ void CShape::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propShape_convex.name, _mesh->isConvex());
     ev->appendKeyBool(propShape_primitive.name, _mesh->isPure());
     ev->appendKeyBool(propShape_compound.name, (_mesh->getComponentCount() > 1));
-    _mesh->addSpecializedObjectEventData(_objectHandle, ev);
+    _mesh->addObjectEventData(_objectHandle, ev);
 
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // shape
+    CSceneObject::addObjectEventData(ev);
 }
 
 void CShape::copyAttributesTo(CShape* target)
@@ -1809,7 +1807,7 @@ void CShape::setIsInScene(bool s)
         for (size_t i = 0; i < all.size(); i++)
         {
             if (s)
-                all[i]->color.setEventParams(false, all[i]->getUniqueID());
+                all[i]->color.setEventParams(false, all[i]->getObjectHandle());
             else
                 all[i]->color.setEventParams(false, -1);
         }
@@ -2019,11 +2017,6 @@ int CShape::getStringProperty(const char* ppName, std::string& pState) const
         retVal = _dynMaterial->getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propShape_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -2224,7 +2217,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
             std::vector<CMesh*> all;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
             for (size_t i = 0; i < all.size(); i++)
-                pState.push_back(all[i]->getUniqueID());
+                pState.push_back(all[i]->getObjectHandle());
             retVal = 1;
         }
     }
@@ -2244,7 +2237,7 @@ int CShape::getHandleArrayProperty(const char* ppName, std::vector<long long int
             std::vector<CMesh*> all;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
             for (size_t i = 0; i < all.size(); i++)
-                pState.push_back(all[i]->getUniqueID());
+                pState.push_back(all[i]->getObjectHandle());
             retVal = 1;
         }
     }
@@ -2257,43 +2250,10 @@ int CShape::getPropertyName(int& index, std::string& pName, std::string& apparte
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "shape";
+        appartenance = _objectTypeStr;
         retVal = _dynMaterial->getPropertyName(index, pName, excludeFlags);
         if (retVal == -1)
-            retVal = _mesh->getPropertyName_wrapper(index, pName, excludeFlags);
-        if (retVal == -1)
-        {
-            for (size_t i = 0; i < allProps_shape.size(); i++)
-            {
-                if ((pName.size() == 0) || utils::startsWith(allProps_shape[i].name, pName.c_str()))
-                {
-                    if ((allProps_shape[i].flags & excludeFlags) == 0)
-                    {
-                        index--;
-                        if (index == -1)
-                        {
-                            pName = allProps_shape[i].name;
-                            //pName = "shape." + pName;
-                            retVal = 1;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CShape::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "shape";
-        retVal = CDynMaterialObject::getPropertyName_static(index, pName, excludeFlags);
-        if (retVal == -1)
-            retVal = CMeshWrapper::getPropertyName_static_wrapper(index, pName, excludeFlags);
+            retVal = _mesh->getPropertyName_wrapper(index, pName, appartenance, excludeFlags);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
@@ -2320,72 +2280,32 @@ int CShape::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CShape::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-    {
         retVal = _dynMaterial->getPropertyInfo(ppName, info, infoTxt);
-        if (retVal == -1)
-            retVal = _mesh->getPropertyInfo_wrapper(ppName, info, infoTxt);
-        if (retVal == -1)
-        {
-            for (size_t i = 0; i < allProps_shape.size(); i++)
-            {
-                if (strcmp(allProps_shape[i].name, ppName) == 0)
-                {
-                    retVal = allProps_shape[i].type;
-                    info = allProps_shape[i].flags;
-                    if (infoTxt == "j")
-                        infoTxt = allProps_shape[i].shortInfoTxt;
-                    else
-                    {
-                        auto w = QJsonDocument::fromJson(allProps_shape[i].shortInfoTxt.c_str()).object();
-                        std::string descr = w["description"].toString().toStdString();
-                        std::string label = w["label"].toString().toStdString();
-                        if ( (infoTxt == "s") || (descr == "") )
-                            infoTxt = label;
-                        else
-                            infoTxt = descr;
-                    }
-                    break;
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CShape::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
+    if (retVal == -1)
+        retVal = _mesh->getPropertyInfo_wrapper(ppName, info, infoTxt);
     if (retVal == -1)
     {
-        retVal = CDynMaterialObject::getPropertyInfo_static(ppName, info, infoTxt);
-        if (retVal == -1)
-            retVal = CMeshWrapper::getPropertyInfo_static_wrapper(ppName, info, infoTxt);
-        if (retVal == -1)
+        for (size_t i = 0; i < allProps_shape.size(); i++)
         {
-            for (size_t i = 0; i < allProps_shape.size(); i++)
+            if (strcmp(allProps_shape[i].name, ppName) == 0)
             {
-                if (strcmp(allProps_shape[i].name, ppName) == 0)
+                retVal = allProps_shape[i].type;
+                info = allProps_shape[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_shape[i].shortInfoTxt;
+                else
                 {
-                    retVal = allProps_shape[i].type;
-                    info = allProps_shape[i].flags;
-                    if (infoTxt == "j")
-                        infoTxt = allProps_shape[i].shortInfoTxt;
+                    auto w = QJsonDocument::fromJson(allProps_shape[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
                     else
-                    {
-                        auto w = QJsonDocument::fromJson(allProps_shape[i].shortInfoTxt.c_str()).object();
-                        std::string descr = w["description"].toString().toStdString();
-                        std::string label = w["label"].toString().toStdString();
-                        if ( (infoTxt == "s") || (descr == "") )
-                            infoTxt = label;
-                        else
-                            infoTxt = descr;
-                    }
-                    break;
+                        infoTxt = descr;
                 }
+                break;
             }
         }
     }

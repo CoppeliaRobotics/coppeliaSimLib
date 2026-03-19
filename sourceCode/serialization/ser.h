@@ -192,6 +192,7 @@ class CSer
     bool xmlGetNode_ints(const char* name, int* vals, size_t cnt, bool required = true);
     bool xmlGetNode_ints(const char* name, std::vector<int>& vals, bool required = true);
     bool xmlGetNode_uint(const char* name, unsigned int& val, bool required = true);
+    bool xmlGetNode_longlong(const char* name, long long& val, bool required = true);
     bool xmlGetNode_ulonglong(const char* name, unsigned long long& val, bool required = true);
     bool xmlGetNode_uchars(const char* name, std::vector<unsigned char>& vals, bool required = true);
     bool xmlGetNode_float(const char* name, float& val, bool required = true);

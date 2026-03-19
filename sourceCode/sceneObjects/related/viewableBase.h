@@ -17,7 +17,7 @@ class CViewableBase : public CSceneObject
     virtual ~CViewableBase();
 
     // Following functions need to be implemented in each class derived from CViewableBase
-    virtual void addSpecializedObjectEventData(CCbor* ev) override;
+    virtual void addObjectEventData(CCbor* ev) override;
     virtual CSceneObject* copyYourself() override;
 #ifdef SIM_WITH_GUI
     virtual void display(CViewableBase* renderingObject, int displayAttrib) override;
@@ -37,7 +37,6 @@ class CViewableBase : public CSceneObject
     virtual void simulationAboutToStart() override;
     virtual void simulationEnded() override;
 
-    virtual std::string getObjectTypeInfo() const override;
     virtual std::string getObjectTypeInfoExtended() const override;
     virtual bool isPotentiallyCollidable() const override;
     virtual bool isPotentiallyMeasurable() const override;
@@ -58,8 +57,8 @@ class CViewableBase : public CSceneObject
     virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     virtual int setIntArrayProperty(const char* pName, const int* v, int vL) override;
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
-    static int getPropertyName_vstatic(int& index, std::string& pName, int excludeFlags);
-    static int getPropertyInfo_vstatic(const char* pName, int& info, std::string& infoTxt);
+    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
     void setClippingPlanes(double nearPlane, double farPlane);
     void getClippingPlanes(double& nearPlane, double& farPlane) const;

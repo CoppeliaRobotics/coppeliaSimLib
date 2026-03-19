@@ -193,7 +193,7 @@ void CQDlgCommonProperties::refresh()
             std::string name(tt::decorateString("[", IDSN_COLLECTION, "] "));
             name += it2->getCollectionName();
             names.push_back(name);
-            ids.push_back(it2->getCollectionHandle());
+            ids.push_back(it2->getObjectHandle());
         }
         tt::orderStrings(names, ids);
         for (int i = 0; i < int(names.size()); i++)

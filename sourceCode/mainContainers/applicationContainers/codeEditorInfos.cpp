@@ -75,7 +75,7 @@ void CCodeEditorInfos::clear()
     _allInfos.clear();
 }
 
-void CCodeEditorInfos::insertWhatStartsSame(const char* txt, std::set<std::string>& v, int what, const CScriptObject* requestOrigin) const
+void CCodeEditorInfos::insertWhatStartsSame(const char* txt, std::set<std::string>& v, int what, const CDetachedScript* requestOrigin) const
 {
     for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
@@ -89,7 +89,7 @@ void CCodeEditorInfos::insertWhatStartsSame(const char* txt, std::set<std::strin
     }
 }
 
-std::string CCodeEditorInfos::getFunctionCalltip(const char* txt, const CScriptObject* requestOrigin) const
+std::string CCodeEditorInfos::getFunctionCalltip(const char* txt, const CDetachedScript* requestOrigin) const
 { // txt: e.g. "sim.getObject", "sim-2.getObject", "sim-*.getObject", "getAsString"
     std::string txtNoVer(txt); // e.g. "sim.getObject", "getAsString"
     bool allVers = false;

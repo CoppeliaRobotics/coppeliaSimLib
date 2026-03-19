@@ -11,7 +11,7 @@ class CMill : public CSceneObject
     virtual ~CMill();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) override;
+    void addObjectEventData(CCbor* ev) override;
     CSceneObject* copyYourself() override;
     void removeSceneDependencies() override;
     void scaleObject(double scalingFactor) override;
@@ -33,7 +33,6 @@ class CMill : public CSceneObject
     void initializeInitialValues(bool simulationAlreadyRunning) override;
     void computeBoundingBox() override;
     bool getMillingVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) const;
-    std::string getObjectTypeInfo() const override;
     std::string getObjectTypeInfoExtended() const override;
     bool isPotentiallyCollidable() const override;
     bool isPotentiallyMeasurable() const override;

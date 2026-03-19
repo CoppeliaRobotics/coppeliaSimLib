@@ -110,10 +110,6 @@ void CViewableBase::performCollisionLoadingMapping(const std::map<int, int>* map
 void CViewableBase::performDistanceLoadingMapping(const std::map<int, int>* map)
 {
 }
-std::string CViewableBase::getObjectTypeInfo() const
-{
-    return ("");
-}
 std::string CViewableBase::getObjectTypeInfoExtended() const
 {
     return ("");
@@ -625,7 +621,7 @@ void CViewableBase::getVolumeVectors(C3Vector& n, C3Vector& f) const
     f = _volumeVectorFar;
 }
 
-void CViewableBase::addSpecializedObjectEventData(CCbor* ev)
+void CViewableBase::addObjectEventData(CCbor* ev)
 {
     ev->appendKeyDouble(propViewableBase_viewAngle.name, _viewAngle);
     ev->appendKeyDouble(propViewableBase_viewSize.name, _orthoViewSize);
@@ -644,6 +640,7 @@ void CViewableBase::addSpecializedObjectEventData(CCbor* ev)
         ev->appendKeyVector3(propViewableBase_frustumCornerFar.name, _volumeVectorFar);
     }
     ev->appendKeyInt32Array(propViewableBase_resolution.name, _resolution, 2);
+    CSceneObject::addObjectEventData(ev);
 }
 
 int CViewableBase::setBoolProperty(const char* pName, bool pState)
@@ -864,21 +861,24 @@ int CViewableBase::getIntArrayProperty(const char* pName, std::vector<int>& pSta
     return retVal;
 }
 
-int CViewableBase::getPropertyName_vstatic(int& index, std::string& pName, int excludeFlags)
+int CViewableBase::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_viewable.size(); i++)
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
+    if (retVal == -1)
     {
-        if ((pName.size() == 0) || utils::startsWith(allProps_viewable[i].name, pName.c_str()))
+        for (size_t i = 0; i < allProps_viewable.size(); i++)
         {
-            if ((allProps_viewable[i].flags & excludeFlags) == 0)
+            if ((pName.size() == 0) || utils::startsWith(allProps_viewable[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_viewable[i].flags & excludeFlags) == 0)
                 {
-                    pName = allProps_viewable[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_viewable[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -886,28 +886,31 @@ int CViewableBase::getPropertyName_vstatic(int& index, std::string& pName, int e
     return retVal;
 }
 
-int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info, std::string& infoTxt)
+int CViewableBase::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_viewable.size(); i++)
+    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
+    if (retVal == -1)
     {
-        if (strcmp(allProps_viewable[i].name, pName) == 0)
+        for (size_t i = 0; i < allProps_viewable.size(); i++)
         {
-            retVal = allProps_viewable[i].type;
-            info = allProps_viewable[i].flags;
-            if (infoTxt == "j")
-                infoTxt = allProps_viewable[i].shortInfoTxt;
-            else
+            if (strcmp(allProps_viewable[i].name, pName) == 0)
             {
-                auto w = QJsonDocument::fromJson(allProps_viewable[i].shortInfoTxt.c_str()).object();
-                std::string descr = w["description"].toString().toStdString();
-                std::string label = w["label"].toString().toStdString();
-                if ( (infoTxt == "s") || (descr == "") )
-                    infoTxt = label;
+                retVal = allProps_viewable[i].type;
+                info = allProps_viewable[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_viewable[i].shortInfoTxt;
                 else
-                    infoTxt = descr;
+                {
+                    auto w = QJsonDocument::fromJson(allProps_viewable[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
             }
-            break;
         }
     }
     return retVal;

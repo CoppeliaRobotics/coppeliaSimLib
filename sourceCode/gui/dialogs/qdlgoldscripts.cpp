@@ -59,7 +59,7 @@ void CQDlgOldScripts::refresh()
 
     ui->qqExecutionOrder->clear();
 
-    CScriptObject* theScript = App::worldContainer->getScriptObjectFromHandle(getSelectedObjectID());
+    CDetachedScript* theScript = App::worldContainer->getDetachedScriptFromHandle(getSelectedObjectID());
     CSceneObject* associatedObject = nullptr;
     if (theScript != nullptr)
         associatedObject = App::currentWorld->sceneObjects->getObjectFromHandle(
@@ -100,7 +100,7 @@ void CQDlgOldScripts::updateObjectsInList()
 
     if (scriptViewMode == 0)
     { // Main and simulation scripts
-        CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
         {
             std::string tmp = it->getDescriptiveName();
@@ -132,7 +132,7 @@ void CQDlgOldScripts::updateObjectsInList()
     { // Customization scripts
         for (int i = 0; i < int(App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts.size()); i++)
         {
-            CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i];
+            CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i];
             int t = it->getScriptType();
             if (t == sim_scripttype_customization)
             {
@@ -205,7 +205,7 @@ void CQDlgOldScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem* item)
     {
         if ((item != nullptr) && App::currentWorld->simulation->isSimulationStopped())
         {
-            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(item->data(Qt::UserRole).toInt());
+            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(item->data(Qt::UserRole).toInt());
             if (it != nullptr)
             {
                 // Process the command via the simulation thread (delayed):

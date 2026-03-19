@@ -31,7 +31,7 @@ class CCamera : public CViewableBase
     virtual ~CCamera();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) override;
+    void addObjectEventData(CCbor* ev) override;
     CSceneObject* copyYourself() override;
     void removeSceneDependencies() override;
     void scaleObject(double scalingFactor) override;
@@ -74,11 +74,8 @@ class CCamera : public CViewableBase
     int setIntArrayProperty(const char* pName, const int* v, int vL) override;
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
-    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
-    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
-    std::string getObjectTypeInfo() const override;
     std::string getObjectTypeInfoExtended() const override;
     bool isPotentiallyCollidable() const override;
     bool isPotentiallyMeasurable() const override;

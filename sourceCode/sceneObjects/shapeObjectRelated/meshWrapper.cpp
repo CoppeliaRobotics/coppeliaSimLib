@@ -1258,7 +1258,7 @@ std::string CMeshWrapper::getInertiaErrorString(const C3X3Matrix& matrix)
     return (retVal);
 }
 
-void CMeshWrapper::addSpecializedObjectEventData(int parentObjectHandle, CCbor* ev)
+void CMeshWrapper::addObjectEventData(int parentObjectHandle, CCbor* ev)
 {
     _parentObjectHandle = parentObjectHandle;
 
@@ -1399,13 +1399,13 @@ int CMeshWrapper::getFloatArrayProperty_wrapper(const char* pName, std::vector<d
     return retVal;
 }
 
-int CMeshWrapper::getPropertyName_wrapper(int& index, std::string& pName, int excludeFlags) const
+int CMeshWrapper::getPropertyName_wrapper(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = getPropertyName_static_wrapper(index, pName, excludeFlags);
+    int retVal = getPropertyName_static_wrapper(index, pName, appartenance, excludeFlags);
     return retVal;
 }
 
-int CMeshWrapper::getPropertyName_static_wrapper(int& index, std::string& pName, int excludeFlags)
+int CMeshWrapper::getPropertyName_static_wrapper(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_meshWrap.size(); i++)

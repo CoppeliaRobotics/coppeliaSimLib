@@ -286,11 +286,6 @@ int CSceneObject::getObjectType() const
     return (_objectType);
 }
 
-int CSceneObject::getObjectHandle() const
-{
-    return (_objectHandle);
-}
-
 long long int CSceneObject::getObjectUid() const
 {
     return (_objectUid);
@@ -801,10 +796,6 @@ int CSceneObject::_getAllowedObjectSpecialProperties() const
     return (retVal);
 }
 
-std::string CSceneObject::getObjectTypeInfo() const
-{
-    return ("");
-}
 std::string CSceneObject::getObjectTypeInfoExtended() const
 {
     return ("");
@@ -1452,46 +1443,8 @@ void CSceneObject::removeSceneDependencies()
     _customReferencedOriginalHandles.clear();
 }
 
-void CSceneObject::addSpecializedObjectEventData(CCbor* ev)
+void CSceneObject::addObjectEventData(CCbor* ev)
 {
-}
-
-void CSceneObject::pushObjectCreationEvent()
-{
-    if (_isInScene && App::worldContainer->getEventsEnabled())
-    {
-        CCbor* ev = App::worldContainer->createSceneObjectAddEvent(this);
-        addSpecializedObjectEventData(ev);
-        CSceneObject::_addCommonObjectEventData(ev);
-        App::worldContainer->pushEvent();
-
-        if (_objectType == sim_sceneobject_shape)
-        {
-            std::vector<CMesh*> all;
-            std::vector<C7Vector> allTr;
-            ((CShape*)this)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
-            for (size_t i = 0; i < all.size(); i++)
-                all[i]->pushObjectCreationEvent(_objectHandle, _objectUid, allTr[i]);
-        }
-        if (_objectType == sim_sceneobject_script)
-            ((CScript*)this)->scriptObject->pushObjectCreationEvent();
-    }
-}
-
-void CSceneObject::pushObjectRefreshEvent()
-{
-    if (_isInScene && App::worldContainer->getEventsEnabled())
-    {
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
-        addSpecializedObjectEventData(ev);
-        CSceneObject::_addCommonObjectEventData(ev);
-        App::worldContainer->pushEvent();
-    }
-}
-
-void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
-{
-    ev->appendKeyText(propSceneObject_objectType.name, getObjectTypeInfo().c_str());
     ev->appendKeyInt64(propSceneObject_layer.name, _visibilityLayer);
     ev->appendKeyInt64(propSceneObject_childOrder.name, _childOrder);
     std::vector<int> ch;
@@ -1679,6 +1632,39 @@ void CSceneObject::_addCommonObjectEventData(CCbor* ev) const
 
     ev->appendKeyDoubleArray(propSceneObject_movementStepSize.name, _objectMovementStepSize, 2);
     ev->appendKeyInt32Array(propSceneObject_movementRelativity.name, _objectMovementRelativity, 2);
+
+    Obj::addObjectEventData(ev);
+}
+
+void CSceneObject::pushObjectCreationEvent()
+{
+    if (_isInScene && App::worldContainer->getEventsEnabled())
+    {
+        CCbor* ev = App::worldContainer->createSceneObjectAddEvent(this);
+        addObjectEventData(ev);
+        App::worldContainer->pushEvent();
+
+        if (_objectType == sim_sceneobject_shape)
+        {
+            std::vector<CMesh*> all;
+            std::vector<C7Vector> allTr;
+            ((CShape*)this)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
+            for (size_t i = 0; i < all.size(); i++)
+                all[i]->pushObjectCreationEvent(_objectHandle, _objectUid, allTr[i]);
+        }
+        if (_objectType == sim_sceneobject_script)
+            ((CScript*)this)->detachedScript->pushObjectCreationEvent();
+    }
+}
+
+void CSceneObject::pushObjectRefreshEvent()
+{
+    if (_isInScene && App::worldContainer->getEventsEnabled())
+    {
+        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+        addObjectEventData(ev);
+        App::worldContainer->pushEvent();
+    }
 }
 
 CSceneObject* CSceneObject::copyYourself()
@@ -2350,13 +2336,13 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
     {
         if (scriptType == sim_scripttype_customization)
         {
-            CScriptObject* it = nullptr;
+            CDetachedScript* it = nullptr;
             if (legacyEmbeddedScripts)
                 it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);
             else
             {
-                if ((_objectType == sim_sceneobject_script) && (((CScript*)this)->scriptObject != nullptr) && (((CScript*)this)->scriptObject->getScriptType() == sim_scripttype_customization))
-                    it = ((CScript*)this)->scriptObject;
+                if ((_objectType == sim_sceneobject_script) && (((CScript*)this)->detachedScript != nullptr) && (((CScript*)this)->detachedScript->getScriptType() == sim_scripttype_customization))
+                    it = ((CScript*)this)->detachedScript;
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
@@ -2370,13 +2356,13 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
 
         if (((scriptType & 0x0f) == sim_scripttype_simulation) && (!App::currentWorld->simulation->isSimulationStopped()))
         {
-            CScriptObject* it = nullptr;
+            CDetachedScript* it = nullptr;
             if (legacyEmbeddedScripts)
                 it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
             else
             {
-                if ((_objectType == sim_sceneobject_script) && (((CScript*)this)->scriptObject != nullptr) && (((CScript*)this)->scriptObject->getScriptType() == sim_scripttype_simulation))
-                    it = ((CScript*)this)->scriptObject;
+                if ((_objectType == sim_sceneobject_script) && (((CScript*)this)->detachedScript != nullptr) && (((CScript*)this)->detachedScript->getScriptType() == sim_scripttype_simulation))
+                    it = ((CScript*)this)->detachedScript;
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
@@ -2411,7 +2397,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
     return maxDepth;
 }
 
-size_t CSceneObject::getAttachedScripts(std::vector<CScriptObject*>& scripts, int scriptType, bool legacyEmbeddedScripts)
+size_t CSceneObject::getAttachedScripts(std::vector<CDetachedScript*>& scripts, int scriptType, bool legacyEmbeddedScripts)
 { // will append to "scripts"!
     if (scriptType == -1)
     {
@@ -2424,7 +2410,7 @@ size_t CSceneObject::getAttachedScripts(std::vector<CScriptObject*>& scripts, in
         {
             if (legacyEmbeddedScripts)
             {
-                CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
+                CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
                 if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
@@ -2435,23 +2421,23 @@ size_t CSceneObject::getAttachedScripts(std::vector<CScriptObject*>& scripts, in
             }
             else
             { // all scripts attached to this object:
-                std::vector<CScriptObject*> childrenNormalPriority;
-                std::vector<CScriptObject*> childrenLastPriority;
+                std::vector<CDetachedScript*> childrenNormalPriority;
+                std::vector<CDetachedScript*> childrenLastPriority;
                 for (size_t i = 0; i < getChildCount(); i++)
                 {
                     CSceneObject* c = getChildFromIndex(i);
                     if (c->getObjectType() == sim_sceneobject_script)
                     {
                         CScript* it = (CScript*)c;
-                        if ((it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()))
+                        if ((it->detachedScript != nullptr) && (it->detachedScript->getScriptType() == scriptType) && (!it->detachedScript->getScriptIsDisabled()))
                         {
                             int p = it->getScriptExecPriority();
                             if (p == sim_scriptexecorder_first)
-                                scripts.push_back(it->scriptObject);
+                                scripts.push_back(it->detachedScript);
                             if (p == sim_scriptexecorder_normal)
-                                childrenNormalPriority.push_back(it->scriptObject);
+                                childrenNormalPriority.push_back(it->detachedScript);
                             if (p == sim_scriptexecorder_last)
-                                childrenLastPriority.push_back(it->scriptObject);
+                                childrenLastPriority.push_back(it->detachedScript);
                         }
                     }
                 }
@@ -2478,7 +2464,7 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
         {
             if (legacyEmbeddedScripts)
             {
-                CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
+                CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
                 if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
@@ -2497,7 +2483,7 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
                     if (c->getObjectType() == sim_sceneobject_script)
                     {
                         CScript* it = (CScript*)c;
-                        if ((it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()))
+                        if ((it->detachedScript != nullptr) && (it->detachedScript->getScriptType() == scriptType) && (!it->detachedScript->getScriptIsDisabled()))
                         {
                             int p = it->getScriptExecPriority();
                             if (p == sim_scriptexecorder_first)
@@ -2522,8 +2508,8 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
                     if (_objectType == sim_sceneobject_script)
                     {
                         CScript* it = (CScript*)this;
-                        if ((it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()))
-                            scripts.push_back(it->scriptObject->getScriptHandle());
+                        if ((it->detachedScript != nullptr) && (it->detachedScript->getScriptType() == scriptType) && (!it->detachedScript->getScriptIsDisabled()))
+                            scripts.push_back(it->detachedScript->getScriptHandle());
                     }
                 }
             }
@@ -2619,7 +2605,7 @@ void CSceneObject::serialize(CSer& ar)
             int parentID = -1;
             if (getParent() != nullptr)
                 parentID = getParent()->getObjectHandle();
-            ar << _objectHandle << parentID;
+            ar << int(_objectHandle) << parentID;
             ar.flush();
 
             ar.storeDataName("Ali"); // keep this before "Nme"
@@ -2989,7 +2975,9 @@ void CSceneObject::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _objectHandle >> _parentObjectHandle_forSerializationOnly;
+                        int h;
+                        ar >> h >> _parentObjectHandle_forSerializationOnly;
+                        _objectHandle = h;
                     }
                     if (theName.compare("Ali") == 0)
                     {
@@ -3723,7 +3711,7 @@ void CSceneObject::serialize(CSer& ar)
 
                 if (exhaustiveXml)
                 {
-                    ar.xmlGetNode_int("handle", _objectHandle);
+                    ar.xmlGetNode_longlong("handle", _objectHandle);
                     ar.xmlGetNode_int("parentHandle", _parentObjectHandle_forSerializationOnly);
                 }
 
@@ -5416,7 +5404,7 @@ bool CSceneObject::canDestroyNow()
 
     if ((App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr))
     { // For old scripts
-        CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
+        CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
         if ((it != nullptr) && (it->getExecutionDepth() != 0))
             retVal = false;
         it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);
@@ -6213,27 +6201,22 @@ int CSceneObject::setLongProperty(const char* ppName, long long int pState)
 
 int CSceneObject::getLongProperty(const char* ppName, long long int& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = -1;
-
-    if (strcmp(ppName, propSceneObject_handle.name) == 0)
+    int retVal = Obj::getLongProperty(ppName, pState);
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = _objectHandle;
+        if (strcmp(ppName, propSceneObject_parentUid.name) == 0)
+        {
+            retVal = 1;
+            pState = -1;
+            if (_parentObject != nullptr)
+                pState = _parentObject->getObjectUid();
+        }
+        else if (strcmp(ppName, propSceneObject_objectUid.name) == 0)
+        {
+            retVal = 1;
+            pState = _objectUid;
+        }
     }
-    else if (strcmp(ppName, propSceneObject_parentUid.name) == 0)
-    {
-        retVal = 1;
-        pState = -1;
-        if (_parentObject != nullptr)
-            pState = _parentObject->getObjectUid();
-    }
-    else if (strcmp(ppName, propSceneObject_objectUid.name) == 0)
-    {
-        retVal = 1;
-        pState = _objectUid;
-    }
-
     return retVal;
 }
 
@@ -6320,44 +6303,40 @@ int CSceneObject::setStringProperty(const char* ppName, const char* pState)
 
 int CSceneObject::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = -1;
-
-    if ((_pName == propSceneObject_alias.name) || (_pName == propSceneObject_name.name))
+    int retVal = Obj::getStringProperty(ppName, pState);
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = _objectAlias;
+        std::string _pName(ppName);
+        if ((_pName == propSceneObject_alias.name) || (_pName == propSceneObject_name.name))
+        {
+            retVal = 1;
+            pState = _objectAlias;
+        }
+        else if (_pName == propSceneObject_deprecatedName.name)
+        {
+            retVal = 1;
+            pState = getObjectName_old();
+        }
+        else if (_pName == propSceneObject_modelAcknowledgment.name)
+        {
+            retVal = 1;
+            pState = _modelAcknowledgement;
+        }
+        else if (_pName == propSceneObject_persistentUid.name)
+        {
+            retVal = 1;
+            pState = _uniquePersistentIdString;
+        }
+        else if (_pName == propSceneObject_modelHash.name)
+        {
+            retVal = 1;
+            pState = App::currentWorld->sceneObjects->getModelState(_objectHandle);
+            size_t hv = std::hash<std::string>{}(pState);
+            std::stringstream ss;
+            ss << std::hex << hv;
+            pState = ss.str();
+        }
     }
-    else if (_pName == propSceneObject_deprecatedName.name)
-    {
-        retVal = 1;
-        pState = getObjectName_old();
-    }
-    else if (_pName == propSceneObject_objectType.name)
-    {
-        retVal = 1;
-        pState = getObjectTypeInfo();
-    }
-    else if (_pName == propSceneObject_modelAcknowledgment.name)
-    {
-        retVal = 1;
-        pState = _modelAcknowledgement;
-    }
-    else if (_pName == propSceneObject_persistentUid.name)
-    {
-        retVal = 1;
-        pState = _uniquePersistentIdString;
-    }
-    else if (_pName == propSceneObject_modelHash.name)
-    {
-        retVal = 1;
-        pState = App::currentWorld->sceneObjects->getModelState(_objectHandle);
-        size_t hv = std::hash<std::string>{}(pState);
-        std::stringstream ss;
-        ss << std::hex << hv;
-        pState = ss.str();
-    }
-
     return retVal;
 }
 
@@ -6896,16 +6875,36 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
 {
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
-        retVal = getPropertyName_localBstatic(index, pName, appartenance, excludeFlags);
+    {
+        for (size_t i = 0; i < allProps_sceneObject.size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(allProps_sceneObject[i].name, pName.c_str()))
+            {
+                if ((allProps_sceneObject[i].flags & excludeFlags) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        appartenance = "sceneObject";
+                        pName = allProps_sceneObject[i].name;
+                        retVal = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
     if (retVal == -1)
     {
         if (customObjectData.getPropertyName(index, pName, excludeFlags))
         {
+            appartenance = "sceneObject";
             pName = CUSTOMDATAPREFIX + pName;
             retVal = 1;
         }
         else if (customObjectData_volatile.getPropertyName(index, pName, excludeFlags))
         {
+            appartenance = "sceneObject";
             pName = SIGNALPREFIX + pName;
             retVal = 1;
         }
@@ -6927,6 +6926,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
                         index--;
                         if (index == -1)
                         {
+                            appartenance = "sceneObject";
                             pName = decoratedTag;
                             retVal = 1;
                             break;
@@ -6952,6 +6952,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
                             index--;
                             if (index == -1)
                             {
+                                appartenance = "sceneObject";
                                 pName = decoratedTag;
                                 retVal = 1;
                                 break;
@@ -6965,135 +6966,89 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
     return retVal;
 }
 
-int CSceneObject::getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-        retVal = getPropertyName_localBstatic(index, pName, appartenance, excludeFlags);
-    return retVal;
-}
-
-int CSceneObject::getPropertyName_localBstatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
-    {
-        if ((pName.size() == 0) || utils::startsWith(allProps_sceneObject[i].name, pName.c_str()))
-        {
-            if ((allProps_sceneObject[i].flags & excludeFlags) == 0)
-            {
-                index--;
-                if (index == -1)
-                {
-                    pName = allProps_sceneObject[i].name;
-                    retVal = 1;
-                    break;
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
 int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
-        std::string _pName(ppName);
-        retVal = getPropertyInfo_localBstatic(ppName, info, infoTxt);
-        if (retVal == -1)
+        for (size_t i = 0; i < allProps_sceneObject.size(); i++)
         {
-            std::string pN(ppName);
-            bool signal = false;
-            const CCustomData* customDataPtr = nullptr;
-            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
-                customDataPtr = &customObjectData;
-            else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            if (strcmp(allProps_sceneObject[i].name, ppName) == 0)
             {
-                signal = true;
-                customDataPtr = &customObjectData_volatile;
-            }
-            if (customDataPtr != nullptr)
-            {
-                if (pN.size() > 0)
+                retVal = allProps_sceneObject[i].type;
+                info = allProps_sceneObject[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_sceneObject[i].shortInfoTxt;
+                else
                 {
-                    int s;
-                    retVal = customDataPtr->hasData(pN.c_str(), true, &s);
-                    if (retVal >= 0)
-                    {
-                        if (signal)
-                            info = SIGNALFLAGS;
-                        else
-                            info = CUSTOMDATAFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
-                        infoTxt = "";
-                    }
+                    auto w = QJsonDocument::fromJson(allProps_sceneObject[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
                 }
-            }
-            else
-            {
-                if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
-                {
-                    size_t s = getReferencedHandlesCount(pN.c_str());
-                    if (s > 0)
-                    {
-                        retVal = sim_propertytype_handlearray;
-                        info = REFSFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
-                        infoTxt = "";
-                    }
-                }
-                else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
-                {
-                    size_t s = getReferencedOriginalHandlesCount(pN.c_str());
-                    if (s > 0)
-                    {
-                        retVal = sim_propertytype_handlearray;
-                        info = ORIGREFSFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
-                        infoTxt = "";
-                    }
-                }
+                break;
             }
         }
     }
-    return retVal;
-}
-
-int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info, std::string& infoTxt)
-{
-    int retVal = Obj::getPropertyInfo_static(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = getPropertyInfo_localBstatic(pName, info, infoTxt);
-    return retVal;
-}
-
-int CSceneObject::getPropertyInfo_localBstatic(const char* pName, int& info, std::string& infoTxt)
-{
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
     {
-        if (strcmp(allProps_sceneObject[i].name, pName) == 0)
+        std::string pN(ppName);
+        bool signal = false;
+        const CCustomData* customDataPtr = nullptr;
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+            customDataPtr = &customObjectData;
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
         {
-            retVal = allProps_sceneObject[i].type;
-            info = allProps_sceneObject[i].flags;
-            if (infoTxt == "j")
-                infoTxt = allProps_sceneObject[i].shortInfoTxt;
-            else
+            signal = true;
+            customDataPtr = &customObjectData_volatile;
+        }
+        if (customDataPtr != nullptr)
+        {
+            if (pN.size() > 0)
             {
-                auto w = QJsonDocument::fromJson(allProps_sceneObject[i].shortInfoTxt.c_str()).object();
-                std::string descr = w["description"].toString().toStdString();
-                std::string label = w["label"].toString().toStdString();
-                if ( (infoTxt == "s") || (descr == "") )
-                    infoTxt = label;
-                else
-                    infoTxt = descr;
+                int s;
+                retVal = customDataPtr->hasData(pN.c_str(), true, &s);
+                if (retVal >= 0)
+                {
+                    if (signal)
+                        info = SIGNALFLAGS;
+                    else
+                        info = CUSTOMDATAFLAGS;
+                    if (s > LARGE_PROPERTY_SIZE)
+                        info = info | sim_propertyinfo_largedata;
+                    infoTxt = "";
+                }
             }
-            break;
+        }
+        else
+        {
+            if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+            {
+                size_t s = getReferencedHandlesCount(pN.c_str());
+                if (s > 0)
+                {
+                    retVal = sim_propertytype_handlearray;
+                    info = REFSFLAGS;
+                    if (s > LARGE_PROPERTY_SIZE)
+                        info = info | sim_propertyinfo_largedata;
+                    infoTxt = "";
+                }
+            }
+            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+            {
+                size_t s = getReferencedOriginalHandlesCount(pN.c_str());
+                if (s > 0)
+                {
+                    retVal = sim_propertytype_handlearray;
+                    info = ORIGREFSFLAGS;
+                    if (s > LARGE_PROPERTY_SIZE)
+                        info = info | sim_propertyinfo_largedata;
+                    infoTxt = "";
+                }
+            }
         }
     }
     return retVal;

@@ -26,7 +26,7 @@ std::string CCodeEditorContainer::getColorStr(const int rgbCol[3])
 }
 
 void CCodeEditorContainer::getKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                                       const CScriptObject* requestOrigin)
+                                       const CDetachedScript* requestOrigin)
 {
     tinyxml2::XMLElement* keywords1Node = doc->NewElement("keywords1");
     parentNode->InsertEndChild(keywords1Node);
@@ -37,13 +37,13 @@ void CCodeEditorContainer::getKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XML
 }
 
 void CCodeEditorContainer::getFuncKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                                           const CScriptObject* requestOrigin)
+                                           const CDetachedScript* requestOrigin)
 {
     std::set<std::string> t;
-    CScriptObject::getMatchingFunctions("", t, requestOrigin); // basically all functions
+    CDetachedScript::getMatchingFunctions("", t, requestOrigin); // basically all functions
     for (const auto& str : t)
     {
-        std::string tip(CScriptObject::getFunctionCalltip(str.c_str(), requestOrigin));
+        std::string tip(CDetachedScript::getFunctionCalltip(str.c_str(), requestOrigin));
         tinyxml2::XMLElement* itemNode = doc->NewElement("item");
         parentNode->InsertEndChild(itemNode);
         itemNode->SetAttribute("word", str.c_str());
@@ -53,10 +53,10 @@ void CCodeEditorContainer::getFuncKeywords(tinyxml2::XMLDocument* doc, tinyxml2:
 }
 
 void CCodeEditorContainer::getVarKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                                          const CScriptObject* requestOrigin)
+                                          const CDetachedScript* requestOrigin)
 {
     std::set<std::string> t;
-    CScriptObject::getMatchingConstants("", t, requestOrigin); // basically all constants
+    CDetachedScript::getMatchingConstants("", t, requestOrigin); // basically all constants
     for (const auto& str : t)
     {
         tinyxml2::XMLElement* itemNode = doc->NewElement("item");
@@ -67,7 +67,7 @@ void CCodeEditorContainer::getVarKeywords(tinyxml2::XMLDocument* doc, tinyxml2::
 }
 
 std::string CCodeEditorContainer::translateXml(const char* oldXml, const char* callback,
-                                               const CScriptObject* requestOrigin)
+                                               const CDetachedScript* requestOrigin)
 {
     tinyxml2::XMLDocument xmlNewDoc;
     tinyxml2::XMLElement* editorNode = xmlNewDoc.NewElement("editor");
@@ -283,7 +283,7 @@ void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle, lon
 int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 {
     int retVal = -1;
-    CScriptObject* it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(scriptHandle);
+    CDetachedScript* it = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(scriptHandle);
     if (it != nullptr)
     {
         if (!App::currentWorld->environment->getSceneLocked())
@@ -305,7 +305,7 @@ int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 
 int CCodeEditorContainer::open(const char* initText, const char* xml, int callingScriptHandle)
 {
-    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(callingScriptHandle);
+    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(callingScriptHandle);
     int retVal = -1;
     if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
@@ -345,7 +345,7 @@ int CCodeEditorContainer::open(const char* initText, const char* xml, int callin
 int CCodeEditorContainer::openSimulationScript(int scriptHandle)
 {
     int retVal = -1;
-    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
     if (it != nullptr)
     {
         if (!App::currentWorld->environment->getSceneLocked())
@@ -471,7 +471,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle)
             if ((_allEditors[i].scriptHandle == scriptHandle) && (_allEditors[i].sceneUniqueId == sceneId))
                 return (_allEditors[i].handle);
         }
-        CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
         if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
         {
             if (it != nullptr)
@@ -648,7 +648,7 @@ int CCodeEditorContainer::openConsole(const char* title, int maxLines, int mode,
         inf.scriptHandle = -1;
         inf.scriptUid = -1;
         inf.callingScriptHandle = callingScriptHandle;
-        CScriptObject* so = App::worldContainer->getScriptObjectFromHandle(callingScriptHandle);
+        CDetachedScript* so = App::worldContainer->getDetachedScriptFromHandle(callingScriptHandle);
         if (so != nullptr)
             inf.callingScriptUid = so->getScriptUid();
         else
@@ -700,7 +700,7 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText, cons
 }
 
 int CCodeEditorContainer::openTextEditor_old(const char* initText, const char* xml, const char* callback,
-                                             const CScriptObject* requestOrigin)
+                                             const CDetachedScript* requestOrigin)
 {
     int retVal = -1;
     if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
@@ -739,7 +739,7 @@ bool CCodeEditorContainer::close(int handle, int posAndSize[4], std::string* txt
             if (callback != nullptr)
                 callback[0] = _allEditors[i].callbackFunction;
             std::string _txt;
-            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
             if (App::worldContainer->pluginContainer->codeEditor_getText(handle, _txt, nullptr))
             {
                 if (txt != nullptr)
@@ -749,7 +749,7 @@ bool CCodeEditorContainer::close(int handle, int posAndSize[4], std::string* txt
                     applyChanges(_allEditors[i].handle);
                     if (_allEditors[i].restartScriptWhenClosing)
                     {
-                        CScriptObject* itt = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+                        CDetachedScript* itt = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
                         if ((itt != nullptr) && itt->resetScript())
                         {
                             std::string msg(itt->getDescriptiveName());
@@ -793,8 +793,8 @@ void CCodeEditorContainer::applyChanges(int handle) const
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_script); i++)
         {
             CScript* it = App::currentWorld->sceneObjects->getScriptFromIndex(i);
-            if (it->scriptObject != nullptr)
-                it->scriptObject->fromFileToBuffer();
+            if (it->detachedScript != nullptr)
+                it->detachedScript->fromFileToBuffer();
         }
     }
     int sceneId = App::currentWorld->environment->getSceneUniqueID();
@@ -805,7 +805,7 @@ void CCodeEditorContainer::applyChanges(int handle) const
             if ((_allEditors[i].handle == handle) || (handle == -1))
             {
                 std::string _txt;
-                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+                CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
                 if (it != nullptr)
                 {
                     if (App::worldContainer->pluginContainer->codeEditor_getText(_allEditors[i].handle, _txt, nullptr))
@@ -825,7 +825,7 @@ bool CCodeEditorContainer::closeFromScriptUid(long long int scriptUid, int posAn
             if (_allEditors[i].scriptUid == scriptUid)
             {
                 std::string txt;
-                CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+                CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
                 if (!ignoreChange)
                     applyChanges(_allEditors[i].handle);
                 int pas[4];
@@ -864,7 +864,7 @@ void CCodeEditorContainer::restartScript(int handle) const
         if (_allEditors[i].handle == handle)
         {
             std::string txt;
-            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
             if (App::worldContainer->pluginContainer->codeEditor_getText(handle, txt, nullptr))
             {
                 if (it != nullptr)
@@ -942,7 +942,7 @@ bool CCodeEditorContainer::hasSomethingBeenModifiedInCurrentScene() const
     {
         if (_allEditors[i].sceneUniqueId == sceneId)
         {
-            CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
             std::string txt;
             if ((it != nullptr) &&
                 App::worldContainer->pluginContainer->codeEditor_getText(_allEditors[i].handle, txt, nullptr))
@@ -990,7 +990,7 @@ void CCodeEditorContainer::simulationAboutToStart() const
         {
             if ((_allEditors[i].sceneUniqueId == sceneId) && (_allEditors[i].scriptHandle >= 0))
             {
-                CScriptObject* it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+                CDetachedScript* it = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
                 if ((it != nullptr) && ((it->getScriptType() == sim_scripttype_main) ||
                                         (it->getScriptType() == sim_scripttype_simulation)))
                     applyChanges(_allEditors[i].handle);

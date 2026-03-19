@@ -457,7 +457,7 @@ HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.h \
 
-HEADERS += $$PWD/sourceCode/scripting/scriptObject.h \
+HEADERS += $$PWD/sourceCode/scripting/detachedScript.h \
     $$PWD/sourceCode/scripting/outsideCommandQueueForScript.h \
     $$PWD/sourceCode/scripting/luaWrapper.h \
 
@@ -851,7 +851,7 @@ SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.cpp 
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp \
 
-SOURCES += $$PWD/sourceCode/scripting/scriptObject.cpp \
+SOURCES += $$PWD/sourceCode/scripting/detachedScript.cpp \
     $$PWD/sourceCode/scripting/outsideCommandQueueForScript.cpp \
     $$PWD/sourceCode/scripting/luaWrapper.cpp \
 

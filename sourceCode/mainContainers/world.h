@@ -67,7 +67,7 @@ class CWorld : public Obj
                                                     std::vector<CIkGroup_old*>* loadedIkGroupList,
                                                     std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                                     std::vector<CButtonBlock*>* loadedButtonBlockList,
-                                                    std::vector<CScriptObject*>* loadedLuaScriptList,
+                                                    std::vector<CDetachedScript*>* loadedLuaScriptList,
                                                     std::vector<CTextureObject*>& loadedTextureObjectList,
                                                     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
                                                     bool model, int fileSimVersion, bool forceModelAsCopy);
@@ -78,9 +78,9 @@ class CWorld : public Obj
     void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
-    CScriptObject* getScriptObjectFromHandle(int scriptHandle) const;
-    CScriptObject* getScriptObjectFromUid(int uid) const;
-    void getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
+    CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
+    CDetachedScript* getDetachedScriptFromUid(int uid) const;
+    void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
     void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
 
     void pushGenesisEvents();
@@ -120,8 +120,8 @@ class CWorld : public Obj
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
     int removeProperty(long long int target, const char* pName);
-    static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject, int excludeFlags);
-    static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CWorld* targetObject);
+    int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
+    int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
@@ -182,12 +182,9 @@ class CWorld : public Obj
                                               std::vector<CIkGroup_old*>* loadedIkGroupList,
                                               std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                               std::vector<CButtonBlock*>* loadedButtonBlockList,
-                                              std::vector<CScriptObject*>* loadedLuaScriptList) const;
+                                              std::vector<CDetachedScript*>* loadedLuaScriptList) const;
     bool _canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
     void _setSuffix1ToSuffix2(int suffix1, int suffix2);
-    static bool _getStackLocation_write(const char* ppName, int& ind, std::string& key, CInterfaceStack* stack);
-    static bool _getStackLocation_read(const char* ppName, int& ind, std::string& key, int& arrIndex, CInterfaceStack* stack);
-    static int _getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::string& str, bool firstCall = true);
 
     int _worldHandle;
     int _savedMouseMode;

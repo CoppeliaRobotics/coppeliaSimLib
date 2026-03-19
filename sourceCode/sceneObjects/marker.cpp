@@ -24,12 +24,14 @@ static std::string OBJECT_META_INFO = R"(
 
 CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= nullptr*/, double size[3] /*= nullptr*/, int maxCnt /*= 0*/, int options /*= 0*/, float duplicateTol /*= 0.0f*/, const std::vector<float>* vertices /*= nullptr*/, const std::vector<int>* indices /*= nullptr*/, const std::vector<float>* normals /*= nullptr*/)
 {
+    _objectTypeStr = "marker";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_marker;
     _localObjectSpecialProperty = 0;
 
     _visibilityLayer = MARKER_LAYER;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _itemType = type;
@@ -588,14 +590,9 @@ CMarker::~CMarker()
 {
 }
 
-std::string CMarker::getObjectTypeInfo() const
-{
-    return "marker";
-}
-
 std::string CMarker::getObjectTypeInfoExtended() const
 {
-    return getObjectTypeInfo();
+    return _objectTypeStr;
 }
 
 void CMarker::computeBoundingBox()
@@ -667,7 +664,7 @@ void CMarker::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CMarker::addSpecializedObjectEventData(CCbor* ev)
+void CMarker::addObjectEventData(CCbor* ev)
 {
     ev->appendKeyInt64(propMarker_itemType.name, _itemType);
     ev->appendKeyBool(propMarker_cyclic.name, _itemOptions & sim_markeropts_cyclic);
@@ -680,6 +677,7 @@ void CMarker::addSpecializedObjectEventData(CCbor* ev)
         ev->appendKeyFloatArray(propMarker_normals.name, _normals.data(), _normals.size());
     }
     _updateMarkerEvent(false, ev);
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CMarker::copyYourself()
@@ -1165,11 +1163,6 @@ int CMarker::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propMarker_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -1272,39 +1265,8 @@ int CMarker::getPropertyName(int& index, std::string& pName, std::string& appart
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
-        appartenance = "marker";
-    if (retVal == -1)
     {
-        for (size_t i = 0; i < allProps_marker.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_marker[i].name, pName.c_str()))
-            {
-                if ((allProps_marker[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_marker[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CMarker::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "marker";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
+        appartenance = _objectTypeStr;
         for (size_t i = 0; i < allProps_marker.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_marker[i].name, pName.c_str()))
@@ -1327,41 +1289,7 @@ int CMarker::getPropertyName_static(int& index, std::string& pName, std::string&
 
 int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_marker.size(); i++)
-        {
-            if (strcmp(allProps_marker[i].name, ppName) == 0)
-            {
-                retVal = allProps_marker[i].type;
-                info = allProps_marker[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_marker[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_marker[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CMarker::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_marker.size(); i++)

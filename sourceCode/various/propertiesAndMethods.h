@@ -93,54 +93,10 @@ struct SJointProperty
 #define proptypetag_handlearray "&hanvect&."
 #define proptypetag_stringarray "&strvect&."
 
-#define SHAPE_META_METHODS R"("getAppearance": "sim-2.getShapeAppearance",
-        "setAppearance": "sim-2.setShapeAppearance",
-        "getMeshData": "sim-2.getShapeMesh")"
-
-#define DUMMY_META_METHODS R"("checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance")"
-
-#define GRAPH_META_METHODS R"("addCurve": "sim-2.addGraphCurve",
-        "addStream": "sim-2.addGraphStream",
-        "resetGraph": "sim-2.resetGraph")"
-
-#define JOINT_META_METHODS R"("getForce": "sim-2.getJointForce",
-        "resetDynamicObject": "sim-2.resetDynamicObject",
-        "getVelocity": "sim-2.getJointVelocity")"
-
-#define OCTREE_META_METHODS R"("checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
-        "checkPointOccupancy": "sim-2.checkOctreePointOccupancy",
-        "insertObject": "sim-2.insertObjectIntoOctree",
-        "insertVoxels": "sim-2.insertVoxelsIntoOctree",
-        "removeVoxels": "sim-2.removeVoxelsFromOctree",
-        "subtractObject": "sim-2.subtractObjectFromOctree")"
-
-#define POINTCLOUD_META_METHODS R"("checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
-        "insertObject": "sim-2.insertObjectIntoPointCloud",
-        "insertPoints": "sim-2.insertPointsIntoPointCloud",
-        "intersectPoints": "sim-2.intersectPointsWithPointCloud",
-        "removePoints": "sim-2.removePointsFromPointCloud",
-        "subtractObject": "sim-2.subtractObjectFromPointCloud")"
-
-
-#define OBJECT_TYPE_NAME "objectType"
-#define OBJECT_TYPE_TYPE (sim_propertytype_string)
-#define OBJECT_TYPE_FLAGS (sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
-#define OBJECT_TYPE_JSON (jsonStr({{"label", "Object type"}, {"description", ""}}))
-
-#define OBJECT_HANDLE_NAME "handle"
-#define OBJECT_HANDLE_TYPE (sim_propertytype_long)
-#define OBJECT_HANDLE_FLAGS (sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
-#define OBJECT_HANDLE_JSON (jsonStr({{"label", "Handle"}, {"description", ""}}))
-
-#define OBJECT_META_INFO_NAME "objectMetaInfo"
-#define OBJECT_META_INFO_TYPE (sim_propertytype_string)
-#define OBJECT_META_INFO_FLAGS (sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
-#define OBJECT_META_INFO_JSON (jsonStr({{"label", "Object meta information"}, {"description", ""}}))
-
 #define OBJECT_PROPERTIES \
+    FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
+    FUNCX(propObject_handle, "handle", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "Handle"}, {"description", ""}}), "") \
+    FUNCX(propObject_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
     FUNCX(propObject_METHOD_getBoolProperty, "getBoolProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getBufferProperty, "getBufferProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getColorProperty, "getColorProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
@@ -188,9 +144,6 @@ struct SJointProperty
     FUNCX(propObject_METHOD_getPropertyTypeString, "getPropertyTypeString", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define APP_PROPERTIES \
-    FUNCX(propApp_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
-    FUNCX(propApp_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
-    FUNCX(propApp_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Session ID"}, {"description", ""}}), "") \
     FUNCX(propApp_protocolVersion, "protocolVersion", sim_propertytype_int, 0,  jsonStr({{"label", "Protocol"}, {"description", "Protocol version"}}), "") \
     FUNCX(propApp_productVersion, "productVersion", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Product string"}, {"description", "Product version (string)"}}), "") \
@@ -311,9 +264,6 @@ struct SJointProperty
     FUNCX(propApp_METHOD_quit, "quit", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define DETACHEDSCRIPT_PROPERTIES \
-    FUNCX(propDetachedScript_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
-    FUNCX(propDetachedScript_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
-    FUNCX(propDetachedScript_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propDetachedScript_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Enabled"}, {"description", "Script is enabled"}}), "") \
     FUNCX(propDetachedScript_restartOnError, "restartOnError", sim_propertytype_bool, 0,  jsonStr({{"label", "Restart"}, {"description", "Restart on error"}}), "") \
     FUNCX(propDetachedScript_execPriority, "execPriority", sim_propertytype_int, 0,  jsonStr({{"label", "Execution priority"}, {"description", ""}}), "") \
@@ -342,13 +292,13 @@ struct SJointProperty
     FUNCX(propDetachedScript_METHOD_step, "step", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_init, "init", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
+#define STACK_PROPERTIES \
+    FUNCX(propStack_content, "content", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Content"}, {"description", ""}}), "")
+
 #define COLLECTIONCONT_PROPERTIES \
     FUNCX(propCollectionCont_collections, "collections", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Collections"}, {"description", "Handles of all collections"}, {"handleType", "collection"}}), "")
 
 #define COLLECTION_PROPERTIES \
-    FUNCX(propCollection_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
-    FUNCX(propCollection_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
-    FUNCX(propCollection_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propCollection_objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Children handles"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
     FUNCX(propCollection_METHOD_addItem, "addItem", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propCollection_METHOD_removeItem, "removeItem", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
@@ -360,9 +310,6 @@ struct SJointProperty
     FUNCX(propDrawingObjectCont_drawingObjects, "drawingObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Drawing objects"}, {"description", "Handles of all drawing objects"}, {"handleType", "drawingObject"}}), "")
 
 #define DRAWINGOBJECT_PROPERTIES \
-    FUNCX(propDrawingObject_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
-    FUNCX(propDrawingObject_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
-    FUNCX(propDrawingObject_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propDrawingObject_parent, "parent", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Parent handle"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
     FUNCX(propDrawingObject_METHOD_remove, "remove", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
@@ -479,9 +426,6 @@ struct SJointProperty
     FUNCX(propDynCont_mujocoKinematicWeldTorqueScale, "mujoco.kinematicWeldTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define SCENE_PROPERTIES \
-    FUNCX(propScene_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
-    FUNCX(propScene_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
-    FUNCX(propScene_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propScene_mainScript, "mainScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Main script"}, {"description", "Handle of the main script"}, {"handleType", "detachedScript"}}), "") \
     FUNCX(propScene_finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Final save"}, {"description", "Lock scene and models after next scene save operation"}}), "") \
     FUNCX(propScene_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Scene is locked"}, {"description", ""}}), "") \
@@ -539,9 +483,6 @@ struct SJointProperty
     FUNCX(propMeshWrapper_pmiQuaternion, "pmiQuaternion", sim_propertytype_quaternion, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternion of the principal moment of inertia"}, {"description", "Quaternion of the principal moment of inertia, relative to the shape's reference frame"}}), "")
 
 #define MESH_PROPERTIES \
-    FUNCX(propMesh_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
-    FUNCX(propMesh_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
-    FUNCX(propMesh_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable,  jsonStr({{"label", "Texture resolution"}, {"description", ""}}), "") \
     FUNCX(propMesh_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture coordinates"}, {"description", ""}}), "") \
     FUNCX(propMesh_textureApplyMode, "textureApplyMode", sim_propertytype_int, 0,  jsonStr({{"label", "Texture apply mode"}, {"description", ""}}), "") \
@@ -675,8 +616,6 @@ struct SJointProperty
     FUNCX(propMaterial_mujocoGravcomp, "mujoco.gravcomp", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define SCENEOBJECT_PROPERTIES \
-    FUNCX(propSceneObject_objectType, OBJECT_TYPE_NAME, OBJECT_TYPE_TYPE, OBJECT_TYPE_FLAGS, OBJECT_TYPE_JSON, "") \
-    FUNCX(propSceneObject_handle, OBJECT_HANDLE_NAME, OBJECT_HANDLE_TYPE, OBJECT_HANDLE_FLAGS, OBJECT_HANDLE_JSON, "") \
     FUNCX(propSceneObject_modelInvisible, "modelInvisible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Inherited model invisibility"}, {"description", ""}}), "") \
     FUNCX(propSceneObject_modelBase, "modelBase", sim_propertytype_bool, 0,  jsonStr({{"label", "Model base"}, {"description", "Model base flag, indicates the scene object is the base of a model"}}), "") \
     FUNCX(propSceneObject_layer, "layer", sim_propertytype_int, 0,  jsonStr({{"label", "Visibility layer"}, {"description", ""}}), "") \
@@ -801,7 +740,6 @@ struct SJointProperty
     FUNCX(propSceneObject_METHOD_getObject, "getObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define SHAPE_PROPERTIES \
-    FUNCX(propShape_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propShape_meshes, "meshes", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Meshes"}, {"description", "Mesh handles"}, {"handleType", "mesh"}}), "") \
     FUNCX(propShape_applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Apply culling"}, {"description", "Enables/disables culling for all contained meshes"}}), "") \
     FUNCX(propShape_applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Apply shading"}, {"description", "Applies a shading angle to all contained meshes"}}), "") \
@@ -835,7 +773,6 @@ struct SJointProperty
     FUNCX(propShape_METHOD_divide, "divide", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define CAMERA_PROPERTIES \
-    FUNCX(propCamera_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Camera size"}}), "") \
     FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0,  jsonStr({{"label", "Parent as proxy"}, {"description", "Use parent as manipulation proxy"}}), "") \
     FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Translation enabled"}, {"description", ""}}), "") \
@@ -843,7 +780,6 @@ struct SJointProperty
     FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Tracked object"}, {"description", "Tracked scene object handle"}}), "")
 
 #define DUMMY_PROPERTIES \
-    FUNCX(propDummy_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, -1, -1, -1, -1, -1, OBJECT_META_INFO_JSON, "") \
     FUNCX(propDummy_size, "dummySize", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Dummy size"}}), "") \
     FUNCX(propDummy_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDummy_linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Linked dummy"}, {"description", "Handle of the linked dummy"}, {"handleType", "dummy"}}), "") \
@@ -864,7 +800,6 @@ struct SJointProperty
     FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define FORCESENSOR_PROPERTIES \
-    FUNCX(propForceSensor_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propForceSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
     FUNCX(propForceSensor_forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Force threshold enabled"}, {"description", ""}}), "") \
     FUNCX(propForceSensor_torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Torque threshold enabled"}, {"description", ""}}), "") \
@@ -882,7 +817,6 @@ struct SJointProperty
     FUNCX(propForceSensor_intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Intrinsic error"}, {"description", "Intrinsic error, generated by some physics engines"}}), "")
 
 #define GRAPH_PROPERTIES \
-    FUNCX(propGraph_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propGraph_size, "graphSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the 3D graph representation"}}), "") \
     FUNCX(propGraph_bufferSize, "bufferSize", sim_propertytype_int, 0,  jsonStr({{"label", "Buffer size"}, {"description", ""}}), "") \
     FUNCX(propGraph_cyclic, "cyclic", sim_propertytype_bool, 0,  jsonStr({{"label", "Cyclic"}, {"description", "Buffer is cyclic"}}), "") \
@@ -890,7 +824,6 @@ struct SJointProperty
     FUNCX(propGraph_foregroundColor, "foregroundColor", sim_propertytype_color, 0,  jsonStr({{"label", "Foreground color"}, {"description", ""}}), "")
 
 #define JOINT_PROPERTIES \
-    FUNCX(propJoint_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, -1, -1, -1, -1, -1, OBJECT_META_INFO_JSON, "") \
     FUNCX(propJoint_length, "jointLength", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Joint size"}}), "") \
     FUNCX(propJoint_diameter, "jointDiameter", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Joint size"}}), "") \
     FUNCX(propJoint_position, "jointPosition", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Position"}, {"description", "Joint linear/angular displacement"}}), "") \
@@ -997,7 +930,6 @@ struct SJointProperty
     FUNCX(propJoint_mujocoDependencyPolyCoef, "mujoco.dependencyPolyCoeff", sim_propertytype_floatarray, 0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define LIGHT_PROPERTIES \
-    FUNCX(propLight_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Light size"}}), "") \
     FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Enabled"}, {"description", ""}}), "") \
     FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Light type"}}), "") \
@@ -1007,10 +939,9 @@ struct SJointProperty
     FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: cast shadows"}, {"description", "Light casts shadows (with the POV-Ray renderer plugin)"}}), "")
 
 #define MIRROR_PROPERTIES \
-    FUNCX(propMirror_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "")
+    FUNCX(propMirror_fake, "", sim_propertytype_float, sim_propertyinfo_constant | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define OCTREE_PROPERTIES \
-    FUNCX(propOctree_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0,  jsonStr({{"label", "Voxel size"}, {"description", ""}}), "") \
     FUNCX(propOctree_randomColors, "randomColors", sim_propertytype_bool, 0,  jsonStr({{"label", "Random voxel colors"}, {"description", ""}}), "") \
     FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0,  jsonStr({{"label", "Show points instead of voxels"}, {"description", ""}}), "") \
@@ -1019,7 +950,6 @@ struct SJointProperty
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxel Colors"}, {"description", ""}}), "")
 
 #define POINTCLOUD_PROPERTIES \
-    FUNCX(propPointCloud_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0,  jsonStr({{"label", "OC-Tree structure Enabled"}, {"description", "Use an oc-tree structure"}}), "") \
     FUNCX(propPointCloud_randomColors, "randomColors", sim_propertytype_bool, 0,  jsonStr({{"label", "Random point colors"}, {"description", ""}}), "") \
     FUNCX(propPointCloud_pointSize, "pointSize", sim_propertytype_int, 0,  jsonStr({{"label", "Point size"}, {"description", ""}}), "") \
@@ -1030,7 +960,6 @@ struct SJointProperty
     FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Colors"}, {"description", "Point colors"}}), "")
 
 #define PROXIMITYSENSOR_PROPERTIES \
-    FUNCX(propProximitySensor_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propProximitySensor_size, "sensorPointSize", sim_propertytype_float, 0,  jsonStr({{"label", "Sensor point size"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0,  jsonStr({{"label", "Front face detection"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0,  jsonStr({{"label", "Back face detection"}, {"description", ""}}), "") \
@@ -1048,7 +977,6 @@ struct SJointProperty
     FUNCX(propProximitySensor_METHOD_checkSensor, "checkSensor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define VISIONSENSOR_PROPERTIES \
-    FUNCX(propVisionSensor_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propVisionSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
     FUNCX(propVisionSensor_backgroundCol, "backgroundColor", sim_propertytype_color, 0,  jsonStr({{"label", "Background color"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_renderMode, "renderMode", sim_propertytype_int, 0,  jsonStr({{"label", "Render mode"}, {"description", ""}}), "") \
@@ -1078,8 +1006,7 @@ struct SJointProperty
     FUNCX(propVisionSensor_METHOD_setImage, "setImage", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define SCRIPT_PROPERTIES \
-    FUNCX(propScript_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
-    FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the script object"}}), "") \
+    FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the object"}}), "") \
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  jsonStr({{"label", "Reset after simulation error"}, {"description", ""}}), "") \
     FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detached script handle"}, {"description", ""}, {"handleType", "detachedScript"}}), "") \
     /* Following for backward compatibility: */ \
@@ -1096,7 +1023,6 @@ struct SJointProperty
     FUNCX(propScript_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define MARKER_PROPERTIES \
-    FUNCX(propMarker_objectMetaInfo, OBJECT_META_INFO_NAME, OBJECT_META_INFO_TYPE, OBJECT_META_INFO_FLAGS, OBJECT_META_INFO_JSON, "") \
     FUNCX(propMarker_itemType, "itemType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Item type"}}), "") \
     FUNCX(propMarker_cyclic, "cyclic", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Cyclic"}, {"description", "Item buffer is cyclic"}}), "") \
     FUNCX(propMarker_local, "local", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Local"}, {"description", "Coordinates are local to the marker's reference frame"}}), "") \

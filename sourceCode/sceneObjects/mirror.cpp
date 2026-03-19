@@ -28,13 +28,9 @@ CMirror::CMirror()
     _commonInit();
 }
 
-std::string CMirror::getObjectTypeInfo() const
-{
-    return "mirror";
-}
 std::string CMirror::getObjectTypeInfoExtended() const
 {
-    return getObjectTypeInfo();
+    return _objectTypeStr;
 }
 bool CMirror::isPotentiallyCollidable() const
 {
@@ -55,6 +51,8 @@ bool CMirror::isPotentiallyRenderable() const
 
 void CMirror::_commonInit()
 {
+    _objectTypeStr = "mirror";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_mirror;
     _mirrorWidth = 0.5;
     _mirrorHeight = 1.0;
@@ -76,8 +74,8 @@ void CMirror::_commonInit()
 
     _objectMovementPreferredAxes = 0x013;
 
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -189,15 +187,16 @@ void CMirror::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CMirror::addSpecializedObjectEventData(CCbor* ev)
+void CMirror::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->closeArrayOrMap(); // mirror
     }
     else
         clipPlaneColor.addGenesisEventData(ev);
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CMirror::copyYourself()
@@ -512,11 +511,6 @@ int CMirror::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propMirror_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -545,53 +539,23 @@ int CMirror::getPropertyName(int& index, std::string& pName, std::string& appart
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "mirror";
+        appartenance = _objectTypeStr;
         retVal = clipPlaneColor.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_mirror.size(); i++)
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_mirror.size(); i++)
             {
-                if ((allProps_mirror[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_mirror[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_mirror[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CMirror::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "mirror";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_mirror.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()))
-            {
-                if ((allProps_mirror[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_mirror[i].name;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_mirror[i].name;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -602,43 +566,9 @@ int CMirror::getPropertyName_static(int& index, std::string& pName, std::string&
 
 int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = clipPlaneColor.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_mirror.size(); i++)
-        {
-            if (strcmp(allProps_mirror[i].name, ppName) == 0)
-            {
-                retVal = allProps_mirror[i].type;
-                info = allProps_mirror[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_mirror[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_mirror[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CMirror::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mirror.size(); i++)

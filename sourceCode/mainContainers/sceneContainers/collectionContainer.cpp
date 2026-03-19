@@ -13,7 +13,7 @@ CCollectionContainer::CCollectionContainer()
 CCollectionContainer::~CCollectionContainer()
 { // beware, the current world could be nullptr
     while (_allCollections.size() != 0)
-        _removeCollection(_allCollections[0]->getCollectionHandle());
+        _removeCollection(_allCollections[0]->getObjectHandle());
 }
 
 void CCollectionContainer::simulationAboutToStart()
@@ -33,16 +33,16 @@ void CCollectionContainer::newScene()
     removeAllCollections();
 }
 
-void CCollectionContainer::announceObjectWillBeErased(int objectHandle)
+void CCollectionContainer::announceObjectWillBeErased(long long int objectHandle)
 { // Never called from copy buffer!
     size_t i = 0;
     while (i < getObjectCount())
     {
         CCollection* coll = getObjectFromIndex(i);
-        if (coll->announceObjectWillBeErased(objectHandle, false))
+        if (coll->announceObjectWillBeErased(int(objectHandle), false))
         {
             if (coll->getCreatorHandle() == -2)                // Only old-type collections will be removed (those created via the GUI)
-                removeCollection(coll->getCollectionHandle()); // This will call announceCollectionWillBeErased!!
+                removeCollection(coll->getObjectHandle()); // This will call announceCollectionWillBeErased!!
             else
                 i++;
         }
@@ -51,15 +51,14 @@ void CCollectionContainer::announceObjectWillBeErased(int objectHandle)
     }
 }
 
-void CCollectionContainer::announceScriptStateWillBeErased(int scriptHandle, bool simulationScript,
-                                                           bool sceneSwitchPersistentScript)
+void CCollectionContainer::announceScriptStateWillBeErased(long long int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     size_t i = 0;
     while (i < getObjectCount())
     {
         CCollection* coll = getObjectFromIndex(i);
-        if (coll->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript))
-            removeCollection(coll->getCollectionHandle()); // This will call announceCollectionWillBeErased!!
+        if (coll->announceScriptStateWillBeErased(int(scriptHandle), simulationScript, sceneSwitchPersistentScript))
+            removeCollection(coll->getObjectHandle()); // This will call announceCollectionWillBeErased!!
         else
             i++;
     }
@@ -74,7 +73,7 @@ void CCollectionContainer::actualizeAllCollections()
         if (!coll->actualizeCollection())
         {
             if (coll->getCreatorHandle() == -2) // Only old-type collections will be removed (those created via the GUI)
-                removeCollection(coll->getCollectionHandle());
+                removeCollection(coll->getObjectHandle());
             else
                 i++;
         }
@@ -83,8 +82,7 @@ void CCollectionContainer::actualizeAllCollections()
     }
 }
 
-void CCollectionContainer::getCollidableObjectsFromCollection(int collectionHandle,
-                                                              std::vector<CSceneObject*>& objects) const
+void CCollectionContainer::getCollidableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects) const
 {
     objects.clear();
     CCollection* theGroup = getObjectFromHandle(collectionHandle);
@@ -105,8 +103,7 @@ void CCollectionContainer::getCollidableObjectsFromCollection(int collectionHand
     }
 }
 
-void CCollectionContainer::getMeasurableObjectsFromCollection(int collectionHandle,
-                                                              std::vector<CSceneObject*>& objects) const
+void CCollectionContainer::getMeasurableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects) const
 {
     objects.clear();
     CCollection* theGroup = getObjectFromHandle(collectionHandle);
@@ -127,9 +124,7 @@ void CCollectionContainer::getMeasurableObjectsFromCollection(int collectionHand
     }
 }
 
-void CCollectionContainer::getDetectableObjectsFromCollection(int collectionHandle,
-                                                              std::vector<CSceneObject*>& objects,
-                                                              int detectableMask) const
+void CCollectionContainer::getDetectableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects, int detectableMask) const
 {
     objects.clear();
     CCollection* theGroup = getObjectFromHandle(collectionHandle);
@@ -152,7 +147,7 @@ void CCollectionContainer::getDetectableObjectsFromCollection(int collectionHand
 void CCollectionContainer::removeAllCollections()
 {
     while (getObjectCount() != 0)
-        removeCollection(getObjectFromIndex(0)->getCollectionHandle());
+        removeCollection(getObjectFromIndex(0)->getObjectHandle());
 }
 
 void CCollectionContainer::setUpDefaultValues()
@@ -160,9 +155,9 @@ void CCollectionContainer::setUpDefaultValues()
     removeAllCollections();
 }
 
-void CCollectionContainer::removeCollection(int collectionHandle)
+void CCollectionContainer::removeCollection(long long int collectionHandle)
 {
-    App::currentWorld->announceCollectionWillBeErased(collectionHandle);
+    App::currentWorld->announceCollectionWillBeErased(int(collectionHandle));
     _removeCollection(collectionHandle);
 #ifdef SIM_WITH_GUI
     GuiApp::setFullDialogRefreshFlag();
@@ -257,7 +252,7 @@ void CCollectionContainer::addCollectionWithSuffixOffset(CCollection* collection
 #endif
 }
 
-void CCollectionContainer::addCollectionToSelection(int collectionHandle) const
+void CCollectionContainer::addCollectionToSelection(long long int collectionHandle) const
 {
     CCollection* it = getObjectFromHandle(collectionHandle);
     if (it != nullptr)
@@ -324,7 +319,7 @@ int CCollectionContainer::getHandleArrayProperty(long long int target, const cha
         if (strcmp(pName, propCollectionCont_collections.name) == 0)
         {
             for (size_t i = 0; i < _allCollections.size(); i++)
-                pState.push_back(_allCollections[i]->getCollectionHandle());
+                pState.push_back(_allCollections[i]->getObjectHandle());
             retVal = 1;
         }
     }
@@ -416,11 +411,11 @@ void CCollectionContainer::performObjectLoadingMapping(const std::map<int, int>*
         getObjectFromIndex(i)->performObjectLoadingMapping(map, 0);
 }
 
-void CCollectionContainer::_removeCollection(int collectionHandle)
+void CCollectionContainer::_removeCollection(long long int collectionHandle)
 {
     for (size_t i = 0; i < _allCollections.size(); i++)
     {
-        if (_allCollections[i]->getCollectionHandle() == collectionHandle)
+        if (_allCollections[i]->getObjectHandle() == collectionHandle)
         {
             if (App::worldContainer->getEventsEnabled())
             {
@@ -449,13 +444,13 @@ void CCollectionContainer::_addCollection(CCollection* collection)
 
     if (App::worldContainer->getEventsEnabled())
     {
-        std::vector<int> handles;
+        std::vector<long long int> handles;
         for (size_t i = 0; i < _allCollections.size(); i++)
-            handles.push_back(_allCollections[i]->getCollectionHandle());
+            handles.push_back(_allCollections[i]->getObjectHandle());
         const char* cmd = propCollectionCont_collections.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
-            ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
+            ev->appendKeyInt64Array(cmd, handles.data(), handles.size());
         else
             ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
         App::worldContainer->pushEvent();
@@ -475,12 +470,12 @@ CCollection* CCollectionContainer::getObjectFromIndex(size_t index) const
     return retVal;
 }
 
-CCollection* CCollectionContainer::getObjectFromHandle(int collectionHandle) const
+CCollection* CCollectionContainer::getObjectFromHandle(long long int collectionHandle) const
 {
     CCollection* retVal = nullptr;
     for (size_t i = 0; i < _allCollections.size(); i++)
     {
-        if (_allCollections[i]->getCollectionHandle() == collectionHandle)
+        if (_allCollections[i]->getObjectHandle() == collectionHandle)
         {
             retVal = _allCollections[i];
             break;
@@ -512,7 +507,7 @@ void CCollectionContainer::pushGenesisEvents() const
         coll->pushCreationEvent();
 
         // We need to "fake" adding that collection:
-        addedCollections.push_back(coll->getCollectionHandle());
+        addedCollections.push_back(coll->getObjectHandle());
         const char* cmd = propCollectionCont_collections.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)

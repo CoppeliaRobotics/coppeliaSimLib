@@ -54,7 +54,7 @@ void CSceneObjectContainer::simulationAboutToEnd()
     for (size_t i = 0; i < getObjectCount(sim_sceneobject_script); i++)
     {
         CScript* it = getScriptFromIndex(i);
-        it->scriptObject->simulationAboutToEnd(); // destroys simulation script states
+        it->detachedScript->simulationAboutToEnd(); // destroys simulation script states
     }
 }
 
@@ -369,8 +369,8 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                         }
 
                         // Following happens in script->canDestroyNow():
-                        //if ((it->getObjectType() == sim_sceneobject_script) && (((CScript*)it)->scriptObject != nullptr))
-                        //    ((CScript*)it)->scriptObject->pushObjectRemoveEvent();
+                        //if ((it->getObjectType() == sim_sceneobject_script) && (((CScript*)it)->detachedScript != nullptr))
+                        //    ((CScript*)it)->detachedScript->pushObjectRemoveEvent();
 
                         App::worldContainer->pushSceneObjectRemoveEvent(it);
                         _removeObject(it);
@@ -406,7 +406,7 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
         int objHandle = getObjectFromIndex(i)->getObjectHandle();
         CScript* script = getScriptFromHandle(objHandle);
         if (script != nullptr)
-            script->scriptObject->setTemporarilySuspended(true);
+            script->detachedScript->setTemporarilySuspended(true);
         l.push_back(objHandle);
     }
     eraseObjects(&l, generateBeforeAfterDeleteCallback);
@@ -498,8 +498,8 @@ bool CSceneObjectContainer::addCommandToOutsideCommandQueues(int commandID, int 
     for (size_t i = 0; i < _scriptList.size(); i++)
     {
         CScript* it = _scriptList[i];
-        if (it->scriptObject != nullptr)
-            it->scriptObject->addCommandToOutsideCommandQueue(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
+        if (it->detachedScript != nullptr)
+            it->detachedScript->addCommandToOutsideCommandQueue(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
     }
     return (true);
 }
@@ -1358,19 +1358,19 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSc
                 obj->setLocalTransformation(localFramePreCorrection * obj->getLocalTransformation());
 
                 // Handle attached simulation scripts:
-                CScriptObject* childScript = nullptr;
+                CDetachedScript* childScript = nullptr;
                 if (ar.xmlPushChildNode("childScript", false))
                 {
-                    childScript = new CScriptObject(sim_scripttype_simulation);
+                    childScript = new CDetachedScript(sim_scripttype_simulation);
                     childScript->serialize(ar);
                     ar.xmlPopNode();
                 }
 
                 // Handle attached customization scripts:
-                CScriptObject* customizationScript = nullptr;
+                CDetachedScript* customizationScript = nullptr;
                 if (ar.xmlPushChildNode("customizationScript", false))
                 {
-                    customizationScript = new CScriptObject(sim_scripttype_customization);
+                    customizationScript = new CDetachedScript(sim_scripttype_customization);
                     customizationScript->serialize(ar);
                     ar.xmlPopNode();
                 }
@@ -1479,7 +1479,7 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar, const CScene
         obj->serialize(ar);
     }
 
-    CScriptObject* script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, object->getObjectHandle());
+    CDetachedScript* script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, object->getObjectHandle());
     if (script != nullptr)
     {
         ar.xmlPushNewNode("childScript");
@@ -1980,7 +1980,7 @@ void CSceneObjectContainer::addCompatibilityScripts(std::vector<int>& selection)
                 p = parent->getObjectHandle();
             if (objectsInOutputList.find(p) != objectsInOutputList.end())
             { // parent is in selection
-                if (s->scriptObject->getParentIsProxy())
+                if (s->detachedScript->getParentIsProxy())
                 { // script in compatibility mode. Ok, we add it (mainly for backw. compat. copy operations)
                     objectsInOutputList.insert(s->getObjectHandle());
                     selection.push_back(s->getObjectHandle());
@@ -2912,9 +2912,9 @@ void CSceneObjectContainer::handleDataCallbacks()
         std::map<std::string, bool> signalItems;
         if (obj->getCustomDataEvents(customDataItems, signalItems))
         {
-            std::vector<CScriptObject*> scripts;
+            std::vector<CDetachedScript*> scripts;
             if (obj->getObjectType() == sim_sceneobject_script)
-                scripts.push_back(((CScript*)obj)->scriptObject);
+                scripts.push_back(((CScript*)obj)->detachedScript);
             else
             {
                 obj->getAttachedScripts(scripts, -1, true);
@@ -2955,7 +2955,7 @@ bool CSceneObjectContainer::shouldTemporarilySuspendMainScript()
     getScriptsToExecute(scriptHandles, -1, false, false);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
-        CScriptObject* it = getScriptObjectFromHandle(scriptHandles[i]);
+        CDetachedScript* it = getDetachedScriptFromHandle(scriptHandles[i]);
         if (it != nullptr)
         { // could have been erased in the mean time!
             if (it->shouldTemporarilySuspendMainScript())
@@ -3065,8 +3065,8 @@ void CSceneObjectContainer::setScriptsTemporarilySuspended(bool suspended)
     for (size_t i = 0; i < _scriptList.size(); i++)
     {
         CScript* it = _scriptList[i];
-        if (it->scriptObject != nullptr)
-            it->scriptObject->setTemporarilySuspended(suspended);
+        if (it->detachedScript != nullptr)
+            it->detachedScript->setTemporarilySuspended(suspended);
     }
 }
 
@@ -3096,12 +3096,12 @@ void CSceneObjectContainer::setSysFuncAndHookCnt(int sysCall, int cnt)
         _sysFuncAndHookCnt_joint = cnt;
 }
 
-void CSceneObjectContainer::getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+void CSceneObjectContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
 {
     if (reverse)
     { // reverse order
-        CScriptObject* script = embeddedScriptContainer->getMainScript();
-        if ((script != nullptr) && (script->getScriptState() == CScriptObject::scriptState_initialized))
+        CDetachedScript* script = embeddedScriptContainer->getMainScript();
+        if ((script != nullptr) && (script->getScriptState() == CDetachedScript::scriptState_initialized))
             scripts.push_back(script);
 
         // child + customization scripts (legacy + new):
@@ -3117,22 +3117,22 @@ void CSceneObjectContainer::getActiveScripts(std::vector<CScriptObject*>& script
             embeddedScriptContainer->getActiveLegacyScripts(scripts, reverse);
         _getActiveScripts(scripts, reverse);
 
-        CScriptObject* script = embeddedScriptContainer->getMainScript();
-        if ((script != nullptr) && (script->getScriptState() == CScriptObject::scriptState_initialized))
+        CDetachedScript* script = embeddedScriptContainer->getMainScript();
+        if ((script != nullptr) && (script->getScriptState() == CDetachedScript::scriptState_initialized))
             scripts.push_back(script);
     }
 }
 
 void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
-    bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
-    if (CScriptObject::isSystemCallbackInReverseOrder(callType))
+    bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
+    if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
 
         // main script
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CScriptObject* script = embeddedScriptContainer->getMainScript();
+            CDetachedScript* script = embeddedScriptContainer->getMainScript();
             if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
             {
                 if (script->getScriptHandle() != scriptToExclude)
@@ -3155,7 +3155,7 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
         {
             if (!App::currentWorld->simulation->isSimulationStopped())
             {
-                CScriptObject* script = embeddedScriptContainer->getMainScript();
+                CDetachedScript* script = embeddedScriptContainer->getMainScript();
                 if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
                 {
                     if (script->getScriptHandle() != scriptToExclude)
@@ -3169,8 +3169,8 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
 int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     int retVal = 0;
-    bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
-    if (CScriptObject::isSystemCallbackInReverseOrder(callType))
+    bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
+    if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
 
         retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
@@ -3189,7 +3189,7 @@ int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType
     return retVal;
 }
 
-void CSceneObjectContainer::_getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/) const
+void CSceneObjectContainer::_getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/) const
 {
     TRACE_INTERNAL;
     std::vector<int> scriptHandles;
@@ -3197,8 +3197,8 @@ void CSceneObjectContainer::_getActiveScripts(std::vector<CScriptObject*>& scrip
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CScript* script = getScriptFromHandle(scriptHandles[i]);
-        if ((script != nullptr) && (script->scriptObject->getScriptState() == CScriptObject::scriptState_initialized))
-            scripts.push_back(script->scriptObject);
+        if ((script != nullptr) && (script->detachedScript->getScriptState() == CDetachedScript::scriptState_initialized))
+            scripts.push_back(script->detachedScript);
     }
 }
 
@@ -3211,18 +3211,18 @@ int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterface
 
     std::vector<int> scriptHandles;
     if (objectBranch == nullptr)
-        getScriptsToExecute(scriptHandles, scriptType, false, CScriptObject::isSystemCallbackInReverseOrder(callType));
+        getScriptsToExecute(scriptHandles, scriptType, false, CDetachedScript::isSystemCallbackInReverseOrder(callType));
     else
         objectBranch->getScriptsInChain(scriptHandles, scriptType, false);
-    bool canInterrupt = CScriptObject::isSystemCallbackInterruptible(callType);
+    bool canInterrupt = CDetachedScript::isSystemCallbackInterruptible(callType);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CScript* script = getScriptFromHandle(scriptHandles[i]);
         if ((script != nullptr) && (scriptHandles[i] != scriptToExclude))
         { // the script could have been erased in the mean time
-            if (script->scriptObject->hasSystemFunctionOrHook(callType))
+            if (script->detachedScript->hasSystemFunctionOrHook(callType))
             { // has the function
-                if (script->scriptObject->systemCallScript(callType, inStack, outStack) == 1)
+                if (script->detachedScript->systemCallScript(callType, inStack, outStack) == 1)
                 {
                     cnt++;
                     if (canInterrupt && (outStack != nullptr) && (outStack->getStackSize() != 0))
@@ -3236,9 +3236,9 @@ int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterface
                     compatCall = sim_syscb_dyncallback;
                 if (callType == sim_syscb_contact)
                     compatCall = sim_syscb_contactcallback;
-                if ((compatCall != -1) && script->scriptObject->hasSystemFunctionOrHook(compatCall))
+                if ((compatCall != -1) && script->detachedScript->hasSystemFunctionOrHook(compatCall))
                 {
-                    if (script->scriptObject->systemCallScript(compatCall, inStack, outStack) == 1)
+                    if (script->detachedScript->systemCallScript(compatCall, inStack, outStack) == 1)
                     {
                         cnt++;
                         if (canInterrupt && (outStack != nullptr) && (outStack->getStackSize() != 0))
@@ -3376,12 +3376,12 @@ void CSceneObjectContainer::remove_oldIk()
     }
 }
 
-CScriptObject* CSceneObjectContainer::getDetachedScriptFromScriptPseudoHandle(int h) const
+CDetachedScript* CSceneObjectContainer::getDetachedScriptFromScriptPseudoHandle(int h) const
 {
     for (size_t i = 0; i < _scriptList.size(); i++)
     {
-        if (_scriptList[i]->getScriptPseudoHandle() == h)
-            return _scriptList[i]->scriptObject;
+        if (_scriptList[i]->getDetachedScriptHandle() == h)
+            return _scriptList[i]->detachedScript;
     }
     return nullptr;
 }
@@ -3652,39 +3652,39 @@ CMarker* CSceneObjectContainer::getMarkerFromHandle(int objectHandle) const
     return retVal;
 }
 
-CScriptObject* CSceneObjectContainer::getScriptObjectFromHandle(int handle) const
+CDetachedScript* CSceneObjectContainer::getDetachedScriptFromHandle(int handle) const
 {
-    CScriptObject* retVal = nullptr;
+    CDetachedScript* retVal = nullptr;
     if (handle <= SIM_IDEND_SCENEOBJECT)
     { // scene object scripts
         CScript* it = getScriptFromHandle(handle);
         if (it != nullptr)
-            retVal = it->scriptObject;
+            retVal = it->detachedScript;
     }
     else
     {
         retVal = getDetachedScriptFromScriptPseudoHandle(handle); // alt. way to get to a detached script (via a script pseudo handle)
         if (retVal == nullptr)
-            retVal = embeddedScriptContainer->getScriptObjectFromHandle(handle); // main script (and old non-scene object scripts)
+            retVal = embeddedScriptContainer->getDetachedScriptFromHandle(handle); // main script (and old non-scene object scripts)
     }
     return (retVal);
 }
 
-CScriptObject* CSceneObjectContainer::getScriptObjectFromUid(int uid) const
+CDetachedScript* CSceneObjectContainer::getDetachedScriptFromUid(int uid) const
 {
-    CScriptObject* retVal = nullptr;
+    CDetachedScript* retVal = nullptr;
     for (size_t i = 0; i < _scriptList.size(); i++)
     {
         CScript* it = _scriptList[i];
-        if (it->scriptObject->getScriptUid() == uid)
+        if (it->detachedScript->getScriptUid() == uid)
         {
-            retVal = it->scriptObject;
+            retVal = it->detachedScript;
             break;
         }
     }
     if (retVal == nullptr)
     { // main script (and old non-scene object scripts)
-        retVal = embeddedScriptContainer->getScriptObjectFromUid(uid);
+        retVal = embeddedScriptContainer->getDetachedScriptFromUid(uid);
     }
     return (retVal);
 }
@@ -4456,7 +4456,7 @@ void CSceneObjectContainer::resetScriptFlagCalledInThisSimulationStep()
 {
     embeddedScriptContainer->resetScriptFlagCalledInThisSimulationStep();
     for (size_t i = 0; i < _scriptList.size(); i++)
-        _scriptList[i]->scriptObject->resetCalledInThisSimulationStep();
+        _scriptList[i]->detachedScript->resetCalledInThisSimulationStep();
 }
 
 int CSceneObjectContainer::getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts)
@@ -4465,9 +4465,9 @@ int CSceneObjectContainer::getCalledScriptsCountInThisSimulationStep(bool onlySi
 
     for (size_t i = 0; i < _scriptList.size(); i++)
     {
-        if (_scriptList[i]->scriptObject->getCalledInThisSimulationStep())
+        if (_scriptList[i]->detachedScript->getCalledInThisSimulationStep())
         {
-            if ((!onlySimulationScripts) || (_scriptList[i]->scriptObject->getScriptType() == sim_scripttype_simulation))
+            if ((!onlySimulationScripts) || (_scriptList[i]->detachedScript->getScriptType() == sim_scripttype_simulation))
                 cnt++;
         }
     }
@@ -6551,11 +6551,12 @@ int CSceneObjectContainer::removeProperty(long long int target, const char* pNam
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject, int excludeFlags)
+int CSceneObjectContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
     int retVal = -1;
     if (target == -1)
     {
+        appartenance = "scene";
         for (size_t i = 0; i < allProps_objCont.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_objCont[i].name, pName.c_str()))
@@ -6575,103 +6576,56 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
     }
     else
     {
-        if (targetObject != nullptr)
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
         {
-            CSceneObject* it = targetObject->getObjectFromHandle(int(target));
-            if (it != nullptr)
-            {
-                appartenance = "sceneObject";
-                int objType = it->getObjectType();
-                if (objType == sim_sceneobject_shape)
-                    return ((CShape*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_joint)
-                    return ((CJoint*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_dummy)
-                    return ((CDummy*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_marker)
-                    return ((CMarker*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_script)
-                    return ((CScript*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_proximitysensor)
-                    return ((CProxSensor*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_visionsensor)
-                    return ((CVisionSensor*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_forcesensor)
-                    return ((CForceSensor*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_light)
-                    return ((CLight*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_camera)
-                    return ((CCamera*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_graph)
-                    return ((CGraph*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_pointcloud)
-                    return ((CPointCloud*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_octree)
-                    return ((COcTree*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_path)
-                    return ((CPath_old*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_mill)
-                    return ((CMill*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-                if (objType == sim_sceneobject_mirror)
-                    return ((CMirror*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
-            }
-            else
-            {
-                appartenance = "mesh";
-                CMesh* mesh = targetObject->getMeshFromUid(target);
-                if (mesh != nullptr)
-                    return CMesh::getPropertyName(index, pName, mesh, excludeFlags);
-            }
+            appartenance = "sceneObject";
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getPropertyName(index, pName, appartenance, excludeFlags);
         }
         else
         {
-            if (target == sim_objecttype_mesh)
-            {
-                appartenance = "mesh";
-                return CMesh::getPropertyName(index, pName, nullptr, excludeFlags);
-            }
-            appartenance = "sceneObject";
-            if (target == sim_objecttype_sceneobject)
-                return CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_shape)
-                return CShape::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_dummy)
-                return CDummy::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_marker)
-                return CMarker::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_joint)
-                return CJoint::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_script)
-                return CScript::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_proximitysensor)
-                return CProxSensor::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_visionsensor)
-                return CVisionSensor::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_forcesensor)
-                return CForceSensor::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_light)
-                return CLight::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_camera)
-                return CCamera::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_graph)
-                return CGraph::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_pointcloud)
-                return CPointCloud::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_octree)
-                return COcTree::getPropertyName_static(index, pName, appartenance, excludeFlags);
-            if (target == sim_sceneobject_mirror)
-                return CMirror::getPropertyName_static(index, pName, appartenance, excludeFlags);
-
-            // Following 2 not supported anymore:
-            if ((target == sim_sceneobject_path) || (target == sim_sceneobject_mill))
-                return CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
+            CMesh* mesh = getMeshFromUid(target);
+            if (mesh != nullptr)
+                return mesh->getPropertyName(index, pName, appartenance, excludeFlags);
         }
         retVal = -2; // object does not exist
     }
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CSceneObjectContainer* targetObject)
+int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     if (target == -1)
@@ -6700,92 +6654,48 @@ int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pNa
     }
     else
     {
-        if (targetObject != nullptr)
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
         {
-            CSceneObject* it = targetObject->getObjectFromHandle(int(target));
-            if (it != nullptr)
-            {
-                int objType = it->getObjectType();
-                if (objType == sim_sceneobject_shape)
-                    return ((CShape*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_joint)
-                    return ((CJoint*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_dummy)
-                    return ((CDummy*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_marker)
-                    return ((CMarker*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_script)
-                    return ((CScript*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_proximitysensor)
-                    return ((CProxSensor*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_visionsensor)
-                    return ((CVisionSensor*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_forcesensor)
-                    return ((CForceSensor*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_light)
-                    return ((CLight*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_camera)
-                    return ((CCamera*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_graph)
-                    return ((CGraph*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_pointcloud)
-                    return ((CPointCloud*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_octree)
-                    return ((COcTree*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_path)
-                    return ((CPath_old*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_mill)
-                    return ((CMill*)it)->getPropertyInfo(pName, info, infoTxt);
-                if (objType == sim_sceneobject_mirror)
-                    return ((CMirror*)it)->getPropertyInfo(pName, info, infoTxt);
-            }
-            else
-            {
-                CMesh* mesh = targetObject->getMeshFromUid(target);
-                if (mesh != nullptr)
-                    return CMesh::getPropertyInfo(pName, info, infoTxt, mesh);
-            }
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getPropertyInfo(pName, info, infoTxt);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getPropertyInfo(pName, info, infoTxt);
         }
         else
         {
-            if (target == sim_objecttype_mesh)
-                return CMesh::getPropertyInfo(pName, info, infoTxt, nullptr);
-            if (target == sim_objecttype_sceneobject)
-                return CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
-            if (target == sim_sceneobject_shape)
-                return CShape::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_dummy)
-                return CDummy::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_marker)
-                return CMarker::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_joint)
-                return CJoint::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_script)
-                return CScript::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_proximitysensor)
-                return CProxSensor::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_visionsensor)
-                return CVisionSensor::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_forcesensor)
-                return CForceSensor::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_light)
-                return CLight::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_camera)
-                return CCamera::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_graph)
-                return CGraph::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_pointcloud)
-                return CPointCloud::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_octree)
-                return COcTree::getPropertyInfo_static(pName, info, infoTxt);
-            if (target == sim_sceneobject_mirror)
-                return CMirror::getPropertyInfo_static(pName, info, infoTxt);
-
-            // Following 2 not supported anymore:
-            std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(pName, "object.").c_str(), "path."));
-            std::string __pName(utils::getWithoutPrefix(utils::getWithoutPrefix(_pName.c_str(), "object.").c_str(), "mill."));
-            if ((target == sim_sceneobject_path) || (target == sim_sceneobject_mill))
-                return CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
+            CMesh* mesh = getMeshFromUid(target);
+            if (mesh != nullptr)
+                return mesh->getPropertyInfo(pName, info, infoTxt);
         }
         retVal = -2; // object does not exist
     }

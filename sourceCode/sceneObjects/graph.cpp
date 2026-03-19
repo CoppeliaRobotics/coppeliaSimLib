@@ -27,6 +27,8 @@ static std::string OBJECT_META_INFO = R"(
 
 CGraph::CGraph()
 {
+    _objectTypeStr = "graph";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_graph;
     justDrawCurves = false;
     _needsRefresh = true;
@@ -60,8 +62,8 @@ CGraph::CGraph()
     foregroundColor[1] = 0.8f;
     foregroundColor[2] = 0.8f;
     _visibilityLayer = GRAPH_LAYER;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -130,13 +132,9 @@ void CGraph::removeAllStreamsAndCurves_old()
     staticStreamsAndCurves_old.clear();
 }
 
-std::string CGraph::getObjectTypeInfo() const
-{
-    return "graph";
-}
 std::string CGraph::getObjectTypeInfoExtended() const
 {
-    return getObjectTypeInfo();
+    return _objectTypeStr;
 }
 bool CGraph::isPotentiallyCollidable() const
 {
@@ -628,10 +626,10 @@ void CGraph::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CGraph::addSpecializedObjectEventData(CCbor* ev)
+void CGraph::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
     else
         color.addGenesisEventData(ev);
     ev->appendKeyDouble(propGraph_size.name, _graphSize);
@@ -649,6 +647,7 @@ void CGraph::addSpecializedObjectEventData(CCbor* ev)
     }
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // graph
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CGraph::copyYourself()
@@ -3735,11 +3734,6 @@ int CGraph::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propGraph_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -3796,53 +3790,23 @@ int CGraph::getPropertyName(int& index, std::string& pName, std::string& apparte
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "graph";
+        appartenance = _objectTypeStr;
         retVal = color.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_graph.size(); i++)
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_graph[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_graph.size(); i++)
             {
-                if ((allProps_graph[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_graph[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_graph[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_graph[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CGraph::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "graph";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_graph.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_graph[i].name, pName.c_str()))
-            {
-                if ((allProps_graph[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_graph[i].name;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_graph[i].name;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -3853,43 +3817,9 @@ int CGraph::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CGraph::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = color.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_graph.size(); i++)
-        {
-            if (strcmp(allProps_graph[i].name, ppName) == 0)
-            {
-                retVal = allProps_graph[i].type;
-                info = allProps_graph[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_graph[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_graph[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CGraph::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_graph.size(); i++)

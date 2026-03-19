@@ -28,6 +28,8 @@ CForceSensor::CForceSensor()
 
 void CForceSensor::commonInit()
 {
+    _objectTypeStr = "forceSensor";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_forcesensor;
     _forceThreshold = 100.0;
     _torqueThreshold = 10.0;
@@ -61,8 +63,8 @@ void CForceSensor::commonInit()
     _color_removeSoon.setColor(0.22f, 0.22f, 0.22f, sim_colorcomponent_ambient_diffuse);
     _visibilityLayer = FORCE_SENSOR_LAYER;
     _localObjectSpecialProperty = 0;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -454,7 +456,7 @@ void CForceSensor::_handleSensorTriggering()
             _currentThresholdViolationCount = 0;
         if (_currentThresholdViolationCount >= _consecutiveViolationsToTrigger)
         { // we need to break something!
-            std::vector<CScriptObject*> scripts;
+            std::vector<CDetachedScript*> scripts;
             getAttachedScripts(scripts, -1, true);
             getAttachedScripts(scripts, -1, false);
             if (scripts.size() > 0)
@@ -468,7 +470,7 @@ void CForceSensor::_handleSensorTriggering()
                 inStack->insertKeyDoubleArrayIntoStackTable("filteredTorque", _filteredDynamicTorques.data, 3);
                 for (size_t i = 0; i < scripts.size(); i++)
                 {
-                    CScriptObject* script = scripts[i];
+                    CDetachedScript* script = scripts[i];
                     if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                         script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
                 }
@@ -568,13 +570,9 @@ void CForceSensor::simulationEnded()
     CSceneObject::simulationEnded();
 }
 
-std::string CForceSensor::getObjectTypeInfo() const
-{
-    return "forceSensor";
-}
 std::string CForceSensor::getObjectTypeInfoExtended() const
 {
-    std::string retVal(getObjectTypeInfo());
+    std::string retVal(_objectTypeStr);
 
     double lin = getDynamicPositionError();
     double ang = getDynamicOrientationError();
@@ -658,11 +656,11 @@ void CForceSensor::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CForceSensor::addSpecializedObjectEventData(CCbor* ev)
+void CForceSensor::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyArray("colors");
         float c[9];
         _color.getColor(c, sim_colorcomponent_ambient_diffuse);
@@ -705,6 +703,7 @@ void CForceSensor::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDouble(propForceSensor_torqueThreshold.name, _torqueThreshold);
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // forceSensor
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CForceSensor::copyYourself()
@@ -1196,11 +1195,6 @@ int CForceSensor::getStringProperty(const char* ppName, std::string& pState) con
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propForceSensor_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -1308,53 +1302,23 @@ int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& a
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "forceSensor";
+        appartenance = _objectTypeStr;
         retVal = _color.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_forceSensor.size(); i++)
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_forceSensor.size(); i++)
             {
-                if ((allProps_forceSensor[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_forceSensor[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_forceSensor[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "forceSensor";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_forceSensor.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()))
-            {
-                if ((allProps_forceSensor[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_forceSensor[i].name;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_forceSensor[i].name;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -1365,64 +1329,32 @@ int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::st
 
 int CForceSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
+    {
         retVal = _color.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_forceSensor.size(); i++)
+        if (retVal == -1)
         {
-            if (strcmp(allProps_forceSensor[i].name, ppName) == 0)
+            for (size_t i = 0; i < allProps_forceSensor.size(); i++)
             {
-                retVal = allProps_forceSensor[i].type;
-                info = allProps_forceSensor[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_forceSensor[i].shortInfoTxt;
-                else
+                if (strcmp(allProps_forceSensor[i].name, ppName) == 0)
                 {
-                    auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
+                    retVal = allProps_forceSensor[i].type;
+                    info = allProps_forceSensor[i].flags;
+                    if (infoTxt == "j")
+                        infoTxt = allProps_forceSensor[i].shortInfoTxt;
                     else
-                        infoTxt = descr;
+                    {
+                        auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt.c_str()).object();
+                        std::string descr = w["description"].toString().toStdString();
+                        std::string label = w["label"].toString().toStdString();
+                        if ( (infoTxt == "s") || (descr == "") )
+                            infoTxt = label;
+                        else
+                            infoTxt = descr;
+                    }
+                    break;
                 }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CForceSensor::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_forceSensor.size(); i++)
-        {
-            if (strcmp(allProps_forceSensor[i].name, ppName) == 0)
-            {
-                retVal = allProps_forceSensor[i].type;
-                info = allProps_forceSensor[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_forceSensor[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_forceSensor[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
             }
         }
     }

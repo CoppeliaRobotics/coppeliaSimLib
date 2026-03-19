@@ -8,7 +8,6 @@
 #include <guiApp.h>
 #endif
 
-static std::string OBJECT_TYPE = "collection";
 static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "object",
@@ -19,7 +18,9 @@ static std::string OBJECT_META_INFO = R"(
 
 CCollection::CCollection(int creatorHandle)
 {
-    _collectionHandle = -1;
+    _objectHandle = -1;
+    _objectTypeStr = "collection";
+    _objectMetaInfo = OBJECT_META_INFO;
     _creatorHandle = creatorHandle;
     _overridesObjectMainProperties = false;
     _uniquePersistentIdString = utils::generateUniqueAlphaNumericString();
@@ -132,7 +133,7 @@ bool CCollection::announceScriptStateWillBeErased(int scriptHandle, bool simulat
     return ((!sceneSwitchPersistentScript) && (_creatorHandle == scriptHandle));
 }
 
-bool CCollection::announceObjectWillBeErased(int objectHandle, bool copyBuffer)
+bool CCollection::announceObjectWillBeErased(long long int objectHandle, bool copyBuffer)
 { // Return value true means that this collection is empty
     bool retVal = false;
     size_t initialSubGroupListSize = getElementCount();
@@ -140,8 +141,7 @@ bool CCollection::announceObjectWillBeErased(int objectHandle, bool copyBuffer)
         size_t i = 0;
         while (i < getElementCount())
         {
-            if ((getElementFromIndex(i)->getMainObject() ==
-                 objectHandle)) //  GROUP_EVERYTHING is handled a little bit further down
+            if ((getElementFromIndex(i)->getMainObject() == objectHandle)) //  GROUP_EVERYTHING is handled a little bit further down
             {
                 _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
                 i = 0;
@@ -190,7 +190,7 @@ bool CCollection::setCollectionName(const char* newName, bool check)
 {
     CCollection* it = nullptr;
     if (check)
-        it = App::currentWorld->collections->getObjectFromHandle(_collectionHandle);
+        it = App::currentWorld->collections->getObjectFromHandle(_objectHandle);
     std::string nn;
     if (it != this)
         nn = newName;
@@ -226,7 +226,7 @@ bool CCollection::setCollectionName(const char* newName, bool check)
 void CCollection::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
-        _collectionHandle = CWorld::getLoadingMapping(map, _collectionHandle); // model save
+        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle); // model save
 }
 
 void CCollection::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
@@ -240,7 +240,7 @@ void CCollection::performObjectLoadingMapping(const std::map<int, int>* map, int
 CCollection* CCollection::copyYourself() const
 {
     CCollection* newCollection = new CCollection(-2);
-    newCollection->_collectionHandle = _collectionHandle; // important for copy operations connections
+    newCollection->_objectHandle = _objectHandle; // important for copy operations connections
     newCollection->_collectionName = _collectionName;
     for (size_t i = 0; i < getElementCount(); i++)
         newCollection->_addCollectionElement(getElementFromIndex(i)->copyYourself());
@@ -281,13 +281,10 @@ int CCollection::getSceneObjectHandleFromIndex(size_t index) const
 
 int CCollection::getLongProperty(const char* ppName, long long int& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = -1;
+    int retVal = Obj::getLongProperty(ppName, pState);
 
-    if (_pName == propCollection_handle.name)
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = _collectionHandle;
     }
 
     return retVal;
@@ -303,18 +300,11 @@ int CCollection::getHandleProperty(const char* ppName, long long int& pState) co
 
 int CCollection::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = -1;
+    int retVal = Obj::getStringProperty(ppName, pState);
 
-    if (_pName == propCollection_objectType.name)
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = OBJECT_TYPE;
-    }
-    else if (_pName == propCollection_objectMetaInfo.name)
-    {
-        retVal = 1;
-        pState = OBJECT_META_INFO;
+
     }
 
     return retVal;
@@ -337,11 +327,12 @@ int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long lon
     return retVal;
 }
 
-int CCollection::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
+int CCollection::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
+    int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
+        appartenance = _objectTypeStr;
         for (size_t i = 0; i < allProps_collection.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
@@ -362,9 +353,9 @@ int CCollection::getPropertyName(int& index, std::string& pName, std::string& ap
     return retVal;
 }
 
-int CCollection::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CCollection::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    int retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
+    int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_collection.size(); i++)
@@ -403,7 +394,7 @@ void CCollection::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Gix");
-            ar << _collectionHandle;
+            ar << int(_objectHandle);
             ar.flush();
 
             ar.storeDataName("Par");
@@ -447,7 +438,9 @@ void CCollection::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _collectionHandle;
+                        int tm;
+                        ar >> tm;
+                        _objectHandle = tm;
                     }
                     if (theName.compare("Asg") == 0)
                     {
@@ -484,7 +477,7 @@ void CCollection::serialize(CSer& ar)
         if (ar.isStoring())
         {
             if (exhaustiveXml)
-                ar.xmlAddNode_int("handle", _collectionHandle);
+                ar.xmlAddNode_int("handle", _objectHandle);
 
             if (exhaustiveXml)
                 ar.xmlAddNode_string("name", _collectionName.c_str());
@@ -513,7 +506,7 @@ void CCollection::serialize(CSer& ar)
         else
         {
             if (exhaustiveXml)
-                ar.xmlGetNode_int("handle", _collectionHandle);
+                ar.xmlGetNode_longlong("handle", _objectHandle);
 
             if (ar.xmlGetNode_string("name", _collectionName, exhaustiveXml) && (!exhaustiveXml))
             {
@@ -560,7 +553,7 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
         {
             if (App::getEventProtocolVersion()  >= 3)
             {
-                CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _collectionHandle, _collectionHandle, nullptr, false);
+                CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
                 if (App::getEventProtocolVersion() <= 3)
                     ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
                 else
@@ -569,7 +562,7 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
             }
             if (App::getEventProtocolVersion() <= 3)
             { // For backw. compatibility
-                CCbor* ev = App::worldContainer->createEvent("collectionChanged", -1, _collectionHandle, nullptr, false);
+                CCbor* ev = App::worldContainer->createEvent("collectionChanged", -1, _objectHandle, nullptr, false);
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
                 App::worldContainer->pushEvent();
             }
@@ -611,11 +604,6 @@ CCollectionElement* CCollection::getElementFromHandle(int collectionElementHandl
     return (nullptr);
 }
 
-int CCollection::getCollectionHandle() const
-{
-    return (_collectionHandle);
-}
-
 std::string CCollection::getCollectionName() const
 {
     return (_collectionName);
@@ -629,11 +617,11 @@ bool CCollection::setOverridesObjectMainProperties(bool o)
     return (diff);
 }
 
-bool CCollection::setCollectionHandle(int newHandle)
+bool CCollection::setCollectionHandle(long long int newHandle)
 {
-    bool diff = (_collectionHandle != newHandle);
-    _collectionHandle = newHandle;
-    return (diff);
+    bool diff = (_objectHandle != newHandle);
+    _objectHandle = newHandle;
+    return diff;
 }
 
 void CCollection::_addCollectionElement(CCollectionElement* collectionElement)
@@ -660,19 +648,19 @@ void CCollection::pushCreationEvent() const
     {
         if (App::getEventProtocolVersion()  >= 3)
         {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _collectionHandle, _collectionHandle, nullptr, false);
-            ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
+            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+            ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             else
                 ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-            ev->appendKeyInt64(propCollection_handle.name, _collectionHandle);
+            ev->appendKeyInt64(propObject_handle.name, _objectHandle);
             App::worldContainer->pushEvent();
         }
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
-            CCbor* ev = App::worldContainer->createEvent("collectionAdded", -1, _collectionHandle, nullptr, false);
-            ev->appendKeyText(propCollection_objectType.name, OBJECT_TYPE.c_str());
+            CCbor* ev = App::worldContainer->createEvent("collectionAdded", -1, _objectHandle, nullptr, false);
+            ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             App::worldContainer->pushEvent();
         }

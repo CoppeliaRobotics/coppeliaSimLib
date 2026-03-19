@@ -32,23 +32,25 @@ CScript::CScript(int scriptType, const char* text, int options, const char* lang
     _commonInit(scriptType, text, options, lang);
 }
 
-CScript::CScript(CScriptObject* scrObj)
+CScript::CScript(CDetachedScript* scrObj)
 {
     _commonInit(sim_scripttype_simulation, "", 0, nullptr);
-    delete scriptObject;
-    scriptObject = scrObj;
-    scriptObject->_sceneObjectScript = true;
+    delete detachedScript;
+    detachedScript = scrObj;
+    detachedScript->_sceneObjectScript = true;
 }
 
 void CScript::_commonInit(int scriptType, const char* text, int options, const char* lang)
 {
-    scriptObject = new CScriptObject(scriptType);
-    scriptObject->_scriptText = text;
-    scriptObject->_sceneObjectScript = true;
+    _objectTypeStr = "script";
+    _objectMetaInfo = OBJECT_META_INFO;
+    detachedScript = new CDetachedScript(scriptType);
+    detachedScript->_scriptText = text;
+    detachedScript->_sceneObjectScript = true;
     if ((scriptType != sim_scripttype_simulation) && (scriptType != sim_scripttype_customization))
         options |= 1;
-    scriptObject->setScriptIsDisabled(options & 1);
-    scriptObject->setLang(lang);
+    detachedScript->setScriptIsDisabled(options & 1);
+    detachedScript->setLang(lang);
     _objectType = sim_sceneobject_script;
     _localObjectSpecialProperty = 0;
     _objectProperty |= sim_objectproperty_dontshowasinsidemodel;
@@ -56,8 +58,8 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
     _resetAfterSimError = false;
 
     _visibilityLayer = SCRIPT_LAYER;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _scriptColor.setDefaultValues();
@@ -82,33 +84,33 @@ void CScript::setIsInScene(bool s)
 void CScript::setObjectHandle(int newObjectHandle)
 {
     CSceneObject::setObjectHandle(newObjectHandle);
-    scriptObject->_scriptHandle = newObjectHandle;
-    scriptObject->_sceneObjectHandle = newObjectHandle;
+    detachedScript->_scriptHandle = newObjectHandle;
+    detachedScript->_sceneObjectHandle = newObjectHandle;
 }
 
 bool CScript::canDestroyNow()
 { // overridden from CSceneObject
     bool retVal = CSceneObject::canDestroyNow();
-    if (scriptObject != nullptr)
+    if (detachedScript != nullptr)
     {
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow != nullptr)
-            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(scriptObject->getScriptUid(), scriptObject->_previousEditionWindowPosAndSize, true);
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(detachedScript->getScriptUid(), detachedScript->_previousEditionWindowPosAndSize, true);
 #endif
-        if (scriptObject->getExecutionDepth() != 0)
+        if (detachedScript->getExecutionDepth() != 0)
             retVal = false;
         if (retVal)
         {
-            if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
-                scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-            scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
-            scriptObject->resetScript();
+            if (detachedScript->_scriptState == CDetachedScript::scriptState_initialized)
+                detachedScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+            detachedScript->_scriptState = CDetachedScript::scriptState_ended; // just in case
+            detachedScript->resetScript();
             // Announcements need to happen immediately after calling cleanup!
-            App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
-            App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
+            App::worldContainer->announceScriptStateWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
+            App::worldContainer->announceScriptWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
             App::worldContainer->setModificationFlag(16384);
-            CScriptObject::destroy(scriptObject, true, true);
-            scriptObject = nullptr;
+            CDetachedScript::destroy(detachedScript, true, true);
+            detachedScript = nullptr;
             if (_isInScene && App::worldContainer->getEventsEnabled())
             { // indicate that this object does not have any detachedScript attached anymore
                 const char* cmd = propScript_detachedScript.name;
@@ -124,14 +126,9 @@ bool CScript::canDestroyNow()
     return retVal;
 }
 
-std::string CScript::getObjectTypeInfo() const
-{
-    return "script";
-}
-
 std::string CScript::getObjectTypeInfoExtended() const
 {
-    return getObjectTypeInfo();
+    return _objectTypeStr;
 }
 
 bool CScript::isPotentiallyCollidable() const
@@ -165,11 +162,11 @@ void CScript::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CScript::addSpecializedObjectEventData(CCbor* ev)
+void CScript::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyArray("colors");
         float c[9];
         _scriptColor.getColor(c, sim_colorcomponent_ambient_diffuse);
@@ -183,11 +180,12 @@ void CScript::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyDouble(propScript_size.name, _scriptSize);
     ev->appendKeyBool(propScript_resetAfterSimError.name, _resetAfterSimError);
     if (App::getEventProtocolVersion() <= 3)
-        ev->appendKeyInt64(propScript_detachedScript.name, scriptObject->getScriptPseudoHandle());
+        ev->appendKeyInt64(propScript_detachedScript.name, detachedScript->getObjectHandle());
     else
-        ev->appendKeyHandle(propScript_detachedScript.name, scriptObject->getScriptPseudoHandle());
+        ev->appendKeyHandle(propScript_detachedScript.name, detachedScript->getObjectHandle());
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // script
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CScript::copyYourself()
@@ -198,8 +196,8 @@ CSceneObject* CScript::copyYourself()
     newScript->_scriptSize = _scriptSize;
     newScript->_resetAfterSimError = _resetAfterSimError;
 
-    newScript->scriptObject = scriptObject->copyYourself();
-    newScript->scriptObject->_sceneObjectScript = true;
+    newScript->detachedScript = detachedScript->copyYourself();
+    newScript->detachedScript->_sceneObjectScript = true;
 
     return (newScript);
 }
@@ -255,14 +253,14 @@ void CScript::performDynMaterialObjectLoadingMapping(const std::map<int, int>* m
 void CScript::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
-    scriptObject->initializeInitialValues(simulationAlreadyRunning);
+    detachedScript->initializeInitialValues(simulationAlreadyRunning);
 }
 
 void CScript::simulationAboutToStart()
 {
     initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
-    scriptObject->simulationAboutToStart();
+    detachedScript->simulationAboutToStart();
 }
 
 void CScript::simulationEnded()
@@ -274,7 +272,7 @@ void CScript::simulationEnded()
         {
         }
     }
-    scriptObject->simulationEnded();
+    detachedScript->simulationEnded();
     CSceneObject::simulationEnded();
 }
 
@@ -303,9 +301,9 @@ void CScript::serialize(CSer& ar)
 
             ar.storeDataName("Soo");
             ar.setCountingMode();
-            scriptObject->serialize(ar);
+            detachedScript->serialize(ar);
             if (ar.setWritingMode())
-                scriptObject->serialize(ar);
+                detachedScript->serialize(ar);
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -346,7 +344,7 @@ void CScript::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        scriptObject->serialize(ar);
+                        detachedScript->serialize(ar);
                     }
 
                     if (noHit)
@@ -377,7 +375,7 @@ void CScript::serialize(CSer& ar)
             }
             ar.xmlPopNode();
 
-            scriptObject->serialize(ar);
+            detachedScript->serialize(ar);
         }
         else
         {
@@ -398,7 +396,7 @@ void CScript::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
 
-            scriptObject->serialize(ar);
+            detachedScript->serialize(ar);
 
             computeBoundingBox();
         }
@@ -429,12 +427,12 @@ double CScript::getScriptSize() const
 
 void CScript::reinitAfterSimulationIfNeeded()
 {
-    if (scriptObject != nullptr)
+    if (detachedScript != nullptr)
     {
-        if (scriptObject->getScriptType() == sim_scripttype_customization)
+        if (detachedScript->getScriptType() == sim_scripttype_customization)
         {
-            if ((scriptObject->getScriptState() & CScriptObject::scriptState_error) && _resetAfterSimError)
-                scriptObject->initScript();
+            if ((detachedScript->getScriptState() & CDetachedScript::scriptState_error) && _resetAfterSimError)
+                detachedScript->initScript();
         }
     }
 }
@@ -482,9 +480,9 @@ void CScript::resetAfterSimError(bool r)
     }
 }
 
-int CScript::getScriptPseudoHandle() const
+int CScript::getDetachedScriptHandle() const
 {
-    return scriptObject->getScriptPseudoHandle();
+    return detachedScript->getObjectHandle();
 }
 
 #ifdef SIM_WITH_GUI
@@ -513,12 +511,12 @@ int CScript::setBoolProperty(const char* ppName, bool pState)
         if (strcmp(propScript_scriptDisabled.name, ppName) == 0)
         {
             retVal = 1;
-            scriptObject->setScriptIsDisabled(pState);
+            detachedScript->setScriptIsDisabled(pState);
         }
         else if (strcmp(propScript_restartOnError.name, ppName) == 0)
         {
             retVal = 1;
-            scriptObject->setAutoRestartOnError(pState);
+            detachedScript->setAutoRestartOnError(pState);
         }
     }
 
@@ -544,12 +542,12 @@ int CScript::getBoolProperty(const char* ppName, bool& pState) const
         if (strcmp(propScript_scriptDisabled.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getScriptIsDisabled();
+            pState = detachedScript->getScriptIsDisabled();
         }
         else if (strcmp(propScript_restartOnError.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getAutoRestartOnError();
+            pState = detachedScript->getAutoRestartOnError();
         }
     }
 
@@ -570,7 +568,7 @@ int CScript::setIntProperty(const char* ppName, int pState)
         if (strcmp(propScript_execPriority.name, ppName) == 0)
         {
             retVal = 1;
-            scriptObject->setScriptExecPriority(pState);
+            detachedScript->setScriptExecPriority(pState);
         }
     }
 
@@ -591,22 +589,22 @@ int CScript::getIntProperty(const char* ppName, int& pState) const
         if (strcmp(propScript_execPriority.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getScriptExecPriority();
+            pState = detachedScript->getScriptExecPriority();
         }
         else if (strcmp(propScript_scriptType.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getScriptType();
+            pState = detachedScript->getScriptType();
         }
         else if (strcmp(propScript_executionDepth.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getExecutionDepth();
+            pState = detachedScript->getExecutionDepth();
         }
         else if (strcmp(propScript_scriptState.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getScriptState();
+            pState = detachedScript->getScriptState();
         }
     }
 
@@ -644,8 +642,8 @@ int CScript::getHandleProperty(const char* ppName, long long int& pState) const
         {
             retVal = 1;
             pState = -1;
-            if (scriptObject != nullptr)
-                pState = scriptObject->getScriptPseudoHandle();
+            if (detachedScript != nullptr)
+                pState = detachedScript->getObjectHandle();
         }
      }
 
@@ -700,7 +698,7 @@ int CScript::setStringProperty(const char* ppName, const char* pState)
         if (strcmp(propScript_code.name, ppName) == 0)
         {
             retVal = 1;
-            scriptObject->setScriptText(pState);
+            detachedScript->setScriptText(pState);
         }
     }
 
@@ -711,14 +709,6 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if ( (retVal == -1) || (_pName == propScript_objectMetaInfo.name) ) // special with propScript_objectMetaInfo
-    {
-        if (_pName == propScript_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
-    }
 
     // for backw. compatibility
     if (retVal == -1)
@@ -730,27 +720,27 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
             if (GuiApp::mainWindow != nullptr)
                 GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
-            pState = scriptObject->getScriptText();
+            pState = detachedScript->getScriptText();
         }
         else if (strcmp(propScript_language.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getLang();
+            pState = detachedScript->getLang();
         }
         else if (strcmp(propScript_scriptName.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getScriptName();
+            pState = detachedScript->getScriptName();
         }
         else if (strcmp(propScript_addOnPath.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getAddOnPath();
+            pState = detachedScript->getAddOnPath();
         }
         else if (strcmp(propScript_addOnMenuPath.name, ppName) == 0)
         {
             retVal = 1;
-            pState = scriptObject->getAddOnMenuPath();;
+            pState = detachedScript->getAddOnMenuPath();;
         }
     }
 
@@ -780,42 +770,24 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "script";
+        appartenance = _objectTypeStr;
         retVal = _scriptColor.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-        retVal = getPropertyName_localStatic(index, pName, appartenance, excludeFlags);
-    return retVal;
-}
-
-int CScript::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "script";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-        retVal = getPropertyName_localStatic(index, pName, appartenance, excludeFlags);
-    return retVal;
-}
-
-int CScript::getPropertyName_localStatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_script.size(); i++)
-    {
-        if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
+        if (retVal == -1)
         {
-            if ((allProps_script[i].flags & excludeFlags) == 0)
+            for (size_t i = 0; i < allProps_script.size(); i++)
             {
-                index--;
-                if (index == -1)
+                if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
                 {
-                    pName = allProps_script[i].name;
-                    retVal = 1;
-                    break;
+                    if ((allProps_script[i].flags & excludeFlags) == 0)
+                    {
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_script[i].name;
+                            retVal = 1;
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -825,48 +797,31 @@ int CScript::getPropertyName_localStatic(int& index, std::string& pName, std::st
 
 int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = _scriptColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-        retVal = getPropertyInfo_localStatic(ppName, info, infoTxt);
-    return retVal;
-}
-
-int CScript::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
-    if (retVal == -1)
-        retVal = getPropertyInfo_localStatic(ppName, info, infoTxt);
-    return retVal;
-}
-
-int CScript::getPropertyInfo_localStatic(const char* ppName, int& info, std::string& infoTxt)
-{
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_script.size(); i++)
     {
-        if (strcmp(allProps_script[i].name, ppName) == 0)
+        for (size_t i = 0; i < allProps_script.size(); i++)
         {
-            retVal = allProps_script[i].type;
-            info = allProps_script[i].flags;
-            if (infoTxt == "j")
-                infoTxt = allProps_script[i].shortInfoTxt;
-            else
+            if (strcmp(allProps_script[i].name, ppName) == 0)
             {
-                auto w = QJsonDocument::fromJson(allProps_script[i].shortInfoTxt.c_str()).object();
-                std::string descr = w["description"].toString().toStdString();
-                std::string label = w["label"].toString().toStdString();
-                if ( (infoTxt == "s") || (descr == "") )
-                    infoTxt = label;
+                retVal = allProps_script[i].type;
+                info = allProps_script[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_script[i].shortInfoTxt;
                 else
-                    infoTxt = descr;
+                {
+                    auto w = QJsonDocument::fromJson(allProps_script[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
             }
-            break;
         }
     }
     return retVal;

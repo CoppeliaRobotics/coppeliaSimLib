@@ -15,17 +15,6 @@
 #include <guiApp.h>
 #endif
 
-static std::string OBJECT_TYPE = "scene";
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 int CEnvironment::_nextSceneUniqueID = 0;
 bool CEnvironment::_shapeTexturesTemporarilyDisabled = false;
 bool CEnvironment::_shapeEdgesTemporarilyDisabled = false;
@@ -165,13 +154,11 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyBool(propScene_saveCalculationStructs.name, _saveExistingCalculationStructures);
     ev->appendKeyInt64(propScene_sceneUid.name, _sceneUniqueID);
     int msh = -1;
-    CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+    CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
         msh = it->getScriptHandle();
-    ev->appendKeyInt64(propScene_handle.name, sim_handle_scene);
     ev->appendKeyInt64(propScene_visibilityLayers.name, _activeLayers);
     ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
-    ev->appendKeyText(propScene_objectType.name, OBJECT_TYPE.c_str());
     ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
     ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
     if (App::getEventProtocolVersion() <= 3)
@@ -1179,12 +1166,6 @@ int CEnvironment::getLongProperty(const char* pName, long long int& pState) cons
 {
     int retVal = -1;
 
-    if (strcmp(pName, propScene_handle.name) == 0)
-    {
-        pState = sim_handle_scene;
-        retVal = 1;
-    }
-
     return retVal;
 }
 
@@ -1194,7 +1175,7 @@ int CEnvironment::getHandleProperty(const char* pName, long long int& pState) co
 
     if (strcmp(pName, propScene_mainScript.name) == 0)
     {
-        CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         pState = -1;
         if (it != nullptr)
             pState = it->getScriptHandle();
@@ -1229,16 +1210,6 @@ int CEnvironment::getStringProperty(const char* pName, std::string& pState) cons
     if (strcmp(pName, propScene_scenePath.name) == 0)
     {
         pState = _scenePathAndName;
-        retVal = 1;
-    }
-    else if (strcmp(pName, propScene_objectType.name) == 0)
-    {
-        pState = OBJECT_TYPE;
-        retVal = 1;
-    }
-    else if (strcmp(pName, propScene_objectMetaInfo.name) == 0)
-    {
-        pState = OBJECT_META_INFO;
         retVal = 1;
     }
     else if (strcmp(pName, propScene_acknowledgment.name) == 0)

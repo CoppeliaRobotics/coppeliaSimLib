@@ -368,7 +368,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::currentWorld->sceneObjects->getLastSelectionHandle();
-            CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            CDetachedScript* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_simulation, id);
             if (script != nullptr)
             {
@@ -393,7 +393,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::currentWorld->sceneObjects->getLastSelectionHandle();
-            CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            CDetachedScript* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_customization, id);
             if (script != nullptr)
             {

@@ -212,7 +212,7 @@ void CQDlgCollections::refreshGroupList()
     {
         CCollection* it = App::currentWorld->collections->getObjectFromIndex(i);
         std::string tmp = it->getCollectionName();
-        int id = it->getCollectionHandle();
+        int id = it->getObjectHandle();
         QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
         itm->setData(Qt::UserRole, QVariant(id));
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
@@ -322,8 +322,7 @@ void CQDlgCollections::on_qqCollectionList_itemChanged(QListWidgetItem* item)
                     tt::removeIllegalCharacters(newName, true);
                     if (App::currentWorld->collections->getObjectFromName(newName.c_str()) == nullptr)
                     {
-                        App::appendSimulationThreadCommand(RENAME_COLLECTION_COLLECTIONGUITRIGGEREDCMD,
-                                                           it->getCollectionHandle(), -1, 0.0, 0.0, newName.c_str());
+                        App::appendSimulationThreadCommand(RENAME_COLLECTION_COLLECTIONGUITRIGGEREDCMD, it->getObjectHandle(), -1, 0.0, 0.0, newName.c_str());
                         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     }
                 }
@@ -421,8 +420,7 @@ void CQDlgCollections::doTheOperation(int opType, bool additive)
                 {
                     if (it->getSceneObjectCountInCollection() == 0)
                     { // "Everything"-tag can only be added to an empty collection (first position)
-                        App::appendSimulationThreadCommand(ADD_COLLECTION_ITEM_EVERYTHING_COLLECTIONGUITRIGGEREDCMD,
-                                                           it->getCollectionHandle());
+                        App::appendSimulationThreadCommand(ADD_COLLECTION_ITEM_EVERYTHING_COLLECTIONGUITRIGGEREDCMD, it->getObjectHandle());
                         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     }
                 }
@@ -430,7 +428,7 @@ void CQDlgCollections::doTheOperation(int opType, bool additive)
                 {
                     SSimulationThreadCommand cmd;
                     cmd.cmdId = ADD_COLLECTION_ITEM_LOOS_COLLECTIONGUITRIGGEREDCMD;
-                    cmd.intParams.push_back(it->getCollectionHandle());
+                    cmd.intParams.push_back(it->getObjectHandle());
                     for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
                         cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     cmd.boolParams.push_back(additive);
@@ -444,7 +442,7 @@ void CQDlgCollections::doTheOperation(int opType, bool additive)
                         return;
                     SSimulationThreadCommand cmd;
                     cmd.cmdId = ADD_COLLECTION_ITEM_FROMBASE_COLLECTIONGUITRIGGEREDCMD;
-                    cmd.intParams.push_back(it->getCollectionHandle());
+                    cmd.intParams.push_back(it->getObjectHandle());
                     cmd.intParams.push_back(lastSel->getObjectHandle());
                     cmd.boolParams.push_back(additive);
                     cmd.boolParams.push_back(baseInclusive);
@@ -458,7 +456,7 @@ void CQDlgCollections::doTheOperation(int opType, bool additive)
                         return;
                     SSimulationThreadCommand cmd;
                     cmd.cmdId = ADD_COLLECTION_ITEM_FROMTIP_COLLECTIONGUITRIGGEREDCMD;
-                    cmd.intParams.push_back(it->getCollectionHandle());
+                    cmd.intParams.push_back(it->getObjectHandle());
                     cmd.intParams.push_back(lastSel->getObjectHandle());
                     cmd.boolParams.push_back(additive);
                     cmd.boolParams.push_back(tipInclusive);

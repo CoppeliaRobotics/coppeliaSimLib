@@ -30,7 +30,7 @@ CDrawingObject* CDrawingContainer::getObjectFromHandle(int objectId) const
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
     {
-        if (_allObjects[i]->getObjectId() == objectId)
+        if (_allObjects[i]->getObjectHandle() == objectId)
             return _allObjects[i];
     }
     return nullptr;
@@ -63,7 +63,7 @@ void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
         for (size_t i = 0; i < _allObjects.size(); i++)
         {
             CDrawingObject* dr = _allObjects[i];
-            handles.push_back(dr->getObjectId());
+            handles.push_back(dr->getObjectHandle());
         }
         const char* cmd = propDrawingObjectCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
@@ -79,18 +79,18 @@ void CDrawingContainer::removeObject(int objectId)
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
     {
-        if (_allObjects[i]->getObjectId() == objectId)
+        if (_allObjects[i]->getObjectHandle() == objectId)
         {
             if (App::worldContainer->getEventsEnabled())
             {
                 if (App::getEventProtocolVersion()  >= 3)
                 {
-                    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,  _allObjects[i]->getObjectId(), _allObjects[i]->getObjectId(), nullptr, false);
+                    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
                     App::worldContainer->pushEvent();
                 }
                 if (App::getEventProtocolVersion() <= 3)
                 { // For backw. compatibility
-                    App::worldContainer->createEvent("drawingObjectRemoved",  _allObjects[i]->getObjectId(), _allObjects[i]->getObjectId(), nullptr, false);
+                    App::worldContainer->createEvent("drawingObjectRemoved",  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
                     App::worldContainer->pushEvent();
                 }
             }
@@ -107,7 +107,7 @@ void CDrawingContainer::removeObject(int objectId)
 void CDrawingContainer::eraseAllObjects()
 {
     while (_allObjects.size() > 0)
-        removeObject(_allObjects[0]->getObjectId());
+        removeObject(_allObjects[0]->getObjectHandle());
 }
 
 void CDrawingContainer::announceObjectWillBeErased(const CSceneObject* object)
@@ -116,7 +116,7 @@ void CDrawingContainer::announceObjectWillBeErased(const CSceneObject* object)
     while (i < _allObjects.size())
     {
         if (_allObjects[i]->announceObjectWillBeErased(object))
-            removeObject(_allObjects[i]->getObjectId());
+            removeObject(_allObjects[i]->getObjectHandle());
         else
             i++;
     }
@@ -128,9 +128,8 @@ void CDrawingContainer::announceScriptStateWillBeErased(int scriptHandle, bool s
     size_t i = 0;
     while (i < _allObjects.size())
     {
-        if (_allObjects[i]->announceScriptStateWillBeErased(scriptHandle, simulationScript,
-                                                            sceneSwitchPersistentScript))
-            removeObject(_allObjects[i]->getObjectId());
+        if (_allObjects[i]->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript))
+            removeObject(_allObjects[i]->getObjectHandle());
         else
             i++;
     }
@@ -144,7 +143,7 @@ void CDrawingContainer::pushGenesisEvents()
         CDrawingObject* dr = _allObjects[i];
         dr->pushAddEvent();
         // We need to "fake" adding that drawing object:
-        addedObjects.push_back(dr->getObjectId());
+        addedObjects.push_back(dr->getObjectHandle());
         const char* cmd = propDrawingObjectCont_drawingObjects.name;
         CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
@@ -218,7 +217,7 @@ int CDrawingContainer::getHandleArrayProperty(long long int target, const char* 
         if (strcmp(pName, propDrawingObjectCont_drawingObjects.name) == 0)
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
-                pState.push_back(_allObjects[i]->getObjectId());
+                pState.push_back(_allObjects[i]->getObjectHandle());
             retVal = 1;
         }
     }

@@ -369,7 +369,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     {
         bool hasScript = false;
         // Old simulation scripts:
-        CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, it->getObjectHandle());
+        CDetachedScript* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, it->getObjectHandle());
         if (script != nullptr)
         {
             hasScript = true;
@@ -397,7 +397,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
         }
 
         // Old Customization scripts:
-        CScriptObject* customizationScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CDetachedScript* customizationScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customization, it->getObjectHandle());
         if (customizationScript != nullptr)
         {
@@ -427,14 +427,14 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
 
         //if (hasScript)
         { // User params:
-            CScriptObject* newScript = nullptr;
+            CDetachedScript* newScript = nullptr;
             if (it->getObjectType() == sim_sceneobject_script)
             {
                 CScript* so = (CScript*)it;
-                if (so->scriptObject->getScriptType() == sim_scripttype_customization)
+                if (so->detachedScript->getScriptType() == sim_scripttype_customization)
                 {
-                    if ((!so->scriptObject->getScriptIsDisabled()) && (!so->scriptObject->getScriptHasError()) && so->scriptObject->hasSystemFunctionOrHook(sim_syscb_userconfig))
-                        newScript = so->scriptObject;
+                    if ((!so->detachedScript->getScriptIsDisabled()) && (!so->detachedScript->getScriptHasError()) && so->detachedScript->hasSystemFunctionOrHook(sim_syscb_userconfig))
+                        newScript = so->detachedScript;
                 }
             }
             else
@@ -445,11 +445,11 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                     if (ch->getObjectType() == sim_sceneobject_script)
                     {
                         CScript* so = (CScript*)ch;
-                        if (so->scriptObject->getScriptType() == sim_scripttype_customization)
+                        if (so->detachedScript->getScriptType() == sim_scripttype_customization)
                         {
-                            if ((!so->scriptObject->getScriptIsDisabled()) && (!so->scriptObject->getScriptHasError()) && so->scriptObject->hasSystemFunctionOrHook(sim_syscb_userconfig))
+                            if ((!so->detachedScript->getScriptIsDisabled()) && (!so->detachedScript->getScriptHasError()) && so->detachedScript->hasSystemFunctionOrHook(sim_syscb_userconfig))
                             {
-                                newScript = so->scriptObject;
+                                newScript = so->detachedScript;
                                 break;
                             }
                         }
@@ -503,7 +503,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     }
     else
     { // This is for the main script (pseudo object "world"):
-        CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (script != nullptr)
         {
             if (!dontDisplay)
@@ -788,7 +788,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier, int tPosX, int tP
                     objectOrWorldIconID = MARKER_TREE_PICTURE;
                 if (type == sim_sceneobject_script)
                 {
-                    CScriptObject* script = ((CScript*)it)->scriptObject;
+                    CDetachedScript* script = ((CScript*)it)->detachedScript;
                     if (script->getScriptType() == sim_scripttype_simulation)
                     {
                         if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))

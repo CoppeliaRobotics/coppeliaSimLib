@@ -2490,6 +2490,42 @@ bool CSer::xmlGetNode_uint(const char* name, unsigned int& val, bool required /*
     return (false);
 }
 
+bool CSer::xmlGetNode_longlong(const char* name, long long& val, bool required /*=true*/)
+{
+    if (xmlDebug)
+        App::logMsg(sim_verbosity_debug, "XML read: xmlGetNode_longlong, name: %s", name);
+    const xmlNode* node = _xmlCurrentNode->FirstChildElement(name);
+    if (node != nullptr)
+    {
+        std::string str(_getNodeText(node));
+        std::string buff;
+        std::stringstream ss(str);
+        if (ss >> buff)
+        {
+            try
+            {
+                val = boost::lexical_cast<long long>(buff);
+            }
+            catch (boost::bad_lexical_cast&)
+            {
+                if (required)
+                    App::logMsg(sim_verbosity_warnings, "XML read: bad value(s) in node '%s'.", name);
+                return (false);
+            }
+        }
+        else
+        {
+            if (required)
+                App::logMsg(sim_verbosity_warnings, "XML read: missing value(s) in node '%s'.", name);
+            return (false);
+        }
+        return (true);
+    }
+    if (required)
+        warnMissingNode(name);
+    return (false);
+}
+
 bool CSer::xmlGetNode_ulonglong(const char* name, unsigned long long& val, bool required /*=true*/)
 {
     if (xmlDebug)

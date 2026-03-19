@@ -35,14 +35,9 @@ CCamera::CCamera()
     commonInit();
 }
 
-std::string CCamera::getObjectTypeInfo() const
-{
-    return "camera";
-}
-
 std::string CCamera::getObjectTypeInfoExtended() const
 {
-    return getObjectTypeInfo();
+    return _objectTypeStr;
 }
 bool CCamera::isPotentiallyCollidable() const
 {
@@ -669,6 +664,8 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
 
 void CCamera::commonInit()
 {
+    _objectTypeStr = "camera";
+    _objectMetaInfo = OBJECT_META_INFO;
     _showVolume = false;
     _objectType = sim_sceneobject_camera;
     _nearClippingPlane = 0.05;
@@ -707,8 +704,8 @@ void CCamera::commonInit()
     _color_removeSoon.setDefaultValues();
     _color_removeSoon.setColor(0.22f, 0.22f, 0.22f, sim_colorcomponent_ambient_diffuse);
 
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
     computeVolumeVectors();
@@ -958,11 +955,11 @@ void CCamera::removeSceneDependencies()
     setTrackedObjectHandle(-1);
 }
 
-void CCamera::addSpecializedObjectEventData(CCbor* ev)
+void CCamera::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyArray("colors");
         float c[9];
         _color.getColor(c, sim_colorcomponent_ambient_diffuse);
@@ -992,9 +989,30 @@ void CCamera::addSpecializedObjectEventData(CCbor* ev)
     ev->appendKeyBool(propCamera_translationEnabled.name, _allowTranslation);
     ev->appendKeyBool(propCamera_rotationEnabled.name, _allowRotation);
     ev->appendKeyInt64(propCamera_trackedObjectHandle.name, _trackedObjectHandle);
-    CViewableBase::addSpecializedObjectEventData(ev);
     if (App::getEventProtocolVersion() == 2)
+    {
+        ev->appendKeyDouble(propViewableBase_viewAngle.name, _viewAngle);
+        ev->appendKeyDouble(propViewableBase_viewSize.name, _orthoViewSize);
+        double arr[2] = {_nearClippingPlane, _farClippingPlane};
+        ev->appendKeyDoubleArray(propViewableBase_clippingPlanes.name, arr, 2);
+        ev->appendKeyBool(propViewableBase_perspective.name, _perspective);
+        ev->appendKeyBool(propViewableBase_showFrustum.name, _showVolume);
+        if (App::getEventProtocolVersion() <= 3)
+        {
+            ev->appendKeyDoubleArray(propViewableBase_frustumCornerNear.name, _volumeVectorNear.data, 3);
+            ev->appendKeyDoubleArray(propViewableBase_frustumCornerFar.name, _volumeVectorFar.data, 3);
+        }
+        else
+        {
+            ev->appendKeyVector3(propViewableBase_frustumCornerNear.name, _volumeVectorNear);
+            ev->appendKeyVector3(propViewableBase_frustumCornerFar.name, _volumeVectorFar);
+        }
+        ev->appendKeyInt32Array(propViewableBase_resolution.name, _resolution, 2);
         ev->closeArrayOrMap(); //"camera"
+        CSceneObject::addObjectEventData(ev);
+    }
+    else
+        CViewableBase::addObjectEventData(ev);
 }
 
 CSceneObject* CCamera::copyYourself()
@@ -3426,11 +3444,6 @@ int CCamera::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propCamera_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -3572,60 +3585,27 @@ int CCamera::getIntArrayProperty(const char* ppName, std::vector<int>& pState) c
 
 int CCamera::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
+    appartenance = _objectTypeStr; // important here too, since viewableBase items are part of camera
+    int retVal = CViewableBase::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "camera";
+        appartenance = _objectTypeStr;
         retVal = _color.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-        retVal = CViewableBase::getPropertyName_vstatic(index, pName, excludeFlags);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_camera.size(); i++)
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_camera[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_camera.size(); i++)
             {
-                if ((allProps_camera[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_camera[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_camera[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_camera[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CCamera::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "camera";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-        retVal = CViewableBase::getPropertyName_vstatic(index, pName, excludeFlags);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_camera.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_camera[i].name, pName.c_str()))
-            {
-                if ((allProps_camera[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_camera[i].name;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_camera[i].name;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -3636,47 +3616,9 @@ int CCamera::getPropertyName_static(int& index, std::string& pName, std::string&
 
 int CCamera::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
+    int retVal = CViewableBase::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = _color.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_camera.size(); i++)
-        {
-            if (strcmp(allProps_camera[i].name, ppName) == 0)
-            {
-                retVal = allProps_camera[i].type;
-                info = allProps_camera[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_camera[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_camera[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CCamera::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
-    if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)

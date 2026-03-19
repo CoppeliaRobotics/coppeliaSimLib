@@ -1176,7 +1176,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
     int scriptID = getScriptActionObjectID(mouseDownRelativePosition[0], mouseDownRelativePosition[1]);
     if (scriptID != -1)
     {
-        CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
+        CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptID);
         if (it != nullptr)
         {
             // Process the command via the simulation thread (delayed):
@@ -1577,16 +1577,16 @@ void CHierarchy::addMenu(VMenu* menu)
         CScript* script = App::currentWorld->sceneObjects->getScriptFromHandle(h);
         if (script != nullptr)
         { // new scripts
-            bool enabled = (!script->scriptObject->getScriptIsDisabled()) && ((script->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0);
-            enabled = enabled && (script->scriptObject->getScriptState() >= CScriptObject::scriptState_initialized);
+            bool enabled = (!script->detachedScript->getScriptIsDisabled()) && ((script->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0);
+            enabled = enabled && (script->detachedScript->getScriptState() >= CDetachedScript::scriptState_initialized);
             menu->appendMenuSeparator();
             menu->appendMenuItem(enabled, false, RESTART_SCRIPT_CMD, "Restart script");
             menu->appendMenuSeparator();
         }
         else
         { // old scripts
-            CScriptObject* childS = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
-            CScriptObject* custS = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, h);
+            CDetachedScript* childS = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
+            CDetachedScript* custS = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, h);
             if ((childS != nullptr) || (custS != nullptr))
             {
                 menu->appendMenuSeparator();
@@ -1718,7 +1718,7 @@ bool CHierarchy::processCommand(int commandID)
         SSimulationThreadCommand cmd;
         cmd.cmdId = RESTART_SCRIPT_CMD;
         int h = App::currentWorld->sceneObjects->getLastSelectionHandle();
-        CScriptObject* s = nullptr;
+        CDetachedScript* s = nullptr;
         if (commandID == RESTART_CHILD_SCRIPT_CMD)
             s = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
         if (commandID == RESTART_CUSTOMIZATION_SCRIPT_CMD)

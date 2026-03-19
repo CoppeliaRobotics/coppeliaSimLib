@@ -558,7 +558,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp
     sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
 
-    sourceCode/scripting/scriptObject.cpp
+    sourceCode/scripting/detachedScript.cpp
     sourceCode/scripting/outsideCommandQueueForScript.cpp
     sourceCode/scripting/luaWrapper.cpp
 

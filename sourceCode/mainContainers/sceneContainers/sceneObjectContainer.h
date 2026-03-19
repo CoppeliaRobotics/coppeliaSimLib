@@ -30,8 +30,8 @@ struct SSimpleXmlSceneObject
 {
     CSceneObject* object;
     CSceneObject* parentObject;
-    CScriptObject* childScript;
-    CScriptObject* customizationScript;
+    CDetachedScript* childScript;
+    CDetachedScript* customizationScript;
 };
 
 class CSceneObjectContainer
@@ -51,7 +51,7 @@ class CSceneObjectContainer
     CSceneObject* getObjectFromAltName_old(const char* objectAltName) const;
     int getObjectHandleFromName_old(const char* objectName) const;
     int getObjects_hierarchyOrder(std::vector<CSceneObject*>& allObjects);
-    CScriptObject* getDetachedScriptFromScriptPseudoHandle(int h) const;
+    CDetachedScript* getDetachedScriptFromScriptPseudoHandle(int h) const;
 
     size_t getOrphanCount() const;
     size_t getSimpleShapeCount() const;
@@ -75,8 +75,8 @@ class CSceneObjectContainer
     COcTree* getOctreeFromIndex(size_t index) const;
     CPointCloud* getPointCloudFromIndex(size_t index) const;
 
-    CScriptObject* getScriptObjectFromHandle(int handle) const;
-    CScriptObject* getScriptObjectFromUid(int uid) const;
+    CDetachedScript* getDetachedScriptFromHandle(int handle) const;
+    CDetachedScript* getDetachedScriptFromUid(int uid) const;
 
     CDummy* getDummyFromHandle(int objectHandle) const;
     CScript* getScriptFromHandle(int objectHandle) const;
@@ -152,7 +152,7 @@ class CSceneObjectContainer
     bool shouldTemporarilySuspendMainScript();
     size_t getScriptsToExecute(std::vector<int>& scriptHandles, int scriptType, bool legacyEmbeddedScripts, bool reverseOrder) const;
 
-    void getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
+    void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
     void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
     int callScripts_noMainScript(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
     void setScriptsTemporarilySuspended(bool suspended);
@@ -217,8 +217,8 @@ class CSceneObjectContainer
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
     int removeProperty(long long int target, const char* pName);
-    static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject, int excludeFlags);
-    static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CSceneObjectContainer* targetObject);
+    int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
+    int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt);
 
     std::string getModelState(int modelHandle, int debugPos = -1) const;
 
@@ -283,7 +283,7 @@ class CSceneObjectContainer
     void _removeObject(CSceneObject* object);
 
   private:
-    void _getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse = false) const;
+    void _getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false) const;
     int _callScripts(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
     CShape* _readSimpleXmlShape(CSer& ar, C7Vector& desiredLocalFrame);
     CShape* _createSimpleXmlShape(CSer& ar, bool noHeightfield, const char* itemType, bool checkSibling);

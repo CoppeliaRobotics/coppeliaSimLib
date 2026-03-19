@@ -13,11 +13,23 @@
 #include <interfaceStackColor.h>
 #include <interfaceStackHandleArray.h>
 #include <cbor.h>
+#include <tt.h>
+#include <utils.h>
 #include <algorithm>
+
+static std::string OBJECT_META_INFO = R"(
+{
+    "superclass": "object",
+    "namespaces": {
+    }
+}
+)";
 
 CInterfaceStack::CInterfaceStack(int a, int b, const char* c)
 { // args just to avoid direct object creation
-    _interfaceStackId = -1;
+    _objectHandle = -1;
+    _objectTypeStr = "stack";
+    _objectMetaInfo = OBJECT_META_INFO;
 }
 
 CInterfaceStack::~CInterfaceStack()
@@ -27,17 +39,7 @@ CInterfaceStack::~CInterfaceStack()
 
 void CInterfaceStack::setId(int id)
 {
-    _interfaceStackId = id;
-}
-
-int CInterfaceStack::getId() const
-{
-    if (_interfaceStackId == -1)
-    {
-        printf("CInterfaceStack::getId() returns -1! Crashing now...");
-        abort();
-    }
-    return (_interfaceStackId);
+    _objectHandle = id;
 }
 
 int CInterfaceStack::getStackSize() const
@@ -60,8 +62,8 @@ void CInterfaceStack::printContent(int cIndex, std::string& buffer) const
 {
     if (cIndex < 0)
     {
-        buffer = "STACK CONTENT:\n";
-        buffer += "--------------\n";
+//        buffer = "STACK CONTENT:\n";
+//        buffer += "--------------\n";
         for (size_t i = 0; i < _stackObjects.size(); i++)
         {
             buffer += "Item ";
@@ -69,21 +71,23 @@ void CInterfaceStack::printContent(int cIndex, std::string& buffer) const
             buffer += ":\n";
             _stackObjects[i]->printContent(4, buffer);
         }
-        buffer += "--------------";
+//        buffer += "--------------";
     }
     else
     {
         if (cIndex < int(_stackObjects.size()))
         {
-            buffer = "STACK CONTENT at index ";
-            buffer += std::to_string(cIndex);
-            buffer += ":\n--------------\n";
+//            buffer = "STACK CONTENT at index ";
+//            buffer += std::to_string(cIndex);
+//            buffer += ":\n--------------\n";
             _stackObjects[cIndex]->printContent(0, buffer);
-            buffer += "--------------";
+//            buffer += "--------------";
         }
-        else
-            buffer = "STACK CONTENT: <invalid index>";
+//        else
+//            buffer = "STACK CONTENT: <invalid index>";
     }
+    if (buffer.size() > 0)
+        buffer.pop_back(); // pop the carriage return
 }
 
 void CInterfaceStack::popStackValue(int cnt)
@@ -1669,3 +1673,1895 @@ std::string CInterfaceStack::getCborEncodedBuffer(int options) const
     }
     return (retVal);
 }
+
+int CInterfaceStack::setBoolProperty(const char*ppName, bool pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackBool(pState));
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        tbl->appendArrayObject_bool(pState);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        tbl->appendMapObject_bool(key.c_str(), pState);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getBoolProperty(const char*ppName, bool& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
+            {
+                pState = ((CInterfaceStackBool*)it)->getValue();
+                retVal = 1;
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
+                {
+                    pState = ((CInterfaceStackBool*)it)->getValue();
+                    retVal = 1;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setIntProperty(const char*ppName, int pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackInteger(pState));
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        tbl->appendArrayObject_int32(pState);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        tbl->appendMapObject_int32(key.c_str(), pState);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getIntProperty(const char*ppName, int& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
+            {
+                pState = int(((CInterfaceStackInteger*)it)->getValue());
+                retVal = 1;
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
+                {
+                    pState = int(((CInterfaceStackInteger*)it)->getValue());
+                    retVal = 1;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setLongProperty(const char*ppName, long long int pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackInteger(pState));
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        tbl->appendArrayObject_int64(pState);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        tbl->appendMapObject_int64(key.c_str(), pState);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getLongProperty(const char*ppName, long long int& pState) const
+{
+    int retVal = Obj::getLongProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
+                {
+                    pState = ((CInterfaceStackInteger*)it)->getValue();
+                    retVal = 1;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
+                    {
+                        pState = ((CInterfaceStackInteger*)it)->getValue();
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setHandleProperty(const char*ppName, long long int pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackHandle(pState));
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        tbl->appendArrayObject_handle(pState);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        tbl->appendMapObject_handle(key.c_str(), pState);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getHandleProperty(const char*ppName, long long int& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_handle) )
+            {
+                pState = ((CInterfaceStackHandle*)it)->getValue();
+                retVal = 1;
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_handle) )
+                {
+                    pState = ((CInterfaceStackHandle*)it)->getValue();
+                    retVal = 1;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setFloatProperty(const char*ppName, double pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackNumber(pState));
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        tbl->appendArrayObject_double(pState);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        tbl->appendMapObject_double(key.c_str(), pState);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getFloatProperty(const char*ppName, double& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_double) )
+            {
+                pState = ((CInterfaceStackNumber*)it)->getValue();
+                retVal = 1;
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_double) )
+                {
+                    pState = ((CInterfaceStackNumber*)it)->getValue();
+                    retVal = 1;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(pState));
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        tbl->appendArrayObject_text(pState);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        tbl->appendMapObject_text(key.c_str(), pState);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getStringProperty(const char* ppName, std::string& pState) const
+{
+    int retVal = Obj::getStringProperty(ppName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(propStack_content.name, ppName) == 0)
+        {
+            printContent(-1, pState);
+            retVal = 1;
+        }
+    }
+    if (retVal == -1)
+    {
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+        if (retVal == 0)
+        {
+            retVal = -1;
+            if (key.size() == 0)
+            {
+                CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
+                {
+                    pState = ((CInterfaceStackString*)it)->getValue(nullptr);
+                    retVal = 1;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
+                    {
+                        pState = ((CInterfaceStackString*)it)->getValue(nullptr);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setBufferProperty(const char*ppName, const char* buffer, int bufferL)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(buffer, bufferL, true));
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        tbl->appendArrayObject_buffer(buffer, bufferL);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        tbl->appendMapObject_buffer(key.c_str(), buffer, bufferL);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getBufferProperty(const char*ppName, std::string& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && (!((CInterfaceStackString*)it)->isText()) )
+            {
+                size_t l;
+                const char* val = ((CInterfaceStackString*)it)->getValue(&l);
+                pState.assign(val, val + l);
+                retVal = 1;
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && (!((CInterfaceStackString*)it)->isText()) )
+                {
+                    size_t l;
+                    const char* val = ((CInterfaceStackString*)it)->getValue(&l);
+                    pState.assign(val, val + l);
+                    retVal = 1;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setIntArray2Property(const char*ppName, const int* pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackTable* tbl = new CInterfaceStackTable();
+            tbl->setInt32Array(pState, 2);
+            replaceStackObjectFromIndex(stackIndex, tbl);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setInt32Array(pState, 2);
+                        tbl->appendArrayObject(tbl2);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setInt32Array(pState, 2);
+                        tbl->appendMapObject_object(key.c_str(), tbl2);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getIntArray2Property(const char*ppName, int* pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                size_t arrSize = tbl->getArraySize();
+                if (tbl->areAllValuesThis(sim_stackitem_integer, true) && (arrSize == 2))
+                {
+                    tbl->getInt32Array(pState, int(arrSize));
+                    retVal = 1;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_integer, true) && (arrSize == 2))
+                    {
+                        tbl->getInt32Array(pState, int(arrSize));
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setVector2Property(const char*ppName, const double* pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackTable* tbl = new CInterfaceStackTable();
+            tbl->setDoubleArray(pState, 2);
+            replaceStackObjectFromIndex(stackIndex, tbl);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setDoubleArray(pState, 2);
+                        tbl->appendArrayObject(tbl2);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setDoubleArray(pState, 2);
+                        tbl->appendMapObject_object(key.c_str(), tbl2);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getVector2Property(const char*ppName, double* pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if (it != nullptr)
+            {
+                if (it->getObjectType() == sim_stackitem_matrix)
+                {
+                    CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                    const CMatrix* M = m->getValue();
+                    if ((M->cols == 1) && (M->rows == 2))
+                    {
+                        pState[0] = M->data[0];
+                        pState[1] = M->data[1];
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if (it != nullptr)
+                {
+                    if (it->getObjectType() == sim_stackitem_matrix)
+                    {
+                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                        const CMatrix* M = m->getValue();
+                        if ((M->cols == 1) && (M->rows == 2))
+                        {
+                            pState[0] = M->data[0];
+                            pState[1] = M->data[1];
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setVector3Property(const char*ppName, const C3Vector& pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
+            replaceStackObjectFromIndex(stackIndex, m);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
+                        tbl->appendArrayObject(m);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
+                        tbl->appendMapObject_object(key.c_str(), m);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getVector3Property(const char*ppName, C3Vector& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if (it != nullptr)
+            {
+                if (it->getObjectType() == sim_stackitem_matrix)
+                {
+                    CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                    const CMatrix* w = m->getValue();
+                    if ((w->rows == 3) && (w->cols == 1))
+                    {
+                        pState.setData(w->data.data());
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if (it != nullptr)
+                {
+                    if (it->getObjectType() == sim_stackitem_matrix)
+                    {
+                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
+                        const CMatrix* w = m->getValue();
+                        if ((w->rows == 3) && (w->cols == 1))
+                        {
+                            pState.setData(w->data.data());
+                            retVal = 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setQuaternionProperty(const char*ppName, const C4Vector& pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
+            replaceStackObjectFromIndex(stackIndex, q);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
+                        tbl->appendArrayObject(q);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
+                        tbl->appendMapObject_object(key.c_str(), q);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getQuaternionProperty(const char*ppName, C4Vector& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if (it != nullptr)
+            {
+                if (it->getObjectType() == sim_stackitem_quaternion)
+                {
+                    CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
+                    pState = q->getValue()[0];
+                    retVal = 1;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if (it != nullptr)
+                {
+                    if (it->getObjectType() == sim_stackitem_quaternion)
+                    {
+                        CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
+                        pState = q->getValue()[0];
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setPoseProperty(const char*ppName, const C7Vector& pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        double dat[7];
+        pState.getData(dat);
+        if (key.size() == 0)
+        {
+            CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
+            replaceStackObjectFromIndex(stackIndex, q);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
+                        tbl->appendArrayObject(q);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
+                        tbl->appendMapObject_object(key.c_str(), q);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getPoseProperty(const char*ppName, C7Vector& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if (it != nullptr)
+            {
+                if (it->getObjectType() == sim_stackitem_pose)
+                {
+                    CInterfaceStackPose* q = (CInterfaceStackPose*)it;
+                    pState = q->getValue()[0];
+                    retVal = 1;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if (it != nullptr)
+                {
+                    if (it->getObjectType() == sim_stackitem_pose)
+                    {
+                        CInterfaceStackPose* q = (CInterfaceStackPose*)it;
+                        pState = q->getValue()[0];
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setColorProperty(const char*ppName, const float* pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackColor* c = new CInterfaceStackColor(pState);
+            replaceStackObjectFromIndex(stackIndex, c);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackColor* c = new CInterfaceStackColor(pState);
+                        tbl->appendArrayObject(c);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackColor* c = new CInterfaceStackColor(pState);
+                        tbl->appendMapObject_object(key.c_str(), c);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getColorProperty(const char*ppName, float* pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if (it != nullptr)
+            {
+                if (it->getObjectType() == sim_stackitem_color)
+                {
+                    CInterfaceStackColor* c = (CInterfaceStackColor*)it;
+                    pState[0] = c->getValue()[0];
+                    pState[1] = c->getValue()[1];
+                    pState[2] = c->getValue()[2];
+                    retVal = 1;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if (it != nullptr)
+                {
+                    if (it->getObjectType() == sim_stackitem_color)
+                    {
+                        CInterfaceStackColor* c = (CInterfaceStackColor*)it;
+                        pState[0] = c->getValue()[0];
+                        pState[1] = c->getValue()[1];
+                        pState[2] = c->getValue()[2];
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setFloatArrayProperty(const char*ppName, const double* v, int vL)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackTable* tbl = new CInterfaceStackTable();
+            tbl->setDoubleArray(v, vL);
+            replaceStackObjectFromIndex(stackIndex, tbl);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setDoubleArray(v, vL);
+                        tbl->appendArrayObject(tbl2);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setDoubleArray(v, vL);
+                        tbl->appendMapObject_object(key.c_str(), tbl2);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getFloatArrayProperty(const char*ppName, std::vector<double>& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                size_t arrSize = tbl->getArraySize();
+                if (tbl->areAllValuesThis(sim_stackitem_double, true))
+                {
+                    pState.resize(arrSize);
+                    tbl->getDoubleArray(pState.data(), int(arrSize));
+                    retVal = 1;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_double, true))
+                    {
+                        pState.resize(arrSize);
+                        tbl->getDoubleArray(pState.data(), int(arrSize));
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setIntArrayProperty(const char*ppName, const int* v, int vL)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackTable* tbl = new CInterfaceStackTable();
+            tbl->setInt32Array(v, vL);
+            replaceStackObjectFromIndex(stackIndex, tbl);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setInt32Array(v, vL);
+                        tbl->appendArrayObject(tbl2);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setInt32Array(v, vL);
+                        tbl->appendMapObject_object(key.c_str(), tbl2);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getIntArrayProperty(const char*ppName, std::vector<int>& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                size_t arrSize = tbl->getArraySize();
+                if (tbl->areAllValuesThis(sim_stackitem_integer, true))
+                {
+                    pState.resize(arrSize);
+                    tbl->getInt32Array(pState.data(), int(arrSize));
+                    retVal = 1;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_integer, true))
+                    {
+                        pState.resize(arrSize);
+                        tbl->getInt32Array(pState.data(), int(arrSize));
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setHandleArrayProperty(const char*ppName, const long long int* v, int vL)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
+            replaceStackObjectFromIndex(stackIndex, arr);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
+                        tbl->appendArrayObject(arr);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
+                        tbl->appendMapObject_object(key.c_str(), arr);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getHandleArrayProperty(const char*ppName, std::vector<long long int>& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if (it != nullptr)
+            {
+                if (it->getObjectType() == sim_stackitem_handlearray)
+                {
+                    CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
+                    size_t cnt;
+                    const long long int* a = arr->getValue(&cnt);
+                    pState.assign(a, a + cnt);
+                    retVal = 1;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if (it != nullptr)
+                {
+                    if (it->getObjectType() == sim_stackitem_handlearray)
+                    {
+                        CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
+                        size_t cnt;
+                        const long long int* a = arr->getValue(&cnt);
+                        pState.assign(a, a + cnt);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::setStringArrayProperty(const char*ppName, const std::vector<std::string>& pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackTable* tbl = new CInterfaceStackTable();
+            tbl->setTextArray(pState.data(), pState.size());
+            replaceStackObjectFromIndex(stackIndex, tbl);
+            retVal = 1;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setTextArray(pState.data(), pState.size());
+                        tbl->appendArrayObject(tbl2);
+                        retVal = 1;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setTextArray(pState.data(), pState.size());
+                        tbl->appendMapObject_object(key.c_str(), tbl2);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getStringArrayProperty(const char*ppName, std::vector<std::string>& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = -1;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                if (tbl->areAllValuesThis(sim_stackitem_string, true))
+                {
+                    tbl->getTextArray(pState);
+                    retVal = 1;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    if (tbl->areAllValuesThis(sim_stackitem_string, true))
+                    {
+                        tbl->getTextArray(pState);
+                        retVal = 1;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::removeProperty(const char*ppName)
+{
+    int retVal = -1;
+    int stackIndex;
+    if (tt::stringToInt(ppName, stackIndex))
+    {
+        if (stackIndex < 0)
+            stackIndex += getStackSize();
+        if (stackIndex < getStackSize())
+        {
+            CInterfaceStackObject* obj = detachStackObjectFromIndex(stackIndex);
+            if (obj != nullptr)
+            {
+                delete obj;
+                retVal = 1;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+{
+    int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
+    if (retVal == -1)
+    {
+        appartenance = _objectTypeStr;
+        for (size_t i = 0; i < allProps_stack.size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(allProps_stack[i].name, pName.c_str()))
+            {
+                if ((allProps_stack[i].flags & excludeFlags) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_stack[i].name;
+                        retVal = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    if (retVal == -1)
+    {
+        int flags = (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude);
+        for (size_t i = 0; i < getStackSize(); i++)
+        {
+            if (pName.size() == 0)
+            {
+                if ((flags & excludeFlags) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = std::to_string(i);
+                        retVal = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getPropertyInfo(const char*ppName, int& info, std::string& infoTxt) const
+{
+    int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_stack.size(); i++)
+        {
+            if (strcmp(allProps_stack[i].name, ppName) == 0)
+            {
+                retVal = allProps_stack[i].type;
+                info = allProps_stack[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_stack[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_stack[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
+            }
+        }
+    }
+    if (retVal == -1)
+    {
+        int stackIndex;
+        if (tt::stringToInt(ppName, stackIndex))
+        {
+            if (stackIndex < 0)
+                stackIndex += getStackSize();
+            if (stackIndex < getStackSize())
+            {
+                CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+                if (obj != nullptr)
+                {
+                    info = sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude;
+                    retVal = _getPropertyTypeForStackItem(obj, infoTxt);
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::_getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::string& str, bool firstCall /*= true*/)
+{
+    int retVal = -1;
+    str.clear();
+    if (obj != nullptr)
+    {
+        int t = obj->getObjectType();
+        if (t == sim_stackitem_null)
+        {
+            retVal = sim_propertytype_null;
+            str = "null";
+        }
+        else if (t == sim_stackitem_bool)
+        {
+            retVal = sim_propertytype_bool;
+            str = "bool";
+        }
+        else if (t == sim_stackitem_integer)
+        {
+            retVal = sim_propertytype_long;
+            str = "long";
+        }
+        else if (t == sim_stackitem_handle)
+        {
+            retVal = sim_propertytype_handle;
+            str = "handle";
+        }
+        else if (t == sim_stackitem_double)
+        {
+            retVal = sim_propertytype_float;
+            str = "float";
+        }
+        else if (t == sim_stackitem_string)
+        {
+            CInterfaceStackString* stritem = (CInterfaceStackString*)obj;
+            if (stritem->isText())
+            {
+                retVal = sim_propertytype_string;
+                str = "string";
+            }
+            else
+            {
+                retVal = sim_propertytype_buffer;
+                str = "buffer";
+            }
+        }
+        else if (t == sim_stackitem_quaternion)
+        {
+            retVal = sim_propertytype_quaternion;
+            str = "quaternion";
+        }
+        else if (t == sim_stackitem_pose)
+        {
+            retVal = sim_propertytype_pose;
+            str = "pose";
+        }
+        else if (t == sim_stackitem_color)
+        {
+            retVal = sim_propertytype_color;
+            str = "color";
+        }
+        else if (t == sim_stackitem_handlearray)
+        {
+            retVal = sim_propertytype_handlearray;
+            str = "handlearray";
+        }
+        else if (t == sim_stackitem_matrix)
+        {
+            CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+            const CMatrix* mat = m->getValue();
+            if ((mat->rows == 3) && (mat->cols == 3))
+            {
+                retVal = sim_propertytype_matrix3x3;
+                str = "matrix3x3";
+            }
+            else if ((mat->rows == 4) && (mat->cols == 4))
+            {
+                retVal = sim_propertytype_matrix4x4;
+                str = "matrix4x4";
+            }
+            else
+            {
+                retVal = sim_propertytype_matrix;
+                str = "matrix" + std::to_string(mat->rows) + "x" + std::to_string(mat->cols);
+            }
+        }
+        else if (t == sim_stackitem_table)
+        {
+            CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+            if (tbl->isTableArray())
+            {
+                if (tbl->areAllValuesThis(sim_stackitem_integer, false))
+                {
+                    retVal = sim_propertytype_intarray;
+                    str = "intarray" + std::to_string(tbl->getArraySize());
+                }
+                else if (tbl->areAllValuesThis(sim_stackitem_double, true))
+                {
+                    retVal = sim_propertytype_floatarray;
+                    str = "floatarray" + std::to_string(tbl->getArraySize());
+                }
+                else
+                { // we have a random array
+                    retVal = sim_propertytype_array;
+                    if (firstCall)
+                    {
+                        for (size_t i = 0; i < tbl->getArraySize(); i++)
+                        {
+                            if (i != 0)
+                                str += ";";
+                            std::string str2;
+                            _getPropertyTypeForStackItem(tbl->getArrayItemAtIndex(i), str2, false);
+                            str += std::to_string(i) + ":" + str2;
+                        }
+                    }
+                    else
+                        str = "array" + std::to_string(tbl->getArraySize());
+                }
+            }
+            else
+            { // we have a map
+                retVal = sim_propertytype_map;
+                if (firstCall)
+                {
+                    size_t i = 0;
+                    while (true)
+                    {
+                        std::string key;
+                        double numberKey;
+                        long long int integerKey;
+                        bool boolKey;
+                        int keyType;
+                        CInterfaceStackObject* it = tbl->getMapItemAtIndex(i, key, numberKey, integerKey, boolKey, keyType);
+                        if (it == nullptr)
+                            break;
+                        if (keyType != sim_stackitem_string)
+                            key = "*";
+                        if (i != 0)
+                            str += ";";
+                        std::string str2;
+                        _getPropertyTypeForStackItem(it, str2, false);
+                        str += key + ":" + str2;
+                        i++;
+                    }
+                }
+                else
+                    str = "map" + std::to_string(tbl->getMapEntryCount());
+            }
+        }
+    }
+    return retVal;
+}
+
+bool CInterfaceStack::_getStackLocation_write(const char* ppName, int& ind, std::string& key)
+{
+    int retVal = -2;
+    std::string ll(ppName);
+    size_t p = ll.find(".");
+    if (p != std::string::npos)
+    {
+        key.assign(ll.begin() + p + 1, ll.end());
+        if (key.size() == 0)
+            key = "@arrayAppend@";
+        ll.resize(p);
+    }
+    retVal = -1;
+    if ((ll.size() == 0) || tt::stringToInt(ll.c_str(), ind))
+    {
+        if (ll.size() == 0)
+        { // append item to stack
+            if (key.size() != 0)
+                pushTableOntoStack(); // in order to later be able to append an array or map item
+            else
+                pushNullOntoStack(); // doesn't matter what we push, will be overwritten later
+            ind = getStackSize() - 1;
+            retVal = 0;
+        }
+        else
+        {
+            if (ind < 0)
+                ind += getStackSize();
+            if (ind < getStackSize())
+                retVal = 0;
+        }
+    }
+    return retVal;
+}
+
+bool CInterfaceStack::_getStackLocation_read(const char* ppName, int& ind, std::string& key, int& arrIndex) const
+{
+    int retVal = -2; // error, target does not exist
+    std::string ll(ppName);
+    size_t p = ll.find(".");
+    if (p != std::string::npos)
+    {
+        key.assign(ll.begin() + p + 1, ll.end());
+        if (key.size() == 0)
+            ll.clear(); // index/key not specified: error
+        else
+        {
+            ll.resize(p);
+            if (!tt::stringToInt(key.c_str(), arrIndex))
+                arrIndex = -1; // key is a map key
+        }
+    }
+    retVal = -1; // error
+    if (tt::stringToInt(ll.c_str(), ind))
+    {
+        if (ind < 0)
+            ind += getStackSize();
+        if (ind < getStackSize())
+            retVal = 0;
+    }
+    return retVal;
+}
+

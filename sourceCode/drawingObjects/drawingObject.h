@@ -20,7 +20,6 @@ class CDrawingObject : public Obj
     virtual ~CDrawingObject();
 
     void setObjectId(int newId);
-    int getObjectId() const;
     bool addItem(const double* itemData);
     void addItems(const double* itemData, size_t itemCnt);
     void setItems(const double* itemData, size_t itemCnt);
@@ -28,11 +27,11 @@ class CDrawingObject : public Obj
     bool announceObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
-    int getLongProperty(const char* pName, long long int& pState) const;
+    int getLongProperty(const char* pName, long long int& pState) const override;
     int getHandleProperty(const char* pName, long long int& pState) const;
-    int getStringProperty(const char* pName, std::string& pState) const;
-    static int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
-    static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    int getStringProperty(const char* pName, std::string& pState) const override;
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
     void pushAddEvent();
     void pushAppendNewPointEvent();
@@ -64,7 +63,6 @@ class CDrawingObject : public Obj
 
     void _setItemSizes();
 
-    int _objectId;
     int _sceneObjectId;
     long long int _sceneObjectUid;
     int _objectType;

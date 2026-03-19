@@ -13,7 +13,6 @@
 #include <shapeRendering.h>
 #endif
 
-static std::string OBJECT_TYPE = "mesh";
 static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "object",
@@ -110,9 +109,11 @@ CMesh::~CMesh()
 
 void CMesh::_commonInit()
 {
+    _objectTypeStr = "mesh";
+    _objectMetaInfo = OBJECT_META_INFO;
+    _objectHandle = App::getFreshUniqueId(-1);
     _isInSceneShapeUid = -1;
     _isInSceneShapeHandle = -1;
-    _uniqueID = App::getFreshUniqueId(-1);
     color.setDefaultValues();
     color.setColor(0.9f, 0.9f, 0.9f, sim_colorcomponent_ambient_diffuse);
     color.setEventParams(false, -1, 1 + 4 + 8 + 16);
@@ -179,7 +180,7 @@ void CMesh::announceSceneObjectWillBeErased(const CSceneObject* object)
 void CMesh::setTextureDependencies(int shapeID)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty != nullptr)
-        _textureProperty->addTextureDependencies(shapeID, _uniqueID);
+        _textureProperty->addTextureDependencies(shapeID, _objectHandle);
 }
 
 int CMesh::getTextureCount() const
@@ -485,7 +486,7 @@ void CMesh::setConvex_raw(bool c)
         if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_convex.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _convex);
             App::worldContainer->pushEvent();
         }
@@ -500,7 +501,7 @@ CMesh* CMesh::getFirstMesh()
 CMesh* CMesh::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
 { // function has virtual/non-virtual counterpart!
     CMesh* retVal = nullptr;
-    if (meshUid == _uniqueID)
+    if (meshUid == _objectHandle)
     {
         retVal = this;
         shapeRelTr = parentCumulTr * _iFrame * _bbFrame;
@@ -517,7 +518,7 @@ void CMesh::pushObjectRemoveEvent()
 {
     _isInSceneShapeHandle = -1;
     _isInSceneShapeUid = -1;
-    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _uniqueID, _uniqueID, nullptr, false);
+    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
     App::worldContainer->pushEvent();
 }
 
@@ -525,7 +526,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
 {
     _isInSceneShapeHandle = shapeHandle;
     _isInSceneShapeUid = shapeUid;
-    CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, nullptr, false);
+    CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
 
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt64(propMesh_shape.name, _isInSceneShapeHandle);
@@ -533,7 +534,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
         ev->appendKeyHandle(propMesh_shape.name, _isInSceneShapeHandle);
     ev->appendKeyInt64(propMesh_shapeUid.name, _isInSceneShapeUid);
     ev->appendKeyInt64(propMesh_primitiveType.name, _purePrimitive);
-    ev->appendKeyText(propMesh_objectType.name, OBJECT_TYPE.c_str());
+    ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
     for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
@@ -958,11 +959,6 @@ int CMesh::getComponentCount() const
     return (1);
 }
 
-long long int CMesh::getUniqueID() const
-{
-    return _uniqueID;
-}
-
 void CMesh::setHeightfieldData(const std::vector<double>& heights, int xCount, int yCount)
 {
     _heightfieldHeights.clear();
@@ -1083,7 +1079,7 @@ void CMesh::setVisibleEdges(bool v)
         if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_showEdges.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _visibleEdges);
             App::worldContainer->pushEvent();
         }
@@ -1129,7 +1125,7 @@ void CMesh::setCulling(bool c)
         if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_culling.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _culling);
             App::worldContainer->pushEvent();
         }
@@ -1200,7 +1196,7 @@ void CMesh::setShadingAngle(double angle)
         if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_shadingAngle.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyDouble(cmd, _shadingAngle);
             App::worldContainer->pushEvent();
         }
@@ -2823,7 +2819,7 @@ void CMesh::setTextureRepeatU(bool r)
             if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureRepeatU.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
                 App::worldContainer->pushEvent();
             }
@@ -2850,7 +2846,7 @@ void CMesh::setTextureRepeatV(bool r)
             if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureRepeatV.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
                 App::worldContainer->pushEvent();
             }
@@ -2877,7 +2873,7 @@ void CMesh::setTextureInterpolate(bool r)
             if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureInterpolate.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
                 App::worldContainer->pushEvent();
             }
@@ -2904,7 +2900,7 @@ void CMesh::setTextureApplyMode(int m)
             if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureApplyMode.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyInt64(cmd, m);
                 App::worldContainer->pushEvent();
             }
@@ -3056,13 +3052,7 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
 
 int CMesh::getLongProperty(const char* ppName, long long int& pState, const C7Vector& shapeRelTr) const
 {
-    int retVal = -1;
-
-    if (strcmp(ppName, propMesh_handle.name) == 0)
-    {
-        retVal = 1;
-        pState = _uniqueID;
-    }
+    int retVal = Obj::getLongProperty(ppName, pState);
 
     return retVal;
 }
@@ -3129,22 +3119,15 @@ int CMesh::setStringProperty(const char* ppName, const char* pState, const C7Vec
 int CMesh::getStringProperty(const char* ppName, std::string& pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = Obj::getStringProperty(ppName, pState);
 
-    if (strcmp(pName, propMesh_objectType.name) == 0)
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = OBJECT_TYPE;
-    }
-    else if (strcmp(pName, propMesh_objectMetaInfo.name) == 0)
-    {
-        retVal = 1;
-        pState = OBJECT_META_INFO;
-    }
-    else if (strcmp(pName, propMesh_colorName.name) == 0)
-    {
-        retVal = 1;
-        pState = color.getColorName();
+        if (strcmp(pName, propMesh_colorName.name) == 0)
+        {
+            retVal = 1;
+            pState = color.getColorName();
+        }
     }
 
     return retVal;
@@ -3364,33 +3347,30 @@ int CMesh::removeProperty(const char* ppName)
     return retVal;
 }
 
-int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject, int excludeFlags)
+int CMesh::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    std::string dummyApp;
-    int retVal = Obj::getPropertyName_static(index, pName, dummyApp, excludeFlags);
+    int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        if (targetObject != nullptr)
-            retVal = targetObject->color.getPropertyName(index, pName, excludeFlags);
-        else
-            retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8 + 16, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_mesh.size(); i++)
+        appartenance = _objectTypeStr;
+        retVal = color.getPropertyName(index, pName, excludeFlags);
+        if (retVal == -1)
         {
-            if ((targetObject == nullptr) || (targetObject->_textureProperty != nullptr) || (i > 7))
+            for (size_t i = 0; i < allProps_mesh.size(); i++)
             {
-                if ((pName.size() == 0) || utils::startsWith(allProps_mesh[i].name, pName.c_str()))
+                if ((_textureProperty != nullptr) || (i > 7))
                 {
-                    if ((allProps_mesh[i].flags & excludeFlags) == 0)
+                    if ((pName.size() == 0) || utils::startsWith(allProps_mesh[i].name, pName.c_str()))
                     {
-                        index--;
-                        if (index == -1)
+                        if ((allProps_mesh[i].flags & excludeFlags) == 0)
                         {
-                            pName = allProps_mesh[i].name;
-                            retVal = 1;
-                            break;
+                            index--;
+                            if (index == -1)
+                            {
+                                pName = allProps_mesh[i].name;
+                                retVal = 1;
+                                break;
+                            }
                         }
                     }
                 }
@@ -3400,23 +3380,16 @@ int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject, 
     return retVal;
 }
 
-int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, CMesh* targetObject)
+int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    int retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
-    std::string _pName(ppName);
-    const char* pName = ppName;
+    int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
-    {
-        if (targetObject != nullptr)
-            retVal = targetObject->color.getPropertyInfo(pName, info, infoTxt);
-        else
-            retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8 + 16, "");
-    }
+        retVal = color.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mesh.size(); i++)
         {
-            if (strcmp(allProps_mesh[i].name, pName) == 0)
+            if (strcmp(allProps_mesh[i].name, ppName) == 0)
             {
                 retVal = allProps_mesh[i].type;
                 info = allProps_mesh[i].flags;
@@ -3435,34 +3408,35 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, 
                 break;
             }
         }
-        if ((targetObject != nullptr) && (retVal != -1))
+        if (retVal != -1)
         {
-            if ((_pName == propMesh_textureCoordinates.name) && (targetObject->_textureProperty != nullptr))
+            std::string _pName(ppName);
+            if ((_pName == propMesh_textureCoordinates.name) && (_textureProperty != nullptr))
             {
-                const std::vector<float>* tc = targetObject->_textureProperty->getTextureCoordinates(-1, targetObject->_verticesForDisplayAndDisk, targetObject->_indices);
+                const std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
                 if (tc->size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
-            else if ((_pName == propMesh_texture.name) && (targetObject->_textureProperty != nullptr))
+            else if ((_pName == propMesh_texture.name) && (_textureProperty != nullptr))
             {
                 int ts[2];
-                targetObject->_textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
+                _textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
                 if (ts[0] * ts[1] > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
             else if (_pName == propMesh_vertices.name)
             {
-                if (targetObject->_verticesForDisplayAndDisk.size() > LARGE_PROPERTY_SIZE)
+                if (_verticesForDisplayAndDisk.size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
             else if (_pName == propMesh_indices.name)
             {
-                if (targetObject->_indices.size() > LARGE_PROPERTY_SIZE)
+                if (_indices.size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
             else if (_pName == propMesh_normals.name)
             {
-                if (targetObject->_indices.size() * 3 > LARGE_PROPERTY_SIZE)
+                if (_indices.size() * 3 > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
         }

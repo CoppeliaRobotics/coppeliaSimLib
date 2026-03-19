@@ -29,7 +29,7 @@ class CCollection : public Obj
     void serialize(CSer& ar);
     void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
     void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
-    bool announceObjectWillBeErased(int objectHandle, bool copyBuffer);
+    bool announceObjectWillBeErased(long long int objectHandle, bool copyBuffer);
     bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     CCollection* copyYourself() const;
     void emptyCollection();
@@ -38,11 +38,10 @@ class CCollection : public Obj
     CCollectionElement* getElementFromIndex(size_t index) const;
     CCollectionElement* getElementFromHandle(int collectionElementHandle) const;
 
-    int getCollectionHandle() const;
     std::string getCollectionName() const;
     bool getOverridesObjectMainProperties() const;
 
-    bool setCollectionHandle(int newHandle);
+    bool setCollectionHandle(long long int newHandle);
     bool setCollectionName(const char* newName, bool check);
     bool setOverridesObjectMainProperties(bool o);
 
@@ -53,18 +52,17 @@ class CCollection : public Obj
     int getSceneObjectHandleFromIndex(size_t index) const;
     void pushCreationEvent() const;
 
-    int getLongProperty(const char* pName, long long int& pState) const;
+    int getLongProperty(const char* pName, long long int& pState) const override;
     int getHandleProperty(const char* pName, long long int& pState) const;
-    int getStringProperty(const char* pName, std::string& pState) const;
+    int getStringProperty(const char* pName, std::string& pState) const override;
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
-    static int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
-    static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
   protected:
     void _addCollectionElement(CCollectionElement* collectionElement);
     void _removeCollectionElementFromHandle(int collectionElementHandle);
 
-    int _collectionHandle;
     std::string _collectionName;
     bool _overridesObjectMainProperties;
 

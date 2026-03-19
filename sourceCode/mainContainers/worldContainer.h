@@ -47,13 +47,13 @@ class CWorldContainer
     bool isWorldSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string>& l) const;
 
-    CScriptObject* getScriptObjectFromHandle(int scriptHandle) const;
-    CScriptObject* getScriptObjectFromUid(int uid) const;
+    CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
+    CDetachedScript* getDetachedScriptFromUid(int uid) const;
     void announceObjectWillBeErased(const CSceneObject* object);
     void announceScriptWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
 
-    void getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
+    void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
     void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
     void broadcastMsg(CInterfaceStack* inStack, int emittingScriptHandle, int options);
 
@@ -95,7 +95,7 @@ class CWorldContainer
     CCustomData_old* customAppData_old;
     CPersistentDataContainer* persistentDataContainer_old;
     CAddOnScriptContainer* addOnScriptContainer;
-    CScriptObject* sandboxScript;
+    CDetachedScript* sandboxScript;
     CModuleMenuItemContainer* moduleMenuItemContainer;
     CWorld* currentWorld;
 #ifdef SIM_WITH_GUI

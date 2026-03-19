@@ -26,6 +26,8 @@ static std::string OBJECT_META_INFO = R"(
 CPointCloud::CPointCloud()
 {
     TRACE_INTERNAL;
+    _objectTypeStr = "pointCloud";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_pointcloud;
 
     _refreshDisplay = true;
@@ -36,8 +38,8 @@ CPointCloud::CPointCloud()
     _visibilityLayer = POINTCLOUD_LAYER;
     _localObjectSpecialProperty = sim_objectspecialproperty_collidable | sim_objectspecialproperty_measurable |
                                   sim_objectspecialproperty_detectable | sim_objectspecialproperty_renderable;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     _pointCloudInfo = nullptr;
     _showOctreeStructure = false;
@@ -755,14 +757,9 @@ void* CPointCloud::getPointCloudInfo()
     return (_pointCloudInfo);
 }
 
-std::string CPointCloud::getObjectTypeInfo() const
-{
-    return "pointCloud";
-}
-
 std::string CPointCloud::getObjectTypeInfoExtended() const
 {
-    return getObjectTypeInfo();
+    return _objectTypeStr;
 }
 
 bool CPointCloud::isPotentiallyCollidable() const
@@ -845,11 +842,11 @@ void CPointCloud::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPointCloud::addSpecializedObjectEventData(CCbor* ev)
+void CPointCloud::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyMap("points");
         ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
         ev->appendKeyUint8Array("colors", _displayColorsByte.data(), _displayColorsByte.size());
@@ -867,6 +864,7 @@ void CPointCloud::addSpecializedObjectEventData(CCbor* ev)
         ev->appendKeyDouble(propPointCloud_pointDisplayFraction.name, _pointDisplayRatio);
         _updatePointCloudEvent(false, ev);
     }
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CPointCloud::copyYourself()
@@ -1858,11 +1856,6 @@ int CPointCloud::getStringProperty(const char* ppName, std::string& pState) cons
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propPointCloud_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -1949,53 +1942,23 @@ int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& ap
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "pointCloud";
+        appartenance = _objectTypeStr;
         retVal = color.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_pointCloud.size(); i++)
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_pointCloud.size(); i++)
             {
-                if ((allProps_pointCloud[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_pointCloud[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_pointCloud[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "pointCloud";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_pointCloud.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()))
-            {
-                if ((allProps_pointCloud[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_pointCloud[i].name;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_pointCloud[i].name;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -2006,7 +1969,6 @@ int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::str
 
 int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = color.getPropertyInfo(ppName, info, infoTxt);
@@ -2035,6 +1997,7 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
         }
         if (retVal != -1)
         {
+            std::string _pName(ppName);
             if (_pName == propPointCloud_points.name)
             {
                 if (_displayPoints.size() > LARGE_PROPERTY_SIZE)
@@ -2044,39 +2007,6 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
             {
                 if (_displayColorsByte.size() * 3 > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CPointCloud::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_pointCloud.size(); i++)
-        {
-            if (strcmp(allProps_pointCloud[i].name, ppName) == 0)
-            {
-                retVal = allProps_pointCloud[i].type;
-                info = allProps_pointCloud[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_pointCloud[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_pointCloud[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
             }
         }
     }

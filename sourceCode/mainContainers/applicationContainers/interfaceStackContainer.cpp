@@ -51,7 +51,7 @@ bool CInterfaceStackContainer::destroyStack(int id)
 {
     for (size_t i = 0; i < _allStacks.size(); i++)
     {
-        if (_allStacks[i]->getId() == id)
+        if (_allStacks[i]->getObjectHandle() == id)
         {
             delete _allStacks[i];
             _allStacks.erase(_allStacks.begin() + i);
@@ -65,7 +65,7 @@ CInterfaceStack* CInterfaceStackContainer::getStack(int id)
 {
     for (size_t i = 0; i < _allStacks.size(); i++)
     {
-        if (_allStacks[i]->getId() == id)
+        if (_allStacks[i]->getObjectHandle() == id)
             return (_allStacks[i]);
     }
     return (nullptr);

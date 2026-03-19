@@ -58,7 +58,7 @@ class CDummy : public CSceneObject
     void connect_oldIk() override;
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) override;
+    void addObjectEventData(CCbor* ev) override;
     CSceneObject* copyYourself() override;
     void removeSceneDependencies() override;
     void scaleObject(double scalingFactor) override;
@@ -76,7 +76,6 @@ class CDummy : public CSceneObject
     void simulationEnded() override;
     void initializeInitialValues(bool simulationAlreadyRunning) override;
     void computeBoundingBox() override;
-    std::string getObjectTypeInfo() const override;
     std::string getObjectTypeInfoExtended() const override;
     bool isPotentiallyCollidable() const override;
     bool isPotentiallyMeasurable() const override;
@@ -103,10 +102,9 @@ class CDummy : public CSceneObject
     int setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
-    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
-    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
-    // Some helpers:
+
+           // Some helpers:
     bool getBoolPropertyValue(const char* pName) const;
     int getIntPropertyValue(const char* pName) const;
     double getFloatPropertyValue(const char* pName) const;

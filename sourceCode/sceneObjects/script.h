@@ -2,7 +2,7 @@
 
 #include <ser.h>
 #include <sceneObject.h>
-#include <scriptObject.h>
+#include <detachedScript.h>
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
@@ -15,12 +15,12 @@ class CScript : public CSceneObject
 {
   public:
     CScript();
-    CScript(CScriptObject* scrObj);
+    CScript(CDetachedScript* scrObj);
     CScript(int scriptType, const char* text, int options, const char* lang);
     virtual ~CScript();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) override;
+    void addObjectEventData(CCbor* ev) override;
     CSceneObject* copyYourself() override;
     void removeSceneDependencies() override;
     void scaleObject(double scalingFactor) override;
@@ -39,7 +39,6 @@ class CScript : public CSceneObject
     void initializeInitialValues(bool simulationAlreadyRunning) override;
     void computeBoundingBox() override;
     void setIsInScene(bool s) override;
-    std::string getObjectTypeInfo() const override;
     std::string getObjectTypeInfoExtended() const override;
     bool isPotentiallyCollidable() const override;
     bool isPotentiallyMeasurable() const override;
@@ -63,11 +62,7 @@ class CScript : public CSceneObject
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
-    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
-    static int getPropertyName_localStatic(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
-    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
-    static int getPropertyInfo_localStatic(const char* pName, int& info, std::string& infoTxt);
 
     double getScriptSize() const;
     void reinitAfterSimulationIfNeeded();
@@ -77,9 +72,9 @@ class CScript : public CSceneObject
     void setScriptSize(double s);
     void resetAfterSimError(bool r);
     bool getResetAfterSimError() const;
-    int getScriptPseudoHandle() const;
+    int getDetachedScriptHandle() const;
 
-    CScriptObject* scriptObject;
+    CDetachedScript* detachedScript;
 
   protected:
     void _commonInit(int scriptType, const char* text, int options, const char* lang);

@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <propertiesAndMethods.h>
+#include <cbor.h>
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
@@ -78,45 +79,22 @@ class Obj
 {
   public:
     Obj();
+    Obj(long long int objectHandle, const char* objectTypeStr, const char* objectMetaInfo);
     virtual ~Obj();
 
-    int setBoolProperty(const char* pName, bool pState);
-    int getBoolProperty(const char* pName, bool& pState) const;
-    int setIntProperty(const char* pName, int pState);
-    int getIntProperty(const char* pName, int& pState) const;
-    int setLongProperty(const char* pName, long long int pState);
-    int getLongProperty(const char* pName, long long int& pState) const;
-    int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState) const;
-    int setHandleProperty(const char* pName, long long int pState);
-    int getHandleProperty(const char* pName, long long int& pState) const;
-    int setStringProperty(const char* pName, const char* pState);
-    int getStringProperty(const char* pName, std::string& pState) const;
-    int setBufferProperty(const char* pName, const char* buffer, int bufferL);
-    int getBufferProperty(const char* pName, std::string& pState) const;
-    int setIntArray2Property(const char* pName, const int* pState);
-    int getIntArray2Property(const char* pName, int* pState) const;
-    int setVector2Property(const char* pName, const double* pState);
-    int getVector2Property(const char* pName, double* pState) const;
-    int setVector3Property(const char* pName, const C3Vector& pState);
-    int getVector3Property(const char* pName, C3Vector& pState) const;
-    int setQuaternionProperty(const char* pName, const C4Vector& pState);
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const;
-    int setPoseProperty(const char* pName, const C7Vector& pState);
-    int getPoseProperty(const char* pName, C7Vector& pState) const;
-    int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState) const;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL);
-    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
-    int setIntArrayProperty(const char* pName, const int* v, int vL);
-    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty(const char* pName, const long long int* v, int vL); // ALL handle items have to be of the same type
-    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
-    int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState);
-    int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
-    int removeProperty(const char* pName);
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
-    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
-    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags);
-    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
+    virtual void addObjectEventData(CCbor* ev);
+
+    long long int getObjectHandle() const;
+    std::string getObjectTypeStr() const;
+    std::string getObjectMetaInfo() const;
+
+    virtual int getLongProperty(const char* pName, long long int& pState) const;
+    virtual int getStringProperty(const char* pName, std::string& pState) const;
+    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+
+  protected:
+    long long int _objectHandle;
+    std::string _objectTypeStr;
+    std::string _objectMetaInfo;
 };

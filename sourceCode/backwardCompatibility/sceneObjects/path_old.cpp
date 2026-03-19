@@ -11,8 +11,22 @@
 #include <guiApp.h>
 #endif
 
+static std::string OBJECT_META_INFO = R"(
+{
+    "superclass": "sceneObject",
+    "namespaces": {
+        "refs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "origRefs": {"newPropertyForcedType": "sim.propertytype_handlearray"},
+        "customData": {},
+        "signal": {}
+    }
+}
+)";
+
 CPath_old::CPath_old()
 {
+    _objectTypeStr = "path";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_path;
     pathContainer = nullptr;
     _visibilityLayer = PATH_LAYER;
@@ -29,8 +43,8 @@ CPath_old::CPath_old()
     _pathModifID = 0;
     pathContainer = new CPathCont_old();
     setShapingType(1);
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -211,13 +225,14 @@ void CPath_old::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPath_old::addSpecializedObjectEventData(CCbor* ev)
+void CPath_old::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->closeArrayOrMap(); // path
     }
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CPath_old::copyYourself()
@@ -304,11 +319,6 @@ void CPath_old::performTextureObjectLoadingMapping(const std::map<int, int>* map
 void CPath_old::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
-}
-
-std::string CPath_old::getObjectTypeInfo() const
-{
-    return "path";
 }
 
 std::string CPath_old::getObjectTypeInfoExtended() const

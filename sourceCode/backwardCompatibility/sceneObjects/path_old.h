@@ -10,7 +10,7 @@ class CPath_old : public CSceneObject
     virtual ~CPath_old();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) override;
+    void addObjectEventData(CCbor* ev) override;
     CSceneObject* copyYourself() override;
     void removeSceneDependencies() override;
     void scaleObject(double scalingFactor) override;
@@ -35,7 +35,6 @@ class CPath_old : public CSceneObject
     bool isPotentiallyMeasurable() const override;
     bool isPotentiallyDetectable() const override;
     bool isPotentiallyRenderable() const override;
-    std::string getObjectTypeInfo() const override;
     std::string getObjectTypeInfoExtended() const override;
 
     void setExplicitHandling(bool explicitHandl);

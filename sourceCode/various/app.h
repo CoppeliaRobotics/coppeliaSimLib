@@ -90,7 +90,7 @@ class App
     static void logMsg(int verbosityLevel, const char* msg, const char* subStr1, const char* subStr2 = nullptr,
                        const char* subStr3 = nullptr);
     static void logMsg(int verbosityLevel, const char* msg, int int1, int int2 = 0, int int3 = 0);
-    static void logScriptMsg(const CScriptObject* script, int verbosityLevel, const char* msg);
+    static void logScriptMsg(const CDetachedScript* script, int verbosityLevel, const char* msg);
     static void setStringVerbosity(int what, const char* str);
     static int getConsoleVerbosity(const char* pluginName = nullptr);
     static void setConsoleVerbosity(int v, const char* pluginName = nullptr);
@@ -149,8 +149,8 @@ class App
     static int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     static int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState);
     static int removeProperty(long long int target, const char* pName);
-    static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing, int excludeFlags);
-    static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, bool staticParsing);
+    static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
+    static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt);
 
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);

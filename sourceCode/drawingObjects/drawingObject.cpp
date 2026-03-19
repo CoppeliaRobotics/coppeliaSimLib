@@ -7,7 +7,6 @@
 #include <drawingObjectRendering.h>
 #endif
 
-static std::string OBJECT_TYPE = "drawingObject";
 static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "object",
@@ -49,6 +48,8 @@ std::vector<double>* CDrawingObject::getDataPtr()
 
 CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int creatorHandle)
 {
+    _objectTypeStr = "drawingObject";
+    _objectMetaInfo = OBJECT_META_INFO;
     _rebuildRemoteItems = true;
     _creatorHandle = creatorHandle;
     double tr = 0.0;
@@ -66,7 +67,7 @@ CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateT
         color.setOpacity(1.0 - tr);
     }
 
-    _objectId = -1;
+    _objectHandle = -1;
     _sceneObjectId = -1;
     _sceneObjectUid = -1;
 
@@ -125,12 +126,7 @@ int CDrawingObject::getSceneObjectId() const
 
 void CDrawingObject::setObjectId(int newId)
 {
-    _objectId = newId;
-}
-
-int CDrawingObject::getObjectId() const
-{
-    return _objectId;
+    _objectHandle = newId;
 }
 
 void CDrawingObject::setItems(const double* itemData, size_t itemCnt)
@@ -158,7 +154,7 @@ bool CDrawingObject::addItem(const double* itemData)
         {
             if (App::getEventProtocolVersion()  >= 3)
             {
-                CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectId, _objectId, nullptr, false);
+                CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
                 ev->appendKeyFloatArray("points", nullptr, 0);
                 ev->appendKeyFloatArray("quaternions", nullptr, 0);
                 ev->appendKeyFloatArray("colors", nullptr, 0);
@@ -166,7 +162,7 @@ bool CDrawingObject::addItem(const double* itemData)
             }
             if (App::getEventProtocolVersion() <= 3)
             { // For backw. compatibility
-                CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectId, _objectId, nullptr, false);
+                CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectHandle, _objectHandle, nullptr, false);
                 ev->appendKeyBool("clearPoints", true);
                 App::worldContainer->pushEvent();
             }
@@ -463,7 +459,7 @@ void CDrawingObject::pushAddEvent()
     {
         if (App::getEventProtocolVersion()  >= 3)
         {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectId, _objectId, nullptr, false);
+            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
             std::string tp;
             switch (_objectType & 0x001f)
             {
@@ -495,8 +491,8 @@ void CDrawingObject::pushAddEvent()
                 tp = "spherePoint";
                 break;
             }
-            ev->appendKeyText(propDrawingObject_objectType.name, OBJECT_TYPE.c_str());
-            ev->appendKeyInt64(propDrawingObject_handle.name, _objectId);
+            ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
+            ev->appendKeyInt64(propObject_handle.name, _objectHandle);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt64(propDrawingObject_parent.name, _sceneObjectId);
             else
@@ -511,7 +507,7 @@ void CDrawingObject::pushAddEvent()
         }
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
-            CCbor* ev = App::worldContainer->createEvent("drawingObjectAdded", _objectId, _objectId, nullptr, false);
+            CCbor* ev = App::worldContainer->createEvent("drawingObjectAdded", _objectHandle, _objectHandle, nullptr, false);
             std::string tp;
             switch (_objectType & 0x001f)
             {
@@ -543,7 +539,7 @@ void CDrawingObject::pushAddEvent()
                 tp = "spherePoint";
                 break;
             }
-            ev->appendKeyText(propDrawingObject_objectType.name, OBJECT_TYPE.c_str());
+            ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
@@ -569,7 +565,7 @@ void CDrawingObject::pushAppendNewPointEvent()
 
         if (App::getEventProtocolVersion()  >= 3)
         {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectId, _objectId, nullptr, false);
+            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
             if (_rebuildRemoteItems)
             {
                 ev->appendKeyFloatArray("points", points.data(), points.size());
@@ -586,7 +582,7 @@ void CDrawingObject::pushAppendNewPointEvent()
         }
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
-            CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectId, _objectId, nullptr, false);
+            CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectHandle, _objectHandle, nullptr, false);
             ev->appendKeyFloatArray("points", points.data(), points.size());
             ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
             ev->appendKeyFloatArray("colors", colors.data(), colors.size());
@@ -602,13 +598,7 @@ void CDrawingObject::pushAppendNewPointEvent()
 int CDrawingObject::getLongProperty(const char* ppName, long long int& pState) const
 {
     std::string _pName(ppName);
-    int retVal = -1;
-
-    if (_pName == propDrawingObject_handle.name)
-    {
-        retVal = 1;
-        pState = _objectId;
-    }
+    int retVal = Obj::getLongProperty(ppName, pState);
  
     return retVal;
 }
@@ -630,27 +620,17 @@ int CDrawingObject::getHandleProperty(const char* ppName, long long int& pState)
 int CDrawingObject::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
-    int retVal = -1;
-
-    if (_pName == propDrawingObject_objectType.name)
-    {
-        retVal = 1;
-        pState = OBJECT_TYPE;
-    }
-    else if (_pName == propDrawingObject_objectMetaInfo.name)
-    {
-        retVal = 1;
-        pState = OBJECT_META_INFO;
-    }
+    int retVal = Obj::getStringProperty(ppName, pState);
 
     return retVal;
 }
 
-int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
+int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = Obj::getPropertyName_static(index, pName, appartenance, excludeFlags);
+    int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
+        appartenance = _objectTypeStr;
         for (size_t i = 0; i < allProps_drawingObj.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
@@ -671,9 +651,9 @@ int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string&
     return retVal;
 }
 
-int CDrawingObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
+int CDrawingObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    int retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
+    int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_drawingObj.size(); i++)

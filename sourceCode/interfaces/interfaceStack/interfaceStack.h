@@ -8,15 +8,22 @@
 #include <simMath/4Vector.h>
 #include <simMath/7Vector.h>
 #include <map>
+#include <obj.h>
 
-class CInterfaceStack
+// ----------------------------------------------------------------------------------------------
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
+STACK_PROPERTIES
+#undef FUNCX
+extern const std::vector<SProperty> allProps_stack;
+// ----------------------------------------------------------------------------------------------
+
+class CInterfaceStack : public Obj
 {
   public:
     CInterfaceStack(int a, int b, const char* c);
     virtual ~CInterfaceStack();
 
     void setId(int id);
-    int getId() const;
     void clear();
 
     // C interface (creation):
@@ -127,7 +134,48 @@ class CInterfaceStack
 
     void printContent(int cIndex, std::string& buffer) const;
 
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
+    int setLongProperty(const char* pName, long long int pState);
+    int getLongProperty(const char* pName, long long int& pState) const override;
+    int setFloatProperty(const char* pName, double pState);
+    int getFloatProperty(const char* pName, double& pState) const;
+    int setHandleProperty(const char* pName, long long int pState);
+    int getHandleProperty(const char* pName, long long int& pState) const;
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState) const override;
+    int setBufferProperty(const char* pName, const char* buffer, int bufferL);
+    int getBufferProperty(const char* pName, std::string& pState) const;
+    int setIntArray2Property(const char* pName, const int* pState);
+    int getIntArray2Property(const char* pName, int* pState) const;
+    int setVector2Property(const char* pName, const double* pState);
+    int getVector2Property(const char* pName, double* pState) const;
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState) const;
+    int setQuaternionProperty(const char* pName, const C4Vector& pState);
+    int getQuaternionProperty(const char* pName, C4Vector& pState) const;
+    int setPoseProperty(const char* pName, const C7Vector& pState);
+    int getPoseProperty(const char* pName, C7Vector& pState) const;
+    int setColorProperty(const char* pName, const float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
+    int setFloatArrayProperty(const char* pName, const double* v, int vL);
+    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
+    int setIntArrayProperty(const char* pName, const int* v, int vL);
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
+    int setHandleArrayProperty(const char* pName, const long long int* v, int vL); // ALL handle items have to be of the same type
+    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
+    int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState);
+    int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
+    int removeProperty(const char* pName);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
+
   protected:
-    int _interfaceStackId;
+    bool _getStackLocation_write(const char* ppName, int& ind, std::string& key);
+    bool _getStackLocation_read(const char* ppName, int& ind, std::string& key, int& arrIndex) const;
+    static int _getPropertyTypeForStackItem(const CInterfaceStackObject* obj, std::string& str, bool firstCall = true);
+
     std::vector<CInterfaceStackObject*> _stackObjects;
 };

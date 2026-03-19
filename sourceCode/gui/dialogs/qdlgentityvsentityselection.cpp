@@ -81,7 +81,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
         std::string name(tt::decorateString("[", IDSN_COLLECTION, "] "));
         name += it->getCollectionName();
         names.push_back(name);
-        ids.push_back(it->getCollectionHandle());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names, ids);
     for (int i = 0; i < int(names.size()); i++)
@@ -171,7 +171,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
         std::string name(tt::decorateString("[", IDSN_COLLECTION, "] "));
         name += it->getCollectionName();
         names.push_back(name);
-        ids.push_back(it->getCollectionHandle());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names, ids);
     for (int i = 0; i < int(names.size()); i++)

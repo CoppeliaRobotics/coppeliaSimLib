@@ -53,10 +53,6 @@ float* CVisionSensor::getDepthBufferPointer() const
     return _depthBuffer;
 }
 
-std::string CVisionSensor::getObjectTypeInfo() const
-{
-    return "visionSensor";
-}
 std::string CVisionSensor::getObjectTypeInfoExtended() const
 {
     std::string retVal;
@@ -362,6 +358,8 @@ void CVisionSensor::setIsInScene(bool s)
 
 void CVisionSensor::commonInit()
 {
+    _objectTypeStr = "visionSensor";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_visionsensor;
     _nearClippingPlane = 0.01;
     _farClippingPlane = 10.0;
@@ -424,8 +422,8 @@ void CVisionSensor::commonInit()
     _depthBuffer = nullptr;
     _reserveBuffers();
 
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
     computeVolumeVectors();
@@ -2139,11 +2137,11 @@ void CVisionSensor::removeSceneDependencies()
     _detectableEntityHandle = -1;
 }
 
-void CVisionSensor::addSpecializedObjectEventData(CCbor* ev)
+void CVisionSensor::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->appendKeyBool("perspectiveMode", _perspective);
         ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
         ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
@@ -2172,9 +2170,30 @@ void CVisionSensor::addSpecializedObjectEventData(CCbor* ev)
     _emitImageChangedEvent(ev);
     _emitDepthChangedEvent(ev);
     _emitTriggerStateAndPacketChangeEvents(ev);
-    CViewableBase::addSpecializedObjectEventData(ev);
     if (App::getEventProtocolVersion() == 2)
+    {
+        ev->appendKeyDouble(propViewableBase_viewAngle.name, _viewAngle);
+        ev->appendKeyDouble(propViewableBase_viewSize.name, _orthoViewSize);
+        double arr[2] = {_nearClippingPlane, _farClippingPlane};
+        ev->appendKeyDoubleArray(propViewableBase_clippingPlanes.name, arr, 2);
+        ev->appendKeyBool(propViewableBase_perspective.name, _perspective);
+        ev->appendKeyBool(propViewableBase_showFrustum.name, _showVolume);
+        if (App::getEventProtocolVersion() <= 3)
+        {
+            ev->appendKeyDoubleArray(propViewableBase_frustumCornerNear.name, _volumeVectorNear.data, 3);
+            ev->appendKeyDoubleArray(propViewableBase_frustumCornerFar.name, _volumeVectorFar.data, 3);
+        }
+        else
+        {
+            ev->appendKeyVector3(propViewableBase_frustumCornerNear.name, _volumeVectorNear);
+            ev->appendKeyVector3(propViewableBase_frustumCornerFar.name, _volumeVectorFar);
+        }
+        ev->appendKeyInt32Array(propViewableBase_resolution.name, _resolution, 2);
         ev->closeArrayOrMap(); // visionSensor
+        CSceneObject::addObjectEventData(ev);
+    }
+    else
+        CViewableBase::addObjectEventData(ev);
 }
 
 CSceneObject* CVisionSensor::copyYourself()
@@ -2468,7 +2487,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
     }
 
-    std::vector<CScriptObject*> scripts;
+    std::vector<CDetachedScript*> scripts;
     getAttachedScripts(scripts, -1, true);
     getAttachedScripts(scripts, -1, false);
 
@@ -2489,7 +2508,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 
         for (size_t i = 0; i < scripts.size(); i++)
         {
-            CScriptObject* script = scripts[i];
+            CDetachedScript* script = scripts[i];
             if (script->hasSystemFunctionOrHook(sim_syscb_vision))
             {
                 CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
@@ -2562,7 +2581,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 
             for (size_t i = 0; i < scripts.size(); i++)
             {
-                CScriptObject* script = scripts[i];
+                CDetachedScript* script = scripts[i];
                 if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
                     CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
@@ -3640,11 +3659,6 @@ int CVisionSensor::getStringProperty(const char* ppName, std::string& pState) co
     int retVal = CViewableBase::getStringProperty(ppName, pState);
     if (retVal == -1)
     {
-        if (_pName == propVisionSensor_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -3866,60 +3880,27 @@ int CVisionSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pSt
 
 int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
+    appartenance = _objectTypeStr; // important here too, since viewableBase items are part of visionSensor
+    int retVal = CViewableBase::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "visionSensor";
+        appartenance = _objectTypeStr;
         retVal = color.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-        retVal = CViewableBase::getPropertyName_vstatic(index, pName, excludeFlags);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_visionSensor.size(); i++)
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_visionSensor[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_visionSensor.size(); i++)
             {
-                if ((allProps_visionSensor[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_visionSensor[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_visionSensor[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_visionSensor[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "visionSensor";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-        retVal = CViewableBase::getPropertyName_vstatic(index, pName, excludeFlags);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_visionSensor.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_visionSensor[i].name, pName.c_str()))
-            {
-                if ((allProps_visionSensor[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_visionSensor[i].name;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_visionSensor[i].name;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -3930,12 +3911,9 @@ int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::s
 
 int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    const std::string _pName = ppName;
-    int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
+    int retVal = CViewableBase::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = color.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(ppName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_visionSensor.size(); i++)
@@ -3961,6 +3939,7 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& i
         }
         if (retVal != -1)
         {
+            const std::string _pName = ppName;
             if (_pName == propVisionSensor_imageBuffer.name)
             {
                 if (3 * _resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
@@ -3970,41 +3949,6 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& i
             {
                 if (_resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CVisionSensor::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    const std::string _pName = ppName;
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
-    if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_visionSensor.size(); i++)
-        {
-            if (strcmp(allProps_visionSensor[i].name, ppName) == 0)
-            {
-                retVal = allProps_visionSensor[i].type;
-                info = allProps_visionSensor[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_visionSensor[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_visionSensor[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
             }
         }
     }

@@ -84,6 +84,8 @@ CJoint::CJoint(int jointType)
 
 void CJoint::_commonInit()
 {
+    _objectTypeStr = "joint";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_joint;
     _localObjectSpecialProperty = 0;
 
@@ -269,8 +271,8 @@ void CJoint::_commonInit()
     _maxStepSize_old = 10.0 * degToRad;
 
     _visibilityLayer = JOINT_LAYER;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _cumulativeForceOrTorqueTmp = 0.0;
@@ -1045,14 +1047,9 @@ double CJoint::getVelocity_DEPRECATED()
 }
 //------------------------------------------------
 
-std::string CJoint::getObjectTypeInfo() const
-{
-    return "joint";
-}
-
 std::string CJoint::getObjectTypeInfoExtended() const
 {
-    std::string retVal(getObjectTypeInfo());
+    std::string retVal(_objectTypeStr);
     if (_jointType == sim_joint_revolute)
     {
         if (fabs(_screwLead) < 0.0000001)
@@ -1735,7 +1732,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
 
                 // 2. Call the script(s):
                 // First, the old callback functions:
-                CScriptObject* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                CDetachedScript* script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                     sim_scripttype_simulation, _objectHandle);
                 if ((script != nullptr) && (!script->getScriptIsDisabled()) &&
                     script->hasSystemFunctionOrHook(sim_syscb_jointcallback))
@@ -2008,11 +2005,11 @@ void CJoint::removeSceneDependencies()
     setDependencyMasterJointHandle(-1);
 }
 
-void CJoint::addSpecializedObjectEventData(CCbor* ev)
+void CJoint::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyArray("colors");
         float c[9];
         _color.getColor(c, sim_colorcomponent_ambient_diffuse);
@@ -2106,6 +2103,7 @@ void CJoint::addSpecializedObjectEventData(CCbor* ev)
 
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // joint
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CJoint::copyYourself()
@@ -5791,11 +5789,6 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
             CEngineProperties prop;
             pState = prop.getObjectProperties(_objectHandle);
         }
-        else if (strcmp(ppName, propJoint_objectMetaInfo.name) == 0)
-        {
-            retVal = 1;
-            pState = OBJECT_META_INFO;
-        }
     }
 
     return retVal;
@@ -6063,53 +6056,23 @@ int CJoint::getPropertyName(int& index, std::string& pName, std::string& apparte
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "joint";
+        appartenance = _objectTypeStr;
         retVal = _color.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_joint.size(); i++)
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_joint[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_joint.size(); i++)
             {
-                if ((allProps_joint[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_joint[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_joint[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_joint[i].name;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "joint";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_joint.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_joint[i].name, pName.c_str()))
-            {
-                if ((allProps_joint[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_joint[i].name;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_joint[i].name;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -6120,43 +6083,9 @@ int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CJoint::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = _color.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_joint.size(); i++)
-        {
-            if (strcmp(allProps_joint[i].name, ppName) == 0)
-            {
-                retVal = allProps_joint[i].type;
-                info = allProps_joint[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_joint[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_joint[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CJoint::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_joint.size(); i++)

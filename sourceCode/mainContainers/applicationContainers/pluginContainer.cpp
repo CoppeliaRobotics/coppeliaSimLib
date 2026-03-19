@@ -116,7 +116,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, lo
         std::string msgB("plugin ");
         msgB += std::string(namespaceAndVersion) + ": ";
         std::string msg(msgB + "loading...");
-        CScriptObject* scr = App::worldContainer->getScriptObjectFromUid(loadOrigin);
+        CDetachedScript* scr = App::worldContainer->getDetachedScriptFromUid(loadOrigin);
         if (scr != nullptr)
             App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
         else
@@ -284,7 +284,7 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle, long long int unloadOri
             std::string msgB("plugin ");
             msgB += it->getName() + ": ";
             std::string msg(msgB + "cleanup...");
-            CScriptObject* scr = App::worldContainer->getScriptObjectFromUid(unloadOrigin);
+            CDetachedScript* scr = App::worldContainer->getDetachedScriptFromUid(unloadOrigin);
             if (scr != nullptr)
                 App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
             else

@@ -42,14 +42,14 @@ void CQDlgScripts::refresh()
     ui->qqExecutionOrder->clear();
     ui->qqExecutionOrder->setEnabled(sel && noEditModeNoSim);
     ui->qqEnabled->setEnabled(sel && noEditModeNoSim);
-    ui->qqResetAfterSimError->setEnabled(sel && noEditModeNoSim && (it->scriptObject->getScriptType() == sim_scripttype_customization));
-    ui->qqParentProxy->setVisible(sel && it->scriptObject->getParentIsProxy());
+    ui->qqResetAfterSimError->setEnabled(sel && noEditModeNoSim && (it->detachedScript->getScriptType() == sim_scripttype_customization));
+    ui->qqParentProxy->setVisible(sel && it->detachedScript->getParentIsProxy());
     ui->qqParentProxy->setEnabled(sel && noEditModeNoSim);
 
     if (sel)
     {
-        std::string lang(it->scriptObject->getLang());
-        if (((lang != "lua") && (lang != "python")) || (it->scriptObject->getScriptType() == sim_scripttype_passive))
+        std::string lang(it->detachedScript->getLang());
+        if (((lang != "lua") && (lang != "python")) || (it->detachedScript->getScriptType() == sim_scripttype_passive))
         {
             ui->qqEnabled->setEnabled(false);
             ui->qqExecutionOrder->setEnabled(false);
@@ -61,11 +61,11 @@ void CQDlgScripts::refresh()
         ui->qqExecutionOrder->addItem(IDSN_FIRST, QVariant(sim_scriptexecorder_first));
         ui->qqExecutionOrder->addItem(IDSN_NORMAL, QVariant(sim_scriptexecorder_normal));
         ui->qqExecutionOrder->addItem(IDSN_LAST, QVariant(sim_scriptexecorder_last));
-        ui->qqExecutionOrder->setCurrentIndex(it->scriptObject->getScriptExecPriority());
+        ui->qqExecutionOrder->setCurrentIndex(it->detachedScript->getScriptExecPriority());
 
-        ui->qqEnabled->setChecked(!it->scriptObject->getScriptIsDisabled());
+        ui->qqEnabled->setChecked(!it->detachedScript->getScriptIsDisabled());
         ui->qqResetAfterSimError->setChecked(it->getResetAfterSimError());
-        ui->qqParentProxy->setChecked(it->scriptObject->getParentIsProxy());
+        ui->qqParentProxy->setChecked(it->detachedScript->getParentIsProxy());
     }
     else
     {

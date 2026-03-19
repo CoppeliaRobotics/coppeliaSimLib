@@ -25,6 +25,8 @@ static std::string OBJECT_META_INFO = R"(
 
 CDummy::CDummy()
 {
+    _objectTypeStr = "dummy";
+    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_dummy;
     _localObjectSpecialProperty = 0;
 
@@ -36,8 +38,8 @@ CDummy::CDummy()
     _linkType = sim_dummytype_default;
 
     _visibilityLayer = DUMMY_LAYER;
-    _objectAlias = getObjectTypeInfo();
-    _objectName_old = getObjectTypeInfo();
+    _objectAlias = _objectTypeStr;
+    _objectName_old = _objectTypeStr;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _freeOnPathTrajectory = false;
@@ -227,14 +229,9 @@ void CDummy::_reflectPropToLinkedDummy() const
     }
 }
 
-std::string CDummy::getObjectTypeInfo() const
-{
-    return "dummy";
-}
-
 std::string CDummy::getObjectTypeInfoExtended() const
 {
-    return getObjectTypeInfo();
+    return _objectTypeStr;
 }
 
 bool CDummy::isPotentiallyCollidable() const
@@ -281,11 +278,11 @@ void CDummy::removeSceneDependencies()
     setLinkedDummyHandle(-1, false);
 }
 
-void CDummy::addSpecializedObjectEventData(CCbor* ev)
+void CDummy::addObjectEventData(CCbor* ev)
 {
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyMap(getObjectTypeInfo().c_str());
+        ev->openKeyMap(_objectTypeStr.c_str());
         float c[9];
         _dummyColor.getColor(c, sim_colorcomponent_ambient_diffuse);
         _dummyColor.getColor(c + 3, sim_colorcomponent_specular);
@@ -315,6 +312,7 @@ void CDummy::addSpecializedObjectEventData(CCbor* ev)
 
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // dummy
+    CSceneObject::addObjectEventData(ev);
 }
 
 CSceneObject* CDummy::copyYourself()
@@ -1620,11 +1618,6 @@ int CDummy::getStringProperty(const char* ppName, std::string& pState) const
             retVal = 1;
             pState = _assemblyTag;
         }
-        else if (_pName == propDummy_objectMetaInfo.name)
-        {
-            pState = OBJECT_META_INFO;
-            retVal = 1;
-        }
     }
     if (retVal == -1)
     {
@@ -1861,55 +1854,24 @@ int CDummy::getPropertyName(int& index, std::string& pName, std::string& apparte
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == -1)
     {
-        appartenance = "dummy";
+        appartenance = _objectTypeStr;
         retVal = _dummyColor.getPropertyName(index, pName, excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_dummy.size(); i++)
+        if (retVal == -1)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_dummy.size(); i++)
             {
-                if ((allProps_dummy[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
+                    if ((allProps_dummy[i].flags & excludeFlags) == 0)
                     {
-                        pName = allProps_dummy[i].name;
-                        //pName = "dummy." + pName;
-                        retVal = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& appartenance, int excludeFlags)
-{
-    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
-    {
-        appartenance = "dummy";
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "", excludeFlags);
-    }
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_dummy.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_dummy[i].name, pName.c_str()))
-            {
-                if ((allProps_dummy[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_dummy[i].name;
-                        //pName = "dummy." + pName;
-                        retVal = 1;
-                        break;
+                        index--;
+                        if (index == -1)
+                        {
+                            pName = allProps_dummy[i].name;
+                            //pName = "dummy." + pName;
+                            retVal = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -1920,43 +1882,9 @@ int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& 
 
 int CDummy::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == -1)
         retVal = _dummyColor.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
-    {
-        for (size_t i = 0; i < allProps_dummy.size(); i++)
-        {
-            if (strcmp(allProps_dummy[i].name, ppName) == 0)
-            {
-                retVal = allProps_dummy[i].type;
-                info = allProps_dummy[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_dummy[i].shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(allProps_dummy[i].shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    return retVal;
-}
-
-int CDummy::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getPropertyInfo_bstatic(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(ppName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)

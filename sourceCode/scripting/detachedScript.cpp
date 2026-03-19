@@ -1,4 +1,4 @@
-#include <scriptObject.h>
+#include <detachedScript.h>
 #include <tt.h>
 #include <utils.h>
 #include <vDateTime.h>
@@ -31,7 +31,6 @@
 #define BASE_SANDBOX_SCRIPT "sandboxScriptBase.lua"
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 
-
 static std::string OBJECT_META_INFO = R"(
 {
     "superclass": "object",
@@ -40,12 +39,14 @@ static std::string OBJECT_META_INFO = R"(
 }
 )";
 
-int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
-std::vector<int> CScriptObject::_externalScriptCalls;
-std::map<std::string, std::pair<int, int>> CScriptObject::_signalNameToScriptHandle;
+int CDetachedScript::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
+std::vector<int> CDetachedScript::_externalScriptCalls;
+std::map<std::string, std::pair<int, int>> CDetachedScript::_signalNameToScriptHandle;
 
-CScriptObject::CScriptObject(int scriptType)
+CDetachedScript::CDetachedScript(int scriptType)
 { // scriptType to -1 for serialization
+    _objectTypeStr = "detachedScript";
+    _objectMetaInfo = OBJECT_META_INFO;
     _scriptUid = App::getFreshUniqueId(-1);
     _tempSuspended = false;
     _sceneObjectScript = false;
@@ -95,7 +96,7 @@ CScriptObject::CScriptObject(int scriptType)
     setHandle();
 }
 
-CScriptObject::~CScriptObject()
+CDetachedScript::~CDetachedScript()
 { // use destory further below to delete the object!
     TRACE_INTERNAL;
     _killInterpreterState(); // should already have been done outside of the destructor!
@@ -107,22 +108,22 @@ CScriptObject::~CScriptObject()
     delete _customObjectData_old;
 }
 
-int CScriptObject::setHandle()
+int CDetachedScript::setHandle()
 {
     _scriptHandle = _nextScriptHandle++;
     if (_nextScriptHandle > SIM_IDEND_LUASCRIPT)
         _nextScriptHandle = SIM_IDSTART_LUASCRIPT;
-    while ((App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr) && (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(_scriptHandle) != nullptr))
+    while ((App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr) && (App::currentWorld->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(_scriptHandle) != nullptr))
     {
         _scriptHandle++;
         if (_scriptHandle > SIM_IDEND_LUASCRIPT)
             _scriptHandle = SIM_IDSTART_LUASCRIPT;
     }
-    _scriptPseudoHandle = _scriptHandle;
+    _objectHandle = _scriptHandle;
     return _scriptHandle;
 }
 
-void CScriptObject::destroy(CScriptObject* obj, bool registeredObject, bool announceScriptDestruction /*= true*/)
+void CDetachedScript::destroy(CDetachedScript* obj, bool registeredObject, bool announceScriptDestruction /*= true*/)
 {
     if (registeredObject)
     {
@@ -142,7 +143,7 @@ void CScriptObject::destroy(CScriptObject* obj, bool registeredObject, bool anno
     delete obj;
 }
 
-std::string CScriptObject::getFilenameForExternalScriptEditor()
+std::string CDetachedScript::getFilenameForExternalScriptEditor()
 {
     if (_filenameForExternalScriptEditor.size() == 0)
     {
@@ -179,7 +180,7 @@ std::string CScriptObject::getFilenameForExternalScriptEditor()
     return (fname);
 }
 
-void CScriptObject::fromFileToBuffer()
+void CDetachedScript::fromFileToBuffer()
 {
     if (App::userSettings->externalScriptEditor.size() > 0)
     { // read file
@@ -202,7 +203,7 @@ void CScriptObject::fromFileToBuffer()
     }
 }
 
-bool CScriptObject::shouldAutoYield()
+bool CDetachedScript::shouldAutoYield()
 {
     bool retVal = false;
     if ((_forbidAutoYieldingLevel == 0) && (_forbidOverallYieldingLevel == 0))
@@ -222,17 +223,17 @@ bool CScriptObject::shouldAutoYield()
     return retVal;
 }
 
-bool CScriptObject::canManualYield() const
+bool CDetachedScript::canManualYield() const
 {
     return (_forbidOverallYieldingLevel == 0);
 }
 
-int CScriptObject::getDelayForAutoYielding() const
+int CDetachedScript::getDelayForAutoYielding() const
 {
     return (_delayForAutoYielding);
 }
 
-void CScriptObject::setDelayForAutoYielding(int d)
+void CDetachedScript::setDelayForAutoYielding(int d)
 {
     if (d < 0)
         d = 0;
@@ -241,7 +242,7 @@ void CScriptObject::setDelayForAutoYielding(int d)
     _delayForAutoYielding = d;
 }
 
-int CScriptObject::changeAutoYieldingForbidLevel(int dx, bool absolute)
+int CDetachedScript::changeAutoYieldingForbidLevel(int dx, bool absolute)
 {
     int retVal = _forbidAutoYieldingLevel;
     if (absolute)
@@ -255,12 +256,12 @@ int CScriptObject::changeAutoYieldingForbidLevel(int dx, bool absolute)
     return (retVal);
 }
 
-int CScriptObject::getAutoYieldingForbidLevel() const
+int CDetachedScript::getAutoYieldingForbidLevel() const
 {
     return (_forbidAutoYieldingLevel);
 }
 
-int CScriptObject::changeOverallYieldingForbidLevel(int dx, bool absolute)
+int CDetachedScript::changeOverallYieldingForbidLevel(int dx, bool absolute)
 {
     int retVal = _forbidOverallYieldingLevel;
     if (absolute)
@@ -274,7 +275,7 @@ int CScriptObject::changeOverallYieldingForbidLevel(int dx, bool absolute)
     return (retVal);
 }
 
-void CScriptObject::fromBufferToFile() const
+void CDetachedScript::fromBufferToFile() const
 {
     if (App::userSettings->externalScriptEditor.size() > 0)
     { // write file
@@ -300,7 +301,7 @@ void CScriptObject::fromBufferToFile() const
     }
 }
 
-int CScriptObject::getSystemCallbackFromString(const char* cb)
+int CDetachedScript::getSystemCallbackFromString(const char* cb)
 {
     if (std::string(cb) == "sysCall_info")
         return (sim_syscb_info);
@@ -395,7 +396,7 @@ int CScriptObject::getSystemCallbackFromString(const char* cb)
     return (-1);
 }
 
-std::string CScriptObject::getSystemCallbackString(int calltype, int what)
+std::string CDetachedScript::getSystemCallbackString(int calltype, int what)
 { // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
     // if not deprecated
     if (calltype == sim_syscb_info)
@@ -714,17 +715,17 @@ std::string CScriptObject::getSystemCallbackString(int calltype, int what)
     return ("");
 }
 
-bool CScriptObject::wasModulePreviouslyUsed(const char* moduleName) const
+bool CDetachedScript::wasModulePreviouslyUsed(const char* moduleName) const
 {
     return (_previouslyUsedModules.find(moduleName) != _previouslyUsedModules.end());
 }
 
-void CScriptObject::addUsedModule(const char* module)
+void CDetachedScript::addUsedModule(const char* module)
 {
     _previouslyUsedModules.insert(module);
 }
 
-void CScriptObject::addModulesDetectedInCode()
+void CDetachedScript::addModulesDetectedInCode()
 { // try to guess required modules. If such a similar module is already in _previouslyUsedModules, ignore it
     QRegularExpression re("\\brequire\\b\\s*\\(?\\s*['\"]([^'\"]*)['\"]\\s*\\)?");
     QRegularExpressionMatchIterator it = re.globalMatch(_scriptText.c_str());
@@ -754,21 +755,21 @@ void CScriptObject::addModulesDetectedInCode()
     }
 }
 
-void CScriptObject::getMatchingFunctions(const char* txt, std::set<std::string>& v, const CScriptObject* requestOrigin)
+void CDetachedScript::getMatchingFunctions(const char* txt, std::set<std::string>& v, const CDetachedScript* requestOrigin)
 {
     App::worldContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt, v); // old plugins
 
     App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 1, requestOrigin);
 }
 
-void CScriptObject::getMatchingConstants(const char* txt, std::set<std::string>& v, const CScriptObject* requestOrigin)
+void CDetachedScript::getMatchingConstants(const char* txt, std::set<std::string>& v, const CDetachedScript* requestOrigin)
 {
     App::worldContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt, v); // old plugins
 
     App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 2, requestOrigin);
 }
 
-std::string CScriptObject::getFunctionCalltip(const char* txt, const CScriptObject* requestOrigin)
+std::string CDetachedScript::getFunctionCalltip(const char* txt, const CDetachedScript* requestOrigin)
 {
     std::string retVal = App::worldContainer->codeEditorInfos->getFunctionCalltip(txt, requestOrigin);
 
@@ -789,20 +790,20 @@ std::string CScriptObject::getFunctionCalltip(const char* txt, const CScriptObje
     return (retVal);
 }
 
-bool CScriptObject::isSystemCallbackInReverseOrder(int callType)
+bool CDetachedScript::isSystemCallbackInReverseOrder(int callType)
 {
     bool retVal = ((callType == sim_syscb_contactcallback) || (callType == sim_syscb_contact));
     return (retVal);
 }
 
-bool CScriptObject::isSystemCallbackInterruptible(int callType)
+bool CDetachedScript::isSystemCallbackInterruptible(int callType)
 {
     bool retVal =
         ((callType == sim_syscb_contactcallback) || (callType == sim_syscb_contact) || (callType == sim_syscb_joint));
     return (retVal);
 }
 
-bool CScriptObject::canCallSystemCallback(int scriptType, bool threadedOld, int callType)
+bool CDetachedScript::canCallSystemCallback(int scriptType, bool threadedOld, int callType)
 {
     if (scriptType == -1)
         return (true);
@@ -921,7 +922,7 @@ bool CScriptObject::canCallSystemCallback(int scriptType, bool threadedOld, int 
     return (false);
 }
 
-std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType, bool threadedOld)
+std::vector<int> CDetachedScript::getAllSystemCallbacks(int scriptType, bool threadedOld)
 {
     const int ct[] = {sim_syscb_info, sim_syscb_init, sim_syscb_cleanup, sim_syscb_nonsimulation,
                       sim_syscb_beforemainscript, sim_syscb_beforesimulation, sim_syscb_aftersimulation,
@@ -958,7 +959,7 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType, bool threa
     return (retVal);
 }
 
-void CScriptObject::setInExternalCall(int scriptHandle)
+void CDetachedScript::setInExternalCall(int scriptHandle)
 {
     if (scriptHandle < 0)
         _externalScriptCalls.pop_back();
@@ -966,14 +967,14 @@ void CScriptObject::setInExternalCall(int scriptHandle)
         _externalScriptCalls.push_back(scriptHandle);
 }
 
-int CScriptObject::getInExternalCall()
+int CDetachedScript::getInExternalCall()
 {
     if (_externalScriptCalls.size() > 0)
         return (_externalScriptCalls[_externalScriptCalls.size() - 1]);
     return (-1);
 }
 
-std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptType, int what)
+std::vector<std::string> CDetachedScript::getAllSystemCallbackStrings(int scriptType, int what)
 { // what: 0=function string, 1=string for code completion, if not deprecated, 2=string for code completion and calltip,
     // if not deprecated
     std::vector<int> ct = getAllSystemCallbacks(scriptType, false);
@@ -987,66 +988,66 @@ std::vector<std::string> CScriptObject::getAllSystemCallbackStrings(int scriptTy
     return (retVal);
 }
 
-bool CScriptObject::hasSystemFunction(int callType, bool returnTrueIfNotInitialized /*=true*/) const
+bool CDetachedScript::hasSystemFunction(int callType, bool returnTrueIfNotInitialized /*=true*/) const
 { // when the script is not initialized, we need to return true
     if (returnTrueIfNotInitialized && (_scriptState != scriptState_initialized))
         return (true);
     return (_containedSystemCallbacks[callType]);
 }
 
-bool CScriptObject::hasSystemFunctionOrHook(int callType) const
+bool CDetachedScript::hasSystemFunctionOrHook(int callType) const
 {
     std::string tmp(getSystemCallbackString(callType, 0));
     return (hasSystemFunction(callType) || hasFunctionHook(tmp.c_str()));
 }
 
-void CScriptObject::setTemporarilySuspended(bool s)
+void CDetachedScript::setTemporarilySuspended(bool s)
 {
     _tempSuspended = s;
 }
 
-std::string CScriptObject::getAndClearLastStackTraceback()
+std::string CDetachedScript::getAndClearLastStackTraceback()
 {
     std::string retVal = _lastStackTraceback;
     _lastStackTraceback.clear();
     return (retVal);
 }
 
-double CScriptObject::getRandomDouble()
+double CDetachedScript::getRandomDouble()
 {
     return (double(_randGen()) / double(_randGen.max()));
 }
 
-void CScriptObject::setRandomSeed(unsigned int s)
+void CDetachedScript::setRandomSeed(unsigned int s)
 {
     _randGen.seed(s);
 }
 
-int CScriptObject::getScriptExecutionTimeInMs() const
+int CDetachedScript::getScriptExecutionTimeInMs() const
 {
     if (_timeOfScriptExecutionStart < 0) // happens sometimes when calling luaWrap_luaL_doString
         return (0);
     return (VDateTime::getTimeDiffInMs(_timeOfScriptExecutionStart));
 }
 
-void CScriptObject::resetScriptExecutionTime()
+void CDetachedScript::resetScriptExecutionTime()
 {
     _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
 }
 
-void CScriptObject::getPreviousEditionWindowPosAndSize(int posAndSize[4]) const
+void CDetachedScript::getPreviousEditionWindowPosAndSize(int posAndSize[4]) const
 {
     for (int i = 0; i < 4; i++)
         posAndSize[i] = _previousEditionWindowPosAndSize[i];
 }
 
-void CScriptObject::setPreviousEditionWindowPosAndSize(const int posAndSize[4])
+void CDetachedScript::setPreviousEditionWindowPosAndSize(const int posAndSize[4])
 {
     for (int i = 0; i < 4; i++)
         _previousEditionWindowPosAndSize[i] = posAndSize[i];
 }
 
-int CScriptObject::getSimVersion() const
+int CDetachedScript::getSimVersion() const
 {
     int retVal = 0;
     lua_State* L = (lua_State*)_interpreterState;
@@ -1062,7 +1063,7 @@ int CScriptObject::getSimVersion() const
     return retVal;
 }
 
-std::string CScriptObject::getScriptName() const
+std::string CDetachedScript::getScriptName() const
 {
     if (_scriptType == sim_scripttype_main)
         return ("mainScript");
@@ -1081,35 +1082,35 @@ std::string CScriptObject::getScriptName() const
     return ("deprecatedScript");
 }
 
-int CScriptObject::getAddOnUiMenuHandle() const
+int CDetachedScript::getAddOnUiMenuHandle() const
 {
     return (_addOnUiMenuHandle);
 }
 
-void CScriptObject::setAddOnPath(const char* p)
+void CDetachedScript::setAddOnPath(const char* p)
 {
     _addOnPath = p;
 }
 
-std::string CScriptObject::getAddOnPath() const
+std::string CDetachedScript::getAddOnPath() const
 {
     return _addOnPath;
 }
 
-std::string CScriptObject::getAddOnMenuPath() const
+std::string CDetachedScript::getAddOnMenuPath() const
 {
     return _addOnMenuPath;
 }
 
-int CScriptObject::getScriptState() const
+int CDetachedScript::getScriptState() const
 {
     return _scriptState;
 }
 
-void CScriptObject::pushObjectCreationEvent()
+void CDetachedScript::pushObjectCreationEvent()
 {
-    CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _scriptPseudoHandle, _scriptUid, nullptr, false);
-    ev->appendKeyText(propDetachedScript_objectType.name, "detachedScript");
+    CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _scriptUid, nullptr, false);
+    ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
     ev->appendKeyBool(propDetachedScript_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propDetachedScript_restartOnError.name, _autoRestartOnError);
     ev->appendKeyInt64(propDetachedScript_execPriority.name, getScriptExecPriority());
@@ -1123,13 +1124,13 @@ void CScriptObject::pushObjectCreationEvent()
     App::worldContainer->pushEvent();
 }
 
-void CScriptObject::pushObjectRemoveEvent()
+void CDetachedScript::pushObjectRemoveEvent()
 {
-    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _scriptPseudoHandle, _scriptUid, nullptr, false);
+    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _scriptUid, nullptr, false);
     App::worldContainer->pushEvent();
 }
 
-void CScriptObject::setScriptState(int state)
+void CDetachedScript::setScriptState(int state)
 {
     bool diff = (_scriptState != state);
     if (diff)
@@ -1139,17 +1140,14 @@ void CScriptObject::setScriptState(int state)
         {
             const char* cmd = propDetachedScript_scriptState.name;
             CCbor* ev;
-//            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
-//                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
-//            else
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptPseudoHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt64(cmd, _scriptState);
             App::worldContainer->pushEvent();
         }
     }
 }
 
-void CScriptObject::setScriptExecPriority(int priority)
+void CDetachedScript::setScriptExecPriority(int priority)
 {
     bool diff = false;
     if (_sceneObjectHandle != -1)
@@ -1174,17 +1172,14 @@ void CScriptObject::setScriptExecPriority(int priority)
         {
             const char* cmd = propDetachedScript_execPriority.name;
             CCbor* ev;
-//            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
-//                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
-//            else
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptPseudoHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt64(cmd, priority);
             App::worldContainer->pushEvent();
         }
     }
 }
 
-int CScriptObject::getScriptExecPriority() const
+int CDetachedScript::getScriptExecPriority() const
 {
     int retVal = sim_scriptexecorder_normal;
     if (_sceneObjectHandle != -1)
@@ -1198,17 +1193,17 @@ int CScriptObject::getScriptExecPriority() const
     return retVal;
 }
 
-void CScriptObject::initializeInitialValues(bool simulationAlreadyRunning)
+void CDetachedScript::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     if (isSimulationOrMainScript())
     {
-        _scriptObjectInitialValuesInitialized = true;
+        _detachedScriptInitialValuesInitialized = true;
         if (_outsideCommandQueue != nullptr)
             _outsideCommandQueue->initializeInitialValues(simulationAlreadyRunning);
     }
 }
 
-void CScriptObject::simulationAboutToStart()
+void CDetachedScript::simulationAboutToStart()
 {
     if (isSimulationOrMainScript())
     {
@@ -1219,7 +1214,7 @@ void CScriptObject::simulationAboutToStart()
     }
 }
 
-void CScriptObject::simulationEnded()
+void CDetachedScript::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (isSimulationOrMainScript())
@@ -1227,20 +1222,20 @@ void CScriptObject::simulationEnded()
         if (_outsideCommandQueue != nullptr)
             _outsideCommandQueue->simulationEnded();
         _scriptTextExec.clear();
-        if (_scriptObjectInitialValuesInitialized)
+        if (_detachedScriptInitialValuesInitialized)
         {
         }
-        _scriptObjectInitialValuesInitialized = false;
+        _detachedScriptInitialValuesInitialized = false;
     }
 }
 
-void CScriptObject::simulationAboutToEnd()
+void CDetachedScript::simulationAboutToEnd()
 {
     if (isSimulationOrMainScript())
         resetScript(); // this has to happen while simulation is still running!!
 }
 
-void CScriptObject::setScriptIsDisabled(bool isDisabled)
+void CDetachedScript::setScriptIsDisabled(bool isDisabled)
 {
     bool diff = (_scriptIsDisabled != isDisabled);
     if (diff)
@@ -1250,37 +1245,34 @@ void CScriptObject::setScriptIsDisabled(bool isDisabled)
         {
             const char* cmd = propDetachedScript_scriptDisabled.name;
             CCbor* ev;
-//            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
-//                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
-//            else
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptPseudoHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _scriptIsDisabled);
             App::worldContainer->pushEvent();
         }
     }
 }
 
-bool CScriptObject::getScriptIsDisabled() const
+bool CDetachedScript::getScriptIsDisabled() const
 {
     return _scriptIsDisabled;
 }
 
-bool CScriptObject::getScriptHasError() const
+bool CDetachedScript::getScriptHasError() const
 {
     return (_scriptState & scriptState_error);
 }
 
-void CScriptObject::setParentIsProxy(bool isProxy)
+void CDetachedScript::setParentIsProxy(bool isProxy)
 {
     _parentIsProxy = isProxy;
 }
 
-bool CScriptObject::getParentIsProxy() const
+bool CDetachedScript::getParentIsProxy() const
 {
     return _parentIsProxy;
 }
 
-bool CScriptObject::isNotInCopyBuffer() const
+bool CDetachedScript::isNotInCopyBuffer() const
 { // corresponds to the getIsInScene function with scene objects
     bool retVal = ((_scriptType == sim_scripttype_sandbox) || (_scriptType == sim_scripttype_addon));
     if (!retVal)
@@ -1295,12 +1287,12 @@ bool CScriptObject::isNotInCopyBuffer() const
     return retVal;
 }
 
-bool CScriptObject::getAutoRestartOnError() const
+bool CDetachedScript::getAutoRestartOnError() const
 {
     return _autoRestartOnError;
 }
 
-void CScriptObject::setAutoRestartOnError(bool restart)
+void CDetachedScript::setAutoRestartOnError(bool restart)
 {
     bool diff = (_autoRestartOnError != restart);
     if (diff)
@@ -1310,17 +1302,14 @@ void CScriptObject::setAutoRestartOnError(bool restart)
         {
             const char* cmd = propDetachedScript_restartOnError.name;
             CCbor* ev;
-//            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
-//                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
-//            else
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptPseudoHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _autoRestartOnError);
             App::worldContainer->pushEvent();
         }
     }
 }
 
-bool CScriptObject::getScriptDisabledAndNoErrorRaised() const
+bool CDetachedScript::getScriptDisabledAndNoErrorRaised() const
 {
     bool disabled = _scriptIsDisabled;
     if (_scriptType == sim_scripttype_customization)
@@ -1331,22 +1320,22 @@ bool CScriptObject::getScriptDisabledAndNoErrorRaised() const
     return (disabled && ((_scriptState & scriptState_error) == 0));
 }
 
-int CScriptObject::getScriptType() const
+int CDetachedScript::getScriptType() const
 {
     return _scriptType;
 }
 
-void CScriptObject::flagForDestruction()
+void CDetachedScript::flagForDestruction()
 {
     _flaggedForDestruction = true;
 }
 
-bool CScriptObject::getFlaggedForDestruction() const
+bool CDetachedScript::getFlaggedForDestruction() const
 {
     return (_flaggedForDestruction);
 }
 
-bool CScriptObject::setScriptTextFromFile(const char* filename)
+bool CDetachedScript::setScriptTextFromFile(const char* filename)
 {
     std::string t;
     bool retVal = false;
@@ -1372,7 +1361,7 @@ bool CScriptObject::setScriptTextFromFile(const char* filename)
     return (retVal);
 }
 
-void CScriptObject::setScriptText(const char* scriptTxt, bool toFileIfApplicable /*= true*/)
+void CDetachedScript::setScriptText(const char* scriptTxt, bool toFileIfApplicable /*= true*/)
 {
     bool diff = false;
     if (scriptTxt == nullptr)
@@ -1388,10 +1377,7 @@ void CScriptObject::setScriptText(const char* scriptTxt, bool toFileIfApplicable
         {
             const char* cmd = propDetachedScript_code.name;
             CCbor* ev;
-//            if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
-//                ev = App::worldContainer->createSceneObjectChangedEvent(_scriptPseudoHandle, false, cmd, true); // scene object type scripts (new)
-//            else
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptPseudoHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyText(cmd, scriptTxt);
             App::worldContainer->pushEvent();
         }
@@ -1400,39 +1386,34 @@ void CScriptObject::setScriptText(const char* scriptTxt, bool toFileIfApplicable
     }
 }
 
-const char* CScriptObject::getScriptText()
+const char* CDetachedScript::getScriptText()
 {
     fromFileToBuffer();
     return (_scriptText.c_str());
 }
 
-int CScriptObject::getScriptHandle() const
+int CDetachedScript::getScriptHandle() const
 {
     return _scriptHandle;
 }
 
-int CScriptObject::getScriptPseudoHandle() const
-{
-    return _scriptPseudoHandle;
-}
-
-long long int CScriptObject::getScriptUid() const
+long long int CDetachedScript::getScriptUid() const
 {
     return _scriptUid;
 }
 
-size_t CScriptObject::getSimpleHash() const
+size_t CDetachedScript::getSimpleHash() const
 {
     std::hash<std::string> hasher;
     return (hasher(_scriptText));
 }
 
-bool CScriptObject::isSimulatonCustomizationOrMainScript() const
+bool CDetachedScript::isSimulatonCustomizationOrMainScript() const
 {
     return (isSimulationOrMainScript() || (_scriptType == sim_scripttype_customization));
 }
 
-std::string CScriptObject::getDescriptiveName() const
+std::string CDetachedScript::getDescriptiveName() const
 {
     std::string retVal;
     if (_scriptType == sim_scripttype_main)
@@ -1472,7 +1453,7 @@ std::string CScriptObject::getDescriptiveName() const
     return (retVal);
 }
 
-std::string CScriptObject::getShortDescriptiveName() const
+std::string CDetachedScript::getShortDescriptiveName() const
 {
     std::string retVal;
     if (_scriptType == sim_scripttype_main)
@@ -1509,25 +1490,25 @@ std::string CScriptObject::getShortDescriptiveName() const
     return (retVal);
 }
 
-void CScriptObject::setDisplayAddOnName(const char* name)
+void CDetachedScript::setDisplayAddOnName(const char* name)
 {
     _addOnMenuName = name;           // e.g. "Animation capture"
     _addOnMenuPath = _addOnMenuName; // e.g. "Tools >> Blabla" (if sysCall_info returns menu = 'Tools\nBlabla')
 }
 
-void CScriptObject::performScriptLoadingMapping(const std::map<int, int>* map, int opType)
+void CDetachedScript::performScriptLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
         _scriptHandle = CWorld::getLoadingMapping(map, _scriptHandle); // model save
 }
 
-void CScriptObject::performSceneObjectLoadingMapping(const std::map<int, int>* map)
+void CDetachedScript::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
     if (App::currentWorld->sceneObjects != nullptr)
         _sceneObjectHandle = CWorld::getLoadingMapping(map, _sceneObjectHandle);
 }
 
-bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+bool CDetachedScript::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // script will be erased if attached to object (if threaded simulation is not running!)
     bool retVal = false;
     if (copyBuffer)
@@ -1552,7 +1533,7 @@ bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject* object, 
     return (retVal);
 }
 
-int CScriptObject::flagScriptForRemoval()
+int CDetachedScript::flagScriptForRemoval()
 { // for old scripts. retVal: 0--> cannot be removed, 1 --> will be removed in a delayed manner, 2--> can be removed now
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
@@ -1572,7 +1553,7 @@ int CScriptObject::flagScriptForRemoval()
     return (0);
 }
 
-int CScriptObject::getObjectHandleThatScriptIsAttachedTo(int scriptTypeToConsider) const
+int CDetachedScript::getObjectHandleThatScriptIsAttachedTo(int scriptTypeToConsider) const
 {
     int retVal = -1;
     if ((scriptTypeToConsider == -1) || (_scriptType == scriptTypeToConsider))
@@ -1580,7 +1561,7 @@ int CScriptObject::getObjectHandleThatScriptIsAttachedTo(int scriptTypeToConside
     return (retVal);
 }
 
-void CScriptObject::setObjectHandleThatScriptIsAttachedTo(int newObjectHandle)
+void CDetachedScript::setObjectHandleThatScriptIsAttachedTo(int newObjectHandle)
 {
     if (newObjectHandle != -1)
     {
@@ -1591,29 +1572,29 @@ void CScriptObject::setObjectHandleThatScriptIsAttachedTo(int newObjectHandle)
         _sceneObjectHandle = -1;
 }
 
-int CScriptObject::getNumberOfPasses() const
+int CDetachedScript::getNumberOfPasses() const
 {
     return _numberOfPasses;
 }
 
-void CScriptObject::setNumberOfPasses(int p)
+void CDetachedScript::setNumberOfPasses(int p)
 {
     bool diff = (_numberOfPasses != p);
     if (diff)
         _numberOfPasses = p;
 }
 
-void CScriptObject::resetCalledInThisSimulationStep()
+void CDetachedScript::resetCalledInThisSimulationStep()
 {
     _calledInThisSimulationStep = false;
 }
 
-bool CScriptObject::getCalledInThisSimulationStep() const
+bool CDetachedScript::getCalledInThisSimulationStep() const
 {
     return (_calledInThisSimulationStep);
 }
 
-int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+int CDetachedScript::systemCallMainScript(int optionalCallType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
 
@@ -1641,7 +1622,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceSt
     return (retVal);
 }
 
-int CScriptObject::systemCallScript(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack,
+int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack,
                                     bool addOnManuallyStarted /*=false*/)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
@@ -1719,11 +1700,11 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack* inStack
                 txt.erase(0, p + 4);
             }
 
-            if (_scriptState == CScriptObject::scriptState_initialized)
+            if (_scriptState == CDetachedScript::scriptState_initialized)
                 txt += " (running)";
-            if ((_scriptState & CScriptObject::scriptState_error) != 0)
+            if ((_scriptState & CDetachedScript::scriptState_error) != 0)
                 txt += " (error)";
-            if ((_scriptState & CScriptObject::scriptState_suspended) != 0)
+            if ((_scriptState & CDetachedScript::scriptState_suspended) != 0)
                 txt += " (suspended)";
             m->setLabel(txt.c_str());
         }
@@ -1732,7 +1713,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack* inStack
     return (retVal);
 }
 
-bool CScriptObject::shouldTemporarilySuspendMainScript()
+bool CDetachedScript::shouldTemporarilySuspendMainScript()
 {
     bool retVal = false;
     if (_scriptType == sim_scripttype_sandbox)
@@ -1749,7 +1730,7 @@ bool CScriptObject::shouldTemporarilySuspendMainScript()
     return (retVal);
 }
 
-void CScriptObject::_handleInfoCallback()
+void CDetachedScript::_handleInfoCallback()
 {
     if (_autoStartAddOn == -1)
     { // do this only once!
@@ -1784,7 +1765,7 @@ void CScriptObject::_handleInfoCallback()
     }
 }
 
-int CScriptObject::___loadCode(const char* code, const char* functionsToFind, std::vector<bool>& functionsFound,
+int CDetachedScript::___loadCode(const char* code, const char* functionsToFind, std::vector<bool>& functionsFound,
                                std::string* errorMsg)
 { // retVal: -1=compil error, 0=runtime error, 1=no error
     int retVal = -1;
@@ -1945,7 +1926,7 @@ int CScriptObject::___loadCode(const char* code, const char* functionsToFind, st
     return (retVal);
 }
 
-bool CScriptObject::_loadCode()
+bool CDetachedScript::_loadCode()
 {
     if (_scriptState == scriptState_unloaded)
     {
@@ -2006,7 +1987,7 @@ bool CScriptObject::_loadCode()
     return ((_scriptState == scriptState_uninitialized) || (_scriptState == scriptState_initialized));
 }
 
-int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // retval: -1: runtimeError, 0: function not there or not called, 1: ok
     if (callType == sim_syscb_info)
     {
@@ -2165,7 +2146,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
     return (retVal);
 }
 
-int CScriptObject::_callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg)
+int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg)
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     // This will also execute function hooks
     int retVal = 1;
@@ -2252,7 +2233,7 @@ int CScriptObject::_callScriptFunction(int sysCallType, const char* functionName
     return (retVal);
 }
 
-int CScriptObject::_callScriptFunc(const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg)
+int CDetachedScript::_callScriptFunc(const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg)
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     int retVal = 0;
     std::string func(functionName);
@@ -2348,7 +2329,7 @@ int CScriptObject::_callScriptFunc(const char* functionName, const CInterfaceSta
 }
 
 
-int CScriptObject::callCustomScriptFunction(const char* functionName, CInterfaceStack* inStack /*= nullptr*/, CInterfaceStack* outStack /*= nullptr*/, std::string* errorMsg /*= nullptr*/)
+int CDetachedScript::callCustomScriptFunction(const char* functionName, CInterfaceStack* inStack /*= nullptr*/, CInterfaceStack* outStack /*= nullptr*/, std::string* errorMsg /*= nullptr*/)
 { // retval: -1: runtimeError, 0: function not there or not executed, 1: ok
     int retVal = 0;
     if (_scriptState == scriptState_initialized)
@@ -2417,7 +2398,7 @@ int CScriptObject::callCustomScriptFunction(const char* functionName, CInterface
     return retVal;
 }
 
-int CScriptObject::executeScriptString(const char* scriptString, CInterfaceStack* outStack)
+int CDetachedScript::executeScriptString(const char* scriptString, CInterfaceStack* outStack)
 { // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string
     // didn't cause an error
     int retVal = -2;
@@ -2439,7 +2420,7 @@ int CScriptObject::executeScriptString(const char* scriptString, CInterfaceStack
     return (retVal);
 }
 
-bool CScriptObject::_execScriptString(const char* scriptString, CInterfaceStack* outStack)
+bool CDetachedScript::_execScriptString(const char* scriptString, CInterfaceStack* outStack)
 { // retVal: success, otherwise error
     bool retVal = false;
 
@@ -2501,27 +2482,27 @@ bool CScriptObject::_execScriptString(const char* scriptString, CInterfaceStack*
     return (retVal);
 }
 
-bool CScriptObject::hasInterpreterState() const
+bool CDetachedScript::hasInterpreterState() const
 {
     return (_interpreterState != nullptr);
 }
 
-bool CScriptObject::isSimulationOrMainScript() const
+bool CDetachedScript::isSimulationOrMainScript() const
 {
     return ((_scriptType == sim_scripttype_main) || (_scriptType == sim_scripttype_simulation));
 }
 
-bool CScriptObject::isSceneSwitchPersistentScript() const
+bool CDetachedScript::isSceneSwitchPersistentScript() const
 {
     return ((_scriptType == sim_scripttype_sandbox) || (_scriptType == sim_scripttype_addon));
 }
 
-void CScriptObject::setIsSceneObjectScript(bool s)
+void CDetachedScript::setIsSceneObjectScript(bool s)
 {
     _sceneObjectScript = s;
 }
 
-bool CScriptObject::resetScript()
+bool CDetachedScript::resetScript()
 {
     bool retVal = _killInterpreterState();
     fromFileToBuffer();
@@ -2529,7 +2510,7 @@ bool CScriptObject::resetScript()
     return retVal;
 }
 
-void CScriptObject::initScript()
+void CDetachedScript::initScript()
 { // add-on scripts won't reload, just reinitialize
     resetScript();
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_sandbox))
@@ -2587,7 +2568,7 @@ void CScriptObject::initScript()
     }
 }
 
-bool CScriptObject::getIsUpToDate()
+bool CDetachedScript::getIsUpToDate()
 {
     bool retVal = true;
     if (hasInterpreterState() && (_scriptTextExec.compare(getScriptText()) != 0))
@@ -2595,7 +2576,7 @@ bool CScriptObject::getIsUpToDate()
     return (retVal);
 }
 
-bool CScriptObject::_killInterpreterState()
+bool CDetachedScript::_killInterpreterState()
 {
     bool retVal = (_scriptState != scriptState_unloaded);
     if (_interpreterState != nullptr)
@@ -2662,9 +2643,9 @@ bool CScriptObject::_killInterpreterState()
     return (retVal);
 }
 
-CScriptObject* CScriptObject::copyYourself()
+CDetachedScript* CDetachedScript::copyYourself()
 {
-    CScriptObject* it = new CScriptObject(_scriptType);
+    CDetachedScript* it = new CDetachedScript(_scriptType);
 
     it->_scriptType = _scriptType;
     // it->_scriptHandle=_scriptHandle;
@@ -2674,7 +2655,7 @@ CScriptObject* CScriptObject::copyYourself()
     it->_parentIsProxy = _parentIsProxy;
     it->setScriptText(getScriptText());
     it->_lang = _lang;
-    it->_scriptObjectInitialValuesInitialized = _scriptObjectInitialValuesInitialized;
+    it->_detachedScriptInitialValuesInitialized = _detachedScriptInitialValuesInitialized;
     it->_addOnExecPriority = _addOnExecPriority;
 
     it->_executionPriority_old = _executionPriority_old;
@@ -2685,7 +2666,7 @@ CScriptObject* CScriptObject::copyYourself()
     return (it);
 }
 
-bool CScriptObject::addCommandToOutsideCommandQueue(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4,
+bool CDetachedScript::addCommandToOutsideCommandQueue(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4,
                                                     const double aux2Vals[8], int aux2Count)
 {
     if (_outsideCommandQueue != nullptr)
@@ -2693,18 +2674,18 @@ bool CScriptObject::addCommandToOutsideCommandQueue(int commandID, int auxVal1, 
     return (true);
 }
 
-void CScriptObject::setEventFilters(const std::map<long long int, std::set<std::string>>& filters)
+void CDetachedScript::setEventFilters(const std::map<long long int, std::set<std::string>>& filters)
 {
     _eventFilters = filters;
 }
 
-bool CScriptObject::prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const
+bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const
 {
     bool retVal = false;
     if (_eventFilters.size() > 0)
     {
         long long int mainScriptHandle = -1;
-        CScriptObject* mainScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* mainScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
             mainScriptHandle = mainScript->getScriptHandle();
 
@@ -2757,14 +2738,14 @@ bool CScriptObject::prepareFilteredEventsBuffer(const std::vector<unsigned char>
     return retVal;
 }
 
-int CScriptObject::extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int& aux2Count)
+int CDetachedScript::extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int& aux2Count)
 {
     if (_outsideCommandQueue != nullptr)
         return (_outsideCommandQueue->extractOneCommand(auxVals, aux2Vals, aux2Count));
     return (-1);
 }
 
-void CScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
+void CDetachedScript::terminateScriptExecutionExternally(bool generateErrorMsg)
 {
     if (generateErrorMsg)
     {
@@ -2775,7 +2756,7 @@ void CScriptObject::terminateScriptExecutionExternally(bool generateErrorMsg)
     luaWrap_lua_yield((luaWrap_lua_State*)_interpreterState, 0);
 }
 
-void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg, bool runtimeError)
+void CDetachedScript::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg, bool runtimeError)
 { // errMsg is in the form: xxxx:lineNb: msg
     std::string errM(errMsg);
     if ((errM.find("attempt to yield across metamethod/C-call boundary") == std::string::npos) &&
@@ -2791,7 +2772,7 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
 #endif
 }
 
-int CScriptObject::getScriptHandleFromInterpreterState_lua(void* LL)
+int CDetachedScript::getScriptHandleFromInterpreterState_lua(void* LL)
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int retVal = -1;
@@ -2802,7 +2783,7 @@ int CScriptObject::getScriptHandleFromInterpreterState_lua(void* LL)
     return (retVal);
 }
 
-void CScriptObject::_setScriptHandleToInterpreterState_lua(void* LL)
+void CDetachedScript::_setScriptHandleToInterpreterState_lua(void* LL)
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     std::string tmp(SIM_SCRIPT_HANDLE);
@@ -2811,11 +2792,11 @@ void CScriptObject::_setScriptHandleToInterpreterState_lua(void* LL)
     tmp += ";";
     tmp += SIM_DETACHEDSCRIPT_HANDLE;
     tmp += "=";
-    tmp += std::to_string(_scriptPseudoHandle);
+    tmp += std::to_string(_objectHandle);
     luaWrap_luaL_dostring(L, tmp.c_str());
 }
 
-void CScriptObject::setScriptNameIndexToInterpreterState_lua_old(void* LL, int index)
+void CDetachedScript::setScriptNameIndexToInterpreterState_lua_old(void* LL, int index)
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     std::string tmp(SIM_SCRIPT_NAME_INDEX_OLD);
@@ -2824,7 +2805,7 @@ void CScriptObject::setScriptNameIndexToInterpreterState_lua_old(void* LL, int i
     luaWrap_luaL_dostring(L, tmp.c_str());
 }
 
-int CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(void* LL)
+int CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(void* LL)
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int retVal = -1;
@@ -2835,7 +2816,7 @@ int CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(void* LL)
     return (retVal);
 }
 
-std::string CScriptObject::getSearchPath_lua()
+std::string CDetachedScript::getSearchPath_lua()
 {
     std::string retVal;
 
@@ -2879,7 +2860,7 @@ std::string CScriptObject::getSearchPath_lua()
     return (retVal);
 }
 
-std::string CScriptObject::getSearchCPath_lua()
+std::string CDetachedScript::getSearchCPath_lua()
 {
     std::string retVal(App::folders->getInterpretersRootPath());
 #ifdef WIN_SIM
@@ -2890,7 +2871,7 @@ std::string CScriptObject::getSearchCPath_lua()
     return (retVal);
 }
 
-std::string CScriptObject::getSearchPath_python()
+std::string CDetachedScript::getSearchPath_python()
 {
     std::string retVal;
     retVal += App::folders->getInterpretersRootPath();
@@ -2912,7 +2893,7 @@ std::string CScriptObject::getSearchPath_python()
     return (retVal);
 }
 
-std::string CScriptObject::_removeLangTagInCode()
+std::string CDetachedScript::_removeLangTagInCode()
 {
     std::string retVal;
     std::string l;
@@ -2967,12 +2948,12 @@ std::string CScriptObject::_removeLangTagInCode()
     return retVal;
 }
 
-std::string CScriptObject::getLang() const
+std::string CDetachedScript::getLang() const
 {
     return _lang;
 }
 
-void CScriptObject::setLang(const char* lang)
+void CDetachedScript::setLang(const char* lang)
 {
     if (lang != nullptr)
     {
@@ -2987,19 +2968,19 @@ void CScriptObject::setLang(const char* lang)
     }
 }
 
-void CScriptObject::setExecutionDepth(int d)
+void CDetachedScript::setExecutionDepth(int d)
 {
     bool diff = (_executionDepth != d);
     if (diff)
         _executionDepth = d;
 }
 
-int CScriptObject::getExecutionDepth() const
+int CDetachedScript::getExecutionDepth() const
 {
     return _executionDepth;
 }
 
-bool CScriptObject::_initInterpreterState(std::string* errorMsg)
+bool CDetachedScript::_initInterpreterState(std::string* errorMsg)
 {
     _previouslyUsedModules.clear();
     _calledInThisSimulationStep = false;
@@ -3071,11 +3052,11 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     return (_interpreterState != nullptr);
 }
 
-void CScriptObject::_hookFunction_lua(void* LL, void* arr)
+void CDetachedScript::_hookFunction_lua(void* LL, void* arr)
 {
     TRACE_INTERNAL;
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
-    CScriptObject* it = App::worldContainer->getScriptObjectFromHandle(getScriptHandleFromInterpreterState_lua(L));
+    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
 
@@ -3119,7 +3100,7 @@ void CScriptObject::_hookFunction_lua(void* LL, void* arr)
     }
 }
 
-void CScriptObject::buildFromInterpreterStack_lua(void* LL, CInterfaceStack* stack, int fromPos, int cnt)
+void CDetachedScript::buildFromInterpreterStack_lua(void* LL, CInterfaceStack* stack, int fromPos, int cnt)
 { // fromPos: 1-n, cnt==0 --> all
     // !! LL is not the same for a script when in normal or inside a coroutine !!
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
@@ -3151,7 +3132,7 @@ void CScriptObject::buildFromInterpreterStack_lua(void* LL, CInterfaceStack* sta
     }
 }
 
-size_t CScriptObject::buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop, bool interlaceWithTypeInfo /*= false*/)
+size_t CDetachedScript::buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop, bool interlaceWithTypeInfo /*= false*/)
 { // !! LL is not the same for a script when in normal or inside a coroutine !!
     size_t retVal = 0;
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
@@ -3190,7 +3171,7 @@ size_t CScriptObject::buildOntoInterpreterStack_lua(void* LL, const CInterfaceSt
     return retVal;
 }
 
-void CScriptObject::registerNewFunctions_lua()
+void CDetachedScript::registerNewFunctions_lua()
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     // API functions (base (e.g. "loadPlugin"), regular (e.g. "sim.getObject") and deprecated (e.g. "sim1.handleIkGroup")):
@@ -3209,7 +3190,7 @@ void CScriptObject::registerNewFunctions_lua()
     }
 }
 
-bool CScriptObject::hasFunctionHook(const char* sysFunc) const
+bool CDetachedScript::hasFunctionHook(const char* sysFunc) const
 {
     for (size_t i = 0; i < _functionHooks_before.size() / 2; i++)
     {
@@ -3224,7 +3205,7 @@ bool CScriptObject::hasFunctionHook(const char* sysFunc) const
     return (false);
 }
 
-int CScriptObject::getFuncAndHookCnt(int sysCall, size_t what) const
+int CDetachedScript::getFuncAndHookCnt(int sysCall, size_t what) const
 { // Only for time critical functions/hooks (event, dyn, contact, joint). what: 0=func, 1=hook before, 2=hook after
     if (sysCall == sim_syscb_event)
         return (_sysFuncAndHookCnt_event[what]);
@@ -3237,7 +3218,7 @@ int CScriptObject::getFuncAndHookCnt(int sysCall, size_t what) const
     return (0);
 }
 
-void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
+void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
 { // Only for time critical functions/hooks (event, dyn, contact, joint). what: 0=func, 1=hook before, 2=hook after
     if ((sysCall == sim_syscb_event) || (sysCall == -1))
     {
@@ -3302,7 +3283,7 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
     }
 }
 
-int CScriptObject::registerFunctionHook(const char* sysFunc, const char* userFunc, bool before)
+int CDetachedScript::registerFunctionHook(const char* sysFunc, const char* userFunc, bool before)
 {
     int sysFuncNb = getSystemCallbackFromString(sysFunc);
     if (strlen(sysFunc) == 0)
@@ -3385,7 +3366,7 @@ int CScriptObject::registerFunctionHook(const char* sysFunc, const char* userFun
     }
 }
 
-void CScriptObject::removeFunctionHook(const char* sysFunc, const char* userFunc, bool before)
+void CDetachedScript::removeFunctionHook(const char* sysFunc, const char* userFunc, bool before)
 {
     int sysFuncNb = getSystemCallbackFromString(sysFunc);
     std::vector<std::string>* l = &_functionHooks_after;
@@ -3431,7 +3412,7 @@ void CScriptObject::removeFunctionHook(const char* sysFunc, const char* userFunc
     }
 }
 
-bool CScriptObject::replaceScriptText(const char* oldTxt, const char* newTxt)
+bool CDetachedScript::replaceScriptText(const char* oldTxt, const char* newTxt)
 {
     std::string theScript(getScriptText());
     size_t startPos = theScript.find(oldTxt, 0);
@@ -3447,7 +3428,7 @@ bool CScriptObject::replaceScriptText(const char* oldTxt, const char* newTxt)
     return replacedSomething;
 }
 
-void CScriptObject::printInterpreterStack() const
+void CDetachedScript::printInterpreterStack() const
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int cnt = luaWrap_lua_gettop(L);
@@ -3473,7 +3454,7 @@ void CScriptObject::printInterpreterStack() const
     printf("***********\n");
 }
 
-void CScriptObject::loadPluginFuncsAndVars(CPlugin* plug)
+void CDetachedScript::loadPluginFuncsAndVars(CPlugin* plug)
 {
     static std::set<std::string> failedLuaExecs;
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
@@ -3560,7 +3541,7 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin* plug)
     _execSimpleString_safe_lua(L, tmp.c_str());
 }
 
-void CScriptObject::registerPluginFunctions()
+void CDetachedScript::registerPluginFunctions()
 {
     for (size_t i = 0; i < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); i++)
     {
@@ -3605,7 +3586,7 @@ void CScriptObject::registerPluginFunctions()
     }
 }
 
-void CScriptObject::_registerNewVariables_lua()
+void CDetachedScript::_registerNewVariables_lua()
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     // Constants (regular (e.g. "sim.sceneobject_shape") and deprecated (e.g. "sim1.particle_points1")):
@@ -3617,7 +3598,7 @@ void CScriptObject::_registerNewVariables_lua()
     }
 }
 
-bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
+bool CDetachedScript::registerPluginVariables(bool onlyRequireStatements)
 {
     for (size_t i = 0; i < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomVariableCount(); i++)
     {
@@ -3668,7 +3649,7 @@ bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
     return (true);
 }
 
-void CScriptObject::serialize(CSer& ar)
+void CDetachedScript::serialize(CSer& ar)
 {
     _removeLangTagInCode();
     if (ar.isBinary())
@@ -4032,7 +4013,7 @@ void CScriptObject::serialize(CSer& ar)
     }
 }
 
-int CScriptObject::_execSimpleString_safe_lua(void* LL, const char* string)
+int CDetachedScript::_execSimpleString_safe_lua(void* LL, const char* string)
 {
     int t1 = _forbidAutoYieldingLevel;
     int t2 = _forbidOverallYieldingLevel;
@@ -4042,7 +4023,7 @@ int CScriptObject::_execSimpleString_safe_lua(void* LL, const char* string)
     return (retVal);
 }
 
-bool CScriptObject::_loadBuffer_lua(const char* buff, size_t sz, const char* name)
+bool CDetachedScript::_loadBuffer_lua(const char* buff, size_t sz, const char* name)
 {
     // This is the slow version (loading and compiling the buffer over and over):
     // int loadBufferRes=luaWrap_luaL_loadbuffer(luaState,buff,sz,name);
@@ -4061,7 +4042,7 @@ bool CScriptObject::_loadBuffer_lua(const char* buff, size_t sz, const char* nam
     return (_loadBufferResult_lua == 0);
 }
 
-void CScriptObject::_printContext(const char* str, size_t p)
+void CDetachedScript::_printContext(const char* str, size_t p)
 {
     size_t off = 60;
     if (p + off >= strlen(str))
@@ -4074,7 +4055,7 @@ void CScriptObject::_printContext(const char* str, size_t p)
     }
 }
 
-int CScriptObject::_getInterpreterStackArraySize_lua(void* LL, int index)
+int CDetachedScript::_getInterpreterStackArraySize_lua(void* LL, int index)
 { // with a map, return value is -1
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int cnt = 0;
@@ -4106,7 +4087,7 @@ int CScriptObject::_getInterpreterStackArraySize_lua(void* LL, int index)
     return cnt;
 }
 
-int CScriptObject::_countInterpreterStackTableEntries_lua(void* LL, int index)
+int CDetachedScript::_countInterpreterStackTableEntries_lua(void* LL, int index)
 { // !! LL is not the same for a script when in normal or inside a coroutine !!
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int cnt = 0;
@@ -4123,7 +4104,7 @@ int CScriptObject::_countInterpreterStackTableEntries_lua(void* LL, int index)
     return (cnt);
 }
 
-CInterfaceStackObject* CScriptObject::_getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints /*= false*/)
+CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints /*= false*/)
 { // generates just one object at the given index. There is no type hint
     // !! LL is not the same for a script when in normal or inside a coroutine !!
     CInterfaceStackObject* retVal = nullptr;
@@ -4277,7 +4258,7 @@ CInterfaceStackObject* CScriptObject::_getObjectFromInterpreterStack_lua(void* L
     return retVal;
 }
 
-CInterfaceStackTable* CScriptObject::_getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints /*= false*/)
+CInterfaceStackTable* CDetachedScript::_getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints /*= false*/)
 { // there must be a table at the given index
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     index = luaWrap_lua_absindex(L, index);
@@ -4373,7 +4354,7 @@ CInterfaceStackTable* CScriptObject::_getTableFromInterpreterStack_lua(void* LL,
     return table;
 }
 
-void CScriptObject::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj, bool pushOnlySimpleTypes /*= false*/)
+void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObject* obj, bool pushOnlySimpleTypes /*= false*/)
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int t = obj->getObjectType();
@@ -4500,17 +4481,17 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObjec
     }
 }
 
-void CScriptObject::signalSet(const char* sigName, long long int target /*= sim_handle_scene*/)
+void CDetachedScript::signalSet(const char* sigName, long long int target /*= sim_handle_scene*/)
 { // sigName is xx.signal.name (no type info), with xx. 'app.', '' or 'ojb.' (for app, scene or object)
     _signalNameToScriptHandle[sigName] = std::make_pair(_scriptHandle, target);
 }
 
-void CScriptObject::signalRemoved(const char* sigName)
+void CDetachedScript::signalRemoved(const char* sigName)
 { // sigName is xx.signal.name (no type info), with xx. 'app.', '' or 'ojb.' (for app, scene or object)
     _signalNameToScriptHandle.erase(sigName);
 }
 
-int CScriptObject::setBoolProperty(const char* pName, bool pState)
+int CDetachedScript::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = -1;
 
@@ -4528,7 +4509,7 @@ int CScriptObject::setBoolProperty(const char* pName, bool pState)
     return retVal;
 }
 
-int CScriptObject::getBoolProperty(const char* pName, bool& pState) const
+int CDetachedScript::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = -1;
 
@@ -4546,7 +4527,7 @@ int CScriptObject::getBoolProperty(const char* pName, bool& pState) const
     return retVal;
 }
 
-int CScriptObject::setIntProperty(const char* pName, int pState)
+int CDetachedScript::setIntProperty(const char* pName, int pState)
 {
     int retVal = -1;
 
@@ -4559,7 +4540,7 @@ int CScriptObject::setIntProperty(const char* pName, int pState)
     return retVal;
 }
 
-int CScriptObject::getIntProperty(const char* pName, int& pState) const
+int CDetachedScript::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = -1;
 
@@ -4587,34 +4568,31 @@ int CScriptObject::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
-int CScriptObject::setLongProperty(const char* pName, long long int pState)
+int CDetachedScript::setLongProperty(const char* pName, long long int pState)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CScriptObject::getLongProperty(const char* pName, long long int& pState) const
+int CDetachedScript::getLongProperty(const char* pName, long long int& pState) const
 {
-    int retVal = -1;
-
-    if (strcmp(propDetachedScript_handle.name, pName) == 0)
+    int retVal = Obj::getLongProperty(pName, pState);
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = _scriptPseudoHandle;
     }
 
     return retVal;
 }
 
-int CScriptObject::getHandleProperty(const char* pName, long long int& pState) const
+int CDetachedScript::getHandleProperty(const char* pName, long long int& pState) const
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CScriptObject::setStringProperty(const char* pName, const char* pState)
+int CDetachedScript::setStringProperty(const char* pName, const char* pState)
 {
     int retVal = -1;
 
@@ -4627,86 +4605,64 @@ int CScriptObject::setStringProperty(const char* pName, const char* pState)
     return retVal;
 }
 
-int CScriptObject::getStringProperty(const char* pName, std::string& pState) const
+int CDetachedScript::getStringProperty(const char* pName, std::string& pState) const
 {
-    int retVal = -1;
-
-    if (strcmp(propDetachedScript_code.name, pName) == 0)
-    {
-        retVal = 1;
-#ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow != nullptr)
-            GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
-#endif
-        pState = _scriptText;
-    }
-    else if (strcmp(propDetachedScript_language.name, pName) == 0)
-    {
-        retVal = 1;
-        pState = _lang;
-    }
-    else if (strcmp(propDetachedScript_objectType.name, pName) == 0)
-    {
-        retVal = 1;
-        pState = "detachedScript";
-    }
-    else if (strcmp(propDetachedScript_scriptName.name, pName) == 0)
-    {
-        retVal = 1;
-        pState = getScriptName();
-    }
-    else if (strcmp(propDetachedScript_addOnPath.name, pName) == 0)
-    {
-        retVal = 1;
-        pState = _addOnPath;
-    }
-    else if (strcmp(propDetachedScript_addOnMenuPath.name, pName) == 0)
-    {
-        retVal = 1;
-        pState = _addOnMenuPath;
-    }
-    else if (strcmp(propDetachedScript_objectMetaInfo.name, pName) == 0)
-    {
-        retVal = 1;
-        pState = OBJECT_META_INFO;
-    }
-
-    return retVal;
-}
-
-int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* appartenance, int excludeFlags) const
-{
-    if (appartenance != nullptr)
-        appartenance[0] = "detachedScript";
-    int retVal = Obj::getPropertyName(index, pName, appartenance[0], excludeFlags);
+    int retVal = Obj::getStringProperty(pName, pState);
     if (retVal == -1)
-        retVal = getPropertyName_localStatic(index, pName, appartenance, excludeFlags);
-    return retVal;
-}
-
-int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::string* appartenance, int excludeFlags)
-{
-    int retVal = Obj::getPropertyName_static(index, pName, appartenance[0], excludeFlags);
-    if (retVal == -1)
-        retVal = getPropertyName_localStatic(index, pName, appartenance, excludeFlags);
-    return retVal;
-}
-
-int CScriptObject::getPropertyName_localStatic(int& index, std::string& pName, std::string* appartenance, int excludeFlags)
-{
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_scriptObject.size(); i++)
     {
-        if ((pName.size() == 0) || utils::startsWith(allProps_scriptObject[i].name, pName.c_str()))
+        if (strcmp(propDetachedScript_code.name, pName) == 0)
         {
-            if ((allProps_scriptObject[i].flags & excludeFlags) == 0)
+            retVal = 1;
+#ifdef SIM_WITH_GUI
+            if (GuiApp::mainWindow != nullptr)
+                GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+#endif
+            pState = _scriptText;
+        }
+        else if (strcmp(propDetachedScript_language.name, pName) == 0)
+        {
+            retVal = 1;
+            pState = _lang;
+        }
+        else if (strcmp(propDetachedScript_scriptName.name, pName) == 0)
+        {
+            retVal = 1;
+            pState = getScriptName();
+        }
+        else if (strcmp(propDetachedScript_addOnPath.name, pName) == 0)
+        {
+            retVal = 1;
+            pState = _addOnPath;
+        }
+        else if (strcmp(propDetachedScript_addOnMenuPath.name, pName) == 0)
+        {
+            retVal = 1;
+            pState = _addOnMenuPath;
+        }
+    }
+
+    return retVal;
+}
+
+int CDetachedScript::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+{
+    appartenance = _objectTypeStr;
+    int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_detachedScript.size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(allProps_detachedScript[i].name, pName.c_str()))
             {
-                index--;
-                if (index == -1)
+                if ((allProps_detachedScript[i].flags & excludeFlags) == 0)
                 {
-                    pName = allProps_scriptObject[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_detachedScript[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -4714,11 +4670,33 @@ int CScriptObject::getPropertyName_localStatic(int& index, std::string& pName, s
     return retVal;
 }
 
-int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool detachedScript) const
+int CDetachedScript::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = Obj::getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt, detachedScript);
+    {
+        for (size_t i = 0; i < allProps_detachedScript.size(); i++)
+        {
+            if (strcmp(allProps_detachedScript[i].name, pName) == 0)
+            {
+                retVal = allProps_detachedScript[i].type;
+                info = allProps_detachedScript[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_detachedScript[i].shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(allProps_detachedScript[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
+            }
+        }
+    }
     if (retVal != -1)
     {
         if (strcmp(propDetachedScript_code.name, pName) == 0)
@@ -4730,88 +4708,53 @@ int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& in
     return retVal;
 }
 
-int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt, bool detachedScript)
-{
-    int retVal = Obj::getPropertyInfo_static(ppName, info, infoTxt);
-    if (retVal == -1)
-        retVal = getPropertyInfo_localStatic(ppName, info, infoTxt, detachedScript);
-    return retVal;
-}
-
-int CScriptObject::getPropertyInfo_localStatic(const char* ppName, int& info, std::string& infoTxt, bool detachedScript)
-{
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_scriptObject.size(); i++)
-    {
-        if (strcmp(allProps_scriptObject[i].name, ppName) == 0)
-        {
-            retVal = allProps_scriptObject[i].type;
-            info = allProps_scriptObject[i].flags;
-            if (infoTxt == "j")
-                infoTxt = allProps_scriptObject[i].shortInfoTxt;
-            else
-            {
-                auto w = QJsonDocument::fromJson(allProps_scriptObject[i].shortInfoTxt.c_str()).object();
-                std::string descr = w["description"].toString().toStdString();
-                std::string label = w["label"].toString().toStdString();
-                if ( (infoTxt == "s") || (descr == "") )
-                    infoTxt = label;
-                else
-                    infoTxt = descr;
-            }
-            break;
-        }
-    }
-    return retVal;
-}
-
 // OLD
 // **************************************************************
 // **************************************************************
 
-void CScriptObject::setExecutionPriority_old(int order)
+void CDetachedScript::setExecutionPriority_old(int order)
 {
     _executionPriority_old = tt::getLimitedInt(sim_scriptexecorder_first, sim_scriptexecorder_last, order);
 }
-int CScriptObject::getExecutionPriority_old() const
+int CDetachedScript::getExecutionPriority_old() const
 {
     return (_executionPriority_old);
 }
-void CScriptObject::setObjectCustomData_old(int header, const char* data, int dataLength)
+void CDetachedScript::setObjectCustomData_old(int header, const char* data, int dataLength)
 {
     if (_customObjectData_old == nullptr)
         _customObjectData_old = new CCustomData_old();
     _customObjectData_old->setData(header, data, dataLength);
 }
-int CScriptObject::getObjectCustomDataLength_old(int header) const
+int CDetachedScript::getObjectCustomDataLength_old(int header) const
 {
     if (_customObjectData_old == nullptr)
         return (0);
     return (_customObjectData_old->getDataLength(header));
 }
-void CScriptObject::getObjectCustomData_old(int header, char* data) const
+void CDetachedScript::getObjectCustomData_old(int header, char* data) const
 {
     if (_customObjectData_old == nullptr)
         return;
     _customObjectData_old->getData(header, data);
 }
-void CScriptObject::setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled)
+void CDetachedScript::setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(bool disabled)
 {
     _custScriptDisabledDSim_compatibilityMode_DEPRECATED = disabled;
 }
-bool CScriptObject::getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const
+bool CDetachedScript::getCustScriptDisabledDSim_compatibilityMode_DEPRECATED() const
 {
     return (_custScriptDisabledDSim_compatibilityMode_DEPRECATED);
 }
-void CScriptObject::setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt)
+void CDetachedScript::setCustomizationScriptCleanupBeforeSave_DEPRECATED(bool doIt)
 {
     _customizationScriptCleanupBeforeSave_DEPRECATED = doIt;
 }
-bool CScriptObject::getCustomizationScriptCleanupBeforeSave_DEPRECATED() const
+bool CDetachedScript::getCustomizationScriptCleanupBeforeSave_DEPRECATED() const
 {
     return (_customizationScriptCleanupBeforeSave_DEPRECATED);
 }
-int CScriptObject::_getScriptNameIndexNumber_old() const
+int CDetachedScript::_getScriptNameIndexNumber_old() const
 {
     int retVal = -1;
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
@@ -4822,7 +4765,7 @@ int CScriptObject::_getScriptNameIndexNumber_old() const
     }
     return (retVal);
 }
-std::string CScriptObject::getScriptPseudoName_old() const
+std::string CDetachedScript::getScriptPseudoName_old() const
 {
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
@@ -4835,7 +4778,7 @@ std::string CScriptObject::getScriptPseudoName_old() const
     return ("");
 }
 
-int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata)
+int CDetachedScript::callScriptFunction_DEPRECATED(const char* functionName, SLuaCallBack* pdata)
 {                    // DEPRECATED
     int retVal = -1; // means error
 
@@ -5001,7 +4944,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char* functionName, SLuaC
     changeOverallYieldingForbidLevel(-1, false);
     return (retVal);
 }
-int CScriptObject::setScriptVariable_old(const char* variableName, CInterfaceStack* stack)
+int CDetachedScript::setScriptVariable_old(const char* variableName, CInterfaceStack* stack)
 {
     int retVal = -1;
     if (_scriptState != scriptState_initialized)
@@ -5057,7 +5000,7 @@ int CScriptObject::setScriptVariable_old(const char* variableName, CInterfaceSta
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
     return (retVal);
 }
-int CScriptObject::clearScriptVariable_DEPRECATED(const char* variableName)
+int CDetachedScript::clearScriptVariable_DEPRECATED(const char* variableName)
 { // deprecated
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     if (L == nullptr)
@@ -5096,12 +5039,12 @@ int CScriptObject::clearScriptVariable_DEPRECATED(const char* variableName)
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
     return (0);
 }
-CUserParameters* CScriptObject::getScriptParametersObject_backCompatibility()
+CUserParameters* CDetachedScript::getScriptParametersObject_backCompatibility()
 {
     return (_scriptParameters_backCompatibility);
 }
 
-int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data,
+int CDetachedScript::appendTableEntry_DEPRECATED(const char* arrayName, const char* keyName, const char* data,
                                                const int what[2])
 { // DEPRECATED since 23/2/2016
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
@@ -5193,34 +5136,32 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName, const char
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
     return (0);
 }
-void CScriptObject::setAutomaticCascadingCallsDisabled_old(bool disabled)
+void CDetachedScript::setAutomaticCascadingCallsDisabled_old(bool disabled)
 {
     _automaticCascadingCallsDisabled_old = disabled;
 }
-bool CScriptObject::getAutomaticCascadingCallsDisabled_old() const
+bool CDetachedScript::getAutomaticCascadingCallsDisabled_old() const
 {
     return (_automaticCascadingCallsDisabled_old);
 }
-void CScriptObject::_insertScriptText_old(CScriptObject* scriptObject, bool toFront, const char* txt)
+void CDetachedScript::_insertScriptText_old(CDetachedScript* detachedScript, bool toFront, const char* txt)
 {
-    std::string theScript(scriptObject->getScriptText());
+    std::string theScript(detachedScript->getScriptText());
     if (toFront)
         theScript = std::string(txt) + theScript;
     else
         theScript += txt;
-    scriptObject->setScriptText(theScript.c_str());
+    detachedScript->setScriptText(theScript.c_str());
 }
 
-bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt, const char* newTxt)
+bool CDetachedScript::_replaceScriptText_old(CDetachedScript* detachedScript, const char* oldTxt, const char* newTxt)
 {
-    return scriptObject->replaceScriptText(oldTxt, newTxt);
+    return detachedScript->replaceScriptText(oldTxt, newTxt);
 }
 
-bool CScriptObject::_replaceScriptTextKeepMiddleUnchanged_old(CScriptObject* scriptObject, const char* oldTxtStart,
-                                                              const char* oldTxtEnd, const char* newTxtStart,
-                                                              const char* newTxtEnd)
+bool CDetachedScript::_replaceScriptTextKeepMiddleUnchanged_old(CDetachedScript* detachedScript, const char* oldTxtStart, const char* oldTxtEnd, const char* newTxtStart, const char* newTxtEnd)
 { // Will do following: oldTextStart*oldTextEnd --> nextTextStart*newTextEnd
-    std::string theScript(scriptObject->getScriptText());
+    std::string theScript(detachedScript->getScriptText());
     size_t startPos = theScript.find(oldTxtStart, 0);
     bool replacedSomething = false;
     while (startPos != std::string::npos)
@@ -5253,13 +5194,12 @@ bool CScriptObject::_replaceScriptTextKeepMiddleUnchanged_old(CScriptObject* scr
             startPos = theScript.find(oldTxtStart, startPos + 1);
     }
     if (replacedSomething)
-        scriptObject->setScriptText(theScript.c_str());
+        detachedScript->setScriptText(theScript.c_str());
     return (replacedSomething);
 }
-bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const char* oldTxt1, const char* oldTxt2,
-                                           const char* oldTxt3, const char* newTxt)
+bool CDetachedScript::_replaceScriptText_old(CDetachedScript* detachedScript, const char* oldTxt1, const char* oldTxt2, const char* oldTxt3, const char* newTxt)
 { // there can be spaces between the 3 words
-    std::string theScript(scriptObject->getScriptText());
+    std::string theScript(detachedScript->getScriptText());
     size_t l1 = strlen(oldTxt1);
     size_t l2 = strlen(oldTxt2);
     size_t l3 = strlen(oldTxt3);
@@ -5308,12 +5248,12 @@ bool CScriptObject::_replaceScriptText_old(CScriptObject* scriptObject, const ch
             searchStart = theScript.length();
     }
     if (replacedSomething)
-        scriptObject->setScriptText(theScript.c_str());
+        detachedScript->setScriptText(theScript.c_str());
     return (replacedSomething);
 }
-bool CScriptObject::_containsScriptText_old(CScriptObject* scriptObject, const char* txt)
+bool CDetachedScript::_containsScriptText_old(CDetachedScript* detachedScript, const char* txt)
 {
-    const std::string theScript(scriptObject->getScriptText());
+    const std::string theScript(detachedScript->getScriptText());
     size_t startPos = theScript.find(txt);
     /*
     if (startPos != std::string::npos)
@@ -5331,7 +5271,7 @@ bool CScriptObject::_containsScriptText_old(CScriptObject* scriptObject, const c
     //*/
     return (startPos != std::string::npos);
 }
-void CScriptObject::_splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord,
+void CDetachedScript::_splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord,
                                       std::string& afterPart)
 {
     size_t endPos;
@@ -5354,13 +5294,13 @@ void CScriptObject::_splitApiText_old(const char* txt, size_t pos, std::string& 
     else
         afterPart.clear();
 }
-void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doIt, bool doIt2)
+void CDetachedScript::_adjustScriptText1_old(CDetachedScript* detachedScript, bool doIt, bool doIt2)
 {
     if (!doIt)
         return;
     // here we have to adjust for the new script execution engine (since V3.1.3):
-    if ((scriptObject->getScriptType() == sim_scripttype_main) &&
-        (!scriptObject->_mainScriptIsDefaultMainScript_old))
+    if ((detachedScript->getScriptType() == sim_scripttype_main) &&
+        (!detachedScript->_mainScriptIsDefaultMainScript_old))
     {
         std::string txt;
         txt += DEFAULT_MAINSCRIPT_CODE;
@@ -5373,18 +5313,18 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doI
         txt += " \n";
         txt += "--[=[ \n";
         txt += " \n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
+        _insertScriptText_old(detachedScript, true, txt.c_str());
         txt = "";
         txt += "\n";
         txt += " \n";
         txt += " \n";
         txt += "--]=] \n";
         txt += "------------------------------------------------------------------------------ \n";
-        _insertScriptText_old(scriptObject, false, txt.c_str());
+        _insertScriptText_old(detachedScript, false, txt.c_str());
     }
-    if (scriptObject->getScriptType() == sim_scripttype_simulation)
+    if (detachedScript->getScriptType() == sim_scripttype_simulation)
     {
-        _replaceScriptText_old(scriptObject, "\n", "\n\t"); // "\r\n" is also handled
+        _replaceScriptText_old(detachedScript, "\n", "\n\t"); // "\r\n" is also handled
 
         std::string txt;
         if (doIt2)
@@ -5411,7 +5351,7 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doI
             txt += "------------------------------------------------------------------------------ \n";
             txt += " \n";
             txt += " \n";
-            _insertScriptText_old(scriptObject, true, txt.c_str());
+            _insertScriptText_old(detachedScript, true, txt.c_str());
 
             // Add text to the end:
             txt = "\n";
@@ -5422,12 +5362,12 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doI
             txt += "-- with CoppeliaSim 3.1.3 and later: \n";
             txt += "end \n";
             txt += "------------------------------------------------------------------------------ \n";
-            _insertScriptText_old(scriptObject, false, txt.c_str());
+            _insertScriptText_old(detachedScript, false, txt.c_str());
 
             // Because in old sensing simulation scripts, simHandleChildScript didn't anyway have an effect:
-            _replaceScriptText_old(scriptObject, "simHandleChildScript(",
+            _replaceScriptText_old(detachedScript, "simHandleChildScript(",
                                    "-- commented by CoppeliaSim: s@imHandleChildScript(");
-            _replaceScriptText_old(scriptObject, "s@imHandleChildScript", "simHandleChildScript");
+            _replaceScriptText_old(detachedScript, "s@imHandleChildScript", "simHandleChildScript");
         }
         else
         { // actuation simulation script
@@ -5458,7 +5398,7 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doI
             txt += "------------------------------------------------------------------------------ \n";
             txt += " \n";
             txt += " \n";
-            _insertScriptText_old(scriptObject, true, txt.c_str());
+            _insertScriptText_old(detachedScript, true, txt.c_str());
 
             // Add text to the end:
             txt = "\n";
@@ -5469,50 +5409,49 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject* scriptObject, bool doI
             txt += "-- with CoppeliaSim 3.1.3 and later: \n";
             txt += "end \n";
             txt += "------------------------------------------------------------------------------ \n";
-            _insertScriptText_old(scriptObject, false, txt.c_str());
-            _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all_except_explicit", ")",
+            _insertScriptText_old(detachedScript, false, txt.c_str());
+            _replaceScriptText_old(detachedScript, "simHandleChildScript(", "sim_handle_all_except_explicit", ")",
                                    "simHandleChildScripts(sim_call_type)");
-            _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all", ")",
+            _replaceScriptText_old(detachedScript, "simHandleChildScript(", "sim_handle_all", ")",
                                    "simHandleChildScripts(sim_call_type)");
-            _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all_except_explicit", ",",
+            _replaceScriptText_old(detachedScript, "simHandleChildScript(", "sim_handle_all_except_explicit", ",",
                                    "simHandleChildScripts(sim_call_type,");
-            _replaceScriptText_old(scriptObject, "simHandleChildScript(", "sim_handle_all", ",",
+            _replaceScriptText_old(detachedScript, "simHandleChildScript(", "sim_handle_all", ",",
                                    "simHandleChildScripts(sim_call_type,");
 
-            if (_containsScriptText_old(scriptObject, "simHandleChildScript("))
+            if (_containsScriptText_old(detachedScript, "simHandleChildScript("))
             { // output a warning
                 txt = "Compatibility issue with @@REPLACE@@\n";
                 txt += "  Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
                 txt += "  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
                 txt += "  and operates slightly differently. CoppeliaSim has tried to automatically adjust\n";
                 txt += "  the script, but failed. Please correct this issue yourself by editing the script.";
-                CWorld::appendLoadOperationIssue(sim_verbosity_warnings, txt.c_str(),
-                                                 scriptObject->getScriptHandle());
+                CWorld::appendLoadOperationIssue(sim_verbosity_warnings, txt.c_str(), detachedScript->getScriptHandle());
             }
         }
     }
-    if (scriptObject->getScriptType() == sim_scripttype_customization)
+    if (detachedScript->getScriptType() == sim_scripttype_customization)
     {
-        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_firstaftersimulation",
+        _replaceScriptText_old(detachedScript, "sim_customizationscriptcall_firstaftersimulation",
                                "sim.syscb_aftersimulation");
-        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_lastbeforesimulation",
+        _replaceScriptText_old(detachedScript, "sim_customizationscriptcall_lastbeforesimulation",
                                "sim.syscb_beforesimulation");
-        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_first", "sim.syscb_init");
-        _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_last", "sim.syscb_cleanup");
+        _replaceScriptText_old(detachedScript, "sim_customizationscriptcall_first", "sim.syscb_init");
+        _replaceScriptText_old(detachedScript, "sim_customizationscriptcall_last", "sim.syscb_cleanup");
     }
 }
-void CScriptObject::_adjustScriptText2_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText2_old(CDetachedScript* detachedScript, bool doIt)
 {
 }
-void CScriptObject::_adjustScriptText3_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText3_old(CDetachedScript* detachedScript, bool doIt)
 {
     if (!doIt)
         return;
     // 1. check if we haven't previously added the correction:
-    if (!_containsScriptText_old(scriptObject, "@backCompatibility1:"))
+    if (!_containsScriptText_old(detachedScript, "@backCompatibility1:"))
     {
         bool modifiedSomething = _replaceScriptTextKeepMiddleUnchanged_old(
-            scriptObject, "simSetShapeColor(", ",", "simSetShapeColor(colorCorrectionFunction(", "),");
+            detachedScript, "simSetShapeColor(", ",", "simSetShapeColor(colorCorrectionFunction(", "),");
 
         if (modifiedSomething)
         {
@@ -5532,70 +5471,70 @@ void CScriptObject::_adjustScriptText3_old(CScriptObject* scriptObject, bool doI
             txt += "------------------------------------------------------------------------------ \n";
             txt += " \n";
             txt += " \n";
-            _insertScriptText_old(scriptObject, true, txt.c_str());
+            _insertScriptText_old(detachedScript, true, txt.c_str());
         }
     }
 }
-void CScriptObject::_adjustScriptText4_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText4_old(CDetachedScript* detachedScript, bool doIt)
 {
     if (!doIt)
         return;
-    _replaceScriptText_old(scriptObject, "res,err=pcall(threadFunction)",
+    _replaceScriptText_old(detachedScript, "res,err=pcall(threadFunction)",
                            "res,err=xpcall(threadFunction,function(err) return debug.traceback(err) end)");
 }
-void CScriptObject::_adjustScriptText5_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText5_old(CDetachedScript* detachedScript, bool doIt)
 { // Following since 19/12/2015: not really needed, but better.
     if (!doIt)
         return;
-    _replaceScriptText_old(scriptObject, "simGetBooleanParameter", "simGetBoolParameter");
-    _replaceScriptText_old(scriptObject, "simSetBooleanParameter", "simSetBoolParameter");
-    _replaceScriptText_old(scriptObject, "simGetIntegerParameter", "simGetInt32Parameter");
-    _replaceScriptText_old(scriptObject, "simSetIntegerParameter", "simSetInt32Parameter");
-    _replaceScriptText_old(scriptObject, "simGetFloatingParameter", "simGetFloatParameter");
-    _replaceScriptText_old(scriptObject, "simSetFloatingParameter", "simSetFloatParameter");
-    _replaceScriptText_old(scriptObject, "simGetObjectIntParameter", "simGetObjectInt32Parameter");
-    _replaceScriptText_old(scriptObject, "simSetObjectIntParameter", "simSetObjectInt32Parameter");
+    _replaceScriptText_old(detachedScript, "simGetBooleanParameter", "simGetBoolParameter");
+    _replaceScriptText_old(detachedScript, "simSetBooleanParameter", "simSetBoolParameter");
+    _replaceScriptText_old(detachedScript, "simGetIntegerParameter", "simGetInt32Parameter");
+    _replaceScriptText_old(detachedScript, "simSetIntegerParameter", "simSetInt32Parameter");
+    _replaceScriptText_old(detachedScript, "simGetFloatingParameter", "simGetFloatParameter");
+    _replaceScriptText_old(detachedScript, "simSetFloatingParameter", "simSetFloatParameter");
+    _replaceScriptText_old(detachedScript, "simGetObjectIntParameter", "simGetObjectInt32Parameter");
+    _replaceScriptText_old(detachedScript, "simSetObjectIntParameter", "simSetObjectInt32Parameter");
 }
-void CScriptObject::_adjustScriptText6_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText6_old(CDetachedScript* detachedScript, bool doIt)
 { // since 19/1/2016 we don't use tabs anymore in embedded scripts:
     if (!doIt)
         return;
-    _replaceScriptText_old(scriptObject, "\t", "    "); // tab to 4 spaces
+    _replaceScriptText_old(detachedScript, "\t", "    "); // tab to 4 spaces
 }
-void CScriptObject::_adjustScriptText7_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText7_old(CDetachedScript* detachedScript, bool doIt)
 { // Following since 13/9/2016, but active only since V3.3.3 (or V3.4.0)
     if (!doIt)
         return;
-    _replaceScriptText_old(scriptObject, "simPackInts", "simPackInt32Table");
-    _replaceScriptText_old(scriptObject, "simPackUInts", "simPackUInt32Table");
-    _replaceScriptText_old(scriptObject, "simPackFloats", "simPackFloatTable");
-    _replaceScriptText_old(scriptObject, "simPackDoubles", "simPackDoubleTable");
-    _replaceScriptText_old(scriptObject, "simPackBytes", "simPackUInt8Table");
-    _replaceScriptText_old(scriptObject, "simPackWords", "simPackUInt16Table");
-    _replaceScriptText_old(scriptObject, "simUnpackInts", "simUnpackInt32Table");
-    _replaceScriptText_old(scriptObject, "simUnpackUInts", "simUnpackUInt32Table");
-    _replaceScriptText_old(scriptObject, "simUnpackFloats", "simUnpackFloatTable");
-    _replaceScriptText_old(scriptObject, "simUnpackDoubles", "simUnpackDoubleTable");
-    _replaceScriptText_old(scriptObject, "simUnpackBytes", "simUnpackUInt8Table");
-    _replaceScriptText_old(scriptObject, "simUnpackWords", "simUnpackUInt16Table");
+    _replaceScriptText_old(detachedScript, "simPackInts", "simPackInt32Table");
+    _replaceScriptText_old(detachedScript, "simPackUInts", "simPackUInt32Table");
+    _replaceScriptText_old(detachedScript, "simPackFloats", "simPackFloatTable");
+    _replaceScriptText_old(detachedScript, "simPackDoubles", "simPackDoubleTable");
+    _replaceScriptText_old(detachedScript, "simPackBytes", "simPackUInt8Table");
+    _replaceScriptText_old(detachedScript, "simPackWords", "simPackUInt16Table");
+    _replaceScriptText_old(detachedScript, "simUnpackInts", "simUnpackInt32Table");
+    _replaceScriptText_old(detachedScript, "simUnpackUInts", "simUnpackUInt32Table");
+    _replaceScriptText_old(detachedScript, "simUnpackFloats", "simUnpackFloatTable");
+    _replaceScriptText_old(detachedScript, "simUnpackDoubles", "simUnpackDoubleTable");
+    _replaceScriptText_old(detachedScript, "simUnpackBytes", "simUnpackUInt8Table");
+    _replaceScriptText_old(detachedScript, "simUnpackWords", "simUnpackUInt16Table");
 }
-void CScriptObject::_adjustScriptText10_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText10_old(CDetachedScript* detachedScript, bool doIt)
 { // some various small details:
-    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('/",".lua')","require('/","')");
-    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"/",".lua\")","require('/","')");
-    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include('\\",".lua')","require('\\","')");
-    //   _replaceScriptTextKeepMiddleUnchanged(scriptObject,"sim.include(\"\\",".lua\")","require('\\","')");
-    _replaceScriptText_old(scriptObject, "sim.include('/lua/graph_customization.lua')",
+    //   _replaceScriptTextKeepMiddleUnchanged(detachedScript,"sim.include('/",".lua')","require('/","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(detachedScript,"sim.include(\"/",".lua\")","require('/","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(detachedScript,"sim.include('\\",".lua')","require('\\","')");
+    //   _replaceScriptTextKeepMiddleUnchanged(detachedScript,"sim.include(\"\\",".lua\")","require('\\","')");
+    _replaceScriptText_old(detachedScript, "sim.include('/lua/graph_customization.lua')",
                            "graph=require('graph_customization')");
-    _replaceScriptText_old(scriptObject, "require('/BlueWorkforce/", "require('/bwf/");
-    _replaceScriptText_old(scriptObject, "sim.include('/BlueWorkforce/", "sim.include('/bwf/");
+    _replaceScriptText_old(detachedScript, "require('/BlueWorkforce/", "require('/bwf/");
+    _replaceScriptText_old(detachedScript, "sim.include('/BlueWorkforce/", "sim.include('/bwf/");
     if (!doIt)
         return;
-    _replaceScriptText_old(scriptObject, " onclose=\"", " on-close=\"");
-    _replaceScriptText_old(scriptObject, " onchange=\"", " on-change=\"");
-    _replaceScriptText_old(scriptObject, " onclick=\"", " on-click=\"");
+    _replaceScriptText_old(detachedScript, " onclose=\"", " on-close=\"");
+    _replaceScriptText_old(detachedScript, " onchange=\"", " on-change=\"");
+    _replaceScriptText_old(detachedScript, " onclick=\"", " on-click=\"");
 }
-void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText11_old(CDetachedScript* detachedScript, bool doIt)
 { // A subtle bug was corrected in below function in CoppeliaSim4.0.1. Below to keep old code working as previously
     if (!doIt)
         return;
@@ -5603,16 +5542,16 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool do
     std::string theScript;
     bool addFunc = false;
 
-    theScript = (scriptObject->getScriptText());
+    theScript = (detachedScript->getScriptText());
     utils::regexReplace(theScript, "sim.getObjectOrientation\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectOrientation(", "__getObjectOrientation__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectOrientation");
+    detachedScript->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(detachedScript, "sim.getObjectOrientation(", "__getObjectOrientation__(");
+    _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.getObjectOrientation");
     if (addFunc)
     {
         //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible
-        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        //        bug in versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
         txt += "function __getObjectOrientation__(a,b)\n";
         txt +=
@@ -5626,19 +5565,19 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool do
         txt += "    end\n";
         txt += "    return sim.getObjectOrientation(a,b)\n";
         txt += "end\n\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
+        _insertScriptText_old(detachedScript, true, txt.c_str());
     }
 
-    theScript = scriptObject->getScriptText();
+    theScript = detachedScript->getScriptText();
     utils::regexReplace(theScript, "sim.setObjectOrientation\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectOrientation(", "__setObjectOrientation__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectOrientation");
+    detachedScript->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(detachedScript, "sim.setObjectOrientation(", "__setObjectOrientation__(");
+    _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.setObjectOrientation");
     if (addFunc)
     {
         //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible
-        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        //        bug in versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
         txt += "function __setObjectOrientation__(a,b,c)\n";
         txt +=
@@ -5652,21 +5591,21 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool do
         txt += "    end\n";
         txt += "    return sim.setObjectOrientation(a,b,c)\n";
         txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
+        _insertScriptText_old(detachedScript, true, txt.c_str());
     }
 
-    theScript = scriptObject->getScriptText();
+    theScript = detachedScript->getScriptText();
     utils::regexReplace(theScript, "sim.getObjectQuaternion\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
     utils::regexReplace(theScript, "sim.getObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *)\\)",
                         "blabliblotemp($1,sim.handle_parent)");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectQuaternion(", "__getObjectQuaternion__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectQuaternion");
+    detachedScript->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(detachedScript, "sim.getObjectQuaternion(", "__getObjectQuaternion__(");
+    _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.getObjectQuaternion");
     if (addFunc)
     {
         //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible
-        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        //        bug in versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
         txt += "function __getObjectQuaternion__(a,b)\n";
         txt +=
@@ -5680,21 +5619,21 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool do
         txt += "    end\n";
         txt += "    return sim.getObjectQuaternion(a,b)\n";
         txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
+        _insertScriptText_old(detachedScript, true, txt.c_str());
     }
 
-    theScript = scriptObject->getScriptText();
+    theScript = detachedScript->getScriptText();
     utils::regexReplace(theScript, "sim.setObjectQuaternion\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
     utils::regexReplace(theScript, "sim.setObjectQuaternion\\(([^,]+),( *)sim.handle_parent( *),",
                         "blabliblotemp($1,sim.handle_parent,");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectQuaternion(", "__setObjectQuaternion__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectQuaternion");
+    detachedScript->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(detachedScript, "sim.setObjectQuaternion(", "__setObjectQuaternion__(");
+    _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.setObjectQuaternion");
     if (addFunc)
     {
         //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible
-        //        bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        //        bug in versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
         txt += "function __setObjectQuaternion__(a,b,c)\n";
         txt +=
@@ -5708,21 +5647,21 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool do
         txt += "    end\n";
         txt += "    return sim.setObjectQuaternion(a,b,c)\n";
         txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
+        _insertScriptText_old(detachedScript, true, txt.c_str());
     }
 
-    theScript = scriptObject->getScriptText();
+    theScript = detachedScript->getScriptText();
     utils::regexReplace(theScript, "sim.getObjectPosition\\(([^,]+),( *)-1( *)\\)", "blabliblotemp($1,-1)");
     utils::regexReplace(theScript, "sim.getObjectPosition\\(([^,]+),( *)sim.handle_parent( *)\\)",
                         "blabliblotemp($1,sim.handle_parent)");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.getObjectPosition(", "__getObjectPosition__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.getObjectPosition");
+    detachedScript->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(detachedScript, "sim.getObjectPosition(", "__getObjectPosition__(");
+    _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.getObjectPosition");
     if (addFunc)
     {
         //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in
-        //        versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        //        versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
         txt += "function __getObjectPosition__(a,b)\n";
         txt +=
@@ -5736,21 +5675,21 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool do
         txt += "    end\n";
         txt += "    return sim.getObjectPosition(a,b)\n";
         txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
+        _insertScriptText_old(detachedScript, true, txt.c_str());
     }
 
-    theScript = scriptObject->getScriptText();
+    theScript = detachedScript->getScriptText();
     utils::regexReplace(theScript, "sim.setObjectPosition\\(([^,]+),( *)-1( *),", "blabliblotemp($1,-1,");
     utils::regexReplace(theScript, "sim.setObjectPosition\\(([^,]+),( *)sim.handle_parent( *),",
                         "blabliblotemp($1,sim.handle_parent,");
-    scriptObject->setScriptText(theScript.c_str());
-    addFunc = _replaceScriptText_old(scriptObject, "sim.setObjectPosition(", "__setObjectPosition__(");
-    _replaceScriptText_old(scriptObject, "blabliblotemp", "sim.setObjectPosition");
+    detachedScript->setScriptText(theScript.c_str());
+    addFunc = _replaceScriptText_old(detachedScript, "sim.setObjectPosition(", "__setObjectPosition__(");
+    _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.setObjectPosition");
     if (addFunc)
     {
         //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in
-        //        versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+        //        versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
         txt += "function __setObjectPosition__(a,b,c)\n";
         txt +=
@@ -5764,38 +5703,38 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject, bool do
         txt += "    end\n";
         txt += "    return sim.setObjectPosition(a,b,c)\n";
         txt += "end\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
+        _insertScriptText_old(detachedScript, true, txt.c_str());
     }
 }
-void CScriptObject::_adjustScriptText12_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText12_old(CDetachedScript* detachedScript, bool doIt)
 { // ROS2 functions:
     if (!doIt)
         return;
-    _replaceScriptText_old(scriptObject, "simROS2.serviceClientTreatUInt8ArrayAsString",
+    _replaceScriptText_old(detachedScript, "simROS2.serviceClientTreatUInt8ArrayAsString",
                            "simROS2.clientTreatUInt8ArrayAsString");
-    _replaceScriptText_old(scriptObject, "simROS2.serviceServerTreatUInt8ArrayAsString",
+    _replaceScriptText_old(detachedScript, "simROS2.serviceServerTreatUInt8ArrayAsString",
                            "simROS2.serviceTreatUInt8ArrayAsString");
-    _replaceScriptText_old(scriptObject, "simROS2.subscriberTreatUInt8ArrayAsString",
+    _replaceScriptText_old(detachedScript, "simROS2.subscriberTreatUInt8ArrayAsString",
                            "simROS2.subscriptionTreatUInt8ArrayAsString");
-    _replaceScriptText_old(scriptObject, "simROS2.imageTransportShutdownSubscriber",
+    _replaceScriptText_old(detachedScript, "simROS2.imageTransportShutdownSubscriber",
                            "simROS2.imageTransportShutdownSubscription");
-    _replaceScriptText_old(scriptObject, "simROS2.imageTransportSubscribe", "simROS2.imageTransportCreateSubscription");
-    _replaceScriptText_old(scriptObject, "simROS2.imageTransportAdvertise", "simROS2.imageTransportCreatePublisher");
-    _replaceScriptText_old(scriptObject, "simROS2.shutdownServiceServer", "simROS2.shutdownService");
-    _replaceScriptText_old(scriptObject, "simROS2.shutdownServiceClient", "simROS2.shutdownClient");
-    _replaceScriptText_old(scriptObject, "simROS2.shutdownSubscriber", "simROS2.shutdownSubscription");
-    _replaceScriptText_old(scriptObject, "simROS2.advertiseService", "simROS2.createService");
-    _replaceScriptText_old(scriptObject, "simROS2.serviceClient", "simROS2.createClient");
-    _replaceScriptText_old(scriptObject, "simROS2.subscribe", "simROS2.createSubscription");
-    _replaceScriptText_old(scriptObject, "simROS2.advertise", "simROS2.createPublisher");
+    _replaceScriptText_old(detachedScript, "simROS2.imageTransportSubscribe", "simROS2.imageTransportCreateSubscription");
+    _replaceScriptText_old(detachedScript, "simROS2.imageTransportAdvertise", "simROS2.imageTransportCreatePublisher");
+    _replaceScriptText_old(detachedScript, "simROS2.shutdownServiceServer", "simROS2.shutdownService");
+    _replaceScriptText_old(detachedScript, "simROS2.shutdownServiceClient", "simROS2.shutdownClient");
+    _replaceScriptText_old(detachedScript, "simROS2.shutdownSubscriber", "simROS2.shutdownSubscription");
+    _replaceScriptText_old(detachedScript, "simROS2.advertiseService", "simROS2.createService");
+    _replaceScriptText_old(detachedScript, "simROS2.serviceClient", "simROS2.createClient");
+    _replaceScriptText_old(detachedScript, "simROS2.subscribe", "simROS2.createSubscription");
+    _replaceScriptText_old(detachedScript, "simROS2.advertise", "simROS2.createPublisher");
 }
-void CScriptObject::_adjustScriptText13_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText13_old(CDetachedScript* detachedScript, bool doIt)
 { // for release 4.2.0:
     if (!doIt)
         return;
     if (_scriptType != sim_scripttype_main)
-        _replaceScriptText_old(scriptObject, "sim.getSimulationState()~=sim.simulation_advancing_abouttostop", "true");
-    _replaceScriptText_old(scriptObject, "sim.getObjectAssociatedWithScript(sim.handle_self)",
+        _replaceScriptText_old(detachedScript, "sim.getSimulationState()~=sim.simulation_advancing_abouttostop", "true");
+    _replaceScriptText_old(detachedScript, "sim.getObjectAssociatedWithScript(sim.handle_self)",
                            "sim.getObjectHandle(sim.handle_self)");
 
     if (CSimFlavor::getBoolVal(18) && (_scriptType != sim_scripttype_main))
@@ -5812,16 +5751,16 @@ void CScriptObject::_adjustScriptText13_old(CScriptObject* scriptObject, bool do
         if errorMsg then\n\
             error(debug.traceback(corout,errorMsg),2)\n\
         end\n";
-        _replaceScriptText_old(scriptObject, txt1, txt2);
+        _replaceScriptText_old(detachedScript, txt1, txt2);
     }
 }
-bool CScriptObject::_convertThreadedScriptToCoroutine_old(CScriptObject* scriptObject, bool execJustOnce)
+bool CDetachedScript::_convertThreadedScriptToCoroutine_old(CDetachedScript* detachedScript, bool execJustOnce)
 { // try to transform the threaded script into a non-threaded script with coroutines:
     bool retVal = false;
-    if (_containsScriptText_old(scriptObject, "sysCall_threadmain"))
+    if (_containsScriptText_old(detachedScript, "sysCall_threadmain"))
     {
         retVal = true;
-        _replaceScriptText_old(scriptObject, "sysCall_threadmain", "coroutineMain");
+        _replaceScriptText_old(detachedScript, "sysCall_threadmain", "coroutineMain");
         std::string txt = "function sysCall_init()\n\
     corout=coroutine.create(coroutineMain)\n\
 end\n\
@@ -5835,166 +5774,166 @@ function sysCall_actuation()\n\
         if (!execJustOnce)
             txt += "    else\n        corout=coroutine.create(coroutineMain)\n";
         txt += "    end\nend\n\n";
-        _insertScriptText_old(scriptObject, true, txt.c_str());
+        _insertScriptText_old(detachedScript, true, txt.c_str());
     }
     return retVal;
 }
-void CScriptObject::_adjustScriptText14_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText14_old(CDetachedScript* detachedScript, bool doIt)
 { // for release 4.2.1:
     if (!doIt)
         return;
 
-    _replaceScriptText_old(scriptObject, "sim.setObjectInt32Parameter", "sim.setObjectInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.setObjectFloatParameter", "sim.setObjectFloatParam");
-    _replaceScriptText_old(scriptObject, "sim.getObjectStringParameter", "sim.getObjectStringParam");
-    _replaceScriptText_old(scriptObject, "sim.setObjectStringParameter", "sim.setObjectStringParam");
+    _replaceScriptText_old(detachedScript, "sim.setObjectInt32Parameter", "sim.setObjectInt32Param");
+    _replaceScriptText_old(detachedScript, "sim.setObjectFloatParameter", "sim.setObjectFloatParam");
+    _replaceScriptText_old(detachedScript, "sim.getObjectStringParameter", "sim.getObjectStringParam");
+    _replaceScriptText_old(detachedScript, "sim.setObjectStringParameter", "sim.setObjectStringParam");
 
-    _replaceScriptText_old(scriptObject, "sim.setBoolParameter", "sim.setBoolParam");
-    _replaceScriptText_old(scriptObject, "sim.getBoolParameter", "sim.getBoolParam");
-    _replaceScriptText_old(scriptObject, "sim.setInt32Parameter", "sim.setInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.getInt32Parameter", "sim.getInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.setFloatParameter", "sim.setFloatParam");
-    _replaceScriptText_old(scriptObject, "sim.getFloatParameter", "sim.getFloatParam");
-    _replaceScriptText_old(scriptObject, "sim.setStringParameter", "sim.setStringParam");
-    _replaceScriptText_old(scriptObject, "sim.getStringParameter", "sim.getStringParam");
-    _replaceScriptText_old(scriptObject, "sim.setArrayParameter", "sim.setArrayParam");
-    _replaceScriptText_old(scriptObject, "sim.getArrayParameter", "sim.getArrayParam");
+    _replaceScriptText_old(detachedScript, "sim.setBoolParameter", "sim.setBoolParam");
+    _replaceScriptText_old(detachedScript, "sim.getBoolParameter", "sim.getBoolParam");
+    _replaceScriptText_old(detachedScript, "sim.setInt32Parameter", "sim.setInt32Param");
+    _replaceScriptText_old(detachedScript, "sim.getInt32Parameter", "sim.getInt32Param");
+    _replaceScriptText_old(detachedScript, "sim.setFloatParameter", "sim.setFloatParam");
+    _replaceScriptText_old(detachedScript, "sim.getFloatParameter", "sim.getFloatParam");
+    _replaceScriptText_old(detachedScript, "sim.setStringParameter", "sim.setStringParam");
+    _replaceScriptText_old(detachedScript, "sim.getStringParameter", "sim.getStringParam");
+    _replaceScriptText_old(detachedScript, "sim.setArrayParameter", "sim.setArrayParam");
+    _replaceScriptText_old(detachedScript, "sim.getArrayParameter", "sim.getArrayParam");
 
-    _replaceScriptText_old(scriptObject, "sim.getEngineBoolParameter", "sim.getEngineBoolParam_old");
-    _replaceScriptText_old(scriptObject, "sim.getEngineInt32Parameter", "sim.getEngineInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.getEngineFloatParameter", "sim.getEngineFloatParam_old");
-    _replaceScriptText_old(scriptObject, "sim.setEngineBoolParameter", "sim.setEngineBoolParam_old");
-    _replaceScriptText_old(scriptObject, "sim.setEngineInt32Parameter", "sim.setEngineInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.setEngineFloatParameter", "sim.setEngineFloatParam_old");
+    _replaceScriptText_old(detachedScript, "sim.getEngineBoolParameter", "sim.getEngineBoolParam_old");
+    _replaceScriptText_old(detachedScript, "sim.getEngineInt32Parameter", "sim.getEngineInt32Param");
+    _replaceScriptText_old(detachedScript, "sim.getEngineFloatParameter", "sim.getEngineFloatParam_old");
+    _replaceScriptText_old(detachedScript, "sim.setEngineBoolParameter", "sim.setEngineBoolParam_old");
+    _replaceScriptText_old(detachedScript, "sim.setEngineInt32Parameter", "sim.setEngineInt32Param");
+    _replaceScriptText_old(detachedScript, "sim.setEngineFloatParameter", "sim.setEngineFloatParam_old");
 
-    _replaceScriptText_old(scriptObject, "sim.setIntegerSignal", "sim.setInt32Signal");
-    _replaceScriptText_old(scriptObject, "sim.getIntegerSignal", "sim.getInt32Signal");
-    _replaceScriptText_old(scriptObject, "sim.clearIntegerSignal", "sim.clearInt32Signal");
+    _replaceScriptText_old(detachedScript, "sim.setIntegerSignal", "sim.setInt32Signal");
+    _replaceScriptText_old(detachedScript, "sim.getIntegerSignal", "sim.getInt32Signal");
+    _replaceScriptText_old(detachedScript, "sim.clearIntegerSignal", "sim.clearInt32Signal");
 }
 
-void CScriptObject::_adjustScriptText15_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText15_old(CDetachedScript* detachedScript, bool doIt)
 { // for release 4.3.0 and earlier:
     if (!doIt)
         return;
 
-    _replaceScriptText_old(scriptObject, "sim.rmlPos", "sim.ruckigPos");
-    _replaceScriptText_old(scriptObject, "sim.rmlVel", "sim.ruckigVel");
-    _replaceScriptText_old(scriptObject, "sim.rmlStep", "sim.ruckigStep");
-    _replaceScriptText_old(scriptObject, "sim.rmlRemove", "sim.ruckigRemove");
+    _replaceScriptText_old(detachedScript, "sim.rmlPos", "sim.ruckigPos");
+    _replaceScriptText_old(detachedScript, "sim.rmlVel", "sim.ruckigVel");
+    _replaceScriptText_old(detachedScript, "sim.rmlStep", "sim.ruckigStep");
+    _replaceScriptText_old(detachedScript, "sim.rmlRemove", "sim.ruckigRemove");
 
-    _replaceScriptText_old(scriptObject, "sim.rml_phase_sync_if_possible", "sim.ruckig_phasesync");
-    _replaceScriptText_old(scriptObject, "sim.rml_only_time_sync", "sim.ruckig_timesync");
-    _replaceScriptText_old(scriptObject, "sim.rml_only_phase_sync", "sim.ruckig_phasesync");
-    _replaceScriptText_old(scriptObject, "sim.rml_no_sync", "sim.ruckig_nosync");
+    _replaceScriptText_old(detachedScript, "sim.rml_phase_sync_if_possible", "sim.ruckig_phasesync");
+    _replaceScriptText_old(detachedScript, "sim.rml_only_time_sync", "sim.ruckig_timesync");
+    _replaceScriptText_old(detachedScript, "sim.rml_only_phase_sync", "sim.ruckig_phasesync");
+    _replaceScriptText_old(detachedScript, "sim.rml_no_sync", "sim.ruckig_nosync");
 }
 
-void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText16_old(CDetachedScript* detachedScript, bool doIt)
 { // for release 4.4.0 and earlier:
     if (!doIt)
         return;
 
-    _replaceScriptText_old(scriptObject, "sim.getObjectSelection", "sim.getObjectSel");
-    _replaceScriptText_old(scriptObject, "sim.setObjectSelection", "sim.setObjectSel");
-    _replaceScriptText_old(scriptObject, "simIK.getJointIkWeight", "simIK.getJointWeight");
-    _replaceScriptText_old(scriptObject, "simIK.setJointIkWeight", "simIK.setJointWeight");
-    _replaceScriptText_old(scriptObject, "simIK.getIkGroupHandle", "simIK.getGroupHandle");
-    _replaceScriptText_old(scriptObject, "simIK.doesIkGroupExist", "simIK.doesGroupExist");
-    _replaceScriptText_old(scriptObject, "simIK.createIkGroup", "simIK.createGroup");
-    _replaceScriptText_old(scriptObject, "simIK.getIkGroupFlags", "simIK.getGroupFlags");
-    _replaceScriptText_old(scriptObject, "simIK.setIkGroupFlags", "simIK.setGroupFlags");
-    _replaceScriptText_old(scriptObject, "simIK.getIkGroupCalculation", "simIK.getGroupCalculation");
-    _replaceScriptText_old(scriptObject, "simIK.setIkGroupCalculation", "simIK.setGroupCalculation");
-    _replaceScriptText_old(scriptObject, "simIK.getIkGroupJointLimitHits", "simIK.getGroupJointLimitHits");
-    _replaceScriptText_old(scriptObject, "simIK.addIkElement", "simIK.addElement");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementFlags", "simIK.getElementFlags");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementFlags", "simIK.setElementFlags");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementBase", "simIK.getElementBase");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementBase", "simIK.setElementBase");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementConstraints", "simIK.getElementConstraints");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementConstraints", "simIK.setElementConstraints");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementPrecision", "simIK.getElementPrecision");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementPrecision", "simIK.setElementPrecision");
-    _replaceScriptText_old(scriptObject, "simIK.getIkElementWeights", "simIK.getElementWeights");
-    _replaceScriptText_old(scriptObject, "simIK.setIkElementWeights", "simIK.setElementWeights");
-    _replaceScriptText_old(scriptObject, "simIK.handleIkGroup", "simIK.handleGroup");
-    _replaceScriptText_old(scriptObject, "simIK.addIkElementFromScene", "simIK.addElementFromScene");
+    _replaceScriptText_old(detachedScript, "sim.getObjectSelection", "sim.getObjectSel");
+    _replaceScriptText_old(detachedScript, "sim.setObjectSelection", "sim.setObjectSel");
+    _replaceScriptText_old(detachedScript, "simIK.getJointIkWeight", "simIK.getJointWeight");
+    _replaceScriptText_old(detachedScript, "simIK.setJointIkWeight", "simIK.setJointWeight");
+    _replaceScriptText_old(detachedScript, "simIK.getIkGroupHandle", "simIK.getGroupHandle");
+    _replaceScriptText_old(detachedScript, "simIK.doesIkGroupExist", "simIK.doesGroupExist");
+    _replaceScriptText_old(detachedScript, "simIK.createIkGroup", "simIK.createGroup");
+    _replaceScriptText_old(detachedScript, "simIK.getIkGroupFlags", "simIK.getGroupFlags");
+    _replaceScriptText_old(detachedScript, "simIK.setIkGroupFlags", "simIK.setGroupFlags");
+    _replaceScriptText_old(detachedScript, "simIK.getIkGroupCalculation", "simIK.getGroupCalculation");
+    _replaceScriptText_old(detachedScript, "simIK.setIkGroupCalculation", "simIK.setGroupCalculation");
+    _replaceScriptText_old(detachedScript, "simIK.getIkGroupJointLimitHits", "simIK.getGroupJointLimitHits");
+    _replaceScriptText_old(detachedScript, "simIK.addIkElement", "simIK.addElement");
+    _replaceScriptText_old(detachedScript, "simIK.getIkElementFlags", "simIK.getElementFlags");
+    _replaceScriptText_old(detachedScript, "simIK.setIkElementFlags", "simIK.setElementFlags");
+    _replaceScriptText_old(detachedScript, "simIK.getIkElementBase", "simIK.getElementBase");
+    _replaceScriptText_old(detachedScript, "simIK.setIkElementBase", "simIK.setElementBase");
+    _replaceScriptText_old(detachedScript, "simIK.getIkElementConstraints", "simIK.getElementConstraints");
+    _replaceScriptText_old(detachedScript, "simIK.setIkElementConstraints", "simIK.setElementConstraints");
+    _replaceScriptText_old(detachedScript, "simIK.getIkElementPrecision", "simIK.getElementPrecision");
+    _replaceScriptText_old(detachedScript, "simIK.setIkElementPrecision", "simIK.setElementPrecision");
+    _replaceScriptText_old(detachedScript, "simIK.getIkElementWeights", "simIK.getElementWeights");
+    _replaceScriptText_old(detachedScript, "simIK.setIkElementWeights", "simIK.setElementWeights");
+    _replaceScriptText_old(detachedScript, "simIK.handleIkGroup", "simIK.handleGroup");
+    _replaceScriptText_old(detachedScript, "simIK.addIkElementFromScene", "simIK.addElementFromScene");
 }
 
-void CScriptObject::_adjustScriptText17_old(CScriptObject* scriptObject, bool doIt)
+void CDetachedScript::_adjustScriptText17_old(CDetachedScript* detachedScript, bool doIt)
 { // for release 4.5.1 and earlier:
     if (!doIt)
         return;
 
-    // _replaceScriptText_old(scriptObject,"sim.switchThread","sim.step");
+    // _replaceScriptText_old(detachedScript,"sim.switchThread","sim.step");
 }
 
-void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
+void CDetachedScript::_detectDeprecated_old(CDetachedScript* detachedScript)
 {
     /*
-    if (_containsScriptText_old(scriptObject, "sim.getStringSignal"))
+    if (_containsScriptText_old(detachedScript, "sim.getStringSignal"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getStringSignal...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
+    if (_containsScriptText_old(detachedScript, "sim.readCustomDataBlock"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");
-    if (_containsScriptText_old(scriptObject, "sim.getNamedStringParam"))
+    if (_containsScriptText_old(detachedScript, "sim.getNamedStringParam"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getNamedStringParam...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptStringParam"))
+    if (_containsScriptText_old(detachedScript, "sim.getScriptStringParam"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getScriptStringParam...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
+    if (_containsScriptText_old(detachedScript, "sim.readCustomDataBlockTags"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
 */
 
     /* Explicit requires:
     std::string tmp;
     _scriptText.insert(0,"\n");
-    if (_containsScriptText_old(scriptObject,"simROS2"))
+    if (_containsScriptText_old(detachedScript,"simROS2"))
         tmp.insert(0,"simROS2=require'simROS2'\n");
-    if (_containsScriptText_old(scriptObject,"simROS"))
+    if (_containsScriptText_old(detachedScript,"simROS"))
         tmp.insert(0,"simROS=require'simROS'\n");
-    if (_containsScriptText_old(scriptObject,"simICP"))
+    if (_containsScriptText_old(detachedScript,"simICP"))
         tmp.insert(0,"simICP=require'simICP'\n");
-    if (_containsScriptText_old(scriptObject,"simIGL"))
+    if (_containsScriptText_old(detachedScript,"simIGL"))
         tmp.insert(0,"simIGL=require'simIGL'\n");
-    if (_containsScriptText_old(scriptObject,"simEigen"))
+    if (_containsScriptText_old(detachedScript,"simEigen"))
         tmp.insert(0,"simEigen=require'simEigen'\n");
-    if (_containsScriptText_old(scriptObject,"simIM"))
+    if (_containsScriptText_old(detachedScript,"simIM"))
         tmp.insert(0,"simIM=require'simIM'\n");
-    if (_containsScriptText_old(scriptObject,"simZMQ"))
+    if (_containsScriptText_old(detachedScript,"simZMQ"))
         tmp.insert(0,"simZMQ=require'simZMQ'\n");
-    if (_containsScriptText_old(scriptObject,"simWS"))
+    if (_containsScriptText_old(detachedScript,"simWS"))
         tmp.insert(0,"simWS=require'simWS'\n");
-    if (_containsScriptText_old(scriptObject,"simVision"))
+    if (_containsScriptText_old(detachedScript,"simVision"))
         tmp.insert(0,"simVision=require'simVision'\n");
-    if (_containsScriptText_old(scriptObject,"simURDF"))
+    if (_containsScriptText_old(detachedScript,"simURDF"))
         tmp.insert(0,"simURDF=require'simURDF'\n");
-    if (_containsScriptText_old(scriptObject,"simSurfRec"))
+    if (_containsScriptText_old(detachedScript,"simSurfRec"))
         tmp.insert(0,"simSurfRec=require'simSurfRec'\n");
-    if (_containsScriptText_old(scriptObject,"simSubprocess"))
+    if (_containsScriptText_old(detachedScript,"simSubprocess"))
         tmp.insert(0,"simSubprocess=require'simSubprocess'\n");
-    if (_containsScriptText_old(scriptObject,"simSDF"))
+    if (_containsScriptText_old(detachedScript,"simSDF"))
         tmp.insert(0,"simSDF=require'simSDF'\n");
-    if (_containsScriptText_old(scriptObject,"simRRS1"))
+    if (_containsScriptText_old(detachedScript,"simRRS1"))
         tmp.insert(0,"simRRS1=require'simRRS1'\n");
-    if (_containsScriptText_old(scriptObject,"simQHull"))
+    if (_containsScriptText_old(detachedScript,"simQHull"))
         tmp.insert(0,"simQHull=require'simQHull'\n");
-    if (_containsScriptText_old(scriptObject,"simOpenMesh"))
+    if (_containsScriptText_old(detachedScript,"simOpenMesh"))
         tmp.insert(0,"simOpenMesh=require'simOpenMesh'\n");
-    if (_containsScriptText_old(scriptObject,"simOMPL"))
+    if (_containsScriptText_old(detachedScript,"simOMPL"))
         tmp.insert(0,"simOMPL=require'simOMPL'\n");
-    if (_containsScriptText_old(scriptObject,"simMTB"))
+    if (_containsScriptText_old(detachedScript,"simMTB"))
         tmp.insert(0,"simMTB=require'simMTB'\n");
-    if (_containsScriptText_old(scriptObject,"simCHAI3D"))
+    if (_containsScriptText_old(detachedScript,"simCHAI3D"))
         tmp.insert(0,"simCHAI3D=require'simCHAI3D'\n");
-    if (_containsScriptText_old(scriptObject,"simBubble"))
+    if (_containsScriptText_old(detachedScript,"simBubble"))
         tmp.insert(0,"simBubble=require'simBubble'\n");
-    if (_containsScriptText_old(scriptObject,"simGeom"))
+    if (_containsScriptText_old(detachedScript,"simGeom"))
         tmp.insert(0,"simGeom=require'simGeom'\n");
-    if (_containsScriptText_old(scriptObject,"simAssimp"))
+    if (_containsScriptText_old(detachedScript,"simAssimp"))
         tmp.insert(0,"simAssimp=require'simAssimp'\n");
-    if (_containsScriptText_old(scriptObject,"simMujoco"))
+    if (_containsScriptText_old(detachedScript,"simMujoco"))
         tmp.insert(0,"simMujoco=require'simMujoco'\n");
-    if (_containsScriptText_old(scriptObject,"simUI"))
+    if (_containsScriptText_old(detachedScript,"simUI"))
         tmp.insert(0,"simUI=require'simUI'\n");
-    if (_containsScriptText_old(scriptObject,"simIK"))
+    if (_containsScriptText_old(detachedScript,"simIK"))
         tmp.insert(0,"simIK=require'simIK'\n");
     tmp.insert(0,"sim=require'sim'\n");
     printf("********************\n%s\n*********************\n",tmp.c_str());
@@ -6013,15 +5952,15 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
     // if (getLanguage()==sim_lang_lua)
     //    _scriptText.insert(0,"--lua\n\n");
 
-    //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
-    //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
+    //    _replaceScriptText_old(detachedScript, "sim.readCustomDataBlock", "sim.readCustomBufferData");
+    //    _replaceScriptText_old(detachedScript, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
 
     std::smatch match;
     std::regex regEx;
     /*
-    if (_containsScriptText_old(scriptObject, "org.conman.cbor"))
+    if (_containsScriptText_old(detachedScript, "org.conman.cbor"))
     {
-        _replaceScriptText_old(scriptObject, "org.conman.cbor", "simCBOR");
+        _replaceScriptText_old(detachedScript, "org.conman.cbor", "simCBOR");
         App::logMsg(sim_verbosity_errors, "Contains org.conman.cbor...");
     }
 
@@ -6274,7 +6213,7 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 
     std::string trueV = "true";
     std::string falseV = "false";
-    if (scriptObject->getLang() == "python")
+    if (detachedScript->getLang() == "python")
     {
         trueV = "True";
         falseV = "False";
@@ -6323,612 +6262,612 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
     }
 
-    if (_containsScriptText_old(scriptObject, "Int32Signal("))
+    if (_containsScriptText_old(detachedScript, "Int32Signal("))
         App::logMsg(sim_verbosity_errors, "Contains Int32Signal(...");
-    if (_containsScriptText_old(scriptObject, "FloatSignal("))
+    if (_containsScriptText_old(detachedScript, "FloatSignal("))
         App::logMsg(sim_verbosity_errors, "Contains FloatSignal(...");
-    if (_containsScriptText_old(scriptObject, "StringSignal("))
+    if (_containsScriptText_old(detachedScript, "StringSignal("))
         App::logMsg(sim_verbosity_errors, "Contains StringSignal(...");
-    if (_containsScriptText_old(scriptObject, "sim.getSignalName("))
+    if (_containsScriptText_old(detachedScript, "sim.getSignalName("))
         App::logMsg(sim_verbosity_errors, "Contains sim.getSignalName(...");
-    if (_containsScriptText_old(scriptObject, "BoolParam("))
+    if (_containsScriptText_old(detachedScript, "BoolParam("))
         App::logMsg(sim_verbosity_errors, "Contains BoolParam(...");
-    if (_containsScriptText_old(scriptObject, "Int32Param("))
+    if (_containsScriptText_old(detachedScript, "Int32Param("))
         App::logMsg(sim_verbosity_errors, "Contains Int32Param(...");
-    if (_containsScriptText_old(scriptObject, "FloatParam("))
+    if (_containsScriptText_old(detachedScript, "FloatParam("))
         App::logMsg(sim_verbosity_errors, "Contains FloatParam(...");
-    if (_containsScriptText_old(scriptObject, "StringParam("))
+    if (_containsScriptText_old(detachedScript, "StringParam("))
         App::logMsg(sim_verbosity_errors, "Contains StringParam(...");
-    if (_containsScriptText_old(scriptObject, "ArrayParam("))
+    if (_containsScriptText_old(detachedScript, "ArrayParam("))
         App::logMsg(sim_verbosity_errors, "Contains ArrayParam(...");
-    if (_containsScriptText_old(scriptObject, "ObjectProperty("))
+    if (_containsScriptText_old(detachedScript, "ObjectProperty("))
         App::logMsg(sim_verbosity_errors, "Contains ObjectProperty(...");
-    if (_containsScriptText_old(scriptObject, "ObjectSpecialProperty("))
+    if (_containsScriptText_old(detachedScript, "ObjectSpecialProperty("))
         App::logMsg(sim_verbosity_errors, "Contains ObjectSpecialProperty(...");
-    if (_containsScriptText_old(scriptObject, "ModelProperty("))
+    if (_containsScriptText_old(detachedScript, "ModelProperty("))
         App::logMsg(sim_verbosity_errors, "Contains ModelProperty(...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomString"))
+    if (_containsScriptText_old(detachedScript, "sim.readCustomString"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomString...");
-    if (_containsScriptText_old(scriptObject, "sim.writeCustomString"))
+    if (_containsScriptText_old(detachedScript, "sim.writeCustomString"))
         App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomString...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomBuffer"))
+    if (_containsScriptText_old(detachedScript, "sim.readCustomBuffer"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomBuffer...");
-    if (_containsScriptText_old(scriptObject, "sim.writeCustomBuffer"))
+    if (_containsScriptText_old(detachedScript, "sim.writeCustomBuffer"))
         App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomBuffer...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomTable"))
+    if (_containsScriptText_old(detachedScript, "sim.readCustomTable"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomTable...");
-    if (_containsScriptText_old(scriptObject, "sim.writeCustomTable"))
+    if (_containsScriptText_old(detachedScript, "sim.writeCustomTable"))
         App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomTable...");
 
-    if (_containsScriptText_old(scriptObject, "LightParameters"))
+    if (_containsScriptText_old(detachedScript, "LightParameters"))
         App::logMsg(sim_verbosity_errors, "Contains LightParameters...");
 
-    _replaceScriptText_old(scriptObject, "sim.light_omnidirectional_subtype", "sim.light_omnidirectional");
-    _replaceScriptText_old(scriptObject, "sim.light_spot_subtype", "sim.light_spot");
-    _replaceScriptText_old(scriptObject, "sim.light_directional_subtype", "sim.light_directional");
-    _replaceScriptText_old(scriptObject, "sim.joint_revolute_subtype", "sim.joint_revolute");
-    _replaceScriptText_old(scriptObject, "sim.joint_prismatic_subtype", "sim.joint_prismatic");
-    _replaceScriptText_old(scriptObject, "sim.joint_spherical_subtype", "sim.joint_spherical");
-    _replaceScriptText_old(scriptObject, "sim.shape_simpleshape_subtype", "sim.shape_simple");
-    _replaceScriptText_old(scriptObject, "sim.shape_multishape_subtype", "sim.shape_compound");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_pyramid_subtype", "sim.proximitysensor_pyramid");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_cylinder_subtype", "sim.proximitysensor_cylinder");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_disc_subtype", "sim.proximitysensor_disc");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_cone_subtype", "sim.proximitysensor_cone");
-    _replaceScriptText_old(scriptObject, "sim.proximitysensor_ray_subtype", "sim.proximitysensor_ray");
-    _replaceScriptText_old(scriptObject, "sim.object_shape_type", "sim.sceneobject_shape");
-    _replaceScriptText_old(scriptObject, "sim.object_joint_type", "sim.sceneobject_joint");
-    _replaceScriptText_old(scriptObject, "sim.object_graph_type", "sim.sceneobject_graph");
-    _replaceScriptText_old(scriptObject, "sim.object_camera_type", "sim.sceneobject_camera");
-    _replaceScriptText_old(scriptObject, "sim.object_dummy_type", "sim.sceneobject_dummy");
-    _replaceScriptText_old(scriptObject, "sim.object_proximitysensor_type", "sim.sceneobject_proximitysensor");
-    _replaceScriptText_old(scriptObject, "sim.object_path_type", "sim.sceneobject_path");
-    _replaceScriptText_old(scriptObject, "sim.object_visionsensor_type", "sim.sceneobject_visionsensor");
-    _replaceScriptText_old(scriptObject, "sim.object_mill_type", "sim.sceneobject_mill");
-    _replaceScriptText_old(scriptObject, "sim.object_forcesensor_type", "sim.sceneobject_forcesensor");
-    _replaceScriptText_old(scriptObject, "sim.object_light_type", "sim.sceneobject_light");
-    _replaceScriptText_old(scriptObject, "sim.object_mirror_type", "sim.sceneobject_mirror");
-    _replaceScriptText_old(scriptObject, "sim.object_octree_type", "sim.sceneobject_octree");
-    _replaceScriptText_old(scriptObject, "sim.object_pointcloud_type", "sim.sceneobject_pointcloud");
-    _replaceScriptText_old(scriptObject, "sim.object_script_type", "sim.sceneobject_script");
-    _replaceScriptText_old(scriptObject, "sim.appobj_object_type", "sim.objecttype_sceneobject");
-    _replaceScriptText_old(scriptObject, "sim.appobj_collection_type", "sim.objecttype_collection");
-    _replaceScriptText_old(scriptObject, "sim.appobj_texture_type", "sim.objecttype_texture");
+    _replaceScriptText_old(detachedScript, "sim.light_omnidirectional_subtype", "sim.light_omnidirectional");
+    _replaceScriptText_old(detachedScript, "sim.light_spot_subtype", "sim.light_spot");
+    _replaceScriptText_old(detachedScript, "sim.light_directional_subtype", "sim.light_directional");
+    _replaceScriptText_old(detachedScript, "sim.joint_revolute_subtype", "sim.joint_revolute");
+    _replaceScriptText_old(detachedScript, "sim.joint_prismatic_subtype", "sim.joint_prismatic");
+    _replaceScriptText_old(detachedScript, "sim.joint_spherical_subtype", "sim.joint_spherical");
+    _replaceScriptText_old(detachedScript, "sim.shape_simpleshape_subtype", "sim.shape_simple");
+    _replaceScriptText_old(detachedScript, "sim.shape_multishape_subtype", "sim.shape_compound");
+    _replaceScriptText_old(detachedScript, "sim.proximitysensor_pyramid_subtype", "sim.proximitysensor_pyramid");
+    _replaceScriptText_old(detachedScript, "sim.proximitysensor_cylinder_subtype", "sim.proximitysensor_cylinder");
+    _replaceScriptText_old(detachedScript, "sim.proximitysensor_disc_subtype", "sim.proximitysensor_disc");
+    _replaceScriptText_old(detachedScript, "sim.proximitysensor_cone_subtype", "sim.proximitysensor_cone");
+    _replaceScriptText_old(detachedScript, "sim.proximitysensor_ray_subtype", "sim.proximitysensor_ray");
+    _replaceScriptText_old(detachedScript, "sim.object_shape_type", "sim.sceneobject_shape");
+    _replaceScriptText_old(detachedScript, "sim.object_joint_type", "sim.sceneobject_joint");
+    _replaceScriptText_old(detachedScript, "sim.object_graph_type", "sim.sceneobject_graph");
+    _replaceScriptText_old(detachedScript, "sim.object_camera_type", "sim.sceneobject_camera");
+    _replaceScriptText_old(detachedScript, "sim.object_dummy_type", "sim.sceneobject_dummy");
+    _replaceScriptText_old(detachedScript, "sim.object_proximitysensor_type", "sim.sceneobject_proximitysensor");
+    _replaceScriptText_old(detachedScript, "sim.object_path_type", "sim.sceneobject_path");
+    _replaceScriptText_old(detachedScript, "sim.object_visionsensor_type", "sim.sceneobject_visionsensor");
+    _replaceScriptText_old(detachedScript, "sim.object_mill_type", "sim.sceneobject_mill");
+    _replaceScriptText_old(detachedScript, "sim.object_forcesensor_type", "sim.sceneobject_forcesensor");
+    _replaceScriptText_old(detachedScript, "sim.object_light_type", "sim.sceneobject_light");
+    _replaceScriptText_old(detachedScript, "sim.object_mirror_type", "sim.sceneobject_mirror");
+    _replaceScriptText_old(detachedScript, "sim.object_octree_type", "sim.sceneobject_octree");
+    _replaceScriptText_old(detachedScript, "sim.object_pointcloud_type", "sim.sceneobject_pointcloud");
+    _replaceScriptText_old(detachedScript, "sim.object_script_type", "sim.sceneobject_script");
+    _replaceScriptText_old(detachedScript, "sim.appobj_object_type", "sim.objecttype_sceneobject");
+    _replaceScriptText_old(detachedScript, "sim.appobj_collection_type", "sim.objecttype_collection");
+    _replaceScriptText_old(detachedScript, "sim.appobj_texture_type", "sim.objecttype_texture");
 
-    _replaceScriptText_old(scriptObject, "sim.scripttype_mainscript", "sim.scripttype_main");
-    _replaceScriptText_old(scriptObject, "sim.scripttype_childscript", "sim.scripttype_simulation");
-    _replaceScriptText_old(scriptObject, "sim.scripttype_addonscript", "sim.scripttype_addon");
-    _replaceScriptText_old(scriptObject, "sim.scripttype_customizationscript", "sim.scripttype_customization");
-    _replaceScriptText_old(scriptObject, "sim.scripttype_sandboxscript", "sim.scripttype_sandbox");
+    _replaceScriptText_old(detachedScript, "sim.scripttype_mainscript", "sim.scripttype_main");
+    _replaceScriptText_old(detachedScript, "sim.scripttype_childscript", "sim.scripttype_simulation");
+    _replaceScriptText_old(detachedScript, "sim.scripttype_addonscript", "sim.scripttype_addon");
+    _replaceScriptText_old(detachedScript, "sim.scripttype_customizationscript", "sim.scripttype_customization");
+    _replaceScriptText_old(detachedScript, "sim.scripttype_sandboxscript", "sim.scripttype_sandbox");
 
-    if (_containsScriptText_old(scriptObject, "sim.addScript"))
+    if (_containsScriptText_old(detachedScript, "sim.addScript"))
         App::logMsg(sim_verbosity_errors, "Contains sim.addScript...");
-    if (_containsScriptText_old(scriptObject, "sim.associateScriptWithObject"))
+    if (_containsScriptText_old(detachedScript, "sim.associateScriptWithObject"))
         App::logMsg(sim_verbosity_errors, "Contains sim.associateScriptWithObject...");
-    if (_containsScriptText_old(scriptObject, "sim.removeScript"))
+    if (_containsScriptText_old(detachedScript, "sim.removeScript"))
         App::logMsg(sim_verbosity_errors, "Contains sim.removeScript...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptStringParam"))
+    if (_containsScriptText_old(detachedScript, "sim.getScriptStringParam"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getScriptStringParam...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptStringParam"))
+    if (_containsScriptText_old(detachedScript, "sim.setScriptStringParam"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setScriptStringParam...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptInt32Param"))
+    if (_containsScriptText_old(detachedScript, "sim.getScriptInt32Param"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getScriptInt32Param...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptInt32Param"))
+    if (_containsScriptText_old(detachedScript, "sim.setScriptInt32Param"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setScriptInt32Param...");
-    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_lang"))
+    if (_containsScriptText_old(detachedScript, "sim.scriptintparam_lang"))
         App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_lang...");
-    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_handle"))
+    if (_containsScriptText_old(detachedScript, "sim.scriptintparam_handle"))
         App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_handle...");
-    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_objecthandle"))
+    if (_containsScriptText_old(detachedScript, "sim.scriptintparam_objecthandle"))
         App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_objecthandle...");
 
-    if (_containsScriptText_old(scriptObject, "sim.convexDecompose"))
+    if (_containsScriptText_old(detachedScript, "sim.convexDecompose"))
         App::logMsg(sim_verbosity_errors, "Contains sim.convexDecompose...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getQHull"))
+    if (_containsScriptText_old(detachedScript, "sim.getQHull"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getQHull...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getDecimatedMesh"))
+    if (_containsScriptText_old(detachedScript, "sim.getDecimatedMesh"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getDecimatedMesh...");
 
-    if (_containsScriptText_old(scriptObject, "sim.removeObject("))
+    if (_containsScriptText_old(detachedScript, "sim.removeObject("))
         App::logMsg(sim_verbosity_errors, "Contains sim.removeObject...");
 
-    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
+    if (_containsScriptText_old(detachedScript, "sim.readCustomDataBlock"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");
-    if (_containsScriptText_old(scriptObject, "sim.writeCustomDataBlock"))
+    if (_containsScriptText_old(detachedScript, "sim.writeCustomDataBlock"))
         App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomDataBlock...");
-    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
+    if (_containsScriptText_old(detachedScript, "sim.readCustomDataBlockTags"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
 
-    if (_containsScriptText_old(scriptObject, "sim.dummyintparam_link_type"))
+    if (_containsScriptText_old(detachedScript, "sim.dummyintparam_link_type"))
         App::logMsg(sim_verbosity_errors, "Contains sim.dummyintparam_link_type...");
 
-    if (_containsScriptText_old(scriptObject, "sim.dummylink_dynloopclosure"))
+    if (_containsScriptText_old(detachedScript, "sim.dummylink_dynloopclosure"))
         App::logMsg(sim_verbosity_errors, "Contains sim.dummylink_dynloopclosure...");
-    if (_containsScriptText_old(scriptObject, "sim.dummylink_dyntendon"))
+    if (_containsScriptText_old(detachedScript, "sim.dummylink_dyntendon"))
         App::logMsg(sim_verbosity_errors, "Contains sim.dummylink_dyntendon...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getThreadExitRequest"))
+    if (_containsScriptText_old(detachedScript, "sim.getThreadExitRequest"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getThreadExitRequest...");
-    if (_containsScriptText_old(scriptObject, "coroutine.create"))
+    if (_containsScriptText_old(detachedScript, "coroutine.create"))
         App::logMsg(sim_verbosity_errors, "Contains coroutine.create...");
 
-    if (_containsScriptText_old(scriptObject, "sim.switchThread"))
+    if (_containsScriptText_old(detachedScript, "sim.switchThread"))
         App::logMsg(sim_verbosity_errors, "Contains sim.switchThread...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadSwitchAllowed"))
+    if (_containsScriptText_old(detachedScript, "sim.setThreadSwitchAllowed"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setThreadSwitchAllowed...");
-    if (_containsScriptText_old(scriptObject, "sim.getThreadSwitchAllowed"))
+    if (_containsScriptText_old(detachedScript, "sim.getThreadSwitchAllowed"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getThreadSwitchAllowed...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadAutomaticSwitch"))
+    if (_containsScriptText_old(detachedScript, "sim.setThreadAutomaticSwitch"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setThreadAutomaticSwitch...");
-    if (_containsScriptText_old(scriptObject, "sim.getThreadAutomaticSwitch"))
+    if (_containsScriptText_old(detachedScript, "sim.getThreadAutomaticSwitch"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getThreadAutomaticSwitch...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadSwitchTiming"))
+    if (_containsScriptText_old(detachedScript, "sim.setThreadSwitchTiming"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setThreadSwitchTiming...");
-    if (_containsScriptText_old(scriptObject, "sim.getThreadSwitchTiming"))
+    if (_containsScriptText_old(detachedScript, "sim.getThreadSwitchTiming"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getThreadSwitchTiming...");
 
-    if (_containsScriptText_old(scriptObject, "sim.shapestringparam_color_name"))
+    if (_containsScriptText_old(detachedScript, "sim.shapestringparam_color_name"))
         App::logMsg(sim_verbosity_errors, "Contains sim.shapestringparam_color_name...");
-    if (_containsScriptText_old(scriptObject, "sim.invertMatrix"))
+    if (_containsScriptText_old(detachedScript, "sim.invertMatrix"))
         App::logMsg(sim_verbosity_errors, "Contains sim.invertMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.invertPose"))
+    if (_containsScriptText_old(detachedScript, "sim.invertPose"))
         App::logMsg(sim_verbosity_errors, "Contains sim.invertPose...");
-    if (_containsScriptText_old(scriptObject, "simIK.syncToIkWorld"))
+    if (_containsScriptText_old(detachedScript, "simIK.syncToIkWorld"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.syncToIkWorld...");
-    if (_containsScriptText_old(scriptObject, "simIK.syncFromIkWorld"))
+    if (_containsScriptText_old(detachedScript, "simIK.syncFromIkWorld"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.syncFromIkWorld...");
 
-    if (_containsScriptText_old(scriptObject, "sim.reorientShapeBoundingBox"))
+    if (_containsScriptText_old(detachedScript, "sim.reorientShapeBoundingBox"))
         App::logMsg(sim_verbosity_errors, "Contains sim.reorientShapeBoundingBox...");
-    if (_containsScriptText_old(scriptObject, "sim.createMeshShape"))
+    if (_containsScriptText_old(detachedScript, "sim.createMeshShape"))
         App::logMsg(sim_verbosity_errors, "Contains sim.createMeshShape...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectSelection"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectSelection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.setObjectSelection"))
+    if (_containsScriptText_old(detachedScript, "sim.setObjectSelection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setObjectSelection...");
-    if (_containsScriptText_old(scriptObject, "simIK.getLinkedDummy"))
+    if (_containsScriptText_old(detachedScript, "simIK.getLinkedDummy"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.getLinkedDummy...");
-    if (_containsScriptText_old(scriptObject, "simIK.setLinkedDummy"))
+    if (_containsScriptText_old(detachedScript, "simIK.setLinkedDummy"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.setLinkedDummy...");
 
-    if (_containsScriptText_old(scriptObject, "simIK.result_not_performed"))
+    if (_containsScriptText_old(detachedScript, "simIK.result_not_performed"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.result_not_performed...");
-    if (_containsScriptText_old(scriptObject, "simIK.result_fail"))
+    if (_containsScriptText_old(detachedScript, "simIK.result_fail"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.result_fail...");
 
-    if (_containsScriptText_old(scriptObject, "simIK.applySceneToIkEnvironment"))
+    if (_containsScriptText_old(detachedScript, "simIK.applySceneToIkEnvironment"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.applySceneToIkEnvironment...");
 
-    if (_containsScriptText_old(scriptObject, "simIK.applyIkEnvironmentToScene"))
+    if (_containsScriptText_old(detachedScript, "simIK.applyIkEnvironmentToScene"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.applyIkEnvironmentToScene...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getDoubleSignal"))
+    if (_containsScriptText_old(detachedScript, "sim.getDoubleSignal"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getDoubleSignal...");
-    if (_containsScriptText_old(scriptObject, "sim.setDoubleSignal"))
+    if (_containsScriptText_old(detachedScript, "sim.setDoubleSignal"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setDoubleSignal...");
-    if (_containsScriptText_old(scriptObject, "sim.clearDoubleSignal"))
+    if (_containsScriptText_old(detachedScript, "sim.clearDoubleSignal"))
         App::logMsg(sim_verbosity_errors, "Contains sim.clearDoubleSignal...");
 
-    if (_containsScriptText_old(scriptObject, "sysCall_jointCallback"))
+    if (_containsScriptText_old(detachedScript, "sysCall_jointCallback"))
         App::logMsg(sim_verbosity_errors, "Contains sysCall_jointCallback...");
-    if (_containsScriptText_old(scriptObject, "sysCall_contactCallback"))
+    if (_containsScriptText_old(detachedScript, "sysCall_contactCallback"))
         App::logMsg(sim_verbosity_errors, "Contains sysCall_contactCallback...");
-    if (_containsScriptText_old(scriptObject, "sysCall_dynCallback"))
+    if (_containsScriptText_old(detachedScript, "sysCall_dynCallback"))
         App::logMsg(sim_verbosity_errors, "Contains sysCall_dynCallback...");
 
-    if (_containsScriptText_old(scriptObject, "sim.jointfloatparam_upper_limit"))
+    if (_containsScriptText_old(detachedScript, "sim.jointfloatparam_upper_limit"))
         App::logMsg(sim_verbosity_errors, "Contains sim.jointfloatparam_upper_limit...");
 
-    if (_containsScriptText_old(scriptObject, "sim.dummy_linktype"))
+    if (_containsScriptText_old(detachedScript, "sim.dummy_linktype"))
         App::logMsg(sim_verbosity_errors, "Contains sim.dummy_linktype...");
 
-    if (_containsScriptText_old(scriptObject, "sim.jointmode_passive"))
+    if (_containsScriptText_old(detachedScript, "sim.jointmode_passive"))
         App::logMsg(sim_verbosity_errors, "Contains sim.jointmode_passive...");
-    if (_containsScriptText_old(scriptObject, "sim.jointmode_force"))
+    if (_containsScriptText_old(detachedScript, "sim.jointmode_force"))
         App::logMsg(sim_verbosity_errors, "Contains sim.jointmode_force...");
 
-    if (_containsScriptText_old(scriptObject, "sim.createPureShape"))
+    if (_containsScriptText_old(detachedScript, "sim.createPureShape"))
         App::logMsg(sim_verbosity_errors, "Contains sim.createPureShape...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorResolution"))
+    if (_containsScriptText_old(detachedScript, "sim.getVisionSensorResolution"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorResolution...");
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorImage"))
+    if (_containsScriptText_old(detachedScript, "sim.getVisionSensorImage"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorImage...");
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorCharImage"))
+    if (_containsScriptText_old(detachedScript, "sim.getVisionSensorCharImage"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorCharImage...");
-    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorImage"))
+    if (_containsScriptText_old(detachedScript, "sim.setVisionSensorImage"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorImage...");
-    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorCharImage"))
+    if (_containsScriptText_old(detachedScript, "sim.setVisionSensorCharImage"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorCharImage...");
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorDepthBuffer"))
+    if (_containsScriptText_old(detachedScript, "sim.getVisionSensorDepthBuffer"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorDepthBuffer...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getSystemTimeInMs"))
+    if (_containsScriptText_old(detachedScript, "sim.getSystemTimeInMs"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getSystemTimeInMs...");
 
-    if (_containsScriptText_old(scriptObject, "sim.drawing_trianglepoints"))
+    if (_containsScriptText_old(detachedScript, "sim.drawing_trianglepoints"))
         App::logMsg(sim_verbosity_errors, "Contains sim.drawing_trianglepoints...");
-    if (_containsScriptText_old(scriptObject, "sim.drawing_quadpoints"))
+    if (_containsScriptText_old(detachedScript, "sim.drawing_quadpoints"))
         App::logMsg(sim_verbosity_errors, "Contains sim.drawing_quadpoints...");
-    if (_containsScriptText_old(scriptObject, "sim.drawing_discpoints"))
+    if (_containsScriptText_old(detachedScript, "sim.drawing_discpoints"))
         App::logMsg(sim_verbosity_errors, "Contains sim.drawing_discpoints...");
-    if (_containsScriptText_old(scriptObject, "sim.drawing_cubepoints"))
+    if (_containsScriptText_old(detachedScript, "sim.drawing_cubepoints"))
         App::logMsg(sim_verbosity_errors, "Contains sim.drawing_cubepoints...");
-    if (_containsScriptText_old(scriptObject, "sim.drawing_spherepoints"))
+    if (_containsScriptText_old(detachedScript, "sim.drawing_spherepoints"))
         App::logMsg(sim_verbosity_errors, "Contains sim.drawing_spherepoints...");
-    if (_containsScriptText_old(scriptObject, "sim.setJointMaxForce"))
+    if (_containsScriptText_old(detachedScript, "sim.setJointMaxForce"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setJointMaxForce...");
-    if (_containsScriptText_old(scriptObject, "sim.getJointMaxForce"))
+    if (_containsScriptText_old(detachedScript, "sim.getJointMaxForce"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getJointMaxForce...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptAttribute"))
+    if (_containsScriptText_old(detachedScript, "sim.setScriptAttribute"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setScriptAttribute...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptAttribute"))
+    if (_containsScriptText_old(detachedScript, "sim.getScriptAttribute"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getScriptAttribute...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectHandle"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectHandle"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectHandle...");
-    if (_containsScriptText_old(scriptObject, "simIK.getConfigForTipPose"))
+    if (_containsScriptText_old(detachedScript, "simIK.getConfigForTipPose"))
         App::logMsg(sim_verbosity_errors, "Contains simIK.getConfigForTipPose...");
-    if (_containsScriptText_old(scriptObject, "sim.getJointMatrix"))
+    if (_containsScriptText_old(detachedScript, "sim.getJointMatrix"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getJointMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.setSphericalJointMatrix"))
+    if (_containsScriptText_old(detachedScript, "sim.setSphericalJointMatrix"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setSphericalJointMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectUniqueIdentifier"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectUniqueIdentifier"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectUniqueIdentifier...");
-    if (_containsScriptText_old(scriptObject, "sim.isObjectInSelection"))
+    if (_containsScriptText_old(detachedScript, "sim.isObjectInSelection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.isObjectInSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.addObjectToSelection"))
+    if (_containsScriptText_old(detachedScript, "sim.addObjectToSelection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.addObjectToSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.removeObjectFromSelection"))
+    if (_containsScriptText_old(detachedScript, "sim.removeObjectFromSelection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.removeObjectFromSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectLastSelection"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectLastSelection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectLastSelection...");
-    if (_containsScriptText_old(scriptObject, "sim.deleteSelectedObjects"))
+    if (_containsScriptText_old(detachedScript, "sim.deleteSelectedObjects"))
         App::logMsg(sim_verbosity_errors, "Contains sim.deleteSelectedObjects...");
-    if (_containsScriptText_old(scriptObject, "sim.scaleSelectedObjects"))
+    if (_containsScriptText_old(detachedScript, "sim.scaleSelectedObjects"))
         App::logMsg(sim_verbosity_errors, "Contains sim.scaleSelectedObjects...");
-    if (_containsScriptText_old(scriptObject, "sim.copyPasteSelectedObjects"))
+    if (_containsScriptText_old(detachedScript, "sim.copyPasteSelectedObjects"))
         App::logMsg(sim_verbosity_errors, "Contains sim.copyPasteSelectedObjects...");
-    if (_containsScriptText_old(scriptObject, "sim.breakForceSensor"))
+    if (_containsScriptText_old(detachedScript, "sim.breakForceSensor"))
         App::logMsg(sim_verbosity_errors, "Contains sim.breakForceSensor...");
 
-    if (_containsScriptText_old(scriptObject, "sim.fileDlg"))
+    if (_containsScriptText_old(detachedScript, "sim.fileDlg"))
         App::logMsg(sim_verbosity_errors, "Contains sim.fileDlg...");
-    if (_containsScriptText_old(scriptObject, "sim.msgBox"))
+    if (_containsScriptText_old(detachedScript, "sim.msgBox"))
         App::logMsg(sim_verbosity_errors, "Contains sim.msgBox...");
-    if (_containsScriptText_old(scriptObject, "sim.displayDialog"))
+    if (_containsScriptText_old(detachedScript, "sim.displayDialog"))
         App::logMsg(sim_verbosity_errors, "Contains sim.displayDialog...");
 
-    if (_containsScriptText_old(scriptObject, "Reflexxes"))
+    if (_containsScriptText_old(detachedScript, "Reflexxes"))
         App::logMsg(sim_verbosity_errors, "Contains Reflexxes...");
-    if (_containsScriptText_old(scriptObject, "reflexxes"))
+    if (_containsScriptText_old(detachedScript, "reflexxes"))
         App::logMsg(sim_verbosity_errors, "Contains reflexxes...");
-    if (_containsScriptText_old(scriptObject, "sim.rml"))
+    if (_containsScriptText_old(detachedScript, "sim.rml"))
         App::logMsg(sim_verbosity_errors, "Contains sim.rml*...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectHandle(sim.handle_self)"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectHandle(sim.handle_self)"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectHandle(sim.handle_self)...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectName"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectName"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectName...");
-    if (_containsScriptText_old(scriptObject, "sim.setObjectName"))
+    if (_containsScriptText_old(detachedScript, "sim.setObjectName"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setObjectName...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptName"))
+    if (_containsScriptText_old(detachedScript, "sim.getScriptName"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getScriptName...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptVariable"))
+    if (_containsScriptText_old(detachedScript, "sim.setScriptVariable"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setScriptVariable...");
-    if (_containsScriptText_old(scriptObject, "sim.setSimilarName"))
+    if (_containsScriptText_old(detachedScript, "sim.setSimilarName"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setSimilarName...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectAssociatedWithScript"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectAssociatedWithScript"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectAssociatedWithScript...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptAssociatedWithObject"))
+    if (_containsScriptText_old(detachedScript, "sim.getScriptAssociatedWithObject"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getScriptAssociatedWithObject...");
-    if (_containsScriptText_old(scriptObject, "sim.getCustomizationScriptAssociatedWithObject"))
+    if (_containsScriptText_old(detachedScript, "sim.getCustomizationScriptAssociatedWithObject"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getCustomizationScriptAssociatedWithObject...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectSizeValues"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectSizeValues"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectSizeValues...");
-    if (_containsScriptText_old(scriptObject, "sim.setObjectSizeValues"))
+    if (_containsScriptText_old(detachedScript, "sim.setObjectSizeValues"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setObjectSizeValues...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectConfiguration"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectConfiguration"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectConfiguration...");
-    if (_containsScriptText_old(scriptObject, "sim.setObjectConfiguration"))
+    if (_containsScriptText_old(detachedScript, "sim.setObjectConfiguration"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setObjectConfiguration...");
-    if (_containsScriptText_old(scriptObject, "sim.getConfigurationTree"))
+    if (_containsScriptText_old(detachedScript, "sim.getConfigurationTree"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getConfigurationTree...");
-    if (_containsScriptText_old(scriptObject, "sim.setConfigurationTree"))
+    if (_containsScriptText_old(detachedScript, "sim.setConfigurationTree"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setConfigurationTree...");
 
-    if (_containsScriptText_old(scriptObject, "__initFunctions"))
+    if (_containsScriptText_old(detachedScript, "__initFunctions"))
         App::logMsg(sim_verbosity_errors, "Contains __initFunctions...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getObjectInt32Parameter"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectInt32Parameter"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectInt32Parameter...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectIntParameter"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectIntParameter"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectIntParameter...");
-    if (_containsScriptText_old(scriptObject, "sim.getObjectFloatParameter"))
+    if (_containsScriptText_old(detachedScript, "sim.getObjectFloatParameter"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getObjectFloatParameter...");
-    if (_containsScriptText_old(scriptObject, "sim.isHandleValid"))
+    if (_containsScriptText_old(detachedScript, "sim.isHandleValid"))
         App::logMsg(sim_verbosity_errors, "Contains sim.isHandleValid...");
-    if (_containsScriptText_old(scriptObject, "sim.addPointCloud"))
+    if (_containsScriptText_old(detachedScript, "sim.addPointCloud"))
         App::logMsg(sim_verbosity_errors, "Contains sim.addPointCloud...");
 
-    if (_containsScriptText_old(scriptObject, "sysCall_vision") &&
-        (scriptObject->_scriptType == sim_scripttype_customization))
+    if (_containsScriptText_old(detachedScript, "sysCall_vision") &&
+        (detachedScript->_scriptType == sim_scripttype_customization))
         App::logMsg(sim_verbosity_errors, "Contains a vision callback in a customization script");
-    if (_containsScriptText_old(scriptObject, "sysCall_trigger") &&
-        (scriptObject->_scriptType == sim_scripttype_customization))
+    if (_containsScriptText_old(detachedScript, "sysCall_trigger") &&
+        (detachedScript->_scriptType == sim_scripttype_customization))
         App::logMsg(sim_verbosity_errors, "Contains a trigger callback in a customization script");
 
-    if (_containsScriptText_old(scriptObject, "sim.rmlMove"))
+    if (_containsScriptText_old(detachedScript, "sim.rmlMove"))
         App::logMsg(sim_verbosity_errors, "Contains sim.rmlMove...");
-    if (_containsScriptText_old(scriptObject, "sim.include"))
+    if (_containsScriptText_old(detachedScript, "sim.include"))
         App::logMsg(sim_verbosity_errors, "Contains sim.include...");
-    if (_containsScriptText_old(scriptObject, "sim.getIk"))
+    if (_containsScriptText_old(detachedScript, "sim.getIk"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getIk...");
-    if (_containsScriptText_old(scriptObject, "sim.getScriptSimulationParameter"))
+    if (_containsScriptText_old(detachedScript, "sim.getScriptSimulationParameter"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getScriptSimulationParameter...");
-    if (_containsScriptText_old(scriptObject, "sim.setScriptSimulationParameter"))
+    if (_containsScriptText_old(detachedScript, "sim.setScriptSimulationParameter"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setScriptSimulationParameter...");
-    if (_containsScriptText_old(scriptObject, "sim.tube"))
+    if (_containsScriptText_old(detachedScript, "sim.tube"))
         App::logMsg(sim_verbosity_errors, "Contains sim.tube...");
-    if (_containsScriptText_old(scriptObject, "sim.addStatusbarMessage"))
+    if (_containsScriptText_old(detachedScript, "sim.addStatusbarMessage"))
         App::logMsg(sim_verbosity_errors, "Contains sim.addStatusbarMessage...");
-    if (_containsScriptText_old(scriptObject, "sim.getNameSuffix"))
+    if (_containsScriptText_old(detachedScript, "sim.getNameSuffix"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getNameSuffix...");
-    if (_containsScriptText_old(scriptObject, "sim.setNameSuffix"))
+    if (_containsScriptText_old(detachedScript, "sim.setNameSuffix"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setNameSuffix...");
-    if (_containsScriptText_old(scriptObject, "sim.resetMill"))
+    if (_containsScriptText_old(detachedScript, "sim.resetMill"))
         App::logMsg(sim_verbosity_errors, "Contains sim.resetMill...");
-    if (_containsScriptText_old(scriptObject, "sim.handleMill"))
+    if (_containsScriptText_old(detachedScript, "sim.handleMill"))
         App::logMsg(sim_verbosity_errors, "Contains sim.handleMill...");
-    if (_containsScriptText_old(scriptObject, "sim.resetMilling"))
+    if (_containsScriptText_old(detachedScript, "sim.resetMilling"))
         App::logMsg(sim_verbosity_errors, "Contains sim.resetMilling...");
-    if (_containsScriptText_old(scriptObject, "sim.openTextEditor"))
+    if (_containsScriptText_old(detachedScript, "sim.openTextEditor"))
         App::logMsg(sim_verbosity_errors, "Contains sim.openTextEditor...");
-    if (_containsScriptText_old(scriptObject, "sim.closeTextEditor"))
+    if (_containsScriptText_old(detachedScript, "sim.closeTextEditor"))
         App::logMsg(sim_verbosity_errors, "Contains sim.closeTextEditor...");
-    if (_containsScriptText_old(scriptObject, "simGetMaterialId"))
+    if (_containsScriptText_old(detachedScript, "simGetMaterialId"))
         App::logMsg(sim_verbosity_errors, "Contains simGetMaterialId...");
-    if (_containsScriptText_old(scriptObject, "simGetShapeMaterial"))
+    if (_containsScriptText_old(detachedScript, "simGetShapeMaterial"))
         App::logMsg(sim_verbosity_errors, "Contains simGetShapeMaterial...");
-    if (_containsScriptText_old(scriptObject, "simHandleVarious"))
+    if (_containsScriptText_old(detachedScript, "simHandleVarious"))
         App::logMsg(sim_verbosity_errors, "Contains simHandleVarious...");
-    if (_containsScriptText_old(scriptObject, "simGetInstanceIndex"))
+    if (_containsScriptText_old(detachedScript, "simGetInstanceIndex"))
         App::logMsg(sim_verbosity_errors, "Contains simGetInstanceIndex...");
-    if (_containsScriptText_old(scriptObject, "simGetVisibleInstanceIndex"))
+    if (_containsScriptText_old(detachedScript, "simGetVisibleInstanceIndex"))
         App::logMsg(sim_verbosity_errors, "Contains simGetVisibleInstanceIndex...");
-    if (_containsScriptText_old(scriptObject, "simResetPath"))
+    if (_containsScriptText_old(detachedScript, "simResetPath"))
         App::logMsg(sim_verbosity_errors, "Contains simResetPath...");
-    if (_containsScriptText_old(scriptObject, "simHandlePath"))
+    if (_containsScriptText_old(detachedScript, "simHandlePath"))
         App::logMsg(sim_verbosity_errors, "Contains simHandlePath...");
-    if (_containsScriptText_old(scriptObject, "simResetJoint"))
+    if (_containsScriptText_old(detachedScript, "simResetJoint"))
         App::logMsg(sim_verbosity_errors, "Contains simResetJoint...");
-    if (_containsScriptText_old(scriptObject, "simHandleJoint"))
+    if (_containsScriptText_old(detachedScript, "simHandleJoint"))
         App::logMsg(sim_verbosity_errors, "Contains simHandleJoint...");
-    if (_containsScriptText_old(scriptObject, "simGetInvertedMatrix"))
+    if (_containsScriptText_old(detachedScript, "simGetInvertedMatrix"))
         App::logMsg(sim_verbosity_errors, "Contains simGetInvertedMatrix...");
-    if (_containsScriptText_old(scriptObject, "simAddSceneCustomData"))
+    if (_containsScriptText_old(detachedScript, "simAddSceneCustomData"))
         App::logMsg(sim_verbosity_errors, "Contains simAddSceneCustomData...");
-    if (_containsScriptText_old(scriptObject, "simGetSceneCustomData"))
+    if (_containsScriptText_old(detachedScript, "simGetSceneCustomData"))
         App::logMsg(sim_verbosity_errors, "Contains simGetSceneCustomData...");
-    if (_containsScriptText_old(scriptObject, "simAddObjectCustomData"))
+    if (_containsScriptText_old(detachedScript, "simAddObjectCustomData"))
         App::logMsg(sim_verbosity_errors, "Contains simAddObjectCustomData...");
-    if (_containsScriptText_old(scriptObject, "simGetObjectCustomData"))
+    if (_containsScriptText_old(detachedScript, "simGetObjectCustomData"))
         App::logMsg(sim_verbosity_errors, "Contains simGetObjectCustomData...");
-    if (_containsScriptText_old(scriptObject, "sim.setVisionSensorFilter"))
+    if (_containsScriptText_old(detachedScript, "sim.setVisionSensorFilter"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setVisionSensorFilter...");
-    if (_containsScriptText_old(scriptObject, "sim.getVisionSensorFilter"))
+    if (_containsScriptText_old(detachedScript, "sim.getVisionSensorFilter"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getVisionSensorFilter...");
-    if (_containsScriptText_old(scriptObject, "sim.handleMechanism"))
+    if (_containsScriptText_old(detachedScript, "sim.handleMechanism"))
         App::logMsg(sim_verbosity_errors, "Contains sim.handleMechanism...");
-    if (_containsScriptText_old(scriptObject, "sim.setPathTargetNominalVelocity"))
+    if (_containsScriptText_old(detachedScript, "sim.setPathTargetNominalVelocity"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setPathTargetNominalVelocity...");
-    if (_containsScriptText_old(scriptObject, "sim.setShapeMassAndInertia"))
+    if (_containsScriptText_old(detachedScript, "sim.setShapeMassAndInertia"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setShapeMassAndInertia...");
-    if (_containsScriptText_old(scriptObject, "sim.getShapeMassAndInertia"))
+    if (_containsScriptText_old(detachedScript, "sim.getShapeMassAndInertia"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getShapeMassAndInertia...");
-    if (_containsScriptText_old(scriptObject, "sim.checkIkGroup"))
+    if (_containsScriptText_old(detachedScript, "sim.checkIkGroup"))
         App::logMsg(sim_verbosity_errors, "Contains sim.checkIkGroup...");
-    if (_containsScriptText_old(scriptObject, "sim.handleIkGroup"))
+    if (_containsScriptText_old(detachedScript, "sim.handleIkGroup"))
         App::logMsg(sim_verbosity_errors, "Contains sim.handleIkGroup...");
-    if (_containsScriptText_old(scriptObject, "sim.createIkGroup"))
+    if (_containsScriptText_old(detachedScript, "sim.createIkGroup"))
         App::logMsg(sim_verbosity_errors, "Contains sim.createIkGroup...");
-    if (_containsScriptText_old(scriptObject, "sim.removeIkGroup"))
+    if (_containsScriptText_old(detachedScript, "sim.removeIkGroup"))
         App::logMsg(sim_verbosity_errors, "Contains sim.removeIkGroup...");
-    if (_containsScriptText_old(scriptObject, "sim.createIkElement"))
+    if (_containsScriptText_old(detachedScript, "sim.createIkElement"))
         App::logMsg(sim_verbosity_errors, "Contains sim.createIkElement...");
-    if (_containsScriptText_old(scriptObject, "sim.exportIk"))
+    if (_containsScriptText_old(detachedScript, "sim.exportIk"))
         App::logMsg(sim_verbosity_errors, "Contains sim.exportIk...");
-    if (_containsScriptText_old(scriptObject, "sim.computeJacobian"))
+    if (_containsScriptText_old(detachedScript, "sim.computeJacobian"))
         App::logMsg(sim_verbosity_errors, "Contains sim.computeJacobian...");
-    if (_containsScriptText_old(scriptObject, "sim.getConfigForTipPose"))
+    if (_containsScriptText_old(detachedScript, "sim.getConfigForTipPose"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getConfigForTipPose...");
-    if (_containsScriptText_old(scriptObject, "sim.generateIkPath"))
+    if (_containsScriptText_old(detachedScript, "sim.generateIkPath"))
         App::logMsg(sim_verbosity_errors, "Contains sim.generateIkPath...");
-    if (_containsScriptText_old(scriptObject, "sim.getIkGroupHandle"))
+    if (_containsScriptText_old(detachedScript, "sim.getIkGroupHandle"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getIkGroupHandle...");
-    if (_containsScriptText_old(scriptObject, "sim.getIkGroupMatrix"))
+    if (_containsScriptText_old(detachedScript, "sim.getIkGroupMatrix"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getIkGroupMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.setIkGroupProperties"))
+    if (_containsScriptText_old(detachedScript, "sim.setIkGroupProperties"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setIkGroupProperties...");
-    if (_containsScriptText_old(scriptObject, "sim.setIkElementProperties"))
+    if (_containsScriptText_old(detachedScript, "sim.setIkElementProperties"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setIkElementProperties...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadIsFree"))
+    if (_containsScriptText_old(detachedScript, "sim.setThreadIsFree"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setThreadIsFree...");
-    if (_containsScriptText_old(scriptObject, "simSetUIPosition"))
+    if (_containsScriptText_old(detachedScript, "simSetUIPosition"))
         App::logMsg(sim_verbosity_errors, "Contains simSetUIPosition...");
-    if (_containsScriptText_old(scriptObject, "simGetUIPosition"))
+    if (_containsScriptText_old(detachedScript, "simGetUIPosition"))
         App::logMsg(sim_verbosity_errors, "Contains simGetUIPosition...");
-    if (_containsScriptText_old(scriptObject, "simGetUIHandle"))
+    if (_containsScriptText_old(detachedScript, "simGetUIHandle"))
         App::logMsg(sim_verbosity_errors, "Contains simGetUIHandle...");
-    if (_containsScriptText_old(scriptObject, "simGetUIProperty"))
+    if (_containsScriptText_old(detachedScript, "simGetUIProperty"))
         App::logMsg(sim_verbosity_errors, "Contains simGetUIProperty...");
-    if (_containsScriptText_old(scriptObject, "simSetUIProperty"))
+    if (_containsScriptText_old(detachedScript, "simSetUIProperty"))
         App::logMsg(sim_verbosity_errors, "Contains simSetUIProperty...");
-    if (_containsScriptText_old(scriptObject, "simGetUIEventButton"))
+    if (_containsScriptText_old(detachedScript, "simGetUIEventButton"))
         App::logMsg(sim_verbosity_errors, "Contains simGetUIEventButton...");
-    if (_containsScriptText_old(scriptObject, "simGetUIButtonProperty"))
+    if (_containsScriptText_old(detachedScript, "simGetUIButtonProperty"))
         App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonProperty...");
-    if (_containsScriptText_old(scriptObject, "simSetUIButtonProperty"))
+    if (_containsScriptText_old(detachedScript, "simSetUIButtonProperty"))
         App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonProperty...");
-    if (_containsScriptText_old(scriptObject, "simGetUIButtonSize"))
+    if (_containsScriptText_old(detachedScript, "simGetUIButtonSize"))
         App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonSize...");
-    if (_containsScriptText_old(scriptObject, "simSetUIButtonLabel"))
+    if (_containsScriptText_old(detachedScript, "simSetUIButtonLabel"))
         App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonLabel...");
-    if (_containsScriptText_old(scriptObject, "simGetUIButtonLabel"))
+    if (_containsScriptText_old(detachedScript, "simGetUIButtonLabel"))
         App::logMsg(sim_verbosity_errors, "Contains simGetUIButtonLabel...");
-    if (_containsScriptText_old(scriptObject, "simSetUISlider"))
+    if (_containsScriptText_old(detachedScript, "simSetUISlider"))
         App::logMsg(sim_verbosity_errors, "Contains simSetUISlider...");
-    if (_containsScriptText_old(scriptObject, "simGetUISlider"))
+    if (_containsScriptText_old(detachedScript, "simGetUISlider"))
         App::logMsg(sim_verbosity_errors, "Contains simGetUISlider...");
-    if (_containsScriptText_old(scriptObject, "simCreateUIButtonArray"))
+    if (_containsScriptText_old(detachedScript, "simCreateUIButtonArray"))
         App::logMsg(sim_verbosity_errors, "Contains simCreateUIButtonArray...");
-    if (_containsScriptText_old(scriptObject, "simSetUIButtonArrayColor"))
+    if (_containsScriptText_old(detachedScript, "simSetUIButtonArrayColor"))
         App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonArrayColor...");
-    if (_containsScriptText_old(scriptObject, "simDeleteUIButtonArray"))
+    if (_containsScriptText_old(detachedScript, "simDeleteUIButtonArray"))
         App::logMsg(sim_verbosity_errors, "Contains simDeleteUIButtonArray...");
-    if (_containsScriptText_old(scriptObject, "simCreateUI"))
+    if (_containsScriptText_old(detachedScript, "simCreateUI"))
         App::logMsg(sim_verbosity_errors, "Contains simCreateUI...");
-    if (_containsScriptText_old(scriptObject, "simCreateUIButton"))
+    if (_containsScriptText_old(detachedScript, "simCreateUIButton"))
         App::logMsg(sim_verbosity_errors, "Contains simCreateUIButton...");
-    if (_containsScriptText_old(scriptObject, "simLoadUI"))
+    if (_containsScriptText_old(detachedScript, "simLoadUI"))
         App::logMsg(sim_verbosity_errors, "Contains simLoadUI...");
-    if (_containsScriptText_old(scriptObject, "simSaveUI"))
+    if (_containsScriptText_old(detachedScript, "simSaveUI"))
         App::logMsg(sim_verbosity_errors, "Contains simSaveUI...");
-    if (_containsScriptText_old(scriptObject, "simRemoveUI"))
+    if (_containsScriptText_old(detachedScript, "simRemoveUI"))
         App::logMsg(sim_verbosity_errors, "Contains simRemoveUI...");
-    if (_containsScriptText_old(scriptObject, "simSetUIButtonColor"))
+    if (_containsScriptText_old(detachedScript, "simSetUIButtonColor"))
         App::logMsg(sim_verbosity_errors, "Contains simSetUIButtonColor...");
-    if (_containsScriptText_old(scriptObject, "simHandleChildScript"))
+    if (_containsScriptText_old(detachedScript, "simHandleChildScript"))
         App::logMsg(sim_verbosity_errors, "Contains simHandleChildScript...");
-    if (_containsScriptText_old(scriptObject, "simSearchPath"))
+    if (_containsScriptText_old(detachedScript, "simSearchPath"))
         App::logMsg(sim_verbosity_errors, "Contains simSearchPath...");
-    if (_containsScriptText_old(scriptObject, "simInitializePathSearch"))
+    if (_containsScriptText_old(detachedScript, "simInitializePathSearch"))
         App::logMsg(sim_verbosity_errors, "Contains simInitializePathSearch...");
-    if (_containsScriptText_old(scriptObject, "simPerformPathSearchStep"))
+    if (_containsScriptText_old(detachedScript, "simPerformPathSearchStep"))
         App::logMsg(sim_verbosity_errors, "Contains simPerformPathSearchStep...");
-    if (_containsScriptText_old(scriptObject, "sim.sendData"))
+    if (_containsScriptText_old(detachedScript, "sim.sendData"))
         App::logMsg(sim_verbosity_errors, "Contains sim.sendData...");
-    if (_containsScriptText_old(scriptObject, "sim.receiveData"))
+    if (_containsScriptText_old(detachedScript, "sim.receiveData"))
         App::logMsg(sim_verbosity_errors, "Contains sim.receiveData...");
-    if (_containsScriptText_old(scriptObject, "simSerialPortOpen"))
+    if (_containsScriptText_old(detachedScript, "simSerialPortOpen"))
         App::logMsg(sim_verbosity_errors, "Contains simSerialPortOpen...");
-    if (_containsScriptText_old(scriptObject, "simSerialPortClose"))
+    if (_containsScriptText_old(detachedScript, "simSerialPortClose"))
         App::logMsg(sim_verbosity_errors, "Contains simSerialPortClose...");
-    if (_containsScriptText_old(scriptObject, "simSerialPortSend"))
+    if (_containsScriptText_old(detachedScript, "simSerialPortSend"))
         App::logMsg(sim_verbosity_errors, "Contains simSerialPortSend...");
-    if (_containsScriptText_old(scriptObject, "simSerialPortRead"))
+    if (_containsScriptText_old(detachedScript, "simSerialPortRead"))
         App::logMsg(sim_verbosity_errors, "Contains simSerialPortRead...");
-    if (_containsScriptText_old(scriptObject, "sim.rmlMoveToJointPositions"))
+    if (_containsScriptText_old(detachedScript, "sim.rmlMoveToJointPositions"))
         App::logMsg(sim_verbosity_errors, "Contains sim.rmlMoveToJointPositions...");
-    if (_containsScriptText_old(scriptObject, "simRMLMoveToJointPositions"))
+    if (_containsScriptText_old(detachedScript, "simRMLMoveToJointPositions"))
         App::logMsg(sim_verbosity_errors, "Contains simRMLMoveToJointPositions...");
-    if (_containsScriptText_old(scriptObject, "sim.rmlMoveToPosition"))
+    if (_containsScriptText_old(detachedScript, "sim.rmlMoveToPosition"))
         App::logMsg(sim_verbosity_errors, "Contains sim.rmlMoveToPosition...");
-    if (_containsScriptText_old(scriptObject, "simRMLMoveToPosition"))
+    if (_containsScriptText_old(detachedScript, "simRMLMoveToPosition"))
         App::logMsg(sim_verbosity_errors, "Contains simRMLMoveToPosition...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getCollectionHandle"))
+    if (_containsScriptText_old(detachedScript, "sim.getCollectionHandle"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getCollectionHandle...");
-    if (_containsScriptText_old(scriptObject, "sim.addCollection"))
+    if (_containsScriptText_old(detachedScript, "sim.addCollection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.addCollection...");
-    if (_containsScriptText_old(scriptObject, "sim.addObjectToCollection"))
+    if (_containsScriptText_old(detachedScript, "sim.addObjectToCollection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.addObjectToCollection...");
-    if (_containsScriptText_old(scriptObject, "sim.emptyCollection"))
+    if (_containsScriptText_old(detachedScript, "sim.emptyCollection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.emptyCollection...");
-    if (_containsScriptText_old(scriptObject, "sim.removeCollection"))
+    if (_containsScriptText_old(detachedScript, "sim.removeCollection"))
         App::logMsg(sim_verbosity_errors, "Contains sim.removeCollection...");
-    if (_containsScriptText_old(scriptObject, "sim.getCollectionName"))
+    if (_containsScriptText_old(detachedScript, "sim.getCollectionName"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getCollectionName...");
-    if (_containsScriptText_old(scriptObject, "sim.setCollectionName"))
+    if (_containsScriptText_old(detachedScript, "sim.setCollectionName"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setCollectionName...");
-    if (_containsScriptText_old(scriptObject, "sim.getCollisionHandle"))
+    if (_containsScriptText_old(detachedScript, "sim.getCollisionHandle"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getCollisionHandle...");
-    if (_containsScriptText_old(scriptObject, "sim.handleCollision"))
+    if (_containsScriptText_old(detachedScript, "sim.handleCollision"))
         App::logMsg(sim_verbosity_errors, "Contains sim.handleCollision...");
-    if (_containsScriptText_old(scriptObject, "sim.readCollision"))
+    if (_containsScriptText_old(detachedScript, "sim.readCollision"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCollision...");
-    if (_containsScriptText_old(scriptObject, "sim.resetCollision"))
+    if (_containsScriptText_old(detachedScript, "sim.resetCollision"))
         App::logMsg(sim_verbosity_errors, "Contains sim.resetCollision...");
-    if (_containsScriptText_old(scriptObject, "sim.getDistanceHandle"))
+    if (_containsScriptText_old(detachedScript, "sim.getDistanceHandle"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getDistanceHandle...");
-    if (_containsScriptText_old(scriptObject, "sim.handleDistance"))
+    if (_containsScriptText_old(detachedScript, "sim.handleDistance"))
         App::logMsg(sim_verbosity_errors, "Contains sim.handleDistance...");
-    if (_containsScriptText_old(scriptObject, "sim.readDistance"))
+    if (_containsScriptText_old(detachedScript, "sim.readDistance"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readDistance...");
-    if (_containsScriptText_old(scriptObject, "sim.resetDistance"))
+    if (_containsScriptText_old(detachedScript, "sim.resetDistance"))
         App::logMsg(sim_verbosity_errors, "Contains sim.resetDistance...");
-    if (_containsScriptText_old(scriptObject, "sim.boolAnd32"))
+    if (_containsScriptText_old(detachedScript, "sim.boolAnd32"))
         App::logMsg(sim_verbosity_errors, "Contains sim.boolAnd32...");
-    if (_containsScriptText_old(scriptObject, "sim.boolOr32"))
+    if (_containsScriptText_old(detachedScript, "sim.boolOr32"))
         App::logMsg(sim_verbosity_errors, "Contains sim.boolOr32...");
-    if (_containsScriptText_old(scriptObject, "sim.boolXor32"))
+    if (_containsScriptText_old(detachedScript, "sim.boolXor32"))
         App::logMsg(sim_verbosity_errors, "Contains sim.boolXor32...");
-    if (_containsScriptText_old(scriptObject, "simBoolAnd32"))
+    if (_containsScriptText_old(detachedScript, "simBoolAnd32"))
         App::logMsg(sim_verbosity_errors, "Contains simBoolAnd32...");
-    if (_containsScriptText_old(scriptObject, "simBoolOr32"))
+    if (_containsScriptText_old(detachedScript, "simBoolOr32"))
         App::logMsg(sim_verbosity_errors, "Contains simBoolOr32...");
-    if (_containsScriptText_old(scriptObject, "simBoolXor32"))
+    if (_containsScriptText_old(detachedScript, "simBoolXor32"))
         App::logMsg(sim_verbosity_errors, "Contains simBoolXo32...");
-    if (_containsScriptText_old(scriptObject, "simBoolAnd16"))
+    if (_containsScriptText_old(detachedScript, "simBoolAnd16"))
         App::logMsg(sim_verbosity_errors, "Contains simBoolAnd16...");
-    if (_containsScriptText_old(scriptObject, "simBoolOr16"))
+    if (_containsScriptText_old(detachedScript, "simBoolOr16"))
         App::logMsg(sim_verbosity_errors, "Contains simBoolOr16...");
-    if (_containsScriptText_old(scriptObject, "simBoolXor16"))
+    if (_containsScriptText_old(detachedScript, "simBoolXor16"))
         App::logMsg(sim_verbosity_errors, "Contains simBoolXo16...");
 
-    if (_containsScriptText_old(scriptObject, "sim.getScriptExecutionCount"))
+    if (_containsScriptText_old(detachedScript, "sim.getScriptExecutionCount"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getScriptExecutionCount...");
-    if (_containsScriptText_old(scriptObject, "sim.isScriptRunningInThread"))
+    if (_containsScriptText_old(detachedScript, "sim.isScriptRunningInThread"))
         App::logMsg(sim_verbosity_errors, "Contains sim.isScriptRunningInThread...");
-    if (_containsScriptText_old(scriptObject, "sim.isScriptExecutionThreaded"))
+    if (_containsScriptText_old(detachedScript, "sim.isScriptExecutionThreaded"))
         App::logMsg(sim_verbosity_errors, "Contains sim.isScriptExecutionThreaded...");
-    if (_containsScriptText_old(scriptObject, "sim.setThreadResumeLocation"))
+    if (_containsScriptText_old(detachedScript, "sim.setThreadResumeLocation"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setThreadResumeLocation...");
-    if (_containsScriptText_old(scriptObject, "sim.resumeThreads"))
+    if (_containsScriptText_old(detachedScript, "sim.resumeThreads"))
         App::logMsg(sim_verbosity_errors, "Contains sim.resumeThreads...");
-    if (_containsScriptText_old(scriptObject, "sim.launchThreadedChildScripts"))
+    if (_containsScriptText_old(detachedScript, "sim.launchThreadedChildScripts"))
         App::logMsg(sim_verbosity_errors, "Contains sim.launchThreadedChildScripts...");
-    if (_containsScriptText_old(scriptObject, "simGetScriptExecutionCount"))
+    if (_containsScriptText_old(detachedScript, "simGetScriptExecutionCount"))
         App::logMsg(sim_verbosity_errors, "Contains simGetScriptExecutionCount...");
-    if (_containsScriptText_old(scriptObject, "simIsScriptExecutionThreaded"))
+    if (_containsScriptText_old(detachedScript, "simIsScriptExecutionThreaded"))
         App::logMsg(sim_verbosity_errors, "Contains simIsScriptExecutionThreaded...");
-    if (_containsScriptText_old(scriptObject, "simIsScriptRunningInThread"))
+    if (_containsScriptText_old(detachedScript, "simIsScriptRunningInThread"))
         App::logMsg(sim_verbosity_errors, "Contains simIsScriptRunningInThread...");
-    if (_containsScriptText_old(scriptObject, "simSetThreadResumeLocation"))
+    if (_containsScriptText_old(detachedScript, "simSetThreadResumeLocation"))
         App::logMsg(sim_verbosity_errors, "Contains simSetThreadResumeLocation...");
-    if (_containsScriptText_old(scriptObject, "sim.setJointForce"))
+    if (_containsScriptText_old(detachedScript, "sim.setJointForce"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setJointForce...");
-    if (_containsScriptText_old(scriptObject, "simResumeThreads"))
+    if (_containsScriptText_old(detachedScript, "simResumeThreads"))
         App::logMsg(sim_verbosity_errors, "Contains simResumeThreads...");
-    if (_containsScriptText_old(scriptObject, "simLaunchThreadedChildScripts"))
+    if (_containsScriptText_old(detachedScript, "simLaunchThreadedChildScripts"))
         App::logMsg(sim_verbosity_errors, "Contains simLaunchThreadedChildScripts...");
-    if (_containsScriptText_old(scriptObject, "sim.copyMatrix"))
+    if (_containsScriptText_old(detachedScript, "sim.copyMatrix"))
         App::logMsg(sim_verbosity_errors, "Contains sim.copyMatrix...");
-    if (_containsScriptText_old(scriptObject, "sim.getPathPosition"))
+    if (_containsScriptText_old(detachedScript, "sim.getPathPosition"))
         App::logMsg(sim_verbosity_errors, "Contains sim.getPathPosition...");
-    if (_containsScriptText_old(scriptObject, "sim.setPathPosition"))
+    if (_containsScriptText_old(detachedScript, "sim.setPathPosition"))
         App::logMsg(sim_verbosity_errors, "Contains sim.setPathPosition...");
 
-    if (_containsScriptText_old(scriptObject, "'utils'"))
+    if (_containsScriptText_old(detachedScript, "'utils'"))
         App::logMsg(sim_verbosity_errors, "Contains 'utils'...");
 
     //************************************************************
     // Scripts containing following should remain handled in threaded mode:
-    if (_containsScriptText_old(scriptObject, "simMoveToPosition"))
+    if (_containsScriptText_old(detachedScript, "simMoveToPosition"))
         App::logMsg(sim_verbosity_errors, "Contains simMoveToPosition...");
-    if (_containsScriptText_old(scriptObject, "sim.moveToPosition"))
+    if (_containsScriptText_old(detachedScript, "sim.moveToPosition"))
         App::logMsg(sim_verbosity_errors, "Contains sim.moveToPosition...");
-    if (_containsScriptText_old(scriptObject, "simMoveToObject"))
+    if (_containsScriptText_old(detachedScript, "simMoveToObject"))
         App::logMsg(sim_verbosity_errors, "Contains simMoveToObject...");
-    if (_containsScriptText_old(scriptObject, "sim.moveToObject"))
+    if (_containsScriptText_old(detachedScript, "sim.moveToObject"))
         App::logMsg(sim_verbosity_errors, "Contains sim.moveToObject...");
-    if (_containsScriptText_old(scriptObject, "simFollowPath"))
+    if (_containsScriptText_old(detachedScript, "simFollowPath"))
         App::logMsg(sim_verbosity_errors, "Contains simFollowPath...");
-    if (_containsScriptText_old(scriptObject, "sim.followPath"))
+    if (_containsScriptText_old(detachedScript, "sim.followPath"))
         App::logMsg(sim_verbosity_errors, "Contains sim.followPath...");
-    if (_containsScriptText_old(scriptObject, "simMoveToJointPositions"))
+    if (_containsScriptText_old(detachedScript, "simMoveToJointPositions"))
         App::logMsg(sim_verbosity_errors, "Contains simMoveToJointPositions...");
-    if (_containsScriptText_old(scriptObject, "sim.moveToJointPositions"))
+    if (_containsScriptText_old(detachedScript, "sim.moveToJointPositions"))
         App::logMsg(sim_verbosity_errors, "Contains sim.moveToJointPositions...");
     //************************************************************
 }
@@ -6938,7 +6877,7 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 // Old
 // **************************************************************
 // **************************************************************
-std::string CScriptObject::_replaceOldApi(const char* txt, bool forwardAdjustment)
+std::string CDetachedScript::_replaceOldApi(const char* txt, bool forwardAdjustment)
 { // recursive
     size_t p = std::string(txt).find("sim");
     if (p != std::string::npos)
@@ -6960,7 +6899,7 @@ std::string CScriptObject::_replaceOldApi(const char* txt, bool forwardAdjustmen
     }
     return (std::string(txt));
 }
-void CScriptObject::_performNewApiAdjustments_old(CScriptObject* scriptObject, bool forwardAdjustment)
+void CDetachedScript::_performNewApiAdjustments_old(CDetachedScript* detachedScript, bool forwardAdjustment)
 {
     std::vector<const SNewApiMapping*> all;
     if (_newApiMap_old.begin() == _newApiMap_old.end())
@@ -6999,12 +6938,12 @@ void CScriptObject::_performNewApiAdjustments_old(CScriptObject* scriptObject, b
         }
     }
 
-    std::string theScript(scriptObject->getScriptText());
+    std::string theScript(detachedScript->getScriptText());
     theScript = _replaceOldApi(theScript.c_str(), forwardAdjustment);
-    scriptObject->setScriptText(theScript.c_str());
+    detachedScript->setScriptText(theScript.c_str());
 }
 
-std::map<std::string, std::string> CScriptObject::_newApiMap_old;
+std::map<std::string, std::string> CDetachedScript::_newApiMap_old;
 const SNewApiMapping _simApiMapping[] = {
     "sim.mainscriptcall_initialization",
     "sim.syscb_init",
