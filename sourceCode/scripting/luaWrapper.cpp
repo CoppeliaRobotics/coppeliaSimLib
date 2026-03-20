@@ -826,7 +826,7 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
         if (lua_isnil((lua_State*)L, -1))
         {
             lua_pop((lua_State*)L, 1); // pop nil
-            luaL_dostring((lua_State*)L, "local sim = {}; require('sim.Object').extend(sim); _Object__ = sim.Object");
+            luaL_dostring((lua_State*)L, "_Object__ = require('sim-2').Object");
             lua_getglobal((lua_State*)L, "_Object__");
         }
         lua_pushinteger((lua_State*)L, h);
@@ -849,7 +849,7 @@ void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* hand
     if (lua_isnil((lua_State*)L, -1))
     {
         lua_pop((lua_State*)L, 1); // pop nil
-        luaL_dostring((lua_State*)L, "local sim = {}; require('sim.Object').extend(sim); _ObjectArray__ = sim.ObjectArray");
+        luaL_dostring((lua_State*)L, "_ObjectArray__ = require('sim-2').ObjectArray");
         lua_getglobal((lua_State*)L, "_ObjectArray__");
     }
     lua_createtable((lua_State*)L, cnt, 0);
