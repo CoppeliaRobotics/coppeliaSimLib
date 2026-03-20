@@ -183,6 +183,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setStringProperty"] = _method_setStringProperty;
         funcTable["setVector2Property"] = _method_setVector2Property;
         funcTable["setVector3Property"] = _method_setVector3Property;
+        funcTable["_getTableProperty"] = _method__getTableProperty;
+        funcTable["_setTableProperty"] = _method__setTableProperty;
     }
 
     std::string retVal("__notFound__");
@@ -6094,3 +6096,78 @@ std::string _method_setVector3Property(int targetObj, const char* method, CDetac
     }
     return errMsg;
 }
+
+std::string _method__getTableProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        bool noError = false;
+        if (hasArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            int pValueL;
+            char* pValue = nullptr;
+            int res = CALL_C_API(simGetTableProperty, targetObj, pName.c_str(), &pValue, &pValueL);
+            if (res > 0)
+            {
+                pushBuffer(outStack, pValue, pValueL);
+                delete[] pValue;
+            }
+            else
+            {
+                errMsg = CApiErrors::getAndClearLastError();
+                if (noError)
+                {
+                    pushNull(outStack);
+                    errMsg.clear();
+                }
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method__setTableProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        std::string pValue = fetchBuffer(inStack, 1);
+        bool noError = false;
+        if (hasArg(inStack, 2))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (CALL_C_API(simSetTableProperty, targetObj, pName.c_str(), pValue.c_str(), int(pValue.size())) > 0)
+            {
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                {
+                    std::string nn(pName);
+                    if (targetObj == sim_handle_app)
+                        nn = "app." + nn;
+                    else if (targetObj != sim_handle_scene)
+                        nn = "obj." + nn;
+                    currentScript->signalSet(nn.c_str(), targetObj);
+                }
+            }
+            else
+            {
+                errMsg = CApiErrors::getAndClearLastError();
+                if (noError)
+                    errMsg.clear();
+            }
+        }
+    }
+    return errMsg;
+}
+
