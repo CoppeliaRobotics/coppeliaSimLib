@@ -822,28 +822,21 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
     bool retVal = false;
     if ((h == sim_handle_scene) || (h == sim_handle_app) || (h >= 0))
     {
-        bool err = true;
-        lua_getglobal((lua_State*)L, "sim");
-        if (lua_istable((lua_State*)L, -1))
+        lua_getglobal((lua_State*)L, "_Object__");
+        if (lua_isnil((lua_State*)L, -1))
         {
-            lua_getfield((lua_State*)L, -1, "Object");
-            lua_pushinteger((lua_State*)L, h);
-            if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-            {
-                err = false;
-                lua_remove((lua_State*)L, -2);
-                retVal = true;
-            }
-            else
-                lua_pop((lua_State*)L, 2);
+            lua_pop((lua_State*)L, 1); // pop nil
+            luaL_dostring((lua_State*)L, "local sim = {}; require('sim.Object').extend(sim); _Object__ = sim.Object");
+            lua_getglobal((lua_State*)L, "_Object__");
+        }
+        lua_pushinteger((lua_State*)L, h);
+        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
+        {
+            lua_remove((lua_State*)L, -2);
+            retVal = true;
         }
         else
-            lua_pop((lua_State*)L, 1);
-        if (err)
-        {
-            App::logMsg(sim_verbosity_errors, "failed to fetch sim.Object in luaWrap_lua_pushhandle. Pushing a long long int instead.");
-            lua_pushinteger((lua_State*)L, h);
-        }
+            lua_pop((lua_State*)L, 2);
     }
     if (!retVal)
         lua_pushnil((lua_State*)L);
@@ -856,46 +849,16 @@ void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* hand
     if (lua_isnil((lua_State*)L, -1))
     {
         lua_pop((lua_State*)L, 1); // pop nil
-        bool err = true;
-        lua_getglobal((lua_State*)L, "sim");
-        if (lua_istable((lua_State*)L, -1))
-        {
-            lua_getfield((lua_State*)L, -1, "ObjectArray");
-            if (!lua_isnil((lua_State*)L, -1))
-            {
-                err = false;
-                lua_pushvalue((lua_State*)L, -1); // copy
-                lua_setglobal((lua_State*)L, "_ObjectArray__");
-                lua_createtable((lua_State*)L, cnt, 0);
-                for (int i = 0; i < cnt; i++)
-                {
-                    lua_pushinteger((lua_State*)L, handles[i]);
-                    lua_rawseti((lua_State*)L, -2, i + 1);
-                }
-                lua_pcall((lua_State*)L, 1, 1, 0);
-                lua_remove((lua_State*)L, -2); // remove sim, leave result
-            }
-            else
-                lua_pop((lua_State*)L, 2); // sim + ObjectArray
-        }
-        else
-            lua_pop((lua_State*)L, 1); // sim
-        if (err)
-        {
-            App::logMsg(sim_verbosity_errors, "failed to fetch sim.ObjectArray in luaWrap_lua_pushhandlearray. Pushing a table of handles instead.");
-            pushHandleTableOntoStack(L, cnt, handles);
-        }
+        luaL_dostring((lua_State*)L, "local sim = {}; require('sim.Object').extend(sim); _ObjectArray__ = sim.ObjectArray");
+        lua_getglobal((lua_State*)L, "_ObjectArray__");
     }
-    else
+    lua_createtable((lua_State*)L, cnt, 0);
+    for (int i = 0; i < cnt; i++)
     {
-        lua_createtable((lua_State*)L, cnt, 0);
-        for (int i = 0; i < cnt; i++)
-        {
-            lua_pushinteger((lua_State*)L, handles[i]);
-            lua_rawseti((lua_State*)L, -2, i + 1);
-        }
-        lua_pcall((lua_State*)L, 1, 1, 0);
+        lua_pushinteger((lua_State*)L, handles[i]);
+        lua_rawseti((lua_State*)L, -2, i + 1);
     }
+    lua_pcall((lua_State*)L, 1, 1, 0);
 }
 
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols)
@@ -904,43 +867,18 @@ void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t r
     if (lua_isnil((lua_State*)L, -1))
     {
         lua_pop((lua_State*)L, 1); // pop nil
-        lua_getglobal((lua_State*)L, "require");
-        lua_pushstring((lua_State*)L, "simEigen");
-        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-        {
-            lua_getfield((lua_State*)L, -1, "Matrix");
-            lua_pushvalue((lua_State*)L, -1);
-            lua_setglobal((lua_State*)L, "_Matrix__");
-            lua_pushinteger((lua_State*)L, rows);
-            lua_pushinteger((lua_State*)L, cols);
-            lua_createtable((lua_State*)L, int(rows * cols), 0);
-            for (size_t i = 0; i < rows * cols; i++)
-            {
-                lua_pushnumber((lua_State*)L, matrix[i]);
-                lua_rawseti((lua_State*)L, -2, i + 1);
-            }
-            lua_pcall((lua_State*)L, 3, 1, 0);
-            lua_remove((lua_State*)L, -2); // simEigen module
-        }
-        else
-        {
-            lua_pop((lua_State*)L, 1);
-            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushmatrix.");
-            lua_pushnil((lua_State*)L);
-        }
+        luaL_dostring((lua_State*)L, "_Matrix__ = require('simEigen').Matrix");
+        lua_getglobal((lua_State*)L, "_Matrix__");
     }
-    else
+    lua_pushinteger((lua_State*)L, rows);
+    lua_pushinteger((lua_State*)L, cols);
+    lua_createtable((lua_State*)L, int(rows * cols), 0);
+    for (size_t i = 0; i < rows * cols; i++)
     {
-        lua_pushinteger((lua_State*)L, rows);
-        lua_pushinteger((lua_State*)L, cols);
-        lua_createtable((lua_State*)L, int(rows * cols), 0);
-        for (size_t i = 0; i < rows * cols; i++)
-        {
-            lua_pushnumber((lua_State*)L, matrix[i]);
-            lua_rawseti((lua_State*)L, -2, i + 1);
-        }
-        lua_pcall((lua_State*)L, 3, 1, 0);
+        lua_pushnumber((lua_State*)L, matrix[i]);
+        lua_rawseti((lua_State*)L, -2, i + 1);
     }
+    lua_pcall((lua_State*)L, 3, 1, 0);
 }
 
 void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* dat)
@@ -954,39 +892,16 @@ void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
     if (lua_isnil((lua_State*)L, -1))
     {
         lua_pop((lua_State*)L, 1); // pop nil
-        lua_getglobal((lua_State*)L, "require");
-        lua_pushstring((lua_State*)L, "simEigen");
-        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-        {
-            lua_getfield((lua_State*)L, -1, "Quaternion");
-            lua_pushvalue((lua_State*)L, -1);
-            lua_setglobal((lua_State*)L, "_Quaternion__");
-            lua_createtable((lua_State*)L, 4, 0);
-            for (size_t i = 0; i < 4; i++)
-            {
-                lua_pushnumber((lua_State*)L, dat[i]);
-                lua_rawseti((lua_State*)L, -2, i + 1);
-            }
-            lua_pcall((lua_State*)L, 1, 1, 0);
-            lua_remove((lua_State*)L, -2); // simEigen module
-        }
-        else
-        {
-            lua_pop((lua_State*)L, 1);
-            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushquaternion.");
-            lua_pushnil((lua_State*)L);
-        }
+        luaL_dostring((lua_State*)L, "_Quaternion__ = require('simEigen').Quaternion");
+        lua_getglobal((lua_State*)L, "_Quaternion__");
     }
-    else
+    lua_createtable((lua_State*)L, 4, 0);
+    for (size_t i = 0; i < 4; i++)
     {
-        lua_createtable((lua_State*)L, 4, 0);
-        for (size_t i = 0; i < 4; i++)
-        {
-            lua_pushnumber((lua_State*)L, dat[i]);
-            lua_rawseti((lua_State*)L, -2, i + 1);
-        }
-        lua_pcall((lua_State*)L, 1, 1, 0);
+        lua_pushnumber((lua_State*)L, dat[i]);
+        lua_rawseti((lua_State*)L, -2, i + 1);
     }
+    lua_pcall((lua_State*)L, 1, 1, 0);
 }
 
 void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
@@ -995,39 +910,16 @@ void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
     if (lua_isnil((lua_State*)L, -1))
     {
         lua_pop((lua_State*)L, 1); // pop nil
-        lua_getglobal((lua_State*)L, "require");
-        lua_pushstring((lua_State*)L, "simEigen");
-        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-        {
-            lua_getfield((lua_State*)L, -1, "Pose");
-            lua_pushvalue((lua_State*)L, -1);
-            lua_setglobal((lua_State*)L, "_Pose__");
-            lua_createtable((lua_State*)L, 7, 0);
-            for (size_t i = 0; i < 7; i++)
-            {
-                lua_pushnumber((lua_State*)L, dat[i]);
-                lua_rawseti((lua_State*)L, -2, i + 1);
-            }
-            lua_pcall((lua_State*)L, 1, 1, 0);
-            lua_remove((lua_State*)L, -2); // simEigen module
-        }
-        else
-        {
-            lua_pop((lua_State*)L, 1);
-            App::logMsg(sim_verbosity_errors, "failed to require simEigen in luaWrap_lua_pushpose.");
-            lua_pushnil((lua_State*)L);
-        }
+        luaL_dostring((lua_State*)L, "_Pose__ = require('simEigen').Pose");
+        lua_getglobal((lua_State*)L, "_Pose__");
     }
-    else
+    lua_createtable((lua_State*)L, 7, 0);
+    for (size_t i = 0; i < 7; i++)
     {
-        lua_createtable((lua_State*)L, 7, 0);
-        for (size_t i = 0; i < 7; i++)
-        {
-            lua_pushnumber((lua_State*)L, dat[i]);
-            lua_rawseti((lua_State*)L, -2, i + 1);
-        }
-        lua_pcall((lua_State*)L, 1, 1, 0);
+        lua_pushnumber((lua_State*)L, dat[i]);
+        lua_rawseti((lua_State*)L, -2, i + 1);
     }
+    lua_pcall((lua_State*)L, 1, 1, 0);
 }
 
 void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[3])
@@ -1036,37 +928,16 @@ void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[3])
     if (lua_isnil((lua_State*)L, -1))
     {
         lua_pop((lua_State*)L, 1); // pop nil
-        lua_getglobal((lua_State*)L, "require");
-        lua_pushstring((lua_State*)L, "Color");
-        if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-        {
-            lua_pushvalue((lua_State*)L, -1);
-            lua_setglobal((lua_State*)L, "_Color__");
-            lua_createtable((lua_State*)L, 3, 0);
-            for (size_t i = 0; i < 3; i++)
-            {
-                lua_pushnumber((lua_State*)L, c[i]);
-                lua_rawseti((lua_State*)L, -2, i + 1);
-            }
-            lua_pcall((lua_State*)L, 1, 1, 0);
-        }
-        else
-        {
-            lua_pop((lua_State*)L, 1);
-            App::logMsg(sim_verbosity_errors, "failed to require Color in luaWrap_lua_pushcolor.");
-            lua_pushnil((lua_State*)L);
-        }
+        luaL_dostring((lua_State*)L, "_Color__ = require('Color')");
+        lua_getglobal((lua_State*)L, "_Color__");
     }
-    else
+    lua_createtable((lua_State*)L, 3, 0);
+    for (size_t i = 0; i < 3; i++)
     {
-        lua_createtable((lua_State*)L, 3, 0);
-        for (size_t i = 0; i < 3; i++)
-        {
-            lua_pushnumber((lua_State*)L, c[i]);
-            lua_rawseti((lua_State*)L, -2, i + 1);
-        }
-        lua_pcall((lua_State*)L, 1, 1, 0);
+        lua_pushnumber((lua_State*)L, c[i]);
+        lua_rawseti((lua_State*)L, -2, i + 1);
     }
+    lua_pcall((lua_State*)L, 1, 1, 0);
 }
 
 void luaWrap_lua_pushbinarystring(luaWrap_lua_State* L, const char* str, size_t l)
