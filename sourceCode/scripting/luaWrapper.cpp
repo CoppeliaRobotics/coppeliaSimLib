@@ -822,6 +822,7 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
     bool retVal = false;
     if ((h == sim_handle_scene) || (h == sim_handle_app) || (h >= 0))
     {
+        bool err = true;
         lua_getglobal((lua_State*)L, "sim");
         if (lua_istable((lua_State*)L, -1))
         {
@@ -829,6 +830,7 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
             lua_pushinteger((lua_State*)L, h);
             if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
             {
+                err = false;
                 lua_remove((lua_State*)L, -2);
                 retVal = true;
             }
@@ -837,6 +839,11 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
         }
         else
             lua_pop((lua_State*)L, 1);
+        if (err)
+        {
+            App::logMsg(sim_verbosity_errors, "failed to fetch sim.Object in luaWrap_lua_pushhandle. Pushing a long long int instead.");
+            lua_pushinteger((lua_State*)L, h);
+        }
     }
     if (!retVal)
         lua_pushnil((lua_State*)L);

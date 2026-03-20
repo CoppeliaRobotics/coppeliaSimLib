@@ -153,6 +153,7 @@ const SLuaCommands simLuaCommands[] = {
     {"ccallback1", _ccallback1},
     {"ccallback2", _ccallback2},
     {"ccallback3", _ccallback3},
+    {"callMethod", _callMethod},
     {"loadPlugin", _loadPlugin},
     {"unloadPlugin", _unloadPlugin},
     {"registerCodeEditorInfos", _registerCodeEditorInfos},
@@ -165,7 +166,6 @@ const SLuaCommands simLuaCommands[] = {
     {"addLog", _addLog},
     {"quitSimulator", _quitSimulator},
 
-    {"sim._callMethod", _sim_callMethod},
     {"sim.handleExtCalls", _simHandleExtCalls},
     {"sim.getLastInfo", _simGetLastInfo},
     {"sim.isHandle", _simIsHandle},
@@ -6203,10 +6203,10 @@ int _simSetEventFilters(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _sim_callMethod(luaWrap_lua_State* L)
+int _callMethod(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.callMethod");
+    LUA_START("callMethod");
 
     // if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_table, 0, lua_arg_table, 0))
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_handle, 0, lua_arg_string, 0))

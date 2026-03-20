@@ -84,6 +84,7 @@ extern int _ccallback0(luaWrap_lua_State* L);
 extern int _ccallback1(luaWrap_lua_State* L);
 extern int _ccallback2(luaWrap_lua_State* L);
 extern int _ccallback3(luaWrap_lua_State* L);
+extern int _callMethod(luaWrap_lua_State* L);
 extern int _loadPlugin(luaWrap_lua_State* L);
 extern int _unloadPlugin(luaWrap_lua_State* L);
 extern int _registerCodeEditorInfos(luaWrap_lua_State* L);
@@ -381,7 +382,6 @@ extern int _simGetPropertyName(luaWrap_lua_State* L);
 extern int _simGetPropertyInfo(luaWrap_lua_State* L);
 extern int _simSetEventFilters(luaWrap_lua_State* L);
 
-extern int _sim_callMethod(luaWrap_lua_State* L);
 
 
 #include <luaScriptFunctions-old.h>
