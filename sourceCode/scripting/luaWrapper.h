@@ -55,7 +55,7 @@ void luaWrap_lua_pushinteger(luaWrap_lua_State* L, luaWrap_lua_Integer n);
 void luaWrap_lua_pushnumber(luaWrap_lua_State* L, luaWrap_lua_Number n);
 void luaWrap_lua_pushtext(luaWrap_lua_State* L, const char* str);
 void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l);       // replaces luaWrap_lua_pushlstring !
-bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int h);
+bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h);
 void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* handles, int cnt);
 void luaWrap_lua_pushbinarystring(luaWrap_lua_State* L, const char* str, size_t l); // is actually luaWrap_lua_pushlstring, for very special cases !
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols);
@@ -147,3 +147,4 @@ void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsign
 void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);
 void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);
 bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField);
+bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField);

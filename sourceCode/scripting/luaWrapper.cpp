@@ -817,7 +817,7 @@ void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l)
         luaWrap_lua_pushbinarystring(L, str, l); // old, no difference between strings and buffers
 }
 
-bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int h)
+bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
 {
     bool retVal = false;
     if ((h == sim_handle_scene) || (h == sim_handle_app) || (h >= 0))
@@ -876,7 +876,7 @@ void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* hand
         if (err)
         {
             App::logMsg(sim_verbosity_errors, "failed to fetch sim.ObjectArray in luaWrap_lua_pushhandlearray. Pushing a table of handles instead.");
-            pushLongTableOntoStack(L, cnt, handles);
+            pushHandleTableOntoStack(L, cnt, handles);
         }
     }
     else
@@ -1282,6 +1282,20 @@ void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::strin
 }
 
 bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
+{
+    bool retVal = true;
+    lua_createtable((lua_State*)L, int(intCount), 0);
+    int newTablePos = lua_gettop((lua_State*)L);
+    for (size_t i = 0; i < intCount; i++)
+    {
+        if (!luaWrap_lua_pushhandle((lua_State*)L, arrayField[i]))
+            retVal = false;
+        lua_rawseti((lua_State*)L, newTablePos, int(i + 1));
+    }
+    return retVal;
+}
+
+bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField)
 {
     bool retVal = true;
     lua_createtable((lua_State*)L, int(intCount), 0);
