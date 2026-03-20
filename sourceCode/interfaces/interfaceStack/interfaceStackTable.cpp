@@ -417,9 +417,9 @@ bool CInterfaceStackTable::fetchBoolFromKey(const char* fieldName, bool& v, std:
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }
@@ -444,9 +444,9 @@ bool CInterfaceStackTable::fetchStringFromKey(const char* fieldName, std::string
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }
@@ -474,9 +474,9 @@ bool CInterfaceStackTable::fetchDoubleFromKey(const char* fieldName, double& v, 
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }
@@ -513,9 +513,9 @@ bool CInterfaceStackTable::fetchInt32FromKey(const char* fieldName, int& v, std:
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }
@@ -552,9 +552,9 @@ bool CInterfaceStackTable::fetchInt64FromKey(const char* fieldName, long long in
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }
@@ -614,9 +614,9 @@ bool CInterfaceStackTable::fetchDoubleArrayFromKey(const char* fieldName, double
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }
@@ -681,9 +681,9 @@ bool CInterfaceStackTable::fetchFloatArrayFromKey(const char* fieldName, float* 
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }
@@ -722,9 +722,9 @@ bool CInterfaceStackTable::fetchInt32ArrayFromKey(const char* fieldName, int* ar
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }
@@ -762,9 +762,9 @@ bool CInterfaceStackTable::fetchInt64ArrayFromKey(const char* fieldName, long lo
         err = false;
     if (err && (errMsg != nullptr))
     {
-        errMsg[0] = "Invalid ";
+        errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
-        errMsg[0] = " field.";
+        errMsg[0] += "' field.";
     }
     return retVal;
 }

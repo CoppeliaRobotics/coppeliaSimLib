@@ -874,7 +874,10 @@ void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* hand
         else
             lua_pop((lua_State*)L, 1); // sim
         if (err)
-            App::logMsg(sim_verbosity_errors, "failed to fetch sim.ObjectArray in luaWrap_lua_pushhandlearray.");
+        {
+            App::logMsg(sim_verbosity_errors, "failed to fetch sim.ObjectArray in luaWrap_lua_pushhandlearray. Pushing a table of handles instead.");
+            pushLongTableOntoStack(L, cnt, handles);
+        }
     }
     else
     {
