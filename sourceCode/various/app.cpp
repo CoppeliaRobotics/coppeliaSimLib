@@ -1916,6 +1916,11 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
             pState = SIM_RAND_FLOAT;
             retVal = 1;
         }
+        else if (strcmp(pName, propApp_systemTime.name) == 0)
+        {
+            pState = VDateTime::getTime();
+            retVal = 1;
+        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getFloatProperty(target, pName, pState);
