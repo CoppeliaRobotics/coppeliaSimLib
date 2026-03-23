@@ -185,6 +185,9 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setVector3Property"] = _method_setVector3Property;
         funcTable["_getTableProperty"] = _method__getTableProperty;
         funcTable["_setTableProperty"] = _method__setTableProperty;
+        funcTable["removeProperty"] = _method_removeProperty;
+        funcTable["getPropertyName"] = _method_getPropertyName;
+        funcTable["getPropertyInfo"] = _method_getPropertyInfo;
     }
 
     std::string retVal("__notFound__");
@@ -198,7 +201,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
     // arg_table is followed by 2 auxiliary values: size (-1 for any, 0 for a map) and type of content (arg_any for any)
     // arg_matrix is followed by 2 auxiliary values: rows (-1 for any) and cols (-1 for any)
     // arg_any stands for any (is ignored)
-    // The type argument can be combined with arg_optional
+    // The type argument can be combined with arg_optional, in which case the arg can be missing or nil
     bool retVal = true;
     size_t argP = 0;
     size_t argC = 0;
@@ -226,7 +229,9 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
         {
             const CInterfaceStackObject* arg = inStack->getStackObjectFromIndex(argC++);
             int t = arg->getObjectType();
-            if (desiredArgType == arg_table)
+            if (optional && (t == arg_null))
+                retVal = true;
+            else if (desiredArgType == arg_table)
             {
                 retVal = (t == arg_table);
                 if (retVal)
@@ -279,7 +284,6 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                 }
                 else
                 {
-                    retVal = false;
                     if (errStr != nullptr)
                     {
                         std::string msg("bad argument #");
@@ -441,9 +445,12 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
     return retVal;
 }
 
-bool hasArg(const CInterfaceStack* inStack, int index)
+bool hasNonNullArg(const CInterfaceStack* inStack, int index)
 {
-    return inStack->getStackSize() > index;
+    bool retVal = false;
+    if (inStack->getStackSize() > index)
+        retVal = (inStack->getStackObjectFromIndex(index)->getObjectType() != sim_stackitem_null);
+    return retVal;
 }
 
 bool fetchBool(const CInterfaceStack* inStack, int index, bool defaultValue /*= false*/)
@@ -3315,7 +3322,7 @@ std::string _method_relocateFrame(int targetObj, const char* method, CDetachedSc
         C7Vector tr = fetchPose(inStack, 0);
         if ((!target->getMesh()->isPure()) || (target->isCompound()))
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
-            if (hasArg(inStack, 0))
+            if (hasNonNullArg(inStack, 0))
             {
                 if ((tr.Q(0) == 0.0) && (tr.Q(1) == 0.0) && (tr.Q(2) == 0.0) && (tr.Q(3) == 0.0))
                     target->relocateFrame("mesh");
@@ -3344,7 +3351,7 @@ std::string _method_alignBoundingBox(int targetObj, const char* method, CDetache
         C4Vector q = fetchQuaternion(inStack, 0);
         if ((!target->getMesh()->isPure()) || (target->isCompound()))
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
-            if (hasArg(inStack, 0))
+            if (hasNonNullArg(inStack, 0))
             {
                 C7Vector tr;
                 tr.X = C3Vector::zeroVector;
@@ -3370,10 +3377,10 @@ std::string _method_logInfo(int targetObj, const char* method, CDetachedScript* 
     if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
     {
         std::string msg = fetchText(inStack, 0);
-        if (hasArg(inStack, 0))
+        if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (hasArg(inStack, 1))
+            if (hasNonNullArg(inStack, 1))
             {
                 CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                 CInterfaceStackObject* obj = map->getMapObject("undecorated");
@@ -3420,10 +3427,10 @@ std::string _method_logWarn(int targetObj, const char* method, CDetachedScript* 
     if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
     {
         std::string msg = fetchText(inStack, 0);
-        if (hasArg(inStack, 0))
+        if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (hasArg(inStack, 1))
+            if (hasNonNullArg(inStack, 1))
             {
                 CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                 CInterfaceStackObject* obj = map->getMapObject("undecorated");
@@ -3470,10 +3477,10 @@ std::string _method_logError(int targetObj, const char* method, CDetachedScript*
     if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
     {
         std::string msg = fetchText(inStack, 0);
-        if (hasArg(inStack, 0))
+        if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (hasArg(inStack, 1))
+            if (hasNonNullArg(inStack, 1))
             {
                 CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                 CInterfaceStackObject* obj = map->getMapObject("undecorated");
@@ -3579,7 +3586,7 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
             path = "./" + path;
         int index = -1;
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             CInterfaceStackObject* obj = map->getMapObject("index");
@@ -3638,7 +3645,7 @@ std::string _method_getObjectFromUid(int targetObj, const char* method, CDetache
     {
         long long int uid = fetchLong(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             CInterfaceStackObject* obj = map->getMapObject("noError");
@@ -3717,11 +3724,11 @@ std::string _method_addForce(int targetObj, const char* method, CDetachedScript*
         C3Vector force = fetchVector3(inStack, 0);
         C3Vector pos;
         pos.clear();
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
             pos = fetchVector3(inStack, 1);
         bool reset = false;
         bool relative = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             CInterfaceStackObject* obj = map->getMapObject("reset");
@@ -3755,7 +3762,7 @@ std::string _method_addTorque(int targetObj, const char* method, CDetachedScript
         C3Vector torque = fetchVector3(inStack, 0);
         bool reset = false;
         bool relative = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             CInterfaceStackObject* obj = map->getMapObject("reset");
@@ -4871,7 +4878,7 @@ std::string _method_getBoolProperty(int targetObj, const char* method, CDetached
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -4902,7 +4909,7 @@ std::string _method_getBufferProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -4937,7 +4944,7 @@ std::string _method_getColorProperty(int targetObj, const char* method, CDetache
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -4968,7 +4975,7 @@ std::string _method_getFloatArrayProperty(int targetObj, const char* method, CDe
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5003,7 +5010,7 @@ std::string _method_getFloatProperty(int targetObj, const char* method, CDetache
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5034,7 +5041,7 @@ std::string _method_getStringArrayProperty(int targetObj, const char* method, CD
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5078,7 +5085,7 @@ std::string _method_getHandleArrayProperty(int targetObj, const char* method, CD
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5114,7 +5121,7 @@ std::string _method_getHandleProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5145,7 +5152,7 @@ std::string _method_getIntArray2Property(int targetObj, const char* method, CDet
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5176,7 +5183,7 @@ std::string _method_getIntArrayProperty(int targetObj, const char* method, CDeta
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5211,7 +5218,7 @@ std::string _method_getIntProperty(int targetObj, const char* method, CDetachedS
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5242,7 +5249,7 @@ std::string _method_getLongProperty(int targetObj, const char* method, CDetached
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5273,7 +5280,7 @@ std::string _method_getPoseProperty(int targetObj, const char* method, CDetached
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5308,7 +5315,7 @@ std::string _method_getQuaternionProperty(int targetObj, const char* method, CDe
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5343,7 +5350,7 @@ std::string _method_getStringProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5378,7 +5385,7 @@ std::string _method_getVector2Property(int targetObj, const char* method, CDetac
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5409,7 +5416,7 @@ std::string _method_getVector3Property(int targetObj, const char* method, CDetac
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5441,7 +5448,7 @@ std::string _method_setBoolProperty(int targetObj, const char* method, CDetached
         std::string pName = fetchText(inStack, 0);
         bool pValue = fetchBool(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5479,7 +5486,7 @@ std::string _method_setBufferProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5518,7 +5525,7 @@ std::string _method_setColorProperty(int targetObj, const char* method, CDetache
         float pValue[3];
         fetchColor(inStack, 1, pValue);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5557,7 +5564,7 @@ std::string _method_setFloatArrayProperty(int targetObj, const char* method, CDe
         std::vector<double> pValue;
         fetchDoubleArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5595,7 +5602,7 @@ std::string _method_setFloatProperty(int targetObj, const char* method, CDetache
         std::string pName = fetchText(inStack, 0);
         double pValue = fetchDouble(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5634,7 +5641,7 @@ std::string _method_setStringArrayProperty(int targetObj, const char* method, CD
         std::vector<std::string> pValue;
         fetchTextArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5680,7 +5687,7 @@ std::string _method_setHandleArrayProperty(int targetObj, const char* method, CD
         std::vector<long long int> pValue;
         fetchHandleArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5718,7 +5725,7 @@ std::string _method_setHandleProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         long long int pValue = fetchHandle(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5757,7 +5764,7 @@ std::string _method_setIntArray2Property(int targetObj, const char* method, CDet
         std::vector<int> pValue;
         fetchIntArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5796,7 +5803,7 @@ std::string _method_setIntArrayProperty(int targetObj, const char* method, CDeta
         std::vector<int> pValue;
         fetchIntArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5834,7 +5841,7 @@ std::string _method_setIntProperty(int targetObj, const char* method, CDetachedS
         std::string pName = fetchText(inStack, 0);
         int pValue = fetchInt(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5872,7 +5879,7 @@ std::string _method_setLongProperty(int targetObj, const char* method, CDetached
         std::string pName = fetchText(inStack, 0);
         long long int pValue = fetchLong(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5910,7 +5917,7 @@ std::string _method_setPoseProperty(int targetObj, const char* method, CDetached
         std::string pName = fetchText(inStack, 0);
         C7Vector pState = fetchPose(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5950,7 +5957,7 @@ std::string _method_setQuaternionProperty(int targetObj, const char* method, CDe
         std::string pName = fetchText(inStack, 0);
         C4Vector pState = fetchQuaternion(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -5990,7 +5997,7 @@ std::string _method_setStringProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchText(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -6029,7 +6036,7 @@ std::string _method_setVector2Property(int targetObj, const char* method, CDetac
         std::vector<double> pValue;
         fetchDoubleArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -6067,7 +6074,7 @@ std::string _method_setVector3Property(int targetObj, const char* method, CDetac
         std::string pName = fetchText(inStack, 0);
         C3Vector pValue = fetchVector3(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -6104,7 +6111,7 @@ std::string _method__getTableProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasArg(inStack, 1))
+        if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -6141,7 +6148,7 @@ std::string _method__setTableProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
         bool noError = false;
-        if (hasArg(inStack, 2))
+        if (hasNonNullArg(inStack, 2))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
@@ -6165,6 +6172,104 @@ std::string _method__setTableProperty(int targetObj, const char* method, CDetach
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                     errMsg.clear();
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_removeProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            CALL_C_API(simRemoveProperty, targetObj, pName.c_str());
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            {
+                std::string nn(pName);
+                if (targetObj == sim_handle_app)
+                    nn = "app." + nn;
+                else if (targetObj != sim_handle_scene)
+                    nn = "obj." + nn;
+                currentScript->signalRemoved(nn.c_str());
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_getPropertyName(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_table, 0, arg_any}))
+    {
+        int index = fetchInt(inStack, 0);
+        SPropertyOptions opt;
+        std::string propertyPrefix;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchStringFromKey("prefix", propertyPrefix, &errMsg);
+            map->fetchInt32FromKey("excludeFlags", opt.excludeFlags, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (propertyPrefix.size() > 0)
+                opt.prefix = propertyPrefix.c_str();
+            char* pValue = CALL_C_API(simGetPropertyName, targetObj, index, &opt);
+            if (pValue != nullptr)
+            {
+                std::string w1(pValue);
+                delete[] pValue;
+                std::string w2;
+                utils::extractCommaSeparatedWord(w1, w2);
+                pushText(outStack, w2.c_str());
+                pushText(outStack, w1.c_str());
+            }
+            else
+            {
+                pushNull(outStack);
+                pushNull(outStack);
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_getPropertyInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        SPropertyOptions opt;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("shortInfoTxt", opt.shortInfoTxt, &errMsg);
+            map->fetchInt32FromKey("bitCoded", opt.bitCoded, &errMsg);
+        }
+        SPropertyInfo infos;
+        int res = CALL_C_API(simGetPropertyInfo, targetObj, pName.c_str(), &infos, &opt);
+        if (res > 0)
+        {
+            pushInt(outStack, infos.type);
+            pushInt(outStack, infos.flags);
+            if (infos.infoTxt == nullptr)
+                pushText(outStack, "");
+            else
+            {
+                pushText(outStack, infos.infoTxt);
+                delete[] infos.infoTxt;
             }
         }
     }

@@ -1543,6 +1543,8 @@ enum
     SIM_IDEND_MESH = 0x000006ffffffffff,
     SIM_IDSTART_DRAWING = 0x0000070000000000,
     SIM_IDEND_DRAWING = 0x000007ffffffffff,
+    SIM_IDSTART_CUSTOM = 0x0000080000000000,
+    SIM_IDEND_CUSTOM = 0x000008ffffffffff,
     SIM_UIDSTART = 0x0000f00000000000,
 };
 #else
@@ -1573,7 +1575,10 @@ enum
 
     // Drawing object handles are created on-the-fly
     SIM_IDSTART_DRAWINGOBJ = 2280010,
-    SIM_IDEND_DRAWINGOBJ = 4194303,
+    SIM_IDEND_DRAWINGOBJ = 3999999,
+
+    SIM_IDSTART_CUSTOM = 8000000,
+    SIM_IDEND_CUSTOM = 9999999,
 
     // Only for object related to a specific scene! (e.g. meshes) (i.e. no app objects!)
     SIM_UIDSTART = 10000000,
