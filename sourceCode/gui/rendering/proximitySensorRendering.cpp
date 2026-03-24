@@ -106,7 +106,7 @@ void displayProximitySensor(CProxSensor* proxSensor, CViewableBase* renderingObj
                                    (int)proxSensor->convexVolume->normalsInside.size() / 3, false,
                                    normalVectorForLinesAndPoints.data);
 
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorBlue);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorBlue);
         if (proxSensor->convexVolume->normalsOutside.size() != 0)
             ogl::drawRandom3dLines(&proxSensor->convexVolume->normalsOutside[0],
                                    (int)proxSensor->convexVolume->normalsOutside.size() / 3, false,

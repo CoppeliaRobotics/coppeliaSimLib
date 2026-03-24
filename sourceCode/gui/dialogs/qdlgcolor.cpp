@@ -116,13 +116,13 @@ void CQDlgColor::initializeDlg(int objType, int objID1, int objID2, int colCompo
     GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, _colComponent, &str);
     if (appendColorComponentInName)
     {
-        if (_colComponent == sim_colorcomponent_ambient_diffuse)
+        if (_colComponent == sim_materialcomponent_diffuse)
             str += " (ambient/diffuse)";
-        if (_colComponent == sim_colorcomponent_diffuse)
+        if (_colComponent == sim_materialcomponent_lightdiffuse)
             str += " (diffuse)";
-        if (_colComponent == sim_colorcomponent_specular)
+        if (_colComponent == sim_materialcomponent_specular)
             str += " (specular)";
-        if (_colComponent == sim_colorcomponent_emission)
+        if (_colComponent == sim_materialcomponent_emission)
             str += " (emission)";
         if (_colComponent == sim_colorcomponent_auxiliary)
             str += " (aux. channel)";

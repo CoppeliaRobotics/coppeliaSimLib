@@ -33,15 +33,15 @@ CBannerObject::CBannerObject(const char* label, int options, int sceneObjID, con
     backColor.setColors(col);
     if (labelCol != nullptr)
     {
-        color.setColor(labelCol + 0, sim_colorcomponent_ambient_diffuse);
-        color.setColor(labelCol + 6, sim_colorcomponent_specular);
-        color.setColor(labelCol + 9, sim_colorcomponent_emission);
+        color.setColor(labelCol + 0, sim_materialcomponent_diffuse);
+        color.setColor(labelCol + 6, sim_materialcomponent_specular);
+        color.setColor(labelCol + 9, sim_materialcomponent_emission);
     }
     if (backCol != nullptr)
     {
-        backColor.setColor(backCol + 0, sim_colorcomponent_ambient_diffuse);
-        backColor.setColor(backCol + 6, sim_colorcomponent_specular);
-        backColor.setColor(backCol + 9, sim_colorcomponent_emission);
+        backColor.setColor(backCol + 0, sim_materialcomponent_diffuse);
+        backColor.setColor(backCol + 6, sim_materialcomponent_specular);
+        backColor.setColor(backCol + 9, sim_materialcomponent_emission);
     }
     _objectID = 0;
     _sceneObjectID = sceneObjID;

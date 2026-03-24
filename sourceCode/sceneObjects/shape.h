@@ -131,7 +131,7 @@ class CShape : public CSceneObject
     bool isCompound() const;
     void setColor(const char* colorName, int colorComponent, float r, float g, float b);
     void setColor(const char* colorName, int colorComponent, const float* rgbData);
-    bool getColor(const char* colorName, int colorComponent, float* rgbData);
+    bool getColor(const char* colorName, int colorComponent, float* rgbData) const;
     void setRespondable(bool r);
     bool getRespondable();
     void setRespondableMask(int m);

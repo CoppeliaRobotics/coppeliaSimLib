@@ -32,7 +32,7 @@ COcTree::COcTree()
     _refreshDisplay = true;
     _cellSize = 0.025;
     color.setDefaultValues();
-    color.setColor(1.0, 1.0, 1.0, sim_colorcomponent_ambient_diffuse);
+    color.setColor(1.0, 1.0, 1.0, sim_materialcomponent_diffuse);
     _visibilityLayer = OCTREE_LAYER;
     _localObjectSpecialProperty = sim_objectspecialproperty_collidable | sim_objectspecialproperty_measurable |
                                   sim_objectspecialproperty_detectable | sim_objectspecialproperty_renderable;
@@ -1290,7 +1290,7 @@ void COcTree::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object", rgb, 3, exhaustiveXml))
                         color.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                       sim_colorcomponent_ambient_diffuse);
+                                       sim_materialcomponent_diffuse);
                 }
                 ar.xmlPopNode();
             }

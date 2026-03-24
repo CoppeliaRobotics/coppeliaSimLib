@@ -2587,13 +2587,13 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar, bool noHeightfiel
         {
             int rgb[3];
             if (ar.xmlGetNode_ints("ambientDiffuse", rgb, 3, false))
-                retVal->setColor(nullptr, sim_colorcomponent_ambient_diffuse, double(rgb[0]) / 255.1,
+                retVal->setColor(nullptr, sim_materialcomponent_diffuse, double(rgb[0]) / 255.1,
                                  double(rgb[1]) / 255.1, double(rgb[2]) / 255.1);
             if (ar.xmlGetNode_ints("specular", rgb, 3, false))
-                retVal->setColor(nullptr, sim_colorcomponent_specular, double(rgb[0]) / 255.1, double(rgb[1]) / 255.1,
+                retVal->setColor(nullptr, sim_materialcomponent_specular, double(rgb[0]) / 255.1, double(rgb[1]) / 255.1,
                                  double(rgb[2]) / 255.1);
             if (ar.xmlGetNode_ints("emission", rgb, 3, false))
-                retVal->setColor(nullptr, sim_colorcomponent_emission, double(rgb[0]) / 255.1, double(rgb[1]) / 255.1,
+                retVal->setColor(nullptr, sim_materialcomponent_emission, double(rgb[0]) / 255.1, double(rgb[1]) / 255.1,
                                  double(rgb[2]) / 255.1);
             ar.xmlPopNode();
         }
@@ -3463,6 +3463,16 @@ CSceneObject* CSceneObjectContainer::getObjectFromUid(long long int objectUid) c
             return (_allObjects[i]);
     }
     return (nullptr);
+}
+
+CSceneObject* CSceneObjectContainer::getObjectFromPersistentUid(const char* puid) const
+{ // not efficient. For now
+    for (size_t i = 0; i < _allObjects.size(); i++)
+    {
+        if (_allObjects[i]->getUniquePersistentIdString() == puid)
+            return _allObjects[i];
+    }
+    return nullptr;
 }
 
 int CSceneObjectContainer::getObjects_hierarchyOrder(std::vector<CSceneObject*>& allObjects)

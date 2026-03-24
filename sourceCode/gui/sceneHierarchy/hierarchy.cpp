@@ -593,7 +593,7 @@ bool CHierarchy::render()
         if (limitedPos[1] < SAFETY_BORDER_SIZE * GuiApp::sc)
             limitedPos[1] = SAFETY_BORDER_SIZE * GuiApp::sc;
         ogl::setAlpha(0.2);
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorYellow);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorYellow);
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBegin(GL_QUADS);
         glVertex3i(mouseDownRelativePosition[0], mouseDownRelativePosition[1], 0);
@@ -602,7 +602,7 @@ bool CHierarchy::render()
         glVertex3i(limitedPos[0], mouseDownRelativePosition[1], 0);
         glEnd();
         ogl::setBlending(false);
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorBlack);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorBlack);
         glBegin(GL_LINE_STRIP);
         glVertex3i(mouseDownRelativePosition[0], mouseDownRelativePosition[1], 0);
         glVertex3i(mouseDownRelativePosition[0], limitedPos[1], 0);
@@ -620,7 +620,7 @@ bool CHierarchy::render()
 
     if (slidersEnable & 1)
     { // here we draw the vertical slider:
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR);
         int leftTop[2] = {renderingSize[0] - verticalScrollbarWidth, renderingSize[1]};
         int rightBottom[2] = {renderingSize[0], 0};
         glBegin(GL_QUADS);
@@ -630,7 +630,7 @@ bool CHierarchy::render()
         glVertex3i(leftTop[0], rightBottom[1], 0);
         glEnd();
 
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_COLOR);
         glBegin(GL_QUADS);
         glVertex3i(vtl[0], vtl[1], 0);
         glVertex3i(vbr[0], vtl[1], 0);
@@ -638,12 +638,12 @@ bool CHierarchy::render()
         glVertex3i(vtl[0], vbr[1], 0);
         glEnd();
 
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::SEPARATION_LINE_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::SEPARATION_LINE_COLOR);
         ogl::drawSingle2dLine_i(leftTop[0], leftTop[1], leftTop[0], rightBottom[1]);
     }
     if (slidersEnable & 2)
     { // here we draw the horizontal slider:
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR);
         int leftTop[2] = {0, horizontalScrollbarHeight + SAFETY_BORDER_SIZE * GuiApp::sc};
         int rightBottom[2] = {renderingSize[0], 0};
         glBegin(GL_QUADS);
@@ -652,7 +652,7 @@ bool CHierarchy::render()
         glVertex3i(rightBottom[0], rightBottom[1], 0);
         glVertex3i(leftTop[0], rightBottom[1], 0);
         glEnd();
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_COLOR);
         glBegin(GL_QUADS);
         glVertex3i(htl[0], htl[1], 0);
         glVertex3i(hbr[0], htl[1], 0);
@@ -660,7 +660,7 @@ bool CHierarchy::render()
         glVertex3i(htl[0], hbr[1], 0);
         glEnd();
 
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::SEPARATION_LINE_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::SEPARATION_LINE_COLOR);
         ogl::drawSingle2dLine_i(leftTop[0], leftTop[1], rightBottom[0] - verticalScrollbarWidth, leftTop[1]);
     }
     glEnable(GL_DEPTH_TEST);
@@ -1838,13 +1838,13 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                             if ((positions[7 * i + 6] == sim_dummytype_dynloopclosure) ||
                                 (positions[7 * i + 6] == sim_dummy_linktype_dynamics_force_constraint) ||
                                 (positions[7 * i + 6] == sim_dummytype_dyntendon))
-                                ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorBlue);
+                                ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorBlue);
                             if ((positions[7 * i + 6] == sim_dummy_linktype_gcs_loop_closure) ||
                                 (positions[7 * i + 6] == sim_dummy_linktype_gcs_tip) ||
                                 (positions[7 * i + 6] == sim_dummy_linktype_gcs_target))
-                                ogl::setMaterialColor(sim_colorcomponent_emission, 0.0f, 0.6f, 0.0f);
+                                ogl::setMaterialColor(sim_materialcomponent_emission, 0.0f, 0.6f, 0.0f);
                             if (positions[7 * i + 6] == sim_dummy_linktype_ik_tip_target)
-                                ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorRed);
+                                ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorRed);
                             ogl::drawSingle2dLine_i(maxX + segmentOffset + overallOffset, positions[7 * i + 1],
                                                     maxX + segmentOffset + segmentWidth + overallOffset,
                                                     positions[7 * i + 1]);

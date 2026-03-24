@@ -67,12 +67,12 @@ void displayDummy(CDummy* dummy, CViewableBase* renderingObject, int displayAttr
             int _linkType = dummy->getDummyType();
             if ((_linkType == sim_dummy_linktype_gcs_loop_closure) || (_linkType == sim_dummy_linktype_gcs_tip) ||
                 (_linkType == sim_dummy_linktype_gcs_target))
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ogl::colorGreen);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ogl::colorGreen);
             if (_linkType == sim_dummy_linktype_ik_tip_target)
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ogl::colorRed);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ogl::colorRed);
             if ((_linkType == sim_dummytype_dynloopclosure) ||
                 (_linkType == sim_dummy_linktype_dynamics_force_constraint) || (_linkType == sim_dummytype_dyntendon))
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ogl::colorBlue);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ogl::colorBlue);
             ogl::buffer.clear();
             ogl::addBuffer3DPoints(0.0, 0.0, 0.0);
             ogl::addBuffer3DPoints(cumulMobile.X.data);

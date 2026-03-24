@@ -52,7 +52,7 @@ CGraph::CGraph()
     graphValues = true;
     _graphSize = 0.1;
     color.setDefaultValues();
-    color.setColor(0.15f, 0.15f, 0.15f, sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.15f, 0.15f, 0.15f, sim_materialcomponent_diffuse);
 
     backgroundColor[0] = 0.1f;
     backgroundColor[1] = 0.1f;
@@ -2500,7 +2500,7 @@ void CGraph::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object", rgb, 3, exhaustiveXml))
                         color.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                       sim_colorcomponent_ambient_diffuse);
+                                       sim_materialcomponent_diffuse);
                     if (ar.xmlGetNode_ints("background", rgb, 3, exhaustiveXml))
                     {
                         backgroundColor[0] = double(rgb[0]) / 255.1;
@@ -2811,7 +2811,7 @@ void CGraph::drawOverlay(int windowSize[2], double graphPosition[2], double grap
         ogl::setAlpha(0.2);
         if ((relPos[0] > downRelPos[0]) && (downRelPos[1] > relPos[1]))
         {
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorYellow);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorYellow);
             ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBegin(GL_QUADS);
             glVertex3d(downRelPos[0], downRelPos[1], 0);
@@ -2821,7 +2821,7 @@ void CGraph::drawOverlay(int windowSize[2], double graphPosition[2], double grap
             glVertex3d(downRelPos[0], downRelPos[1], 0);
             glEnd();
             ogl::setBlending(false);
-            ogl::setMaterialColor(sim_colorcomponent_emission, foregroundColor);
+            ogl::setMaterialColor(sim_materialcomponent_emission, foregroundColor);
             glBegin(GL_LINE_STRIP);
             glVertex3d(downRelPos[0], downRelPos[1], 0);
             glVertex3d(downRelPos[0], relPos[1], 0);
@@ -2880,7 +2880,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
         ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
         std::string tmp(IDSOGL_TIME_GRAPH_CURVES_);
         double tl = double(ogl::getTextLengthInPixels(tmp.c_str())) * pixelSizeCoeff;
-        ogl::setMaterialColor(sim_colorcomponent_emission, foregroundColor);
+        ogl::setMaterialColor(sim_materialcomponent_emission, foregroundColor);
         ogl::drawBitmapTextTo2dPosition(labelPos[0] - tl, labelPos[1], tmp.c_str());
         labelPos[1] = labelPos[1] - interline;
         for (int i = 0; i < int(dataStreams_old.size()); i++)
@@ -2888,7 +2888,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
             if (dataStreams_old[i]->getVisible())
             {
                 CGraphData_old* it = dataStreams_old[i];
-                ogl::setMaterialColor(sim_colorcomponent_emission, it->ambientColor);
+                ogl::setMaterialColor(sim_materialcomponent_emission, it->ambientColor);
                 if (!dontRender)
                 { // We display that curve
                     ogl::buffer.clear();
@@ -3007,7 +3007,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                 CStaticGraphCurve_old* it = staticStreamsAndCurves_old[i];
                 if (!dontRender)
                 {
-                    ogl::setMaterialColor(sim_colorcomponent_emission, it->ambientColor);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, it->ambientColor);
                     if (it->getLinkPoints())
                     {
                         if ((trackingValueIndex == i) && markSelectedStream && trackingValueIsStatic)
@@ -3106,7 +3106,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
         ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
         std::string tmp(IDSOGL_X_Y_GRAPH_CURVES_);
         double tl = double(ogl::getTextLengthInPixels(tmp.c_str())) * pixelSizeCoeff;
-        ogl::setMaterialColor(sim_colorcomponent_emission, foregroundColor);
+        ogl::setMaterialColor(sim_materialcomponent_emission, foregroundColor);
         ogl::drawBitmapTextTo2dPosition(labelPos[0] - tl, labelPos[1], tmp.c_str());
         labelPos[1] = labelPos[1] - interline;
         for (int i = 0; i < int(curves2d_old.size()); i++)
@@ -3114,7 +3114,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
             if (curves2d_old[i]->getVisible())
             {
                 CGraphDataComb_old* it = curves2d_old[i];
-                ogl::setMaterialColor(sim_colorcomponent_emission, it->curveColor.getColorsPtr());
+                ogl::setMaterialColor(sim_materialcomponent_emission, it->curveColor.getColorsPtr());
                 if (!dontRender)
                 {
                     if (it->getLinkPoints())
@@ -3280,7 +3280,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                 CStaticGraphCurve_old* it = staticStreamsAndCurves_old[i];
                 if (!dontRender)
                 {
-                    ogl::setMaterialColor(sim_colorcomponent_emission, it->ambientColor);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, it->ambientColor);
                     if (it->getLinkPoints())
                     {
                         if ((trackingValueIndex == i) && markSelectedStream && trackingValueIsStatic)
@@ -3401,7 +3401,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                 r[0] = squareSize * graphSize[0] / (double)windowSize[0];
                 r[1] = squareSize * graphSize[1] / (double)windowSize[1];
                 ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
-                ogl::setMaterialColor(sim_colorcomponent_emission, foregroundColor);
+                ogl::setMaterialColor(sim_materialcomponent_emission, foregroundColor);
                 std::string tmp;
                 if (subView != nullptr)
                     subView->setTrackedGraphCurveIndex(-1);
@@ -3421,7 +3421,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                         if (trackingValue[1] - graphPosition[1] > graphSize[1] * 0.5)
                             l1 = -r[1] * 2.5;
                         ogl::drawBitmapTextTo2dPosition(trackingValue[0] + l0, trackingValue[1] + l1, tmp.c_str());
-                        ogl::setMaterialColor(sim_colorcomponent_emission, it->ambientColor);
+                        ogl::setMaterialColor(sim_materialcomponent_emission, it->ambientColor);
                         if (markSelectedStreamSaved && (subView != nullptr))
                             subView->setTrackedGraphCurveIndex(trackingValueIndex);
                     }
@@ -3439,7 +3439,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                         if (trackingValue[1] - graphPosition[1] > graphSize[1] * 0.5)
                             l1 = -r[1] * 2.5;
                         ogl::drawBitmapTextTo2dPosition(trackingValue[0] + l0, trackingValue[1] + l1, tmp.c_str());
-                        ogl::setMaterialColor(sim_colorcomponent_emission, it->ambientColor);
+                        ogl::setMaterialColor(sim_materialcomponent_emission, it->ambientColor);
                     }
                 }
                 else
@@ -3458,7 +3458,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                         if (trackingValue[1] - graphPosition[1] > graphSize[1] * 0.5)
                             l1 = -r[1] * 2.5;
                         ogl::drawBitmapTextTo2dPosition(trackingValue[0] + l0, trackingValue[1] + l1, tmp.c_str());
-                        ogl::setMaterialColor(sim_colorcomponent_emission, it->curveColor.getColorsPtr());
+                        ogl::setMaterialColor(sim_materialcomponent_emission, it->curveColor.getColorsPtr());
                         if (markSelectedStreamSaved && (subView != nullptr))
                             subView->setTrackedGraphCurveIndex(trackingValueIndex);
                     }
@@ -3476,7 +3476,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                         if (trackingValue[1] - graphPosition[1] > graphSize[1] * 0.5)
                             l1 = -r[1] * 2.5;
                         ogl::drawBitmapTextTo2dPosition(trackingValue[0] + l0, trackingValue[1] + l1, tmp.c_str());
-                        ogl::setMaterialColor(sim_colorcomponent_emission, it->ambientColor);
+                        ogl::setMaterialColor(sim_materialcomponent_emission, it->ambientColor);
                     }
                 }
                 ogl::buffer.clear();

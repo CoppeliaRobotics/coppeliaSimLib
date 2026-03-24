@@ -366,13 +366,13 @@ void CQDlgGraphs::on_qqRemoveAllStatics_clicked()
 void CQDlgGraphs::on_qqAdjustBackgroundColor_clicked()
 {
     CQDlgColor::displayDlg(COLOR_ID_GRAPH_BACKGROUND, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1,
-                           sim_colorcomponent_ambient_diffuse, GuiApp::mainWindow);
+                           sim_materialcomponent_diffuse, GuiApp::mainWindow);
 }
 
 void CQDlgGraphs::on_qqAdjustGridColor_clicked()
 {
     CQDlgColor::displayDlg(COLOR_ID_GRAPH_GRID, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1,
-                           sim_colorcomponent_ambient_diffuse, GuiApp::mainWindow);
+                           sim_materialcomponent_diffuse, GuiApp::mainWindow);
 }
 
 void CQDlgGraphs::on_qqTransformationCombo_currentIndexChanged(int index)
@@ -501,7 +501,7 @@ void CQDlgGraphs::on_qqAdjustCurveColor_clicked()
             if (grData != nullptr)
                 CQDlgColor::displayDlg(COLOR_ID_GRAPH_TIMECURVE,
                                        App::currentWorld->sceneObjects->getLastSelectionHandle(),
-                                       grData->getIdentifier(), sim_colorcomponent_ambient_diffuse, GuiApp::mainWindow);
+                                       grData->getIdentifier(), sim_materialcomponent_diffuse, GuiApp::mainWindow);
         }
     }
 }

@@ -581,7 +581,7 @@ unsigned char* COglSurface::render(int currentCursor, int mouseButtonState, int 
             ogl::drawButton(pos, size, txtCol, bkgrndCol2, bkgrndCol2, "&&Check", buttonAttrib, false, 0, 0.0, false, 0,
                             nullptr, nullptr, nullptr, nullptr, nullptr);
 
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::SEPARATION_LINE_COLOR);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::SEPARATION_LINE_COLOR);
             glLineWidth(1.0);
             ogl::drawSingle2dLine_i(b, surfaceSize[1] + (-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT - 1) * GuiApp::sc,
                                     b + _hierarchyWidth - BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,
@@ -601,7 +601,7 @@ unsigned char* COglSurface::render(int currentCursor, int mouseButtonState, int 
             glLoadIdentity();
             glOrtho(0.0, surfaceSize[0], 0.0, surfaceSize[1], -100.0, 100.0);
             glDisable(GL_DEPTH_TEST);
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::SEPARATION_LINE_COLOR);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::SEPARATION_LINE_COLOR);
             glLineWidth(2.0);
             ogl::drawSingle2dLine_i(b + _hierarchyWidth - 1, 0, b + _hierarchyWidth - 1, surfaceSize[1]);
             glLineWidth(1.0);

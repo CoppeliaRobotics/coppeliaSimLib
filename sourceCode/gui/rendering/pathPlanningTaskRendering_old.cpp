@@ -22,7 +22,7 @@ See the GNU General Public License for more details.
 
 void displayPathPlanningTask(const C3Vector* corners)
 {
-    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorCyan);
+    ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorCyan);
     ogl::buffer.clear();
     ogl::addBuffer3DPoints(corners[0].data);
     ogl::addBuffer3DPoints(corners[2].data);

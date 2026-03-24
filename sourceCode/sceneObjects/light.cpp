@@ -156,24 +156,24 @@ void CLight::_setDefaultColors()
     {
         objectColor.setDefaultValues();
         lightColor.setDefaultValues();
-        lightColor.setColor(0.5, 0.5, 0.5, sim_colorcomponent_diffuse);
-        lightColor.setColor(0.5, 0.5, 0.5, sim_colorcomponent_specular);
+        lightColor.setColor(0.5, 0.5, 0.5, sim_materialcomponent_lightdiffuse);
+        lightColor.setColor(0.5, 0.5, 0.5, sim_materialcomponent_specular);
     }
     if (_lightType == sim_light_spot)
     {
         objectColor.setDefaultValues();
-        objectColor.setColor(1.0f, 0.375f, 0.25f, sim_colorcomponent_ambient_diffuse);
+        objectColor.setColor(1.0f, 0.375f, 0.25f, sim_materialcomponent_diffuse);
         lightColor.setDefaultValues();
-        lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_diffuse);
-        lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_specular);
+        lightColor.setColor(0.5f, 0.5f, 0.5f, sim_materialcomponent_lightdiffuse);
+        lightColor.setColor(0.5f, 0.5f, 0.5f, sim_materialcomponent_specular);
     }
     if (_lightType == sim_light_directional)
     {
         objectColor.setDefaultValues();
-        objectColor.setColor(0.45f, 0.45f, 0.75f, sim_colorcomponent_ambient_diffuse);
+        objectColor.setColor(0.45f, 0.45f, 0.75f, sim_materialcomponent_diffuse);
         lightColor.setDefaultValues();
-        lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_diffuse);
-        lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_specular);
+        lightColor.setColor(0.5f, 0.5f, 0.5f, sim_materialcomponent_lightdiffuse);
+        lightColor.setColor(0.5f, 0.5f, 0.5f, sim_materialcomponent_specular);
     }
     lightColor.setEventParams(true, -1, 2 + 4 + 8, "light");
 }
@@ -333,13 +333,13 @@ void CLight::addObjectEventData(CCbor* ev)
         ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyArray("colors");
         float c[9];
-        objectColor.getColor(c, sim_colorcomponent_ambient_diffuse);
-        objectColor.getColor(c + 3, sim_colorcomponent_specular);
-        objectColor.getColor(c + 6, sim_colorcomponent_emission);
+        objectColor.getColor(c, sim_materialcomponent_diffuse);
+        objectColor.getColor(c + 3, sim_materialcomponent_specular);
+        objectColor.getColor(c + 6, sim_materialcomponent_emission);
         ev->appendFloatArray(c, 9);
-        lightColor.getColor(c, sim_colorcomponent_diffuse);
-        lightColor.getColor(c + 3, sim_colorcomponent_specular);
-        lightColor.getColor(c + 6, sim_colorcomponent_emission);
+        lightColor.getColor(c, sim_materialcomponent_lightdiffuse);
+        lightColor.getColor(c + 3, sim_materialcomponent_specular);
+        lightColor.getColor(c + 6, sim_materialcomponent_emission);
         ev->appendFloatArray(c, 9);
         ev->closeArrayOrMap(); // colors
     }
@@ -780,15 +780,15 @@ void CLight::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object", rgb, 3, exhaustiveXml))
                         objectColor.setColor(float(rgb[0]) / 255.0, float(rgb[1]) / 255.0, float(rgb[2]) / 255.0,
-                                             sim_colorcomponent_ambient_diffuse);
+                                             sim_materialcomponent_diffuse);
                     if (ar.xmlPushChildNode("light", exhaustiveXml))
                     {
                         if (ar.xmlGetNode_ints("ambientDiffuse", rgb, 3, exhaustiveXml))
                             lightColor.setColor(float(rgb[0]) / 255.0, float(rgb[1]) / 255.0, float(rgb[2]) / 255.0,
-                                                sim_colorcomponent_diffuse);
+                                                sim_materialcomponent_lightdiffuse);
                         if (ar.xmlGetNode_ints("specular", rgb, 3, exhaustiveXml))
                             lightColor.setColor(float(rgb[0]) / 255.0, float(rgb[1]) / 255.0, float(rgb[2]) / 255.0,
-                                                sim_colorcomponent_specular);
+                                                sim_materialcomponent_specular);
                         ar.xmlPopNode();
                     }
                 }

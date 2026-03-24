@@ -375,7 +375,7 @@ void CQDlg2D3DGraphProperties::on_qqAdjustColor_clicked()
     {
         if (_xyGraph)
             CQDlgColor::displayDlg(COLOR_ID_GRAPH_2DCURVE, App::currentWorld->sceneObjects->getLastSelectionHandle(),
-                                   getSelectedObjectID(), sim_colorcomponent_ambient_diffuse, GuiApp::mainWindow);
+                                   getSelectedObjectID(), sim_materialcomponent_diffuse, GuiApp::mainWindow);
         else
             CQDlgMaterial::displayMaterialDlg(COLOR_ID_GRAPH_3DCURVE,
                                               App::currentWorld->sceneObjects->getLastSelectionHandle(),

@@ -345,9 +345,9 @@ void _drawTrianglePoints(CDrawingObject* drawingObject, int displayAttrib, const
                            (float)_data[drawingObject->floatsPerItem * p + off + 1],
                            (float)_data[drawingObject->floatsPerItem * p + off + 2]};
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, ab);
+                ogl::setMaterialColor(sim_materialcomponent_emission, ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ab);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ab);
         }
         if (_objectType & sim_drawing_itemcolors)
             off += 3;
@@ -422,9 +422,9 @@ void _drawQuadPoints(CDrawingObject* drawingObject, int displayAttrib, const C4X
                            (float)_data[drawingObject->floatsPerItem * p + off + 1],
                            (float)_data[drawingObject->floatsPerItem * p + off + 2]};
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, ab);
+                ogl::setMaterialColor(sim_materialcomponent_emission, ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ab);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ab);
         }
         if (_objectType & sim_drawing_itemcolors)
             off += 3;
@@ -501,9 +501,9 @@ void _drawDiscPoints(CDrawingObject* drawingObject, int displayAttrib, const C4X
                            (float)_data[drawingObject->floatsPerItem * p + off + 1],
                            (float)_data[drawingObject->floatsPerItem * p + off + 2]};
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, ab);
+                ogl::setMaterialColor(sim_materialcomponent_emission, ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ab);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ab);
         }
         if (_objectType & sim_drawing_itemcolors)
             off += 3;
@@ -583,9 +583,9 @@ void _drawCubePoints(CDrawingObject* drawingObject, int displayAttrib, const C4X
                            (float)_data[drawingObject->floatsPerItem * p + off + 1],
                            (float)_data[drawingObject->floatsPerItem * p + off + 2]};
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, ab);
+                ogl::setMaterialColor(sim_materialcomponent_emission, ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ab);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ab);
         }
         if (_objectType & sim_drawing_itemcolors)
             off += 3;
@@ -676,9 +676,9 @@ void _drawSpherePoints(CDrawingObject* drawingObject, int displayAttrib)
                            (float)_data[drawingObject->floatsPerItem * p + 4],
                            (float)_data[drawingObject->floatsPerItem * p + 5]};
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, ab);
+                ogl::setMaterialColor(sim_materialcomponent_emission, ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ab);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ab);
         }
         if (_objectType & sim_drawing_itemcolors)
             off += 3;
@@ -766,9 +766,9 @@ void _drawLines(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matr
                 rgbaAmb[1] = _data[drawingObject->floatsPerItem * p + 7];
                 rgbaAmb[2] = _data[drawingObject->floatsPerItem * p + 8];
                 if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                    ogl::setMaterialColor(sim_colorcomponent_emission, rgbaAmb);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, rgbaAmb);
                 else
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, rgbaAmb);
+                    ogl::setMaterialColor(sim_materialcomponent_diffuse, rgbaAmb);
             }
             if (_objectType & (sim_drawing_itemcolors | sim_drawing_vertexcolors))
                 off += 3;
@@ -785,7 +785,7 @@ void _drawLines(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matr
             {
                 alpha = 1.0 - _data[drawingObject->floatsPerItem * p + 6 + off + 1];
                 ogl::setAlpha(alpha);
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, drawingObject->color.getColorsPtr() + 3);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, drawingObject->color.getColorsPtr() + 3);
             }
 
             glBegin(GL_LINES);
@@ -797,11 +797,11 @@ void _drawLines(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matr
             if ((_objectType & sim_drawing_vertexcolors) && ((!auxCmp) || (_objectType & sim_drawing_auxchannelcolor2)))
             {
                 if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                    ogl::setMaterialColor(sim_colorcomponent_emission, rgbaAmb2);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, rgbaAmb2);
                 else
                 {
                     ogl::setAlpha(alpha);
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, rgbaAmb2);
+                    ogl::setMaterialColor(sim_materialcomponent_diffuse, rgbaAmb2);
                 }
             }
             glVertex3dv(w.data);
@@ -831,9 +831,9 @@ void _drawLines(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matr
                 rgbaAmb[1] = _data[drawingObject->floatsPerItem * p + 7];
                 rgbaAmb[2] = _data[drawingObject->floatsPerItem * p + 8];
                 if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                    ogl::setMaterialColor(sim_colorcomponent_emission, rgbaAmb);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, rgbaAmb);
                 else
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, rgbaAmb);
+                    ogl::setMaterialColor(sim_materialcomponent_diffuse, rgbaAmb);
             }
             if (_objectType & (sim_drawing_itemcolors | sim_drawing_vertexcolors))
                 off += 3;
@@ -850,7 +850,7 @@ void _drawLines(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matr
             {
                 alpha = 1.0 - _data[drawingObject->floatsPerItem * p + 6 + off];
                 ogl::setAlpha(alpha);
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, drawingObject->color.getColorsPtr() + 3);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, drawingObject->color.getColorsPtr() + 3);
             }
 
             glNormal3dv(n.data);
@@ -858,11 +858,11 @@ void _drawLines(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matr
             if ((_objectType & sim_drawing_vertexcolors) && ((!auxCmp) || (_objectType & sim_drawing_auxchannelcolor2)))
             {
                 if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                    ogl::setMaterialColor(sim_colorcomponent_emission, rgbaAmb2);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, rgbaAmb2);
                 else
                 {
                     ogl::setAlpha(alpha);
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, rgbaAmb2);
+                    ogl::setMaterialColor(sim_materialcomponent_diffuse, rgbaAmb2);
                 }
             }
             glVertex3dv(w.data);
@@ -910,9 +910,9 @@ void _drawLineStrip(CDrawingObject* drawingObject, int displayAttrib, const C4X4
             rgbaAmb[1] = _data[drawingObject->floatsPerItem * p + 4];
             rgbaAmb[2] = _data[drawingObject->floatsPerItem * p + 5];
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, rgbaAmb);
+                ogl::setMaterialColor(sim_materialcomponent_emission, rgbaAmb);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, rgbaAmb);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, rgbaAmb);
         }
 
         glNormal3dv(n.data);
@@ -956,9 +956,9 @@ void _drawTriangles(CDrawingObject* drawingObject, int displayAttrib)
                            (float)_data[drawingObject->floatsPerItem * p + 10],
                            (float)_data[drawingObject->floatsPerItem * p + 11]};
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, ab);
+                ogl::setMaterialColor(sim_materialcomponent_emission, ab);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ab);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ab);
         }
         if (_objectType & (sim_drawing_itemcolors | sim_drawing_vertexcolors))
             off += 3;
@@ -995,17 +995,17 @@ void _drawTriangles(CDrawingObject* drawingObject, int displayAttrib)
         if ((_objectType & sim_drawing_vertexcolors) && ((!auxCmp) || (_objectType & sim_drawing_auxchannelcolor2)))
         {
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, vertex2Col);
+                ogl::setMaterialColor(sim_materialcomponent_emission, vertex2Col);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, vertex2Col);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, vertex2Col);
         }
         glVertex3dv(w.data);
         if ((_objectType & sim_drawing_vertexcolors) && ((!auxCmp) || (_objectType & sim_drawing_auxchannelcolor2)))
         {
             if (_objectType & (sim_drawing_emissioncolor | sim_drawing_auxchannelcolor2))
-                ogl::setMaterialColor(sim_colorcomponent_emission, vertex3Col);
+                ogl::setMaterialColor(sim_materialcomponent_emission, vertex3Col);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, vertex3Col);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, vertex3Col);
         }
         glVertex3dv(x.data);
     }

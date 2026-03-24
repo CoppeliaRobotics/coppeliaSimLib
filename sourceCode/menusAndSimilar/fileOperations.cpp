@@ -447,8 +447,8 @@ int CFileOperations::createHeightfield(int xSize, double pointSpacing, const std
     shape->setVisibleEdges((options & 2) != 0);
     shape->getSingleMesh()->setShadingAngle(shadingAngle);
     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
-    shape->setColor(nullptr, sim_colorcomponent_ambient_diffuse, 0.68f, 0.56f, 0.36f);
-    shape->setColor(nullptr, sim_colorcomponent_specular, 0.25f, 0.25f, 0.25f);
+    shape->setColor(nullptr, sim_materialcomponent_diffuse, 0.68f, 0.56f, 0.36f);
+    shape->setColor(nullptr, sim_materialcomponent_specular, 0.25f, 0.25f, 0.25f);
     App::currentWorld->sceneObjects->addObjectToScene(shape, false, true);
     App::currentWorld->sceneObjects->setObjectAlias(shape, "heightfield", true);
     App::currentWorld->sceneObjects->setObjectName_old(shape, "heightfield", true);

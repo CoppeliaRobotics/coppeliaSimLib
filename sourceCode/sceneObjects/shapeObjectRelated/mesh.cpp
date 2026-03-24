@@ -115,7 +115,7 @@ void CMesh::_commonInit()
     _isInSceneShapeUid = -1;
     _isInSceneShapeHandle = -1;
     color.setDefaultValues();
-    color.setColor(0.9f, 0.9f, 0.9f, sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.9f, 0.9f, 0.9f, sim_materialcomponent_diffuse);
     color.setEventParams(false, -1, 1 + 4 + 8 + 16);
     edgeColor_DEPRECATED.setColorsAllBlack();
     insideColor_DEPRECATED.setDefaultValues();
@@ -1145,9 +1145,9 @@ void CMesh::setDisplayInverted_DEPRECATED(bool di)
 void CMesh::takeVisualAttributesFrom(CMesh* origin)
 {
     // origin->color.copyYourselfInto(&color);
-    setColor(origin->color.getColorsPtr() + sim_colorcomponent_ambient_diffuse * 3, sim_colorcomponent_ambient_diffuse);
-    setColor(origin->color.getColorsPtr() + sim_colorcomponent_specular * 3, sim_colorcomponent_specular);
-    setColor(origin->color.getColorsPtr() + sim_colorcomponent_emission * 3, sim_colorcomponent_emission);
+    setColor(origin->color.getColorsPtr() + sim_materialcomponent_diffuse * 3, sim_materialcomponent_diffuse);
+    setColor(origin->color.getColorsPtr() + sim_materialcomponent_specular * 3, sim_materialcomponent_specular);
+    setColor(origin->color.getColorsPtr() + sim_materialcomponent_emission * 3, sim_materialcomponent_emission);
     color.setTransparency(origin->color.getTransparency());
     origin->insideColor_DEPRECATED.copyYourselfInto(&insideColor_DEPRECATED);
     origin->edgeColor_DEPRECATED.copyYourselfInto(&edgeColor_DEPRECATED);

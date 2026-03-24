@@ -368,7 +368,7 @@ void CSoftButton::drawArray(VPoint p, VPoint s)
             for (int j = 0; j < height; j++)
             {
                 int y = pos[1] - j * dx[1];
-                ogl::setMaterialColor(sim_colorcomponent_emission, arrayColors + 3 * (i + j * length));
+                ogl::setMaterialColor(sim_materialcomponent_emission, arrayColors + 3 * (i + j * length));
                 glBegin(GL_QUADS);
                 glVertex3i(x, y, 0);
                 glVertex3i(x, y - dx[1], 0);
@@ -390,7 +390,7 @@ void CSoftButton::drawArray(VPoint p, VPoint s)
             {
                 int y = pos[1] - j * dx[1];
 
-                ogl::setMaterialColor(sim_colorcomponent_emission, arrayColors[3 * (i + j * length) + 0] * 1.5,
+                ogl::setMaterialColor(sim_materialcomponent_emission, arrayColors[3 * (i + j * length) + 0] * 1.5,
                                       arrayColors[3 * (i + j * length) + 1] * 1.5,
                                       arrayColors[3 * (i + j * length) + 2] * 1.5);
                 glBegin(GL_LINE_STRIP);
@@ -398,7 +398,7 @@ void CSoftButton::drawArray(VPoint p, VPoint s)
                 glVertex3i(x + 1, y, 0);
                 glVertex3i(x + dx[0], y, 0);
                 glEnd();
-                ogl::setMaterialColor(sim_colorcomponent_emission, arrayColors[3 * (i + j * length) + 0] * 0.66,
+                ogl::setMaterialColor(sim_materialcomponent_emission, arrayColors[3 * (i + j * length) + 0] * 0.66,
                                       arrayColors[3 * (i + j * length) + 1] * 0.66,
                                       arrayColors[3 * (i + j * length) + 2] * 0.66);
                 glBegin(GL_LINE_STRIP);
@@ -414,7 +414,7 @@ void CSoftButton::drawArray(VPoint p, VPoint s)
         ((_buttonAttributes & sim_buttonproperty_borderless) == 0) &&
         ((_buttonAttributes & sim_buttonproperty_nobackgroundcolor) == 0))
     {
-        ogl::setMaterialColor(sim_colorcomponent_emission, backgroundColor);
+        ogl::setMaterialColor(sim_materialcomponent_emission, backgroundColor);
         for (int i = 1; i < length; i++)
         {
             glBegin(GL_LINE_STRIP);

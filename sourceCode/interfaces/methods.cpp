@@ -3614,11 +3614,29 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
             pushHandle(outStack, it->getObjectHandle());
         else
         {
+            // Check if we maybe have an object with such a persistent UID:
+            if (index == -1)
+            {
+                it = App::currentWorld->sceneObjects->getObjectFromPersistentUid(origPath.c_str());
+                if (it != nullptr)
+                {
+                    if (prox != nullptr)
+                    { // we search from a proxy
+                        if (!it->hasAncestor(prox))
+                            it = nullptr;
+                    }
+                    if (it != nullptr)
+                        pushHandle(outStack, it->getObjectHandle());
+                }
+            }
+        }
+        if (it == nullptr)
+        {
             if (noError)
                 pushHandle(outStack, -1);
             else
             {
-                errMsg = "object does not exist, or name/path ('";
+                errMsg = "object was not found, or name/path ('";
                 errMsg += origPath;
                 errMsg += "') is ill formatted.";
             }

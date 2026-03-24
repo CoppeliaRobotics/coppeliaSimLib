@@ -96,10 +96,10 @@ bool CQDlgLightMaterial::doesInstanceSwitchRequireDestruction()
 
 void CQDlgLightMaterial::on_qqDiffuseAdjust_clicked()
 {
-    _adjustCol(sim_colorcomponent_diffuse);
+    _adjustCol(sim_materialcomponent_lightdiffuse);
 }
 
 void CQDlgLightMaterial::on_qqSpecularAdjust_clicked()
 {
-    _adjustCol(sim_colorcomponent_specular);
+    _adjustCol(sim_materialcomponent_specular);
 }

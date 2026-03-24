@@ -35,7 +35,7 @@ CDynamicsContainer::CDynamicsContainer()
     _engineSettingsAreDefault = true;
 
     contactPointColor.setColorsAllBlack();
-    contactPointColor.setColor(1.0, 1.0, 0.0, sim_colorcomponent_emission);
+    contactPointColor.setColor(1.0, 1.0, 0.0, sim_materialcomponent_emission);
     _displayContactPoints = false;
     _tempDisabledWarnings = 0;
     _currentlyInDynamicsCalculations = false;

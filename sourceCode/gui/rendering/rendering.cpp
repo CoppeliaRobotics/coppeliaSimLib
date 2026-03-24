@@ -572,9 +572,9 @@ void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame
 
     ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
     if (mainSelection)
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
     else
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorYellow);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorYellow);
 
     ogl::setAlpha(0.2);
     ogl::buffer.clear();
@@ -652,7 +652,7 @@ void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame
 
     if (objectFrame != nullptr)
     {
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
         ogl::drawSingle3dLine(objectFrame->data, C3Vector::zeroVector.data, nullptr);
     }
 

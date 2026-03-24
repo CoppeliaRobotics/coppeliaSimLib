@@ -1590,9 +1590,9 @@ void CShape::addObjectEventData(CCbor* ev)
             ev->appendKeyFloatArray("normals", normals.data(), normals.size());
 
             float c[9];
-            geom->color.getColor(c + 0, sim_colorcomponent_ambient_diffuse);
-            geom->color.getColor(c + 3, sim_colorcomponent_specular);
-            geom->color.getColor(c + 6, sim_colorcomponent_emission);
+            geom->color.getColor(c + 0, sim_materialcomponent_diffuse);
+            geom->color.getColor(c + 3, sim_materialcomponent_specular);
+            geom->color.getColor(c + 6, sim_materialcomponent_emission);
             ev->appendKeyFloatArray("color", c, 9);
             ev->appendKeyDouble("shadingAngle", geom->getShadingAngle());
             ev->appendKeyBool("showEdges", geom->getVisibleEdges());
@@ -1747,7 +1747,7 @@ void CShape::setColor(const char* colorName, int colorComponent, const float* rg
         actualizeContainsTransparentComponent();
 }
 
-bool CShape::getColor(const char* colorName, int colorComponent, float* rgbData)
+bool CShape::getColor(const char* colorName, int colorComponent, float* rgbData) const
 {
     int rgbDataOffset = 0;
     return (getMesh()->getColor(colorName, colorComponent, rgbData, rgbDataOffset));
@@ -2150,17 +2150,17 @@ int CShape::setColorProperty(const char* ppName, const float* pState)
     {
         if (_pName == propShape_applyColorDiffuse.name)
         {
-            _mesh->setColor(sim_colorcomponent_ambient_diffuse, pState);
+            _mesh->setColor(sim_materialcomponent_diffuse, pState);
             retVal = 1;
         }
         else if (_pName == propShape_applyColorSpecular.name)
         {
-            _mesh->setColor(sim_colorcomponent_specular, pState);
+            _mesh->setColor(sim_materialcomponent_specular, pState);
             retVal = 1;
         }
         else if (_pName == propShape_applyColorEmission.name)
         {
-            _mesh->setColor(sim_colorcomponent_emission, pState);
+            _mesh->setColor(sim_materialcomponent_emission, pState);
             retVal = 1;
         }
     }
@@ -2170,7 +2170,6 @@ int CShape::setColorProperty(const char* ppName, const float* pState)
 
 int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName(ppName);
     if (v == nullptr)
         vL = 0;
     int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
@@ -2178,7 +2177,45 @@ int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
         retVal = _dynMaterial->setFloatArrayProperty(ppName, v, vL);
     if (retVal == -1)
         retVal = _mesh->setFloatArrayProperty_wrapper(ppName, v, vL);
-
+    if (retVal == -1)
+    {
+        if ((strcmp(propShape_compoundColorDiffuse.name, ppName) == 0) || (strcmp(propShape_compoundColorSpecular.name, ppName) == 0) || (strcmp(propShape_compoundColorEmission.name, ppName) == 0))
+        {
+            int res = getComponentCount() * 3;
+            if (res == vL)
+            {
+                int c = sim_materialcomponent_diffuse;
+                if (strcmp(propShape_compoundColorSpecular.name, ppName) == 0)
+                    c = sim_materialcomponent_specular;
+                else if (strcmp(propShape_compoundColorEmission.name, ppName) == 0)
+                    c = sim_materialcomponent_emission;
+                std::vector<float> vec(v, v + vL);
+                setColor("@compound", c, vec.data());
+            }
+            retVal = 1;
+        }
+        else if (strcmp(propShape_compoundColorTransparency.name, ppName) == 0)
+        {
+            int res = getComponentCount();
+            if (res == vL)
+            {
+                std::vector<float> vec(v, v + vL);
+                setColor("@compound", sim_colorcomponent_transparency, vec.data());
+            }
+            retVal = 1;
+        }
+        else if (strcmp(propShape_compoundShadingAngles.name, ppName) == 0)
+        {
+            std::vector<CMesh*> meshes;
+            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
+            if (meshes.size() == vL)
+            {
+                for (size_t i = 0; i < meshes.size(); i++)
+                    meshes[i]->setShadingAngle(v[i]);
+            }
+            retVal = 1;
+        }
+    }
     return retVal;
 }
 
@@ -2191,6 +2228,44 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
         retVal = _dynMaterial->getFloatArrayProperty(ppName, pState);
     if (retVal == -1)
         retVal = _mesh->getFloatArrayProperty_wrapper(ppName, pState);
+    if (retVal == -1)
+    {
+        if ((strcmp(propShape_compoundColorDiffuse.name, ppName) == 0) || (strcmp(propShape_compoundColorSpecular.name, ppName) == 0) || (strcmp(propShape_compoundColorEmission.name, ppName) == 0))
+        {
+            int res = getComponentCount() * 3;
+            int c = sim_materialcomponent_diffuse;
+            if (strcmp(propShape_compoundColorSpecular.name, ppName) == 0)
+                c = sim_materialcomponent_specular;
+            else if (strcmp(propShape_compoundColorEmission.name, ppName) == 0)
+                c = sim_materialcomponent_emission;
+            std::vector<float> vec;
+            vec.resize(res);
+            getColor("@compound", c, vec.data());
+            pState.resize(res);
+            for (int i = 0; i < res; i++)
+                pState[i] = vec[i];
+            retVal = 1;
+        }
+        else if (strcmp(propShape_compoundColorTransparency.name, ppName) == 0)
+        {
+            int res = getComponentCount();
+            std::vector<float> vec;
+            vec.resize(res);
+            getColor("@compound", sim_colorcomponent_transparency, vec.data());
+            pState.resize(res);
+            for (int i = 0; i < res; i++)
+                pState[i] = vec[i];
+            retVal = 1;
+        }
+        else if (strcmp(propShape_compoundShadingAngles.name, ppName) == 0)
+        {
+            std::vector<CMesh*> meshes;
+            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
+            for (size_t i = 0; i < meshes.size(); i++)
+                pState.push_back(meshes[i]->getShadingAngle());
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }
@@ -2202,6 +2277,27 @@ int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
         vL = 0;
     int retVal = CSceneObject::setIntArrayProperty(ppName, v, vL);
 
+    if (retVal == -1)
+    {
+        if ((strcmp(propShape_compoundEdges.name, ppName) == 0) || (strcmp(propShape_compoundWireframe.name, ppName) == 0) || (strcmp(propShape_compoundCullings.name, ppName) == 0))
+        {
+            std::vector<CMesh*> meshes;
+            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
+            if (meshes.size() == vL)
+            {
+                for (size_t i = 0; i < meshes.size(); i++)
+                {
+                    if (strcmp(propShape_compoundEdges.name, ppName) == 0)
+                        meshes[i]->setVisibleEdges(v[i] != 0);
+                    else if (strcmp(propShape_compoundWireframe.name, ppName) == 0)
+                        meshes[i]->setWireframe_OLD(v[i] != 0);
+                    else if (strcmp(propShape_compoundCullings.name, ppName) == 0)
+                        meshes[i]->setCulling(v[i] != 0);
+                }
+            }
+            retVal = 1;
+        }
+    }
     return retVal;
 }
 
@@ -2218,6 +2314,21 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
             for (size_t i = 0; i < all.size(); i++)
                 pState.push_back(all[i]->getObjectHandle());
+            retVal = 1;
+        }
+        else if ((strcmp(propShape_compoundEdges.name, ppName) == 0) || (strcmp(propShape_compoundWireframe.name, ppName) == 0) || (strcmp(propShape_compoundCullings.name, ppName) == 0))
+        {
+            std::vector<CMesh*> meshes;
+            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
+            for (size_t i = 0; i < meshes.size(); i++)
+            {
+                if (strcmp(propShape_compoundEdges.name, ppName) == 0)
+                    pState.push_back(meshes[i]->getVisibleEdges());
+                else if (strcmp(propShape_compoundWireframe.name, ppName) == 0)
+                    pState.push_back(meshes[i]->getWireframe_OLD());
+                else if (strcmp(propShape_compoundCullings.name, ppName) == 0)
+                    pState.push_back(meshes[i]->getCulling());
+            }
             retVal = 1;
         }
     }

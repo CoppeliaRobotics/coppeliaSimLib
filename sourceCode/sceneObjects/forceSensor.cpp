@@ -58,9 +58,9 @@ void CForceSensor::commonInit()
     _filterType = 0; // average
 
     _color.setDefaultValues();
-    _color.setColor(0.22f, 0.9f, 0.45f, sim_colorcomponent_ambient_diffuse);
+    _color.setColor(0.22f, 0.9f, 0.45f, sim_materialcomponent_diffuse);
     _color_removeSoon.setDefaultValues();
-    _color_removeSoon.setColor(0.22f, 0.22f, 0.22f, sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.setColor(0.22f, 0.22f, 0.22f, sim_materialcomponent_diffuse);
     _visibilityLayer = FORCE_SENSOR_LAYER;
     _localObjectSpecialProperty = 0;
     _objectAlias = _objectTypeStr;
@@ -663,13 +663,13 @@ void CForceSensor::addObjectEventData(CCbor* ev)
         ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyArray("colors");
         float c[9];
-        _color.getColor(c, sim_colorcomponent_ambient_diffuse);
-        _color.getColor(c + 3, sim_colorcomponent_specular);
-        _color.getColor(c + 6, sim_colorcomponent_emission);
+        _color.getColor(c, sim_materialcomponent_diffuse);
+        _color.getColor(c + 3, sim_materialcomponent_specular);
+        _color.getColor(c + 6, sim_materialcomponent_emission);
         ev->appendFloatArray(c, 9);
-        _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
-        _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
-        _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
+        _color_removeSoon.getColor(c, sim_materialcomponent_diffuse);
+        _color_removeSoon.getColor(c + 3, sim_materialcomponent_specular);
+        _color_removeSoon.getColor(c + 6, sim_materialcomponent_emission);
         ev->appendFloatArray(c, 9);
         ev->closeArrayOrMap(); // colors
     }
@@ -997,7 +997,7 @@ void CForceSensor::serialize(CSer& ar)
                 int rgb[3];
                 if (ar.xmlGetNode_ints("objectColor", rgb, 3, false))
                     _color.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                    sim_colorcomponent_ambient_diffuse);
+                                    sim_materialcomponent_diffuse);
             }
 
             if (ar.xmlPushChildNode("color", false))
@@ -1020,10 +1020,10 @@ void CForceSensor::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("part1", rgb, 3, exhaustiveXml))
                         _color.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                        sim_colorcomponent_ambient_diffuse);
+                                        sim_materialcomponent_diffuse);
                     if (ar.xmlGetNode_ints("part2", rgb, 3, exhaustiveXml))
                         _color_removeSoon.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                                   sim_colorcomponent_ambient_diffuse);
+                                                   sim_materialcomponent_diffuse);
                 }
                 ar.xmlPopNode();
             }

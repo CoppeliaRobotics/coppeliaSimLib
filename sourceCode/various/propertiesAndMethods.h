@@ -295,6 +295,8 @@ struct SJointProperty
     FUNCX(propDetachedScript_METHOD_getStepping, "getStepping", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_yield, "yield", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_step, "step", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propDetachedScript_METHOD_wait, "wait", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propDetachedScript_METHOD_waitForSignal, "waitForSignal", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_init, "init", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define STACK_PROPERTIES \
@@ -309,6 +311,8 @@ struct SJointProperty
     FUNCX(propCollection_METHOD_removeItem, "removeItem", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propCollection_METHOD_checkCollision, "checkCollision", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propCollection_METHOD_remove, "remove", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propCollection_METHOD_changeColor, "changeColor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propCollection_METHOD_restoreColor, "restoreColor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propCollection_METHOD_checkDistance, "checkDistance", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define DRAWINGOBJECTCONT_PROPERTIES \
@@ -742,6 +746,8 @@ struct SJointProperty
     FUNCX(propSceneObject_METHOD_scaleTree, "scaleTree", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propSceneObject_METHOD_dynamicReset, "dynamicReset", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propSceneObject_METHOD_visitTree, "visitTree", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propSceneObject_METHOD_changeColor, "changeColor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propSceneObject_METHOD_restoreColor, "restoreColor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propSceneObject_METHOD_getObject, "getObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define SHAPE_PROPERTIES \
@@ -754,6 +760,14 @@ struct SJointProperty
     FUNCX(propShape_applyColorSpecular, "applyColor.specular", sim_propertytype_color, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Apply specular color"}, {"description", "Applies the specular color component to all contained meshes"}}), "") \
     FUNCX(propShape_applyColorEmission, "applyColor.emission", sim_propertytype_color, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Apply emission color"}, {"description", "Applies the emission color component to all contained meshes"}}), "") \
     FUNCX(propShape_applyColorTransparency, "applyColor.transparency", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Apply transparency"}, {"description", "Applies transparency to all contained meshes"}}), "") \
+    FUNCX(propShape_compoundColorDiffuse, "compoundColors.diffuse", sim_propertytype_floatarray, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Diffuse color data"}, {"description", "Diffuse color from all compound elements"}}), "") \
+    FUNCX(propShape_compoundColorSpecular, "compoundColors.specular", sim_propertytype_floatarray, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Specular color data"}, {"description", "Specular color from all compound elements"}}), "") \
+    FUNCX(propShape_compoundColorEmission, "compoundColors.emission", sim_propertytype_floatarray, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Emission color data"}, {"description", "Emission color from all compound elements"}}), "") \
+    FUNCX(propShape_compoundColorTransparency, "compoundColors.transparency", sim_propertytype_floatarray, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Transparency data"}, {"description", "Transparency value from all compound elements"}}), "") \
+    FUNCX(propShape_compoundEdges, "compoundEdges", sim_propertytype_intarray, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Edge visibility data"}, {"description", "Edge visibility from all compound elements"}}), "") \
+    FUNCX(propShape_compoundWireframe, "compoundWireframe", sim_propertytype_intarray, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Wireframe data"}, {"description", "Wireframe state from all compound elements"}}), "") \
+    FUNCX(propShape_compoundCullings, "compoundCullings", sim_propertytype_intarray, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Culling data"}, {"description", "Backface culling state from all compound elements"}}), "") \
+    FUNCX(propShape_compoundShadingAngles, "compoundShadingAngles", sim_propertytype_floatarray, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Shading angle data"}, {"description", "Shading angle state from all compound elements"}}), "") \
     FUNCX(propShape_respondableMask, "respondableMask", sim_propertytype_int, 0,  jsonStr({{"label", "Respondable mask"}, {"description", ""}}), "") \
     FUNCX(propShape_startInDynSleepMode, "startInDynSleepMode", sim_propertytype_bool, 0,  jsonStr({{"label", "Start in sleep mode"}, {"description", ""}}), "") \
     FUNCX(propShape_dynamic, "dynamic", sim_propertytype_bool, 0,  jsonStr({{"label", "Dynamic"}, {"description", "Shape is dynamic, i.e. not static"}}), "") \
@@ -774,6 +788,8 @@ struct SJointProperty
     FUNCX(propShape_METHOD_getInertia, "getInertia", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_setInertia, "setInertia", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_computeInertia, "computeInertia", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propShape_METHOD_setAppearance, "setAppearance", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propShape_METHOD_getAppearance, "getAppearance", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_ungroup, "ungroup", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_divide, "divide", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 

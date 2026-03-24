@@ -38,7 +38,7 @@ CPath_old::CPath_old()
     _shapingSectionClosed = true;
     _shapingElementMaxLength = 0.005;
     shapingColor.setDefaultValues();
-    shapingColor.setColor(0.1f, 0.9f, 0.1f, sim_colorcomponent_ambient_diffuse);
+    shapingColor.setColor(0.1f, 0.9f, 0.1f, sim_materialcomponent_diffuse);
     _localObjectSpecialProperty = sim_objectspecialproperty_renderable;
     _pathModifID = 0;
     pathContainer = new CPathCont_old();

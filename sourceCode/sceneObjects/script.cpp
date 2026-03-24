@@ -63,7 +63,7 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _scriptColor.setDefaultValues();
-    _scriptColor.setColor(1.0f, 1.0f, 1.0f, sim_colorcomponent_ambient_diffuse);
+    _scriptColor.setColor(1.0f, 1.0f, 1.0f, sim_materialcomponent_diffuse);
 
     computeBoundingBox();
 }
@@ -169,9 +169,9 @@ void CScript::addObjectEventData(CCbor* ev)
         ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyArray("colors");
         float c[9];
-        _scriptColor.getColor(c, sim_colorcomponent_ambient_diffuse);
-        _scriptColor.getColor(c + 3, sim_colorcomponent_specular);
-        _scriptColor.getColor(c + 6, sim_colorcomponent_emission);
+        _scriptColor.getColor(c, sim_materialcomponent_diffuse);
+        _scriptColor.getColor(c + 3, sim_materialcomponent_specular);
+        _scriptColor.getColor(c + 6, sim_materialcomponent_emission);
         ev->appendFloatArray(c, 9);
         ev->closeArrayOrMap(); // colors
     }
@@ -391,7 +391,7 @@ void CScript::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object", rgb, 3, exhaustiveXml))
                         _scriptColor.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                              sim_colorcomponent_ambient_diffuse);
+                                              sim_materialcomponent_diffuse);
                 }
                 ar.xmlPopNode();
             }

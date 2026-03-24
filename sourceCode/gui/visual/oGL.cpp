@@ -208,24 +208,24 @@ void ogl::setMaterialColor(const float ambientCol[3], const float specularCol[3]
 void ogl::setMaterialColor(float amb_r, float amb_g, float amb_b, float spec_r, float spec_g, float spec_b, float em_r,
                            float em_g, float em_b)
 {
-    setMaterialColor(sim_colorcomponent_ambient_diffuse, amb_r, amb_g, amb_b);
-    setMaterialColor(sim_colorcomponent_specular, spec_r, spec_g, spec_b);
-    setMaterialColor(sim_colorcomponent_emission, em_r, em_g, em_b);
+    setMaterialColor(sim_materialcomponent_diffuse, amb_r, amb_g, amb_b);
+    setMaterialColor(sim_materialcomponent_specular, spec_r, spec_g, spec_b);
+    setMaterialColor(sim_materialcomponent_emission, em_r, em_g, em_b);
 }
 
 void ogl::setMaterialColor(int colorMode, const float col[3])
 {
-    if (colorMode == sim_colorcomponent_ambient_diffuse)
+    if (colorMode == sim_materialcomponent_diffuse)
         setMaterialColor(col, nullptr, nullptr);
-    if (colorMode == sim_colorcomponent_specular)
+    if (colorMode == sim_materialcomponent_specular)
         setMaterialColor(nullptr, col, nullptr);
-    if (colorMode == sim_colorcomponent_emission)
+    if (colorMode == sim_materialcomponent_emission)
         setMaterialColor(nullptr, nullptr, col);
 }
 
 void ogl::setMaterialColor(int colorMode, float r, float g, float b)
 {
-    if (colorMode == sim_colorcomponent_ambient_diffuse)
+    if (colorMode == sim_materialcomponent_diffuse)
     {
         _lastAmbientDiffuseAlpha[0] = r;
         _lastAmbientDiffuseAlpha[1] = g;
@@ -239,7 +239,7 @@ void ogl::setMaterialColor(int colorMode, float r, float g, float b)
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, _lastAmbientDiffuseAlpha);
         }
     }
-    if (colorMode == sim_colorcomponent_specular)
+    if (colorMode == sim_materialcomponent_specular)
     {
         float buff[4] = {r, g, b, 1.0};
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buff);
@@ -251,7 +251,7 @@ void ogl::setMaterialColor(int colorMode, float r, float g, float b)
             glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buff);
         }
     }
-    if (colorMode == sim_colorcomponent_emission)
+    if (colorMode == sim_materialcomponent_emission)
     {
         float buff[4] = {r, g, b, 1.0};
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buff);
@@ -824,11 +824,11 @@ void ogl::drawReference(double size, int color /*=0*/)
     glLineWidth(1.0);
     glNormal3f(0.0, 0.0, 1.0);
     if (color == 0)
-        setMaterialColor(sim_colorcomponent_emission, ogl::colorRed);
+        setMaterialColor(sim_materialcomponent_emission, ogl::colorRed);
     if (color == 1)
-        setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+        setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
     if (color == 2)
-        setMaterialColor(sim_colorcomponent_emission, ogl::colorRed);
+        setMaterialColor(sim_materialcomponent_emission, ogl::colorRed);
     glBegin(GL_LINES);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f((float)size, 0.0, 0.0);
@@ -840,7 +840,7 @@ void ogl::drawReference(double size, int color /*=0*/)
     */
     glEnd();
     if (color == 0)
-        setMaterialColor(sim_colorcomponent_emission, ogl::colorGreen);
+        setMaterialColor(sim_materialcomponent_emission, ogl::colorGreen);
     glBegin(GL_LINES);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, (float)size, 0.0);
@@ -852,7 +852,7 @@ void ogl::drawReference(double size, int color /*=0*/)
     */
     glEnd();
     if (color == 0)
-        setMaterialColor(sim_colorcomponent_emission, ogl::colorBlue);
+        setMaterialColor(sim_materialcomponent_emission, ogl::colorBlue);
     glBegin(GL_LINES);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, 0.0, (float)size);
@@ -1432,7 +1432,7 @@ void ogl::drawOutlineText(const char* txt, const C7Vector& trOrig, double textHe
 
 void ogl::drawQuad(int posX, int posY, int sizeX, int sizeY, float col[3])
 { // Draws a simple quad
-    setMaterialColor(sim_colorcomponent_emission, col);
+    setMaterialColor(sim_materialcomponent_emission, col);
     glBegin(GL_QUADS);
     glVertex3i(posX, posY, 0);
     glVertex3i(posX + sizeX, posY, 0);
@@ -1466,12 +1466,12 @@ void ogl::drawBorder(int posX, int posY, int sizeX, int sizeY, float col[3], int
             lr = 0.5;
         }
         glBegin(GL_LINES);
-        setMaterialColor(sim_colorcomponent_emission, col[0] * ul, col[1] * ul, col[2] * ul);
+        setMaterialColor(sim_materialcomponent_emission, col[0] * ul, col[1] * ul, col[2] * ul);
         glVertex3i(posX, posY, 0);
         glVertex3i(posX, posY + sizeY, 0);
         glVertex3i(posX, posY + sizeY, 0);
         glVertex3i(posX + sizeX, posY + sizeY, 0);
-        setMaterialColor(sim_colorcomponent_emission, col[0] * lr, col[1] * lr, col[2] * lr);
+        setMaterialColor(sim_materialcomponent_emission, col[0] * lr, col[1] * lr, col[2] * lr);
         glVertex3i(posX, posY, 0);
         glVertex3i(posX + sizeX, posY, 0);
         glVertex3i(posX + sizeX, posY, 0);
@@ -1480,7 +1480,7 @@ void ogl::drawBorder(int posX, int posY, int sizeX, int sizeY, float col[3], int
     }
     else
     {
-        setMaterialColor(sim_colorcomponent_emission, col);
+        setMaterialColor(sim_materialcomponent_emission, col);
         glBegin(GL_QUADS);
         glVertex3i(posX, posY, 0);
         glVertex3i(posX + sizeX, posY, 0);
@@ -1865,11 +1865,11 @@ void ogl::drawButtonEdit(VPoint p, VPoint s, bool selected, bool mainSel)
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     if (mainSel)
-        setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+        setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
     else if (selected)
-        setMaterialColor(sim_colorcomponent_emission, ogl::colorYellow);
+        setMaterialColor(sim_materialcomponent_emission, ogl::colorYellow);
     else
-        setMaterialColor(sim_colorcomponent_emission, 1.0f, 0.5f, 0.3f);
+        setMaterialColor(sim_materialcomponent_emission, 1.0f, 0.5f, 0.3f);
 
     int pos[2] = {p.x, p.y};
     int size[2] = {s.x, s.y};
@@ -2016,13 +2016,13 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
     if ((buttonTypeAndAttributes & 0x0007) == sim_buttonproperty_button)
     {
         if (buttonTypeAndAttributes & sim_buttonproperty_isdown)
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor2);
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor2);
         else
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor1);
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor1);
     }
     if (((buttonTypeAndAttributes & 0x0007) == sim_buttonproperty_label) ||
         ((buttonTypeAndAttributes & 0x0007) == sim_buttonproperty_slider))
-        setMaterialColor(sim_colorcomponent_emission, bckgrndColor1);
+        setMaterialColor(sim_materialcomponent_emission, bckgrndColor1);
     if ((buttonTypeAndAttributes & 0x0007) == sim_buttonproperty_editbox)
     {
         if (buttonTypeAndAttributes & sim_buttonproperty_enabled)
@@ -2030,15 +2030,15 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
             if (editing)
             {
                 if (editionPos == -1)
-                    setMaterialColor(sim_colorcomponent_emission, ogl::colorBlue);
+                    setMaterialColor(sim_materialcomponent_emission, ogl::colorBlue);
                 else
-                    setMaterialColor(sim_colorcomponent_emission, ogl::colorYellow);
+                    setMaterialColor(sim_materialcomponent_emission, ogl::colorYellow);
             }
             else
-                setMaterialColor(sim_colorcomponent_emission, bckgrndColor2);
+                setMaterialColor(sim_materialcomponent_emission, bckgrndColor2);
         }
         else
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor2[0] * 0.6, bckgrndColor2[1] * 0.6,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor2[0] * 0.6, bckgrndColor2[1] * 0.6,
                              bckgrndColor2[2] * 0.6);
     }
 
@@ -2111,10 +2111,10 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
     {
         glLineWidth(2.0);
         if (buttonTypeAndAttributes & sim_buttonproperty_isdown)
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor2[0] * 0.66, bckgrndColor2[1] * 0.66,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor2[0] * 0.66, bckgrndColor2[1] * 0.66,
                              bckgrndColor2[2] * 0.66);
         else
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor1[0] * 1.5, bckgrndColor1[1] * 1.5,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor1[0] * 1.5, bckgrndColor1[1] * 1.5,
                              bckgrndColor1[2] * 1.5);
         glBegin(GL_LINE_STRIP);
         glVertex3i(pos[0] - size[0] / 2, pos[1] - size[1] / 2, 0);
@@ -2122,10 +2122,10 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
         glVertex3i(pos[0] + size[0] / 2, pos[1] + size[1] / 2, 0);
         glEnd();
         if (buttonTypeAndAttributes & sim_buttonproperty_isdown)
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor2[0] * 1.5, bckgrndColor2[1] * 1.5,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor2[0] * 1.5, bckgrndColor2[1] * 1.5,
                              bckgrndColor2[2] * 1.5);
         else
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor1[0] * 0.66, bckgrndColor1[1] * 0.66,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor1[0] * 0.66, bckgrndColor1[1] * 0.66,
                              bckgrndColor1[2] * 0.66);
         glBegin(GL_LINE_STRIP);
         glVertex3i(pos[0] + size[0] / 2, pos[1] + size[1] / 2, 0);
@@ -2223,9 +2223,9 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
         // is correct)
         // First we draw the middle line:
         if (buttonTypeAndAttributes & sim_buttonproperty_enabled)
-            setMaterialColor(sim_colorcomponent_emission, ogl::colorBlack);
+            setMaterialColor(sim_materialcomponent_emission, ogl::colorBlack);
         else
-            setMaterialColor(sim_colorcomponent_emission, ogl::colorGrey);
+            setMaterialColor(sim_materialcomponent_emission, ogl::colorGrey);
         double xFact = 2.0 / (1.0 - (double)BUTTON_SLIDER_X_SIZE);
         double yFact = 20.0;
         if (vertical)
@@ -2243,7 +2243,7 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
         double c = 0.7;
         if (buttonTypeAndAttributes & sim_buttonproperty_enabled)
             c = 1.0;
-        setMaterialColor(sim_colorcomponent_emission, bckgrndColor1[0] * c, bckgrndColor1[1] * c, bckgrndColor1[2] * c);
+        setMaterialColor(sim_materialcomponent_emission, bckgrndColor1[0] * c, bckgrndColor1[1] * c, bckgrndColor1[2] * c);
         double specialPos = double(p.x);
         double specialSize = double(s.x + 1);
         int dbs[2] = {int(double(size[0]) * BUTTON_SLIDER_X_SIZE / 2.0),
@@ -2267,14 +2267,14 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
         // Now the borders
         if ((buttonTypeAndAttributes & sim_buttonproperty_nobackgroundcolor) == 0)
         {
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor1[0] * 1.5, bckgrndColor1[1] * 1.5,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor1[0] * 1.5, bckgrndColor1[1] * 1.5,
                              bckgrndColor1[2] * 1.5);
             glBegin(GL_LINE_STRIP);
             glVertex3i(pos[0] - dbs[0], pos[1] - dbs[1], 0);
             glVertex3i(pos[0] - dbs[0], pos[1] + dbs[1], 0);
             glVertex3i(pos[0] + dbs[0], pos[1] + dbs[1], 0);
             glEnd();
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor1[0] * 0.66, bckgrndColor1[1] * 0.66,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor1[0] * 0.66, bckgrndColor1[1] * 0.66,
                              bckgrndColor1[2] * 0.66);
             glBegin(GL_LINE_STRIP);
             glVertex3i(pos[0] + dbs[0], pos[1] + dbs[1], 0);
@@ -2291,14 +2291,14 @@ void ogl::drawButton(VPoint p, VPoint s, float txtColor[3], float _bckgrndColor1
             ((buttonTypeAndAttributes & sim_buttonproperty_nobackgroundcolor) == 0))
         {
             glLineWidth(2.0);
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor1[0] * 0.33, bckgrndColor1[1] * 0.33,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor1[0] * 0.33, bckgrndColor1[1] * 0.33,
                              bckgrndColor1[2] * 0.33);
             glBegin(GL_LINE_STRIP);
             glVertex3i(pos[0] - size[0] / 2, pos[1] - size[1] / 2, 0);
             glVertex3i(pos[0] - size[0] / 2, pos[1] + size[1] / 2, 0);
             glVertex3i(pos[0] + size[0] / 2, pos[1] + size[1] / 2, 0);
             glEnd();
-            setMaterialColor(sim_colorcomponent_emission, bckgrndColor1[0] * 1.1, bckgrndColor1[1] * 1.1,
+            setMaterialColor(sim_materialcomponent_emission, bckgrndColor1[0] * 1.1, bckgrndColor1[1] * 1.1,
                              bckgrndColor1[2] * 1.1);
             glBegin(GL_LINE_STRIP);
             glVertex3i(pos[0] + size[0] / 2, pos[1] + size[1] / 2, 0);

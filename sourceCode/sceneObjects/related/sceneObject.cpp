@@ -4780,7 +4780,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
         int cnt = 1;
 
         // First the flat green circle:
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::MANIPULATION_MODE_OVERLAY_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::MANIPULATION_MODE_OVERLAY_COLOR);
         glPolygonOffset(
             0.5, 0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL);
@@ -4799,7 +4799,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
         glDisable(GL_POLYGON_OFFSET_FILL);
 
         // Now the graduation:
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR);
         a = 10.0 * piValue / 180.0 - _objectManipulationModeTotalRotation;
         oldX = cos(-_objectManipulationModeTotalRotation);
         oldY = sin(-_objectManipulationModeTotalRotation);
@@ -4881,7 +4881,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
         C3Vector v;
 
         // First the green bands:
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::MANIPULATION_MODE_OVERLAY_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::MANIPULATION_MODE_OVERLAY_COLOR);
         glPolygonOffset(
             0.5, 0.0); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL);
@@ -4901,7 +4901,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
         glDisable(GL_POLYGON_OFFSET_FILL);
 
         // Now the graduation:
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::MANIPULATION_MODE_OVERLAY_GRID_COLOR);
         ogl::buffer.clear();
         for (int axis = 0; axis < 2; axis++)
         {

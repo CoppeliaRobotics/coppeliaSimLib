@@ -47,7 +47,7 @@ CDummy::CDummy()
     _virtualDistanceOffsetOnPath_variationWhenCopy_OLD = 0.0;
 
     _dummyColor.setDefaultValues();
-    _dummyColor.setColor(1.0f, 0.8f, 0.55f, sim_colorcomponent_ambient_diffuse);
+    _dummyColor.setColor(1.0f, 0.8f, 0.55f, sim_materialcomponent_diffuse);
 
     // Mujoco parameters
     // ----------------------------------------------------
@@ -284,9 +284,9 @@ void CDummy::addObjectEventData(CCbor* ev)
     {
         ev->openKeyMap(_objectTypeStr.c_str());
         float c[9];
-        _dummyColor.getColor(c, sim_colorcomponent_ambient_diffuse);
-        _dummyColor.getColor(c + 3, sim_colorcomponent_specular);
-        _dummyColor.getColor(c + 6, sim_colorcomponent_emission);
+        _dummyColor.getColor(c, sim_materialcomponent_diffuse);
+        _dummyColor.getColor(c + 3, sim_materialcomponent_specular);
+        _dummyColor.getColor(c + 6, sim_materialcomponent_emission);
         ev->openKeyArray("colors");
         ev->appendFloatArray(c, 9);
         ev->closeArrayOrMap(); // colors
@@ -811,7 +811,7 @@ void CDummy::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("object", rgb, 3, exhaustiveXml))
                         _dummyColor.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                             sim_colorcomponent_ambient_diffuse);
+                                             sim_materialcomponent_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -987,17 +987,17 @@ bool CDummy::setDummyType(int lt, bool check)
         {
             if (it != nullptr)
                 it->setLinkedDummyHandle(-1, check);
-            _dummyColor.setColor(1.0f, 0.8f, 0.55f, sim_colorcomponent_ambient_diffuse);
+            _dummyColor.setColor(1.0f, 0.8f, 0.55f, sim_materialcomponent_diffuse);
         }
         if (lt == sim_dummytype_dynloopclosure)
-            _dummyColor.setColor(0.0f, 1.0f, 1.0f, sim_colorcomponent_ambient_diffuse);
+            _dummyColor.setColor(0.0f, 1.0f, 1.0f, sim_materialcomponent_diffuse);
         if (lt == sim_dummytype_dyntendon)
-            _dummyColor.setColor(0.0f, 0.5f, 1.0f, sim_colorcomponent_ambient_diffuse);
+            _dummyColor.setColor(0.0f, 0.5f, 1.0f, sim_materialcomponent_diffuse);
         if (lt == sim_dummytype_assembly)
         {
             if (it != nullptr)
                 it->setLinkedDummyHandle(-1, check);
-            _dummyColor.setColor(1.0f, 0.0f, 0.0f, sim_colorcomponent_ambient_diffuse);
+            _dummyColor.setColor(1.0f, 0.0f, 0.0f, sim_materialcomponent_diffuse);
         }
     }
     if ((_linkedDummyHandle != -1) && check)

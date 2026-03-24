@@ -48,7 +48,7 @@ void CCollisionObject_old::_commonInit()
     _initialValuesInitialized = false;
     _calcTimeInMs = 0;
     _contourColor.setColorsAllBlack();
-    _contourColor.setColor(1.0, 1.0, 1.0, sim_colorcomponent_emission);
+    _contourColor.setColor(1.0, 1.0, 1.0, sim_materialcomponent_emission);
 }
 
 void CCollisionObject_old::initializeInitialValues(bool simulationAlreadyRunning)

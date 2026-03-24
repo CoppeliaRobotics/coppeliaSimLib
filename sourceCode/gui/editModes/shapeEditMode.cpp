@@ -320,20 +320,20 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
             glDepthMask(GL_FALSE);
             glDisable(GL_DEPTH_TEST);
         }
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorYellow);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorYellow);
         for (int j = 0; j < int(editModeBuffer.size()); j++)
         {
             int i = editModeBuffer[j];
             glLoadName(i);
             drawn[i] = true;
             if (j == int(editModeBuffer.size()) - 1)
-                ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite); // First selection
+                ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite); // First selection
             ogl::drawSingle3dPoint(&_editionVertices[3 * i],
                                    nullptr); // needs to be called individually for each point because glLoadName
                                              // doesn't work between glBegin and glEnd
         }
         // Now we draw all unselected vertices
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorRed);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorRed);
         for (int i = 0; i < int(_editionVertices.size()) / 3; i++)
         {
             if (!drawn[i])
@@ -602,7 +602,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             glDisable(GL_DEPTH_TEST);
         }
         // first selected edges:
-        ogl::setMaterialColor(sim_colorcomponent_emission, selColor);
+        ogl::setMaterialColor(sim_materialcomponent_emission, selColor);
         for (int i = 0; i < int(editModeBuffer.size()); i++)
         {
             int ind[2] = {_edgeCont.allEdges[2 * editModeBuffer[i] + 0], _edgeCont.allEdges[2 * editModeBuffer[i] + 1]};
@@ -617,7 +617,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             glLineWidth(1.0);
 
         // Now non-selected edges:
-        ogl::setMaterialColor(sim_colorcomponent_emission, nselColor);
+        ogl::setMaterialColor(sim_materialcomponent_emission, nselColor);
         for (int i = 0; i < int(_edgeCont.allEdges.size() / 2); i++)
         {
             if (!usedEdges[i])

@@ -397,7 +397,7 @@ void CVisionSensor::commonInit()
     sensorResult.calcTimeInMs = 0;
     sensorAuxiliaryResult.clear();
     color.setDefaultValues();
-    color.setColor(0.05f, 0.42f, 1.0f, sim_colorcomponent_ambient_diffuse);
+    color.setColor(0.05f, 0.42f, 1.0f, sim_materialcomponent_diffuse);
 
     _resolution[0] = 256;
     _resolution[1] = 256;
@@ -3029,7 +3029,7 @@ void CVisionSensor::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("passive", rgb, 3, exhaustiveXml))
                         color.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                       sim_colorcomponent_ambient_diffuse);
+                                       sim_materialcomponent_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -3047,7 +3047,7 @@ void CVisionSensor::serialize(CSer& ar)
                 int rgb[3];
                 if (ar.xmlGetNode_ints("objectColor", rgb, 3, false))
                     color.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                   sim_colorcomponent_ambient_diffuse);
+                                   sim_materialcomponent_diffuse);
             }
 
             _reserveBuffers();
@@ -3363,7 +3363,7 @@ void CVisionSensor::lookAt(CSView* viewObject, int viewPos[2], int viewSize[2])
             c1[1] = c0[1] + d;
         }
 
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
         double texCorners[4] = {0.0, 0.0, 1.0, 1.0};
 
         if (getApplyExternalRenderedImage())

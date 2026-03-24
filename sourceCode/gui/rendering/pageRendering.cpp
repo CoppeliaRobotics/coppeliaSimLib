@@ -82,7 +82,7 @@ void displayContainerPageWatermark(const int* position, const int* size, int tag
     glDisable(GL_SCISSOR_TEST);
     glViewport(position[0], position[1], size[0], size[1]);
     glDisable(GL_DEPTH_TEST);
-    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+    ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
     ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     ogl::disableLighting_useWithCare(); // only temporarily
     App::worldContainer->globalGuiTextureCont->startTextureDisplay(tagId);
@@ -136,10 +136,10 @@ void displayPage(CSPage* page, int auxViewResizingAction, int viewIndexOfResizin
     glLoadIdentity();
     glDisable(GL_DEPTH_TEST);
     glLineWidth(3.0);
-    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorLightGrey);
+    ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorLightGrey);
     _drawSeparationLines(_pageType, _pageSize);
     glLineWidth(1.0);
-    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+    ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
     _drawSeparationLines(_pageType, _pageSize);
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_SCISSOR_TEST);
@@ -217,7 +217,7 @@ void displayPage(CSPage* page, int auxViewResizingAction, int viewIndexOfResizin
                             nullptr, nullptr, nullptr, nullptr, nullptr);
 
         glLineWidth(3.0);
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorLightGrey);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorLightGrey);
         for (int j = 0; j < 2; j++)
         {
             glBegin(GL_LINE_STRIP);
@@ -228,7 +228,7 @@ void displayPage(CSPage* page, int auxViewResizingAction, int viewIndexOfResizin
             glVertex3i(_pageSize[0] - avp[0] - avs[0] - 1, _pageSize[1] - avp[1] - avs[1] - 1, 0);
             glEnd();
             glLineWidth(1.0);
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
         }
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_SCISSOR_TEST);

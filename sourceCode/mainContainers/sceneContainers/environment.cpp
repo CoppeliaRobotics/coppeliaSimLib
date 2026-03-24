@@ -129,11 +129,11 @@ void CEnvironment::setUpDefaultValues()
     _extensionString = "povray {fogDist {4.00} fogTransp {0.50}}";
 
     wirelessEmissionVolumeColor.setColorsAllBlack();
-    wirelessEmissionVolumeColor.setColor(1.0f, 1.0f, 0.0f, sim_colorcomponent_emission);
+    wirelessEmissionVolumeColor.setColor(1.0f, 1.0f, 0.0f, sim_materialcomponent_emission);
     wirelessEmissionVolumeColor.setTranslucid(true);
     wirelessEmissionVolumeColor.setOpacity(0.2f);
     wirelessReceptionVolumeColor.setColorsAllBlack();
-    wirelessReceptionVolumeColor.setColor(1.0f, 1.0f, 0.0f, sim_colorcomponent_emission);
+    wirelessReceptionVolumeColor.setColor(1.0f, 1.0f, 0.0f, sim_materialcomponent_emission);
 
     _acknowledgement = "";
     _visualizeWirelessEmitters = false;

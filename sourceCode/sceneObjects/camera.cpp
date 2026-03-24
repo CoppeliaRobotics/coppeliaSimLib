@@ -700,9 +700,9 @@ void CCamera::commonInit()
     _useParentObjectAsManipulationProxy = false;
 
     _color.setDefaultValues();
-    _color.setColor(0.9f, 0.2f, 0.2f, sim_colorcomponent_ambient_diffuse);
+    _color.setColor(0.9f, 0.2f, 0.2f, sim_materialcomponent_diffuse);
     _color_removeSoon.setDefaultValues();
-    _color_removeSoon.setColor(0.22f, 0.22f, 0.22f, sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.setColor(0.22f, 0.22f, 0.22f, sim_materialcomponent_diffuse);
 
     _objectAlias = _objectTypeStr;
     _objectName_old = _objectTypeStr;
@@ -962,13 +962,13 @@ void CCamera::addObjectEventData(CCbor* ev)
         ev->openKeyMap(_objectTypeStr.c_str());
         ev->openKeyArray("colors");
         float c[9];
-        _color.getColor(c, sim_colorcomponent_ambient_diffuse);
-        _color.getColor(c + 3, sim_colorcomponent_specular);
-        _color.getColor(c + 6, sim_colorcomponent_emission);
+        _color.getColor(c, sim_materialcomponent_diffuse);
+        _color.getColor(c + 3, sim_materialcomponent_specular);
+        _color.getColor(c + 6, sim_materialcomponent_emission);
         ev->appendFloatArray(c, 9);
-        _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
-        _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
-        _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
+        _color_removeSoon.getColor(c, sim_materialcomponent_diffuse);
+        _color_removeSoon.getColor(c + 3, sim_materialcomponent_specular);
+        _color_removeSoon.getColor(c + 6, sim_materialcomponent_emission);
         ev->appendFloatArray(c, 9);
         ev->closeArrayOrMap(); // "colors"
         ev->appendKeyBool("perspectiveMode", _perspective);
@@ -1653,7 +1653,7 @@ void CCamera::serialize(CSer& ar)
                 int rgb[3];
                 if (ar.xmlGetNode_ints("objectColor", rgb, 3, false))
                     _color.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                    sim_colorcomponent_ambient_diffuse);
+                                    sim_materialcomponent_diffuse);
             }
 
             if (ar.xmlPushChildNode("color", false))
@@ -1676,10 +1676,10 @@ void CCamera::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("part1", rgb, 3, exhaustiveXml))
                         _color.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                        sim_colorcomponent_ambient_diffuse);
+                                        sim_materialcomponent_diffuse);
                     if (ar.xmlGetNode_ints("part2", rgb, 3, exhaustiveXml))
                         _color_removeSoon.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                                   sim_colorcomponent_ambient_diffuse);
+                                                   sim_materialcomponent_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -1985,7 +1985,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
                 ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
                 if ((navigationMode == sim_navigation_camerarotate) || (navigationMode == sim_navigation_camerashift))
                 {
-                    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorRed);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorRed);
                     glPushMatrix();
                     glTranslated(centerPos[0], centerPos[1], centerPos[2]);
                     double sphereRadius = 10.0;
@@ -2160,7 +2160,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glDisable(GL_DEPTH_TEST);
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
         if (_textureNameForExtGeneratedView == (unsigned int)-1)
             _textureNameForExtGeneratedView = ogl::genTexture(); // glGenTextures(1,&_textureNameForExtGeneratedView);
         glBindTexture(GL_TEXTURE_2D, _textureNameForExtGeneratedView);
@@ -2975,7 +2975,7 @@ void CCamera::_drawOverlay(bool passiveView, bool drawText, bool displ_ref, int 
         tt::limitValue(0, windowSize[0], x2);
         tt::limitValue(0, windowSize[1], y2);
 
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorYellow);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorYellow);
         ogl::setAlpha(0.2);
         ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBegin(GL_QUADS);
@@ -2986,7 +2986,7 @@ void CCamera::_drawOverlay(bool passiveView, bool drawText, bool displ_ref, int 
         glVertex3i(x1, y1, 0);
         glEnd();
         ogl::setBlending(false);
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
         glBegin(GL_LINE_STRIP);
         glVertex3i(x1, y1, 0);
         glVertex3i(x1, y2, 0);

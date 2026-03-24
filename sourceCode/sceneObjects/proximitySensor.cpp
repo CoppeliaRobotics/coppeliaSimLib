@@ -189,9 +189,9 @@ void CProxSensor::commonInit()
     _calcTimeInMs = 0;
 
     volumeColor.setColorsAllBlack();
-    volumeColor.setColor(0.9f, 0.0f, 0.5f, sim_colorcomponent_ambient_diffuse);
+    volumeColor.setColor(0.9f, 0.0f, 0.5f, sim_materialcomponent_diffuse);
     detectionRayColor.setColorsAllBlack();
-    detectionRayColor.setColor(1.0f, 1.0f, 0.0f, sim_colorcomponent_emission);
+    detectionRayColor.setColor(1.0f, 1.0f, 0.0f, sim_materialcomponent_emission);
     detectionRayColor.setEventParams(true, -1, -1, "ray");
 
     _visibilityLayer = PROXIMITY_SENSOR_LAYER;
@@ -835,13 +835,13 @@ void CProxSensor::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("passiveVolume", rgb, 3, false))
                         volumeColor.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                             sim_colorcomponent_ambient_diffuse);
+                                             sim_materialcomponent_diffuse);
                     if (ar.xmlGetNode_ints("volume", rgb, 3, false))
                         volumeColor.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                             sim_colorcomponent_ambient_diffuse);
+                                             sim_materialcomponent_diffuse);
                     if (ar.xmlGetNode_ints("detectionRay", rgb, 3, false))
                         detectionRayColor.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                                   sim_colorcomponent_ambient_diffuse);
+                                                   sim_materialcomponent_diffuse);
                 }
                 ar.xmlPopNode();
             }

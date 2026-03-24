@@ -40,7 +40,7 @@ void displayBanner(int objId, int options, const float* bckColor, const C7Vector
 
         if (bckColor != nullptr)
         {
-            ogl::setMaterialColor(sim_colorcomponent_emission, std::max<float>(bckColor[0], bckColor[9]),
+            ogl::setMaterialColor(sim_materialcomponent_emission, std::max<float>(bckColor[0], bckColor[9]),
                                   std::max<float>(bckColor[1], bckColor[10]),
                                   std::max<float>(bckColor[2], bckColor[11]));
             ogl::drawBitmapTextBackgroundIntoScene(tr.X(0), tr.X(1), tr.X(2), label);

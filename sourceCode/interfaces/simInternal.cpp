@@ -6010,12 +6010,12 @@ int simAddDrawingObject_internal(int objectType, double size, double duplicateTo
             creatorHandle = _currentScriptHandle;
         CDrawingObject* it = new CDrawingObject(objectType, size, duplicateTolerance, parentObjectHandle, maxItemCount, creatorHandle);
         if (color != nullptr)
-            it->color.setColor(color, sim_colorcomponent_ambient_diffuse);
+            it->color.setColor(color, sim_materialcomponent_diffuse);
         if (setToNULL2 != nullptr)
-            it->color.setColor(setToNULL2, sim_colorcomponent_specular);
+            it->color.setColor(setToNULL2, sim_materialcomponent_specular);
         if (setToNULL3 != nullptr)
         {
-            it->color.setColor(setToNULL3, sim_colorcomponent_emission);
+            it->color.setColor(setToNULL3, sim_materialcomponent_emission);
             if ((objectType & sim_drawing_auxchannelcolor1) != 0)
                 it->color.setColor(setToNULL3 + 3, sim_colorcomponent_auxiliary);
         }
@@ -6562,7 +6562,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_dummy)
         {
             CDummy* dummy = (CDummy*)it;
-            if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
             {
                 dummy->getDummyColor()->setColor(rgbData, colorComponent);
                 if (App::getEventProtocolVersion() == 2)
@@ -6577,7 +6577,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_camera)
         {
             CCamera* camera = (CCamera*)it;
-            if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
             {
                 camera->getColor(false)->setColor(rgbData, colorComponent);
                 if (App::getEventProtocolVersion() == 2)
@@ -6592,7 +6592,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_joint)
         {
             CJoint* joint = (CJoint*)it;
-            if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
             {
                 joint->getColor(false)->setColor(rgbData, colorComponent);
                 if (App::getEventProtocolVersion() == 2)
@@ -6607,7 +6607,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_light)
         {
             CLight* light = (CLight*)it;
-            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_materialcomponent_emission))
             {
                 light->getColor(index == 1)->setColor(rgbData, colorComponent);
                 retVal = 1;
@@ -6623,7 +6623,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_proximitysensor)
         {
             CProxSensor* sensor = (CProxSensor*)it;
-            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_materialcomponent_emission))
             {
                 sensor->getColor(index)->setColor(rgbData, colorComponent);
                 retVal = 1;
@@ -6639,7 +6639,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_visionsensor)
         {
             CVisionSensor* sensor = (CVisionSensor*)it;
-            if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
             {
                 sensor->getColor()->setColor(rgbData, colorComponent);
                 if (App::getEventProtocolVersion() == 2)
@@ -6654,7 +6654,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_forcesensor)
         {
             CForceSensor* sensor = (CForceSensor*)it;
-            if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
             {
                 sensor->getColor(false)->setColor(rgbData, colorComponent);
                 if (App::getEventProtocolVersion() == 2)
@@ -6697,7 +6697,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_dummy)
         {
             CDummy* dummy = (CDummy*)it;
-            if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
             {
                 dummy->getDummyColor()->getColor(rgbData, colorComponent);
                 retVal = 1;
@@ -6706,7 +6706,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_camera)
         {
             CCamera* camera = (CCamera*)it;
-            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_materialcomponent_emission))
             {
                 camera->getColor(index == 1)->getColor(rgbData, colorComponent);
                 retVal = 1;
@@ -6715,7 +6715,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_joint)
         {
             CJoint* joint = (CJoint*)it;
-            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_materialcomponent_emission))
             {
                 if (index == 0)
                     joint->getColor(false)->getColor(rgbData, colorComponent);
@@ -6727,7 +6727,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_light)
         {
             CLight* light = (CLight*)it;
-            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_materialcomponent_emission))
             {
                 light->getColor(index == 1)->getColor(rgbData, colorComponent);
                 retVal = 1;
@@ -6736,7 +6736,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_proximitysensor)
         {
             CProxSensor* sensor = (CProxSensor*)it;
-            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_materialcomponent_emission))
             {
                 sensor->getColor(index)->getColor(rgbData, colorComponent);
                 retVal = 1;
@@ -6745,7 +6745,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_visionsensor)
         {
             CVisionSensor* sensor = (CVisionSensor*)it;
-            if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
             {
                 sensor->getColor()->getColor(rgbData, colorComponent);
                 retVal = 1;
@@ -6754,7 +6754,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
         if (it->getObjectType() == sim_sceneobject_forcesensor)
         {
             CForceSensor* sensor = (CForceSensor*)it;
-            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
+            if ((index >= 0) && (index <= 1) && (colorComponent <= sim_materialcomponent_emission))
             {
                 sensor->getColor(index == 1)->getColor(rgbData, colorComponent);
                 retVal = 1;
@@ -7414,9 +7414,9 @@ int simCreateDummy_internal(double size, const float* reserved)
         it->setDummySize(size);
         if (reserved != nullptr)
         {
-            it->getDummyColor()->setColor(reserved + 0, sim_colorcomponent_ambient_diffuse);
-            it->getDummyColor()->setColor(reserved + 6, sim_colorcomponent_specular);
-            it->getDummyColor()->setColor(reserved + 9, sim_colorcomponent_emission);
+            it->getDummyColor()->setColor(reserved + 0, sim_materialcomponent_diffuse);
+            it->getDummyColor()->setColor(reserved + 6, sim_materialcomponent_specular);
+            it->getDummyColor()->setColor(reserved + 9, sim_materialcomponent_emission);
         }
         App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
@@ -11742,7 +11742,7 @@ int simInsertObjectIntoOctree_internal(int octreeHandle, int objectHandle, int o
         COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
 
         float savedCols[3];
-        it->getColor()->getColor(savedCols, sim_colorcomponent_ambient_diffuse);
+        it->getColor()->getColor(savedCols, sim_materialcomponent_diffuse);
         float* cptr = it->getColor()->getColorsPtr();
         if (color != nullptr)
         {
@@ -11795,7 +11795,7 @@ int simInsertObjectIntoPointCloud_internal(int pointCloudHandle, int objectHandl
         double savedGridSize = it->getBuildResolution();
         it->setBuildResolution(gridSize);
         float savedCols[3];
-        it->getColor()->getColor(savedCols, sim_colorcomponent_ambient_diffuse);
+        it->getColor()->getColor(savedCols, sim_materialcomponent_diffuse);
         if (color != nullptr)
         {
             it->getColor()->getColorsPtr()[0] = float(color[0]) / 255.1;
@@ -12089,9 +12089,9 @@ int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo* in
                 info->normals[3 * i + 1] = n(1);
                 info->normals[3 * i + 2] = n(2);
             }
-            geom->color.getColor(info->colors + 0, sim_colorcomponent_ambient_diffuse);
-            geom->color.getColor(info->colors + 3, sim_colorcomponent_specular);
-            geom->color.getColor(info->colors + 6, sim_colorcomponent_emission);
+            geom->color.getColor(info->colors + 0, sim_materialcomponent_diffuse);
+            geom->color.getColor(info->colors + 3, sim_materialcomponent_specular);
+            geom->color.getColor(info->colors + 6, sim_materialcomponent_emission);
             info->shadingAngle = geom->getShadingAngle();
 
             CTextureProperty* tp = geom->getTextureProperty();
@@ -12205,9 +12205,9 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof* 
                 info->normals[3 * i + 1] = (float)n(1);
                 info->normals[3 * i + 2] = (float)n(2);
             }
-            geom->color.getColor(info->colors + 0, sim_colorcomponent_ambient_diffuse);
-            geom->color.getColor(info->colors + 3, sim_colorcomponent_specular);
-            geom->color.getColor(info->colors + 6, sim_colorcomponent_emission);
+            geom->color.getColor(info->colors + 0, sim_materialcomponent_diffuse);
+            geom->color.getColor(info->colors + 3, sim_materialcomponent_specular);
+            geom->color.getColor(info->colors + 6, sim_materialcomponent_emission);
             info->shadingAngle = (float)geom->getShadingAngle();
 
             CTextureProperty* tp = geom->getTextureProperty();

@@ -32,7 +32,7 @@ CPathCont_old::CPathCont_old()
     _lineSize = 1;
     _squareSize = 0.01;
     _lineColor.setDefaultValues();
-    _lineColor.setColor(0.1f, 0.75f, 1.0f, sim_colorcomponent_ambient_diffuse);
+    _lineColor.setColor(0.1f, 0.75f, 1.0f, sim_materialcomponent_diffuse);
 
     _angleVarToDistanceCoeff = 0.1 / (90.0 * degToRad);
     _onSpotDistanceToDistanceCoeff = 1.0;
@@ -2288,7 +2288,7 @@ void CPathCont_old::serialize(CSer& ar)
                     int rgb[3];
                     if (ar.xmlGetNode_ints("line", rgb, 3, exhaustiveXml))
                         _lineColor.setColor(float(rgb[0]) / 255.1, float(rgb[1]) / 255.1, float(rgb[2]) / 255.1,
-                                            sim_colorcomponent_ambient_diffuse);
+                                            sim_materialcomponent_diffuse);
                 }
                 ar.xmlPopNode();
             }
@@ -2321,12 +2321,12 @@ void CPathCont_old::render(bool pathEditMode, int displayAttrib, bool pathIsOnly
         {
             ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
             if (displayAttrib & sim_displayattribute_mainselection)
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ogl::colorWhite);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ogl::colorWhite);
             else
-                ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ogl::colorYellow);
+                ogl::setMaterialColor(sim_materialcomponent_diffuse, ogl::colorYellow);
         }
         else
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, 0.1f, 0.1f, 1.0f);
+            ogl::setMaterialColor(sim_materialcomponent_diffuse, 0.1f, 0.1f, 1.0f);
         _draw(((std::vector<CPathPoint_old*>*)&_simplePathPoints)[0], pathEditMode, true, true, true, true, true,
               _lineSize, _squareSize, pathIsOnlySelectedObject, objectID);
     }
@@ -2382,16 +2382,16 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMod
             { // display path points:
                 if (!selectedPts[i])
                 {
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, 0.2f, 0.2f, 1.0f);
-                    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorBlack);
+                    ogl::setMaterialColor(sim_materialcomponent_diffuse, 0.2f, 0.2f, 1.0f);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorBlack);
                 }
                 else
                 {
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ogl::colorBlack);
+                    ogl::setMaterialColor(sim_materialcomponent_diffuse, ogl::colorBlack);
                     if (i == lastSel)
-                        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+                        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
                     else
-                        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorYellow);
+                        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorYellow);
                 }
                 glPushMatrix();
                 C3Vector trx(ptCont[i]->getTransformation().X);
@@ -2440,13 +2440,13 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMod
             {
                 if (!selS[i])
                 {
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, 0.2f, 0.2f, 1.0f);
-                    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorBlack);
+                    ogl::setMaterialColor(sim_materialcomponent_diffuse, 0.2f, 0.2f, 1.0f);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorBlack);
                 }
                 else
                 { // point is selected (selected in the "non edit mode")
-                    ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, ogl::colorBlack);
-                    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorWhite);
+                    ogl::setMaterialColor(sim_materialcomponent_diffuse, ogl::colorBlack);
+                    ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
                 }
                 if (pathIsOnlySelectedObject)
                     glLoadName(NON_OBJECT_PICKING_ID_PATH_PTS_START + i); // 2010/09/01 (individual path points)
@@ -2504,7 +2504,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMod
     if ((!isPath) && (ptCont.size() > 1) && (!pathEditMode) && (_attributes & sim_pathproperty_show_position))
     { // We have to display the start position:
         ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
-        ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, 1.0f, 0.2f, 0.2f);
+        ogl::setMaterialColor(sim_materialcomponent_diffuse, 1.0f, 0.2f, 0.2f);
         glPushMatrix();
         glTranslated(_startPosition(0), _startPosition(1), _startPosition(2));
         ogl::drawSphere(squareSize, 10, 5, true);

@@ -228,7 +228,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
 
         if (!forDragAndDrop)
         {
-            ogl::setMaterialColor(sim_colorcomponent_emission, bgCol);
+            ogl::setMaterialColor(sim_materialcomponent_emission, bgCol);
             glBegin(GL_QUADS);
             glVertex3i(0, textPos[1] + (HIERARCHY_TEXT_CENTER_OFFSET - HIERARCHY_HALF_INTER_LINE_SPACE) * GuiApp::sc,
                        0);
@@ -338,7 +338,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
         else
             hier->drawEditionLabel(textPos[0] + off, textPos[1]);
         // Following is for vertical lines that originates from one of this object's parent
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_LINE_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_LINE_COLOR);
         if (!forDragAndDrop)
         {
             for (int i = 0; i < int(vertLines->size()); i++)
@@ -611,7 +611,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
         textPos[0] = textPos[0] + horizontalShift;
         int indentCopy = indentNb + 1;
 
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_LINE_COLOR);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_LINE_COLOR);
 
         for (size_t i = 0; i < children.size(); i++)
         {
@@ -940,13 +940,13 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier, int labelEd
     if ((selectedState != 0) && textInside && (!dontDisplay))
     {
         if (selectedState == 2)
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR);
         else
         {
             if (bright)
-                ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT);
+                ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_BRIGHT);
             else
-                ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK);
+                ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_NOT_LAST_SELECTION_COLOR_DARK);
         }
         glBegin(GL_QUADS);
         glVertex3i(0, textPos[1] + (HIERARCHY_TEXT_CENTER_OFFSET - HIERARCHY_HALF_INTER_LINE_SPACE) * GuiApp::sc, 0);
@@ -960,9 +960,9 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier, int labelEd
     else if (textInside && (!dontDisplay))
     {
         if (App::userSettings->darkMode)
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK);
         else
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT);
         glBegin(GL_QUADS);
         glVertex3i(0, textPos[1] + (HIERARCHY_TEXT_CENTER_OFFSET - HIERARCHY_HALF_INTER_LINE_SPACE) * GuiApp::sc, 0);
         glVertex3i(renderingSize[0],
@@ -1039,7 +1039,7 @@ void CHierarchyElement::renderElement_editModeList(CHierarchy* hier, int labelEd
             ogl::drawText(textPos[0] + off, textPos[1], 0, theText);
         else
             hier->drawEditionLabel(textPos[0] + off, textPos[1]);
-        ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorBlack);
+        ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorBlack);
     }
     textPos[1] = textPos[1] - HIERARCHY_INTER_LINE_SPACE * GuiApp::sc;
 }
@@ -1110,9 +1110,9 @@ bool CHierarchyElement::renderDummyElement(bool& bright, int renderingSize[2], i
     if (textPos[1] < renderingSize[1] + HIERARCHY_INTER_LINE_SPACE * GuiApp::sc)
     {
         if (App::userSettings->darkMode)
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK);
         else
-            ogl::setMaterialColor(sim_colorcomponent_emission, ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT);
+            ogl::setMaterialColor(sim_materialcomponent_emission, ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT);
         glBegin(GL_QUADS);
         glVertex3i(0, textPos[1] + (HIERARCHY_TEXT_CENTER_OFFSET - HIERARCHY_HALF_INTER_LINE_SPACE) * GuiApp::sc, 0);
         glVertex3i(renderingSize[0],

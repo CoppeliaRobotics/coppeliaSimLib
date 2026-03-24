@@ -864,13 +864,13 @@ float* GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
     CColorObject* vp = getVisualParamPointerFromItem(objType, objID1, objID2, _auxDlgTitle, &allowedParts);
     if (vp != nullptr)
     {
-        if ((colComponent == sim_colorcomponent_ambient_diffuse) && (allowedParts & 1))
+        if ((colComponent == sim_materialcomponent_diffuse) && (allowedParts & 1))
             return ((vp->getColorsPtr() + 0));
-        if ((colComponent == sim_colorcomponent_diffuse) && (allowedParts & 2))
+        if ((colComponent == sim_materialcomponent_lightdiffuse) && (allowedParts & 2))
             return ((vp->getColorsPtr() + 3));
-        if ((colComponent == sim_colorcomponent_specular) && (allowedParts & 4))
+        if ((colComponent == sim_materialcomponent_specular) && (allowedParts & 4))
             return ((vp->getColorsPtr() + 6));
-        if ((colComponent == sim_colorcomponent_emission) && (allowedParts & 8))
+        if ((colComponent == sim_materialcomponent_emission) && (allowedParts & 8))
             return ((vp->getColorsPtr() + 9));
         if ((colComponent == sim_colorcomponent_auxiliary) && (allowedParts & 16))
             return ((vp->getColorsPtr() + 12));

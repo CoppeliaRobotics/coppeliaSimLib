@@ -9161,9 +9161,9 @@ int simSetLightParameters_internal(int objectHandle, int state, const float* set
         CLight* it = App::currentWorld->sceneObjects->getLightFromHandle(objectHandle);
         it->setLightActive(state & 1);
         if (diffusePart != nullptr)
-            it->getColor(true)->setColor(diffusePart, sim_colorcomponent_diffuse);
+            it->getColor(true)->setColor(diffusePart, sim_materialcomponent_lightdiffuse);
         if (specularPart != nullptr)
-            it->getColor(true)->setColor(specularPart, sim_colorcomponent_specular);
+            it->getColor(true)->setColor(specularPart, sim_materialcomponent_specular);
         return (1);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

@@ -46,6 +46,7 @@ class CSceneObjectContainer
     CSceneObject* getObjectFromIndex(size_t index) const;
     CSceneObject* getObjectFromHandle(int objectHandle) const;
     CSceneObject* getObjectFromUid(long long int objectUid) const;
+    CSceneObject* getObjectFromPersistentUid(const char* puid) const;
     CSceneObject* getObjectFromPath(const CSceneObject* emittingObject, const char* objectAliasAndPath, int index) const;
     CSceneObject* getObjectFromName_old(const char* objectName) const;
     CSceneObject* getObjectFromAltName_old(const char* objectAltName) const;

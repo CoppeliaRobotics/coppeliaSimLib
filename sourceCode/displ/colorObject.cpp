@@ -127,13 +127,13 @@ void CColorObject::setColorsAllBlack()
 void CColorObject::getColor(float col[3], unsigned char colorMode) const
 {
     int offset = 0;
-    if (colorMode == sim_colorcomponent_ambient_diffuse)
+    if (colorMode == sim_materialcomponent_diffuse)
         offset = 0;
-    else if (colorMode == sim_colorcomponent_diffuse)
+    else if (colorMode == sim_materialcomponent_lightdiffuse)
         offset = 3;
-    else if (colorMode == sim_colorcomponent_specular)
+    else if (colorMode == sim_materialcomponent_specular)
         offset = 6;
-    else if (colorMode == sim_colorcomponent_emission)
+    else if (colorMode == sim_materialcomponent_emission)
         offset = 9;
     else if (colorMode == sim_colorcomponent_auxiliary)
         offset = 12;
@@ -161,25 +161,25 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
     {
         int offset = 0;
         std::string cmd;
-        if (colorMode == sim_colorcomponent_ambient_diffuse)
+        if (colorMode == sim_materialcomponent_diffuse)
         { // objects only (no lights)
             offset = 0;
             if ((_eventFlags & 1) && (_eventObjectHandle != -1))
                 cmd = propColor_colDiffuse.name;
         }
-        else if (colorMode == sim_colorcomponent_diffuse)
+        else if (colorMode == sim_materialcomponent_lightdiffuse)
         { // lights only (no objects)
             offset = 3;
             if ((_eventFlags & 2) && (_eventObjectHandle != -1))
                 cmd = propColor_colDiffuse.name;
         }
-        else if (colorMode == sim_colorcomponent_specular)
+        else if (colorMode == sim_materialcomponent_specular)
         {
             offset = 6;
             if ((_eventFlags & 4) && (_eventObjectHandle != -1))
                 cmd = propColor_colSpecular.name;
         }
-        else if (colorMode == sim_colorcomponent_emission)
+        else if (colorMode == sim_materialcomponent_emission)
         {
             offset = 9;
             if ((_eventFlags & 8) && (_eventObjectHandle != -1))
@@ -264,10 +264,10 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
         CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(objectHandle, false, cmd, false);
         ev->openKeyMap(cmd);
         float c[9];
-        int w = sim_colorcomponent_ambient_diffuse;
+        int w = sim_materialcomponent_diffuse;
         getColor(c + 0, w);
-        getColor(c + 3, sim_colorcomponent_specular);
-        getColor(c + 6, sim_colorcomponent_emission);
+        getColor(c + 3, sim_materialcomponent_specular);
+        getColor(c + 6, sim_materialcomponent_emission);
         ev->appendKeyFloatArray("color", c, 9);
         ev->appendKeyInt64("index", colorIndex);
         float transp = 0.0;
@@ -924,22 +924,22 @@ int CColorObject::setColorProperty(const char* ppName, const float* pState)
         pName.erase(0, _eventPrefix.size());
         if ((pName == propColor_colDiffuse.name) && (_eventFlags & 1))
         { // objects only (no lights)
-            setColor(pState, sim_colorcomponent_ambient_diffuse);
+            setColor(pState, sim_materialcomponent_diffuse);
             retVal = 1;
         }
         else if ((pName == propColor_colDiffuse.name) && (_eventFlags & 2))
         { // lights only (no objects)
-            setColor(pState, sim_colorcomponent_diffuse);
+            setColor(pState, sim_materialcomponent_lightdiffuse);
             retVal = 1;
         }
         else if ((pName == propColor_colSpecular.name) && (_eventFlags & 4))
         {
-            setColor(pState, sim_colorcomponent_specular);
+            setColor(pState, sim_materialcomponent_specular);
             retVal = 1;
         }
         else if ((pName == propColor_colEmission.name) && (_eventFlags & 8))
         {
-            setColor(pState, sim_colorcomponent_emission);
+            setColor(pState, sim_materialcomponent_emission);
             retVal = 1;
         }
     }
@@ -955,22 +955,22 @@ int CColorObject::getColorProperty(const char* ppName, float* pState) const
         pName.erase(0, _eventPrefix.size());
         if ((pName == propColor_colDiffuse.name) && (_eventFlags & 1))
         { // objects only (no lights)
-            getColor(pState, sim_colorcomponent_ambient_diffuse);
+            getColor(pState, sim_materialcomponent_diffuse);
             retVal = 1;
         }
         else if ((pName == propColor_colDiffuse.name) && (_eventFlags & 2))
         { // lights only (no objects)
-            getColor(pState, sim_colorcomponent_diffuse);
+            getColor(pState, sim_materialcomponent_lightdiffuse);
             retVal = 1;
         }
         else if ((pName == propColor_colSpecular.name) && (_eventFlags & 4))
         {
-            getColor(pState, sim_colorcomponent_specular);
+            getColor(pState, sim_materialcomponent_specular);
             retVal = 1;
         }
         else if ((pName == propColor_colEmission.name) && (_eventFlags & 8))
         {
-            getColor(pState, sim_colorcomponent_emission);
+            getColor(pState, sim_materialcomponent_emission);
             retVal = 1;
         }
     }

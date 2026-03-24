@@ -1051,14 +1051,11 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.dummytype_dyntendon", sim_dummytype_dyntendon},
     {"sim.dummytype_default", sim_dummytype_default},
     {"sim.dummytype_assembly", sim_dummytype_assembly},
-    // color components
-    {"sim.colorcomponent_ambient", sim_colorcomponent_ambient},
-    {"sim.colorcomponent_ambient_diffuse", sim_colorcomponent_ambient_diffuse},
-    {"sim.colorcomponent_diffuse", sim_colorcomponent_diffuse},
-    {"sim.colorcomponent_specular", sim_colorcomponent_specular},
-    {"sim.colorcomponent_emission", sim_colorcomponent_emission},
-    {"sim.colorcomponent_transparency", sim_colorcomponent_transparency},
-    {"sim.colorcomponent_auxiliary", sim_colorcomponent_auxiliary},
+    // material components
+    {"sim.materialcomponent_diffuse", sim_materialcomponent_diffuse},
+    {"sim.materialcomponent_lightdiffuse", sim_materialcomponent_lightdiffuse},
+    {"sim.materialcomponent_specular", sim_materialcomponent_specular},
+    {"sim.materialcomponent_emission", sim_materialcomponent_emission},
     // volume types
     {"sim.volume_ray", sim_volume_ray},
     {"sim.volume_randomizedray", sim_volume_randomizedray},
@@ -1113,6 +1110,14 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.ruckig_minaccel", sim_ruckig_minaccel},
 
     // deprecated!
+    // color components
+    {"sim1.colorcomponent_ambient", sim_materialcomponent_diffuse},
+    {"sim1.colorcomponent_ambient_diffuse", sim_materialcomponent_diffuse},
+    {"sim1.colorcomponent_diffuse", sim_materialcomponent_lightdiffuse},
+    {"sim1.colorcomponent_specular", sim_materialcomponent_specular},
+    {"sim1.colorcomponent_emission", sim_materialcomponent_emission},
+    {"sim1.colorcomponent_transparency", sim_colorcomponent_transparency},
+    {"sim1.colorcomponent_auxiliary", sim_colorcomponent_auxiliary},
     {"sim1.simulation_advancing", sim_simulation_advancing},
     {"sim1.simulation_advancing_running", sim_simulation_running},
     {"sim1.simulation_advancing_lastbeforestop", sim_simulation_lastbeforestop},
@@ -10329,9 +10334,9 @@ int _simGetShapeColor(luaWrap_lua_State* L)
     LUA_START("sim.getShapeColor");
 
     int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_handle, 0))
     { // First arg ok
-        int shapeHandle = luaToInt(L, 1);
+        int shapeHandle = luaWrap_lua_tohandle(L, 1);
         std::string strTmp;
         char* str = nullptr;
         int colorComponent = 0;

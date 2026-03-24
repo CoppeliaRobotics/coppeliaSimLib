@@ -320,7 +320,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
     if (shape != nullptr)
     {
         shape->getSingleMesh()->color.setDefaultValues();
-        shape->setColor(nullptr, sim_colorcomponent_ambient_diffuse, 1.0, 1.0, 1.0);
+        shape->setColor(nullptr, sim_materialcomponent_diffuse, 1.0, 1.0, 1.0);
         shape->setObjectAltName_direct_old(
             tt::getObjectAltNameFromObjectName(shape->getObjectName_old().c_str()).c_str());
         if ((options & 2) == 0)
@@ -338,7 +338,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
                                                  propToRemove);
             shape->setRespondable(true);
             shape->setStatic(false);
-            shape->setColor(nullptr, sim_colorcomponent_ambient_diffuse, 0.85f, 0.85f, 1.0f);
+            shape->setColor(nullptr, sim_materialcomponent_diffuse, 0.85f, 0.85f, 1.0f);
             shape->setRespondable(true);
         }
         shape->getDynMaterial()->generateDefaultMaterial(sim_dynmat_reststackgrasp);

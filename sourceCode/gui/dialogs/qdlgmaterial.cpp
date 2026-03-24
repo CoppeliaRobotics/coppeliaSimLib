@@ -170,17 +170,17 @@ bool CQDlgMaterial::doesInstanceSwitchRequireDestruction()
 
 void CQDlgMaterial::on_qqAmbientAdjust_clicked()
 {
-    _adjustCol(sim_colorcomponent_ambient_diffuse);
+    _adjustCol(sim_materialcomponent_diffuse);
 }
 
 void CQDlgMaterial::on_qqSpecularAdjust_clicked()
 {
-    _adjustCol(sim_colorcomponent_specular);
+    _adjustCol(sim_materialcomponent_specular);
 }
 
 void CQDlgMaterial::on_qqEmissiveAdjust_clicked()
 {
-    _adjustCol(sim_colorcomponent_emission);
+    _adjustCol(sim_materialcomponent_emission);
 }
 
 void CQDlgMaterial::on_qqPulsationAdjust_clicked()

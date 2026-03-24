@@ -1005,7 +1005,7 @@ int CPathPlanningTask::performSteppedSearch()
             if (fromStart != nullptr)
             {
                 CDrawingObject* it = new CDrawingObject(sim_drawing_lines, 1.0, 0.0, -1, 1000000, -1);
-                it->color.setColor(1.0, 0.0, 0.0, sim_colorcomponent_ambient_diffuse);
+                it->color.setColor(1.0, 0.0, 0.0, sim_materialcomponent_diffuse);
                 for (int i = 0; i < fromStartC; i++)
                     it->addItem(fromStart + 6 * i);
                 _searchTree1Handle = App::currentWorld->drawingCont->addObject(it);
@@ -1013,7 +1013,7 @@ int CPathPlanningTask::performSteppedSearch()
             if (fromGoal != nullptr)
             {
                 CDrawingObject* it = new CDrawingObject(sim_drawing_lines, 1.0, 0.0, -1, 1000000, -1);
-                it->color.setColor(0.0, 0.0, 1.0, sim_colorcomponent_ambient_diffuse);
+                it->color.setColor(0.0, 0.0, 1.0, sim_materialcomponent_diffuse);
                 for (int i = 0; i < fromGoalC; i++)
                     it->addItem(fromGoal + 6 * i);
                 _searchTree2Handle = App::currentWorld->drawingCont->addObject(it);

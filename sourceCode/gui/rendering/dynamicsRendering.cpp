@@ -178,9 +178,9 @@ void _drawRoughSphere(int displayAttrib, const C3Vector& _currentPosition, doubl
     if (_objectType & sim_particle_itemcolors)
     {
         if (_objectType & sim_particle_emissioncolor)
-            ogl::setMaterialColor(sim_colorcomponent_emission, _additionalColor);
+            ogl::setMaterialColor(sim_materialcomponent_emission, _additionalColor);
         else
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, _additionalColor);
+            ogl::setMaterialColor(sim_materialcomponent_diffuse, _additionalColor);
     }
     glBegin(GL_QUADS);
     for (int j = 0; j < 18; j++)
@@ -226,9 +226,9 @@ void _drawSphere(int displayAttrib, const C3Vector& _currentPosition, double _si
     if (_objectType & sim_particle_itemcolors)
     {
         if (_objectType & sim_particle_emissioncolor)
-            ogl::setMaterialColor(sim_colorcomponent_emission, _additionalColor);
+            ogl::setMaterialColor(sim_materialcomponent_emission, _additionalColor);
         else
-            ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse, _additionalColor);
+            ogl::setMaterialColor(sim_materialcomponent_diffuse, _additionalColor);
     }
     ogl::drawSphere(_size * 0.5, 10, 5, true);
     glPopMatrix();
