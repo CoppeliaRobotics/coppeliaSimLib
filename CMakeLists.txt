@@ -133,7 +133,7 @@ endif()
 find_package(${Qt} COMPONENTS Core PrintSupport Network REQUIRED)
 
 if(MSVC)
-    target_compile_options(coppeliaSim PRIVATE /FI"simMainHeader.h")
+    target_compile_options(coppeliaSim PRIVATE /FIsimMainHeader.h)
     set(CMAKE_CXXFLAGS "${CMAKE_CXXFLAGS} -fp:precise")
     set(CMAKE_CXXFLAGS_RELEASE "${CMAKE_CXXFLAGS_RELEASE} -O2")
 
