@@ -319,7 +319,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                             if (tbl->isTableArray())
                             {
                                 if (desiredArgType == arg_handlearray)
-                                    retVal = tbl->areAllValuesThis(arg_integer, false);
+                                    retVal = tbl->areAllValuesThis(arg_handle, true);
                                 else
                                 {
                                     if (tbl->areAllValuesThis(arg_double, true))
@@ -378,6 +378,8 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                 msg += "a vector";
                             else if (desiredArgType == arg_vector3)
                                 msg += "a vector3";
+                            else if (desiredArgType == arg_handlearray)
+                                msg += "a handle/object array";
                             else
                                 msg += "an unknown type";
                             msg += ").";
@@ -605,6 +607,23 @@ void fetchLongArray(const CInterfaceStack* inStack, int index, std::vector<long 
             int cnt = int(tbl->getArraySize());
             outArr.resize(cnt);
             tbl->getInt64Array(outArr.data(), cnt);
+        }
+    }
+}
+
+void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr)
+{
+    outArr.clear();
+    int argCnt = inStack->getStackSize();
+    if (argCnt > index)
+    {
+        const CInterfaceStackObject* obj = inStack->getStackObjectFromIndex(index);
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+            int cnt = int(tbl->getArraySize());
+            outArr.resize(cnt);
+            tbl->getInt32Array(outArr.data(), cnt);
         }
     }
 }
@@ -6293,4 +6312,3 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
     }
     return errMsg;
 }
-
