@@ -267,6 +267,8 @@ struct SJointProperty
     FUNCX(propApp_METHOD_scheduleExecution, "scheduleExecution", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_cancelScheduledExecution, "cancelScheduledExecution", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_openFile, "openFile", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_createCustomHandle, "createCustomHandle", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_releaseCustomHandle, "releaseCustomHandle", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_quit, "quit", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define DETACHEDSCRIPT_PROPERTIES \

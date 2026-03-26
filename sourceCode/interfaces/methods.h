@@ -45,7 +45,7 @@ void pushNull(CInterfaceStack* outStack);
 void pushBool(CInterfaceStack* outStack, bool v);
 void pushLong(CInterfaceStack* outStack, long long int v);
 void pushInt(CInterfaceStack* outStack, int v);
-void pushHandle(CInterfaceStack* outStack, int v);
+void pushHandle(CInterfaceStack* outStack, long long int v);
 void pushDouble(CInterfaceStack* outStack, double v);
 void pushText(CInterfaceStack* outStack, const char* v);
 void pushBuffer(CInterfaceStack* outStack, const char* buff, size_t length);
@@ -98,8 +98,6 @@ extern std::string _method_loadSceneFromBuffer(int targetObj, const char* method
 extern std::string _method_saveScene(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_saveSceneToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeModel(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_duplicateObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_addItem(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeItem(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
@@ -213,8 +211,12 @@ extern std::string _method__setTableProperty(int targetObj, const char* method, 
 extern std::string _method_removeProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getPropertyName(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getPropertyInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_createCustomHandle(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_releaseCustomHandle(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 
+extern std::string _method__remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method__removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method__createCamera(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method__createLight(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method__createGraph(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

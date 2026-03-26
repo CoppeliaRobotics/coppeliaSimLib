@@ -167,6 +167,9 @@ class App
     static void asyncResetScript(int scriptHandle);
     static bool appSemaphore(bool acquire, bool block = true);
     static bool systemSemaphore(const char* key, bool acquire);
+    static long long int createCustomHandle();
+    static bool customHandleExists(long long int h);
+    static void releaseCustomHandle(long long int h);
 
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
@@ -225,6 +228,7 @@ class App
     static std::map<std::string, SSysSemaphore> _systemSemaphores;
     static VMutex _appSemaphore;
     static std::vector<std::string> _pluginNames;
+    static std::unordered_set<long long int> _customHandles;
 
 #ifdef USE_LONG_LONG_HANDLES
     static long long int _nextHandle_object;

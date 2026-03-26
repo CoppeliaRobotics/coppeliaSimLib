@@ -81,6 +81,7 @@ std::vector<int> App::_scriptsToReset;
 VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
+std::unordered_set<long long int> App::_customHandles;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 Obj* App::_obj = new Obj(sim_handle_app, "app", OBJECT_META_INFO.c_str());
 
@@ -3152,6 +3153,25 @@ bool App::systemSemaphore(const char* key, bool acquire)
         }
     }
     return retVal;
+}
+
+long long int App::createCustomHandle()
+{
+    long long int h = SIM_IDSTART_CUSTOM;
+    while (customHandleExists(h))
+        h++;
+    _customHandles.insert(h);
+    return h;
+}
+
+bool App::customHandleExists(long long int h)
+{
+    return (_customHandles.find(h) != _customHandles.end());
+}
+
+void App::releaseCustomHandle(long long int h)
+{
+    _customHandles.erase(h);
 }
 
 int App::getPlatform()

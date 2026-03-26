@@ -70,8 +70,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["saveScene"] = _method_saveScene;
         funcTable["saveSceneToBuffer"] = _method_saveSceneToBuffer;
         funcTable["removeModel"] = _method_removeModel;
-        funcTable["remove"] = _method_remove;
-        funcTable["removeObjects"] = _method_removeObjects;
+        funcTable["_remove"] = _method__remove;
+        funcTable["_removeObjects"] = _method__removeObjects;
         funcTable["duplicateObjects"] = _method_duplicateObjects;
         funcTable["addItem"] = _method_addItem;
         funcTable["removeItem"] = _method_removeItem;
@@ -188,6 +188,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["removeProperty"] = _method_removeProperty;
         funcTable["getPropertyName"] = _method_getPropertyName;
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
+        funcTable["createCustomHandle"] = _method_createCustomHandle;
+        funcTable["releaseCustomHandle"] = _method_releaseCustomHandle;
     }
 
     std::string retVal("__notFound__");
@@ -948,7 +950,7 @@ void pushInt(CInterfaceStack* outStack, int v)
     outStack->pushInt32OntoStack(v);
 }
 
-void pushHandle(CInterfaceStack* outStack, int v)
+void pushHandle(CInterfaceStack* outStack, long long int v)
 {
     outStack->pushHandleOntoStack(v);
 }
@@ -2037,7 +2039,7 @@ std::string _method_removeModel(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method__remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_bool | arg_optional}))
@@ -2068,7 +2070,7 @@ std::string _method_remove(int targetObj, const char* method, CDetachedScript* c
     return errMsg;
 }
 
-std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method__removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle, arg_bool | arg_optional}))
@@ -6310,5 +6312,21 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
             }
         }
     }
+    return errMsg;
+}
+
+std::string _method_createCustomHandle(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {}))
+        pushLong(outStack, App::createCustomHandle());
+    return errMsg;
+}
+
+std::string _method_releaseCustomHandle(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_integer}))
+        App::releaseCustomHandle(fetchHandle(inStack, 0));
     return errMsg;
 }
