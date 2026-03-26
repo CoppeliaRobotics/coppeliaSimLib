@@ -24,7 +24,7 @@ endif()
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 
-set(WITH_QSCINTILLA true CACHE BOOL "Link QScintilla library (you'll need to set QSCINTILLA_DIR and QSCINTILLA_LIBRARY variables)")
+set(WITH_QSCINTILLA true CACHE BOOL "Link QScintilla library (you'll need to set QSCINTILLA_DIR, QSCINTILLA_SHARED_LIBRARY and QSCINTILLA_LINK_LIBRARY variables)")
 if(WITH_QSCINTILLA)
     set(QSCINTILLA_DIR NOTFOUND CACHE PATH "Path to the QScintilla directory")
     if(EXISTS "${QSCINTILLA_DIR}")
@@ -58,17 +58,35 @@ target_include_directories(coppeliaSim PRIVATE ${LUA_INCLUDE_DIR})
 if(WITH_QSCINTILLA)
     target_include_directories(coppeliaSim PRIVATE ${QSCINTILLA_DIR}/Qt4Qt5)
     target_include_directories(coppeliaSim PRIVATE ${QSCINTILLA_DIR}/include)
-    if(NOT QSCINTILLA_LIBRARY)
-        if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
-            set(QSCINTILLA_LIBRARY_SUFFIX _debug)
-        endif()
-        set(QSCINTILLA_LIBRARY_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}qscintilla2_qt5${QSCINTILLA_LIBRARY_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
-        if(EXISTS ${QSCINTILLA_BUILD_DIR}/release/${QSCINTILLA_LIBRARY_NAME})
-            set(QSCINTILLA_LIBRARY ${QSCINTILLA_BUILD_DIR}/release/${QSCINTILLA_LIBRARY_NAME})
-        elseif(EXISTS ${QSCINTILLA_BUILD_DIR}/${QSCINTILLA_LIBRARY_NAME})
-            set(QSCINTILLA_LIBRARY ${QSCINTILLA_BUILD_DIR}/${QSCINTILLA_LIBRARY_NAME})
+
+    if(CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg])
+        set(QSCINTILLA_LIBRARY_SUFFIX _debug)
+    endif()
+    set(QSCINTILLA_BASE_LIBRARY_NAME qscintilla2_qt5${QSCINTILLA_LIBRARY_SUFFIX})
+
+    if(NOT QSCINTILLA_SHARED_LIBRARY)
+        set(QSCINTILLA_SHARED_LIBRARY_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${QSCINTILLA_BASE_LIBRARY_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
+        if(EXISTS ${QSCINTILLA_BUILD_DIR}/release/${QSCINTILLA_SHARED_LIBRARY_NAME})
+            set(QSCINTILLA_SHARED_LIBRARY ${QSCINTILLA_BUILD_DIR}/release/${QSCINTILLA_SHARED_LIBRARY_NAME})
+        elseif(EXISTS ${QSCINTILLA_BUILD_DIR}/${QSCINTILLA_SHARED_LIBRARY_NAME})
+            set(QSCINTILLA_SHARED_LIBRARY ${QSCINTILLA_BUILD_DIR}/${QSCINTILLA_SHARED_LIBRARY_NAME})
         else()
-            set(QSCINTILLA_LIBRARY NOTFOUND)
+            set(QSCINTILLA_SHARED_LIBRARY NOTFOUND)
+        endif()
+    endif()
+
+    if(NOT WIN32 AND NOT QSCINTILLA_LINK_LIBRARY)
+        set(QSCINTILLA_LINK_LIBRARY ${QSCINTILLA_SHARED_LIBRARY})
+    endif()
+
+    if(NOT QSCINTILLA_LINK_LIBRARY)
+        set(QSCINTILLA_LINK_LIBRARY_NAME ${CMAKE_IMPORT_LIBRARY_PREFIX}${QSCINTILLA_BASE_LIBRARY_NAME}${CMAKE_IMPORT_LIBRARY_SUFFIX})
+        if(EXISTS ${QSCINTILLA_BUILD_DIR}/release/${QSCINTILLA_LINK_LIBRARY_NAME})
+            set(QSCINTILLA_LINK_LIBRARY ${QSCINTILLA_BUILD_DIR}/release/${QSCINTILLA_LINK_LIBRARY_NAME})
+        elseif(EXISTS ${QSCINTILLA_BUILD_DIR}/${QSCINTILLA_LINK_LIBRARY_NAME})
+            set(QSCINTILLA_LINK_LIBRARY ${QSCINTILLA_BUILD_DIR}/${QSCINTILLA_LINK_LIBRARY_NAME})
+        else()
+            set(QSCINTILLA_LINK_LIBRARY NOTFOUND)
         endif()
     endif()
 
@@ -95,10 +113,13 @@ if(WITH_QSCINTILLA)
         endif()
     endif()
 
-    if(EXISTS "${QSCINTILLA_LIBRARY}")
-        message(STATUS "QSCINTILLA_LIBRARY: ${QSCINTILLA_LIBRARY}")
+    if(NOT EXISTS "${QSCINTILLA_SHARED_LIBRARY}")
+        message(FATAL_ERROR "The specified QSCINTILLA_SHARED_LIBRARY (${QSCINTILLA_SHARED_LIBRARY}) does not exist")
+    elseif(NOT EXISTS "${QSCINTILLA_LINK_LIBRARY}")
+        message(FATAL_ERROR "The specified QSCINTILLA_LINK_LIBRARY (${QSCINTILLA_LINK_LIBRARY}) does not exist")
     else()
-        message(FATAL_ERROR "The specified QSCINTILLA_LIBRARY (${QSCINTILLA_LIBRARY}) does not exist")
+        message(STATUS "QSCINTILLA_SHARED_LIBRARY: ${QSCINTILLA_SHARED_LIBRARY}")
+        message(STATUS "QSCINTILLA_LINK_LIBRARY: ${QSCINTILLA_LINK_LIBRARY}")
     endif()
 endif()
 
@@ -528,7 +549,7 @@ target_sources(coppeliaSim PRIVATE
 
     sourceCode/mainContainers/worldContainer.cpp
     sourceCode/mainContainers/world.cpp
-    
+
     sourceCode/mainContainers/sceneContainers/drawingContainer.cpp
     sourceCode/mainContainers/sceneContainers/textureContainer.cpp
     sourceCode/mainContainers/sceneContainers/simulation.cpp
@@ -668,7 +689,7 @@ target_link_libraries(coppeliaSim Eigen3::Eigen)
 target_link_libraries(coppeliaSim tinyxml2::tinyxml2)
 target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
 if(WITH_QSCINTILLA)
-    target_link_libraries(coppeliaSim ${QSCINTILLA_LIBRARY})
+    target_link_libraries(coppeliaSim ${QSCINTILLA_LINK_LIBRARY})
 endif()
 
 target_link_libraries(coppeliaSim Qt::Core Qt::PrintSupport Qt::Network)
@@ -697,7 +718,7 @@ if(PLUS)
 endif()
 
 if(WITH_QSCINTILLA AND APPLE)
-    get_filename_component(QSCINTILLA_LIB_NAME ${QSCINTILLA_LIBRARY} NAME)
+    get_filename_component(QSCINTILLA_LIB_NAME ${QSCINTILLA_SHARED_LIBRARY} NAME)
     add_custom_command(TARGET coppeliaSim POST_BUILD COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change ${QSCINTILLA_LIB_NAME} @executable_path/../Frameworks/${QSCINTILLA_LIB_NAME} $<TARGET_FILE:coppeliaSim>)
 endif()
 
