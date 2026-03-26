@@ -611,6 +611,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/various/folderSystem.cpp
     sourceCode/various/app.cpp
     sourceCode/various/obj.cpp
+    sourceCode/various/customObjects.cpp
     sourceCode/various/simThread.cpp
     sourceCode/various/dynMaterialObject.cpp
     sourceCode/various/sigHandler.cpp

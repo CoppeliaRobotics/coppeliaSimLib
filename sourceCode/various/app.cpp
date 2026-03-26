@@ -84,6 +84,8 @@ std::vector<std::string> App::_pluginNames;
 std::unordered_set<long long int> App::_customHandles;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 Obj* App::_obj = new Obj(sim_handle_app, "app", OBJECT_META_INFO.c_str());
+CustomObjects* App::_customObjects = new CustomObjects();;
+
 
 long long int App::_nextUniqueId = SIM_UIDSTART;
 #ifdef USE_LONG_LONG_HANDLES
@@ -1817,6 +1819,18 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
             }
         }
     }
+    else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
+    {
+        if (customHandleExists(target))
+        {
+            retVal = _customObjects->getLongProperty(ppName, pState);
+            if (strcmp(ppName, "handle") == 0)
+            { // special handling of that one
+                pState = target;
+                retVal = 1;
+            }
+        }
+    }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getLongProperty(target, pName, pState);
     return retVal;
@@ -2334,6 +2348,11 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                 retVal = 1;
             }
         }
+    }
+    else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
+    {
+        if (customHandleExists(target))
+            retVal = _customObjects->getStringProperty(ppName, pState);
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getStringProperty(target, pName, pState);
@@ -2903,6 +2922,11 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             }
         }
     }
+    else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
+    {
+        if (customHandleExists(target))
+            retVal = _customObjects->getPropertyName(index, pName, appartenance, excludeFlags);
+    }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getPropertyName(target, index, pName, appartenance, excludeFlags);
     return retVal;
@@ -2993,6 +3017,11 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                 }
             }
         }
+    }
+    else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
+    {
+        if (customHandleExists(target))
+            retVal = _customObjects->getPropertyInfo(pName, info, infoTxt);
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getPropertyInfo(target, pName, info, infoTxt);

@@ -9,6 +9,7 @@
 #include <instance_id.h>
 #include <QSystemSemaphore>
 #include <obj.h>
+#include <customObjects.h>
 #include <propertiesAndMethods.h>
 #ifndef SIM_WITH_GUI
 #include <simQApp.h>
@@ -219,6 +220,7 @@ class App
     static bool _exitRequest;
     static volatile int _appStage;
     static Obj* _obj;
+    static CustomObjects* _customObjects;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
     static std::map<std::string /*originName*/, std::map<int /*verbosityLevel*/, std::map<std::string /*msg*/, bool>>> _logOnceMessages;
