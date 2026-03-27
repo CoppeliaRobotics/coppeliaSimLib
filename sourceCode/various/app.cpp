@@ -81,10 +81,9 @@ std::vector<int> App::_scriptsToReset;
 VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
-std::unordered_set<long long int> App::_customHandles;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 Obj* App::_obj = new Obj(sim_handle_app, "app", OBJECT_META_INFO.c_str());
-CustomObjects* App::_customObjects = new CustomObjects();;
+std::map<long long int, CustomObject*> App::_customObjects;
 
 
 long long int App::_nextUniqueId = SIM_UIDSTART;
@@ -1821,15 +1820,11 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
     }
     else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
     {
-        if (customHandleExists(target))
-        {
-            retVal = _customObjects->getLongProperty(ppName, pState);
-            if (strcmp(ppName, "handle") == 0)
-            { // special handling of that one
-                pState = target;
-                retVal = 1;
-            }
-        }
+        CustomObject* obj = getCustomObject(target);
+        if (obj != nullptr)
+            retVal = obj->getLongProperty(ppName, pState);
+        else
+            retVal = -2; // property does not exist
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getLongProperty(target, pName, pState);
@@ -2351,8 +2346,11 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
     }
     else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
     {
-        if (customHandleExists(target))
-            retVal = _customObjects->getStringProperty(ppName, pState);
+        CustomObject* obj = getCustomObject(target);
+        if (obj != nullptr)
+            retVal = obj->getStringProperty(ppName, pState);
+        else
+            retVal = -2; // property does not exist
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getStringProperty(target, pName, pState);
@@ -2924,8 +2922,11 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
     }
     else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
     {
-        if (customHandleExists(target))
-            retVal = _customObjects->getPropertyName(index, pName, appartenance, excludeFlags);
+        CustomObject* obj = getCustomObject(target);
+        if (obj != nullptr)
+            retVal = obj->getPropertyName(index, pName, appartenance, excludeFlags);
+        else
+            retVal = -2; // property does not exist
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getPropertyName(target, index, pName, appartenance, excludeFlags);
@@ -3020,8 +3021,11 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
     }
     else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
     {
-        if (customHandleExists(target))
-            retVal = _customObjects->getPropertyInfo(pName, info, infoTxt);
+        CustomObject* obj = getCustomObject(target);
+        if (obj != nullptr)
+            retVal = obj->getPropertyInfo(pName, info, infoTxt);
+        else
+            retVal = -2; // property does not exist
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getPropertyInfo(target, pName, info, infoTxt);
@@ -3184,23 +3188,33 @@ bool App::systemSemaphore(const char* key, bool acquire)
     return retVal;
 }
 
-long long int App::createCustomHandle()
+long long int App::createCustomObject(const char* objectTypeStr, const char* objectMetaInfo)
 {
     long long int h = SIM_IDSTART_CUSTOM;
-    while (customHandleExists(h))
+    while (getCustomObject(h))
         h++;
-    _customHandles.insert(h);
+    CustomObject* obj = new CustomObject(h, objectTypeStr, objectMetaInfo);
+    _customObjects.insert({h, obj});
     return h;
 }
 
-bool App::customHandleExists(long long int h)
+CustomObject* App::getCustomObject(long long int h)
 {
-    return (_customHandles.find(h) != _customHandles.end());
+    CustomObject* retVal = nullptr;
+    auto it = _customObjects.find(h);
+    if (it != _customObjects.end())
+        retVal = it->second;
+    return retVal;
 }
 
-void App::releaseCustomHandle(long long int h)
+void App::releaseCustomObject(long long int h)
 {
-    _customHandles.erase(h);
+    auto it = _customObjects.find(h);
+    if (it != _customObjects.end())
+    {
+        delete it->second;
+        _customObjects.erase(it);
+    }
 }
 
 int App::getPlatform()

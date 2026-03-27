@@ -11,11 +11,11 @@ extern const std::vector<SProperty> allProps_customObj;
 // ----------------------------------------------------------------------------------------------
 */
 
-class CustomObjects: public Obj
+class CustomObject: public Obj
 {
   public:
-    CustomObjects();
-    virtual ~CustomObjects();
+    CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo);
+    virtual ~CustomObject();
 
     virtual int getLongProperty(const char* pName, long long int& pState) const;
     virtual int getStringProperty(const char* pName, std::string& pState) const;

@@ -188,8 +188,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["removeProperty"] = _method_removeProperty;
         funcTable["getPropertyName"] = _method_getPropertyName;
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
-        funcTable["createCustomHandle"] = _method_createCustomHandle;
-        funcTable["releaseCustomHandle"] = _method_releaseCustomHandle;
+        funcTable["createCustomObject"] = _method_createCustomObject;
+        funcTable["releaseCustomObject"] = _method_releaseCustomObject;
     }
 
     std::string retVal("__notFound__");
@@ -6315,18 +6315,22 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_createCustomHandle(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {}))
-        pushLong(outStack, App::createCustomHandle());
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string}))
+    {
+        std::string typeStr = fetchText(inStack, 0);
+        std::string metaInfoStr = fetchText(inStack, 1);
+        pushLong(outStack, App::createCustomObject(typeStr.c_str(), metaInfoStr.c_str()));
+    }
     return errMsg;
 }
 
-std::string _method_releaseCustomHandle(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_releaseCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_integer}))
-        App::releaseCustomHandle(fetchHandle(inStack, 0));
+        App::releaseCustomObject(fetchHandle(inStack, 0));
     return errMsg;
 }

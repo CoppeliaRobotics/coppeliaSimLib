@@ -9,7 +9,7 @@
 #include <instance_id.h>
 #include <QSystemSemaphore>
 #include <obj.h>
-#include <customObjects.h>
+#include <customObject.h>
 #include <propertiesAndMethods.h>
 #ifndef SIM_WITH_GUI
 #include <simQApp.h>
@@ -155,6 +155,9 @@ class App
 
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
+    static long long int createCustomObject(const char* objectTypeStr, const char* objectMetaInfo);
+    static CustomObject* getCustomObject(long long int h);
+    static void releaseCustomObject(long long int h);
 
     static void setHierarchyEnabled(bool v);
     static bool getHierarchyEnabled();
@@ -168,9 +171,6 @@ class App
     static void asyncResetScript(int scriptHandle);
     static bool appSemaphore(bool acquire, bool block = true);
     static bool systemSemaphore(const char* key, bool acquire);
-    static long long int createCustomHandle();
-    static bool customHandleExists(long long int h);
-    static void releaseCustomHandle(long long int h);
 
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
@@ -220,7 +220,7 @@ class App
     static bool _exitRequest;
     static volatile int _appStage;
     static Obj* _obj;
-    static CustomObjects* _customObjects;
+    static std::map<long long int, CustomObject*> _customObjects;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
     static std::map<std::string /*originName*/, std::map<int /*verbosityLevel*/, std::map<std::string /*msg*/, bool>>> _logOnceMessages;
@@ -230,7 +230,6 @@ class App
     static std::map<std::string, SSysSemaphore> _systemSemaphores;
     static VMutex _appSemaphore;
     static std::vector<std::string> _pluginNames;
-    static std::unordered_set<long long int> _customHandles;
 
 #ifdef USE_LONG_LONG_HANDLES
     static long long int _nextHandle_object;

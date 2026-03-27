@@ -515,7 +515,7 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
     $$PWD/sourceCode/various/userSettings.h \
     $$PWD/sourceCode/various/app.h \
     $$PWD/sourceCode/various/obj.h \
-    $$PWD/sourceCode/various/customObjects.h \
+    $$PWD/sourceCode/various/customObject.h \
     $$PWD/sourceCode/various/simThread.h \
     $$PWD/sourceCode/various/folderSystem.h \
     $$PWD/sourceCode/various/dynMaterialObject.h \
@@ -910,7 +910,7 @@ SOURCES += $$PWD/sourceCode/various/userSettings.cpp \
     $$PWD/sourceCode/various/folderSystem.cpp \
     $$PWD/sourceCode/various/app.cpp \
     $$PWD/sourceCode/various/obj.cpp \
-    $$PWD/sourceCode/various/customObjects.cpp \
+    $$PWD/sourceCode/various/customObject.cpp \
     $$PWD/sourceCode/various/simThread.cpp \
     $$PWD/sourceCode/various/dynMaterialObject.cpp \
     $$PWD/sourceCode/various/sigHandler.cpp \
