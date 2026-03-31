@@ -417,7 +417,7 @@ bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State* L, int idx)
     return retVal;
 }
 
-bool luaWrap_lua_ismetatable(luaWrap_lua_State* L, int idx)
+bool luaWrap_lua_hasmetatable(luaWrap_lua_State* L, int idx)
 {
     bool retVal = false;
     if (lua_istable((lua_State*)L, idx))
@@ -476,14 +476,19 @@ bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long l
             if (handles != nullptr)
             {
                 lua_getfield((lua_State*)L, -1, "__objects");
+                //lua_pushstring((lua_State*)L, "__objects");
+                //lua_rawget((lua_State*)L, abs_idx);
                 {
                     lua_getfield((lua_State*)L, -1, "n");
+                    //lua_pushstring((lua_State*)L, "n");
+                    //lua_rawget((lua_State*)L, -1);
                     lua_Integer n = lua_tointeger((lua_State*)L, -1);
                     lua_pop((lua_State*)L, 1); // n
                     handles->resize(n);
                     for (int i = 1; i <= n; i++)
                     {
-                        lua_geti((lua_State*)L, -1, i);
+                        // lua_geti((lua_State*)L, -1, i);
+                        lua_rawgeti((lua_State*)L, -1, i);
                         if (lua_isnil((lua_State*)L, -1))
                             handles->at(i - 1) = -1;
                         else
@@ -522,6 +527,8 @@ bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal /*= null
     {
         lua_pop((lua_State*)L, 1); // Remove the metatable
         lua_getfield((lua_State*)L, idx, "handle");
+        // lua_pushstring((lua_State*)L, "handle");
+        // lua_rawget((lua_State*)L, idx);
         if (lua_isinteger((lua_State*)L, -1))
         {
             if (handleVal != nullptr)

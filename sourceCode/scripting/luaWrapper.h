@@ -81,7 +81,7 @@ bool luaWrap_lua_isnil(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isboolean(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isgeneraltable(luaWrap_lua_State* L, int idx);   // a random table, including metatable or 'buffer' metatable
 bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State* L, int idx); // a table that is not a 'buffer' metatable
-bool luaWrap_lua_ismetatable(luaWrap_lua_State* L, int idx);
+bool luaWrap_lua_hasmetatable(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx);         // a buffer (a 'buffer' metatable)
 bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal = nullptr);         // a metatable with a 'handle' field
 bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long long int>* handles = nullptr, bool strict = false);         // a objectArray metatable

@@ -4189,7 +4189,8 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
     }
     else if (t == sim_stackitem_table)
     { // this part is more tricky:
-        if (luaWrap_lua_ismetatable(L, index))
+        bool metatable = luaWrap_lua_hasmetatable(L, index);
+        if (metatable)
         { // we have a metatable (not via type hint):
             int handleVal;
             size_t rows, cols;
@@ -4228,6 +4229,17 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
             else
             {
                 visitedTables[p] = true;
+                if (metatable)
+                {
+                    int abs_i = lua_absindex((lua_State*)L, index);
+                    // Push table.clone
+                    lua_getglobal((lua_State*)L, "table");
+                    lua_getfield((lua_State*)L, -1, "clone");
+                    lua_remove((lua_State*)L, -2); // remove "table", keep "clone"
+                    lua_pushvalue((lua_State*)L, abs_i); // push metatable
+                    lua_call((lua_State*)L, 1, 1);          // cloned table now on top
+                    lua_replace((lua_State*)L, abs_i); // replace the metatable with its clone
+                }
                 table = _getTableFromInterpreterStack_lua(L, index, visitedTables, hasTypeHints);
                 it = visitedTables.find(p);
                 visitedTables.erase(it);

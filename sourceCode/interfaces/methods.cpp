@@ -10,6 +10,7 @@
 #include <interfaceStackQuaternion.h>
 #include <interfaceStackPose.h>
 #include <interfaceStackHandle.h>
+#include <interfaceStackHandleArray.h>
 #include <interfaceStackColor.h>
 #include <sceneObjectOperations.h>
 #include <imgLoaderSaver.h>
@@ -37,6 +38,7 @@ namespace {
     constexpr int arg_color         = sim_stackitem_color;
     constexpr int arg_handlearray   = sim_stackitem_handlearray;
     constexpr int arg_vector        = sim_stackitem_exvector;
+    constexpr int arg_vector2       = sim_stackitem_exvector2;
     constexpr int arg_vector3       = sim_stackitem_exvector3;
     constexpr int arg_any           = sim_stackitem_exany;
     constexpr int arg_optional      = sim_stackitem_exoptional;
@@ -316,6 +318,8 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                         CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)arg;
                         if ( (desiredArgType == arg_vector) && (m->getValue()->cols == 1) )
                             retVal = true;
+                        else if ( (desiredArgType == arg_vector2) && (m->getValue()->cols == 1) && (m->getValue()->rows == 2) )
+                            retVal = true;
                         else if ( (desiredArgType == arg_vector3) && (m->getValue()->cols == 1) && (m->getValue()->rows == 3) )
                             retVal = true;
                     }
@@ -340,6 +344,8 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                             retVal = (tbl->getArraySize() == 3);
                                         else if (desiredArgType == arg_vector)
                                             retVal = (tbl->getArraySize() >= 1);
+                                        else if (desiredArgType == arg_vector2)
+                                            retVal = (tbl->getArraySize() == 2);
                                         else if (desiredArgType == arg_vector3)
                                             retVal = (tbl->getArraySize() == 3);
                                         else
@@ -386,6 +392,8 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                 msg += "a vector";
                             else if (desiredArgType == arg_vector3)
                                 msg += "a vector3";
+                            else if (desiredArgType == arg_vector2)
+                                msg += "a vector2";
                             else if (desiredArgType == arg_handlearray)
                                 msg += "a handle/object array";
                             else
@@ -660,6 +668,13 @@ void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<lon
             outArr.resize(cnt);
             tbl->getInt64Array(outArr.data(), cnt);
         }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        {
+            const CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
+            size_t cnt;
+            const long long int* v = arr->getValue(&cnt);
+            outArr.assign(v, v + cnt);
+        }
     }
 }
 
@@ -872,7 +887,7 @@ void fetchDoubleArray(const CInterfaceStack* inStack, int index, std::vector<dou
         {
             const CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
             const CMatrix* matr = m->getValue();
-            if ( (matr->rows == 1) || (matr->cols == 1) )
+            if (matr->cols == 1)
                 outArr.assign(matr->data.begin(), matr->data.end());
         }
     }
@@ -6068,7 +6083,7 @@ std::string _method_setStringProperty(int targetObj, const char* method, CDetach
 std::string _method_setVector2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_double, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_vector2, arg_optional | arg_table, 0, arg_any}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<double> pValue;
