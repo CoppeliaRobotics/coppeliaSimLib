@@ -4138,6 +4138,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
         else
             t = sim_stackitem_table;
     }
+    bool metatable = false;
     if (t == sim_stackitem_null)
         retVal = new CInterfaceStackNull();
     else if (t == sim_stackitem_bool)
@@ -4189,7 +4190,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
     }
     else if (t == sim_stackitem_table)
     { // this part is more tricky:
-        bool metatable = luaWrap_lua_hasmetatable(L, index);
+        metatable = luaWrap_lua_hasmetatable(L, index);
         if (metatable)
         { // we have a metatable (not via type hint):
             int handleVal;
@@ -4216,8 +4217,8 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
             else if (luaWrap_lua_ishandlearray(L, index, &handleArray, true))
                 retVal = new CInterfaceStackHandleArray(handleArray.data(), handleArray.size());
         }
-        if (retVal == nullptr)
-        { // Regular table (or metatable type we don't know). Following to avoid getting trapped in circular references:
+        else
+        { // Regular table. Following to avoid getting trapped in circular references:
             void* p = (void*)luaWrap_lua_topointer(L, index);
             std::map<void*, bool>::iterator it = visitedTables.find(p);
             CInterfaceStackTable* table = nullptr;
@@ -4229,6 +4230,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
             else
             {
                 visitedTables[p] = true;
+                /*
                 if (metatable)
                 {
                     int abs_i = lua_absindex((lua_State*)L, index);
@@ -4240,6 +4242,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
                     lua_call((lua_State*)L, 1, 1);          // cloned table now on top
                     lua_replace((lua_State*)L, abs_i); // replace the metatable with its clone
                 }
+                */
                 table = _getTableFromInterpreterStack_lua(L, index, visitedTables, hasTypeHints);
                 it = visitedTables.find(p);
                 visitedTables.erase(it);
@@ -4247,13 +4250,15 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
             retVal = table;
         }
     }
-    else
+    if (retVal == nullptr)
     { // following types translate to strings (i.e. can't be handled outside of the Lua state)
         void* p = (void*)luaWrap_lua_topointer(L, index);
         char num[21];
         snprintf(num, 20, "%p", p);
         std::string str;
-        if (t == sim_stackitem_userdat)
+        if (metatable)
+            str = "<METATABLE ";
+        else if (t == sim_stackitem_userdat)
             str = "<USERDATA ";
         else if (t == sim_stackitem_func)
             str = "<FUNCTION ";

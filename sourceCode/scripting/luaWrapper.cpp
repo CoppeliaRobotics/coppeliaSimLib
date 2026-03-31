@@ -838,12 +838,9 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
         }
         lua_pushinteger((lua_State*)L, h);
         if (lua_pcall((lua_State*)L, 1, 1, 0) == LUA_OK)
-        {
-            lua_remove((lua_State*)L, -2);
             retVal = true;
-        }
         else
-            lua_pop((lua_State*)L, 2);
+            lua_pop((lua_State*)L, 1);
     }
     if (!retVal)
         lua_pushnil((lua_State*)L);

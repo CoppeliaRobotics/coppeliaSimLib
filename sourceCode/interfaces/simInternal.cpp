@@ -3448,6 +3448,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
 
             std::string err(callMethod(target, name, (CDetachedScript*)currentScript, _inStack, _outStack));
 
+
             if (inStack == nullptr)
                 App::worldContainer->interfaceStackContainer->destroyStack(_inStack);
             if (outStack == nullptr)
