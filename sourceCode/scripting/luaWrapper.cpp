@@ -470,19 +470,30 @@ bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long l
     if (luaL_callmeta((lua_State*)L, abs_idx, "__isobjectarray") == 1)
     {
         retVal = lua_toboolean((lua_State*)L, -1);
-        lua_pop((lua_State*)L,1);
+        lua_pop((lua_State*)L, 1);
         if (retVal)
         {
             if (handles != nullptr)
             {
-                lua_getfield((lua_State*)L, -1, "__objects");
-                //lua_pushstring((lua_State*)L, "__objects");
-                //lua_rawget((lua_State*)L, abs_idx);
+                lua_getfield((lua_State*)L, abs_idx, "totable"); // correct object
+
+                if (!lua_isfunction((lua_State*)L, -1))
+                {
+                    // TODO: handle error
+                    lua_pop((lua_State*)L, 1); // remove non-function
+                }
+                else
+                {
+                    lua_pushvalue((lua_State*)L, abs_idx);           // push obj as self
+                    lua_call((lua_State*)L, 1, 1); // call :totable() method, 1 arg (self), 1 result
+                }
+
                 {
                     lua_getfield((lua_State*)L, -1, "n");
                     //lua_pushstring((lua_State*)L, "n");
                     //lua_rawget((lua_State*)L, -1);
                     lua_Integer n = lua_tointeger((lua_State*)L, -1);
+                    printf("n=%lld\n", n);
                     lua_pop((lua_State*)L, 1); // n
                     handles->resize(n);
                     for (int i = 1; i <= n; i++)
@@ -493,10 +504,11 @@ bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long l
                             handles->at(i - 1) = -1;
                         else
                             handles->at(i - 1) = luaWrap_lua_tohandle(L, -1);
+                        printf("%d: %lld\n", i-1, (*handles)[i-1]);
                         lua_pop((lua_State*)L, 1);
                     }
                 }
-                lua_pop((lua_State*)L, 1); // __objects
+                lua_pop((lua_State*)L, 1); // table of objects
             }
         }
     }
@@ -523,19 +535,25 @@ bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal /*= null
             handleVal[0] = lua_tointeger((lua_State*)L, idx);
         retVal = true;
     }
-    else if (lua_getmetatable((lua_State*)L, idx)) // Check if there is a metatable
+    else if (luaL_callmeta((lua_State*)L, idx, "__isobject") == 1)
     {
-        lua_pop((lua_State*)L, 1); // Remove the metatable
-        lua_getfield((lua_State*)L, idx, "handle");
-        // lua_pushstring((lua_State*)L, "handle");
-        // lua_rawget((lua_State*)L, idx);
-        if (lua_isinteger((lua_State*)L, -1))
+        retVal = lua_toboolean((lua_State*)L, -1);
+        lua_pop((lua_State*)L, 1);
+        if (retVal && handleVal != nullptr)
         {
-            if (handleVal != nullptr)
+            lua_pushstring((lua_State*)L, "__handle");
+            lua_rawget((lua_State*)L, idx);
+            if (lua_isinteger((lua_State*)L, -1))
+            {
                 handleVal[0] = lua_tointeger((lua_State*)L, -1);
-            retVal = true;
+            }
+            else
+            {
+                handleVal[0] = -1;
+                retVal = false;
+            }
+            lua_pop((lua_State*)L, 1);
         }
-        lua_pop((lua_State*)L, 1); // Remove the handle value
     }
     return retVal;
 }
@@ -1190,4 +1208,3 @@ bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long 
     }
     return retVal;
 }
-
