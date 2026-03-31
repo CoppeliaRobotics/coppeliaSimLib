@@ -1993,6 +1993,404 @@ int simGetVector3Property_internal(long long int target, const char* ppName, dou
     return -1;
 }
 
+int simSetMatrixProperty_internal(long long int target, const char* ppName, const double* pState, int r, int c)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix))))
+            {
+                std::string packed;
+                packed.resize(2 * sizeof(int) + r * c * sizeof(double));
+                int dims[2] = { r, c };
+                memcpy(&packed[0], dims, 2 * sizeof(int));
+                memcpy(&packed[0] + 2 * sizeof(int), pState, r * c * sizeof(double));
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), packed.data(), 2 * sizeof(int) + r * c * sizeof(double));
+            }
+            else
+            {
+                CMatrix m(r, c);
+                m.data.assign(pState, pState + r * c);
+                int res = App::setMatrixProperty(target, pName.c_str(), m);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                    if (p < 0)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
+                    else if (p == sim_propertytype_matrix)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
+                }
+            }
+        }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetMatrixProperty_internal(long long int target, const char* ppName, double** pState, int* r, int* c)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix))))
+            {
+                int l;
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
+                {
+                    if (l >= 2 * sizeof(int) + 1 * sizeof(double))
+                    {
+                        int _r = ((int*)data)[0];
+                        int _c = ((int*)data)[1];
+                        if (((_r * _c) * sizeof(double) + 2 * sizeof(int)) == l)
+                        {
+                            r[0] = _r;
+                            c[0] = _c;
+                            pState[0] = new double[_r * _c];
+                            memcpy(pState[0], data + 2 * sizeof(int), _r * _c * sizeof(double));
+                        }
+                        else
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                            retVal = ERRCODE_PROPERTYISCORRUPT;
+                        }
+                    }
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
+                    delete[] data;
+                }
+            }
+            else
+            {
+                CMatrix m;
+                int res = App::getMatrixProperty(target, pName.c_str(), m);
+                if (res == 1)
+                {
+                    pState[0] = new double[m.rows * m.cols];
+                    memcpy(pState[0], m.data.data(), m.rows * m.cols * sizeof(double));
+                    retVal = 1;
+                }
+                else if (res == -2)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                    if (p < 0)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
+                    else if (p == sim_propertytype_matrix)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetMatrix3x3Property_internal(long long int target, const char* ppName, const double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix3x3))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix3x3))))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * 3 * sizeof(double));
+            else
+            {
+                CMatrix m(3, 3);
+                m.data.assign(pState, pState + 3 * 3);
+                int res = App::setMatrix3x3Property(target, pName.c_str(), m);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                    if (p < 0)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
+                    else if (p == sim_propertytype_matrix3x3)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
+                }
+            }
+        }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetMatrix3x3Property_internal(long long int target, const char* ppName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix3x3))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix3x3))))
+            {
+                int l;
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
+                {
+                    if (l == 3 * 3 * sizeof(double))
+                        memcpy(pState, data, 3 * 3 * sizeof(double));
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
+                    delete[] data;
+                }
+            }
+            else
+            {
+                CMatrix m;
+                int res = App::getMatrix3x3Property(target, pName.c_str(), m);
+                if (res == 1)
+                {
+                    memcpy(pState, m.data.data(), 3 * 3 * sizeof(double));
+                    retVal = 1;
+                }
+                else if (res == -2)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                    if (p < 0)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
+                    else if (p == sim_propertytype_matrix3x3)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetMatrix4x4Property_internal(long long int target, const char* ppName, const double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix4x4))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix4x4))))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 4 * 4 * sizeof(double));
+            else
+            {
+                CMatrix m(4, 4);
+                m.data.assign(pState, pState + 4 * 4);
+                int res = App::setMatrix4x4Property(target, pName.c_str(), m);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                    if (p < 0)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
+                    else if (p == sim_propertytype_matrix4x4)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                    }
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
+                }
+            }
+        }
+        else
+            retVal = ERRCODE_INVALIDPROPERTYNAME;
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetMatrix4x4Property_internal(long long int target, const char* ppName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix4x4))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix4x4))))
+            {
+                int l;
+                char* data;
+                retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+                if (retVal > 0)
+                {
+                    if (l == 4 * 4 * sizeof(double))
+                        memcpy(pState, data, 4 * 4 * sizeof(double));
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                        retVal = ERRCODE_PROPERTYISCORRUPT;
+                    }
+                    delete[] data;
+                }
+            }
+            else
+            {
+                CMatrix m;
+                int res = App::getMatrix4x4Property(target, pName.c_str(), m);
+                if (res == 1)
+                {
+                    memcpy(pState, m.data.data(), 4 * 4 * sizeof(double));
+                    retVal = 1;
+                }
+                else if (res == -2)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    retVal = ERRCODE_TARGETDOESNOTEXIST;
+                }
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                    if (p < 0)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        retVal = ERRCODE_UNKNOWNPROPERTY;
+                    }
+                    else if (p == sim_propertytype_matrix4x4)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                        retVal = ERRCODE_PROPERTYCANNOTBEREAD;
+                    }
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                    }
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
 int simSetQuaternionProperty_internal(long long int target, const char* ppName, const double* pState)
 {
     C_API_START;

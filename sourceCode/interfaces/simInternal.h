@@ -67,6 +67,12 @@ int simSetVector2Property_internal(long long int target, const char* pName, cons
 int simGetVector2Property_internal(long long int target, const char* pName, double* pState);
 int simSetVector3Property_internal(long long int target, const char* pName, const double* pState);
 int simGetVector3Property_internal(long long int target, const char* pName, double* pState);
+int simSetMatrixProperty_internal(long long int target, const char* pName, const double* pState, int r, int c);
+int simGetMatrixProperty_internal(long long int target, const char* pName, double** pState, int* r, int* c);
+int simSetMatrix3x3Property_internal(long long int target, const char* pName, const double* pState);
+int simGetMatrix3x3Property_internal(long long int target, const char* pName, double* pState);
+int simSetMatrix4x4Property_internal(long long int target, const char* pName, const double* pState);
+int simGetMatrix4x4Property_internal(long long int target, const char* pName, double* pState);
 int simSetQuaternionProperty_internal(long long int target, const char* pName, const double* pState);
 int simGetQuaternionProperty_internal(long long int target, const char* pName, double* pState);
 int simSetPoseProperty_internal(long long int target, const char* pName, const double* pState);

@@ -2542,6 +2542,96 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
     return retVal;
 }
 
+int App::setMatrixProperty(long long int target, const char* ppName, const CMatrix& pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setMatrixProperty(target, pName, pState);
+    return retVal;
+}
+
+int App::getMatrixProperty(long long int target, const char* ppName, CMatrix& pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getMatrixProperty(target, pName, pState);
+    return retVal;
+}
+
+int App::setMatrix3x3Property(long long int target, const char* ppName, const CMatrix& pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setMatrix3x3Property(target, pName, pState);
+    return retVal;
+}
+
+int App::getMatrix3x3Property(long long int target, const char* ppName, CMatrix& pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getMatrix3x3Property(target, pName, pState);
+    return retVal;
+}
+
+int App::setMatrix4x4Property(long long int target, const char* ppName, const CMatrix& pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setMatrix4x4Property(target, pName, pState);
+    return retVal;
+}
+
+int App::getMatrix4x4Property(long long int target, const char* ppName, CMatrix& pState)
+{
+    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
+        target = worldContainer->sandboxScript->getScriptHandle();
+
+    int retVal = -1;
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getMatrix4x4Property(target, pName, pState);
+    return retVal;
+}
+
 int App::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
     if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))

@@ -183,6 +183,12 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setStringProperty"] = _method_setStringProperty;
         funcTable["setVector2Property"] = _method_setVector2Property;
         funcTable["setVector3Property"] = _method_setVector3Property;
+        funcTable["getMatrixProperty"] = _method_getMatrixProperty;
+        funcTable["setMatrixProperty"] = _method_setMatrixProperty;
+        funcTable["getMatrix3x3Property"] = _method_getMatrix3x3Property;
+        funcTable["setMatrix3x3Property"] = _method_setMatrix3x3Property;
+        funcTable["getMatrix4x4Property"] = _method_getMatrix4x4Property;
+        funcTable["setMatrix4x4Property"] = _method_setMatrix4x4Property;
         funcTable["_getTableProperty"] = _method__getTableProperty;
         funcTable["_setTableProperty"] = _method__setTableProperty;
         funcTable["removeProperty"] = _method_removeProperty;
@@ -1005,13 +1011,6 @@ void pushVector2(CInterfaceStack* outStack, const double v[2])
 void pushMatrix(CInterfaceStack* outStack, const CMatrix& v)
 {
     outStack->pushMatrixOntoStack(v.data.data(), v.rows, v.cols);
-}
-
-void pushMatrix(CInterfaceStack* outStack, const C3X3Matrix& v)
-{
-    double dat[9];
-    v.getData(dat);
-    outStack->pushMatrixOntoStack(dat, 3, 3);
 }
 
 void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length)
@@ -6121,6 +6120,227 @@ std::string _method_setVector3Property(int targetObj, const char* method, CDetac
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetVector3Property, targetObj, pName.c_str(), pValue.data) > 0)
+            {
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                {
+                    std::string nn(pName);
+                    if (targetObj == sim_handle_app)
+                        nn = "app." + nn;
+                    else if (targetObj != sim_handle_scene)
+                        nn = "obj." + nn;
+                    currentScript->signalSet(nn.c_str(), targetObj);
+                }
+            }
+            else
+            {
+                errMsg = CApiErrors::getAndClearLastError();
+                if (noError)
+                    errMsg.clear();
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_getMatrixProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            double* pValue;
+            int r, c;
+            if (CALL_C_API(simGetMatrixProperty, targetObj, pName.c_str(), &pValue, &r, &c) > 0)
+            {
+                CMatrix m(r, c);
+                m.data.assign(pValue, pValue + r * c);
+                pushMatrix(outStack, m);
+                delete[] pValue;
+            }
+            else
+            {
+                errMsg = CApiErrors::getAndClearLastError();
+                if (noError)
+                {
+                    pushNull(outStack);
+                    errMsg.clear();
+                }
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_setMatrixProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, -1, -1, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        CMatrix pValue = fetchMatrix(inStack, 1);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 2))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (CALL_C_API(simSetMatrixProperty, targetObj, pName.c_str(), pValue.data.data(), pValue.rows, pValue.cols) > 0)
+            {
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                {
+                    std::string nn(pName);
+                    if (targetObj == sim_handle_app)
+                        nn = "app." + nn;
+                    else if (targetObj != sim_handle_scene)
+                        nn = "obj." + nn;
+                    currentScript->signalSet(nn.c_str(), targetObj);
+                }
+            }
+            else
+            {
+                errMsg = CApiErrors::getAndClearLastError();
+                if (noError)
+                    errMsg.clear();
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_getMatrix3x3Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            double pValue[3 * 3];
+            if (CALL_C_API(simGetMatrix3x3Property, targetObj, pName.c_str(), pValue) > 0)
+            {
+                CMatrix m(3, 3);
+                m.data.assign(pValue, pValue + 3 * 3);
+                pushMatrix(outStack, m);
+            }
+            else
+            {
+                errMsg = CApiErrors::getAndClearLastError();
+                if (noError)
+                {
+                    pushNull(outStack);
+                    errMsg.clear();
+                }
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_setMatrix3x3Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, 3, 3, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        CMatrix pValue = fetchMatrix(inStack, 1);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 2))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (CALL_C_API(simSetMatrix3x3Property, targetObj, pName.c_str(), pValue.data.data()) > 0)
+            {
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                {
+                    std::string nn(pName);
+                    if (targetObj == sim_handle_app)
+                        nn = "app." + nn;
+                    else if (targetObj != sim_handle_scene)
+                        nn = "obj." + nn;
+                    currentScript->signalSet(nn.c_str(), targetObj);
+                }
+            }
+            else
+            {
+                errMsg = CApiErrors::getAndClearLastError();
+                if (noError)
+                    errMsg.clear();
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_getMatrix4x4Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            double pValue[4 * 4];
+            if (CALL_C_API(simGetMatrix4x4Property, targetObj, pName.c_str(), pValue) > 0)
+            {
+                CMatrix m(4, 4);
+                m.data.assign(pValue, pValue + 4 * 4);
+                pushMatrix(outStack, m);
+            }
+            else
+            {
+                errMsg = CApiErrors::getAndClearLastError();
+                if (noError)
+                {
+                    pushNull(outStack);
+                    errMsg.clear();
+                }
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_setMatrix4x4Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, 4, 4, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        CMatrix pValue = fetchMatrix(inStack, 1);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 2))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (CALL_C_API(simSetMatrix4x4Property, targetObj, pName.c_str(), pValue.data.data()) > 0)
             {
                 if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
                 {
