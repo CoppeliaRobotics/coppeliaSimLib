@@ -200,6 +200,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
         funcTable["createCustomObject"] = _method_createCustomObject;
         funcTable["releaseCustomObject"] = _method_releaseCustomObject;
+        funcTable["isValid"] = _method_isValid;
     }
 
     std::string retVal("__notFound__");
@@ -6635,5 +6636,12 @@ std::string _method_releaseCustomObject(int targetObj, const char* method, CDeta
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_integer}))
         App::releaseCustomObject(fetchHandle(inStack, 0));
+    return errMsg;
+}
+
+std::string _method_isValid(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    pushBool(outStack, App::isTargetValid(targetObj));
     return errMsg;
 }

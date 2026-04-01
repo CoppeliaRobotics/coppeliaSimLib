@@ -3122,6 +3122,14 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
     return retVal;
 }
 
+bool App::isTargetValid(long long int target)
+{
+    int ind = 0;
+    std::string pName, appart;
+    return App::getPropertyName(target, ind, pName, appart, 0) > 0;
+
+}
+
 void App::setHierarchyEnabled(bool v)
 {
     bool diff = (_hierarchyEnabled != v);

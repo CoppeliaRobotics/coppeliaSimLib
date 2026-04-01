@@ -147,7 +147,8 @@ struct SJointProperty
     FUNCX(propObject_METHOD_setProperty, "setProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getPropertiesInfos, "getPropertiesInfos", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getProperty, "getProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propObject_METHOD_getPropertyTypeString, "getPropertyTypeString", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
+    FUNCX(propObject_METHOD_getPropertyTypeString, "getPropertyTypeString", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propObject_METHOD_isValid, "isValid", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define APP_PROPERTIES \
     FUNCX(propApp_sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Session ID"}, {"description", ""}}), "") \
