@@ -6219,8 +6219,25 @@ int _callMethod(luaWrap_lua_State* L)
         long long int target = fetchHandleArg(L, 1);
         functionName = fetchTextArg(L, 2);
         CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
+
+        /*
+        App::removeProperty(sim_handle_app, "signal.test");
+        if (functionName == "setHandleArrayProperty")
+            App::setBufferProperty(sim_handle_app, "signal.test", "1", 1);
+        std::string tmp;
+        if (App::getBufferProperty(sim_handle_app, "signal.test", tmp) == 1)
+            printf("START\n");
+        */
+
         // CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, -1); // skip the two first args, and use the content of the 2 tables at that location
         CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
+
+        /*
+        App::removeProperty(sim_handle_app, "signal.test");
+        if (functionName == "setHandleArrayProperty")
+            printf("STOP\n");
+        */
+
         CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
         CDetachedScript* currentScript = App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
         int res = CALL_C_API(simCallMethod, target, functionName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), currentScript);

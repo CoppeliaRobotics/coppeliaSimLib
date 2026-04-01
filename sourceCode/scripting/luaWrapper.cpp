@@ -476,39 +476,20 @@ bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long l
             if (handles != nullptr)
             {
                 lua_getfield((lua_State*)L, abs_idx, "totable"); // correct object
-
-                if (!lua_isfunction((lua_State*)L, -1))
-                {
-                    // TODO: handle error
-                    lua_pop((lua_State*)L, 1); // remove non-function
-                }
-                else
+                if (lua_isfunction((lua_State*)L, -1))
                 {
                     lua_pushvalue((lua_State*)L, abs_idx);           // push obj as self
                     lua_call((lua_State*)L, 1, 1); // call :totable() method, 1 arg (self), 1 result
+                    size_t cnt = (lua_Integer)lua_rawlen((lua_State*)L, -1);
+                    handles->resize(cnt);
+                    getLongsFromTable(L, -1, cnt, handles->data());
+                    lua_pop((lua_State*)L, 1); // table of objects
                 }
-
+                else
                 {
-                    lua_getfield((lua_State*)L, -1, "n");
-                    //lua_pushstring((lua_State*)L, "n");
-                    //lua_rawget((lua_State*)L, -1);
-                    lua_Integer n = lua_tointeger((lua_State*)L, -1);
-                    printf("n=%lld\n", n);
-                    lua_pop((lua_State*)L, 1); // n
-                    handles->resize(n);
-                    for (int i = 1; i <= n; i++)
-                    {
-                        // lua_geti((lua_State*)L, -1, i);
-                        lua_rawgeti((lua_State*)L, -1, i);
-                        if (lua_isnil((lua_State*)L, -1))
-                            handles->at(i - 1) = -1;
-                        else
-                            handles->at(i - 1) = luaWrap_lua_tohandle(L, -1);
-                        printf("%d: %lld\n", i-1, (*handles)[i-1]);
-                        lua_pop((lua_State*)L, 1);
-                    }
+                    App::logMsg(sim_verbosity_scripterrors, "totable not found in luaWrap_lua_ishandlearray");
+                    lua_pop((lua_State*)L, 1); // remove non-function
                 }
-                lua_pop((lua_State*)L, 1); // table of objects
             }
         }
     }
