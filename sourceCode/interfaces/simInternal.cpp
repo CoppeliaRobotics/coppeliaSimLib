@@ -49,6 +49,7 @@ const int  ERRCODE_PROPERTYCANNOTBEREMOVED = -5;
 const int  ERRCODE_PROPERTYTYPEMISMATCH = -6;
 const int  ERRCODE_PROPERTYISCORRUPT = -7;
 const int  ERRCODE_TARGETDOESNOTEXIST = -8;
+const int  ERRCODE_INVALIDPROPERTYVALUE = -9;
 
 void setLastInfo(const char* infoStr)
 {
@@ -928,40 +929,49 @@ int simSetHandleProperty_internal(long long int target, const char* ppName, long
         int retVal = -1;
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_handle))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_handle))))
-                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
-            else
+            // Check if the handle is valid:
+            if ((pState == -1) || App::isTargetValid(pState))
             {
-                int res = App::setHandleProperty(target, pName.c_str(), pState);
-                if (res == 1)
-                    retVal = 1;
-                else if (res == -2)
-                {
-                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-                    retVal = ERRCODE_TARGETDOESNOTEXIST;
-                }
+                std::string pName(ppName);
+                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_handle))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_handle))))
+                    retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
                 else
                 {
-                    int info;
-                    std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
-                    if (p < 0)
+                    int res = App::setHandleProperty(target, pName.c_str(), pState);
+                    if (res == 1)
+                        retVal = 1;
+                    else if (res == -2)
                     {
-                        CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                        retVal = ERRCODE_UNKNOWNPROPERTY;
-                    }
-                    else if (p == sim_propertytype_handle)
-                    {
-                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
-                        retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                        CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                        retVal = ERRCODE_TARGETDOESNOTEXIST;
                     }
                     else
                     {
-                        CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
-                        retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                        int info;
+                        std::string infoTxt;
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                        if (p < 0)
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                            retVal = ERRCODE_UNKNOWNPROPERTY;
+                        }
+                        else if (p == sim_propertytype_handle)
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                            retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                        }
+                        else
+                        {
+                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                            retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                        }
                     }
                 }
+            }
+            else
+            {
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
+                retVal = ERRCODE_INVALIDPROPERTYVALUE;
             }
         }
         else
@@ -3029,40 +3039,58 @@ int simSetHandleArrayProperty_internal(long long int target, const char* ppName,
         {
             if (vL >= 0)
             {
-                std::string pName(ppName);
-                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_handlearray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_handlearray))))
-                    retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(long long int));
-                else
+                // Check if the handles are valid:
+                bool valid = true;
+                for (int i = 0; i < vL; i++)
                 {
-                    int res = App::setHandleArrayProperty(target, pName.c_str(), v, vL);
-                    if (res == 1)
-                        retVal = 1;
-                    else if (res == -2)
+                    if ((v[i] != -1) && (!App::isTargetValid(v[i])))
                     {
-                        CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-                        retVal = ERRCODE_TARGETDOESNOTEXIST;
+                        valid = false;
+                        break;
                     }
+                }
+                if (valid)
+                {
+                    std::string pName(ppName);
+                    if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_handlearray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_handlearray))))
+                        retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(long long int));
                     else
                     {
-                        int info;
-                        std::string infoTxt;
-                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
-                        if (p < 0)
+                        int res = App::setHandleArrayProperty(target, pName.c_str(), v, vL);
+                        if (res == 1)
+                            retVal = 1;
+                        else if (res == -2)
                         {
-                            CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                            retVal = ERRCODE_UNKNOWNPROPERTY;
-                        }
-                        else if ((p & 0xff) == sim_propertytype_handlearray)
-                        {
-                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
-                            retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                            CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                            retVal = ERRCODE_TARGETDOESNOTEXIST;
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
-                            retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                            int info;
+                            std::string infoTxt;
+                            int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                            if (p < 0)
+                            {
+                                CApiErrors::setLastError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                                retVal = ERRCODE_UNKNOWNPROPERTY;
+                            }
+                            else if ((p & 0xff) == sim_propertytype_handlearray)
+                            {
+                                CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                                retVal = ERRCODE_PROPERTYCANNOTBEWRITTEN;
+                            }
+                            else
+                            {
+                                CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                                retVal = ERRCODE_PROPERTYTYPEMISMATCH;
+                            }
                         }
                     }
+                }
+                else
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLES);
+                    retVal = ERRCODE_INVALIDPROPERTYVALUE;
                 }
             }
             else
