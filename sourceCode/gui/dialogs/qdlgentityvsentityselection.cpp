@@ -249,7 +249,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
 {
     entity1 = ui->qqEntity1->itemData(ui->qqEntity1->currentIndex()).toInt();
     entity2 = ui->qqEntity2->itemData(ui->qqEntity2->currentIndex()).toInt();
-    if ((entity1 == entity2) && (entity1 <= SIM_IDEND_SCENEOBJECT))
+    if ((entity1 == entity2) && (entity1 <= sim_object_sceneobjectend))
     { // error, we cannot check against itself if object
         GuiApp::uiThread->messageBox_warning(this, IDSN_COLLISION_DISTANCE_OBJECT,
                                              IDS_CANNOT_CHECK_OBJECT_AGAINST_ITSELF, VMESSAGEBOX_OKELI,
@@ -272,7 +272,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
 
         // Now check if the combination is valid:
         bool invalidCombination = false;
-        if ((entity1 <= SIM_IDEND_SCENEOBJECT) && (entity2 <= SIM_IDEND_SCENEOBJECT))
+        if ((entity1 <= sim_object_sceneobjectend) && (entity2 <= sim_object_sceneobjectend))
         {
             int t1 = App::currentWorld->sceneObjects->getObjectFromHandle(entity1)->getObjectType();
             int t2 = sim_sceneobject_octree;
@@ -304,14 +304,14 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         }
 
         bool displayWarning = false;
-        if ((entity1 <= SIM_IDEND_SCENEOBJECT) && (entity1 >= SIM_IDSTART_SCENEOBJECT))
+        if ((entity1 <= sim_object_sceneobjectend) && (entity1 >= sim_object_sceneobjectstart))
         {
             CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entity1);
             if (it != nullptr)
                 displayWarning |=
                     ((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_collidable) == 0);
         }
-        if ((entity2 <= SIM_IDEND_SCENEOBJECT) && (entity2 >= SIM_IDSTART_SCENEOBJECT))
+        if ((entity2 <= sim_object_sceneobjectend) && (entity2 >= sim_object_sceneobjectstart))
         {
             CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entity2);
             if (it != nullptr)
@@ -341,7 +341,7 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
 
         // Now check if the combination is valid:
         bool invalidCombination = false;
-        if ((entity1 <= SIM_IDEND_SCENEOBJECT) && (entity2 <= SIM_IDEND_SCENEOBJECT))
+        if ((entity1 <= sim_object_sceneobjectend) && (entity2 <= sim_object_sceneobjectend))
         {
             int t1 = App::currentWorld->sceneObjects->getObjectFromHandle(entity1)->getObjectType();
             int t2 = sim_sceneobject_octree;
@@ -366,14 +366,14 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         }
 
         bool displayWarning = false;
-        if ((entity1 <= SIM_IDEND_SCENEOBJECT) && (entity1 >= SIM_IDSTART_SCENEOBJECT))
+        if ((entity1 <= sim_object_sceneobjectend) && (entity1 >= sim_object_sceneobjectstart))
         {
             CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entity1);
             if (it != nullptr)
                 displayWarning |=
                     ((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_measurable) == 0);
         }
-        if ((entity2 <= SIM_IDEND_SCENEOBJECT) && (entity2 >= SIM_IDSTART_SCENEOBJECT))
+        if ((entity2 <= sim_object_sceneobjectend) && (entity2 >= sim_object_sceneobjectstart))
         {
             CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entity2);
             if (it != nullptr)

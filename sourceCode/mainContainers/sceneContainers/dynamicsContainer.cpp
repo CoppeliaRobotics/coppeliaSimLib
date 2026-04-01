@@ -148,9 +148,9 @@ void CDynamicsContainer::addWorldIfNotThere()
         floatParams[floatIndex++] = getGravityScalingFactorDyn();
         floatParams[floatIndex++] = App::userSettings->dynamicActivityRange;
 
-        intParams[intIndex++] = SIM_IDEND_SCENEOBJECT + 1;
-        intParams[intIndex++] = SIM_IDSTART_SCENEOBJECT;
-        intParams[intIndex++] = SIM_IDEND_SCENEOBJECT;
+        intParams[intIndex++] = sim_object_sceneobjectend + 1;
+        intParams[intIndex++] = sim_object_sceneobjectstart;
+        intParams[intIndex++] = sim_object_sceneobjectend;
 
         App::worldContainer->pluginContainer->dyn_startSimulation(_dynamicEngineToUse, _dynamicEngineVersionToUse, floatParams, intParams);
     }

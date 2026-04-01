@@ -118,7 +118,7 @@ int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject, bool 
         return (theOldData->getObjectID());
     }
 
-    int newID = SIM_IDSTART_TEXTURE;
+    int newID = sim_object_texturestart;
     while (getObject(newID) != nullptr)
         newID++;
     anObject->setObjectID(newID);

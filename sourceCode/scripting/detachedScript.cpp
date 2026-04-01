@@ -39,7 +39,7 @@ static std::string OBJECT_META_INFO = R"(
 }
 )";
 
-int CDetachedScript::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
+int CDetachedScript::_nextScriptHandle = sim_object_detachedscriptstart;
 std::vector<int> CDetachedScript::_externalScriptCalls;
 std::map<std::string, std::pair<int, int>> CDetachedScript::_signalNameToScriptHandle;
 
@@ -111,13 +111,13 @@ CDetachedScript::~CDetachedScript()
 int CDetachedScript::setHandle()
 {
     _scriptHandle = _nextScriptHandle++;
-    if (_nextScriptHandle > SIM_IDEND_LUASCRIPT)
-        _nextScriptHandle = SIM_IDSTART_LUASCRIPT;
+    if (_nextScriptHandle > sim_object_detachedscriptend)
+        _nextScriptHandle = sim_object_detachedscriptstart;
     while ((App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr) && (App::currentWorld->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(_scriptHandle) != nullptr))
     {
         _scriptHandle++;
-        if (_scriptHandle > SIM_IDEND_LUASCRIPT)
-            _scriptHandle = SIM_IDSTART_LUASCRIPT;
+        if (_scriptHandle > sim_object_detachedscriptend)
+            _scriptHandle = sim_object_detachedscriptstart;
     }
     _objectHandle = _scriptHandle;
     return _scriptHandle;
@@ -2694,16 +2694,16 @@ bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned cha
         {
             long long int t = inf[ev].target;
             long long int altT = t;
-            if ((t >= 0) && (t <= SIM_IDEND_SCENEOBJECT))
+            if ((t >= 0) && (t <= sim_object_sceneobjectend))
                 altT = sim_handle_sceneobject;
-            else if ((t >= SIM_IDSTART_LUASCRIPT) && (t <= SIM_IDEND_LUASCRIPT))
+            else if ((t >= sim_object_detachedscriptstart) && (t <= sim_object_detachedscriptend))
             {
                 if (t == App::worldContainer->sandboxScript->getScriptHandle())
                     altT = sim_handle_sandbox;
                 else if ((mainScriptHandle != -1) && (t == mainScriptHandle))
                     altT = sim_handle_mainscript;
             }
-            else if (t >= SIM_UIDSTART)
+            else if (t >= sim_object_variousstart)
                 altT = sim_handle_mesh;
             auto s_event = _eventFilters.find(t);
             if ((s_event == _eventFilters.end()) && (t != altT))
@@ -3229,7 +3229,7 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
                 sim_syscb_event, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
-            if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
+            if (_scriptHandle < sim_object_detachedscriptstart)
                 App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_event, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_event) + dx);
             else
                 App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_event, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
@@ -3244,7 +3244,7 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
                 sim_syscb_dyn, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
-            if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
+            if (_scriptHandle < sim_object_detachedscriptstart)
                 App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
             else
                 App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
@@ -3260,7 +3260,7 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
                 App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
-            if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
+            if (_scriptHandle < sim_object_detachedscriptstart)
                 App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_contact, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
             else
                 App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_contact, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
@@ -3275,7 +3275,7 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
                 sim_syscb_joint, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
-            if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
+            if (_scriptHandle < sim_object_detachedscriptstart)
                 App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_joint, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
             else
                 App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_joint, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);

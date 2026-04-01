@@ -485,7 +485,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     // Comparing model binaries is actually quite tricky (what about the thumbnail, the thumbnail infos, the local transf. of the model base, etc.)
     // We keep this disabled for now:
     /*
-    int sh = SIM_IDEND_SCENEOBJECT;
+    int sh = sim_object_sceneobjectend;
     for (size_t i = 0; i < objectBuffer.size(); i++)
     {
         int h = objectBuffer[i]->getObjectHandle();
@@ -496,10 +496,10 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     for (size_t i = 0; i < objectBuffer.size(); i++)
     {
         int h = objectBuffer[i]->getObjectHandle();
-        objectMapping[h] = h - sh + SIM_IDSTART_SCENEOBJECT;
+        objectMapping[h] = h - sh + sim_object_sceneobjectstart;
     }
 
-    sh = SIM_IDEND_TEXTURE;
+    sh = sim_object_textureend;
     for (size_t i = 0; i < textureObjectBuffer.size(); i++)
     {
         int h = textureObjectBuffer[i]->getObjectID();
@@ -510,12 +510,12 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     for (size_t i = 0; i < textureObjectBuffer.size(); i++)
     {
         int h = textureObjectBuffer[i]->getObjectID();
-        textureMapping[h] = h - sh + SIM_IDSTART_TEXTURE;
+        textureMapping[h] = h - sh + sim_object_texturestart;
     }
 
     // Old:
     // ----------------------------
-    sh = SIM_IDEND_COLLECTION;
+    sh = sim_object_collectionend;
     for (size_t i = 0; i < collectionBuffer.size(); i++)
     {
         int h = collectionBuffer[i]->getCollectionHandle();
@@ -526,7 +526,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     for (size_t i = 0; i < collectionBuffer.size(); i++)
     {
         int h = collectionBuffer[i]->getCollectionHandle();
-        collectionMapping[h] = h - sh + SIM_IDSTART_COLLECTION;
+        collectionMapping[h] = h - sh + sim_object_collectionstart;
     }
     sh = SIM_IDEND_COLLISION_old;
     for (size_t i = 0; i < collisionBuffer.size(); i++)
@@ -567,7 +567,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         int h = ikGroupBuffer[i]->getObjectHandle();
         ikGroupMapping[h] = h - sh + SIM_IDSTART_IKGROUP_old;
     }
-    sh = SIM_IDEND_LUASCRIPT;
+    sh = sim_object_detachedscriptend;
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
     {
         int h = luaScriptBuffer[i]->getScriptHandle();
@@ -578,7 +578,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
     {
         int h = luaScriptBuffer[i]->getScriptHandle();
-        luaScriptMapping[h] = h - sh + SIM_IDSTART_LUASCRIPT;
+        luaScriptMapping[h] = h - sh + sim_object_detachedscriptstart;
     }
     // ----------------------------
 

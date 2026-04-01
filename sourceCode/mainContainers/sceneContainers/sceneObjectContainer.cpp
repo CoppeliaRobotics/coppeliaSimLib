@@ -18,7 +18,7 @@ CSceneObjectContainer::CSceneObjectContainer()
 {
     embeddedScriptContainer = new CEmbeddedScriptContainer();
     _objectActualizationEnabled = true;
-    _nextObjectHandle = SIM_IDSTART_SCENEOBJECT;
+    _nextObjectHandle = sim_object_sceneobjectstart;
     _objectCreationCounter = 0;
     _objectDestructionCounter = 0;
     _hierarchyChangeCounter = 0;
@@ -218,8 +218,8 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObj
     while (getObjectFromHandle(objectHandle) != nullptr)
     {
         objectHandle++;
-        if (objectHandle >= (SIM_IDEND_SCENEOBJECT - SIM_IDSTART_SCENEOBJECT))
-            objectHandle = SIM_IDSTART_SCENEOBJECT;
+        if (objectHandle >= (sim_object_sceneobjectend - sim_object_sceneobjectstart))
+            objectHandle = sim_object_sceneobjectstart;
     }
     _nextObjectHandle = objectHandle + 1;
 
@@ -418,7 +418,7 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
     // identical: the undo/redo then marks a new restore point, which is not correct.
     // So, finally, when the whole scene gets emptied at least we make sure that all handles
     // start from the beginning:
-    _nextObjectHandle = SIM_IDSTART_SCENEOBJECT;
+    _nextObjectHandle = sim_object_sceneobjectstart;
 }
 
 int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool lua)
@@ -3665,7 +3665,7 @@ CMarker* CSceneObjectContainer::getMarkerFromHandle(int objectHandle) const
 CDetachedScript* CSceneObjectContainer::getDetachedScriptFromHandle(int handle) const
 {
     CDetachedScript* retVal = nullptr;
-    if (handle <= SIM_IDEND_SCENEOBJECT)
+    if (handle <= sim_object_sceneobjectend)
     { // scene object scripts
         CScript* it = getScriptFromHandle(handle);
         if (it != nullptr)

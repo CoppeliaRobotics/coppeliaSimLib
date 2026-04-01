@@ -2293,7 +2293,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
         bool goOn = true;
         int handle = luaToInt(L, 1);
         int selfScriptHandle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        if (selfScriptHandle <= SIM_IDEND_SCENEOBJECT)
+        if (selfScriptHandle <= sim_object_sceneobjectend)
         {
             if (handle == sim_handle_self)
             {
@@ -2377,7 +2377,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
         bool goOn = true;
         int handle = luaToInt(L, 1);
         int selfScriptHandle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        if (selfScriptHandle <= SIM_IDEND_SCENEOBJECT)
+        if (selfScriptHandle <= sim_object_sceneobjectend)
         {
             if (handle == sim_handle_self)
             {
@@ -4130,7 +4130,7 @@ int _simGetUserParameter(luaWrap_lua_State* L)
         {
             handle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
             CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(handle);
-            if (handle <= SIM_IDEND_SCENEOBJECT)
+            if (handle <= sim_object_sceneobjectend)
             { // is a CScript
                 if (it->getParentIsProxy())
                 {
@@ -4185,7 +4185,7 @@ int _simSetUserParameter(luaWrap_lua_State* L)
         {
             handle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
             CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(handle);
-            if (handle <= SIM_IDEND_SCENEOBJECT)
+            if (handle <= sim_object_sceneobjectend)
             { // is a CScript
                 if (it->getParentIsProxy())
                 {
@@ -5716,7 +5716,7 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
         {
             checkWithString = false;
             int a = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-            if (a <= SIM_IDEND_SCENEOBJECT)
+            if (a <= sim_object_sceneobjectend)
             { // is a CScript
                 CDetachedScript* it = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(a);
                 if (it->getParentIsProxy())

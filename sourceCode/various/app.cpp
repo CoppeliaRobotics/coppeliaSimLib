@@ -86,13 +86,13 @@ Obj* App::_obj = new Obj(sim_handle_app, "app", OBJECT_META_INFO.c_str());
 std::map<long long int, CustomObject*> App::_customObjects;
 
 
-long long int App::_nextUniqueId = SIM_UIDSTART;
+long long int App::_nextUniqueId = sim_object_variousstart;
 #ifdef USE_LONG_LONG_HANDLES
-long long int App::_nextHandle_object = SIM_IDSTART_SCENEOBJECT;
-long long int App::_nextHandle_collection = SIM_IDSTART_COLLECTION;
-long long int App::_nextHandle_script = SIM_IDSTART_LUASCRIPT;
-long long int App::_nextHandle_stack = SIM_IDSTART_INTERFACESTACK;
-long long int App::_nextHandle_texture = SIM_IDSTART_TEXTURE;
+long long int App::_nextHandle_object = sim_object_sceneobjectstart;
+long long int App::_nextHandle_collection = sim_object_collectionstart;
+long long int App::_nextHandle_script = sim_object_detachedscriptstart;
+long long int App::_nextHandle_stack = sim_object_stackstart;
+long long int App::_nextHandle_texture = sim_object_texturestart;
 long long int App::_nextHandle_mesh = SIM_IDSTART_MESH;
 #endif
 
@@ -1818,7 +1818,7 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
             }
         }
     }
-    else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend))
     {
         CustomObject* obj = getCustomObject(target);
         if (obj != nullptr)
@@ -2344,7 +2344,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
             }
         }
     }
-    else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend))
     {
         CustomObject* obj = getCustomObject(target);
         if (obj != nullptr)
@@ -3010,7 +3010,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             }
         }
     }
-    else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend))
     {
         CustomObject* obj = getCustomObject(target);
         if (obj != nullptr)
@@ -3109,7 +3109,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
             }
         }
     }
-    else if ((target >= SIM_IDSTART_CUSTOM) && (target < SIM_IDEND_CUSTOM))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend))
     {
         CustomObject* obj = getCustomObject(target);
         if (obj != nullptr)
@@ -3288,7 +3288,7 @@ bool App::systemSemaphore(const char* key, bool acquire)
 
 long long int App::createCustomObject(const char* objectTypeStr, const char* objectMetaInfo)
 {
-    long long int h = SIM_IDSTART_CUSTOM;
+    long long int h = sim_object_customstart;
     while (getCustomObject(h))
         h++;
     CustomObject* obj = new CustomObject(h, objectTypeStr, objectMetaInfo);

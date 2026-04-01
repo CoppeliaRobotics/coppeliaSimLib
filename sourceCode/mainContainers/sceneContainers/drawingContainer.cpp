@@ -46,7 +46,7 @@ CDrawingObject* CDrawingContainer::getObjectFromIndex(size_t index) const
 
 int CDrawingContainer::addObject(CDrawingObject* it)
 {
-    static int newId = SIM_IDSTART_DRAWINGOBJ;
+    static int newId = sim_object_drawingstart;
     int id = newId++;
     it->setObjectId(id);
     _allObjects.push_back(it);

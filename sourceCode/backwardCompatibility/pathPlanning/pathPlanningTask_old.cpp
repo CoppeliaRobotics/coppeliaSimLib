@@ -617,16 +617,16 @@ void CPathPlanningTask::performObjectLoadingMapping(const std::map<int, int>* ma
     _startDummyID = CWorld::getLoadingMapping(map, _startDummyID);
     _goalDummyID = CWorld::getLoadingMapping(map, _goalDummyID);
     _pathID = CWorld::getLoadingMapping(map, _pathID);
-    if (_robotEntityID <= SIM_IDEND_SCENEOBJECT)
+    if (_robotEntityID <= sim_object_sceneobjectend)
         _robotEntityID = CWorld::getLoadingMapping(map, _robotEntityID);
-    if (_obstacleEntityID <= SIM_IDEND_SCENEOBJECT)
+    if (_obstacleEntityID <= sim_object_sceneobjectend)
         _obstacleEntityID = CWorld::getLoadingMapping(map, _obstacleEntityID);
 }
 void CPathPlanningTask::performCollectionLoadingMapping(const std::map<int, int>* map)
 {
-    if (_robotEntityID > SIM_IDEND_SCENEOBJECT)
+    if (_robotEntityID > sim_object_sceneobjectend)
         _robotEntityID = CWorld::getLoadingMapping(map, _robotEntityID);
-    if (_obstacleEntityID > SIM_IDEND_SCENEOBJECT)
+    if (_obstacleEntityID > sim_object_sceneobjectend)
         _obstacleEntityID = CWorld::getLoadingMapping(map, _obstacleEntityID);
 }
 bool CPathPlanningTask::announceObjectWillBeErased(int objID, bool copyBuffer)

@@ -334,7 +334,7 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase* viewable)
         }
         else
         {
-            if (lightHandle <= SIM_IDEND_SCENEOBJECT)
+            if (lightHandle <= sim_object_sceneobjectend)
             {
                 CLight* light = App::currentWorld->sceneObjects->getLightFromHandle(lightHandle);
                 if (light != nullptr)
@@ -470,7 +470,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
                 {
                     int clipObj = it->getClippingObjectOrCollection();
                     bool clipIt = false;
-                    if (clipObj > SIM_IDEND_SCENEOBJECT)
+                    if (clipObj > sim_object_sceneobjectend)
                     { // collection
                         CCollection* coll = App::currentWorld->collections->getObjectFromHandle(clipObj);
                         clipIt = coll->isObjectInCollection(objID);
@@ -691,11 +691,11 @@ bool _start3DTextureDisplay(CTextureProperty* tp)
     if (_textureOrVisionSensorObjectID == -1)
         return (false);
     CTextureObject* it = nullptr;
-    if (_textureOrVisionSensorObjectID > SIM_IDEND_SCENEOBJECT)
+    if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
         it = App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     CVisionSensor* rs = nullptr;
-    if ((_textureOrVisionSensorObjectID >= SIM_IDSTART_SCENEOBJECT) &&
-        (_textureOrVisionSensorObjectID <= SIM_IDEND_SCENEOBJECT))
+    if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
+        (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
     {
         rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rs != nullptr)
@@ -723,11 +723,11 @@ bool _start2DTextureDisplay(CTextureProperty* tp)
     if (_textureOrVisionSensorObjectID == -1)
         return (false);
     CTextureObject* it = nullptr;
-    if (_textureOrVisionSensorObjectID > SIM_IDEND_SCENEOBJECT)
+    if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
         it = App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     CVisionSensor* rs = nullptr;
-    if ((_textureOrVisionSensorObjectID >= SIM_IDSTART_SCENEOBJECT) &&
-        (_textureOrVisionSensorObjectID <= SIM_IDEND_SCENEOBJECT))
+    if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
+        (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
     {
         rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rs != nullptr)

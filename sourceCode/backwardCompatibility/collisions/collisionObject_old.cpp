@@ -83,7 +83,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
 {
     std::string theName = getObjectName();
     theName = theName.append(" (");
-    if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
+    if (_entity1Handle <= sim_object_sceneobjectend)
     {
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity1Handle);
         int t = it->getObjectType();
@@ -109,7 +109,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
         }
     }
     theName = theName.append(" - ");
-    if (_entity2Handle > SIM_IDEND_SCENEOBJECT)
+    if (_entity2Handle > sim_object_sceneobjectend)
     {
         CCollection* it = App::currentWorld->collections->getObjectFromHandle(_entity2Handle);
         if (it != nullptr)
@@ -153,12 +153,12 @@ int CCollisionObject_old::getCollisionColor(int entityHandle) const
     if ((entityHandle == _entity2Handle) && _collideeChangesColor)
         retVal |= 2;
     // Here we need to check for the special case where object2ID==-1 (which means all other objects)
-    if ((_entity2Handle == -1) && _collideeChangesColor && (entityHandle <= SIM_IDEND_SCENEOBJECT))
+    if ((_entity2Handle == -1) && _collideeChangesColor && (entityHandle <= sim_object_sceneobjectend))
     {
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(entityHandle);
         if ((it != nullptr) && (it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_collidable))
         {
-            if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
+            if (_entity1Handle <= sim_object_sceneobjectend)
             {
                 if (entityHandle != _entity1Handle)
                     retVal |= 2;
@@ -204,9 +204,9 @@ bool CCollisionObject_old::announceCollectionWillBeErased(int collectionHandle, 
 
 bool CCollisionObject_old::canComputeCollisionContour() const
 {
-    if (_entity1Handle > SIM_IDEND_SCENEOBJECT)
+    if (_entity1Handle > sim_object_sceneobjectend)
     {
-        if (_entity2Handle > SIM_IDEND_SCENEOBJECT)
+        if (_entity2Handle > sim_object_sceneobjectend)
             return (true); // collection/collection
         else
             return (App::currentWorld->sceneObjects->getShapeFromHandle(_entity2Handle) != nullptr); // collection/shape
@@ -217,7 +217,7 @@ bool CCollisionObject_old::canComputeCollisionContour() const
             return (false); // non-shape/something
         if (_entity2Handle == -1)
             return (true); // shape/allOtherObjects
-        if (_entity2Handle > SIM_IDEND_SCENEOBJECT)
+        if (_entity2Handle > sim_object_sceneobjectend)
             return (true); // shape/collection
         else
             return (App::currentWorld->sceneObjects->getShapeFromHandle(_entity2Handle) != nullptr); // shape/shape
@@ -306,17 +306,17 @@ void CCollisionObject_old::performCollisionLoadingMapping(const std::map<int, in
 
 void CCollisionObject_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (_entity1Handle <= SIM_IDEND_SCENEOBJECT)
+    if (_entity1Handle <= sim_object_sceneobjectend)
         _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);
-    if ((_entity2Handle <= SIM_IDEND_SCENEOBJECT) && (_entity2Handle != -1))
+    if ((_entity2Handle <= sim_object_sceneobjectend) && (_entity2Handle != -1))
         _entity2Handle = CWorld::getLoadingMapping(map, _entity2Handle);
 }
 
 void CCollisionObject_old::performCollectionLoadingMapping(const std::map<int, int>* map)
 {
-    if (_entity1Handle > SIM_IDEND_SCENEOBJECT)
+    if (_entity1Handle > sim_object_sceneobjectend)
         _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);
-    if (_entity2Handle > SIM_IDEND_SCENEOBJECT)
+    if (_entity2Handle > sim_object_sceneobjectend)
         _entity2Handle = CWorld::getLoadingMapping(map, _entity2Handle);
 }
 

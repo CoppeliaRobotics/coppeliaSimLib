@@ -254,7 +254,7 @@ void CSoftButton::removeVisionSensorTexture()
 {
     if (_textureProperty != nullptr)
     {
-        if (_textureProperty->getTextureObjectID() <= SIM_IDEND_SCENEOBJECT)
+        if (_textureProperty->getTextureObjectID() <= sim_object_sceneobjectend)
         {
             delete _textureProperty;
             _textureProperty = nullptr;

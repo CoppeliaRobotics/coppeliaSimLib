@@ -492,7 +492,7 @@ int simAppendScriptArrayEntry_internal(const char* reservedSetToNull, int script
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         std::string arrayName;
-        if (scriptHandleOrType >= SIM_IDSTART_LUASCRIPT)
+        if (scriptHandleOrType >= sim_object_detachedscriptstart)
         { // script is identified by its ID
             std::string arrNameAtScriptName(arrayNameAtScriptName);
             size_t p = arrNameAtScriptName.find('@');
@@ -585,7 +585,7 @@ int simClearScriptVariable_internal(const char* reservedSetToNull, int scriptHan
     CDetachedScript* script = nullptr;
 
     std::string variableName;
-    if (scriptHandleOrType >= SIM_IDSTART_LUASCRIPT)
+    if (scriptHandleOrType >= sim_object_detachedscriptstart)
     { // script is identified by its ID
         std::string varNameAtScriptName(variableNameAtScriptName);
         size_t p = varNameAtScriptName.find('@');
@@ -1503,7 +1503,7 @@ int simSetUIButtonTexture_internal(int elementHandle, int buttonHandle, const in
         { // We already have a texture. Is it the same size/type? or do we wanna remove the texture anyway?
             int tob = tp->getTextureObjectID();
             bool remove = true;
-            if ((tob > SIM_IDEND_SCENEOBJECT) && (size != nullptr))
+            if ((tob > sim_object_sceneobjectend) && (size != nullptr))
             { // we have the correct type (i.e. non-vision sensor)
                 CTextureObject* to = App::currentWorld->textureContainer->getObject(tob);
                 if (to != nullptr)
@@ -1723,7 +1723,7 @@ char* simGetScriptSimulationParameter_internal(int scriptHandle, const char* par
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (scriptHandle <= SIM_IDEND_SCENEOBJECT)
+        if (scriptHandle <= sim_object_sceneobjectend)
         {
             CSceneObject* obj = nullptr;
             CScript* scr = App::currentWorld->sceneObjects->getScriptFromHandle(scriptHandle);
@@ -1796,7 +1796,7 @@ int simSetScriptSimulationParameter_internal(int scriptHandle, const char* param
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        if (scriptHandle <= SIM_IDEND_SCENEOBJECT)
+        if (scriptHandle <= sim_object_sceneobjectend)
         {
             CSceneObject* obj = nullptr;
             CScript* scr = App::currentWorld->sceneObjects->getScriptFromHandle(scriptHandle);
@@ -4059,7 +4059,7 @@ int simSetScriptVariable_internal(int scriptHandleOrType, const char* variableNa
     {
         CDetachedScript* script = nullptr;
         std::string variableName;
-        if (scriptHandleOrType >= SIM_IDSTART_LUASCRIPT)
+        if (scriptHandleOrType >= sim_object_detachedscriptstart)
         { // script is identified by its ID
             std::string varNameAtScriptName(variableNameAtScriptName);
             size_t p = varNameAtScriptName.find('@');
@@ -4262,7 +4262,7 @@ int simGetObjectAssociatedWithScript_internal(int scriptHandle)
         }
 
         int retVal = -1;
-        if (scriptHandle <= SIM_IDEND_SCENEOBJECT)
+        if (scriptHandle <= sim_object_sceneobjectend)
         {
             if (it->getParentIsProxy())
             {
@@ -4933,7 +4933,7 @@ int simGetObjectHandleEx_internal(const char* objectAlias, int index, int proxy,
         if ((nm.size() > 0) && ((nm[0] == '.') || (nm[0] == ':') || (nm[0] == '/')))
         {
             int objHandle = -1;
-            if (_currentScriptHandle <= SIM_IDEND_SCENEOBJECT)
+            if (_currentScriptHandle <= sim_object_sceneobjectend)
             {
                 CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(_currentScriptHandle);
                 if (it != nullptr)
@@ -9191,7 +9191,7 @@ int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int* para
         CMill* mill = App::currentWorld->sceneObjects->getMillFromHandle(objectHandle);
         CLight* light = App::currentWorld->sceneObjects->getLightFromHandle(objectHandle);
         CDetachedScript* detachedScript = nullptr;
-        if (objectHandle > SIM_IDEND_SCENEOBJECT)
+        if (objectHandle > sim_object_sceneobjectend)
             detachedScript = App::worldContainer->getDetachedScriptFromHandle(objectHandle);
         else
         {
@@ -9688,7 +9688,7 @@ int simSetObjectInt32Param_internal(int objectHandle, int parameterID, int param
         CLight* light = App::currentWorld->sceneObjects->getLightFromHandle(objectHandle);
         CProxSensor* proximitySensor = App::currentWorld->sceneObjects->getProximitySensorFromHandle(objectHandle);
         CDetachedScript* detachedScript = nullptr;
-        if (objectHandle > SIM_IDEND_SCENEOBJECT)
+        if (objectHandle > sim_object_sceneobjectend)
             detachedScript = App::worldContainer->getDetachedScriptFromHandle(objectHandle);
         else
         {
@@ -11200,7 +11200,7 @@ char* simGetObjectStringParam_internal(int objectHandle, int parameterID, int* p
         CDummy* dummy = App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
         CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         CDetachedScript* detachedScript = nullptr;
-        if (objectHandle > SIM_IDEND_SCENEOBJECT)
+        if (objectHandle > sim_object_sceneobjectend)
             detachedScript = App::worldContainer->getDetachedScriptFromHandle(objectHandle);
         else
         {
@@ -11269,7 +11269,7 @@ int simSetObjectStringParam_internal(int objectHandle, int parameterID, const ch
         CDummy* dummy = App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
         CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         CDetachedScript* detachedScript = nullptr;
-        if (objectHandle > SIM_IDEND_SCENEOBJECT)
+        if (objectHandle > sim_object_sceneobjectend)
             detachedScript = App::worldContainer->getDetachedScriptFromHandle(objectHandle);
         else
         {
@@ -11339,7 +11339,7 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char* tagName, cons
         if (data == nullptr)
             dataSize = 0;
 
-        if ((objectHandle >= SIM_IDSTART_SCENEOBJECT) && (objectHandle <= SIM_IDEND_SCENEOBJECT))
+        if ((objectHandle >= sim_object_sceneobjectstart) && (objectHandle <= sim_object_sceneobjectend))
         { // here we have an object
             if (!doesObjectExist(__func__, objectHandle))
                 return (-1);
@@ -11457,7 +11457,7 @@ char* simReadCustomDataBlock_internal(int objectHandle, const char* tagName, int
 
         std::string rrr;
         bool hand = false;
-        if ((objectHandle >= SIM_IDSTART_SCENEOBJECT) && (objectHandle <= SIM_IDEND_SCENEOBJECT))
+        if ((objectHandle >= sim_object_sceneobjectstart) && (objectHandle <= sim_object_sceneobjectend))
         { // Here we have an object
             if (!doesObjectExist(__func__, objectHandle))
                 return (nullptr);
@@ -11517,7 +11517,7 @@ char* simReadCustomDataBlockTags_internal(int objectHandle, int* tagCount)
         tagCount[0] = 0;
         std::string tags;
         bool hand = false;
-        if ((objectHandle >= SIM_IDSTART_SCENEOBJECT) && (objectHandle <= SIM_IDEND_SCENEOBJECT))
+        if ((objectHandle >= sim_object_sceneobjectstart) && (objectHandle <= sim_object_sceneobjectend))
         { // here we have an object
             if (!doesObjectExist(__func__, objectHandle))
                 return (nullptr);

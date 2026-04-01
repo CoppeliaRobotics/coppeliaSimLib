@@ -119,7 +119,7 @@ void CDistanceObjectContainer_old::addObjectWithSuffixOffset(CDistanceObject_old
 
 int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Handle, const char* objName)
 { // We check if the objects are valid:
-    if (entity1Handle <= SIM_IDEND_SCENEOBJECT)
+    if (entity1Handle <= sim_object_sceneobjectend)
     {
         if (App::currentWorld->sceneObjects->getObjectFromHandle(entity1Handle) == nullptr)
             return (-1);
@@ -129,7 +129,7 @@ int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Han
         if (App::currentWorld->collections->getObjectFromHandle(entity1Handle) == nullptr)
             return (-1);
     }
-    if (entity2Handle > SIM_IDEND_SCENEOBJECT)
+    if (entity2Handle > sim_object_sceneobjectend)
     {
         if (App::currentWorld->collections->getObjectFromHandle(entity2Handle) == nullptr)
             return (-1);
@@ -140,7 +140,7 @@ int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Han
             return (-1);
     }
     // We check if we try to measure an object against itself (forbidden, except for collections):
-    if ((entity1Handle <= SIM_IDEND_SCENEOBJECT) && (entity2Handle <= SIM_IDEND_SCENEOBJECT))
+    if ((entity1Handle <= sim_object_sceneobjectend) && (entity2Handle <= sim_object_sceneobjectend))
     {
         if (entity1Handle == entity2Handle)
             return (-1);
@@ -154,7 +154,7 @@ int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Han
     }
 
     // Now check if the combination is valid:
-    if ((entity1Handle <= SIM_IDEND_SCENEOBJECT) && (entity2Handle <= SIM_IDEND_SCENEOBJECT))
+    if ((entity1Handle <= sim_object_sceneobjectend) && (entity2Handle <= sim_object_sceneobjectend))
     {
         int t1 = App::currentWorld->sceneObjects->getObjectFromHandle(entity1Handle)->getObjectType();
         int t2 = sim_sceneobject_octree;

@@ -2283,13 +2283,13 @@ void CVisionSensor::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
 void CVisionSensor::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performObjectLoadingMapping(map, opType);
-    if (_detectableEntityHandle <= SIM_IDEND_SCENEOBJECT)
+    if (_detectableEntityHandle <= sim_object_sceneobjectend)
         _detectableEntityHandle = CWorld::getLoadingMapping(map, _detectableEntityHandle);
 }
 void CVisionSensor::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performCollectionLoadingMapping(map, opType);
-    if (_detectableEntityHandle > SIM_IDEND_SCENEOBJECT)
+    if (_detectableEntityHandle > sim_object_sceneobjectend)
         _detectableEntityHandle = CWorld::getLoadingMapping(map, _detectableEntityHandle);
 }
 void CVisionSensor::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
@@ -2465,7 +2465,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
         else
         {
-            unsigned int r = (SIM_IDEND_SCENEOBJECT - SIM_IDSTART_SCENEOBJECT) + 1;
+            unsigned int r = (sim_object_sceneobjectend - sim_object_sceneobjectstart) + 1;
             unsigned char* visibleIds = new unsigned char[r];
             for (unsigned int i = 0; i < r; i++)
                 visibleIds[i] = 0;

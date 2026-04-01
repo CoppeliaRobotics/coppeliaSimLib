@@ -1154,7 +1154,7 @@ CDrawingObject* getDrawingObject(int identifier, std::string* errMsg /*= nullptr
 CDetachedScript* getDetachedScript(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     CDetachedScript* retVal = nullptr;
-    if (identifier > SIM_IDEND_SCENEOBJECT)
+    if (identifier > sim_object_sceneobjectend)
         retVal = App::worldContainer->getDetachedScriptFromHandle(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
@@ -3643,7 +3643,7 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
         if (targetObj >= 0)
         {
             prox = App::currentWorld->sceneObjects->getObjectFromHandle(targetObj);
-            if ((prox == nullptr) && (currentScript->getScriptHandle() <= SIM_IDEND_SCENEOBJECT))
+            if ((prox == nullptr) && (currentScript->getScriptHandle() <= sim_object_sceneobjectend))
                 prox = App::currentWorld->sceneObjects->getScriptFromHandle(currentScript->getScriptHandle());
 //                prox = App::currentWorld->getDetachedScriptFromHandle(targetObj);
         }

@@ -2697,12 +2697,12 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -2714,7 +2714,7 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -2722,10 +2722,10 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -2764,12 +2764,12 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -2781,7 +2781,7 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -2789,10 +2789,10 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -2831,12 +2831,12 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -2847,7 +2847,7 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -2855,10 +2855,10 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -2897,12 +2897,12 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -2913,7 +2913,7 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -2921,10 +2921,10 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -2965,12 +2965,12 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
         }
         */
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setLongProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -2982,7 +2982,7 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -2990,10 +2990,10 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3019,12 +3019,12 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
         if (retVal == -1)
             retVal = environment->getLongProperty(ppName, pState);
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getLongProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3036,7 +3036,7 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3044,11 +3044,11 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
         retVal = collections->getLongProperty(target, ppName, pState);
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
         retVal = drawingCont->getLongProperty(target, ppName, pState);
     }
@@ -3073,12 +3073,12 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
     {
         //const char* pName = ppName;
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setHandleProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3090,7 +3090,7 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3098,10 +3098,10 @@ int CWorld::setHandleProperty(long long int target, const char* ppName, long lon
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3125,11 +3125,11 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
     {
         retVal = environment->getHandleProperty(ppName, pState);
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         retVal = sceneObjects->getHandleProperty(target, ppName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3137,7 +3137,7 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3145,11 +3145,11 @@ int CWorld::getHandleProperty(long long int target, const char* ppName, long lon
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
         retVal = collections->getHandleProperty(target, ppName, pState);
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
         retVal = drawingCont->getHandleProperty(target, ppName, pState);
     }
@@ -3187,12 +3187,12 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3204,7 +3204,7 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3212,10 +3212,10 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3252,12 +3252,12 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3269,7 +3269,7 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3277,10 +3277,10 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3317,12 +3317,12 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setStringProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3334,7 +3334,7 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3342,10 +3342,10 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3382,12 +3382,12 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getStringProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3399,7 +3399,7 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3407,12 +3407,12 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
         const char* pName = ppName;
         retVal = collections->getStringProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
         const char* pName = ppName;
         retVal = drawingCont->getStringProperty(target, pName, pState);
@@ -3460,12 +3460,12 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
             }
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3477,7 +3477,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3485,10 +3485,10 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3529,12 +3529,12 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
             }
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getBufferProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3546,7 +3546,7 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3554,10 +3554,10 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3592,12 +3592,12 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntArray2Property(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3609,7 +3609,7 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3617,10 +3617,10 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3655,12 +3655,12 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntArray2Property(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3672,7 +3672,7 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3680,10 +3680,10 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3718,12 +3718,12 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setVector2Property(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3735,7 +3735,7 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3743,10 +3743,10 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3781,12 +3781,12 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getVector2Property(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3798,7 +3798,7 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3806,10 +3806,10 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3844,12 +3844,12 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setVector3Property(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3861,7 +3861,7 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3869,10 +3869,10 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3907,12 +3907,12 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getVector3Property(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3924,7 +3924,7 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3932,10 +3932,10 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -3958,10 +3958,10 @@ int CWorld::setMatrixProperty(long long int target, const char* ppName, const CM
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -3970,7 +3970,7 @@ int CWorld::setMatrixProperty(long long int target, const char* ppName, const CM
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -3978,10 +3978,10 @@ int CWorld::setMatrixProperty(long long int target, const char* ppName, const CM
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4004,10 +4004,10 @@ int CWorld::getMatrixProperty(long long int target, const char* ppName, CMatrix&
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4016,7 +4016,7 @@ int CWorld::getMatrixProperty(long long int target, const char* ppName, CMatrix&
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4024,10 +4024,10 @@ int CWorld::getMatrixProperty(long long int target, const char* ppName, CMatrix&
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4050,10 +4050,10 @@ int CWorld::setMatrix3x3Property(long long int target, const char* ppName, const
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4062,7 +4062,7 @@ int CWorld::setMatrix3x3Property(long long int target, const char* ppName, const
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4070,10 +4070,10 @@ int CWorld::setMatrix3x3Property(long long int target, const char* ppName, const
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4096,10 +4096,10 @@ int CWorld::getMatrix3x3Property(long long int target, const char* ppName, CMatr
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4108,7 +4108,7 @@ int CWorld::getMatrix3x3Property(long long int target, const char* ppName, CMatr
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4116,10 +4116,10 @@ int CWorld::getMatrix3x3Property(long long int target, const char* ppName, CMatr
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4142,10 +4142,10 @@ int CWorld::setMatrix4x4Property(long long int target, const char* ppName, const
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4154,7 +4154,7 @@ int CWorld::setMatrix4x4Property(long long int target, const char* ppName, const
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4162,10 +4162,10 @@ int CWorld::setMatrix4x4Property(long long int target, const char* ppName, const
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4188,10 +4188,10 @@ int CWorld::getMatrix4x4Property(long long int target, const char* ppName, CMatr
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4200,7 +4200,7 @@ int CWorld::getMatrix4x4Property(long long int target, const char* ppName, CMatr
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4208,10 +4208,10 @@ int CWorld::getMatrix4x4Property(long long int target, const char* ppName, CMatr
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4244,12 +4244,12 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4261,7 +4261,7 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4269,10 +4269,10 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4305,12 +4305,12 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4322,7 +4322,7 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4330,10 +4330,10 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4366,12 +4366,12 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4383,7 +4383,7 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4391,10 +4391,10 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4427,12 +4427,12 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4444,7 +4444,7 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4452,10 +4452,10 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4490,12 +4490,12 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setColorProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4507,7 +4507,7 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4515,10 +4515,10 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4553,12 +4553,12 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getColorProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4570,7 +4570,7 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4578,10 +4578,10 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4616,12 +4616,12 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setFloatArrayProperty(target, pName, v, vL);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4633,7 +4633,7 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4641,10 +4641,10 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4680,12 +4680,12 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getFloatArrayProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4697,7 +4697,7 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4705,10 +4705,10 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4743,12 +4743,12 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntArrayProperty(target, pName, v, vL);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4760,7 +4760,7 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4768,10 +4768,10 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4807,12 +4807,12 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntArrayProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4824,7 +4824,7 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4832,10 +4832,10 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4870,12 +4870,12 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setHandleArrayProperty(target, pName, v, vL);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4887,7 +4887,7 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4895,10 +4895,10 @@ int CWorld::setHandleArrayProperty(long long int target, const char* ppName, con
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -4934,12 +4934,12 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getHandleArrayProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -4951,7 +4951,7 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -4959,12 +4959,12 @@ int CWorld::getHandleArrayProperty(long long int target, const char* ppName, std
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
         const char* pName = ppName;
         retVal = collections->getHandleArrayProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
         const char* pName = ppName;
         retVal = drawingCont->getHandleArrayProperty(target, pName, pState);
@@ -5001,12 +5001,12 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setStringArrayProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -5018,7 +5018,7 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -5026,10 +5026,10 @@ int CWorld::setStringArrayProperty(long long int target, const char* ppName, con
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -5065,12 +5065,12 @@ int CWorld::getStringArrayProperty(long long int target, const char* ppName, std
         {
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getStringArrayProperty(target, pName, pState);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -5082,7 +5082,7 @@ int CWorld::getStringArrayProperty(long long int target, const char* ppName, std
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -5090,10 +5090,10 @@ int CWorld::getStringArrayProperty(long long int target, const char* ppName, std
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -5154,12 +5154,12 @@ int CWorld::removeProperty(long long int target, const char* ppName)
             }
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->removeProperty(target, pName);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -5171,7 +5171,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -5179,10 +5179,10 @@ int CWorld::removeProperty(long long int target, const char* ppName)
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
     else
@@ -5235,12 +5235,12 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
                 retVal = drawingCont->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
         }
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
 //        appartenance = _objectTypeStr;
         retVal = sceneObjects->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -5252,7 +5252,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -5260,12 +5260,12 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
 //        appartenance = _objectTypeStr;
         retVal = collections->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
 //        appartenance = _objectTypeStr;
         retVal = drawingCont->getPropertyName(target, index, pName, appartenance, excludeFlags);
@@ -5338,9 +5338,9 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         if (retVal == -1)
             retVal = drawingCont->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
     }
-    else if (((target >= 0) && (target <= SIM_IDEND_SCENEOBJECT)) || (target >= SIM_UIDSTART))
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getPropertyInfo(target, ppName, info, infoTxt);
-    else if ((target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT))
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
@@ -5348,7 +5348,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_INTERFACESTACK) && (target <= SIM_IDEND_INTERFACESTACK))
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
     {
         CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(target);
         if (stack != nullptr)
@@ -5356,9 +5356,9 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         else
             retVal = -2; // target does not exist
     }
-    else if ((target >= SIM_IDSTART_COLLECTION) && (target <= SIM_IDEND_COLLECTION))
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
         retVal = collections->getPropertyInfo(target, ppName, info, infoTxt);
-    else if ((target >= SIM_IDSTART_DRAWINGOBJ) && (target <= SIM_IDEND_DRAWINGOBJ))
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
         retVal = drawingCont->getPropertyInfo(target, ppName, info, infoTxt);
     else
         retVal = -2; // target does not exist

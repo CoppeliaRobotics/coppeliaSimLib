@@ -240,7 +240,7 @@ void CCollectionContainer::addCollectionWithSuffixOffset(CCollection* collection
         theName = tt::generateNewName_hashOrNoHash(theName.c_str(), objectIsACopy);
     collection->setCollectionName(theName.c_str(), false);
 
-    int handle = SIM_IDSTART_COLLECTION;
+    int handle = sim_object_collectionstart;
     while (getObjectFromHandle(handle) != nullptr)
         handle++;
     collection->setCollectionHandle(handle);

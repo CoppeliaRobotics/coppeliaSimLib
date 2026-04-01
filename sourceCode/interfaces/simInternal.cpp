@@ -202,7 +202,7 @@ bool doesObjectExist(const char* functionName, int identifier)
 bool doesObjectOrScriptExist(const char* functionName, int identifier)
 {
     bool retVal;
-    if (identifier > SIM_IDEND_SCENEOBJECT)
+    if (identifier > sim_object_sceneobjectend)
         retVal = (App::worldContainer->getDetachedScriptFromHandle(identifier) != nullptr);
     else
         retVal = (App::currentWorld->sceneObjects->getObjectFromHandle(identifier) != nullptr);
@@ -213,7 +213,7 @@ bool doesObjectOrScriptExist(const char* functionName, int identifier)
 
 bool doesEntityExist(const char* functionName, int identifier)
 {
-    if (identifier > SIM_IDEND_SCENEOBJECT)
+    if (identifier > sim_object_sceneobjectend)
     {
         if (App::currentWorld->collections->getObjectFromHandle(identifier) == nullptr)
         {
@@ -3576,7 +3576,7 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
         const CSceneObject* emittingObj = nullptr;
         if (prox == nullptr)
         {
-            if (_currentScriptHandle <= SIM_IDEND_SCENEOBJECT)
+            if (_currentScriptHandle <= sim_object_sceneobjectend)
             {
                 CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(_currentScriptHandle);
                 if (it != nullptr)
@@ -6745,7 +6745,7 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if ((objectHandle >= SIM_IDSTART_SCENEOBJECT) && (objectHandle <= SIM_IDEND_SCENEOBJECT))
+        if ((objectHandle >= sim_object_sceneobjectstart) && (objectHandle <= sim_object_sceneobjectend))
         { // scene objects
             if (!doesObjectExist(__func__, objectHandle))
             {
@@ -6829,7 +6829,7 @@ int simGetExplicitHandling_internal(int objectHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if ((objectHandle >= SIM_IDSTART_SCENEOBJECT) && (objectHandle <= SIM_IDEND_SCENEOBJECT))
+        if ((objectHandle >= sim_object_sceneobjectstart) && (objectHandle <= sim_object_sceneobjectend))
         { // scene objects
             if (!doesObjectExist(__func__, objectHandle))
                 return (-1);
@@ -12792,7 +12792,7 @@ char* simGetApiFunc_internal(int scriptHandle, const char* apiWord)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CDetachedScript* script = nullptr;
-        if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
+        if (scriptHandle >= sim_object_detachedscriptstart)
             script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
         std::string apiW(apiWord);
         bool funcs = true;
@@ -12838,7 +12838,7 @@ char* simGetApiInfo_internal(int scriptHandle, const char* apiWord)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CDetachedScript* script = nullptr;
-        if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
+        if (scriptHandle >= sim_object_detachedscriptstart)
             script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
         if (strlen(apiWord) > 0)
         {

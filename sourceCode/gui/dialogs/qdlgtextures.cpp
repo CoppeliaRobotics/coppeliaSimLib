@@ -167,7 +167,7 @@ void CQDlgTextures::refresh()
         ui->qqRemoveSelect->setText(IDS_REMOVE_TEXTURE);
         ui->qqRemoveSelect->setEnabled(true);
         std::string textureName = IDS_TEXTURE_NAME_NONE;
-        if (tp->getTextureObjectID() > SIM_IDEND_SCENEOBJECT)
+        if (tp->getTextureObjectID() > sim_object_sceneobjectend)
         { // we have a static texture
             CTextureObject* to = App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
             if (to != nullptr)

@@ -3044,7 +3044,7 @@ int CCamera::getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthB
                 distance = selectBuff[4 * i + 1];
                 nearestObj = selectBuff[4 * i + 3];
                 hitThatIgnoresTheSelectableFlag = nearestObj;
-                if ((nearestObj <= SIM_IDEND_SCENEOBJECT) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
+                if ((nearestObj <= sim_object_sceneobjectend) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
                 { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
                     CSceneObject* theObj = App::currentWorld->sceneObjects->getObjectFromHandle(nearestObj);
                     if ((theObj != nullptr) &&
@@ -3063,7 +3063,7 @@ int CCamera::getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthB
                         distance = selectBuff[4 * i + 1];
                         nearestObj = selectBuff[4 * i + 3];
                         hitThatIgnoresTheSelectableFlag = nearestObj;
-                        if ((nearestObj <= SIM_IDEND_SCENEOBJECT) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
+                        if ((nearestObj <= sim_object_sceneobjectend) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
                         { // since 3/6/2013 we check for the selectable flag here instead of in the object display
                             // routine
                             CSceneObject* theObj = App::currentWorld->sceneObjects->getObjectFromHandle(nearestObj);
@@ -3080,7 +3080,7 @@ int CCamera::getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthB
                         distance = selectBuff[4 * i + 1];
                         nearestObj = selectBuff[4 * i + 3];
                         hitThatIgnoresTheSelectableFlag = nearestObj;
-                        if ((nearestObj <= SIM_IDEND_SCENEOBJECT) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
+                        if ((nearestObj <= sim_object_sceneobjectend) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
                         { // since 3/6/2013 we check for the selectable flag here instead of in the object display
                             // routine
                             CSceneObject* theObj = App::currentWorld->sceneObjects->getObjectFromHandle(nearestObj);
@@ -3114,7 +3114,7 @@ int CCamera::getSeveralHits(int hits, unsigned int selectBuff[], std::vector<int
             unsigned int theHit = selectBuff[4 * i + 3];
             if (theHit != ((unsigned int)-1))
             {
-                if ((theHit <= SIM_IDEND_SCENEOBJECT) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
+                if ((theHit <= sim_object_sceneobjectend) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
                 { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
                     CSceneObject* theObj = App::currentWorld->sceneObjects->getObjectFromHandle(theHit);
                     if ((theObj != nullptr) &&
@@ -3146,7 +3146,7 @@ void CCamera::handleMouseUpHit(int hitId)
     }
     else
     {
-        if ((hitId < SIM_IDEND_SCENEOBJECT) ||
+        if ((hitId < sim_object_sceneobjectend) ||
             (hitId >=
              NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to
                                                     // select individual path points when not in path edit mode!!!!!!!
@@ -3183,7 +3183,7 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
         {
             for (int i = 0; i < int(hitList.size()); i++)
             {
-                if ((hitList[i] < SIM_IDEND_SCENEOBJECT) ||
+                if ((hitList[i] < sim_object_sceneobjectend) ||
                     (hitList[i] >=
                      NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start
                                                             // here to select individual path points when not in path
@@ -3219,7 +3219,7 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
             }
             else
             {
-                if ((hitId < SIM_IDEND_SCENEOBJECT) ||
+                if ((hitId < sim_object_sceneobjectend) ||
                     (hitId >= NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START
                                                                      // start here to select individual path points when
                                                                      // not in path edit mode!!!!!!!

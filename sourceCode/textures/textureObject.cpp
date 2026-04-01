@@ -11,7 +11,7 @@ unsigned int CTextureObject::_textureContentUniqueId = 0;
 
 CTextureObject::CTextureObject()
 { // for serialization
-    _objectID = SIM_IDSTART_TEXTURE;
+    _objectID = sim_object_texturestart;
     _objectName = "Texture";
     _textureSize[0] = 16;
     _textureSize[1] = 16;
@@ -24,7 +24,7 @@ CTextureObject::CTextureObject()
 
 CTextureObject::CTextureObject(int sizeX, int sizeY)
 {
-    _objectID = SIM_IDSTART_TEXTURE;
+    _objectID = sim_object_texturestart;
     _objectName = "Texture";
     _textureSize[0] = sizeX;
     _textureSize[1] = sizeY;

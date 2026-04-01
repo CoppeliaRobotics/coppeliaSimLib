@@ -100,7 +100,7 @@
 #define SELECTION_BUFFER_SIZE \
     100000 // Specifies how many objects can be selected at the (from 10000 to 100000 on 14/6/2011)
 
-#define NON_OBJECT_PICKING_ID_BANNER_START SIM_IDSTART_COLLECTION
+#define NON_OBJECT_PICKING_ID_BANNER_START sim_object_collectionstart
 #define NON_OBJECT_PICKING_ID_BANNER_END (NON_OBJECT_PICKING_ID_BANNER_START + 10000)
 #define NON_OBJECT_PICKING_ID_PATH_PTS_START (NON_OBJECT_PICKING_ID_BANNER_END + 1)
 
@@ -1507,6 +1507,7 @@ enum
     DIRECTORY_ID_TEXTURE = 0
 };
 
+/*
 #ifdef USE_LONG_LONG_HANDLES
 enum
 {
@@ -1529,61 +1530,27 @@ enum
     // keep below 0x0010000000000000 (b/c of handleflags)
     // Keep in mind that scene object handles are serialized, other handles/ids are created on-the-fly
 
-    SIM_IDSTART_SCENEOBJECT = 0x0000010000000000,
-    SIM_IDEND_SCENEOBJECT = 0x000001ffffffffff,
-    SIM_IDSTART_COLLECTION = 0x0000020000000000,
-    SIM_IDEND_COLLECTION = 0x000002ffffffffff,
-    SIM_IDSTART_LUASCRIPT = 0x0000030000000000,
-    SIM_IDEND_LUASCRIPT = 0x000003ffffffffff,
-    SIM_IDSTART_INTERFACESTACK = 0x0000040000000000,
-    SIM_IDEND_INTERFACESTACK = 0x000004ffffffffff,
-    SIM_IDSTART_TEXTURE = 0x0000050000000000,
-    SIM_IDEND_TEXTURE = 0x000005ffffffffff,
+    sim_object_sceneobjectstart = 0x0000010000000000,
+    sim_object_sceneobjectend = 0x000001ffffffffff,
+    sim_object_collectionstart = 0x0000020000000000,
+    sim_object_collectionend = 0x000002ffffffffff,
+    sim_object_detachedscriptstart = 0x0000030000000000,
+    sim_object_detachedscriptend = 0x000003ffffffffff,
+    sim_object_stackstart = 0x0000040000000000,
+    sim_object_stackend = 0x000004ffffffffff,
+    sim_object_texturestart = 0x0000050000000000,
+    sim_object_textureend = 0x000005ffffffffff,
     SIM_IDSTART_MESH = 0x0000060000000000,
     SIM_IDEND_MESH = 0x000006ffffffffff,
     SIM_IDSTART_DRAWING = 0x0000070000000000,
     SIM_IDEND_DRAWING = 0x000007ffffffffff,
-    SIM_IDSTART_CUSTOM = 0x0000080000000000,
-    SIM_IDEND_CUSTOM = 0x000008ffffffffff,
-    SIM_UIDSTART = 0x0000f00000000000,
-};
-#else
-enum
-{
-    // Most of below handles are sometimes combined with sim_handleflag_xxx, so keep them below 4'194'304
-    // See also sim_handleflag_handlemask and sim_handleflag_flagmask
-
-    // Scene object handles are serialized
-    SIM_IDSTART_SCENEOBJECT = 0,
-    SIM_IDEND_SCENEOBJECT = 999999,
-
-    // Non-object script handles are created on-the-fly, except for old, associated scripts that have handles serialized
-    SIM_IDSTART_LUASCRIPT = 1010000,
-    SIM_IDEND_LUASCRIPT = 1019999,
-
-    // Stack handles are created on-the-fly
-    SIM_IDSTART_INTERFACESTACK = 1020000,
-    SIM_IDEND_INTERFACESTACK = 1029999,
-
-    // Collection handles are created on-the-fly, except for old collections that have handles serialized
-    SIM_IDSTART_COLLECTION = 2000000, // for V4.6 can be set to 1000000, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
-    SIM_IDEND_COLLECTION = 2010000,   // for V4.6 can be set to 1009999, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
-
-    // Texture handles are serialized
-    SIM_IDSTART_TEXTURE = 2180009, // for V4.6 can be set to 1030000, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
-    SIM_IDEND_TEXTURE = 2280009,   // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
-
-    // Drawing object handles are created on-the-fly
-    SIM_IDSTART_DRAWINGOBJ = 2280010,
-    SIM_IDEND_DRAWINGOBJ = 3999999,
-
-    SIM_IDSTART_CUSTOM = 8000000,
-    SIM_IDEND_CUSTOM = 9999999,
-
-    // Only for object related to a specific scene! (e.g. meshes) (i.e. no app objects!)
-    SIM_UIDSTART = 10000000,
+    sim_object_customstart = 0x0000080000000000,
+    sim_object_customend = 0x000008ffffffffff,
+    sim_object_variousstart = 0x0000f00000000000,
 };
 #endif
+*/
+
 enum
 { // Old. Values are serialized:
     SIM_IDSTART_COLLISION_old = 2010001,

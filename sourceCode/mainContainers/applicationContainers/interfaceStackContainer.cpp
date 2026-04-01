@@ -14,7 +14,7 @@ CInterfaceStackContainer::~CInterfaceStackContainer()
 CInterfaceStack* CInterfaceStackContainer::createStack()
 {
     CInterfaceStack* stack = new CInterfaceStack(1, 1, "");
-    int id = SIM_IDSTART_INTERFACESTACK;
+    int id = sim_object_stackstart;
     while (getStack(id) != nullptr)
         id++;
     _allStacks.push_back(stack);
@@ -24,7 +24,7 @@ CInterfaceStack* CInterfaceStackContainer::createStack()
 
 CInterfaceStack* CInterfaceStackContainer::createStackCopy(const CInterfaceStack* original)
 {
-    int id = SIM_IDSTART_INTERFACESTACK;
+    int id = sim_object_stackstart;
     while (getStack(id) != nullptr)
         id++;
     CInterfaceStack* copy = original->copyYourself();

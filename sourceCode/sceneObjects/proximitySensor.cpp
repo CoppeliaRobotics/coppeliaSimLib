@@ -389,13 +389,13 @@ void CProxSensor::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
 void CProxSensor::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performObjectLoadingMapping(map, opType);
-    if (_sensableObject_deprecated <= SIM_IDEND_SCENEOBJECT)
+    if (_sensableObject_deprecated <= sim_object_sceneobjectend)
         _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
 }
 void CProxSensor::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performCollectionLoadingMapping(map, opType);
-    if (_sensableObject_deprecated > SIM_IDEND_SCENEOBJECT)
+    if (_sensableObject_deprecated > sim_object_sceneobjectend)
         _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
 }
 void CProxSensor::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)

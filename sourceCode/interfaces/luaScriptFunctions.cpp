@@ -845,6 +845,22 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.scriptexecorder_first", sim_scriptexecorder_first},
     {"sim.scriptexecorder_normal", sim_scriptexecorder_normal},
     {"sim.scriptexecorder_last", sim_scriptexecorder_last},
+    // object handles:
+    {"sim.object_sceneobjectstart", sim_object_sceneobjectstart},
+    {"sim.object_sceneobjectend", sim_object_sceneobjectend},
+    {"sim.object_detachedscriptstart", sim_object_detachedscriptstart},
+    {"sim.object_detachedscriptend", sim_object_detachedscriptend},
+    {"sim.object_stackstart", sim_object_stackstart},
+    {"sim.object_stackend", sim_object_stackend},
+    {"sim.object_collectionstart", sim_object_collectionstart},
+    {"sim.object_collectionend", sim_object_collectionend},
+    {"sim.object_texturestart", sim_object_texturestart},
+    {"sim.object_textureend", sim_object_textureend},
+    {"sim.object_drawingstart", sim_object_drawingstart},
+    {"sim.object_drawingend", sim_object_drawingend},
+    {"sim.object_customstart", sim_object_customstart},
+    {"sim.object_customend", sim_object_customend},
+    {"sim.object_variousstart", sim_object_variousstart},
     // language:
     {"sim.lang_undefined", sim_lang_undefined},
     {"sim.lang_lua", sim_lang_lua},
@@ -2604,7 +2620,7 @@ bool checkInputArguments(luaWrap_lua_State* L, std::string* errStr, int argOffse
 
 bool doesEntityExist(std::string* errStr, int identifier)
 {
-    if (identifier > SIM_IDEND_SCENEOBJECT)
+    if (identifier > sim_object_sceneobjectend)
     {
         if (App::currentWorld->collections->getObjectFromHandle(identifier) == nullptr)
         {
