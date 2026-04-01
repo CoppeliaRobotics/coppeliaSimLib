@@ -3315,6 +3315,15 @@ void App::releaseCustomObject(long long int h)
     }
 }
 
+std::string App::getCustomObjectType(long long int h)
+{
+    std::string retVal;
+    auto it = _customObjects.find(h);
+    if (it != _customObjects.end())
+        retVal = it->second->getObjectTypeStr();
+    return retVal;
+}
+
 int App::getPlatform()
 {
     int retVal;

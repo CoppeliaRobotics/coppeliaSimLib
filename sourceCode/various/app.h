@@ -165,6 +165,7 @@ class App
     static long long int createCustomObject(const char* objectTypeStr, const char* objectMetaInfo);
     static CustomObject* getCustomObject(long long int h);
     static void releaseCustomObject(long long int h);
+    static std::string getCustomObjectType(long long int h);
 
     static void setHierarchyEnabled(bool v);
     static bool getHierarchyEnabled();
