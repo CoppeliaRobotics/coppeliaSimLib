@@ -3119,17 +3119,6 @@ void CDetachedScript::buildFromInterpreterStack_lua(void* LL, CInterfaceStack* s
             stack->pushObjectOntoStack(obj);
         }
     }
-    else
-    { // with cnt == -1, we have an array-like table at fromPos, and an array-like type info table at fromPos+1. BEWARE: both tables should have only successive number indices starting at 1!! (other indices will generate an error/crash)
-        std::map<void*, bool> visitedTables;
-        CInterfaceStackObject* obj = _getObjectFromInterpreterStack_lua(L, fromPos, visitedTables, true);
-        CInterfaceStackTable* tble = (CInterfaceStackTable*)obj;
-        std::vector<CInterfaceStackObject*> allObjs;
-        tble->getAllObjectsAndClearTable(allObjs);
-        delete tble;
-        for (size_t i = 0; i < allObjs.size(); i++)
-            stack->pushObjectOntoStack(allObjs[i]);
-    }
 }
 
 size_t CDetachedScript::buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop, bool interlaceWithTypeInfo /*= false*/)
@@ -4104,7 +4093,7 @@ int CDetachedScript::_countInterpreterStackTableEntries_lua(void* LL, int index)
     return (cnt);
 }
 
-CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints /*= false*/)
+CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables)
 { // generates just one object at the given index. There is no type hint
     // !! LL is not the same for a script when in normal or inside a coroutine !!
     CInterfaceStackObject* retVal = nullptr;
@@ -4113,31 +4102,6 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
     int typeIndex = index + 1;
     int t = luaWrap_lua_stype(L, index); // returns only simple types
     int m_rows, m_cols;
-    if (hasTypeHints)
-    {
-        if (luaWrap_lua_isinteger(L, typeIndex))
-        {
-            int _t = luaWrap_lua_tointeger(L, typeIndex);
-            if (_t != -1)
-                t = _t;
-        }
-        else if (lua_isstring((lua_State*)L, typeIndex))
-        { // string of type "m[rows]x[cols]"
-            std::string info(luaWrap_lua_tostring(L, typeIndex));
-            const char* ptr = info.data();
-            const char* end = info.data() + info.size();
-            if (ptr < end && *ptr == 'm')
-                ptr++;
-            auto result = std::from_chars(ptr, end, m_rows);
-            ptr = result.ptr;
-            if (ptr < end && *ptr == 'x')
-                ptr++;
-            std::from_chars(ptr, end, m_cols);
-            t = sim_stackitem_matrix;
-        }
-        else
-            t = sim_stackitem_table;
-    }
     bool metatable = false;
     if (t == sim_stackitem_null)
         retVal = new CInterfaceStackNull();
@@ -4243,7 +4207,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
                     lua_replace((lua_State*)L, abs_i); // replace the metatable with its clone
                 }
                 */
-                table = _getTableFromInterpreterStack_lua(L, index, visitedTables, hasTypeHints);
+                table = _getTableFromInterpreterStack_lua(L, index, visitedTables);
                 it = visitedTables.find(p);
                 visitedTables.erase(it);
             }
@@ -4275,7 +4239,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
     return retVal;
 }
 
-CInterfaceStackTable* CDetachedScript::_getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints /*= false*/)
+CInterfaceStackTable* CDetachedScript::_getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables)
 { // there must be a table at the given index
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     index = luaWrap_lua_absindex(L, index);
@@ -4290,19 +4254,9 @@ CInterfaceStackTable* CDetachedScript::_getTableFromInterpreterStack_lua(void* L
     { // we have an array
         for (int i = 0; i < arraySize; i++)
         {
-            CInterfaceStackObject* obj;
             luaWrap_lua_rawgeti(L, index, i + 1);
-            if (hasTypeHints)
-            {
-                luaWrap_lua_rawgeti(L, typeIndex, i + 1);
-                obj = _getObjectFromInterpreterStack_lua(L, -2, visitedTables, hasTypeHints);
-                luaWrap_lua_pop(L, 2);
-            }
-            else
-            {
-                obj = _getObjectFromInterpreterStack_lua(L, -1, visitedTables, hasTypeHints);
-                luaWrap_lua_pop(L, 1);
-            }
+            CInterfaceStackObject* obj = _getObjectFromInterpreterStack_lua(L, -1, visitedTables);
+            luaWrap_lua_pop(L, 1);
             table->appendArrayObject(obj);
         }
     }
@@ -4315,12 +4269,6 @@ CInterfaceStackTable* CDetachedScript::_getTableFromInterpreterStack_lua(void* L
             luaWrap_lua_pushvalue(L, -2); // copy the key. Stack now contains: -1: key, -2: value, -3: key, -4: table copy
             int keyT = luaWrap_lua_stype(L, -1);
             int keyInd = -1;
-            if (hasTypeHints)
-            {
-                luaWrap_lua_pushvalue(L, -1); // copy the key. Stack: -1: key, -2: key, -3: value, -4: key, -5: table copy
-                luaWrap_lua_settable(L, typeIndex); // fetch the type in typeIndex table. Stack: -1: type, -2: key, -3: value, -4: key, -5: table copy
-                keyInd = -2;
-            }
             CInterfaceStackObject* key = nullptr;
             if (keyT == sim_stackitem_double)
                 key = new CInterfaceStackNumber(luaWrap_lua_tonumber(L, keyInd));
@@ -4353,16 +4301,8 @@ CInterfaceStackTable* CDetachedScript::_getTableFromInterpreterStack_lua(void* L
                 key = new CInterfaceStackString(str.c_str());
             }
             luaWrap_lua_remove(L, keyInd); // remove the key. Stack (top-down): (type), value, key, table copy
-            if (hasTypeHints)
-            {
-                table->appendArrayOrMapObject(key, _getObjectFromInterpreterStack_lua(L, -2, visitedTables, hasTypeHints));
-                luaWrap_lua_pop(L, 2); // pop 2 values (type + value)
-            }
-            else
-            {
-                table->appendArrayOrMapObject(key, _getObjectFromInterpreterStack_lua(L, -1, visitedTables, hasTypeHints));
-                luaWrap_lua_pop(L, 1); // pop the value
-            }
+            table->appendArrayOrMapObject(key, _getObjectFromInterpreterStack_lua(L, -1, visitedTables));
+            luaWrap_lua_pop(L, 1); // pop the value
             // stack: -1: key, -2: table copy
         }
         luaWrap_lua_pop(L, 1); // pop the table copy

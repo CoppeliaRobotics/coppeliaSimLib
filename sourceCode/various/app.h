@@ -9,7 +9,6 @@
 #include <instance_id.h>
 #include <QSystemSemaphore>
 #include <obj.h>
-#include <customObject.h>
 #include <propertiesAndMethods.h>
 #ifndef SIM_WITH_GUI
 #include <simQApp.h>
@@ -162,10 +161,6 @@ class App
 
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
-    static long long int createCustomObject(const char* objectTypeStr, const char* objectMetaInfo);
-    static CustomObject* getCustomObject(long long int h);
-    static void releaseCustomObject(long long int h);
-    static std::string getCustomObjectType(long long int h);
 
     static void setHierarchyEnabled(bool v);
     static bool getHierarchyEnabled();
@@ -228,7 +223,6 @@ class App
     static bool _exitRequest;
     static volatile int _appStage;
     static Obj* _obj;
-    static std::map<long long int, CustomObject*> _customObjects;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
     static std::map<std::string /*originName*/, std::map<int /*verbosityLevel*/, std::map<std::string /*msg*/, bool>>> _logOnceMessages;

@@ -91,7 +91,7 @@ class CGraph : public CSceneObject
     bool removeGraphDataStream(int id);
     bool removeGraphCurve(int id);
     void removeAllStreamsAndCurves();
-    int duplicateCurveToStatic(int curveId, const char* curveName);
+    int duplicateCurveToStatic(int curveId, const char* curveName, const float color[3] = nullptr);
     void getAllStreamIds(std::vector<int>& allStreamIds);
 
     void setGraphSize(double theNewSize);

@@ -12,6 +12,7 @@
 #include <moduleMenuItemContainer.h>
 #include <world.h>
 #include <customData.h>
+#include <customObject.h>
 #include <tuple>
 
 #ifdef SIM_WITH_GUI
@@ -83,6 +84,13 @@ class CWorldContainer
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
 
+    long long int createCustomObject(const char* objectTypeStr, const char* objectMetaInfo, int detachedScriptOrigin);
+    CustomObject* getCustomObject(long long int h);
+    void releaseCustomObject(long long int h);
+    void releaseCustomObjectsFromScriptHandle(int scriptHandle);
+
+
+    std::map<long long int, CustomObject*> customObjects;
     CCopyBuffer* copyBuffer;
     CSimulatorMessageQueue* simulatorMessageQueue;
     CCalculationInfo* calcInfo;

@@ -339,8 +339,8 @@ class CDetachedScript : public Obj
     int _loadBufferResult_lua;
     bool _loadBuffer_lua(const char* buff, size_t sz, const char* name);
     void _registerNewVariables_lua();
-    static CInterfaceStackObject* _getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints = false);
-    static CInterfaceStackTable* _getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables, bool hasTypeHints = false);
+    static CInterfaceStackObject* _getObjectFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables);
+    static CInterfaceStackTable* _getTableFromInterpreterStack_lua(void* LL, int index, std::map<void*, bool>& visitedTables);
 
     static int _getInterpreterStackArraySize_lua(void* LL, int index);
     static int _countInterpreterStackTableEntries_lua(void* LL, int index);

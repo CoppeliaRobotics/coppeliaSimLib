@@ -83,7 +83,6 @@ std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 Obj* App::_obj = new Obj(sim_handle_app, "app", OBJECT_META_INFO.c_str());
-std::map<long long int, CustomObject*> App::_customObjects;
 
 
 long long int App::_nextUniqueId = sim_object_variousstart;
@@ -1818,9 +1817,9 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
             }
         }
     }
-    else if ((target >= sim_object_customstart) && (target < sim_object_customend))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (worldContainer != nullptr))
     {
-        CustomObject* obj = getCustomObject(target);
+        CustomObject* obj = worldContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getLongProperty(ppName, pState);
         else
@@ -2344,9 +2343,9 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
             }
         }
     }
-    else if ((target >= sim_object_customstart) && (target < sim_object_customend))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (worldContainer != nullptr))
     {
-        CustomObject* obj = getCustomObject(target);
+        CustomObject* obj = worldContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getStringProperty(ppName, pState);
         else
@@ -3010,9 +3009,9 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             }
         }
     }
-    else if ((target >= sim_object_customstart) && (target < sim_object_customend))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (worldContainer != nullptr))
     {
-        CustomObject* obj = getCustomObject(target);
+        CustomObject* obj = worldContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getPropertyName(index, pName, appartenance, excludeFlags);
         else
@@ -3109,9 +3108,9 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
             }
         }
     }
-    else if ((target >= sim_object_customstart) && (target < sim_object_customend))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (worldContainer != nullptr))
     {
-        CustomObject* obj = getCustomObject(target);
+        CustomObject* obj = worldContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getPropertyInfo(pName, info, infoTxt);
         else
@@ -3283,44 +3282,6 @@ bool App::systemSemaphore(const char* key, bool acquire)
                 retVal = false;
         }
     }
-    return retVal;
-}
-
-long long int App::createCustomObject(const char* objectTypeStr, const char* objectMetaInfo)
-{
-    long long int h = sim_object_customstart;
-    while (getCustomObject(h))
-        h++;
-    CustomObject* obj = new CustomObject(h, objectTypeStr, objectMetaInfo);
-    _customObjects.insert({h, obj});
-    return h;
-}
-
-CustomObject* App::getCustomObject(long long int h)
-{
-    CustomObject* retVal = nullptr;
-    auto it = _customObjects.find(h);
-    if (it != _customObjects.end())
-        retVal = it->second;
-    return retVal;
-}
-
-void App::releaseCustomObject(long long int h)
-{
-    auto it = _customObjects.find(h);
-    if (it != _customObjects.end())
-    {
-        delete it->second;
-        _customObjects.erase(it);
-    }
-}
-
-std::string App::getCustomObjectType(long long int h)
-{
-    std::string retVal;
-    auto it = _customObjects.find(h);
-    if (it != _customObjects.end())
-        retVal = it->second->getObjectTypeStr();
     return retVal;
 }
 

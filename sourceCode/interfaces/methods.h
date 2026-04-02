@@ -220,9 +220,14 @@ extern std::string _method_getPropertyName(int targetObj, const char* method, CD
 extern std::string _method_getPropertyInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_createCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_releaseCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_getCustomObjectType(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_isValid(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-
+extern std::string _method_addCurve(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_addSignal(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_reset(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setSignalPoint(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_removeTrace(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_snapshotTrace(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_step(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 extern std::string _method__remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method__removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
@@ -231,16 +236,7 @@ extern std::string _method__createLight(int targetObj, const char* method, CDeta
 extern std::string _method__createGraph(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 /*
-#define SHAPE_META_METHODS R"("getAppearance": "sim-2.getShapeAppearance",
-        "setAppearance": "sim-2.setShapeAppearance",
-        "getMeshData": "sim-2.getShapeMesh")"
 
-#define DUMMY_META_METHODS R"("checkCollision": "sim-2.checkCollision",
-     "checkDistance": "sim-2.checkDistance")"
-
-#define GRAPH_META_METHODS R"("addCurve": "sim-2.addGraphCurve",
-     "addStream": "sim-2.addGraphStream",
-     "resetGraph": "sim-2.resetGraph")"
 
 #define JOINT_META_METHODS R"("getForce": "sim-2.getJointForce",
      "resetDynamicObject": "sim-2.resetDynamicObject",

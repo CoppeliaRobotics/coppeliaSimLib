@@ -1,15 +1,21 @@
 #include <customObject.h>
 #include <utils.h>
 
-CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo)
+CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int scriptHandle)
 {
     _objectHandle = handle;
     _objectTypeStr = objectTypeStr;
     _objectMetaInfo = objectMetaInfo;
+    _scriptHandle = scriptHandle;
 }
 
 CustomObject::~CustomObject()
 {
+}
+
+int CustomObject::getScriptHandle() const
+{
+    return _scriptHandle;
 }
 
 int CustomObject::getLongProperty(const char* ppName, long long int& pState) const

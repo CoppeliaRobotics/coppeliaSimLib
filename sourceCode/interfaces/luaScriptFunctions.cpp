@@ -6229,7 +6229,6 @@ int _callMethod(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("callMethod");
 
-    // if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_table, 0, lua_arg_table, 0))
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_handle, 0, lua_arg_string, 0))
     {
         long long int target = fetchHandleArg(L, 1);
@@ -6245,7 +6244,6 @@ int _callMethod(luaWrap_lua_State* L)
             printf("START\n");
         */
 
-        // CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, -1); // skip the two first args, and use the content of the 2 tables at that location
         CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
 
         /*

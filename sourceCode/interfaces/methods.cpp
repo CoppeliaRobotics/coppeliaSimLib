@@ -23,6 +23,7 @@
 #include <distanceRoutines.h>
 #include <proxSensorRoutine.h>
 #include <utils.h>
+#include <tt.h>
 
 namespace {
     constexpr int arg_null          = sim_stackitem_null;
@@ -200,8 +201,14 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
         funcTable["createCustomObject"] = _method_createCustomObject;
         funcTable["releaseCustomObject"] = _method_releaseCustomObject;
-        funcTable["getCustomObjectType"] = _method_getCustomObjectType;
         funcTable["isValid"] = _method_isValid;
+        funcTable["addCurve"] = _method_addCurve;
+        funcTable["addSignal"] = _method_addSignal;
+        funcTable["reset"] = _method_reset;
+        funcTable["setSignalPoint"] = _method_setSignalPoint;
+        funcTable["snapshotTrace"] = _method_snapshotTrace;
+        funcTable["removeTrace"] = _method_removeTrace;
+        funcTable["step"] = _method_step;
     }
 
     std::string retVal("__notFound__");
@@ -2091,7 +2098,7 @@ std::string _method__remove(int targetObj, const char* method, CDetachedScript* 
 std::string _method__removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle, arg_bool | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_bool | arg_optional}))
     {
         std::vector<long long int> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
@@ -6627,7 +6634,10 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
     {
         std::string typeStr = fetchText(inStack, 0);
         std::string metaInfoStr = fetchText(inStack, 1);
-        pushLong(outStack, App::createCustomObject(typeStr.c_str(), metaInfoStr.c_str()));
+        int h = -1;
+        if (currentScript != nullptr)
+            h = currentScript->getScriptHandle();
+        pushLong(outStack, App::worldContainer->createCustomObject(typeStr.c_str(), metaInfoStr.c_str(), h));
     }
     return errMsg;
 }
@@ -6636,21 +6646,7 @@ std::string _method_releaseCustomObject(int targetObj, const char* method, CDeta
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_integer}))
-        App::releaseCustomObject(fetchHandle(inStack, 0));
-    return errMsg;
-}
-
-std::string _method_getCustomObjectType(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_integer}))
-    {
-        std::string t = App::getCustomObjectType(fetchHandle(inStack, 0));
-        if (t.size() > 0)
-            pushText(outStack, t.c_str());
-        else
-            pushNull(outStack);
-    }
+        App::worldContainer->releaseCustomObject(fetchHandle(inStack, 0));
     return errMsg;
 }
 
@@ -6658,5 +6654,225 @@ std::string _method_isValid(int targetObj, const char* method, CDetachedScript* 
 {
     std::string errMsg;
     pushBool(outStack, App::isTargetValid(targetObj));
+    return errMsg;
+}
+
+std::string _method_addCurve(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, 2, arg_integer, arg_optional | arg_color, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::vector<int> streamIds;
+        fetchIntArray(inStack, 0, streamIds);
+        float color[3];
+        fetchColor(inStack, 1, color, {0.0f, 1.0f, 0.0f});
+        std::string name("curve");
+        std::string unitStr("");
+        double defaultVals[2] = {0.0, 0.0};
+        int width = 2;
+        bool hideLabel = false;
+        bool drawLine = false;
+        if (hasNonNullArg(inStack, 2))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchStringFromKey("name", name, &errMsg);
+            map->fetchStringFromKey("unit", unitStr, &errMsg);
+            map->fetchDoubleArrayFromKey("default", defaultVals, 2, &errMsg);
+            map->fetchInt32FromKey("width", width, &errMsg);
+            map->fetchBoolFromKey("hideLabel", hideLabel, &errMsg);
+            map->fetchBoolFromKey("drawLine", drawLine, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (name.size() == 0)
+                name = "_";
+            tt::removeIllegalCharacters(name, false);
+            int h = -1;
+            if (currentScript != nullptr)
+                h = currentScript->getScriptHandle();
+            int options = 0;
+            if (hideLabel)
+                options += 2;
+            if (!drawLine)
+                options += 4;
+            CGraphCurve* curve = new CGraphCurve(2, streamIds.data(), defaultVals, name.c_str(), unitStr.c_str(), options, color, width, h);
+            int retVal = target->addOrUpdateCurve(curve);
+            if (retVal == -1)
+            {
+                delete curve;
+                errMsg = SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE;
+            }
+            else
+                pushInt(outStack, retVal);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_addSignal(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_color, arg_optional | arg_table, 0, arg_any}))
+    {
+        float color[3];
+        fetchColor(inStack, 0, color, {1.0f, 0.0f, 0.0f});
+        std::string name("signal");
+        std::string unitStr("");
+        bool hideSignal = false;
+        bool hideLabel = false;
+        bool drawLine = false;
+        double cyclicRange = 0.0;
+        std::string trType("raw");
+        double scale = 1.0;
+        double offset = 0.0;
+        int smoothing = 1;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchStringFromKey("name", name, &errMsg);
+            map->fetchStringFromKey("unit", unitStr, &errMsg);
+            map->fetchBoolFromKey("hideSignal", hideSignal, &errMsg);
+            map->fetchBoolFromKey("hideLabel", hideLabel, &errMsg);
+            map->fetchBoolFromKey("drawLine", drawLine, &errMsg);
+            map->fetchDoubleFromKey("cyclicRange", cyclicRange, &errMsg);
+            CInterfaceStackObject* obj = map->getMapObject("transformation");
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_table))
+            {
+                CInterfaceStackTable* transf = (CInterfaceStackTable*)obj;
+                transf->fetchStringFromKey("type", trType, &errMsg);
+                transf->fetchDoubleFromKey("scale", scale, &errMsg);
+                transf->fetchDoubleFromKey("offset", offset, &errMsg);
+                transf->fetchInt32FromKey("smoothing", smoothing, &errMsg);
+            }
+        }
+        if (errMsg.size() == 0)
+        {
+            if (name.size() == 0)
+                name = "_";
+            tt::removeIllegalCharacters(name, false);
+            int h = -1;
+            if (currentScript != nullptr)
+                h = currentScript->getScriptHandle();
+            int options = 0;
+            if (hideSignal)
+                options += 1;
+            if (hideLabel)
+                options += 2;
+            if (!drawLine)
+                options += 4;
+            CGraphDataStream* str = new CGraphDataStream(name.c_str(), unitStr.c_str(), options, color, cyclicRange, h);
+            int retVal = target->addOrUpdateDataStream(str);
+            if (retVal == -1)
+            {
+                delete str;
+                errMsg = SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE;
+            }
+            else
+            {
+                int t = sim_stream_transf_raw;
+                if (trType == "derivative")
+                    t = sim_stream_transf_derivative;
+                else if (trType == "integral")
+                    t = sim_stream_transf_integral;
+                else if (trType == "cumulative")
+                    t = sim_stream_transf_cumulative;
+                target->setDataStreamTransformation(retVal, t, scale, offset, smoothing);
+                pushInt(outStack, retVal);
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_reset(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        target->resetGraph();
+    }
+    return errMsg;
+}
+
+std::string _method_setSignalPoint(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_double}))
+    {
+        int signal = fetchInt(inStack, 0);
+        double v = fetchDouble(inStack, 1);
+        if (!target->setNextValueToInsert(signal, v))
+            errMsg = SIM_ERROR_INVALID_SIGNAL_ID;
+    }
+    return errMsg;
+}
+
+std::string _method_removeTrace(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
+    {
+        int trace = fetchInt(inStack, 0);
+        if (trace == -1)
+        {
+            target->removeAllStreamsAndCurves();
+            target->removeAllStreamsAndCurves_old();
+        }
+        else
+        {
+            if (!target->removeGraphCurve(trace))
+            {
+                if (!target->removeGraphDataStream(trace))
+                    errMsg = SIM_ERROR_INVALID_TRACE_ID;
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_snapshotTrace(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_color, arg_optional | arg_table, 0, arg_any}))
+    {
+        int trace = fetchInt(inStack, 0);
+        float color[3];
+        fetchColor(inStack, 1, color, {1.0f, 1.0f, 0.0f});
+        std::string name("snapshot");
+        if (hasNonNullArg(inStack, 2))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchStringFromKey("name", name, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (name.size() == 0)
+                name = "_";
+            tt::removeIllegalCharacters(name, false);
+            int retVal = target->duplicateCurveToStatic(trace, name.c_str(), color);
+            if (retVal != -1)
+                pushInt(outStack, retVal);
+            else
+                errMsg = SIM_ERROR_INVALID_TRACE_ID;
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_step(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_double}))
+    {
+        double t = fetchDouble(inStack, 0);
+        target->addNextPoint(t);
+    }
     return errMsg;
 }

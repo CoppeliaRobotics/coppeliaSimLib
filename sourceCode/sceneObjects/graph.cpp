@@ -1566,7 +1566,7 @@ void CGraph::curveToClipboard(int graphType, const char* curveName) const
 #endif
 }
 
-int CGraph::duplicateCurveToStatic(int curveId, const char* curveName)
+int CGraph::duplicateCurveToStatic(int curveId, const char* curveName, const float color[3] /*= nullptr*/)
 {
     int retVal = -1;
     CGraphDataStream* stream = getGraphDataStream(curveId);
@@ -1576,6 +1576,8 @@ int CGraph::duplicateCurveToStatic(int curveId, const char* curveName)
         while (getGraphDataStream((nm + " [STATIC]").c_str(), true) != nullptr)
             nm = tt::generateNewName_noHash(nm.c_str());
         CGraphDataStream* staticStream = stream->copyYourself();
+        if (color != nullptr)
+            staticStream->setColor(color);
         staticStream->setStreamName((nm + " [STATIC]").c_str());
         staticStream->makeStatic(startingPoint, numberOfPoints, times);
         retVal = addOrUpdateDataStream(staticStream);

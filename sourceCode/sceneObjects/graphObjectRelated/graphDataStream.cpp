@@ -144,6 +144,13 @@ const float* CGraphDataStream::getColorPtr() const
     return (_color);
 }
 
+void CGraphDataStream::setColor(const float col[3])
+{
+    _color[0] = col[0];
+    _color[1] = col[1];
+    _color[2] = col[2];
+}
+
 int CGraphDataStream::getScriptHandle() const
 {
     return (_scriptHandle);

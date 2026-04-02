@@ -36,6 +36,7 @@ class CGraphDataStream
     int getOptions() const;
     bool getIsStatic() const;
     double getCyclicRange() const;
+    void setColor(const float col[3]);
     const float* getColorPtr() const;
     int getScriptHandle() const;
 

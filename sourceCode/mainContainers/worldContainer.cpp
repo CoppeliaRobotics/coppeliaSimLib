@@ -854,4 +854,49 @@ void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle, long lon
     if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle, scriptUid);
 #endif
+    releaseCustomObjectsFromScriptHandle(scriptHandle);
+}
+
+long long int CWorldContainer::createCustomObject(const char* objectTypeStr, const char* objectMetaInfo, int detachedScriptOrigin)
+{
+    long long int h = sim_object_customstart;
+    while (getCustomObject(h))
+        h++;
+    CustomObject* obj = new CustomObject(h, objectTypeStr, objectMetaInfo, detachedScriptOrigin);
+    customObjects.insert({h, obj});
+    return h;
+}
+
+CustomObject* CWorldContainer::getCustomObject(long long int h)
+{
+    CustomObject* retVal = nullptr;
+    auto it = customObjects.find(h);
+    if (it != customObjects.end())
+        retVal = it->second;
+    return retVal;
+}
+
+void CWorldContainer::releaseCustomObject(long long int h)
+{
+    auto it = customObjects.find(h);
+    if (it != customObjects.end())
+    {
+        delete it->second;
+        customObjects.erase(it);
+    }
+}
+
+void CWorldContainer::releaseCustomObjectsFromScriptHandle(int scriptHandle)
+{
+    for (auto it = customObjects.begin(); it != customObjects.end(); )
+    {
+        CustomObject* obj = it->second;
+        if (obj->getScriptHandle() == scriptHandle)
+        {
+            delete obj;
+            it = customObjects.erase(it);  // erase returns next valid iterator
+        }
+        else
+            ++it;
+    }
 }
