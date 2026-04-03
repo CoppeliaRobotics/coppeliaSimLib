@@ -490,7 +490,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     // Async reset some scripts:
     for (size_t i = 0; i < _scriptsToReset.size(); i++)
     {
-        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(_scriptsToReset[i]);
+        CDetachedScript* it = sceneContainer->getDetachedScriptFromHandle(_scriptsToReset[i]);
         if (it != nullptr)
             it->initScript();
     }
@@ -665,13 +665,13 @@ void App::setAppNamedParam(const char* paramName, const char* param, int paramLe
     if (diff)
     {
         _applicationNamedParams[paramName] = newVal;
-        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+        if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
         {
             std::string cmd(NAMEDPARAMPREFIX);
             cmd += paramName;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
+            CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyText(cmd.c_str(), param);
-            App::sceneContainer->pushEvent();
+            sceneContainer->pushEvent();
         }
     }
 }
@@ -684,13 +684,13 @@ bool App::removeAppNamedParam(const char* paramName)
     {
         _applicationNamedParams.erase(it);
         retVal = true;
-        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+        if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
         {
             std::string cmd(NAMEDPARAMPREFIX);
             cmd += paramName;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
+            CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyNull(cmd.c_str());
-            App::sceneContainer->pushEvent();
+            sceneContainer->pushEvent();
         }
     }
     return retVal;
@@ -1154,12 +1154,12 @@ void App::setDlgVerbosity(int v)
     if (diff)
     {
         _dlgVerbosity = v;
-        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+        if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_dialogVerbosity.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyInt64(cmd, _dlgVerbosity);
-            App::sceneContainer->pushEvent();
+            sceneContainer->pushEvent();
         }
     }
 }
@@ -1275,12 +1275,12 @@ void App::setConsoleVerbosity(int v, const char* pluginName /*=nullptr*/)
         if (diff)
         {
             _consoleVerbosity = v;
-            if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+            if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
             {
                 const char* cmd = propApp_consoleVerbosity.name;
-                CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+                CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
                 ev->appendKeyInt64(cmd, _consoleVerbosity);
-                App::sceneContainer->pushEvent();
+                sceneContainer->pushEvent();
             }
         }
     }
@@ -1315,12 +1315,12 @@ void App::setStatusbarVerbosity(int v, const char* pluginName /*=nullptr*/)
         if (diff)
         {
             _statusbarVerbosity = v;
-            if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+            if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
             {
                 const char* cmd = propApp_statusbarVerbosity.name;
-                CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+                CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
                 ev->appendKeyInt64(cmd, _statusbarVerbosity);
-                App::sceneContainer->pushEvent();
+                sceneContainer->pushEvent();
             }
         }
     }
@@ -1582,6 +1582,26 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
             retVal = RET_FOUND_PROPERTY;
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            std::string _pName(ppName);
+            const char* pName = _pName.c_str();
+            retVal = script->setBoolProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setBoolProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->setBoolProperty(target, pName, pState);
     else
@@ -1643,6 +1663,26 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
                 retVal = 0;
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            std::string _pName(ppName);
+            const char* pName = _pName.c_str();
+            retVal = script->getBoolProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getBoolProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getBoolProperty(target, pName, pState);
     else
@@ -1685,6 +1725,25 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
                 userSettings->setIdleFps_session(pState);
             retVal = RET_FOUND_PROPERTY;
         }
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            const char* pName = ppName;
+            retVal = script->setIntProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setIntProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setIntProperty(target, pName, pState);
@@ -1784,6 +1843,25 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
             retVal = RET_FOUND_PROPERTY;
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            const char* pName = ppName;
+            retVal = script->getIntProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getIntProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getIntProperty(target, pName, pState);
     else
@@ -1800,6 +1878,25 @@ int App::setLongProperty(long long int target, const char* ppName, long long int
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            const char* pName = ppName;
+            retVal = script->setLongProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setLongProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setLongProperty(target, pName, pState);
@@ -1827,6 +1924,25 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
             }
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            const char* pName = ppName;
+            retVal = script->getLongProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getLongProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (sceneContainer != nullptr))
     {
         CustomObject* obj = sceneContainer->getCustomObject(target);
@@ -1852,6 +1968,25 @@ int App::setHandleProperty(long long int target, const char* ppName, long long i
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setHandleProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setHandleProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->setHandleProperty(target, pName, pState);
     else
@@ -1876,6 +2011,22 @@ int App::getHandleProperty(long long int target, const char* ppName, long long i
                 pState = -1;
             retVal = RET_FOUND_PROPERTY;
         }
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+            retVal = script->getHandleProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getHandleProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->getHandleProperty(target, pName, pState);
@@ -1905,6 +2056,25 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
                 userSettings->setRotationStepSize(pState);
             retVal = RET_FOUND_PROPERTY;
         }
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setFloatProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setFloatProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setFloatProperty(target, pName, pState);
@@ -1948,6 +2118,25 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
             pState = VDateTime::getTime();
             retVal = RET_FOUND_PROPERTY;
         }
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getFloatProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getFloatProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->getFloatProperty(target, pName, pState);
@@ -2070,6 +2259,25 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
                 retVal = RET_FOUND_PROPERTY;
             }
         }
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            const char* pName = ppName;
+            retVal = script->setStringProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setStringProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setStringProperty(target, pName, pState);
@@ -2237,11 +2445,11 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = "";
                 if (pState == "")
                 {
-                    #ifdef WIN_SIM
-                        pState = "py";
-                    #else
-                        pState = "python3";
-                    #endif
+#ifdef WIN_SIM
+                    pState = "py";
+#else
+                    pState = "python3";
+#endif
                 }
                 retVal = RET_FOUND_PROPERTY;
             }
@@ -2365,6 +2573,25 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
             }
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            const char* pName = ppName;
+            retVal = script->getStringProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getStringProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (sceneContainer != nullptr))
     {
         CustomObject* obj = sceneContainer->getCustomObject(target);
@@ -2400,11 +2627,11 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
                 // CPersistentDataContainer cont("appStorage.dat");
                 if (_appStorage->writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true))
                 {
-                    if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+                    if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
                     {
-                        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                         _appStorage->appendEventData(pN.c_str(), ev);
-                        App::sceneContainer->pushEvent();
+                        sceneContainer->pushEvent();
                     }
                 }
                 retVal = RET_FOUND_PROPERTY;
@@ -2429,6 +2656,25 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
                     retVal = 0;
             }
         }
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setBufferProperty(pName, buffer, bufferL);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setBufferProperty(ppName, buffer, bufferL);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setBufferProperty(target, pName, buffer, bufferL);
@@ -2472,6 +2718,25 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
             }
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getBufferProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getBufferProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getBufferProperty(target, pName, pState);
     else
@@ -2488,6 +2753,25 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setIntArray2Property(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setIntArray2Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setIntArray2Property(target, pName, pState);
@@ -2506,6 +2790,25 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getIntArray2Property(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getIntArray2Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getIntArray2Property(target, pName, pState);
     else
@@ -2522,6 +2825,25 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setVector2Property(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setVector2Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setVector2Property(target, pName, pState);
@@ -2540,6 +2862,25 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getVector2Property(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getVector2Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getVector2Property(target, pName, pState);
     else
@@ -2556,6 +2897,25 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setVector3Property(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setVector3Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setVector3Property(target, pName, pState);
@@ -2574,6 +2934,25 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getVector3Property(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getVector3Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getVector3Property(target, pName, pState);
     else
@@ -2590,6 +2969,23 @@ int App::setMatrixProperty(long long int target, const char* ppName, const CMatr
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setMatrixProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setMatrixProperty(target, pName, pState);
@@ -2608,6 +3004,23 @@ int App::getMatrixProperty(long long int target, const char* ppName, CMatrix& pS
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getMatrixProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getMatrixProperty(target, pName, pState);
     else
@@ -2624,6 +3037,23 @@ int App::setMatrix3x3Property(long long int target, const char* ppName, const CM
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setMatrix3x3Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setMatrix3x3Property(target, pName, pState);
@@ -2642,6 +3072,23 @@ int App::getMatrix3x3Property(long long int target, const char* ppName, CMatrix&
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getMatrix3x3Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getMatrix3x3Property(target, pName, pState);
     else
@@ -2658,6 +3105,23 @@ int App::setMatrix4x4Property(long long int target, const char* ppName, const CM
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setMatrix4x4Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setMatrix4x4Property(target, pName, pState);
@@ -2676,6 +3140,23 @@ int App::getMatrix4x4Property(long long int target, const char* ppName, CMatrix&
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getMatrix4x4Property(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getMatrix4x4Property(target, pName, pState);
     else
@@ -2692,6 +3173,25 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setQuaternionProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setQuaternionProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setQuaternionProperty(target, pName, pState);
@@ -2715,6 +3215,25 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
             retVal = RET_FOUND_PROPERTY;
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getQuaternionProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getQuaternionProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getQuaternionProperty(target, pName, pState);
     else
@@ -2731,6 +3250,25 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setPoseProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setPoseProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setPoseProperty(target, pName, pState);
@@ -2749,6 +3287,25 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getPoseProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getPoseProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getPoseProperty(target, pName, pState);
     else
@@ -2765,6 +3322,25 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setColorProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setColorProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setColorProperty(target, pName, pState);
@@ -2783,6 +3359,25 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getColorProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getColorProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getColorProperty(target, pName, pState);
     else
@@ -2799,6 +3394,25 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setFloatArrayProperty(pName, v, vL);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setFloatArrayProperty(ppName, v, vL);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setFloatArrayProperty(target, pName, v, vL);
@@ -2818,6 +3432,25 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getFloatArrayProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getFloatArrayProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getFloatArrayProperty(target, pName, pState);
     else
@@ -2834,6 +3467,25 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setIntArrayProperty(pName, v, vL);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setIntArrayProperty(ppName, v, vL);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setIntArrayProperty(target, pName, v, vL);
@@ -2853,6 +3505,25 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
     if (target == sim_handle_app)
     {
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getIntArrayProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getIntArrayProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getIntArrayProperty(target, pName, pState);
     else
@@ -2869,6 +3540,25 @@ int App::setHandleArrayProperty(long long int target, const char* ppName, const 
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setHandleArrayProperty(pName, v, vL);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setHandleArrayProperty(ppName, v, vL);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setHandleArrayProperty(target, pName, v, vL);
@@ -2895,6 +3585,25 @@ int App::getHandleArrayProperty(long long int target, const char* ppName, std::v
             retVal = RET_FOUND_PROPERTY;
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getHandleArrayProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getHandleArrayProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getHandleArrayProperty(target, pName, pState);
     else
@@ -2919,6 +3628,25 @@ int App::setStringArrayProperty(long long int target, const char* ppName, const 
                 setApplicationArgument(i, ps[i]);
             retVal = RET_FOUND_PROPERTY;
         }
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setStringArrayProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->setStringArrayProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->setStringArrayProperty(target, pName, pState);
@@ -2948,6 +3676,25 @@ int App::getStringArrayProperty(long long int target, const char* ppName, std::v
             retVal = RET_FOUND_PROPERTY;
         }
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getStringArrayProperty(pName, pState);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getStringArrayProperty(ppName, pState);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getStringArrayProperty(target, pName, pState);
     else
@@ -2974,11 +3721,11 @@ int App::removeProperty(long long int target, const char* ppName)
             {
                 if (_appStorage->clearData((propertyStrings[tp] + pN).c_str(), true))
                 {
-                    if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+                    if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
                     {
-                        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                         _appStorage->appendEventData(pN.c_str(), ev, true);
-                        App::sceneContainer->pushEvent();
+                        sceneContainer->pushEvent();
                     }
                 }
                 retVal = RET_FOUND_PROPERTY;
@@ -3015,6 +3762,25 @@ int App::removeProperty(long long int target, const char* ppName)
                     retVal = 0;
             }
         }
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->removeProperty(pName);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->removeProperty(ppName);
+        else
+            retVal = RET_INEXISTANT_TARGET;
     }
     else if (currentScene != nullptr)
         retVal = currentScene->removeProperty(target, pName);
@@ -3097,6 +3863,26 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         CustomObject* obj = sceneContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getPropertyName(index, pName, appartenance, excludeFlags);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+            //            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
+            //                appartenance = _objectTypeStr;
+            retVal = script->getPropertyName(index, pName, appartenance, excludeFlags);
+        }
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getPropertyName(index, pName, appartenance, excludeFlags);
         else
             retVal = RET_INEXISTANT_TARGET;
     }
@@ -3201,6 +3987,22 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
         else
             retVal = RET_INEXISTANT_TARGET;
     }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CDetachedScript* script = sceneContainer->getDetachedScriptFromHandle(int(target));
+        if (script != nullptr)
+            retVal = script->getPropertyInfo(ppName, info, infoTxt);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->getStack(target);
+        if (stack != nullptr)
+            retVal = stack->getPropertyInfo(ppName, info, infoTxt);
+        else
+            retVal = RET_INEXISTANT_TARGET;
+    }
     else if (currentScene != nullptr)
         retVal = currentScene->getPropertyInfo(target, pName, info, infoTxt);
     else
@@ -3241,12 +4043,12 @@ void App::setHierarchyEnabled(bool v)
     if (diff)
     {
         _hierarchyEnabled = v;
-        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+        if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_hierarchyEnabled.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _hierarchyEnabled);
-            App::sceneContainer->pushEvent();
+            sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow != nullptr)
@@ -3271,12 +4073,12 @@ void App::setOpenGlDisplayEnabled(bool e)
     if (diff)
     {
         _openGlDisplayEnabled = e;
-        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+        if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_displayEnabled.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _openGlDisplayEnabled);
-            App::sceneContainer->pushEvent();
+            sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setToolbarRefreshFlag();
@@ -3570,12 +4372,12 @@ void App::setPluginList(const std::vector<CPlugin*>* plugins)
         _pluginNames.push_back(plugins->at(i)->getName());
     if (_pluginNames != oldNames)
     {
-        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
+        if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_pluginNames.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyTextArray(cmd, _pluginNames);
-            App::sceneContainer->pushEvent();
+            sceneContainer->pushEvent();
         }
     }
 }

@@ -2657,24 +2657,20 @@ void CScene::resetOldSerializationHandles()
 
 int CScene::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setBoolProperty(pName, pState);
-        if ((retVal == -1) && (simulation != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
             retVal = simulation->setBoolProperty(pName, pState);
-        if ((retVal == -1) && (environment != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
             retVal = environment->setBoolProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setBoolProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setBoolProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setBoolProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setBoolProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -2682,26 +2678,6 @@ int CScene::setBoolProperty(long long int target, const char* ppName, bool pStat
     {
         const char* pName = ppName;
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            const char* pName = _pName.c_str();
-            retVal = script->setBoolProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setBoolProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -2716,24 +2692,20 @@ int CScene::setBoolProperty(long long int target, const char* ppName, bool pStat
 
 int CScene::getBoolProperty(long long int target, const char* ppName, bool& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getBoolProperty(pName, pState);
-        if ((retVal == -1) && (simulation != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
             retVal = simulation->getBoolProperty(pName, pState);
-        if ((retVal == -1) && (environment != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
             retVal = environment->getBoolProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getBoolProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getBoolProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->sgetBoolProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getBoolProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -2741,26 +2713,6 @@ int CScene::getBoolProperty(long long int target, const char* ppName, bool& pSta
     {
         const char* pName = ppName;
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            const char* pName = _pName.c_str();
-            retVal = script->getBoolProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getBoolProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -2775,24 +2727,20 @@ int CScene::getBoolProperty(long long int target, const char* ppName, bool& pSta
 
 int CScene::setIntProperty(long long int target, const char* ppName, int pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntProperty(pName, pState);
-        if ((retVal == -1) && (simulation != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
             retVal = simulation->setIntProperty(pName, pState);
-        if ((retVal == -1) && (environment != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
             retVal = environment->setIntProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setIntProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setIntProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setIntProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setIntProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -2800,25 +2748,6 @@ int CScene::setIntProperty(long long int target, const char* ppName, int pState)
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            const char* pName = ppName;
-            retVal = script->setIntProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setIntProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -2833,24 +2762,20 @@ int CScene::setIntProperty(long long int target, const char* ppName, int pState)
 
 int CScene::getIntProperty(long long int target, const char* ppName, int& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntProperty(pName, pState);
-        if ((retVal == -1) && (simulation != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
             retVal = simulation->getIntProperty(pName, pState);
-        if ((retVal == -1) && (environment != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
             retVal = environment->getIntProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getIntProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getIntProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getIntProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getIntProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -2858,25 +2783,6 @@ int CScene::getIntProperty(long long int target, const char* ppName, int& pState
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            const char* pName = ppName;
-            retVal = script->getIntProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getIntProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -2891,7 +2797,7 @@ int CScene::getIntProperty(long long int target, const char* ppName, int& pState
 
 int CScene::setLongProperty(long long int target, const char* ppName, long long int pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
@@ -2899,17 +2805,17 @@ int CScene::setLongProperty(long long int target, const char* ppName, long long 
         /*
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setLongProperty(pName, pState);
-        if ( (retVal == -1) && (simulation != nullptr) )
+        if ( (retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr) )
             retVal = simulation->setLongProperty(pName, pState);
-        if ( (retVal == -1) && (environment != nullptr) )
+        if ( (retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr) )
             retVal = environment->setLongProperty(pName, pState);
-        if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setLongProperty(-1, pName, pState); // for the container itself
-        if ((retVal == -1) && (collections != nullptr))
-            retVal = collections->setLongProperty(-1, pName, pState); // for the container itself
-        if ((retVal == -1) && (drawingCont != nullptr))
-            retVal = drawingCont->setLongProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ( (retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setLongProperty(-1, pName, pState);
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (collections != nullptr))
+            retVal = collections->setLongProperty(-1, pName, pState);
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (drawingCont != nullptr))
+            retVal = drawingCont->setLongProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
         */
@@ -2918,26 +2824,6 @@ int CScene::setLongProperty(long long int target, const char* ppName, long long 
     {
         const char* pName = ppName;
         retVal = sceneObjects->setLongProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            const char* pName = ppName;
-            retVal = script->setLongProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setLongProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -2952,38 +2838,18 @@ int CScene::setLongProperty(long long int target, const char* ppName, long long 
 
 int CScene::getLongProperty(long long int target, const char* ppName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         retVal = Obj::getLongProperty(ppName, pState);
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
             retVal = environment->getLongProperty(ppName, pState);
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getLongProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            const char* pName = ppName;
-            retVal = script->getLongProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getLongProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3000,36 +2866,16 @@ int CScene::getLongProperty(long long int target, const char* ppName, long long 
 
 int CScene::setHandleProperty(long long int target, const char* ppName, long long int pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
-        //const char* pName = ppName;
+      //const char* pName = ppName;
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setHandleProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = ppName;
-            //retVal = script->setHandleProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setHandleProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3044,7 +2890,7 @@ int CScene::setHandleProperty(long long int target, const char* ppName, long lon
 
 int CScene::getHandleProperty(long long int target, const char* ppName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
@@ -3053,22 +2899,6 @@ int CScene::getHandleProperty(long long int target, const char* ppName, long lon
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         retVal = sceneObjects->getHandleProperty(target, ppName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-            retVal = script->getHandleProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getHandleProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3085,22 +2915,18 @@ int CScene::getHandleProperty(long long int target, const char* ppName, long lon
 
 int CScene::setFloatProperty(long long int target, const char* ppName, double pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatProperty(pName, pState);
-        if ((retVal == -1) && (simulation != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
             retVal = simulation->setFloatProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setFloatProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setFloatProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setFloatProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setFloatProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3108,26 +2934,6 @@ int CScene::setFloatProperty(long long int target, const char* ppName, double pS
     {
         const char* pName = ppName;
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = ppName;
-            //   retVal = script->setFloatProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setFloatProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3142,22 +2948,18 @@ int CScene::setFloatProperty(long long int target, const char* ppName, double pS
 
 int CScene::getFloatProperty(long long int target, const char* ppName, double& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatProperty(pName, pState);
-        if ((retVal == -1) && (simulation != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
             retVal = simulation->getFloatProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getFloatProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getFloatProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getFloatProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getFloatProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3165,26 +2967,6 @@ int CScene::getFloatProperty(long long int target, const char* ppName, double& p
     {
         const char* pName = ppName;
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = ppName;
-            //    retVal = script->getFloatProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getFloatProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3199,22 +2981,18 @@ int CScene::getFloatProperty(long long int target, const char* ppName, double& p
 
 int CScene::setStringProperty(long long int target, const char* ppName, const char* pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setStringProperty(pName, pState);
-        if ((retVal == -1) && (environment != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
             retVal = environment->setStringProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setStringProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setStringProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setStringProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setStringProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3222,26 +3000,6 @@ int CScene::setStringProperty(long long int target, const char* ppName, const ch
     {
         const char* pName = ppName;
         retVal = sceneObjects->setStringProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            const char* pName = ppName;
-            retVal = script->setStringProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setStringProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3256,22 +3014,22 @@ int CScene::setStringProperty(long long int target, const char* ppName, const ch
 
 int CScene::getStringProperty(long long int target, const char* ppName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         retVal = Obj::getStringProperty(ppName, pState);
-        if ((retVal == -1) && (dynamicsContainer != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (dynamicsContainer != nullptr))
             retVal = dynamicsContainer->getStringProperty(ppName, pState);
-        if ((retVal == -1) && (environment != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
             retVal = environment->getStringProperty(ppName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getStringProperty(-1, ppName, pState); // for the container itself
-        if ((retVal == -1) && (collections != nullptr))
-            retVal = collections->getStringProperty(-1, ppName, pState); // for the container itself
-        if ((retVal == -1) && (drawingCont != nullptr))
-            retVal = drawingCont->getStringProperty(-1, ppName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getStringProperty(-1, ppName, pState);
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (collections != nullptr))
+            retVal = collections->getStringProperty(-1, ppName, pState);
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (drawingCont != nullptr))
+            retVal = drawingCont->getStringProperty(-1, ppName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3279,26 +3037,6 @@ int CScene::getStringProperty(long long int target, const char* ppName, std::str
     {
         const char* pName = ppName;
         retVal = sceneObjects->getStringProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            const char* pName = ppName;
-            retVal = script->getStringProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getStringProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3317,7 +3055,7 @@ int CScene::getStringProperty(long long int target, const char* ppName, std::str
 
 int CScene::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (buffer == nullptr)
         bufferL = 0;
@@ -3350,26 +3088,6 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const ch
         const char* pName = ppName;
         retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setBufferProperty(pName, buffer, bufferL);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setBufferProperty(ppName, buffer, bufferL);
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
@@ -3383,7 +3101,7 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const ch
 
 int CScene::getBufferProperty(long long int target, const char* ppName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
@@ -3411,26 +3129,6 @@ int CScene::getBufferProperty(long long int target, const char* ppName, std::str
         const char* pName = ppName;
         retVal = sceneObjects->getBufferProperty(target, pName, pState);
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getBufferProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getBufferProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
@@ -3444,20 +3142,16 @@ int CScene::getBufferProperty(long long int target, const char* ppName, std::str
 
 int CScene::setIntArray2Property(long long int target, const char* ppName, const int* pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntArray2Property(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setIntArray2Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setIntArray2Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setIntArray2Property(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setIntArray2Property(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3465,26 +3159,6 @@ int CScene::setIntArray2Property(long long int target, const char* ppName, const
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntArray2Property(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setIntArray2Property(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setIntArray2Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3499,20 +3173,16 @@ int CScene::setIntArray2Property(long long int target, const char* ppName, const
 
 int CScene::getIntArray2Property(long long int target, const char* ppName, int* pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntArray2Property(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getIntArray2Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getIntArray2Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getIntArray2Property(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getIntArray2Property(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3520,26 +3190,6 @@ int CScene::getIntArray2Property(long long int target, const char* ppName, int* 
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntArray2Property(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getIntArray2Property(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getIntArray2Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3554,20 +3204,16 @@ int CScene::getIntArray2Property(long long int target, const char* ppName, int* 
 
 int CScene::setVector2Property(long long int target, const char* ppName, const double* pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector2Property(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setVector2Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setVector2Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setVector2Property(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setVector2Property(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3575,26 +3221,6 @@ int CScene::setVector2Property(long long int target, const char* ppName, const d
     {
         const char* pName = ppName;
         retVal = sceneObjects->setVector2Property(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setVector2Property(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setVector2Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3609,20 +3235,16 @@ int CScene::setVector2Property(long long int target, const char* ppName, const d
 
 int CScene::getVector2Property(long long int target, const char* ppName, double* pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector2Property(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getVector2Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getVector2Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getVector2Property(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getVector2Property(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3630,26 +3252,6 @@ int CScene::getVector2Property(long long int target, const char* ppName, double*
     {
         const char* pName = ppName;
         retVal = sceneObjects->getVector2Property(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getVector2Property(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getVector2Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3664,20 +3266,16 @@ int CScene::getVector2Property(long long int target, const char* ppName, double*
 
 int CScene::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector3Property(pName, &pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setVector3Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setVector3Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setVector3Property(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setVector3Property(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3685,26 +3283,6 @@ int CScene::setVector3Property(long long int target, const char* ppName, const C
     {
         const char* pName = ppName;
         retVal = sceneObjects->setVector3Property(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setVector3Property(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setVector3Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3719,20 +3297,16 @@ int CScene::setVector3Property(long long int target, const char* ppName, const C
 
 int CScene::getVector3Property(long long int target, const char* ppName, C3Vector& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector3Property(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getVector3Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getVector3Property(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getVector3Property(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getVector3Property(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -3740,26 +3314,6 @@ int CScene::getVector3Property(long long int target, const char* ppName, C3Vecto
     {
         const char* pName = ppName;
         retVal = sceneObjects->getVector3Property(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getVector3Property(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getVector3Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3774,30 +3328,13 @@ int CScene::getVector3Property(long long int target, const char* ppName, C3Vecto
 
 int CScene::setMatrixProperty(long long int target, const char* ppName, const CMatrix& pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setMatrixProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3812,30 +3349,13 @@ int CScene::setMatrixProperty(long long int target, const char* ppName, const CM
 
 int CScene::getMatrixProperty(long long int target, const char* ppName, CMatrix& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getMatrixProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3850,30 +3370,13 @@ int CScene::getMatrixProperty(long long int target, const char* ppName, CMatrix&
 
 int CScene::setMatrix3x3Property(long long int target, const char* ppName, const CMatrix& pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setMatrix3x3Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3888,30 +3391,13 @@ int CScene::setMatrix3x3Property(long long int target, const char* ppName, const
 
 int CScene::getMatrix3x3Property(long long int target, const char* ppName, CMatrix& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getMatrix3x3Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3926,30 +3412,13 @@ int CScene::getMatrix3x3Property(long long int target, const char* ppName, CMatr
 
 int CScene::setMatrix4x4Property(long long int target, const char* ppName, const CMatrix& pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setMatrix4x4Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3964,30 +3433,13 @@ int CScene::setMatrix4x4Property(long long int target, const char* ppName, const
 
 int CScene::getMatrix4x4Property(long long int target, const char* ppName, CMatrix& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getMatrix4x4Property(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4002,18 +3454,14 @@ int CScene::getMatrix4x4Property(long long int target, const char* ppName, CMatr
 
 int CScene::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->setQuaternionProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setQuaternionProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setQuaternionProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+            retVal = sceneObjects->setQuaternionProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4021,26 +3469,6 @@ int CScene::setQuaternionProperty(long long int target, const char* ppName, cons
     {
         const char* pName = ppName;
         retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setQuaternionProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setQuaternionProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4055,18 +3483,14 @@ int CScene::setQuaternionProperty(long long int target, const char* ppName, cons
 
 int CScene::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->getQuaternionProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getQuaternionProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getQuaternionProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+            retVal = sceneObjects->getQuaternionProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4074,26 +3498,6 @@ int CScene::getQuaternionProperty(long long int target, const char* ppName, C4Ve
     {
         const char* pName = ppName;
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getQuaternionProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getQuaternionProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4108,18 +3512,14 @@ int CScene::getQuaternionProperty(long long int target, const char* ppName, C4Ve
 
 int CScene::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->setPoseProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setPoseProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setPoseProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+            retVal = sceneObjects->setPoseProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4127,26 +3527,6 @@ int CScene::setPoseProperty(long long int target, const char* ppName, const C7Ve
     {
         const char* pName = ppName;
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setPoseProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setPoseProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4161,18 +3541,14 @@ int CScene::setPoseProperty(long long int target, const char* ppName, const C7Ve
 
 int CScene::getPoseProperty(long long int target, const char* ppName, C7Vector& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->getPoseProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getPoseProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getPoseProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+            retVal = sceneObjects->getPoseProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4180,26 +3556,6 @@ int CScene::getPoseProperty(long long int target, const char* ppName, C7Vector& 
     {
         const char* pName = ppName;
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getPoseProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getPoseProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4214,20 +3570,16 @@ int CScene::getPoseProperty(long long int target, const char* ppName, C7Vector& 
 
 int CScene::setColorProperty(long long int target, const char* ppName, const float* pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (environment != nullptr)
             retVal = environment->setColorProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setColorProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setColorProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setColorProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setColorProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4235,26 +3587,6 @@ int CScene::setColorProperty(long long int target, const char* ppName, const flo
     {
         const char* pName = ppName;
         retVal = sceneObjects->setColorProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setColorProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setColorProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4269,20 +3601,16 @@ int CScene::setColorProperty(long long int target, const char* ppName, const flo
 
 int CScene::getColorProperty(long long int target, const char* ppName, float* pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (environment != nullptr)
             retVal = environment->getColorProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getColorProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getColorProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getColorProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getColorProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4290,26 +3618,6 @@ int CScene::getColorProperty(long long int target, const char* ppName, float* pS
     {
         const char* pName = ppName;
         retVal = sceneObjects->getColorProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getColorProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getColorProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4324,20 +3632,16 @@ int CScene::getColorProperty(long long int target, const char* ppName, float* pS
 
 int CScene::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatArrayProperty(pName, v, vL);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setFloatArrayProperty(-1, pName, v, vL); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setFloatArrayProperty(-1, pName, v, vL); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setFloatArrayProperty(-1, pName, v, vL); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setFloatArrayProperty(-1, pName, v, vL);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4345,26 +3649,6 @@ int CScene::setFloatArrayProperty(long long int target, const char* ppName, cons
     {
         const char* pName = ppName;
         retVal = sceneObjects->setFloatArrayProperty(target, pName, v, vL);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setFloatArrayProperty(pName, v, vL);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setFloatArrayProperty(ppName, v, vL);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4379,7 +3663,7 @@ int CScene::setFloatArrayProperty(long long int target, const char* ppName, cons
 
 int CScene::getFloatArrayProperty(long long int target, const char* ppName, std::vector<double>& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     pState.clear();
     if (target == sim_handle_scene)
@@ -4387,13 +3671,9 @@ int CScene::getFloatArrayProperty(long long int target, const char* ppName, std:
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatArrayProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getFloatArrayProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getFloatArrayProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getFloatArrayProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getFloatArrayProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4401,26 +3681,6 @@ int CScene::getFloatArrayProperty(long long int target, const char* ppName, std:
     {
         const char* pName = ppName;
         retVal = sceneObjects->getFloatArrayProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getFloatArrayProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getFloatArrayProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4435,20 +3695,16 @@ int CScene::getFloatArrayProperty(long long int target, const char* ppName, std:
 
 int CScene::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntArrayProperty(pName, v, vL);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setIntArrayProperty(-1, pName, v, vL); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setIntArrayProperty(-1, pName, v, vL); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setIntArrayProperty(-1, pName, v, vL); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setIntArrayProperty(-1, pName, v, vL);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4456,26 +3712,6 @@ int CScene::setIntArrayProperty(long long int target, const char* ppName, const 
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntArrayProperty(target, pName, v, vL);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setIntArrayProperty(pName, v, vL);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setIntArrayProperty(ppName, v, vL);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4490,7 +3726,7 @@ int CScene::setIntArrayProperty(long long int target, const char* ppName, const 
 
 int CScene::getIntArrayProperty(long long int target, const char* ppName, std::vector<int>& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     pState.clear();
     if (target == sim_handle_scene)
@@ -4498,13 +3734,9 @@ int CScene::getIntArrayProperty(long long int target, const char* ppName, std::v
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntArrayProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getIntArrayProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->getIntArrayProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->getIntArrayProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getIntArrayProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4512,26 +3744,6 @@ int CScene::getIntArrayProperty(long long int target, const char* ppName, std::v
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntArrayProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getIntArrayProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getIntArrayProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4546,20 +3758,14 @@ int CScene::getIntArrayProperty(long long int target, const char* ppName, std::v
 
 int CScene::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        //if (dynamicsContainer != nullptr)
-        //    retVal = dynamicsContainer->setHandleArrayProperty(pName, v, vL);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setHandleArrayProperty(-1, pName, v, vL); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setHandleArrayProperty(-1, pName, v, vL); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setHandleArrayProperty(-1, pName, v, vL); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setHandleArrayProperty(-1, pName, v, vL);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4567,26 +3773,6 @@ int CScene::setHandleArrayProperty(long long int target, const char* ppName, con
     {
         const char* pName = ppName;
         retVal = sceneObjects->setHandleArrayProperty(target, pName, v, vL);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setHandleArrayProperty(pName, v, vL);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setHandleArrayProperty(ppName, v, vL);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4601,21 +3787,19 @@ int CScene::setHandleArrayProperty(long long int target, const char* ppName, con
 
 int CScene::getHandleArrayProperty(long long int target, const char* ppName, std::vector<long long int>& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     pState.clear();
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        //if (dynamicsContainer != nullptr)
-        //    retVal = dynamicsContainer->getHandleArrayProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getHandleArrayProperty(-1, pName, pState); // for the container itself
-        if ((retVal == -1) && (collections != nullptr))
-            retVal = collections->getHandleArrayProperty(-1, pName, pState); // for the container itself
-        if ((retVal == -1) && (drawingCont != nullptr))
-            retVal = drawingCont->getHandleArrayProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getHandleArrayProperty(-1, pName, pState);
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (collections != nullptr))
+            retVal = collections->getHandleArrayProperty(-1, pName, pState);
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (drawingCont != nullptr))
+            retVal = drawingCont->getHandleArrayProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4623,26 +3807,6 @@ int CScene::getHandleArrayProperty(long long int target, const char* ppName, std
     {
         const char* pName = ppName;
         retVal = sceneObjects->getHandleArrayProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getHandleArrayProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getHandleArrayProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4661,20 +3825,14 @@ int CScene::getHandleArrayProperty(long long int target, const char* ppName, std
 
 int CScene::setStringArrayProperty(long long int target, const char* ppName, const std::vector<std::string>& pState)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        //if (dynamicsContainer != nullptr)
-        //    retVal = dynamicsContainer->setStringArrayProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setStringArrayProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (collections != nullptr))
-        //    retVal = collections->setStringArrayProperty(-1, pName, pState); // for the container itself
-        //if ((retVal == -1) && (drawingCont != nullptr))
-        //    retVal = drawingCont->setStringArrayProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setStringArrayProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4682,26 +3840,6 @@ int CScene::setStringArrayProperty(long long int target, const char* ppName, con
     {
         const char* pName = ppName;
         retVal = sceneObjects->setStringArrayProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->setStringArrayProperty(pName, v, vL);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setStringArrayProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4716,21 +3854,15 @@ int CScene::setStringArrayProperty(long long int target, const char* ppName, con
 
 int CScene::getStringArrayProperty(long long int target, const char* ppName, std::vector<std::string>& pState) const
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     pState.clear();
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        //if (dynamicsContainer != nullptr)
-        //    retVal = dynamicsContainer->getStringArrayProperty(pName, pState);
-        if ((retVal == -1) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getStringArrayProperty(-1, pName, pState); // for the container itself
-//        if ((retVal == -1) && (collections != nullptr))
-//            retVal = collections->getStringArrayProperty(-1, pName, pState); // for the container itself
-//        if ((retVal == -1) && (drawingCont != nullptr))
-//            retVal = drawingCont->getStringArrayProperty(-1, pName, pState); // for the container itself
-        if (retVal == -1)
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getStringArrayProperty(-1, pName, pState);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
         }
     }
@@ -4738,26 +3870,6 @@ int CScene::getStringArrayProperty(long long int target, const char* ppName, std
     {
         const char* pName = ppName;
         retVal = sceneObjects->getStringArrayProperty(target, pName, pState);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->getStringArrayProperty(pName, pState);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getStringArrayProperty(ppName, pState);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -4772,7 +3884,7 @@ int CScene::getStringArrayProperty(long long int target, const char* ppName, std
 
 int CScene::removeProperty(long long int target, const char* ppName)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
@@ -4820,26 +3932,6 @@ int CScene::removeProperty(long long int target, const char* ppName)
         const char* pName = ppName;
         retVal = sceneObjects->removeProperty(target, pName);
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-            std::string _pName(ppName);
-            //const char* pName = _pName.c_str();
-            //    retVal = script->removeProperty(pName);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->removeProperty(ppName);
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
@@ -4853,23 +3945,23 @@ int CScene::removeProperty(long long int target, const char* ppName)
 
 int CScene::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
             appartenance = _objectTypeStr;
-            if ((retVal == -1) && (App::currentScene->dynamicsContainer != nullptr))
+            if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->dynamicsContainer != nullptr))
                 retVal = App::currentScene->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
-            if ((retVal == -1) && (App::currentScene->simulation != nullptr))
+            if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->simulation != nullptr))
                 retVal = App::currentScene->simulation->getPropertyName(index, pName, excludeFlags);
-            if ((retVal == -1) && (App::currentScene->environment != nullptr))
+            if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->environment != nullptr))
                 retVal = App::currentScene->environment->getPropertyName(index, pName, excludeFlags);
-            if (retVal == -1)
-                retVal = sceneObjects->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
-            if (retVal == -1)
+            if (retVal == RET_INEXISTANT_PROPERTY)
+                retVal = sceneObjects->getPropertyName(-1, index, pName, appartenance, excludeFlags);
+            if (retVal == RET_INEXISTANT_PROPERTY)
             {
                 if (customSceneData.getPropertyName(index, pName, excludeFlags))
                 {
@@ -4882,45 +3974,22 @@ int CScene::getPropertyName(long long int target, int& index, std::string& pName
                     retVal = 1;
                 }
             }
-            if (retVal == -1)
-                retVal = collections->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
-            if (retVal == -1)
-                retVal = drawingCont->getPropertyName(-1, index, pName, appartenance, excludeFlags); // for the container itself
+            if (retVal == RET_INEXISTANT_PROPERTY)
+                retVal = collections->getPropertyName(-1, index, pName, appartenance, excludeFlags);
+            if (retVal == RET_INEXISTANT_PROPERTY)
+                retVal = drawingCont->getPropertyName(-1, index, pName, appartenance, excludeFlags);
         }
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
-//        appartenance = _objectTypeStr;
         retVal = sceneObjects->getPropertyName(target, index, pName, appartenance, excludeFlags);
-    }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-        {
-//            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
-//                appartenance = _objectTypeStr;
-            retVal = script->getPropertyName(index, pName, appartenance, excludeFlags);
-        }
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getPropertyName(index, pName, appartenance, excludeFlags);
-        else
-            retVal = RET_INEXISTANT_TARGET;
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
-//        appartenance = _objectTypeStr;
         retVal = collections->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
-//        appartenance = _objectTypeStr;
         retVal = drawingCont->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
     else
@@ -4930,21 +3999,21 @@ int CScene::getPropertyName(long long int target, int& index, std::string& pName
 
 int CScene::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt)
 {
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
-        if ((retVal == -1) && (App::currentScene->dynamicsContainer != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->dynamicsContainer != nullptr))
             retVal = App::currentScene->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
-        if ((retVal == -1) && (App::currentScene->simulation != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->simulation != nullptr))
             retVal = App::currentScene->simulation->getPropertyInfo(pName, info, infoTxt);
-        if ((retVal == -1) && (App::currentScene->environment != nullptr))
+        if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->environment != nullptr))
             retVal = App::currentScene->environment->getPropertyInfo(pName, info, infoTxt);
-        if (retVal == -1)
-            retVal = sceneObjects->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
+            retVal = sceneObjects->getPropertyInfo(-1, pName, info, infoTxt);
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
             std::string pN(pName);
             if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
@@ -4978,29 +4047,13 @@ int CScene::getPropertyInfo(long long int target, const char* ppName, int& info,
                 }
             }
         }
-        if (retVal == -1)
-            retVal = collections->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
-        if (retVal == -1)
-            retVal = drawingCont->getPropertyInfo(-1, pName, info, infoTxt); // for the container itself
+        if (retVal == RET_INEXISTANT_PROPERTY)
+            retVal = collections->getPropertyInfo(-1, pName, info, infoTxt);
+        if (retVal == RET_INEXISTANT_PROPERTY)
+            retVal = drawingCont->getPropertyInfo(-1, pName, info, infoTxt);
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getPropertyInfo(target, ppName, info, infoTxt);
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-    { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(int(target));
-        if (script != nullptr)
-            retVal = script->getPropertyInfo(ppName, info, infoTxt);
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
-    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getPropertyInfo(ppName, info, infoTxt);
-        else
-            retVal = RET_INEXISTANT_TARGET;
-    }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
         retVal = collections->getPropertyInfo(target, ppName, info, infoTxt);
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
