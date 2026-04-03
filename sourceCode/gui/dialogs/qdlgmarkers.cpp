@@ -29,11 +29,11 @@ void CQDlgMarkers::refresh()
 {
     inMainRefreshRoutine = true;
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
-    bool noEditModeNoSim = (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim = (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_marker);
-    bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_marker) > 1);
-    CMarker* it = App::currentWorld->sceneObjects->getLastSelectionMarker();
+    bool sel = App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_marker);
+    bool bigSel = (App::currentScene->sceneObjects->getObjectCountInSelection(sim_sceneobject_marker) > 1);
+    CMarker* it = App::currentScene->sceneObjects->getLastSelectionMarker();
 
     if (sel)
     {

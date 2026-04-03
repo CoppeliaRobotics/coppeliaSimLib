@@ -83,15 +83,15 @@ void CGraph::_setBackgroundColor(const float col[3])
     {
         for (size_t i = 0; i < 3; i++)
             backgroundColor[i] = col[i];
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propGraph_backgroundColor.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, backgroundColor, 3);
             else
                 ev->appendKeyColor(cmd, backgroundColor);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -103,15 +103,15 @@ void CGraph::_setForegroundColor(const float col[3])
     {
         for (size_t i = 0; i < 3; i++)
             foregroundColor[i] = col[i];
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propGraph_foregroundColor.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, foregroundColor, 3);
             else
                 ev->appendKeyColor(cmd, foregroundColor);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -929,12 +929,12 @@ void CGraph::setGraphSize(double theNewSize)
     if (_graphSize != theNewSize)
     {
         _graphSize = theNewSize;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propGraph_size.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _graphSize);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         computeBoundingBox();
     }
@@ -2008,12 +2008,12 @@ void CGraph::setBufferSize(int buffSize)
     if (bufferSize != buffSize)
     {
         bufferSize = buffSize;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propGraph_bufferSize.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, bufferSize);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         resetGraph();
     }
@@ -2029,12 +2029,12 @@ void CGraph::setCyclic(bool isCyclic)
     if (isCyclic != cyclic)
     {
         cyclic = isCyclic;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propGraph_cyclic.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, cyclic);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         resetGraph();
     }
@@ -2662,15 +2662,15 @@ void CGraph::lookAt(int windowSize[2], CSView* subView, bool timeGraph, bool dra
         if (timeGraph)
         {
             autoMode = subView->getTimeGraphXAutoModeDuringSimulation() &&
-                       App::currentWorld->simulation->isSimulationRunning();
+                       App::currentScene->simulation->isSimulationRunning();
             timeGraphYaxisAutoMode = subView->getTimeGraphYAutoModeDuringSimulation() &&
-                                     App::currentWorld->simulation->isSimulationRunning();
+                                     App::currentScene->simulation->isSimulationRunning();
             oneOneProportionForXYGraph = false;
         }
         else
         {
             autoMode =
-                subView->getXYGraphAutoModeDuringSimulation() && App::currentWorld->simulation->isSimulationRunning();
+                subView->getXYGraphAutoModeDuringSimulation() && App::currentScene->simulation->isSimulationRunning();
             oneOneProportionForXYGraph = subView->getXYGraphIsOneOneProportional();
             timeGraphYaxisAutoMode = true;
         }
@@ -2710,7 +2710,7 @@ void CGraph::lookAt(int windowSize[2], CSView* subView, bool timeGraph, bool dra
     drawGrid(currentWinSize, graphPos, graphSize);
     if (!passiveSubView)
     {
-        if (!App::currentWorld->simulation->isSimulationRunning())
+        if (!App::currentScene->simulation->isSimulationRunning())
             drawOverlay(currentWinSize, graphPos, graphSize, mouseMode, subView, passiveSubView);
     }
 

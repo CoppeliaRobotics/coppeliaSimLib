@@ -207,12 +207,12 @@ void CLight::setLightSize(double size)
     if (_lightSize != size)
     {
         _lightSize = size;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propLight_size.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _lightSize);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         computeBoundingBox();
     }
@@ -238,12 +238,12 @@ void CLight::setAttenuationFactors(const double fact[3])
         constantAttenuation = fact[0];
         linearAttenuation = fact[1];
         quadraticAttenuation = fact[2];
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propLight_attenuationFactors.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, fact, 3);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -254,12 +254,12 @@ void CLight::setLightActive(bool active)
     if (diff)
     {
         lightActive = active;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propLight_enabled.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, lightActive);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setRefreshHierarchyViewFlag();
@@ -279,12 +279,12 @@ void CLight::setSpotExponent(int e)
     if (diff)
     {
         _spotExponent = e;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propLight_spotExponent.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _spotExponent);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -301,12 +301,12 @@ void CLight::setSpotCutoffAngle(double co)
     if (diff)
     {
         _spotCutoffAngle = co;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propLight_spotCutoffAngle.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _spotCutoffAngle);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }

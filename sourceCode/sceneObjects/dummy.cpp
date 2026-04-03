@@ -223,7 +223,7 @@ void CDummy::_reflectPropToLinkedDummy() const
     if ((_linkedDummyHandle != -1) &&
         ((_linkType == sim_dummytype_dynloopclosure) || (_linkType == sim_dummytype_dyntendon)))
     {
-        CDummy* l = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+        CDummy* l = App::currentScene->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
         l->_mujocoFloatParams.assign(_mujocoFloatParams.begin(), _mujocoFloatParams.end());
         l->_mujocoIntParams.assign(_mujocoIntParams.begin(), _mujocoIntParams.end());
     }
@@ -328,7 +328,7 @@ CSceneObject* CDummy::copyYourself()
     newDummy->_assignedToParentPathOrientation = _assignedToParentPathOrientation;
     newDummy->_freeOnPathTrajectory = _freeOnPathTrajectory;
 
-    if (App::worldContainer->copyBuffer->isCopyForPasting())
+    if (App::sceneContainer->copyBuffer->isCopyForPasting())
     { // here the original object is not reset (the variation) because it is located in the copy buffer!
         _virtualDistanceOffsetOnPath_OLD += _virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
         newDummy->_virtualDistanceOffsetOnPath_OLD = _virtualDistanceOffsetOnPath_OLD;
@@ -698,7 +698,7 @@ void CDummy::serialize(CSer& ar)
             else
             {
                 std::string str;
-                CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+                CDummy* it = App::currentScene->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(
@@ -894,8 +894,8 @@ void CDummy::loadUnknownObjectType(CSer& ar)
 void CDummy::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performObjectLoadingMapping(map, opType);
-    _linkedDummyHandle = CWorld::getLoadingMapping(map, _linkedDummyHandle);
-    _mujocoIntParams[simi_mujoco_dummy_proxyjointid] = CWorld::getLoadingMapping(map, _mujocoIntParams[simi_mujoco_dummy_proxyjointid]); // Mujoco proxy joint
+    _linkedDummyHandle = CScene::getLoadingMapping(map, _linkedDummyHandle);
+    _mujocoIntParams[simi_mujoco_dummy_proxyjointid] = CScene::getLoadingMapping(map, _mujocoIntParams[simi_mujoco_dummy_proxyjointid]); // Mujoco proxy joint
 }
 
 void CDummy::setLinkedDummyHandle(int handle, bool check)
@@ -903,12 +903,12 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
     int _linkedDummyHandleOld = _linkedDummyHandle;
     CDummy* thisObject = nullptr;
     if (check)
-        thisObject = App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
+        thisObject = App::currentScene->sceneObjects->getDummyFromHandle(_objectHandle);
     if (thisObject != this)
         _linkedDummyHandle = handle;
     else
     {
-        CDummy* linkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+        CDummy* linkedDummy = App::currentScene->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
         if (handle == -1)
         { // we unlink this dummy and its partner:
             if (linkedDummy != nullptr)
@@ -917,7 +917,7 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
         }
         else if (_linkedDummyHandle != handle)
         { // We link this dummy to another dummy (and unlink its partner)
-            CDummy* newLinkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(handle);
+            CDummy* newLinkedDummy = App::currentScene->sceneObjects->getDummyFromHandle(handle);
             if (linkedDummy != nullptr)
                 linkedDummy->setLinkedDummyHandle(-1, false); // we first detach it from its old partner
             if (newLinkedDummy != nullptr)
@@ -942,20 +942,20 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
     }
     if (_linkedDummyHandleOld != _linkedDummyHandle)
     {
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDummy_linkedDummy.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt64(cmd, _linkedDummyHandle);
             else
                 ev->appendKeyHandle(cmd, _linkedDummyHandle);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
             // --- for backw. compatibility ---
             cmd = propDummy_linkedDummyHandle.name;
-            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _linkedDummyHandle);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
             // -----------------------------
         }
         _reflectPropToLinkedDummy();
@@ -969,17 +969,17 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
 
 bool CDummy::setDummyType(int lt, bool check)
 {
-    CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
+    CDummy* it = App::currentScene->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
     bool diff = (_linkType != lt);
     if (diff)
     {
         _linkType = lt;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDummy_dummyType.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _linkType);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         _setLinkType_sendOldIk(lt);
         _dummyColor.setDefaultValues();
@@ -1002,7 +1002,7 @@ bool CDummy::setDummyType(int lt, bool check)
     }
     if ((_linkedDummyHandle != -1) && check)
     {
-        CDummy* thisObject = App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
+        CDummy* thisObject = App::currentScene->sceneObjects->getDummyFromHandle(_objectHandle);
         if ((thisObject == this) && (it != nullptr))
         { // dummy is in the scene
             if (lt == sim_dummy_linktype_gcs_tip)
@@ -1029,12 +1029,12 @@ void CDummy::setAssemblyTag(const char* tag)
     if (diff)
     {
         _assemblyTag = tag;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDummy_assemblyTag.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyText(cmd, _assemblyTag.c_str());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1064,9 +1064,9 @@ void CDummy::_setLinkedDummyHandle_sendOldIk(int h) const
         if (h != -1)
         {
             if (_linkType == sim_dummy_linktype_ik_tip_target)
-                hh = App::currentWorld->sceneObjects->getObjectFromHandle(h)->getIkPluginCounterpartHandle();
+                hh = App::currentScene->sceneObjects->getObjectFromHandle(h)->getIkPluginCounterpartHandle();
         }
-        App::worldContainer->pluginContainer->oldIkPlugin_setLinkedDummy(_ikPluginCounterpartHandle, hh);
+        App::sceneContainer->pluginContainer->oldIkPlugin_setLinkedDummy(_ikPluginCounterpartHandle, hh);
     }
 }
 
@@ -1079,10 +1079,10 @@ void CDummy::_setLinkType_sendOldIk(int t) const
         if (_linkedDummyHandle != -1)
         {
             if (t == sim_dummy_linktype_ik_tip_target)
-                hh = App::currentWorld->sceneObjects->getObjectFromHandle(_linkedDummyHandle)
+                hh = App::currentScene->sceneObjects->getObjectFromHandle(_linkedDummyHandle)
                          ->getIkPluginCounterpartHandle();
         }
-        App::worldContainer->pluginContainer->oldIkPlugin_setLinkedDummy(_ikPluginCounterpartHandle, hh);
+        App::sceneContainer->pluginContainer->oldIkPlugin_setLinkedDummy(_ikPluginCounterpartHandle, hh);
     }
 }
 
@@ -1166,12 +1166,12 @@ void CDummy::setDummySize(double s)
     {
         _dummySize = s;
         computeBoundingBox();
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDummy_size.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _dummySize);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1219,10 +1219,10 @@ int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev /* = nul
                 {
                     if (pName != nullptr)
                         arr[simiIndexBitCoded] = nv;
-                    if (_isInScene && App::worldContainer->getEventsEnabled())
+                    if (_isInScene && App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -1234,7 +1234,7 @@ int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev /* = nul
         handleProp(propDummy_mujocoLimitsEnabled.name, _mujocoIntParams, simi_mujoco_dummy_bitcoded, simi_mujoco_dummy_limited);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -1313,10 +1313,10 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullp
                 {
                     if (pName != nullptr)
                         arr[simiIndex] = pState;
-                    if (_isInScene && App::worldContainer->getEventsEnabled())
+                    if (_isInScene && App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -1328,7 +1328,7 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullp
         handleProp(propDummy_mujocoJointProxyHandle.name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -1409,10 +1409,10 @@ int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* e
                 {
                     if (pName != nullptr)
                         arr[simiIndex] = pState;
-                    if (_isInScene && App::worldContainer->getEventsEnabled())
+                    if (_isInScene && App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -1424,7 +1424,7 @@ int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* e
         handleProp(propDummy_mujocoJointProxyHandle.name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
 */
     }
@@ -1504,10 +1504,10 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev /* = 
                 {
                     if (pName != nullptr)
                         arr[simiIndex] = pState;
-                    if (_isInScene && App::worldContainer->getEventsEnabled())
+                    if (_isInScene && App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -1523,7 +1523,7 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev /* = 
         handleProp(propDummy_mujocoOverlapConstrTorqueScale.name, _mujocoFloatParams, simi_mujoco_dummy_torquescaleoverlapconstr);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -1700,10 +1700,10 @@ int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* 
                         for (size_t i = 0; i < 2; i++)
                             arr[simiIndex1 + i] = pState[i];
                     }
-                    if (_isInScene && App::worldContainer->getEventsEnabled())
+                    if (_isInScene && App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -1713,7 +1713,7 @@ int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* 
         };
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -1788,10 +1788,10 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
                                 arr[simiIndex1 + i] = v[i];
                         }
                     }
-                    if (_isInScene && App::worldContainer->getEventsEnabled())
+                    if (_isInScene && App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -1807,7 +1807,7 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
         handleProp(propDummy_mujocoOverlapConstrSolimp.name, _mujocoFloatParams, simi_mujoco_dummy_solimpoverlapconstr1, 5);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -1914,7 +1914,7 @@ int CDummy::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 
 void CDummy::_sendEngineString(CCbor* eev /*= nullptr*/)
 {
-    if (_isInScene && App::worldContainer->getEventsEnabled())
+    if (_isInScene && App::sceneContainer->getEventsEnabled())
     {
         CCbor* ev = nullptr;
         if (eev != nullptr)
@@ -1922,10 +1922,10 @@ void CDummy::_sendEngineString(CCbor* eev /*= nullptr*/)
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(_objectHandle));
         if (ev == nullptr)
-            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propDummy_engineProperties.name, true);
+            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, propDummy_engineProperties.name, true);
         ev->appendKeyText(propDummy_engineProperties.name, current.c_str());
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
     }
 }
 

@@ -192,19 +192,19 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
         for (size_t i = 0; i < 3; i++)
             col[offset + i] = theColor[i];
         retVal = setColors(col);
-        if (retVal && App::worldContainer->getEventsEnabled() && (cmd.size() != 0))
+        if (retVal && App::sceneContainer->getEventsEnabled() && (cmd.size() != 0))
         {
             cmd = _eventPrefix + cmd;
             CCbor* ev;
             if (_belongsToSceneObject)
-                ev = App::worldContainer->createSceneObjectChangedEvent(_eventObjectHandle, false, cmd.c_str(), true);
+                ev = App::sceneContainer->createSceneObjectChangedEvent(_eventObjectHandle, false, cmd.c_str(), true);
             else
-                ev = App::worldContainer->createObjectChangedEvent(_eventObjectHandle, cmd.c_str(), true);
+                ev = App::sceneContainer->createObjectChangedEvent(_eventObjectHandle, cmd.c_str(), true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd.c_str(), col + offset, 3);
             else
                 ev->appendKeyColor(cmd.c_str(), col + offset);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
     return retVal;
@@ -258,10 +258,10 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
 
 void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
 { // only with event protocol version 2
-    if ((objectHandle != -1) && App::worldContainer->getEventsEnabled())
+    if ((objectHandle != -1) && App::sceneContainer->getEventsEnabled())
     {
         const char* cmd = "color";
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(objectHandle, false, cmd, false);
+        CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(objectHandle, false, cmd, false);
         ev->openKeyMap(cmd);
         float c[9];
         int w = sim_materialcomponent_diffuse;
@@ -274,16 +274,16 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
         if (_translucid)
             transp = 1.0 - _opacity;
         ev->appendKeyFloat("transparency", transp);
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 
 void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float col2[9], float col3[9], float col4[9])
 { // only with event protocol version 2
-    if ((objectHandle != -1) && App::worldContainer->getEventsEnabled())
+    if ((objectHandle != -1) && App::sceneContainer->getEventsEnabled())
     {
         const char* cmd = "colors";
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(objectHandle, false, cmd, false);
+        CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(objectHandle, false, cmd, false);
         ev->openKeyArray(cmd);
         ev->appendFloatArray(col1, 9);
         if (col2 != nullptr)
@@ -292,7 +292,7 @@ void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float c
             ev->appendFloatArray(col3, 9);
         if (col4 != nullptr)
             ev->appendFloatArray(col4, 9);
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 
@@ -742,16 +742,16 @@ bool CColorObject::setTransparency(float t)
     {
         setTranslucid(t != 0.0f);
         setOpacity(1.0f - t);
-        if ((_eventFlags & 16) && (_eventObjectHandle != -1) && App::worldContainer->getEventsEnabled())
+        if ((_eventFlags & 16) && (_eventObjectHandle != -1) && App::sceneContainer->getEventsEnabled())
         {
             std::string cmd = _eventPrefix + propColor_transparency.name;
             CCbor* ev;
             if (_belongsToSceneObject)
-                ev = App::worldContainer->createSceneObjectChangedEvent(_eventObjectHandle, false, cmd.c_str(), true);
+                ev = App::sceneContainer->createSceneObjectChangedEvent(_eventObjectHandle, false, cmd.c_str(), true);
             else
-                ev = App::worldContainer->createObjectChangedEvent(_eventObjectHandle, cmd.c_str(), true);
+                ev = App::sceneContainer->createObjectChangedEvent(_eventObjectHandle, cmd.c_str(), true);
             ev->appendKeyFloat(cmd.c_str(), t);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
     return diff;

@@ -12,8 +12,8 @@ CQDlgMaterial::CQDlgMaterial(QWidget* parent)
     _dlgType = MATERIAL_DLG;
     ui->setupUi(this);
     inMainRefreshRoutine = false;
-    _lastSelectedObjectID = App::currentWorld->sceneObjects->getLastSelectionHandle();
-    _objectSelectionSize = App::currentWorld->sceneObjects->getSelectionCount();
+    _lastSelectedObjectID = App::currentScene->sceneObjects->getLastSelectionHandle();
+    _objectSelectionSize = App::currentScene->sceneObjects->getSelectionCount();
 
     if (GuiApp::canShowDialogs())
         GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
@@ -32,7 +32,7 @@ void CQDlgMaterial::refresh()
     int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
                           // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
     CColorObject* vc = GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
-    bool simStopped = App::currentWorld->simulation->isSimulationStopped();
+    bool simStopped = App::currentScene->simulation->isSimulationStopped();
     ui->qqAmbientAdjust->setEnabled(simStopped && (allowedParts & 1));
     ui->qqSpecularAdjust->setEnabled(simStopped && (allowedParts & 4));
     ui->qqEmissiveAdjust->setEnabled(simStopped && (allowedParts & 8));
@@ -84,11 +84,11 @@ bool CQDlgMaterial::needsDestruction()
 
 bool CQDlgMaterial::isLinkedDataValid()
 {
-    if (_lastSelectedObjectID != App::currentWorld->sceneObjects->getLastSelectionHandle())
+    if (_lastSelectedObjectID != App::currentScene->sceneObjects->getLastSelectionHandle())
         return (false);
-    if (_objectSelectionSize != App::currentWorld->sceneObjects->getSelectionCount())
+    if (_objectSelectionSize != App::currentScene->sceneObjects->getSelectionCount())
         return (false);
-    if (!App::currentWorld->simulation->isSimulationStopped())
+    if (!App::currentScene->simulation->isSimulationStopped())
         return (false);
     return (GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr) != nullptr);
 }

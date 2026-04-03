@@ -351,7 +351,7 @@ bool CSView::announceObjectWillBeErased(int objectID)
 
 void CSView::performObjectLoadingMapping(const std::map<int, int>* map)
 {
-    linkedObjectID = CWorld::getLoadingMapping(map, linkedObjectID);
+    linkedObjectID = CScene::getLoadingMapping(map, linkedObjectID);
 }
 
 void CSView::setTrackedGraphCurveIndex(int index)
@@ -618,7 +618,7 @@ void CSView::serialize(CSer& ar)
 void CSView::render(int mainWindowXPos, bool clipWithMainWindowXPos, bool drawText, bool passiveSubView)
 {
     TRACE_INTERNAL;
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(linkedObjectID);
     displayView(this, it, mainWindowXPos, clipWithMainWindowXPos, drawText, passiveSubView);
 }
 
@@ -730,9 +730,9 @@ bool CSView::processCommand(int commandID, int subViewIndex)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            if ((sel.size() == 1) && (App::currentWorld->sceneObjects->getCameraFromHandle(sel[0]) != nullptr))
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+                sel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            if ((sel.size() == 1) && (App::currentScene->sceneObjects->getCameraFromHandle(sel[0]) != nullptr))
             {
                 setDefaultValues();
                 linkedObjectID = sel[0];
@@ -755,9 +755,9 @@ bool CSView::processCommand(int commandID, int subViewIndex)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (int i=0;i<App::currentWorld->objCont->getSelSize();i++)
-                sel.push_back(App::currentWorld->objCont->getSelID(i));
-            if ((sel.size()==1)&&(App::currentWorld->objCont->getGraph(sel[0])!=nullptr))
+            for (int i=0;i<App::currentScene->objCont->getSelSize();i++)
+                sel.push_back(App::currentScene->objCont->getSelID(i));
+            if ((sel.size()==1)&&(App::currentScene->objCont->getGraph(sel[0])!=nullptr))
             {
                 setDefaultValues();
                 linkedObjectID=sel[0];
@@ -780,9 +780,9 @@ bool CSView::processCommand(int commandID, int subViewIndex)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            if ((sel.size() == 1) && (App::currentWorld->sceneObjects->getVisionSensorFromHandle(sel[0]) != nullptr))
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+                sel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            if ((sel.size() == 1) && (App::currentScene->sceneObjects->getVisionSensorFromHandle(sel[0]) != nullptr))
             {
                 setDefaultValues();
                 linkedObjectID = sel[0];
@@ -804,9 +804,9 @@ bool CSView::processCommand(int commandID, int subViewIndex)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+                sel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            CCamera* camera = App::currentScene->sceneObjects->getCameraFromHandle(linkedObjectID);
             if ((camera != nullptr) && (sel.size() == 1))
             {
                 camera->setTrackedObjectHandle(sel[0]);
@@ -827,7 +827,7 @@ bool CSView::processCommand(int commandID, int subViewIndex)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            CCamera* camera = App::currentScene->sceneObjects->getCameraFromHandle(linkedObjectID);
             if (camera != nullptr)
             {
                 camera->setTrackedObjectHandle(-1);
@@ -850,17 +850,17 @@ bool CSView::processCommand(int commandID, int subViewIndex)
 void CSView::addMenu(VMenu* menu)
 {
     // bool lastSelIsGraph=false;
-    CGraph* graph = App::currentWorld->sceneObjects->getGraphFromHandle(linkedObjectID);
-    CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
-    CVisionSensor* sensor = App::currentWorld->sceneObjects->getVisionSensorFromHandle(linkedObjectID);
-    size_t selSize = App::currentWorld->sceneObjects->getSelectionCount();
+    CGraph* graph = App::currentScene->sceneObjects->getGraphFromHandle(linkedObjectID);
+    CCamera* camera = App::currentScene->sceneObjects->getCameraFromHandle(linkedObjectID);
+    CVisionSensor* sensor = App::currentScene->sceneObjects->getVisionSensorFromHandle(linkedObjectID);
+    size_t selSize = App::currentScene->sceneObjects->getSelectionCount();
     bool lastSelIsCamera = false;
     bool lastSelIsRendSens = false;
     if (selSize > 0)
     {
-        if (App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType() == sim_sceneobject_camera)
+        if (App::currentScene->sceneObjects->getLastSelectionObject()->getObjectType() == sim_sceneobject_camera)
             lastSelIsCamera = true;
-        if (App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType() == sim_sceneobject_visionsensor)
+        if (App::currentScene->sceneObjects->getLastSelectionObject()->getObjectType() == sim_sceneobject_visionsensor)
             lastSelIsRendSens = true;
     }
     if (camera != nullptr)
@@ -874,7 +874,7 @@ void CSView::addMenu(VMenu* menu)
 
         menu->appendMenuItem(true, false, VIEW_SELECTOR_SELECT_ANY_VSCMD, IDSN_SELECT_VIEWABLE_OBJECT);
 
-        CSceneObject* trkObj = App::currentWorld->sceneObjects->getObjectFromHandle(camera->getTrackedObjectHandle());
+        CSceneObject* trkObj = App::currentScene->sceneObjects->getObjectFromHandle(camera->getTrackedObjectHandle());
         if (trkObj != nullptr)
         {
             std::string tmp(IDS_DONT_TRACK_OBJECT__MENU_ITEM);
@@ -883,7 +883,7 @@ void CSView::addMenu(VMenu* menu)
         }
         else
         {
-            bool illegalLoop = (selSize == 1) && (App::currentWorld->sceneObjects->getLastSelectionObject() == camera);
+            bool illegalLoop = (selSize == 1) && (App::currentScene->sceneObjects->getLastSelectionObject() == camera);
             menu->appendMenuItem((selSize == 1) && (!illegalLoop), false, VIEW_FUNCTIONS_TRACK_OBJECT_VFCMD,
                                  IDS_TRACK_SELECTED_OBJECT_MENU_ITEM);
         }
@@ -987,7 +987,7 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
         return (false);
     if (y > _viewSize[1])
         return (false);
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(linkedObjectID);
     if (it != nullptr)
     {
         deltaZ = int(double(deltaZ) * App::userSettings->mouseWheelZoomFactor * 1.001);
@@ -1051,7 +1051,7 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
                 App::undoRedo_sceneChangedGradual(""); // **************** UNDO THINGY ****************
             }
         }
-        if ((it->getObjectType() == sim_sceneobject_graph) && (!App::currentWorld->simulation->isSimulationRunning()))
+        if ((it->getObjectType() == sim_sceneobject_graph) && (!App::currentScene->simulation->isSimulationRunning()))
         {
             double zoomFact = double(deltaZ / 120) * 0.1;
             double centerPos[2] = {graphPosition[0] + graphSize[0] / 2.0, graphPosition[1] + graphSize[1] / 2.0};
@@ -1092,7 +1092,7 @@ void CSView::_handleClickRayIntersection_old(int x, int y, bool mouseDown)
 {
     if (GuiApp::mainWindow->getKeyDownState() & 3)
         return; // doesn't generate any message when the ctrl or shift key is pressed
-    CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+    CCamera* cam = App::currentScene->sceneObjects->getCameraFromHandle(linkedObjectID);
     if (cam == nullptr)
         return;
 
@@ -1169,7 +1169,7 @@ int CSView::getCursor(int x, int y) const
     int navigationMode = GuiApp::getMouseMode() & 0x00ff;
     if ((navigationMode == sim_navigation_objectshift) || (navigationMode == sim_navigation_objectrotate))
     {
-        CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+        CCamera* cam = App::currentScene->sceneObjects->getCameraFromHandle(linkedObjectID);
         if (cam != nullptr)
         {
             if ((GuiApp::mainWindow->getMouseButtonState() & 1) == 0)
@@ -1213,9 +1213,9 @@ bool CSView::leftMouseButtonDown(int x, int y, int selStatus)
     mouseJustWentDownWasProcessed = false;
     mouseJustWentUpFlag = false;
     // Clear all manip mode overlay grid flags:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
+    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
         it->clearManipulationModeOverlayGridFlag();
     }
 
@@ -1265,7 +1265,7 @@ void CSView::mouseMove(int x, int y, bool passiveAndFocused)
     {
         if ((x >= 0) && (y >= 0) && (x < _viewSize[0]) && (y < _viewSize[1]) && (linkedObjectID != -1))
         {
-            CCamera* cam = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            CCamera* cam = App::currentScene->sceneObjects->getCameraFromHandle(linkedObjectID);
             if (cam != nullptr)
             {
                 C4X4Matrix tr;
@@ -1334,7 +1334,7 @@ int CSView::modelDragMoveEvent(int x, int y, C3Vector* desiredModelPosition)
     mouseRelativePosition[1] = y;
     if ((x < 0) || (y < 0) || (x > _viewSize[0]) || (y > _viewSize[1]))
         return (-2); // mouse not in this view
-    CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
+    CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(linkedObjectID);
     if ((obj != nullptr) && (obj->getObjectType() == sim_sceneobject_camera))
     {
         CCamera* thecam = (CCamera*)obj;
@@ -1474,7 +1474,7 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainW
     // The mouse went up in this subview
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(linkedObjectID);
     int linkedObj = -1;
     if (it != nullptr)
     {
@@ -1522,7 +1522,7 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainW
                 {
                     VMenu* pathEditMenu = new VMenu();
                     GuiApp::mainWindow->editModeContainer->addMenu(
-                        pathEditMenu, App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
+                        pathEditMenu, App::currentScene->sceneObjects->getObjectFromHandle(linkedObjectID));
                     mainMenu.appendMenuAndDetach(pathEditMenu, true, IDS_EDIT_MENU_ITEM);
                 }
             }
@@ -1532,7 +1532,7 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainW
                 if (linkedObj != -1)
                 {
                     VMenu* simulationMenu = new VMenu();
-                    App::currentWorld->simulation->addMenu(simulationMenu);
+                    App::currentScene->simulation->addMenu(simulationMenu);
                     mainMenu.appendMenuAndDetach(simulationMenu, true, IDS_SIMULATION_MENU_ITEM);
                 }
             }
@@ -1560,10 +1560,10 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* mainW
             {
                 if (!processed)
                     processed = GuiApp::mainWindow->editModeContainer->processCommand(
-                        command, App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
+                        command, App::currentScene->sceneObjects->getObjectFromHandle(linkedObjectID));
             }
             if (!processed)
-                processed = App::currentWorld->simulation->processCommand(command);
+                processed = App::currentScene->simulation->processCommand(command);
         }
     }
     return (false);
@@ -1687,7 +1687,7 @@ void CSView::handleCameraOrGraphMotion()
 
 void CSView::graphMotion()
 {
-    CGraph* graph = App::currentWorld->sceneObjects->getGraphFromHandle(linkedObjectID);
+    CGraph* graph = App::currentScene->sceneObjects->getGraphFromHandle(linkedObjectID);
     if (graph == nullptr)
         return;
 
@@ -1760,17 +1760,17 @@ void CSView::cameraAndObjectMotion()
     if (mouseJustWentDownFlag)
     {
         eventID++;
-        mouseDownInitialPage = App::currentWorld->pageContainer->getActivePageIndex();
-        mouseDownInitialInstance = App::worldContainer->getCurrentWorldIndex();
+        mouseDownInitialPage = App::currentScene->pageContainer->getActivePageIndex();
+        mouseDownInitialInstance = App::sceneContainer->getCurrentSceneIndex();
     }
     else
     {
-        if (mouseDownInitialPage != App::currentWorld->pageContainer->getActivePageIndex())
+        if (mouseDownInitialPage != App::currentScene->pageContainer->getActivePageIndex())
             eventID++;
-        if (mouseDownInitialInstance != App::worldContainer->getCurrentWorldIndex())
+        if (mouseDownInitialInstance != App::sceneContainer->getCurrentSceneIndex())
             eventID++;
     }
-    CCamera* camera = App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+    CCamera* camera = App::currentScene->sceneObjects->getCameraFromHandle(linkedObjectID);
     if (camera == nullptr)
         return;
     CSceneObject* cameraParentProxy = nullptr;
@@ -1873,10 +1873,10 @@ void CSView::cameraAndObjectMotion()
                 // There is one master object that acts as the rotation pivot. That object needs to be carefully
                 // selected
                 std::vector<CSceneObject*> allSelObj;
-                for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
+                for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
                 {
-                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(
-                        App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(
+                        App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     allSelObj.push_back(it);
                 }
                 std::vector<CSceneObject*> allSelObjects;
@@ -1991,10 +1991,10 @@ void CSView::cameraAndObjectMotion()
                 // Prepare the object that will be shifted, and all other objects in selection appropriately:
                 // There is one master object that acts as the shift pivot. That object needs to be carefully selected
                 std::vector<CSceneObject*> allSelObj;
-                for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
+                for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
                 {
-                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(
-                        App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(
+                        App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     allSelObj.push_back(it);
                 }
                 std::vector<CSceneObject*> allSelObjects;

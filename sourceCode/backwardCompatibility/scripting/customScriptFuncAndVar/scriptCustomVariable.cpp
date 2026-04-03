@@ -25,7 +25,7 @@ CScriptCustomVariable::CScriptCustomVariable(const char* theFullVariableName, co
 CScriptCustomVariable::~CScriptCustomVariable()
 {
     if (_variableStackId != 0)
-        App::worldContainer->interfaceStackContainer->destroyStack(_variableStackId);
+        App::sceneContainer->interfaceStackContainer->destroyStack(_variableStackId);
 }
 
 bool CScriptCustomVariable::getHasAutoCompletion() const

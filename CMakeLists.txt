@@ -547,8 +547,8 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/communication/serialPort/serial_win_mac_linux.cpp
     sourceCode/communication/serialPort/serialPortWin.cpp
 
-    sourceCode/mainContainers/worldContainer.cpp
-    sourceCode/mainContainers/world.cpp
+    sourceCode/mainContainers/sceneContainer.cpp
+    sourceCode/mainContainers/scene.cpp
 
     sourceCode/mainContainers/sceneContainers/drawingContainer.cpp
     sourceCode/mainContainers/sceneContainers/textureContainer.cpp

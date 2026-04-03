@@ -435,12 +435,12 @@ void CVisionSensor::setUseExternalImage(bool u)
     if (diff)
     {
         _useExternalImage = u;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_useExtImage.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _useExternalImage);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -456,12 +456,12 @@ void CVisionSensor::setEmitImageChangedEvent(bool e)
     if (diff)
     {
         _emitImageChangedEventEnabled = e;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_emitImageChangedEvent.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _emitImageChangedEventEnabled);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -472,44 +472,44 @@ void CVisionSensor::setEmitDepthChangedEvent(bool e)
     if (diff)
     {
         _emitDepthChangedEventEnabled = e;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_emitDepthChangedEvent.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _emitDepthChangedEventEnabled);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
 
 void CVisionSensor::_emitImageChangedEvent(CCbor* thirdPartyEv /*= nullptr*/) const
 {
-    if (_emitImageChangedEventEnabled && _isInScene && App::worldContainer->getEventsEnabled())
+    if (_emitImageChangedEventEnabled && _isInScene && App::sceneContainer->getEventsEnabled())
     {
         const char* cmd = propVisionSensor_imageBuffer.name;
         CCbor* ev = thirdPartyEv;
         if (thirdPartyEv == nullptr)
-            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyBuff(cmd, _rgbBuffer, 3 * _resolution[0] * _resolution[1]);
         else
             ev->appendKeyUint8Array(cmd, _rgbBuffer, 3 * _resolution[0] * _resolution[1]);
         if (thirdPartyEv == nullptr)
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
     }
 }
 
 void CVisionSensor::_emitDepthChangedEvent(CCbor* thirdPartyEv /*= nullptr*/) const
 {
-    if (_emitDepthChangedEventEnabled && _isInScene && App::worldContainer->getEventsEnabled())
+    if (_emitDepthChangedEventEnabled && _isInScene && App::sceneContainer->getEventsEnabled())
     {
         const char* cmd = propVisionSensor_depthBuffer.name;
         CCbor* ev = thirdPartyEv;
         if (thirdPartyEv == nullptr)
-            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyFloatArray(cmd, _depthBuffer, _resolution[0] * _resolution[1]);
         if (thirdPartyEv == nullptr)
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
     }
 }
 
@@ -610,9 +610,9 @@ void CVisionSensor::_clearBuffers()
     {
         if (_useSameBackgroundAsEnvironment)
         {
-            _rgbBuffer[3 * i + 0] = (unsigned char)(App::currentWorld->environment->fogBackgroundColor[0] * 255.1);
-            _rgbBuffer[3 * i + 1] = (unsigned char)(App::currentWorld->environment->fogBackgroundColor[1] * 255.1);
-            _rgbBuffer[3 * i + 2] = (unsigned char)(App::currentWorld->environment->fogBackgroundColor[2] * 255.1);
+            _rgbBuffer[3 * i + 0] = (unsigned char)(App::currentScene->environment->fogBackgroundColor[0] * 255.1);
+            _rgbBuffer[3 * i + 1] = (unsigned char)(App::currentScene->environment->fogBackgroundColor[1] * 255.1);
+            _rgbBuffer[3 * i + 2] = (unsigned char)(App::currentScene->environment->fogBackgroundColor[2] * 255.1);
         }
         else
         {
@@ -642,12 +642,12 @@ void CVisionSensor::setUseEnvironmentBackgroundColor(bool s)
     if (diff)
     {
         _useSameBackgroundAsEnvironment = s;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_backgroundSameAsEnv.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _useSameBackgroundAsEnvironment);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -662,12 +662,12 @@ void CVisionSensor::setVisionSensorSize(const double s)
     if (_visionSensorSize != s)
     {
         _visionSensorSize = s;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_size.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _visionSensorSize);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         computeBoundingBox();
     }
@@ -684,12 +684,12 @@ void CVisionSensor::setExplicitHandling(bool eh)
     if (diff)
     {
         _explicitHandling = eh;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_explicitHandling.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _explicitHandling);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -705,12 +705,12 @@ void CVisionSensor::setIgnoreRGBInfo(bool ignore)
     if (diff)
     {
         _ignoreRGBInfo = ignore;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_ignoreRgbInfo.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _ignoreRGBInfo);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -726,12 +726,12 @@ void CVisionSensor::setComputeImageBasicStats(bool c)
     if (diff)
     {
         _computeImageBasicStats = c;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_omitPacket1.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, !_computeImageBasicStats);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -747,12 +747,12 @@ void CVisionSensor::setIgnoreDepthInfo(bool ignore)
     if (diff)
     {
         _ignoreDepthInfo = ignore;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_ignoreDepthInfo.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _ignoreDepthInfo);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -773,12 +773,12 @@ void CVisionSensor::setRenderMode(int mode)
             setIgnoreDepthInfo(true);
             _attributesForRendering = DEFAULT_RAYTRACING_ATTRIBUTES;
         }
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_renderMode.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _renderMode);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -815,15 +815,15 @@ void CVisionSensor::setDefaultBufferValues(const float v[3])
     {
         for (int i = 0; i < 3; i++)
             _defaultBufferValues[i] = v[i];
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propVisionSensor_backgroundCol.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, _defaultBufferValues, 3);
             else
                 ev->appendKeyColor(cmd, _defaultBufferValues);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -945,7 +945,7 @@ bool CVisionSensor::handleSensor()
         sensorResult.sensorDataIntensity[i] = 0;
         sensorResult.sensorDataDepth[i] = 0.0;
     }
-    if (!App::currentWorld->mainSettings_old->visionSensorsEnabled)
+    if (!App::currentScene->mainSettings_old->visionSensorsEnabled)
         return (false);
     if (_useExternalImage) // those 2 lines added on 2010/12/12
         return (false);
@@ -964,12 +964,12 @@ bool CVisionSensor::handleSensor()
 
 void CVisionSensor::_emitTriggerStateAndPacketChangeEvents(CCbor* thirdPartyEv /*= nullptr*/) const
 {
-    if (_isInScene && App::worldContainer->getEventsEnabled())
+    if (_isInScene && App::sceneContainer->getEventsEnabled())
     {
         const char* cmd = propVisionSensor_triggerState.name;
         CCbor* ev = thirdPartyEv;
         if (thirdPartyEv == nullptr)
-            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyBool(cmd, sensorResult.sensorWasTriggered);
         if (sensorAuxiliaryResult.size() >= 1)
             ev->appendKeyDoubleArray(propVisionSensor_packet1.name, sensorAuxiliaryResult[0].data(), sensorAuxiliaryResult[0].size());
@@ -980,7 +980,7 @@ void CVisionSensor::_emitTriggerStateAndPacketChangeEvents(CCbor* thirdPartyEv /
         else
             ev->appendKeyDoubleArray(propVisionSensor_packet2.name, nullptr, 0);
         if (thirdPartyEv == nullptr)
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
     }
 }
 
@@ -1131,7 +1131,7 @@ bool CVisionSensor::detectEntity(int entityID, bool detectAll,
 { // if entityID is -1, all detectable objects are rendered!
     TRACE_INTERNAL;
     bool retVal = false;
-    App::worldContainer->calcInfo->visionSensorSimulationStart();
+    App::sceneContainer->calcInfo->visionSensorSimulationStart();
 
     bool validRendering = false;
 #ifdef SIM_WITH_GUI
@@ -1147,7 +1147,7 @@ bool CVisionSensor::detectEntity(int entityID, bool detectAll,
         sensorResult.sensorWasTriggered = retVal;
     }
 
-    App::worldContainer->calcInfo->visionSensorSimulationEnd(retVal);
+    App::sceneContainer->calcInfo->visionSensorSimulationEnd(retVal);
     return (retVal);
 }
 
@@ -1224,7 +1224,7 @@ bool CVisionSensor::detectEntity2(int entityID, bool detectAll,
 
 bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
 { // Set-up the resolution, clear color, camera properties and camera pose:
-    bool retVal = App::worldContainer->pluginContainer->selectExtRenderer(extRendererIndex);
+    bool retVal = App::sceneContainer->pluginContainer->selectExtRenderer(extRendererIndex);
 
     void* data[30];
     _extWindowedViewSize[0] = _resolution[0];
@@ -1233,7 +1233,7 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[0] = _extWindowedViewSize;     // for windowed views, this value is also a return value
     data[1] = _extWindowedViewSize + 1; // for windowed views, this value is also a return value
     if (_useSameBackgroundAsEnvironment)
-        data[2] = App::currentWorld->environment->fogBackgroundColor;
+        data[2] = App::currentScene->environment->fogBackgroundColor;
     else
         data[2] = _defaultBufferValues;
     C7Vector tr(getFullCumulativeTransformation());
@@ -1281,13 +1281,13 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[9] = &nc;
     float fc = (float)_farClippingPlane;
     data[10] = &fc;
-    data[11] = App::currentWorld->environment->ambientLightColor;
-    data[12] = App::currentWorld->environment->fogBackgroundColor;
-    int fogType = App::currentWorld->environment->getFogType();
-    double fogStart = (float)App::currentWorld->environment->getFogStart();
-    double fogEnd = (float)App::currentWorld->environment->getFogEnd();
-    double fogDensity = (float)App::currentWorld->environment->getFogDensity();
-    bool fogEnabled = App::currentWorld->environment->getFogEnabled();
+    data[11] = App::currentScene->environment->ambientLightColor;
+    data[12] = App::currentScene->environment->fogBackgroundColor;
+    int fogType = App::currentScene->environment->getFogType();
+    double fogStart = (float)App::currentScene->environment->getFogStart();
+    double fogEnd = (float)App::currentScene->environment->getFogEnd();
+    double fogDensity = (float)App::currentScene->environment->getFogDensity();
+    bool fogEnabled = App::currentScene->environment->getFogEnabled();
     data[13] = &fogType;
     data[14] = &fogStart;
     data[15] = &fogEnd;
@@ -1324,15 +1324,15 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
         data[28] = GuiApp::mainWindow->openglWidget;
 #endif
 
-    App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start, data);
+    App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start, data);
     return (retVal);
 }
 
 void CVisionSensor::_extRenderer_prepareLights()
 { // Set-up the lights:
-    for (size_t li = 0; li < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_light); li++)
+    for (size_t li = 0; li < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_light); li++)
     {
-        CLight* light = App::currentWorld->sceneObjects->getLightFromIndex(li);
+        CLight* light = App::currentScene->sceneObjects->getLightFromIndex(li);
         if (light->getLightActive())
         {
             void* data[20];
@@ -1371,7 +1371,7 @@ void CVisionSensor::_extRenderer_prepareLights()
             data[10] = &povFadeXDist;
             data[12] = &povNoShadow;
 
-            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_light, data);
+            App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_light, data);
         }
     }
 }
@@ -1385,7 +1385,7 @@ void CVisionSensor::_extRenderer_retrieveImage()
     data[2] = &readRgb;
     bool readDepth = !_ignoreDepthInfo;
     data[3] = &readDepth;
-    App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_stop, data);
+    App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_stop, data);
     if (!_ignoreRGBInfo)
         _emitImageChangedEvent();
     if (!_ignoreDepthInfo)
@@ -1410,9 +1410,9 @@ bool CVisionSensor::renderForDetection(int entityID, bool detectAll,
         if (_renderMode != sim_rendermode_colorcoded)
         {
             if (_useSameBackgroundAsEnvironment)
-                glClearColor(App::currentWorld->environment->fogBackgroundColor[0],
-                             App::currentWorld->environment->fogBackgroundColor[1],
-                             App::currentWorld->environment->fogBackgroundColor[2], 0.0);
+                glClearColor(App::currentScene->environment->fogBackgroundColor[0],
+                             App::currentScene->environment->fogBackgroundColor[1],
+                             App::currentScene->environment->fogBackgroundColor[2], 0.0);
             else
                 glClearColor(_defaultBufferValues[0], _defaultBufferValues[1], _defaultBufferValues[2], 0.0);
         }
@@ -1459,14 +1459,14 @@ bool CVisionSensor::renderForDetection(int entityID, bool detectAll,
 
         if (_renderMode == sim_rendermode_opengl)
         { // visible
-            App::currentWorld->environment->activateAmbientLight(true);
-            App::currentWorld->environment->activateFogIfEnabled(this, false);
+            App::currentScene->environment->activateAmbientLight(true);
+            App::currentScene->environment->activateFogIfEnabled(this, false);
             _activateNonAmbientLights(-1, this);
         }
         else
         {
-            App::currentWorld->environment->activateAmbientLight(false);
-            App::currentWorld->environment->deactivateFog();
+            App::currentScene->environment->activateAmbientLight(false);
+            App::currentScene->environment->deactivateFog();
             _activateNonAmbientLights(-2, nullptr);
         }
 
@@ -1521,7 +1521,7 @@ bool CVisionSensor::renderForDetection(int entityID, bool detectAll,
             glEnable(GL_DITHER);
         }
 
-        App::currentWorld->environment->deactivateFog();
+        App::currentScene->environment->deactivateFog();
         glRenderMode(GL_RENDER);
     }
 #endif
@@ -1584,22 +1584,22 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
     {
         // first non-transparent attached drawing objects:
         for (int i = 0; i < int(toRender.size()); i++)
-            App::currentWorld->drawingCont->drawObjectsParentedWith(false, false, toRender[i]->getObjectHandle(),
+            App::currentScene->drawingCont->drawObjectsParentedWith(false, false, toRender[i]->getObjectHandle(),
                                                                     rendAttrib,
                                                                     getFullCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
-        App::currentWorld->drawingCont->drawObjectsParentedWith(false, false, -1, rendAttrib,
+        App::currentScene->drawingCont->drawObjectsParentedWith(false, false, -1, rendAttrib,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Point clouds:
-        App::currentWorld->pointCloudCont_old->renderYour3DStuff_nonTransparent(this, rendAttrib);
+        App::currentScene->pointCloudCont_old->renderYour3DStuff_nonTransparent(this, rendAttrib);
 
         // Ghost objects:
-        App::currentWorld->ghostObjectCont_old->renderYour3DStuff_nonTransparent(this, rendAttrib);
+        App::currentScene->ghostObjectCont_old->renderYour3DStuff_nonTransparent(this, rendAttrib);
 
         // particles:
-        App::currentWorld->dynamicsContainer->renderYour3DStuff(this, rendAttrib);
+        App::currentScene->dynamicsContainer->renderYour3DStuff(this, rendAttrib);
     }
     if (getInternalRendering())
         _disableAuxClippingPlanes();
@@ -1644,35 +1644,35 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
     {
         // Transparent attached drawing objects:
         for (int i = 0; i < int(toRender.size()); i++)
-            App::currentWorld->drawingCont->drawObjectsParentedWith(
+            App::currentScene->drawingCont->drawObjectsParentedWith(
                 false, true, toRender[i]->getObjectHandle(), rendAttrib, getFullCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
-        App::currentWorld->drawingCont->drawObjectsParentedWith(false, true, -1, rendAttrib,
+        App::currentScene->drawingCont->drawObjectsParentedWith(false, true, -1, rendAttrib,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Ghost objects:
-        App::currentWorld->ghostObjectCont_old->renderYour3DStuff_transparent(this, rendAttrib);
+        App::currentScene->ghostObjectCont_old->renderYour3DStuff_transparent(this, rendAttrib);
     }
     if (getInternalRendering()) // for now
     {
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_marker); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_marker); i++)
         {
-            CMarker* it = App::currentWorld->sceneObjects->getMarkerFromIndex(i);
+            CMarker* it = App::currentScene->sceneObjects->getMarkerFromIndex(i);
             it->displayOverlay(this, rendAttrib);
         }
 
         // overlay attached drawing objects:
         for (int i = 0; i < int(toRender.size()); i++)
-            App::currentWorld->drawingCont->drawObjectsParentedWith(
+            App::currentScene->drawingCont->drawObjectsParentedWith(
                 true, true, toRender[i]->getObjectHandle(), rendAttrib, getFullCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
-        App::currentWorld->drawingCont->drawObjectsParentedWith(true, true, -1, rendAttrib,
+        App::currentScene->drawingCont->drawObjectsParentedWith(true, true, -1, rendAttrib,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Ghosts:
-        App::currentWorld->ghostObjectCont_old->renderYour3DStuff_overlay(this, rendAttrib);
+        App::currentScene->ghostObjectCont_old->renderYour3DStuff_overlay(this, rendAttrib);
     }
     if (getInternalRendering())
         _disableAuxClippingPlanes();
@@ -1683,7 +1683,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
     int entityID, bool detectAll, int rendAttrib, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
     bool overrideRenderableFlagsForNonCollections, std::vector<CSceneObject*>& toRender)
 {
-    CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
+    CSceneObject* object = App::currentScene->sceneObjects->getObjectFromHandle(entityID);
     CCollection* collection = nullptr;
     std::vector<int> transparentObjects;
     std::vector<double> transparentObjectsDist;
@@ -1692,14 +1692,14 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
 
     if (object == nullptr)
     {
-        collection = App::currentWorld->collections->getObjectFromHandle(entityID);
+        collection = App::currentScene->collections->getObjectFromHandle(entityID);
         if (collection != nullptr)
         {
             bool overridePropertyFlag = collection->getOverridesObjectMainProperties();
             for (size_t i = 0; i < collection->getSceneObjectCountInCollection(); i++)
             {
                 CSceneObject* it =
-                    App::currentWorld->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
+                    App::currentScene->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
                 if (((it->getObjectType() == sim_sceneobject_shape) ||
                      (it->getObjectType() == sim_sceneobject_octree) ||
                      (it->getObjectType() == sim_sceneobject_marker) ||
@@ -1734,9 +1734,9 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
         { // Here we want to detect all visible objects:
             if (detectAll)
             {
-                for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
+                for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
                 {
-                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
                     if (((it->getObjectType() == sim_sceneobject_shape) ||
                          (it->getObjectType() == sim_sceneobject_octree) ||
                          (it->getObjectType() == sim_sceneobject_marker) ||
@@ -1785,11 +1785,11 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
             // visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
-            App::currentWorld->sceneObjects->addModelObjects(rootSel);
+            App::currentScene->sceneObjects->addModelObjects(rootSel);
             for (int i = 0; i < int(rootSel.size()); i++)
             {
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
-                if (App::currentWorld->environment->getActiveLayers() & it->getVisibilityLayer())
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(rootSel[i]);
+                if (App::currentScene->environment->getActiveLayers() & it->getVisibilityLayer())
                 { // ok, currently visible
                     if (it->getObjectType() == sim_sceneobject_shape)
                     {
@@ -1829,7 +1829,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
 
     tt::orderAscending(transparentObjectsDist, transparentObjects);
     for (int i = 0; i < int(transparentObjects.size()); i++)
-        toRender.push_back(App::currentWorld->sceneObjects->getObjectFromHandle(transparentObjects[i]));
+        toRender.push_back(App::currentScene->sceneObjects->getObjectFromHandle(transparentObjects[i]));
 
     return (viewBoxObject);
 }
@@ -1838,7 +1838,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
     int entityID, bool detectAll, int rendAttrib, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
     bool overrideRenderableFlagsForNonCollections, std::vector<CSceneObject*>& toRender)
 {
-    CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
+    CSceneObject* object = App::currentScene->sceneObjects->getObjectFromHandle(entityID);
     CCollection* collection = nullptr;
     std::vector<int> transparentObjects;
     std::vector<double> transparentObjectsDist;
@@ -1847,14 +1847,14 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
 
     if (object == nullptr)
     {
-        collection = App::currentWorld->collections->getObjectFromHandle(entityID);
+        collection = App::currentScene->collections->getObjectFromHandle(entityID);
         if (collection != nullptr)
         {
             bool overridePropertyFlag = collection->getOverridesObjectMainProperties();
             for (size_t i = 0; i < collection->getSceneObjectCountInCollection(); i++)
             {
                 CSceneObject* it =
-                    App::currentWorld->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
+                    App::currentScene->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
                 if (it != nullptr)
                 {
                     if (((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_renderable) != 0) ||
@@ -1904,9 +1904,9 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
         { // Here we want to detect all detectable objects maybe:
             if (detectAll)
             {
-                for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
+                for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
                 {
-                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
                     if (it != nullptr)
                     {
                         if (((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_renderable) != 0) ||
@@ -1975,11 +1975,11 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
             // visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
-            App::currentWorld->sceneObjects->addModelObjects(rootSel);
+            App::currentScene->sceneObjects->addModelObjects(rootSel);
             for (int i = 0; i < int(rootSel.size()); i++)
             {
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
-                if (App::currentWorld->environment->getActiveLayers() & it->getVisibilityLayer())
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(rootSel[i]);
+                if (App::currentScene->environment->getActiveLayers() & it->getVisibilityLayer())
                 { // ok, currently visible
                     if (it->getObjectType() == sim_sceneobject_shape)
                     {
@@ -2019,7 +2019,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
 
     tt::orderAscending(transparentObjectsDist, transparentObjects);
     for (int i = 0; i < int(transparentObjects.size()); i++)
-        toRender.push_back(App::currentWorld->sceneObjects->getObjectFromHandle(transparentObjects[i]));
+        toRender.push_back(App::currentScene->sceneObjects->getObjectFromHandle(transparentObjects[i]));
 
     return (viewBoxObject);
 }
@@ -2029,26 +2029,26 @@ int CVisionSensor::_getActiveMirrors(int entityID, bool detectAll,
                                      bool overrideRenderableFlagsForNonCollections, int rendAttrib,
                                      std::vector<int>& activeMirrors)
 {
-    if (App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror) == 0)
+    if (App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_mirror) == 0)
         return (0);
-    if (App::currentWorld->mainSettings_old->mirrorsDisabled)
+    if (App::currentScene->mainSettings_old->mirrorsDisabled)
         return (0);
     if (_renderMode != sim_rendermode_opengl)
         return (0);
 
-    CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
+    CSceneObject* object = App::currentScene->sceneObjects->getObjectFromHandle(entityID);
     CCollection* collection = nullptr;
     std::vector<CSceneObject*> toRender;
     if (object == nullptr)
     {
-        collection = App::currentWorld->collections->getObjectFromHandle(entityID);
+        collection = App::currentScene->collections->getObjectFromHandle(entityID);
         if (collection != nullptr)
         {
             bool overridePropertyFlag = collection->getOverridesObjectMainProperties();
             for (size_t i = 0; i < collection->getSceneObjectCountInCollection(); i++)
             {
                 CSceneObject* it =
-                    App::currentWorld->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
+                    App::currentScene->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
                 if (it != nullptr)
                 {
                     if (((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_renderable) != 0) ||
@@ -2063,9 +2063,9 @@ int CVisionSensor::_getActiveMirrors(int entityID, bool detectAll,
         { // Here we want to detect all detectable objects maybe:
             if (detectAll)
             {
-                for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
+                for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
                 {
-                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
                     if (it != nullptr)
                     {
                         if (((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_renderable) != 0) ||
@@ -2094,11 +2094,11 @@ int CVisionSensor::_getActiveMirrors(int entityID, bool detectAll,
             // visible:
             std::vector<int> rootSel;
             rootSel.push_back(object->getObjectHandle());
-            App::currentWorld->sceneObjects->addModelObjects(rootSel);
+            App::currentScene->sceneObjects->addModelObjects(rootSel);
             for (int i = 0; i < int(rootSel.size()); i++)
             {
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
-                if (App::currentWorld->environment->getActiveLayers() & it->getVisibilityLayer())
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(rootSel[i]);
+                if (App::currentScene->environment->getActiveLayers() & it->getVisibilityLayer())
                 { // ok, currently visible
                     toRender.push_back(it);
                 }
@@ -2284,13 +2284,13 @@ void CVisionSensor::performObjectLoadingMapping(const std::map<int, int>* map, i
 {
     CSceneObject::performObjectLoadingMapping(map, opType);
     if (_detectableEntityHandle <= sim_object_sceneobjectend)
-        _detectableEntityHandle = CWorld::getLoadingMapping(map, _detectableEntityHandle);
+        _detectableEntityHandle = CScene::getLoadingMapping(map, _detectableEntityHandle);
 }
 void CVisionSensor::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performCollectionLoadingMapping(map, opType);
     if (_detectableEntityHandle > sim_object_sceneobjectend)
-        _detectableEntityHandle = CWorld::getLoadingMapping(map, _detectableEntityHandle);
+        _detectableEntityHandle = CScene::getLoadingMapping(map, _detectableEntityHandle);
 }
 void CVisionSensor::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
@@ -2493,7 +2493,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 
     if (scripts.size() > 0)
     {
-        CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* inStack = App::sceneContainer->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
 
         inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
@@ -2511,7 +2511,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             CDetachedScript* script = scripts[i];
             if (script->hasSystemFunctionOrHook(sim_syscb_vision))
             {
-                CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
                 if (VThread::isSimThread())
                 { // we are in the main simulation thread. Call only scripts that live in the same thread
                     script->systemCallScript(sim_syscb_vision, inStack, outStack);
@@ -2549,14 +2549,14 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                         }
                     }
                 }
-                App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
             }
         }
-        App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+        App::sceneContainer->interfaceStackContainer->destroyStack(inStack);
 
         if (trigger)
         {
-            inStack = App::worldContainer->interfaceStackContainer->createStack();
+            inStack = App::sceneContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
             inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
 
@@ -2584,7 +2584,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                 CDetachedScript* script = scripts[i];
                 if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
-                    CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+                    CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
                     if (VThread::isSimThread())
                     { // we are in the main simulation thread. Call only scripts that live in the same thread
                         script->systemCallScript(sim_syscb_trigger, inStack, outStack);
@@ -2596,10 +2596,10 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                         if (outStack->getStackMapBoolValue("trigger", trig))
                             trigger = trig;
                     }
-                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                    App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
                 }
             }
-            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+            App::sceneContainer->interfaceStackContainer->destroyStack(inStack);
         }
     }
 
@@ -2892,12 +2892,12 @@ void CVisionSensor::serialize(CSer& ar)
             else
             {
                 std::string str;
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_detectableEntityHandle);
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_detectableEntityHandle);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 else
                 {
-                    CCollection* coll = App::currentWorld->collections->getObjectFromHandle(_detectableEntityHandle);
+                    CCollection* coll = App::currentScene->collections->getObjectFromHandle(_detectableEntityHandle);
                     if (coll != nullptr)
                         str = "@collection@" + coll->getCollectionName();
                 }
@@ -3214,7 +3214,7 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors, int en
     std::vector<double> allMirrorDist;
     for (int mir = 0; mir < int(activeMirrors.size()); mir++)
     {
-        CMirror* myMirror = App::currentWorld->sceneObjects->getMirrorFromHandle(activeMirrors[mir]);
+        CMirror* myMirror = App::currentScene->sceneObjects->getMirrorFromHandle(activeMirrors[mir]);
         C7Vector mmtr(myMirror->getFullCumulativeTransformation());
         mmtr = camTri * mmtr;
         allMirrors.push_back(activeMirrors[mir]);
@@ -3224,7 +3224,7 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors, int en
 
     for (int mir = 0; mir < int(allMirrors.size()); mir++)
     {
-        CMirror* myMirror = App::currentWorld->sceneObjects->getMirrorFromHandle(allMirrors[mir]);
+        CMirror* myMirror = App::currentScene->sceneObjects->getMirrorFromHandle(allMirrors[mir]);
 
         C7Vector mtr(myMirror->getFullCumulativeTransformation());
         C7Vector mtri(mtr.getInverse());

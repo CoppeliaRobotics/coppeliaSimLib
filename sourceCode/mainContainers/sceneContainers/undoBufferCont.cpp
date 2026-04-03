@@ -143,7 +143,7 @@ bool CUndoBufferCont::memorizeState()
 #ifdef SIM_WITH_GUI
     if (_inUndoRoutineNow)
         return (false);
-    if (!App::currentWorld->simulation->isSimulationStopped())
+    if (!App::currentScene->simulation->isSimulationStopped())
         return (false);
     if (GuiApp::mainWindow == nullptr)
         return (false); // we are in headless mode
@@ -173,7 +173,7 @@ bool CUndoBufferCont::memorizeState()
     _undoPointSavingOrRestoringUnderWay = true;
     CUndoBufferCameras* cameraBuffers = new CUndoBufferCameras();
     cameraBuffers->storeCameras();
-    App::currentWorld->saveScene(serObj, false); // This takes the 90% of time of the whole routine
+    App::currentScene->saveScene(serObj, false); // This takes the 90% of time of the whole routine
     cameraBuffers->releaseCameras();
     _undoPointSavingOrRestoringUnderWay = false;
     serObj.writeClose();
@@ -259,7 +259,7 @@ bool CUndoBufferCont::_isGoodToMemorizeUndoOrRedo()
 {
     TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
-    if (!App::currentWorld->simulation->isSimulationStopped())
+    if (!App::currentScene->simulation->isSimulationStopped())
         return (false);
     if (GuiApp::mainWindow == nullptr)
         return (false);
@@ -340,22 +340,22 @@ void CUndoBufferCont::undo()
     CUndoBufferCameras* cameraBuffers = _getFullBuffer(_currentStateIndex, theBuff);
     // 3. Load the buffer:
 
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo);
+    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo);
 
     _rememberSelectionState();
     cameraBuffers->preRestoreCameras();
 
-    App::currentWorld->sceneObjects->deselectObjects();
-    App::currentWorld->simulation->stopSimulation(); // should be anyway stopped!
-    std::string scenePath(App::currentWorld->environment->getScenePathAndName());
-    App::currentWorld->clearScene(false);
+    App::currentScene->sceneObjects->deselectObjects();
+    App::currentScene->simulation->stopSimulation(); // should be anyway stopped!
+    std::string scenePath(App::currentScene->environment->getScenePathAndName());
+    App::currentScene->clearScene(false);
 
     CSer serObj(theBuff, CSer::filetype_csim_bin_scene_buff);
     serObj.readOpenBinary(0, false);
     _undoPointSavingOrRestoringUnderWay = true;
 
-    App::currentWorld->loadScene(serObj, true);
-    App::currentWorld->environment->setScenePathAndName(scenePath.c_str());
+    App::currentScene->loadScene(serObj, true);
+    App::currentScene->environment->setScenePathAndName(scenePath.c_str());
     cameraBuffers->restoreCameras();
 
     _undoPointSavingOrRestoringUnderWay = false;
@@ -369,8 +369,8 @@ void CUndoBufferCont::undo()
 
     _inUndoRoutineNow = false;
 
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_undoperformed);
-    App::worldContainer->setModificationFlag(16); // undo called
+    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_undoperformed);
+    App::sceneContainer->setModificationFlag(16); // undo called
 
     // 5. Dialog refresh:
     GuiApp::setFullDialogRefreshFlag();
@@ -400,20 +400,20 @@ void CUndoBufferCont::redo()
 
     // 3. Load the buffer:
 
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoredo);
+    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoredo);
 
     _rememberSelectionState();
     cameraBuffers->preRestoreCameras();
 
-    App::currentWorld->sceneObjects->deselectObjects();
-    App::currentWorld->simulation->stopSimulation(); // should be anyway stopped!
-    App::currentWorld->clearScene(false);
+    App::currentScene->sceneObjects->deselectObjects();
+    App::currentScene->simulation->stopSimulation(); // should be anyway stopped!
+    App::currentScene->clearScene(false);
 
     CSer serObj(theBuff, CSer::filetype_csim_bin_scene_buff);
     serObj.readOpenBinary(0, false);
     _undoPointSavingOrRestoringUnderWay = true;
 
-    App::currentWorld->loadScene(serObj, true);
+    App::currentScene->loadScene(serObj, true);
     cameraBuffers->restoreCameras();
 
     _undoPointSavingOrRestoringUnderWay = false;
@@ -425,8 +425,8 @@ void CUndoBufferCont::redo()
     // 4. We select previously selected objects:
     _restoreSelectionState();
 
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_redoperformed);
-    App::worldContainer->setModificationFlag(32); // redo called
+    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_redoperformed);
+    App::sceneContainer->setModificationFlag(32); // redo called
 
     // 5. Dialog refresh:
     GuiApp::setFullDialogRefreshFlag();
@@ -472,7 +472,7 @@ void CUndoBufferCont::_rememberSelectionState()
     TRACE_INTERNAL;
     _selectionState.clear();
     std::vector<CSceneObject*> sel;
-    App::currentWorld->sceneObjects->getSelectedObjects(sel);
+    App::currentScene->sceneObjects->getSelectedObjects(sel);
     for (size_t i = 0; i < sel.size(); i++)
         _selectionState.push_back(sel[i]->getObjectAlias_fullPath());
 }
@@ -482,9 +482,9 @@ void CUndoBufferCont::_restoreSelectionState()
     TRACE_INTERNAL;
     for (size_t i = 0; i < _selectionState.size(); i++)
     {
-        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, _selectionState[i].c_str(), -1);
+        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromPath(nullptr, _selectionState[i].c_str(), -1);
         if (obj != nullptr)
-            App::currentWorld->sceneObjects->addObjectToSelection(obj->getObjectHandle());
+            App::currentScene->sceneObjects->addObjectToSelection(obj->getObjectHandle());
     }
     _selectionState.clear();
 }

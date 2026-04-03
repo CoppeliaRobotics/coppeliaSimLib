@@ -101,31 +101,31 @@ bool CDynamicsContainer::getCurrentlyInDynamicsCalculations() const
 
 void CDynamicsContainer::handleDynamics(double dt)
 {
-    App::worldContainer->calcInfo->dynamicsStart();
+    App::sceneContainer->calcInfo->dynamicsStart();
     addWorldIfNotThere();
 
     if (getDynamicsEnabled())
     {
         _currentlyInDynamicsCalculations = true;
-        App::worldContainer->pluginContainer->dyn_step(dt, App::currentWorld->simulation->getSimulationTime());
+        App::sceneContainer->pluginContainer->dyn_step(dt, App::currentScene->simulation->getSimulationTime());
         _currentlyInDynamicsCalculations = false;
     }
 
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
-        App::currentWorld->sceneObjects->getShapeFromIndex(i)->decrementRespondableSuspendCount();
+    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
+        App::currentScene->sceneObjects->getShapeFromIndex(i)->decrementRespondableSuspendCount();
 
-    if (App::worldContainer->pluginContainer->dyn_isDynamicContentAvailable())
-        App::worldContainer->calcInfo->dynamicsEnd(App::worldContainer->pluginContainer->dyn_getDynamicStepDivider(),
+    if (App::sceneContainer->pluginContainer->dyn_isDynamicContentAvailable())
+        App::sceneContainer->calcInfo->dynamicsEnd(App::sceneContainer->pluginContainer->dyn_getDynamicStepDivider(),
                                                    true);
     else
-        App::worldContainer->calcInfo->dynamicsEnd(0, false);
+        App::sceneContainer->calcInfo->dynamicsEnd(0, false);
 }
 
 bool CDynamicsContainer::getContactForce(int dynamicPass, int objectHandle, int index, int objectHandles[2],
                                          double* contactInfo) const
 {
     if (getDynamicsEnabled())
-        return (App::worldContainer->pluginContainer->dyn_getContactForce(dynamicPass, objectHandle, index,
+        return (App::sceneContainer->pluginContainer->dyn_getContactForce(dynamicPass, objectHandle, index,
                                                                           objectHandles, contactInfo) != 0);
     return (false);
 }
@@ -152,19 +152,19 @@ void CDynamicsContainer::addWorldIfNotThere()
         intParams[intIndex++] = sim_object_sceneobjectstart;
         intParams[intIndex++] = sim_object_sceneobjectend;
 
-        App::worldContainer->pluginContainer->dyn_startSimulation(_dynamicEngineToUse, _dynamicEngineVersionToUse, floatParams, intParams);
+        App::sceneContainer->pluginContainer->dyn_startSimulation(_dynamicEngineToUse, _dynamicEngineVersionToUse, floatParams, intParams);
     }
 }
 
 void CDynamicsContainer::removeWorld()
 {
     if (isWorldThere())
-        App::worldContainer->pluginContainer->dyn_endSimulation();
+        App::sceneContainer->pluginContainer->dyn_endSimulation();
 }
 
 bool CDynamicsContainer::isWorldThere() const
 {
-    return (App::worldContainer->pluginContainer->dyn_isInitialized());
+    return (App::sceneContainer->pluginContainer->dyn_isInitialized());
 }
 
 void CDynamicsContainer::markForWarningDisplay_pureSpheroidNotSupported()
@@ -274,9 +274,9 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     {
         if (_dynamicEngineToUse != sim_physics_mujoco)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
             {
-                CDummy* it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
+                CDummy* it = App::currentScene->sceneObjects->getDummyFromIndex(i);
                 if ((it->getLinkedDummyHandle() != -1) && (it->getDummyType() == sim_dummytype_dyntendon))
                 {
                     App::logMsg(sim_verbosity_warnings, "Detected tendon constraints, which are only supported with the MuJoCo engine");
@@ -295,12 +295,12 @@ void CDynamicsContainer::setDynamicEngineType(int t, int version)
     {
         _dynamicEngineToUse = t;
         _dynamicEngineVersionToUse = version;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_dynamicsEngine.name, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_dynamicsEngine.name, true);
             int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
             ev->appendKeyInt32Array(propDynCont_dynamicsEngine.name, ar, 2);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         checkIfEngineSettingsAreDefault();
 #ifdef SIM_WITH_GUI
@@ -322,11 +322,11 @@ void CDynamicsContainer::setDisplayContactPoints(bool d)
     if (diff)
     {
         _displayContactPoints = d;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_showContactPoints.name, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_showContactPoints.name, true);
             ev->appendKeyBool(propDynCont_showContactPoints.name, _displayContactPoints);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -339,7 +339,7 @@ bool CDynamicsContainer::getDisplayContactPoints() const
 bool CDynamicsContainer::setDesiredStepSize(double s)
 {
     bool retVal = false;
-    if (App::currentWorld->simulation->isSimulationStopped())
+    if (App::currentScene->simulation->isSimulationStopped())
     {
         s = tt::getLimitedFloat(0.00001, 1.0, s);
         bool diff = (_stepSize != s);
@@ -352,11 +352,11 @@ bool CDynamicsContainer::setDesiredStepSize(double s)
             _vortexFloatParams[simi_vortex_global_stepsize] = s;
             _newtonFloatParams[simi_newton_global_stepsize] = s;
             _mujocoFloatParams[simi_mujoco_global_stepsize] = s;
-            if (App::worldContainer->getEventsEnabled())
+            if (App::sceneContainer->getEventsEnabled())
             {
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_dynamicsStepSize.name, true);
+                CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_dynamicsStepSize.name, true);
                 ev->appendKeyDouble(propDynCont_dynamicsStepSize.name, _stepSize);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
             retVal = true;
         }
@@ -372,7 +372,7 @@ double CDynamicsContainer::getDesiredStepSize() const
 double CDynamicsContainer::getEffectiveStepSize() const
 {
     double retVal = _stepSize;
-    double sim = App::currentWorld->simulation->getTimeStep();
+    double sim = App::currentScene->simulation->getTimeStep();
     int dynPasses = int((sim / retVal) + 0.5);
     if (dynPasses < 1)
         dynPasses = 1;
@@ -398,7 +398,7 @@ bool CDynamicsContainer::getComputeInertias() const
 bool CDynamicsContainer::setIterationCount(int c)
 {
     bool retVal = false;
-    if (App::currentWorld->simulation->isSimulationStopped())
+    if (App::currentScene->simulation->isSimulationStopped())
     {
         if (_dynamicEngineToUse == sim_physics_bullet)
             setIntProperty(propDynCont_bulletIterations.name, c);
@@ -702,18 +702,18 @@ void CDynamicsContainer::setDynamicsEnabled(bool e)
     if (diff)
     {
         _dynamicsEnabled = e;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_dynamicsEnabled.name, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_dynamicsEnabled.name, true);
             ev->appendKeyBool(propDynCont_dynamicsEnabled.name, _dynamicsEnabled);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         if (!e)
-            App::currentWorld->dynamicsContainer->removeWorld();
+            App::currentScene->dynamicsContainer->removeWorld();
         else
         {
-            if (App::currentWorld->simulation->isSimulationRunning())
-                App::currentWorld->dynamicsContainer->addWorldIfNotThere();
+            if (App::currentScene->simulation->isSimulationRunning())
+                App::currentScene->dynamicsContainer->addWorldIfNotThere();
         }
     }
 }
@@ -732,14 +732,14 @@ void CDynamicsContainer::setGravity(C3Vector gr)
     if (diff)
     {
         _gravity = gr;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_gravity.name, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_gravity.name, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(propDynCont_gravity.name, _gravity.data, 3);
             else
                 ev->appendKeyVector3(propDynCont_gravity.name, _gravity);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -2255,7 +2255,7 @@ void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject, int d
             int particlesCount;
             C4X4Matrix m(renderingObject->getFullCumulativeTransformation().getMatrix());
             void** particlesPointer =
-                App::worldContainer->pluginContainer->dyn_getParticles(index++, &particlesCount, &objectType, &cols);
+                App::sceneContainer->pluginContainer->dyn_getParticles(index++, &particlesCount, &objectType, &cols);
             while (particlesCount != -1)
             {
                 if ((particlesPointer != nullptr) && (particlesCount > 0) &&
@@ -2265,7 +2265,7 @@ void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject, int d
                         (objectType & sim_particle_painttag))
                         displayParticles(particlesPointer, particlesCount, displayAttrib, m, cols, objectType);
                 }
-                particlesPointer = App::worldContainer->pluginContainer->dyn_getParticles(index++, &particlesCount,
+                particlesPointer = App::sceneContainer->pluginContainer->dyn_getParticles(index++, &particlesCount,
                                                                                           &objectType, &cols);
             }
         }
@@ -2284,7 +2284,7 @@ void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase* renderingObjec
                 if (getDisplayContactPoints())
                 {
                     int cnt = 0;
-                    double* pts = App::worldContainer->pluginContainer->dyn_getContactPoints(&cnt);
+                    double* pts = App::sceneContainer->pluginContainer->dyn_getContactPoints(&cnt);
 
                     displayContactPoints(displayAttrib, contactPointColor, pts, cnt);
                 }
@@ -2351,10 +2351,10 @@ int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* e
                 {
                     if (pName != nullptr)
                         arr[simiIndexBitCoded] = nv;
-                    if (App::worldContainer->getEventsEnabled())
+                    if (App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -2399,7 +2399,7 @@ int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* e
         handleProp(propDynCont_mujocoAlignfree.name, _mujocoIntParams, simi_mujoco_global_bitcoded2, simi_mujoco_global_alignfree);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -2650,10 +2650,10 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
                 {
                     if (pName != nullptr)
                         arr[simiIndex] = pState;
-                    if (App::worldContainer->getEventsEnabled())
+                    if (App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -2684,7 +2684,7 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
         handleProp(propDynCont_mujocoSdf_initpoints.name, _mujocoIntParams, simi_mujoco_global_sdf_initpoints);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -2867,10 +2867,10 @@ int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor
                 {
                     if (pName != nullptr)
                         arr[simiIndex] = pState;
-                    if (App::worldContainer->getEventsEnabled())
+                    if (App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -2907,7 +2907,7 @@ int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor
         handleProp(propDynCont_mujocoKinematicWeldTorqueScale.name, _mujocoFloatParams, simi_mujoco_global_kinematicweldtorquescale);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -3195,10 +3195,10 @@ int CDynamicsContainer::setVector2Property(const char* pName, const double* pSta
                         for (size_t i = 0; i < 2; i++)
                             arr[simiIndex1 + i] = pState[i];
                     }
-                    if (App::worldContainer->getEventsEnabled())
+                    if (App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -3210,7 +3210,7 @@ int CDynamicsContainer::setVector2Property(const char* pName, const double* pSta
         //        handleProp(propDynCont_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -3300,10 +3300,10 @@ int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pS
                         for (size_t i = 0; i < 3; i++)
                             arr[simiIndex1 + i] = pState->data[i];
                     }
-                    if (App::worldContainer->getEventsEnabled())
+                    if (App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 3);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -3315,7 +3315,7 @@ int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pS
         handleProp(propDynCont_mujocoWind.name, _mujocoFloatParams, simi_mujoco_global_wind1);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -3408,10 +3408,10 @@ int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v
                                 arr[simiIndex1 + i] = v[i];
                         }
                     }
-                    if (App::worldContainer->getEventsEnabled())
+                    if (App::sceneContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
+                            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -3426,7 +3426,7 @@ int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v
         handleProp(propDynCont_mujocoKinematicWeldSolimp.name, _mujocoFloatParams, simi_mujoco_global_kinematicweldsolimp1, 5);
 
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         // -------------------------------------
     }
 
@@ -3583,7 +3583,7 @@ int CDynamicsContainer::getPropertyInfo(const char* pName, int& info, std::strin
 
 void CDynamicsContainer::_sendEngineString(CCbor* eev /*= nullptr*/)
 {
-    if (App::worldContainer->getEventsEnabled())
+    if (App::sceneContainer->getEventsEnabled())
     {
         CCbor* ev = nullptr;
         if (eev != nullptr)
@@ -3591,10 +3591,10 @@ void CDynamicsContainer::_sendEngineString(CCbor* eev /*= nullptr*/)
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(-1));
         if (ev == nullptr)
-            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_engineProperties.name, true);
+            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, propDynCont_engineProperties.name, true);
         ev->appendKeyText(propDynCont_engineProperties.name, current.c_str());
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
     }
 }
 

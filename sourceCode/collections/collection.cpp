@@ -82,7 +82,7 @@ bool CCollection::actualizeCollection()
         while (i < getElementCount())
         {
             CSceneObject* it =
-                App::currentWorld->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
+                App::currentScene->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
             if (it == nullptr)
             {
                 if (getElementFromIndex(i)->getElementType() != sim_collectionelement_all)
@@ -190,7 +190,7 @@ bool CCollection::setCollectionName(const char* newName, bool check)
 {
     CCollection* it = nullptr;
     if (check)
-        it = App::currentWorld->collections->getObjectFromHandle(_objectHandle);
+        it = App::currentScene->collections->getObjectFromHandle(_objectHandle);
     std::string nn;
     if (it != this)
         nn = newName;
@@ -202,7 +202,7 @@ bool CCollection::setCollectionName(const char* newName, bool check)
         {
             if (getCollectionName() != nm)
             {
-                while (App::currentWorld->collections->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::currentScene->collections->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 nn = nm;
             }
@@ -226,7 +226,7 @@ bool CCollection::setCollectionName(const char* newName, bool check)
 void CCollection::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
-        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle); // model save
+        _objectHandle = CScene::getLoadingMapping(map, _objectHandle); // model save
 }
 
 void CCollection::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
@@ -549,22 +549,22 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
     _collectionObjects.assign(sceneObjectHandles.begin(), sceneObjectHandles.end());
     if (cpy != _collectionObjects)
     {
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
             if (App::getEventProtocolVersion()  >= 3)
             {
-                CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+                CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
                 if (App::getEventProtocolVersion() <= 3)
                     ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
                 else
                     ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
             if (App::getEventProtocolVersion() <= 3)
             { // For backw. compatibility
-                CCbor* ev = App::worldContainer->createEvent("collectionChanged", -1, _objectHandle, nullptr, false);
+                CCbor* ev = App::sceneContainer->createEvent("collectionChanged", -1, _objectHandle, nullptr, false);
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
 
@@ -644,25 +644,25 @@ void CCollection::_removeCollectionElementFromHandle(int collectionElementHandle
 
 void CCollection::pushCreationEvent() const
 {
-    if (App::worldContainer->getEventsEnabled())
+    if (App::sceneContainer->getEventsEnabled())
     {
         if (App::getEventProtocolVersion()  >= 3)
         {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+            CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
             ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             else
                 ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             ev->appendKeyInt64(propObject_handle.name, _objectHandle);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
-            CCbor* ev = App::worldContainer->createEvent("collectionAdded", -1, _objectHandle, nullptr, false);
+            CCbor* ev = App::sceneContainer->createEvent("collectionAdded", -1, _objectHandle, nullptr, false);
             ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }

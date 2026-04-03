@@ -28,10 +28,10 @@ void CQDlgForceSensors::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_forcesensor);
-    bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_forcesensor) > 1);
-    CForceSensor* it = App::currentWorld->sceneObjects->getLastSelectionForceSensor();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
+    bool sel = App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_forcesensor);
+    bool bigSel = (App::currentScene->sceneObjects->getObjectCountInSelection(sim_sceneobject_forcesensor) > 1);
+    CForceSensor* it = App::currentScene->sceneObjects->getLastSelectionForceSensor();
     bool breakingEnabled = false;
     if ((it != nullptr) && (it->getEnableForceThreshold() || it->getEnableTorqueThreshold()))
         breakingEnabled = true;
@@ -95,7 +95,7 @@ void CQDlgForceSensors::on_qqSize_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_FORCESENSORGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -107,7 +107,7 @@ void CQDlgForceSensors::on_qqColorA_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgMaterial::displayMaterialDlg(
-            COLOR_ID_FORCESENSOR_A, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, GuiApp::mainWindow);
+            COLOR_ID_FORCESENSOR_A, App::currentScene->sceneObjects->getLastSelectionHandle(), -1, GuiApp::mainWindow);
     }
 }
 
@@ -117,9 +117,9 @@ void CQDlgForceSensors::on_qqApplyMain_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_VISUALPROP_FORCESENSORGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -137,7 +137,7 @@ void CQDlgForceSensors::on_qqSampleSize_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SAMPLESIZE_FORCESENSORGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -149,7 +149,7 @@ void CQDlgForceSensors::on_qqAverage_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(SET_AVERAGEVALUE_FORCESENSORGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -160,7 +160,7 @@ void CQDlgForceSensors::on_qqMedian_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(SET_MEDIANVALUE_FORCESENSORGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -172,9 +172,9 @@ void CQDlgForceSensors::on_qqApplyFilter_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_FILER_FORCESENSORGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -186,7 +186,7 @@ void CQDlgForceSensors::on_qqForceThresholdEnable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_FORCETHRESHOLDENABLE_FORCESENSORGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -203,7 +203,7 @@ void CQDlgForceSensors::on_qqForceThreshold_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FORCETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -215,7 +215,7 @@ void CQDlgForceSensors::on_qqTorqueThresholdEnable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_TORQUETHRESHOLDENABLE_FORCESENSORGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -232,7 +232,7 @@ void CQDlgForceSensors::on_qqTorqueThreshold_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_TORQUETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -250,7 +250,7 @@ void CQDlgForceSensors::on_qqViolationCount_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_CONSECTHRESHOLDVIOLATIONS_FORCESENSORGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -263,9 +263,9 @@ void CQDlgForceSensors::on_qqApplyBreaking_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_BREAKING_FORCESENSORGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

@@ -9,11 +9,11 @@ bool CProxSensorRoutine::detectEntity(int sensorID, int entityID, bool closestFe
 { // entityID==-1 --> checks all objects in the scene
     bool returnValue = false;
     detectedObject = -1;
-    CProxSensor* sensor = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorID);
-    CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(entityID);
+    CProxSensor* sensor = App::currentScene->sceneObjects->getProximitySensorFromHandle(sensorID);
+    CSceneObject* object = App::currentScene->sceneObjects->getObjectFromHandle(entityID);
     if (sensor == nullptr)
         return (false); // should never happen!
-    App::worldContainer->calcInfo->proximitySensorSimulationStart();
+    App::sceneContainer->calcInfo->proximitySensorSimulationStart();
     if (sensor->getRandomizedDetection())
     {
         if (sensor->getSensorType() != sim_proximitysensor_ray)
@@ -39,12 +39,12 @@ bool CProxSensorRoutine::detectEntity(int sensorID, int entityID, bool closestFe
         if (entityID == -1)
         { // Special group here (all detectable objects):
             std::vector<CSceneObject*> exception;
-            App::currentWorld->sceneObjects->getAllDetectableObjectsFromSceneExcept(&exception, group,
+            App::currentScene->sceneObjects->getAllDetectableObjectsFromSceneExcept(&exception, group,
                                                                                     sensor->getSensableType());
         }
         else
         { // Regular group here:
-            App::currentWorld->collections->getDetectableObjectsFromCollection(entityID, group,
+            App::currentScene->collections->getDetectableObjectsFromCollection(entityID, group,
                                                                                sensor->getSensableType());
         }
         if (group.size() != 0)
@@ -68,7 +68,7 @@ bool CProxSensorRoutine::detectEntity(int sensorID, int entityID, bool closestFe
 
     if (returnValue)
         triNormal.normalize();
-    App::worldContainer->calcInfo->proximitySensorSimulationEnd(returnValue);
+    App::sceneContainer->calcInfo->proximitySensorSimulationEnd(returnValue);
     return (returnValue);
 }
 
@@ -78,7 +78,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
                                          double minThreshold, C3Vector& triNormal)
 {
     bool returnValue = false;
-    CProxSensor* sens = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorID);
+    CProxSensor* sens = App::currentScene->sceneObjects->getProximitySensorFromHandle(sensorID);
     if (sens == nullptr)
         return (false); // should never happen!
 
@@ -88,7 +88,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
             return (false); // probably not needed
         sens->calculateFreshRandomizedRays();
     }
-    App::worldContainer->calcInfo->proximitySensorSimulationStart();
+    App::sceneContainer->calcInfo->proximitySensorSimulationStart();
 
     // Now prepare for detection
     C7Vector sensInv(sens->getCumulativeTransformation().getInverse());
@@ -133,7 +133,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
                     double _maxAngle = 0.0;
                     if (angleLimitation)
                         _maxAngle = maxAngle;
-                    if (App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectTriangleIfSmaller(
+                    if (App::sceneContainer->pluginContainer->geomPlugin_volumeSensorDetectTriangleIfSmaller(
                             sens->convexVolume->planesInside, sens->convexVolume->planesOutside, a0, e0, e1, dist,
                             frontFace, backFace, _maxAngle, &detectedPt, &triNormal))
                     {
@@ -188,7 +188,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
                     double l = p0.getLength();
                     if (l <= dist)
                     { // ok, the point is closer..
-                        detect = App::worldContainer->pluginContainer->geomPlugin_isPointInVolume1AndOutVolume2(
+                        detect = App::sceneContainer->pluginContainer->geomPlugin_isPointInVolume1AndOutVolume2(
                             sens->convexVolume->planesInside, sens->convexVolume->planesOutside, p0);
                         if (detect)
                             detectedPt = p0;
@@ -203,7 +203,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
                     double _maxAngle = 0.0;
                     if (angleLimitation)
                         _maxAngle = maxAngle;
-                    detect = App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectSegmentIfSmaller(
+                    detect = App::sceneContainer->pluginContainer->geomPlugin_volumeSensorDetectSegmentIfSmaller(
                         sens->convexVolume->planesInside, sens->convexVolume->planesOutside, p0, p1 - p0, dist,
                         _maxAngle, &detectedPt);
                 }
@@ -221,7 +221,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
                 double _maxAngle = 0.0;
                 if (angleLimitation)
                     _maxAngle = maxAngle;
-                detect = App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectTriangleIfSmaller(
+                detect = App::sceneContainer->pluginContainer->geomPlugin_volumeSensorDetectTriangleIfSmaller(
                     sens->convexVolume->planesInside, sens->convexVolume->planesOutside, a0, e0, e1, dist, frontFace,
                     backFace, _maxAngle, &detectedPt, &triNormal);
             }
@@ -245,7 +245,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
     if (returnValue)
         triNormal.normalize();
 
-    App::worldContainer->calcInfo->proximitySensorSimulationEnd(returnValue);
+    App::sceneContainer->calcInfo->proximitySensorSimulationEnd(returnValue);
     return (returnValue);
 }
 
@@ -269,7 +269,7 @@ int CProxSensorRoutine::_detectDummy(CProxSensor* sensor, CDummy* dummy, C3Vecto
     C7Vector inv(sensor->getFullCumulativeTransformation().getInverse());
     C4X4Matrix dummyCTM((inv * dummy->getFullCumulativeTransformation()).getMatrix());
     double theDistance = dummyCTM.X.getLength();
-    if (App::worldContainer->pluginContainer->geomPlugin_isPointInVolume1AndOutVolume2(
+    if (App::sceneContainer->pluginContainer->geomPlugin_isPointInVolume1AndOutVolume2(
             sensor->convexVolume->planesInside, sensor->convexVolume->planesOutside, dummyCTM.X))
     {
         if (theDistance < dist)
@@ -337,7 +337,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor, CShape* shape, C3Vecto
             double _maxAngle = 0.0;
             if (angleLimitation)
                 _maxAngle = maxAngle;
-            bool result = App::worldContainer->pluginContainer->geomPlugin_raySensorDetectMeshIfSmaller(
+            bool result = App::sceneContainer->pluginContainer->geomPlugin_raySensorDetectMeshIfSmaller(
                 lp, lvFar, shape->_meshCalculationStructure, shapeITr, distTmp,
                 sensor->convexVolume->getSmallestDistanceAllowed(), !closestFeatureMode, frontFace, backFace, _maxAngle,
                 &detectedPtTmp, &triNormalNotNormalizedTmp, closeDetectionTriggered);
@@ -378,7 +378,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor, CShape* shape, C3Vecto
             double _maxAngle = 0.0;
             if (angleLimitation)
                 _maxAngle = maxAngle;
-            bool result = App::worldContainer->pluginContainer->geomPlugin_raySensorDetectMeshIfSmaller(
+            bool result = App::sceneContainer->pluginContainer->geomPlugin_raySensorDetectMeshIfSmaller(
                 lp, lvFar, shape->_meshCalculationStructure, shapeITr, dist,
                 sensor->convexVolume->getSmallestDistanceAllowed(), !closestFeatureMode, frontFace, backFace, _maxAngle,
                 &detectedPt, &triNormalNotNormalized, closeDetectionTriggered);
@@ -396,7 +396,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor, CShape* shape, C3Vecto
             double _maxAngle = 0.0;
             if (angleLimitation)
                 _maxAngle = maxAngle;
-            if (App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectMeshIfSmaller(
+            if (App::sceneContainer->pluginContainer->geomPlugin_volumeSensorDetectMeshIfSmaller(
                     sensor->convexVolume->planesInside, sensor->convexVolume->planesOutside,
                     shape->_meshCalculationStructure, shapeITr, dist, !closestFeatureMode, frontFace, backFace,
                     _maxAngle, &detectedPt, &triNormalNotNormalized))
@@ -466,7 +466,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor, COcTree* octree, C3Ve
             double _maxAngle = 0.0;
             if (angleLimitation)
                 _maxAngle = maxAngle;
-            bool result = App::worldContainer->pluginContainer->geomPlugin_raySensorDetectOctreeIfSmaller(
+            bool result = App::sceneContainer->pluginContainer->geomPlugin_raySensorDetectOctreeIfSmaller(
                 lp, lvFar, octree->getOctreeInfo(), octreeITr, distTmp, 0.0, !closestFeatureMode, frontFace, backFace,
                 _maxAngle, &detectedPtTmp, &triNormalNotNormalizedTmp, nullptr);
             if (result)
@@ -506,7 +506,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor, COcTree* octree, C3Ve
             double _maxAngle = 0.0;
             if (angleLimitation)
                 _maxAngle = maxAngle;
-            bool result = App::worldContainer->pluginContainer->geomPlugin_raySensorDetectOctreeIfSmaller(
+            bool result = App::sceneContainer->pluginContainer->geomPlugin_raySensorDetectOctreeIfSmaller(
                 lp, lvFar, octree->getOctreeInfo(), octreeITr, dist, 0.0, !closestFeatureMode, frontFace, backFace,
                 _maxAngle, &detectedPt, &triNormalNotNormalized, nullptr);
             if (result)
@@ -526,7 +526,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor, COcTree* octree, C3Ve
             double _maxAngle = 0.0;
             if (angleLimitation)
                 _maxAngle = maxAngle;
-            if (App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectOctreeIfSmaller(
+            if (App::sceneContainer->pluginContainer->geomPlugin_volumeSensorDetectOctreeIfSmaller(
                     sensor->convexVolume->planesInside, sensor->convexVolume->planesOutside, octree->getOctreeInfo(),
                     octreeITr, dist, !closestFeatureMode, frontFace, backFace, _maxAngle, &detectedPt,
                     &triNormalNotNormalized))
@@ -573,7 +573,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor, CPointCloud* poin
     C7Vector sensTrInv(sensTr.getInverse());
     C7Vector pointCloudITr(sensTrInv * pointCloud->getFullCumulativeTransformation());
 
-    if (App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectPtcloudIfSmaller(
+    if (App::sceneContainer->pluginContainer->geomPlugin_volumeSensorDetectPtcloudIfSmaller(
             sensor->convexVolume->planesInside, sensor->convexVolume->planesOutside, pointCloud->getPointCloudInfo(),
             pointCloudITr, dist, !closestFeatureMode, &detectedPt))
     {
@@ -627,7 +627,7 @@ double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vect
         return ((tr.X - point).getLength()); // pt vs pt
     else
         return (
-            App::worldContainer->pluginContainer->geomPlugin_getBoxPointDistance(tr, halfSize, true, point, nullptr));
+            App::sceneContainer->pluginContainer->geomPlugin_getBoxPointDistance(tr, halfSize, true, point, nullptr));
 }
 
 bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSensor* sensor, CSceneObject* obj)
@@ -643,10 +643,10 @@ bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSens
     if (obj->getObjectType() == sim_sceneobject_dummy)
         objectIsPoint = true;
     if (objectIsPoint)
-        return (App::worldContainer->pluginContainer->geomPlugin_getBoxPointCollision(sensorTr, sensorHalfSize,
+        return (App::sceneContainer->pluginContainer->geomPlugin_getBoxPointCollision(sensorTr, sensorHalfSize,
                                                                                       objectTr.X));
     else
-        return (App::worldContainer->pluginContainer->geomPlugin_getBoxBoxCollision(sensorTr, sensorHalfSize, objectTr,
+        return (App::sceneContainer->pluginContainer->geomPlugin_getBoxBoxCollision(sensorTr, sensorHalfSize, objectTr,
                                                                                     objectHalfSize, true));
 }
 

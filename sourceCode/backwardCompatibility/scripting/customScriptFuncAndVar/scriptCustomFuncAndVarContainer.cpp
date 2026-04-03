@@ -172,7 +172,7 @@ bool CScriptCustomFuncAndVarContainer::insertCustomVariable(const char* fullVari
         }
         else
         { // register a stack variable
-            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+            CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
             if (stack == nullptr)
                 return (false);
             if (stack->getStackSize() < 1)

@@ -904,7 +904,7 @@ bool CSPage::doubleClickActionForView(size_t viewIndex)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId = SWAP_VIEWS_CMD;
-            cmd.intParams.push_back(App::currentWorld->pageContainer->getActivePageIndex());
+            cmd.intParams.push_back(App::currentScene->pageContainer->getActivePageIndex());
             cmd.intParams.push_back(int(viewIndex));
             cmd.intParams.push_back(0);
             cmd.boolParams.push_back(false);
@@ -921,7 +921,7 @@ bool CSPage::doubleClickActionForView(size_t viewIndex)
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId = SWAP_VIEWS_CMD;
-                cmd.intParams.push_back(App::currentWorld->pageContainer->getActivePageIndex());
+                cmd.intParams.push_back(App::currentScene->pageContainer->getActivePageIndex());
                 cmd.intParams.push_back(int(viewIndex));
                 cmd.intParams.push_back(0);
                 cmd.boolParams.push_back(false);

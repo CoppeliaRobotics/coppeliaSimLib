@@ -97,7 +97,7 @@ void CQDlgObjectDialogContainer::refresh()
 #endif
     }
 
-    CSceneObject* sel = App::currentWorld->sceneObjects->getLastSelectionObject();
+    CSceneObject* sel = App::currentScene->sceneObjects->getLastSelectionObject();
     int editMode = GuiApp::getEditModeType();
     if (sel != nullptr)
     {

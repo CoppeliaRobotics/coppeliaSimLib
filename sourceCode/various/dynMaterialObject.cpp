@@ -1585,10 +1585,10 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
             {
                 if (pName != nullptr)
                     arr[simiIndexBitCoded] = nv;
-                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -1614,7 +1614,7 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
     handleProp(propMaterial_mujocoAdhesion.name, _mujocoIntParams, simi_mujoco_body_bitcoded, simi_mujoco_body_adhesion);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     return retVal;
 }
 
@@ -1716,10 +1716,10 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
             {
                 if (pName != nullptr)
                     arr[simiIndex] = pState;
-                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -1741,7 +1741,7 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
     handleProp(propMaterial_mujocoAdhesionForcelimited.name, _mujocoIntParams, simi_mujoco_body_adhesionforcelimited);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     return retVal;
 }
 
@@ -1823,10 +1823,10 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
             {
                 if (pName != nullptr)
                     arr[simiIndex] = pState;
-                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -1893,7 +1893,7 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
     handleProp(propMaterial_mujocoGravcomp.name, _mujocoFloatParams, simi_mujoco_body_gravcomp);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     return retVal;
 }
 
@@ -2187,7 +2187,7 @@ int CDynMaterialObject::getFloatProperty(const char* pName, double& pState) cons
 
 void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
 {
-    if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+    if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
     {
         CCbor* ev = nullptr;
         if (eev != nullptr)
@@ -2195,10 +2195,10 @@ void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(_shapeHandleForEvents));
         if (ev == nullptr)
-            ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propMaterial_engineProperties.name, true);
+            ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propMaterial_engineProperties.name, true);
         ev->appendKeyText(propMaterial_engineProperties.name, current.c_str());
         if ((ev != nullptr) && (eev == nullptr))
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
     }
 }
 
@@ -2258,10 +2258,10 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
                     for (size_t i = 0; i < 2; i++)
                         arr[simiIndex1 + i] = pState[i];
                 }
-                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -2271,7 +2271,7 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
     };
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     return retVal;
 }
 
@@ -2307,10 +2307,10 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
                     for (size_t i = 0; i < 3; i++)
                         arr[simiIndex1 + i] = pState->data[i];
                 }
-                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 3);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -2322,7 +2322,7 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
     handleProp(propMaterial_vortexPrimaryAxisVector.name, _vortexFloatParams, simi_vortex_body_primaxisvectorx);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     return retVal;
 }
 
@@ -2363,10 +2363,10 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v
                             arr[simiIndex1 + i] = v[i];
                     }
                 }
-                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -2382,7 +2382,7 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v
     handleProp(propMaterial_mujocoAdhesionForcerange.name, _mujocoFloatParams, simi_mujoco_body_adhesionforcerange1, 2);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     return retVal;
 }
 

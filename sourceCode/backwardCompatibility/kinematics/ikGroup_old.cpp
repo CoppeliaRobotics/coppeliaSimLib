@@ -342,7 +342,7 @@ void CIkGroup_old::serialize(CSer& ar)
 void CIkGroup_old::performIkGroupLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
-        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle); // model save
+        _objectHandle = CScene::getLoadingMapping(map, _objectHandle); // model save
 }
 
 void CIkGroup_old::performObjectLoadingMapping(const std::map<int, int>* map)
@@ -353,7 +353,7 @@ void CIkGroup_old::performObjectLoadingMapping(const std::map<int, int>* map)
 
 void CIkGroup_old::performIkGroupLoadingMapping(const std::map<int, int>* map)
 {
-    _doOnFailOrSuccessOf = CWorld::getLoadingMapping(map, _doOnFailOrSuccessOf);
+    _doOnFailOrSuccessOf = CScene::getLoadingMapping(map, _doOnFailOrSuccessOf);
 }
 
 bool CIkGroup_old::announceObjectWillBeErased(int objID, bool copyBuffer)
@@ -387,7 +387,7 @@ bool CIkGroup_old::setObjectName(const char* newName, bool check)
     bool diff = false;
     CIkGroup_old* it = nullptr;
     if (check)
-        it = App::currentWorld->ikGroups_old->getObjectFromHandle(_objectHandle);
+        it = App::currentScene->ikGroups_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         diff = _CIkGroup_old::setObjectName(newName, check); // no checking or object not yet in world
     else
@@ -398,7 +398,7 @@ bool CIkGroup_old::setObjectName(const char* newName, bool check)
         {
             if (getObjectName() != nm)
             {
-                while (App::currentWorld->ikGroups_old->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::currentScene->ikGroups_old->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 diff = _CIkGroup_old::setObjectName(nm.c_str(), check);
             }
@@ -412,14 +412,14 @@ bool CIkGroup_old::setDoOnFailOrSuccessOf(int groupID, bool check)
     bool diff = false;
     CIkGroup_old* it = nullptr;
     if (check)
-        it = App::currentWorld->ikGroups_old->getObjectFromHandle(_objectHandle);
+        it = App::currentScene->ikGroups_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         diff = _CIkGroup_old::setDoOnFailOrSuccessOf(groupID, false); // no checking or object not yet in world
     else
     { // object is in world
-        for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
+        for (size_t i = 0; i < App::currentScene->ikGroups_old->getObjectCount(); i++)
         {
-            CIkGroup_old* prev = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
+            CIkGroup_old* prev = App::currentScene->ikGroups_old->getObjectFromIndex(i);
             if (prev->getObjectHandle() == groupID)
             {
                 diff = _CIkGroup_old::setDoOnFailOrSuccessOf(groupID, false);
@@ -456,7 +456,7 @@ bool CIkGroup_old::setDampingFactor(double theFactor)
 bool CIkGroup_old::addIkElement(CIkElement_old* anElement)
 { // If return value if false, the calling function has to destroy anElement (invalid)
     // We check if anElement is valid:
-    if (App::currentWorld->sceneObjects->getDummyFromHandle(anElement->getTipHandle()) == nullptr)
+    if (App::currentScene->sceneObjects->getDummyFromHandle(anElement->getTipHandle()) == nullptr)
         return (false); // invalid
 
     int newHandle = 0;
@@ -498,8 +498,8 @@ void CIkGroup_old::setAllInvolvedJointsToNewJointMode(int jointMode) const
 bool CIkGroup_old::computeOnlyJacobian(int options)
 {
     bool retVal = false;
-    retVal = App::worldContainer->pluginContainer->oldIkPlugin_computeJacobian(_ikPluginCounterpartHandle, options);
-    _setLastJacobian(App::worldContainer->pluginContainer->oldIkPlugin_getJacobian(_ikPluginCounterpartHandle));
+    retVal = App::sceneContainer->pluginContainer->oldIkPlugin_computeJacobian(_ikPluginCounterpartHandle, options);
+    _setLastJacobian(App::sceneContainer->pluginContainer->oldIkPlugin_getJacobian(_ikPluginCounterpartHandle));
     return (retVal);
 }
 
@@ -513,7 +513,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
         {
             if (_doOnFailOrSuccessOf != -1)
             { // Conditional execution part:
-                CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(_doOnFailOrSuccessOf);
+                CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(_doOnFailOrSuccessOf);
                 if (it != nullptr)
                 {
                     if (_doOnPerformed)
@@ -542,7 +542,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
 
         if (doIt)
         {
-            retVal = App::worldContainer->pluginContainer->oldIkPlugin_handleIkGroup(_ikPluginCounterpartHandle);
+            retVal = App::sceneContainer->pluginContainer->oldIkPlugin_handleIkGroup(_ikPluginCounterpartHandle);
             // do not check for success to apply values. Always apply them (the IK lib decides for that)
             for (size_t i = 0; i < getIkElementCount(); i++)
             {
@@ -551,7 +551,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
             }
             if (!independentComputation)
                 _setLastJacobian(
-                    App::worldContainer->pluginContainer->oldIkPlugin_getJacobian(_ikPluginCounterpartHandle));
+                    App::sceneContainer->pluginContainer->oldIkPlugin_getJacobian(_ikPluginCounterpartHandle));
             /*
             if (_lastJacobian!=nullptr)
             {
@@ -676,7 +676,7 @@ void CIkGroup_old::_setEnabled_send(bool e) const
             flags |= 4;
         if (_restoreIfOrientationNotReached)
             flags |= 8;
-        App::worldContainer->pluginContainer->oldIkPlugin_setIkGroupFlags(_ikPluginCounterpartHandle, flags);
+        App::sceneContainer->pluginContainer->oldIkPlugin_setIkGroupFlags(_ikPluginCounterpartHandle, flags);
     }
 }
 
@@ -686,7 +686,7 @@ void CIkGroup_old::_setMaxIterations_send(int it) const
 
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle != -1)
-        App::worldContainer->pluginContainer->oldIkPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,
+        App::sceneContainer->pluginContainer->oldIkPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,
                                                                                 _calculationMethod, _dampingFactor, it);
 }
 
@@ -696,7 +696,7 @@ void CIkGroup_old::_setCalculationMethod_send(int m) const
 
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle != -1)
-        App::worldContainer->pluginContainer->oldIkPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle, m,
+        App::sceneContainer->pluginContainer->oldIkPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle, m,
                                                                                 _dampingFactor, _maxIterations);
 }
 
@@ -706,7 +706,7 @@ void CIkGroup_old::_setDampingFactor_send(double f) const
 
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle != -1)
-        App::worldContainer->pluginContainer->oldIkPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,
+        App::sceneContainer->pluginContainer->oldIkPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,
                                                                                 _calculationMethod, f, _maxIterations);
 }
 
@@ -726,7 +726,7 @@ void CIkGroup_old::_setIgnoreMaxStepSizes_send(bool e) const
             flags |= 4;
         if (_restoreIfOrientationNotReached)
             flags |= 8;
-        App::worldContainer->pluginContainer->oldIkPlugin_setIkGroupFlags(_ikPluginCounterpartHandle, flags);
+        App::sceneContainer->pluginContainer->oldIkPlugin_setIkGroupFlags(_ikPluginCounterpartHandle, flags);
     }
 }
 
@@ -746,7 +746,7 @@ void CIkGroup_old::_setRestoreIfPositionNotReached_send(bool e) const
             flags |= 4;
         if (_restoreIfOrientationNotReached)
             flags |= 8;
-        App::worldContainer->pluginContainer->oldIkPlugin_setIkGroupFlags(_ikPluginCounterpartHandle, flags);
+        App::sceneContainer->pluginContainer->oldIkPlugin_setIkGroupFlags(_ikPluginCounterpartHandle, flags);
     }
 }
 
@@ -766,7 +766,7 @@ void CIkGroup_old::_setRestoreIfOrientationNotReached_send(bool e) const
             flags |= 4;
         if (e)
             flags |= 8;
-        App::worldContainer->pluginContainer->oldIkPlugin_setIkGroupFlags(_ikPluginCounterpartHandle, flags);
+        App::sceneContainer->pluginContainer->oldIkPlugin_setIkGroupFlags(_ikPluginCounterpartHandle, flags);
     }
 }
 
@@ -812,7 +812,7 @@ std::string CIkGroup_old::getUniquePersistentIdString() const
 void CIkGroup_old::buildOrUpdate_oldIk()
 {
     // Build IK group in IK plugin:
-    _ikPluginCounterpartHandle = App::worldContainer->pluginContainer->oldIkPlugin_createIkGroup();
+    _ikPluginCounterpartHandle = App::sceneContainer->pluginContainer->oldIkPlugin_createIkGroup();
 
     // Prepare the IK elements for building their plugin counterparts:
     for (size_t i = 0; i < getIkElementCount(); i++)
@@ -851,7 +851,7 @@ void CIkGroup_old::connect_oldIk()
 void CIkGroup_old::remove_oldIk()
 {
     if (_ikPluginCounterpartHandle != -1)
-        App::worldContainer->pluginContainer->oldIkPlugin_eraseIkGroup(_ikPluginCounterpartHandle);
+        App::sceneContainer->pluginContainer->oldIkPlugin_eraseIkGroup(_ikPluginCounterpartHandle);
     _ikPluginCounterpartHandle = -1;
 }
 
@@ -861,7 +861,7 @@ int CIkGroup_old::getConfigForTipPose(int jointCnt, const int* jointHandles, dou
                                       const double* ranges, std::string& errorMsg)
 { // ret: -1: error, 0: nothing found, 1: solution found
     int retVal = -1;
-    retVal = App::worldContainer->pluginContainer->oldIkPlugin_getConfigForTipPose(
+    retVal = App::sceneContainer->pluginContainer->oldIkPlugin_getConfigForTipPose(
         getIkPluginCounterpartHandle(), jointCnt, jointHandles, thresholdDist, -maxTimeInMs, retConfig, metric,
         collisionPairCnt, collisionPairs, jointOptions, lowLimits, ranges, errorMsg);
     return (retVal);
@@ -878,7 +878,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int* jointHandles, double* jo
     {
         for (int i = 0; i < jointCnt; i++)
         {
-            if (App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]) == nullptr)
+            if (App::currentScene->sceneObjects->getJointFromHandle(jointHandles[i]) == nullptr)
                 retVal = -2;
         }
     }
@@ -889,9 +889,9 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int* jointHandles, double* jo
         std::vector<CJoint*> sceneJoints;
         std::vector<double> initSceneJointValues;
         std::vector<int> initSceneJointModes;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
         {
-            CJoint* aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
+            CJoint* aj = App::currentScene->sceneObjects->getJointFromIndex(i);
             sceneJoints.push_back(aj);
             initSceneJointValues.push_back(aj->getPosition());
             initSceneJointModes.push_back(aj->getJointMode());
@@ -907,7 +907,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int* jointHandles, double* jo
         // Set the correct mode for the joints involved:
         for (int i = 0; i < jointCnt; i++)
         {
-            CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+            CJoint* joint = App::currentScene->sceneObjects->getJointFromHandle(jointHandles[i]);
             if ((jointOptions == nullptr) || ((jointOptions[i] & 1) == 0))
                 joint->setJointMode_noDynMotorTargetPosCorrection(sim_jointmode_ik_deprecated);
             else
@@ -920,7 +920,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int* jointHandles, double* jo
         // Prepare the return array with the computed joint values:
         for (int i = 0; i < jointCnt; i++)
         {
-            CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+            CJoint* joint = App::currentScene->sceneObjects->getJointFromHandle(jointHandles[i]);
             jointValues[i] = joint->getPosition();
         }
 
@@ -949,7 +949,7 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int* jointHandles, int ptCn
     std::vector<CJoint*> joints;
     for (int i = 0; i < jointCnt; i++)
     {
-        CJoint* aJoint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+        CJoint* aJoint = App::currentScene->sceneObjects->getJointFromHandle(jointHandles[i]);
         if (aJoint == nullptr)
             retVal = -1;
         else
@@ -966,8 +966,8 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int* jointHandles, int ptCn
             for (size_t i = 0; i < getIkElementCount(); i++)
             {
                 CIkElement_old* ikElement = getIkElementFromIndex(i);
-                CDummy* tip = App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTipHandle());
-                CDummy* target = App::currentWorld->sceneObjects->getDummyFromHandle(ikElement->getTargetHandle());
+                CDummy* tip = App::currentScene->sceneObjects->getDummyFromHandle(ikElement->getTipHandle());
+                CDummy* target = App::currentScene->sceneObjects->getDummyFromHandle(ikElement->getTargetHandle());
                 if ((tip == nullptr) || (target == nullptr))
                     retVal = -4;
                 tips.push_back(tip);
@@ -990,13 +990,13 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int* jointHandles, int ptCn
         {
             if (collisionPairs[2 * i + 0] != -1)
             {
-                if (App::currentWorld->collections->getObjectFromHandle(collisionPairs[2 * i + 0]) == nullptr)
+                if (App::currentScene->collections->getObjectFromHandle(collisionPairs[2 * i + 0]) == nullptr)
                     retVal = -5;
                 else
                 {
                     if (collisionPairs[2 * i + 1] != sim_handle_all)
                     {
-                        if (App::currentWorld->collections->getObjectFromHandle(collisionPairs[2 * i + 1]) == nullptr)
+                        if (App::currentScene->collections->getObjectFromHandle(collisionPairs[2 * i + 1]) == nullptr)
                             retVal = -5;
                     }
                 }
@@ -1009,9 +1009,9 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int* jointHandles, int ptCn
         std::vector<CJoint*> sceneJoints;
         std::vector<double> initSceneJointValues;
         std::vector<int> initSceneJointModes;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
         {
-            CJoint* aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
+            CJoint* aj = App::currentScene->sceneObjects->getJointFromIndex(i);
             sceneJoints.push_back(aj);
             initSceneJointValues.push_back(aj->getPosition());
             initSceneJointModes.push_back(aj->getJointMode());

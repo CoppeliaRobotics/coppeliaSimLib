@@ -36,14 +36,14 @@ void CQDlgShapes::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeAndNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape);
-    bool ssel = App::currentWorld->sceneObjects->isLastSelectionASimpleShape();
-    int sc = (int)App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_shape);
-    int ssc = (int)App::currentWorld->sceneObjects->getSimpleShapeCountInSelection();
+    bool sel = App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape);
+    bool ssel = App::currentScene->sceneObjects->isLastSelectionASimpleShape();
+    int sc = (int)App::currentScene->sceneObjects->getObjectCountInSelection(sim_sceneobject_shape);
+    int ssc = (int)App::currentScene->sceneObjects->getSimpleShapeCountInSelection();
     bool compoundShapeDisplay = (sel && (!ssel));
-    CShape* it = App::currentWorld->sceneObjects->getLastSelectionShape();
+    CShape* it = App::currentScene->sceneObjects->getLastSelectionShape();
 
     ui->qqEditMultishape->setEnabled(compoundShapeDisplay && noEditModeAndNoSim);
     ui->qqEditMultishape->setVisible(compoundShapeDisplay);
@@ -95,7 +95,7 @@ void CQDlgShapes::on_qqBackfaceCulling_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_BACKFACECULLING_SHAPEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -106,7 +106,7 @@ void CQDlgShapes::on_qqWireframe_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_WIREFRAME_SHAPEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -117,7 +117,7 @@ void CQDlgShapes::on_qqInvertFaces_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(INVERT_FACES_SHAPEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -128,7 +128,7 @@ void CQDlgShapes::on_qqShowEdges_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SHOWEDGES_SHAPEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -145,7 +145,7 @@ void CQDlgShapes::on_qqShadingAngle_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SHADINGANGLE_SHAPEGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1,
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1,
                                                degToRad * newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -159,9 +159,9 @@ void CQDlgShapes::on_qqApplyMain_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_OTHERPROP_SHAPEGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -182,7 +182,7 @@ void CQDlgShapes::on_qqAdjustOutsideColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_SHAPE, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1,
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_SHAPE, App::currentScene->sceneObjects->getLastSelectionHandle(), -1,
                                           GuiApp::mainWindow);
     }
 }
@@ -193,9 +193,9 @@ void CQDlgShapes::on_qqApplyColors_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_VISUALPROP_SHAPEGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     }
@@ -205,7 +205,7 @@ void CQDlgShapes::on_qqTexture_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgTextures::displayDlg(TEXTURE_ID_SIMPLE_SHAPE, App::currentWorld->sceneObjects->getLastSelectionHandle(),
+        CQDlgTextures::displayDlg(TEXTURE_ID_SIMPLE_SHAPE, App::currentScene->sceneObjects->getLastSelectionHandle(),
                                   -1, GuiApp::mainWindow);
     }
 }
@@ -214,7 +214,7 @@ void CQDlgShapes::on_qqGeometry_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgGeometry::display(App::currentWorld->sceneObjects->getLastSelectionHandle(), GuiApp::mainWindow);
+        CQDlgGeometry::display(App::currentScene->sceneObjects->getLastSelectionHandle(), GuiApp::mainWindow);
     }
 }
 
@@ -247,8 +247,8 @@ void CQDlgShapes::on_qqDirtTexture_clicked()
                 {
                     SSimulationThreadCommand cmd;
                     cmd.cmdId = SET_QUICKTEXTURES_SHAPEGUITRIGGEREDCMD;
-                    for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
-                        cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                    for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+                        cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     cmd.uint8Params.assign(data, data + resX * resY * n);
                     delete[] data;
                     cmd.boolParams.push_back(rgba);
@@ -269,8 +269,8 @@ void CQDlgShapes::on_qqClearTextures_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = CLEAR_TEXTURES_SHAPEGUITRIGGEREDCMD;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
-            cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     }

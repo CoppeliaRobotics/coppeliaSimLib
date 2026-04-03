@@ -483,12 +483,12 @@ void CMesh::setConvex_raw(bool c)
     if (_convex != c)
     {
         _convex = c;
-        if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_convex.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _convex);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -518,15 +518,15 @@ void CMesh::pushObjectRemoveEvent()
 {
     _isInSceneShapeHandle = -1;
     _isInSceneShapeUid = -1;
-    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
-    App::worldContainer->pushEvent();
+    App::sceneContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
+    App::sceneContainer->pushEvent();
 }
 
 void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vector& shapeRelTr)
 {
     _isInSceneShapeHandle = shapeHandle;
     _isInSceneShapeUid = shapeUid;
-    CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+    CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
 
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt64(propMesh_shape.name, _isInSceneShapeHandle);
@@ -594,7 +594,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
         ev->appendKeyInt64(propMesh_textureID.name, _textureProperty->getTextureObjectID());
     }
 
-    App::worldContainer->pushEvent();
+    App::sceneContainer->pushEvent();
 }
 
 int CMesh::countTriangles() const
@@ -969,7 +969,7 @@ void CMesh::setHeightfieldData(const std::vector<double>& heights, int xCount, i
 
 double* CMesh::getHeightfieldData(int& xCount, int& yCount, double& minHeight, double& maxHeight)
 {
-    setHeightfieldDiamonds(App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr) == sim_physics_mujoco);
+    setHeightfieldDiamonds(App::currentScene->dynamicsContainer->getDynamicEngineType(nullptr) == sim_physics_mujoco);
     if ((_purePrimitive != sim_primitiveshape_heightfield) || (_heightfieldHeights.size() == 0))
         return (nullptr);
     xCount = _heightfieldXCount;
@@ -1076,12 +1076,12 @@ void CMesh::setVisibleEdges(bool v)
     if (diff)
     {
         _visibleEdges = v;
-        if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_showEdges.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _visibleEdges);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1122,12 +1122,12 @@ void CMesh::setCulling(bool c)
     if (diff)
     {
         _culling = c;
-        if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_culling.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _culling);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1193,12 +1193,12 @@ void CMesh::setShadingAngle(double angle)
     if (diff)
     {
         _shadingAngle = angle;
-        if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propMesh_shadingAngle.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyDouble(cmd, _shadingAngle);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         _recomputeNormals();
         _edgeThresholdAngle = angle;
@@ -1859,21 +1859,21 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
             if (ar.setWritingMode())
                 edgeColor_DEPRECATED.serialize(ar, 1);
 
-            if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+            if (App::currentScene->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
             { // undo/redo serialization:
                 ar.storeDataName("Ver");
-                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addVertexBuffer(
-                    _verticesForDisplayAndDisk, App::currentWorld->undoBufferContainer->getNextBufferId());
+                ar << App::currentScene->undoBufferContainer->undoBufferArrays.addVertexBuffer(
+                    _verticesForDisplayAndDisk, App::currentScene->undoBufferContainer->getNextBufferId());
                 ar.flush();
 
                 ar.storeDataName("Ind");
-                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addIndexBuffer(
-                    _indices, App::currentWorld->undoBufferContainer->getNextBufferId());
+                ar << App::currentScene->undoBufferContainer->undoBufferArrays.addIndexBuffer(
+                    _indices, App::currentScene->undoBufferContainer->getNextBufferId());
                 ar.flush();
 
                 ar.storeDataName("Nor");
-                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addNormalsBuffer(
-                    _normalsForDisplayAndDisk, App::currentWorld->undoBufferContainer->getNextBufferId());
+                ar << App::currentScene->undoBufferContainer->undoBufferArrays.addNormalsBuffer(
+                    _normalsForDisplayAndDisk, App::currentScene->undoBufferContainer->getNextBufferId());
                 ar.flush();
             }
             else
@@ -1988,7 +1988,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                         ar >> byteQuantity;
                         edgeColor_DEPRECATED.serialize(ar, 1);
                     }
-                    if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+                    if (App::currentScene->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
                     { // undo/redo serialization
                         if (theName.compare("Ver") == 0)
                         {
@@ -1996,7 +1996,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentWorld->undoBufferContainer->undoBufferArrays.getVertexBuffer(
+                            App::currentScene->undoBufferContainer->undoBufferArrays.getVertexBuffer(
                                 id, _verticesForDisplayAndDisk);
                             _vertices.resize(_verticesForDisplayAndDisk.size());
                             for (size_t i = 0; i < _verticesForDisplayAndDisk.size(); i++)
@@ -2008,7 +2008,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentWorld->undoBufferContainer->undoBufferArrays.getIndexBuffer(id, _indices);
+                            App::currentScene->undoBufferContainer->undoBufferArrays.getIndexBuffer(id, _indices);
                         }
                         if (theName.compare("Nor") == 0)
                         {
@@ -2016,7 +2016,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentWorld->undoBufferContainer->undoBufferArrays.getNormalsBuffer(
+                            App::currentScene->undoBufferContainer->undoBufferArrays.getNormalsBuffer(
                                 id, _normalsForDisplayAndDisk);
                             _normals.resize(_normalsForDisplayAndDisk.size());
                             for (size_t i = 0; i < _normalsForDisplayAndDisk.size(); i++)
@@ -2700,7 +2700,7 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData,
         data[29] = &povMaterial;
 
         CTextureProperty* tp = _textureProperty;
-        if ((!App::currentWorld->environment->getShapeTexturesEnabled()) ||
+        if ((!App::currentScene->environment->getShapeTexturesEnabled()) ||
             CEnvironment::getShapeTexturesTemporarilyDisabled())
             tp = nullptr;
         bool textured = false;
@@ -2732,12 +2732,12 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData,
             data[16] = &interpolateColors;
             data[17] = &applyMode;
             data[18] = &textured;
-            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh, data);
+            App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh, data);
         }
         else
         {
             data[18] = &textured;
-            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh, data);
+            App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh, data);
         }
     }
     componentIndex++;
@@ -2816,12 +2816,12 @@ void CMesh::setTextureRepeatU(bool r)
         if (diff)
         {
             _textureProperty->setRepeatU(r);
-            if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureRepeatU.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+                CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
     }
@@ -2843,12 +2843,12 @@ void CMesh::setTextureRepeatV(bool r)
         if (diff)
         {
             _textureProperty->setRepeatV(r);
-            if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureRepeatV.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+                CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
     }
@@ -2870,12 +2870,12 @@ void CMesh::setTextureInterpolate(bool r)
         if (diff)
         {
             _textureProperty->setInterpolateColors(r);
-            if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureInterpolate.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+                CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
     }
@@ -2897,12 +2897,12 @@ void CMesh::setTextureApplyMode(int m)
         if (diff)
         {
             _textureProperty->setApplyMode(m);
-            if ((_isInSceneShapeHandle != -1) && App::worldContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureApplyMode.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+                CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyInt64(cmd, m);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
     }

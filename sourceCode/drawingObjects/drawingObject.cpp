@@ -101,7 +101,7 @@ CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateT
 
     if (sceneObjId != -1)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sceneObjId);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sceneObjId);
         if (it != nullptr)
         {
             _sceneObjectId = sceneObjId;
@@ -150,21 +150,21 @@ bool CDrawingObject::addItem(const double* itemData)
         _bufferedEventData.clear();
         _startItem = 0;
 
-        if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
+        if ((otherFloatsPerItem == 0) && App::sceneContainer->getEventsEnabled())
         {
             if (App::getEventProtocolVersion()  >= 3)
             {
-                CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+                CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
                 ev->appendKeyFloatArray("points", nullptr, 0);
                 ev->appendKeyFloatArray("quaternions", nullptr, 0);
                 ev->appendKeyFloatArray("colors", nullptr, 0);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
             if (App::getEventProtocolVersion() <= 3)
             { // For backw. compatibility
-                CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectHandle, _objectHandle, nullptr, false);
+                CCbor* ev = App::sceneContainer->createEvent("drawingObjectChanged", _objectHandle, _objectHandle, nullptr, false);
                 ev->appendKeyBool("clearPoints", true);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
 
@@ -175,7 +175,7 @@ bool CDrawingObject::addItem(const double* itemData)
     trInv.setIdentity();
     if ((_sceneObjectId >= 0) && ((_objectType & sim_drawing_local) == 0))
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectId);
         if (it == nullptr)
             _sceneObjectId = -2; // should normally never happen!
         else
@@ -229,7 +229,7 @@ bool CDrawingObject::addItem(const double* itemData)
             _data[newPos * floatsPerItem + off1 + 0] = v(0);
             _data[newPos * floatsPerItem + off1 + 1] = v(1);
             _data[newPos * floatsPerItem + off1 + 2] = v(2);
-            if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
+            if ((otherFloatsPerItem == 0) && App::sceneContainer->getEventsEnabled())
             {
                 _bufferedEventData.push_back(v(0));
                 _bufferedEventData.push_back(v(1));
@@ -262,7 +262,7 @@ bool CDrawingObject::addItem(const double* itemData)
                 _data[newPos * floatsPerItem + off1 + 1] = q(1);
                 _data[newPos * floatsPerItem + off1 + 2] = q(2);
                 _data[newPos * floatsPerItem + off1 + 3] = q(3);
-                if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
+                if ((otherFloatsPerItem == 0) && App::sceneContainer->getEventsEnabled())
                 {
                     _bufferedEventData.push_back(q(0));
                     _bufferedEventData.push_back(q(1));
@@ -283,7 +283,7 @@ bool CDrawingObject::addItem(const double* itemData)
                 _data[newPos * floatsPerItem + off1 + 1] = q(1);
                 _data[newPos * floatsPerItem + off1 + 2] = q(2);
                 _data[newPos * floatsPerItem + off1 + 3] = q(3);
-                if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
+                if ((otherFloatsPerItem == 0) && App::sceneContainer->getEventsEnabled())
                 {
                     _bufferedEventData.push_back(q(0));
                     _bufferedEventData.push_back(q(1));
@@ -297,7 +297,7 @@ bool CDrawingObject::addItem(const double* itemData)
         for (int i = 0; i < colorsPerItem * 3 + otherFloatsPerItem; i++)
         {
             _data[newPos * floatsPerItem + off1 + i] = itemData[off2 + i];
-            if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
+            if ((otherFloatsPerItem == 0) && App::sceneContainer->getEventsEnabled())
                 _bufferedEventData.push_back(itemData[off2 + i]);
         }
     }
@@ -455,11 +455,11 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices, std::vector<flo
 
 void CDrawingObject::pushAddEvent()
 {
-    if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
+    if ((otherFloatsPerItem == 0) && App::sceneContainer->getEventsEnabled())
     {
         if (App::getEventProtocolVersion()  >= 3)
         {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+            CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
             std::string tp;
             switch (_objectType & 0x001f)
             {
@@ -503,11 +503,11 @@ void CDrawingObject::pushAddEvent()
             ev->appendKeyInt64("parentUid", _sceneObjectUid);
             ev->appendKeyBool("cyclic", (_objectType & sim_drawing_cyclic) != 0);
             ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
-            CCbor* ev = App::worldContainer->createEvent("drawingObjectAdded", _objectHandle, _objectHandle, nullptr, false);
+            CCbor* ev = App::sceneContainer->createEvent("drawingObjectAdded", _objectHandle, _objectHandle, nullptr, false);
             std::string tp;
             switch (_objectType & 0x001f)
             {
@@ -547,7 +547,7 @@ void CDrawingObject::pushAddEvent()
             ev->appendKeyBool("cyclic", (_objectType & sim_drawing_cyclic) != 0);
             ev->appendKeyBool("clearPoints", true);
             ev->appendKeyBool("overlay", _objectType & sim_drawing_overlay);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 
         _initBufferedEventData();
@@ -556,7 +556,7 @@ void CDrawingObject::pushAddEvent()
 
 void CDrawingObject::pushAppendNewPointEvent()
 {
-    if ((_bufferedEventData.size() > 0) && App::worldContainer->getEventsEnabled())
+    if ((_bufferedEventData.size() > 0) && App::sceneContainer->getEventsEnabled())
     {
         std::vector<float> points;
         std::vector<float> quaternions;
@@ -565,7 +565,7 @@ void CDrawingObject::pushAppendNewPointEvent()
 
         if (App::getEventProtocolVersion()  >= 3)
         {
-            CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+            CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
             if (_rebuildRemoteItems)
             {
                 ev->appendKeyFloatArray("points", points.data(), points.size());
@@ -578,16 +578,16 @@ void CDrawingObject::pushAppendNewPointEvent()
                 ev->appendKeyFloatArray("appendQuaternions", quaternions.data(), quaternions.size());
                 ev->appendKeyFloatArray("appendColors", colors.data(), colors.size());
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
-            CCbor* ev = App::worldContainer->createEvent("drawingObjectChanged", _objectHandle, _objectHandle, nullptr, false);
+            CCbor* ev = App::sceneContainer->createEvent("drawingObjectChanged", _objectHandle, _objectHandle, nullptr, false);
             ev->appendKeyFloatArray("points", points.data(), points.size());
             ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
             ev->appendKeyFloatArray("colors", colors.data(), colors.size());
             ev->appendKeyBool("clearPoints", _rebuildRemoteItems);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 
         _bufferedEventData.clear();
@@ -718,7 +718,7 @@ void CDrawingObject::draw(bool overlay, bool transparentObject, int displayAttri
 
     if (_sceneObjectId >= 0)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectId);
         if (it == nullptr)
             _sceneObjectId = -2; // should normally never happen
         else
@@ -726,7 +726,7 @@ void CDrawingObject::draw(bool overlay, bool transparentObject, int displayAttri
             tr = it->getCumulativeTransformation();
             if (_objectType & sim_drawing_followparentvisibility)
             {
-                if (((App::currentWorld->environment->getActiveLayers() & it->getVisibilityLayer()) == 0) &&
+                if (((App::currentScene->environment->getActiveLayers() & it->getVisibilityLayer()) == 0) &&
                     ((displayAttrib & sim_displayattribute_ignorelayer) == 0))
                     return; // not visible
                 if (it->isObjectPartOfInvisibleModel())

@@ -58,7 +58,7 @@ void displayPointCloud(CPointCloud* pointCloud, CViewableBase* renderingObject, 
                 ((displayAttrib & sim_displayattribute_forvisionsensor) == 0))
             {
                 std::vector<double> corners;
-                App::worldContainer->pluginContainer->geomPlugin_getPtcloudOctreeCorners(
+                App::sceneContainer->pluginContainer->geomPlugin_getPtcloudOctreeCorners(
                     pointCloud->getPointCloudInfo(), corners);
 
                 glBegin(GL_LINES);

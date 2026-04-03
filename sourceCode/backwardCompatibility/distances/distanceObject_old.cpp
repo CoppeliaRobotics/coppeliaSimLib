@@ -120,7 +120,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     theName = theName.append(" (");
     if (_entity1Handle <= sim_object_sceneobjectend)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity1Handle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_entity1Handle);
         int t = it->getObjectType();
         if (t == sim_sceneobject_shape)
             theName += IDSN_SHAPE;
@@ -135,7 +135,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     }
     else
     {
-        CCollection* it = App::currentWorld->collections->getObjectFromHandle(_entity1Handle);
+        CCollection* it = App::currentScene->collections->getObjectFromHandle(_entity1Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -146,7 +146,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     theName = theName.append(" - ");
     if (_entity2Handle > sim_object_sceneobjectend)
     {
-        CCollection* it = App::currentWorld->collections->getObjectFromHandle(_entity2Handle);
+        CCollection* it = App::currentScene->collections->getObjectFromHandle(_entity2Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -158,7 +158,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     {
         if (_entity2Handle != -1)
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity2Handle);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_entity2Handle);
             int t = it->getObjectType();
             if (t == sim_sceneobject_shape)
                 theName += IDSN_SHAPE;
@@ -183,7 +183,7 @@ bool CDistanceObject_old::setObjectName(const char* newName, bool check)
     std::string nnn;
     CDistanceObject_old* it = nullptr;
     if (check)
-        it = App::currentWorld->distances_old->getObjectFromHandle(_objectHandle);
+        it = App::currentScene->distances_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         nnn = newName;
     else
@@ -194,7 +194,7 @@ bool CDistanceObject_old::setObjectName(const char* newName, bool check)
         {
             if (getObjectName() != nm)
             {
-                while (App::currentWorld->distances_old->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::currentScene->distances_old->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 nnn = nm;
             }
@@ -228,9 +228,9 @@ void CDistanceObject_old::clearDistanceResult()
 double CDistanceObject_old::handleDistance()
 {
     clearDistanceResult();
-    if (!App::currentWorld->mainSettings_old->distanceCalculationEnabled)
+    if (!App::currentScene->mainSettings_old->distanceCalculationEnabled)
         return (-1.0);
-    if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
+    if (!App::sceneContainer->pluginContainer->isGeomPluginAvailable())
         return (-1.0);
     int stTime = (int)VDateTime::getTimeInMs();
     _distance = DBL_MAX;
@@ -268,23 +268,23 @@ bool CDistanceObject_old::announceCollectionWillBeErased(int collectionHandle, b
 void CDistanceObject_old::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
-        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle); // model save
+        _objectHandle = CScene::getLoadingMapping(map, _objectHandle); // model save
 }
 
 void CDistanceObject_old::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (_entity1Handle <= sim_object_sceneobjectend)
-        _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);
+        _entity1Handle = CScene::getLoadingMapping(map, _entity1Handle);
     if ((_entity2Handle <= sim_object_sceneobjectend) && (_entity2Handle != -1))
-        _entity2Handle = CWorld::getLoadingMapping(map, _entity2Handle);
+        _entity2Handle = CScene::getLoadingMapping(map, _entity2Handle);
 }
 
 void CDistanceObject_old::performCollectionLoadingMapping(const std::map<int, int>* map)
 {
     if (_entity1Handle > sim_object_sceneobjectend)
-        _entity1Handle = CWorld::getLoadingMapping(map, _entity1Handle);
+        _entity1Handle = CScene::getLoadingMapping(map, _entity1Handle);
     if (_entity2Handle > sim_object_sceneobjectend)
-        _entity2Handle = CWorld::getLoadingMapping(map, _entity2Handle);
+        _entity2Handle = CScene::getLoadingMapping(map, _entity2Handle);
 }
 
 CDistanceObject_old* CDistanceObject_old::copyYourself()

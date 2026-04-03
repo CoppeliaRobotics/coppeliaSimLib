@@ -25,9 +25,9 @@ void CQDlgEnvironment::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
 
-    ui->qqNextSaveIsDefinitive->setEnabled((!App::currentWorld->environment->getSceneLocked()) && noEditModeNoSim);
+    ui->qqNextSaveIsDefinitive->setEnabled((!App::currentScene->environment->getSceneLocked()) && noEditModeNoSim);
     ui->qqBackgroundColorUp->setEnabled(noEditModeNoSim);
     ui->qqBackgroundColorDown->setEnabled(noEditModeNoSim);
     ui->qqAmbientLightColor->setEnabled(noEditModeNoSim);
@@ -38,12 +38,12 @@ void CQDlgEnvironment::refresh()
     ui->qqShapeTexturesDisabled->setEnabled(noEditModeNoSim);
     ui->qqAcknowledgments->setEnabled(noEditModeNoSim);
 
-    ui->qqSaveCalcStruct->setChecked(App::currentWorld->environment->getSaveExistingCalculationStructures());
-    ui->qqShapeTexturesDisabled->setChecked(!App::currentWorld->environment->getShapeTexturesEnabled());
+    ui->qqSaveCalcStruct->setChecked(App::currentScene->environment->getSaveExistingCalculationStructures());
+    ui->qqShapeTexturesDisabled->setChecked(!App::currentScene->environment->getShapeTexturesEnabled());
 
-    ui->qqNextSaveIsDefinitive->setChecked(App::currentWorld->environment->getRequestFinalSave());
+    ui->qqNextSaveIsDefinitive->setChecked(App::currentScene->environment->getRequestFinalSave());
 
-    ui->qqAcknowledgments->setPlainText(App::currentWorld->environment->getAcknowledgement().c_str());
+    ui->qqAcknowledgments->setPlainText(App::currentScene->environment->getAcknowledgement().c_str());
 
     selectLineEdit(lineEditToSelect);
 }
@@ -72,7 +72,7 @@ void CQDlgEnvironment::on_qqSaveCalcStruct_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::currentWorld->environment->getSaveExistingCalculationStructures())
+        if (!App::currentScene->environment->getSaveExistingCalculationStructures())
             GuiApp::uiThread->messageBox_information(GuiApp::mainWindow, IDSN_CALCULATION_STRUCTURE,
                                                      IDS_SAVING_CALCULATION_STRUCTURE, VMESSAGEBOX_OKELI,
                                                      VMESSAGEBOX_REPLY_OK);
@@ -93,7 +93,7 @@ void CQDlgEnvironment::on_qqNextSaveIsDefinitive_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::currentWorld->environment->getRequestFinalSave())
+        if (!App::currentScene->environment->getRequestFinalSave())
             GuiApp::uiThread->messageBox_information(GuiApp::mainWindow, IDSN_SCENE_LOCKING, IDS_SCENE_LOCKING_INFO,
                                                      VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
         App::appendSimulationThreadCommand(TOGGLE_LOCKSCENE_ENVIRONMENTGUITRIGGEREDCMD);

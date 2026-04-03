@@ -134,7 +134,7 @@ void CBannerObject::draw3DStuff(bool overlay, bool transparentObject, int displa
         tr.setIdentity();
         if (_sceneObjectID >= 0)
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectID);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectID);
             if (it == nullptr)
                 _sceneObjectID = -2; // should normally never happen
             else
@@ -142,7 +142,7 @@ void CBannerObject::draw3DStuff(bool overlay, bool transparentObject, int displa
                 tr = it->getCumulativeTransformation();
                 if (_options & sim_banner_followparentvisibility)
                 {
-                    if (((App::currentWorld->environment->getActiveLayers() & it->getVisibilityLayer()) == 0) &&
+                    if (((App::currentScene->environment->getActiveLayers() & it->getVisibilityLayer()) == 0) &&
                         ((displayAttrib & sim_displayattribute_ignorelayer) == 0))
                         return; // not visible
                     if (it->isObjectPartOfInvisibleModel())

@@ -47,9 +47,9 @@ void CQDlgDistances::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
 
-    ui->qqEnableAll->setChecked(App::currentWorld->mainSettings_old->distanceCalculationEnabled);
+    ui->qqEnableAll->setChecked(App::currentScene->mainSettings_old->distanceCalculationEnabled);
 
     if (!inSelectionRoutine)
     {
@@ -58,7 +58,7 @@ void CQDlgDistances::refresh()
         selectObjectInList(selectedObjectID);
     }
 
-    CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(getSelectedObjectID());
+    CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(getSelectedObjectID());
     ui->qqAddNewObject->setEnabled(noEditModeNoSim);
     ui->qqExplicitHandling->setEnabled((it != nullptr) && noEditModeNoSim);
     ui->qqUseThreshold->setEnabled((it != nullptr) && noEditModeNoSim);
@@ -89,12 +89,12 @@ void CQDlgDistances::refresh()
 void CQDlgDistances::updateObjectsInList()
 {
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
     ui->qqDistanceList->setEnabled(noEditModeNoSim);
     ui->qqDistanceList->clear();
-    for (size_t i = 0; i < App::currentWorld->distances_old->getObjectCount(); i++)
+    for (size_t i = 0; i < App::currentScene->distances_old->getObjectCount(); i++)
     {
-        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromIndex(i);
+        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromIndex(i);
         std::string tmp = it->getObjectDescriptiveName();
         int id = it->getObjectHandle();
         QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
@@ -148,7 +148,7 @@ void CQDlgDistances::on_qqDistanceList_itemSelectionChanged()
     IF_UI_EVENT_CAN_READ_DATA
     {
         int objID = getSelectedObjectID();
-        CDistanceObject_old* dist = App::currentWorld->distances_old->getObjectFromHandle(objID);
+        CDistanceObject_old* dist = App::currentScene->distances_old->getObjectFromHandle(objID);
         if (dist != nullptr)
             ((CEditBoxDelegate*)ui->qqDistanceList->itemDelegate())->initialText = dist->getObjectName();
         else
@@ -167,13 +167,13 @@ void CQDlgDistances::on_qqDistanceList_itemChanged(QListWidgetItem* item)
         {
             std::string newName(item->text().toStdString());
             CDistanceObject_old* it =
-                App::currentWorld->distances_old->getObjectFromHandle(item->data(Qt::UserRole).toInt());
+                App::currentScene->distances_old->getObjectFromHandle(item->data(Qt::UserRole).toInt());
             if ((it != nullptr) && (newName != ""))
             {
                 if (it->getObjectName() != newName)
                 {
                     tt::removeIllegalCharacters(newName, true);
-                    if (App::currentWorld->distances_old->getObjectFromName(newName.c_str()) == nullptr)
+                    if (App::currentScene->distances_old->getObjectFromName(newName.c_str()) == nullptr)
                     {
                         App::appendSimulationThreadCommand(SET_OBJECTNAME_DISTANCEGUITRIGGEREDCMD,
                                                            it->getObjectHandle(), -1, 0.0, 0.0, newName.c_str());
@@ -217,7 +217,7 @@ void CQDlgDistances::on_qqExplicitHandling_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(getSelectedObjectID());
+        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_DISTANCEGUITRIGGEREDCMD, it->getObjectHandle());
@@ -231,7 +231,7 @@ void CQDlgDistances::on_qqUseThreshold_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(getSelectedObjectID());
+        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_USETHRESHOLD_DISTANCEGUITRIGGEREDCMD, it->getObjectHandle());
@@ -247,7 +247,7 @@ void CQDlgDistances::on_qqThreshold_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(getSelectedObjectID());
+        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
         {
             bool ok;
@@ -267,7 +267,7 @@ void CQDlgDistances::on_qqDisplaySegment_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(getSelectedObjectID());
+        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_SEGMENTDISPLAY_DISTANCEGUITRIGGEREDCMD, it->getObjectHandle());
@@ -283,7 +283,7 @@ void CQDlgDistances::on_qqSegmentWidth_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(getSelectedObjectID());
+        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
         {
             bool ok;

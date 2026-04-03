@@ -113,7 +113,7 @@ int CDetachedScript::setHandle()
     _scriptHandle = _nextScriptHandle++;
     if (_nextScriptHandle > sim_object_detachedscriptend)
         _nextScriptHandle = sim_object_detachedscriptstart;
-    while ((App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr) && (App::currentWorld->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(_scriptHandle) != nullptr))
+    while ((App::currentScene != nullptr) && (App::currentScene->sceneObjects != nullptr) && (App::currentScene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(_scriptHandle) != nullptr))
     {
         _scriptHandle++;
         if (_scriptHandle > sim_object_detachedscriptend)
@@ -136,10 +136,10 @@ void CDetachedScript::destroy(CDetachedScript* obj, bool registeredObject, bool 
                 VFile::eraseFile(fname.c_str());
         }
         if (announceScriptDestruction)
-            App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationOrMainScript(), obj->isSceneSwitchPersistentScript());
+            App::sceneContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationOrMainScript(), obj->isSceneSwitchPersistentScript());
     }
     if (obj->_addOnUiMenuHandle != -1)
-        App::worldContainer->moduleMenuItemContainer->removeMenuItem(obj->_addOnUiMenuHandle);
+        App::sceneContainer->moduleMenuItemContainer->removeMenuItem(obj->_addOnUiMenuHandle);
     delete obj;
 }
 
@@ -151,7 +151,7 @@ std::string CDetachedScript::getFilenameForExternalScriptEditor()
             _filenameForExternalScriptEditor = "mainScript-";
         else
         {
-            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+            CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
             if (obj != nullptr)
             {
                 _filenameForExternalScriptEditor = obj->getObjectAlias();
@@ -163,7 +163,7 @@ std::string CDetachedScript::getFilenameForExternalScriptEditor()
             else
                 _filenameForExternalScriptEditor = "error-";
         }
-        std::string tmp(App::currentWorld->environment->getSceneName());
+        std::string tmp(App::currentScene->environment->getSceneName());
         if (tmp.size() == 0)
             tmp = "newScene";
         _filenameForExternalScriptEditor += tmp + "-" + std::to_string(_scriptHandle);
@@ -279,8 +279,8 @@ void CDetachedScript::fromBufferToFile() const
 {
     if (App::userSettings->externalScriptEditor.size() > 0)
     { // write file
-        if ((App::currentWorld == nullptr) || (App::currentWorld->environment == nullptr) ||
-            (!App::currentWorld->environment->getSceneLocked()))
+        if ((App::currentScene == nullptr) || (App::currentScene->environment == nullptr) ||
+            (!App::currentScene->environment->getSceneLocked()))
         {
             std::string fname = App::folders->getTempDataPath() + "/";
             fname.append(_filenameForExternalScriptEditor);
@@ -757,27 +757,27 @@ void CDetachedScript::addModulesDetectedInCode()
 
 void CDetachedScript::getMatchingFunctions(const char* txt, std::set<std::string>& v, const CDetachedScript* requestOrigin)
 {
-    App::worldContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt, v); // old plugins
+    App::sceneContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt, v); // old plugins
 
-    App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 1, requestOrigin);
+    App::sceneContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 1, requestOrigin);
 }
 
 void CDetachedScript::getMatchingConstants(const char* txt, std::set<std::string>& v, const CDetachedScript* requestOrigin)
 {
-    App::worldContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt, v); // old plugins
+    App::sceneContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt, v); // old plugins
 
-    App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 2, requestOrigin);
+    App::sceneContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 2, requestOrigin);
 }
 
 std::string CDetachedScript::getFunctionCalltip(const char* txt, const CDetachedScript* requestOrigin)
 {
-    std::string retVal = App::worldContainer->codeEditorInfos->getFunctionCalltip(txt, requestOrigin);
+    std::string retVal = App::sceneContainer->codeEditorInfos->getFunctionCalltip(txt, requestOrigin);
 
     if (retVal.size() == 0)
     { // Check old plugin functions' calltips:
-        for (size_t j = 0; j < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); j++)
+        for (size_t j = 0; j < App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); j++)
         {
-            CScriptCustomFunction* it = App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
+            CScriptCustomFunction* it = App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
             std::string n = it->getFunctionName();
             if (n.compare(txt) == 0)
             {
@@ -1073,7 +1073,7 @@ std::string CDetachedScript::getScriptName() const
         return (_addOnMenuName);
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
     {
-        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (obj != nullptr)
             return (obj->getObjectAlias());
         return ("error");
@@ -1109,7 +1109,7 @@ int CDetachedScript::getScriptState() const
 
 void CDetachedScript::pushObjectCreationEvent()
 {
-    CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _scriptUid, nullptr, false);
+    CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _scriptUid, nullptr, false);
     ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
     ev->appendKeyBool(propDetachedScript_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propDetachedScript_restartOnError.name, _autoRestartOnError);
@@ -1121,13 +1121,13 @@ void CDetachedScript::pushObjectCreationEvent()
     ev->appendKeyText(propDetachedScript_scriptName.name, getScriptName().c_str());
     ev->appendKeyText(propDetachedScript_addOnPath.name, _addOnPath.c_str());
     ev->appendKeyText(propDetachedScript_addOnMenuPath.name, _addOnMenuPath.c_str());
-    App::worldContainer->pushEvent();
+    App::sceneContainer->pushEvent();
 }
 
 void CDetachedScript::pushObjectRemoveEvent()
 {
-    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _scriptUid, nullptr, false);
-    App::worldContainer->pushEvent();
+    App::sceneContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _scriptUid, nullptr, false);
+    App::sceneContainer->pushEvent();
 }
 
 void CDetachedScript::setScriptState(int state)
@@ -1136,13 +1136,13 @@ void CDetachedScript::setScriptState(int state)
     if (diff)
     {
         _scriptState = state;
-        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_scriptState.name;
             CCbor* ev;
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt64(cmd, _scriptState);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1152,7 +1152,7 @@ void CDetachedScript::setScriptExecPriority(int priority)
     bool diff = false;
     if (_sceneObjectHandle != -1)
     { // i.e. all new script objects, and all old associated scripts
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
         {
             int p = it->getScriptExecPriority();
@@ -1168,13 +1168,13 @@ void CDetachedScript::setScriptExecPriority(int priority)
     }
     if (diff)
     {
-        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_execPriority.name;
             CCbor* ev;
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt64(cmd, priority);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1184,7 +1184,7 @@ int CDetachedScript::getScriptExecPriority() const
     int retVal = sim_scriptexecorder_normal;
     if (_sceneObjectHandle != -1)
     { // i.e. all new script objects, and all old associated scripts
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             retVal = it->getScriptExecPriority();
     }
@@ -1241,13 +1241,13 @@ void CDetachedScript::setScriptIsDisabled(bool isDisabled)
     if (diff)
     {
         _scriptIsDisabled = isDisabled;
-        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_scriptDisabled.name;
             CCbor* ev;
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _scriptIsDisabled);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1277,9 +1277,9 @@ bool CDetachedScript::isNotInCopyBuffer() const
     bool retVal = ((_scriptType == sim_scripttype_sandbox) || (_scriptType == sim_scripttype_addon));
     if (!retVal)
     {
-        if (App::currentWorld->sceneObjects != nullptr)
+        if (App::currentScene->sceneObjects != nullptr)
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
             if (it != nullptr)
                 retVal = it->getIsInScene();
         }
@@ -1298,13 +1298,13 @@ void CDetachedScript::setAutoRestartOnError(bool restart)
     if (diff)
     {
         _autoRestartOnError = restart;
-        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_restartOnError.name;
             CCbor* ev;
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _autoRestartOnError);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1373,13 +1373,13 @@ void CDetachedScript::setScriptText(const char* scriptTxt, bool toFileIfApplicab
         _scriptText = "";
         if (scriptTxt != nullptr)
             _scriptText = scriptTxt;
-        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_code.name;
             CCbor* ev;
-            ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyText(cmd, scriptTxt);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         if (toFileIfApplicable)
             fromBufferToFile();
@@ -1426,7 +1426,7 @@ std::string CDetachedScript::getDescriptiveName() const
             retVal += "Customization script";
         else
             retVal += "Passive script";
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it == nullptr)
             retVal += " (unassociated)";
         else
@@ -1460,7 +1460,7 @@ std::string CDetachedScript::getShortDescriptiveName() const
         retVal += "mainScript";
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it == nullptr)
             retVal += "???";
         else
@@ -1499,13 +1499,13 @@ void CDetachedScript::setDisplayAddOnName(const char* name)
 void CDetachedScript::performScriptLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
-        _scriptHandle = CWorld::getLoadingMapping(map, _scriptHandle); // model save
+        _scriptHandle = CScene::getLoadingMapping(map, _scriptHandle); // model save
 }
 
 void CDetachedScript::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::currentWorld->sceneObjects != nullptr)
-        _sceneObjectHandle = CWorld::getLoadingMapping(map, _sceneObjectHandle);
+    if (App::currentScene->sceneObjects != nullptr)
+        _sceneObjectHandle = CScene::getLoadingMapping(map, _sceneObjectHandle);
 }
 
 bool CDetachedScript::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
@@ -1540,7 +1540,7 @@ int CDetachedScript::flagScriptForRemoval()
         GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(_scriptUid, _previousEditionWindowPosAndSize, true);
 #endif
 
-    if (App::currentWorld->simulation->isSimulationStopped())
+    if (App::currentScene->simulation->isSimulationStopped())
     {
         if (isSimulationOrMainScript())
             return (2);
@@ -1601,21 +1601,21 @@ int CDetachedScript::systemCallMainScript(int optionalCallType, const CInterface
     int retVal = -1;
     if (optionalCallType == -1)
     {
-        App::currentWorld->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
+        App::currentScene->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
         int startT = int(VDateTime::getTimeInMs());
 
         if (_scriptState < scriptState_initialized)
             retVal = systemCallScript(sim_syscb_init, inStack, outStack);
 
         retVal = systemCallScript(sim_syscb_actuation, inStack, outStack);
-        App::worldContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
+        App::sceneContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
         retVal = systemCallScript(sim_syscb_sensing, inStack, outStack);
 
-        if (App::currentWorld->simulation->getSimulationState() == sim_simulation_lastbeforestop)
+        if (App::currentScene->simulation->getSimulationState() == sim_simulation_lastbeforestop)
             retVal = systemCallScript(sim_syscb_cleanup, inStack, outStack);
 
-        App::worldContainer->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs()) - startT);
-        App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->sceneObjects->getCalledScriptsCountInThisSimulationStep(true));
+        App::sceneContainer->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs()) - startT);
+        App::sceneContainer->calcInfo->setSimulationScriptExecCount(App::currentScene->sceneObjects->getCalledScriptsCountInThisSimulationStep(true));
     }
     else
         retVal = systemCallScript(optionalCallType, inStack, outStack);
@@ -1688,7 +1688,7 @@ int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inSta
 
     if (_addOnUiMenuHandle != -1)
     {
-        CModuleMenuItem* m = App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
+        CModuleMenuItem* m = App::sceneContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
         if (m != nullptr)
         {
             std::string txt(_addOnMenuPath);
@@ -1718,7 +1718,7 @@ bool CDetachedScript::shouldTemporarilySuspendMainScript()
     bool retVal = false;
     if (_scriptType == sim_scripttype_sandbox)
         setScriptState(_scriptState & 7); // remove a possible error flag
-    CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
     _callSystemScriptFunction(sim_syscb_beforemainscript, nullptr, outStack);
     bool doNotRunMainScript;
     if (outStack->getStackMapBoolValue("doNotRunMainScript", doNotRunMainScript))
@@ -1726,7 +1726,7 @@ bool CDetachedScript::shouldTemporarilySuspendMainScript()
         if (doNotRunMainScript)
             retVal = true;
     }
-    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+    App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
     return (retVal);
 }
 
@@ -1734,7 +1734,7 @@ void CDetachedScript::_handleInfoCallback()
 {
     if (_autoStartAddOn == -1)
     { // do this only once!
-        CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
         systemCallScript(sim_syscb_info, nullptr, outStack);
         resetScript();
         bool boolVal = true;
@@ -1754,14 +1754,14 @@ void CDetachedScript::_handleInfoCallback()
                 _addOnMenuPath.replace(r, 1, " >> ");
                 r = _addOnMenuPath.find("\n");
             }
-            _addOnUiMenuHandle = App::worldContainer->moduleMenuItemContainer->addMenuItem(menuEntry.c_str(), -1);
+            _addOnUiMenuHandle = App::sceneContainer->moduleMenuItemContainer->addMenuItem(menuEntry.c_str(), -1);
         }
         boolVal = true;
         outStack->getStackMapBoolValue("menuEnabled", boolVal);
         if ((_addOnUiMenuHandle != -1) && (!boolVal))
-            App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle)->setState(0);
+            App::sceneContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle)->setState(0);
 
-        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+        App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
     }
 }
 
@@ -2035,25 +2035,25 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
     else
         changeOverallYieldingForbidLevel(1, false);
 
-    CInterfaceStack* _outStack = App::worldContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* _outStack = App::sceneContainer->interfaceStackContainer->createStack();
     if (outStack == nullptr)
         outStack = _outStack;
 
     // ---------------------------------
     if (_scriptType == sim_scripttype_main)
     { // corresponding calls for plugins:
-        int data[4] = {0, int(App::currentWorld->simulation->getSimulationTime() * 1000.0), 0, 0};
+        int data[4] = {0, int(App::currentScene->simulation->getSimulationTime() * 1000.0), 0, 0};
         if (callType == sim_syscb_init)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationinit, data);
         if (callType == sim_syscb_actuation)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationactuation, data);
         if (callType == sim_syscb_sensing)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationsensing, data);
         if (callType == sim_syscb_cleanup)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationcleanup, data);
     }
 
@@ -2084,18 +2084,18 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
     }
     if (_scriptType == sim_scripttype_main)
     { // corresponding calls for plugins:
-        int data[4] = {1, int(App::currentWorld->simulation->getSimulationTime() * 1000.0), 0, 0};
+        int data[4] = {1, int(App::currentScene->simulation->getSimulationTime() * 1000.0), 0, 0};
         if (callType == sim_syscb_init)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationinit, data);
         if (callType == sim_syscb_actuation)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationactuation, data);
         if (callType == sim_syscb_sensing)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationsensing, data);
         if (callType == sim_syscb_cleanup)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationcleanup, data);
     }
     // ---------------------------------
@@ -2142,7 +2142,7 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
             }
         }
     }
-    App::worldContainer->interfaceStackContainer->destroyStack(_outStack);
+    App::sceneContainer->interfaceStackContainer->destroyStack(_outStack);
     return (retVal);
 }
 
@@ -2201,7 +2201,7 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
                           (sysCallType == sim_syscb_aos_suspend) || (sysCallType == sim_syscb_aos_resume) ||
                           (sysCallType == sim_syscb_userconfig)))
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
 
         stack->pushTableOntoStack();
 
@@ -2221,8 +2221,8 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
         stack->insertDataIntoStackTable();
 
         stack->insertDataIntoStackTable();
-        App::worldContainer->broadcastMsg(stack, _scriptHandle, 0);
-        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        App::sceneContainer->broadcastMsg(stack, _scriptHandle, 0);
+        App::sceneContainer->interfaceStackContainer->destroyStack(stack);
     }
 
     if ((errorMsg != nullptr) && (errorMsg[0].size() > 1) && boost::algorithm::ends_with(errorMsg->c_str(), "\n\n"))
@@ -2359,12 +2359,12 @@ int CDetachedScript::callCustomScriptFunction(const char* functionName, CInterfa
             // hooks
             CInterfaceStack* inStack2 = nullptr;
             if (inStack)
-                inStack2 = App::worldContainer->interfaceStackContainer->createStackCopy(inStack);
+                inStack2 = App::sceneContainer->interfaceStackContainer->createStackCopy(inStack);
             else
-                inStack2 = App::worldContainer->interfaceStackContainer->createStack();
+                inStack2 = App::sceneContainer->interfaceStackContainer->createStack();
             inStack2->pushTextOntoStack(funcName.c_str(), true);
             retVal = _callScriptFunction(-1, "sysCall_ext", inStack2, outStack, &errMsg);
-            App::worldContainer->interfaceStackContainer->destroyStack(inStack2);
+            App::sceneContainer->interfaceStackContainer->destroyStack(inStack2);
         }
         if (!extFunc)
             retVal = _callScriptFunction(-1, funcName.c_str(), inStack, outStack, &errMsg);
@@ -2562,7 +2562,7 @@ void CDetachedScript::initScript()
         }
         else
         {
-            if ( ((_scriptType != sim_scripttype_simulation) && (_scriptType != sim_scripttype_main)) || (!App::currentWorld->simulation->isSimulationStopped()) )
+            if ( ((_scriptType != sim_scripttype_simulation) && (_scriptType != sim_scripttype_main)) || (!App::currentScene->simulation->isSimulationStopped()) )
                 systemCallScript(sim_syscb_init, nullptr, nullptr);
         }
     }
@@ -2588,7 +2588,7 @@ bool CDetachedScript::_killInterpreterState()
             // if (_scriptType==sim_scripttype_addonfunction) // Not needed
             // if (_scriptType==sim_scripttype_sandbox) // Not needed
         }
-        App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationOrMainScript(), isSceneSwitchPersistentScript());
+        App::sceneContainer->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationOrMainScript(), isSceneSwitchPersistentScript());
         luaWrap_lua_close((luaWrap_lua_State*)_interpreterState);
         _interpreterState = nullptr;
     }
@@ -2685,7 +2685,7 @@ bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned cha
     if (_eventFilters.size() > 0)
     {
         long long int mainScriptHandle = -1;
-        CDetachedScript* mainScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* mainScript = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
             mainScriptHandle = mainScript->getScriptHandle();
 
@@ -2698,7 +2698,7 @@ bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned cha
                 altT = sim_handle_sceneobject;
             else if ((t >= sim_object_detachedscriptstart) && (t <= sim_object_detachedscriptend))
             {
-                if (t == App::worldContainer->sandboxScript->getScriptHandle())
+                if (t == App::sceneContainer->sandboxScript->getScriptHandle())
                     altT = sim_handle_sandbox;
                 else if ((mainScriptHandle != -1) && (t == mainScriptHandle))
                     altT = sim_handle_mainscript;
@@ -2763,7 +2763,7 @@ void CDetachedScript::_announceErrorWasRaisedAndPossiblyPauseSimulation(const ch
         (errM.find("attempt to yield from outside a coroutine") == std::string::npos))
     { // silent error when breaking out of a threaded simulation script at simulation end
         if ((_scriptType == sim_scripttype_main) || (_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
-            App::currentWorld->simulation->pauseOnErrorRequested();
+            App::currentScene->simulation->pauseOnErrorRequested();
         App::logScriptMsg(this, sim_verbosity_scripterrors, errM.c_str());
         _lastStackTraceback = errM;
     }
@@ -2843,12 +2843,12 @@ std::string CDetachedScript::getSearchPath_lua()
 
     retVal += App::folders->getInterpretersRootPath() + "/luarocks/share/lua/5.4/?.lua";
 
-    if (App::currentWorld->environment->getScenePathAndName().compare("") != 0)
+    if (App::currentScene->environment->getScenePathAndName().compare("") != 0)
     {
         retVal += ";";
-        retVal += App::currentWorld->environment->getScenePath() + "/?.lua";
+        retVal += App::currentScene->environment->getScenePath() + "/?.lua";
         retVal += ";";
-        retVal += App::currentWorld->environment->getScenePath() + "/?/init.lua";
+        retVal += App::currentScene->environment->getScenePath() + "/?/init.lua";
     }
     if (App::userSettings->additionalLuaPath.length() > 0)
     {
@@ -2878,10 +2878,10 @@ std::string CDetachedScript::getSearchPath_python()
     retVal += "/?.py;";
     retVal += App::folders->getInterpretersRootPath();
     retVal += "/python/?.py;";
-    if (App::currentWorld->environment->getScenePathAndName().compare("") != 0)
+    if (App::currentScene->environment->getScenePathAndName().compare("") != 0)
     {
         retVal += ";";
-        retVal += App::currentWorld->environment->getScenePath();
+        retVal += App::currentScene->environment->getScenePath();
         retVal += "/?.py";
     }
     if (App::userSettings->additionalPythonPath.length() > 0)
@@ -3056,7 +3056,7 @@ void CDetachedScript::_hookFunction_lua(void* LL, void* arr)
 {
     TRACE_INTERNAL;
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(getScriptHandleFromInterpreterState_lua(L));
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
 
@@ -3078,12 +3078,12 @@ void CDetachedScript::_hookFunction_lua(void* LL, void* arr)
         {
             if (it->getScriptExecutionTimeInMs() > (App::userSettings->getAbortScriptExecutionTiming() * 1000))
             {
-                if (App::currentWorld->simulation->showAndHandleEmergencyStopButton(
+                if (App::currentScene->simulation->showAndHandleEmergencyStopButton(
                         true, it->getShortDescriptiveName().c_str()))
                     it->terminateScriptExecutionExternally(true);
             }
             else
-                App::currentWorld->simulation->showAndHandleEmergencyStopButton(false, "");
+                App::currentScene->simulation->showAndHandleEmergencyStopButton(false, "");
         }
 #endif
         //        luaWrap_luaL_dostring(L,"return coroutine.isyieldable()");
@@ -3214,14 +3214,14 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
         int dx = cnt - _sysFuncAndHookCnt_event[what];
         _sysFuncAndHookCnt_event[what] = cnt;
         if (_scriptType == sim_scripttype_addon)
-            App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_event, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+            App::sceneContainer->addOnScriptContainer->setSysFuncAndHookCnt(
+                sim_syscb_event, App::sceneContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < sim_object_detachedscriptstart)
-                App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_event, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+                App::currentScene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_event, App::currentScene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_event) + dx);
             else
-                App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_event, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+                App::currentScene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_event, App::currentScene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
         }
     }
     if ((sysCall == sim_syscb_dyn) || (sysCall == -1))
@@ -3229,14 +3229,14 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
         int dx = cnt - _sysFuncAndHookCnt_dyn[what];
         _sysFuncAndHookCnt_dyn[what] = cnt;
         if (_scriptType == sim_scripttype_addon)
-            App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_dyn, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+            App::sceneContainer->addOnScriptContainer->setSysFuncAndHookCnt(
+                sim_syscb_dyn, App::sceneContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < sim_object_detachedscriptstart)
-                App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+                App::currentScene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentScene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
             else
-                App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+                App::currentScene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentScene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
         }
     }
     if ((sysCall == sim_syscb_contact) || (sysCall == -1))
@@ -3244,15 +3244,15 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
         int dx = cnt - _sysFuncAndHookCnt_contact[what];
         _sysFuncAndHookCnt_contact[what] = cnt;
         if (_scriptType == sim_scripttype_addon)
-            App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
+            App::sceneContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_contact,
-                App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+                App::sceneContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < sim_object_detachedscriptstart)
-                App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_contact, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+                App::currentScene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_contact, App::currentScene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
             else
-                App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_contact, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+                App::currentScene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_contact, App::currentScene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
         }
     }
     if ((sysCall == sim_syscb_joint) || (sysCall == -1))
@@ -3260,14 +3260,14 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
         int dx = cnt - _sysFuncAndHookCnt_joint[what];
         _sysFuncAndHookCnt_joint[what] = cnt;
         if (_scriptType == sim_scripttype_addon)
-            App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_joint, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+            App::sceneContainer->addOnScriptContainer->setSysFuncAndHookCnt(
+                sim_syscb_joint, App::sceneContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < sim_object_detachedscriptstart)
-                App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_joint, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+                App::currentScene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_joint, App::currentScene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
             else
-                App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_joint, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+                App::currentScene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_joint, App::currentScene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
         }
     }
 }
@@ -3509,7 +3509,7 @@ void CDetachedScript::loadPluginFuncsAndVars(CPlugin* plug)
             }
             else
             { // stack variable
-                CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(dat->stackHandle);
+                CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(dat->stackHandle);
                 buildOntoInterpreterStack_lua(L, stack, true);
                 luaWrap_lua_setglobal(L, variableName.c_str());
             }
@@ -3532,10 +3532,10 @@ void CDetachedScript::loadPluginFuncsAndVars(CPlugin* plug)
 
 void CDetachedScript::registerPluginFunctions()
 {
-    for (size_t i = 0; i < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); i++)
+    for (size_t i = 0; i < App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); i++)
     {
         CScriptCustomFunction* customFunc =
-            App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(i);
+            App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(i);
         if (customFunc->hasCallback())
         {
             std::string functionName(customFunc->getFunctionName());
@@ -3589,10 +3589,10 @@ void CDetachedScript::_registerNewVariables_lua()
 
 bool CDetachedScript::registerPluginVariables(bool onlyRequireStatements)
 {
-    for (size_t i = 0; i < App::worldContainer->scriptCustomFuncAndVarContainer->getCustomVariableCount(); i++)
+    for (size_t i = 0; i < App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomVariableCount(); i++)
     {
         CScriptCustomVariable* customVar =
-            App::worldContainer->scriptCustomFuncAndVarContainer->getCustomVariableFromIndex(i);
+            App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomVariableFromIndex(i);
         std::string variableName(customVar->getVariableName());
         std::string variableValue(customVar->getVariableValue());
         int variableStackId = customVar->getVariableStackId();
@@ -3628,7 +3628,7 @@ bool CDetachedScript::registerPluginVariables(bool onlyRequireStatements)
             {
                 if (!onlyRequireStatements)
                 {
-                    CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(variableStackId);
+                    CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(variableStackId);
                     buildOntoInterpreterStack_lua(L, stack, true);
                     luaWrap_lua_setglobal(L, variableName.c_str());
                 }
@@ -4716,7 +4716,7 @@ int CDetachedScript::_getScriptNameIndexNumber_old() const
     int retVal = -1;
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             retVal = tt::getNameSuffixNumber(it->getObjectName_old().c_str(), true);
     }
@@ -4726,7 +4726,7 @@ std::string CDetachedScript::getScriptPseudoName_old() const
 {
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             return (it->getObjectName_old());
     }
@@ -5383,7 +5383,7 @@ void CDetachedScript::_adjustScriptText1_old(CDetachedScript* detachedScript, bo
                 txt += "  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
                 txt += "  and operates slightly differently. CoppeliaSim has tried to automatically adjust\n";
                 txt += "  the script, but failed. Please correct this issue yourself by editing the script.";
-                CWorld::appendLoadOperationIssue(sim_verbosity_warnings, txt.c_str(), detachedScript->getScriptHandle());
+                CScene::appendLoadOperationIssue(sim_verbosity_warnings, txt.c_str(), detachedScript->getScriptHandle());
             }
         }
     }
@@ -5506,7 +5506,7 @@ void CDetachedScript::_adjustScriptText11_old(CDetachedScript* detachedScript, b
     _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.getObjectOrientation");
     if (addFunc)
     {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        CScene::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible
         //        bug in versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
@@ -5532,7 +5532,7 @@ void CDetachedScript::_adjustScriptText11_old(CDetachedScript* detachedScript, b
     _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.setObjectOrientation");
     if (addFunc)
     {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        CScene::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible
         //        bug in versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
@@ -5560,7 +5560,7 @@ void CDetachedScript::_adjustScriptText11_old(CDetachedScript* detachedScript, b
     _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.getObjectQuaternion");
     if (addFunc)
     {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        CScene::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible
         //        bug in versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
@@ -5588,7 +5588,7 @@ void CDetachedScript::_adjustScriptText11_old(CDetachedScript* detachedScript, b
     _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.setObjectQuaternion");
     if (addFunc)
     {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        CScene::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible
         //        bug in versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
@@ -5616,7 +5616,7 @@ void CDetachedScript::_adjustScriptText11_old(CDetachedScript* detachedScript, b
     _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.getObjectPosition");
     if (addFunc)
     {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        CScene::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in
         //        versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;
@@ -5644,7 +5644,7 @@ void CDetachedScript::_adjustScriptText11_old(CDetachedScript* detachedScript, b
     _replaceScriptText_old(detachedScript, "blabliblotemp", "sim.setObjectPosition");
     if (addFunc)
     {
-        //        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
+        //        CScene::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n
         //        replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in
         //        versions prior to CoppeliaSim V4.0.1.",detachedScript->getScriptHandle());
         std::string txt;

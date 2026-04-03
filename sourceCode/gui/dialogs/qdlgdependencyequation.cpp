@@ -32,7 +32,7 @@ void CQDlgDependencyEquation::refresh()
 { // dlg is modal
     inMainRefreshRoutine = true;
     bool dependencyPartActive = false;
-    CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+    CJoint* it = App::currentScene->sceneObjects->getLastSelectionJoint();
     if (it != nullptr)
         dependencyPartActive = ((it->getJointMode() == sim_jointmode_dependent) ||
                                 (it->getJointMode() == sim_jointmode_reserved_previously_ikdependent));
@@ -55,9 +55,9 @@ void CQDlgDependencyEquation::refresh()
         std::vector<int> ids;
 
         // Joints:
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
         {
-            CJoint* it2 = App::currentWorld->sceneObjects->getJointFromIndex(i);
+            CJoint* it2 = App::currentScene->sceneObjects->getJointFromIndex(i);
             if ((it2 != it) && (it2->getJointType() != sim_joint_spherical))
             {
                 std::string name(tt::decorateString("[", IDSN_JOINT, "] "));
@@ -102,7 +102,7 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentScene->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqOffset->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -124,7 +124,7 @@ void CQDlgDependencyEquation::on_qqCoeff_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::currentScene->sceneObjects->getLastSelectionJoint();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqCoeff->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
@@ -146,7 +146,7 @@ void CQDlgDependencyEquation::on_qqCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            CJoint* it = App::currentWorld->sceneObjects->getLastSelectionJoint();
+            CJoint* it = App::currentScene->sceneObjects->getLastSelectionJoint();
             int objID = ui->qqCombo->itemData(ui->qqCombo->currentIndex()).toInt();
             if (it != nullptr)
             {

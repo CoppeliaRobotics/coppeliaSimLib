@@ -57,7 +57,7 @@ int CDrawingContainer::addObject(CDrawingObject* it)
 
 void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
 {
-    if (App::worldContainer->getEventsEnabled())
+    if (App::sceneContainer->getEventsEnabled())
     {
         std::vector<int> handles;
         for (size_t i = 0; i < _allObjects.size(); i++)
@@ -66,12 +66,12 @@ void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
             handles.push_back(dr->getObjectHandle());
         }
         const char* cmd = propDrawingObjectCont_drawingObjects.name;
-        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
         else
             ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 
@@ -81,17 +81,17 @@ void CDrawingContainer::removeObject(int objectId)
     {
         if (_allObjects[i]->getObjectHandle() == objectId)
         {
-            if (App::worldContainer->getEventsEnabled())
+            if (App::sceneContainer->getEventsEnabled())
             {
                 if (App::getEventProtocolVersion()  >= 3)
                 {
-                    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED,  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
-                    App::worldContainer->pushEvent();
+                    App::sceneContainer->createEvent(EVENTTYPE_OBJECTREMOVED,  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
+                    App::sceneContainer->pushEvent();
                 }
                 if (App::getEventProtocolVersion() <= 3)
                 { // For backw. compatibility
-                    App::worldContainer->createEvent("drawingObjectRemoved",  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
-                    App::worldContainer->pushEvent();
+                    App::sceneContainer->createEvent("drawingObjectRemoved",  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
+                    App::sceneContainer->pushEvent();
                 }
             }
 
@@ -145,12 +145,12 @@ void CDrawingContainer::pushGenesisEvents()
         // We need to "fake" adding that drawing object:
         addedObjects.push_back(dr->getObjectHandle());
         const char* cmd = propDrawingObjectCont_drawingObjects.name;
-        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedObjects.data(), addedObjects.size());
         else
             ev->appendKeyHandleArray(cmd, addedObjects.data(), addedObjects.size());
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 

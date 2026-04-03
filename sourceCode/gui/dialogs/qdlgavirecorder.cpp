@@ -29,7 +29,7 @@ void CQDlgAviRecorder::refresh()
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
 
     bool noEditMode = (GuiApp::getEditModeType() == NO_EDIT_MODE);
-    bool noEditModeNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim = noEditMode && App::currentScene->simulation->isSimulationStopped();
 
     bool manualStarted = (GuiApp::mainWindow->simulationRecorder->getManualStart() &&
                           GuiApp::mainWindow->simulationRecorder->getIsRecording());
@@ -111,7 +111,7 @@ void CQDlgAviRecorder::on_launchAtSimulationStart_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         if ((!GuiApp::mainWindow->simulationRecorder->getIsRecording()) &&
-            App::currentWorld->simulation->isSimulationStopped())
+            App::currentScene->simulation->isSimulationStopped())
             GuiApp::mainWindow->simulationRecorder->setRecorderEnabled(
                 !GuiApp::mainWindow->simulationRecorder->getRecorderEnabled());
         refresh();

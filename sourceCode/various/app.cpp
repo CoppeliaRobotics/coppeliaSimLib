@@ -49,8 +49,8 @@ static std::string OBJECT_META_INFO = R"(
 CSimThread* App::simThread = nullptr;
 CUserSettings* App::userSettings = nullptr;
 CFolderSystem* App::folders = nullptr;
-CWorldContainer* App::worldContainer = nullptr;
-CWorld* App::currentWorld = nullptr;
+CSceneContainer* App::sceneContainer = nullptr;
+CScene* App::currentScene = nullptr;
 int App::_consoleVerbosity = sim_verbosity_default;
 int App::_statusbarVerbosity = sim_verbosity_msgs;
 int App::_dlgVerbosity = sim_verbosity_infos;
@@ -240,8 +240,8 @@ void App::init(const char* appDir, int)
     CSimFlavor::run(0);
     srand((int)VDateTime::getTimeInMs()); // Important so that the computer ID has some "true" random component!
                                           // Remember that each thread starts with a same seed!!!
-    worldContainer = new CWorldContainer();
-    worldContainer->initialize();
+    sceneContainer = new CSceneContainer();
+    sceneContainer->initialize();
     CFileOperations::createNewScene(false);
 
     if ((App::getConsoleVerbosity() >= sim_verbosity_trace) && (!App::userSettings->suppressStartupDialogs))
@@ -256,16 +256,16 @@ void App::init(const char* appDir, int)
     simThread = new CSimThread();
 
     // Some items below require the GUI to be initialized (e.g. the Commander plugin):
-    worldContainer->sandboxScript = new CDetachedScript(sim_scripttype_sandbox);
-    worldContainer->sandboxScript->initScript();
+    sceneContainer->sandboxScript = new CDetachedScript(sim_scripttype_sandbox);
+    sceneContainer->sandboxScript->initScript();
 
     std::string autoLoadAddOns("true");
     getAppNamedParam("addOns.autoLoad", autoLoadAddOns);
     std::transform(autoLoadAddOns.begin(), autoLoadAddOns.end(), autoLoadAddOns.begin(), [](unsigned char c){ return std::tolower(c); });
     if ( App::userSettings->runAddOns && (autoLoadAddOns == "true") )
-        worldContainer->addOnScriptContainer->loadAllFromAddOnFolder();
-    worldContainer->addOnScriptContainer->loadAdditionalAddOns();
-    worldContainer->addOnScriptContainer->callScripts(sim_syscb_init, nullptr, nullptr);
+        sceneContainer->addOnScriptContainer->loadAllFromAddOnFolder();
+    sceneContainer->addOnScriptContainer->loadAdditionalAddOns();
+    sceneContainer->addOnScriptContainer->callScripts(sim_syscb_init, nullptr, nullptr);
     setAppStage(appstage_simRunning);
 
     if (!App::userSettings->doNotWritePersistentData)
@@ -297,7 +297,7 @@ void App::init(const char* appDir, int)
 
     if (_startupScriptString.size() > 0)
     {
-        int r = worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(), nullptr);
+        int r = sceneContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(), nullptr);
         _startupScriptString.clear();
     }
 
@@ -324,19 +324,19 @@ void App::cleanup()
     delete gm;
     gm = nullptr;
 
-    while (worldContainer->getWorldCount() > 1)
-        worldContainer->destroyCurrentWorld();
-    currentWorld->clearScene(true);
+    while (sceneContainer->getSceneCount() > 1)
+        sceneContainer->destroyCurrentScene();
+    currentScene->clearScene(true);
 
     // Following 2 important at this stage, as some destructors rely on plugins (e.g. simGeom):
-    worldContainer->copyBuffer->clearMemorizedBuffer();
-    worldContainer->copyBuffer->clearBuffer();
+    sceneContainer->copyBuffer->clearMemorizedBuffer();
+    sceneContainer->copyBuffer->clearBuffer();
 
-    worldContainer->addOnScriptContainer->removeAllAddOns();
-    worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-    CDetachedScript::destroy(worldContainer->sandboxScript, true);
-    worldContainer->sandboxScript = nullptr;
-    worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
+    sceneContainer->addOnScriptContainer->removeAllAddOns();
+    sceneContainer->sandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+    CDetachedScript::destroy(sceneContainer->sandboxScript, true);
+    sceneContainer->sandboxScript = nullptr;
+    sceneContainer->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
 
     CSimFlavor::run(10);
 
@@ -352,9 +352,9 @@ void App::cleanup()
         VThread::sleep(1);
 #endif
 
-    worldContainer->deinitialize();
-    delete worldContainer;
-    worldContainer = nullptr;
+    sceneContainer->deinitialize();
+    delete sceneContainer;
+    sceneContainer = nullptr;
 
     delete folders;
     folders = nullptr;
@@ -397,7 +397,7 @@ void App::cleanup()
 
 void App::loop(void (*callback)(), bool stepIfRunning)
 {
-    worldContainer->instancePass();
+    sceneContainer->instancePass();
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
@@ -409,32 +409,32 @@ void App::loop(void (*callback)(), bool stepIfRunning)
 #ifdef SIM_WITH_GUI
     editMode = GuiApp::getEditModeType();
 #endif
-    if (currentWorld->simulation->isSimulationStopped() && (editMode == NO_EDIT_MODE))
+    if (currentScene->simulation->isSimulationStopped() && (editMode == NO_EDIT_MODE))
     {
-        worldContainer->dispatchEvents();
-        worldContainer->callScripts(sim_syscb_nonsimulation, nullptr, nullptr);
+        sceneContainer->dispatchEvents();
+        sceneContainer->callScripts(sim_syscb_nonsimulation, nullptr, nullptr);
     }
-    App::currentWorld->sceneObjects->handleDataCallbacks();
-    if (currentWorld->sceneObjects->hasSelectionChanged())
+    App::currentScene->sceneObjects->handleDataCallbacks();
+    if (currentScene->sceneObjects->hasSelectionChanged())
     {
-        CInterfaceStack* stack = worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = sceneContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->pushTextOntoStack("sel");
         std::vector<int> sel;
-        currentWorld->sceneObjects->getSelectedObjectHandles(sel);
+        currentScene->sceneObjects->getSelectedObjectHandles(sel);
         stack->pushInt32ArrayOntoStack(sel.data(), sel.size());
         stack->insertDataIntoStackTable();
-        worldContainer->callScripts(sim_syscb_selchange, stack, nullptr);
-        worldContainer->interfaceStackContainer->destroyStack(stack);
+        sceneContainer->callScripts(sim_syscb_selchange, stack, nullptr);
+        sceneContainer->interfaceStackContainer->destroyStack(stack);
     }
-    if (currentWorld->simulation->isSimulationPaused())
+    if (currentScene->simulation->isSimulationPaused())
     {
-        CDetachedScript* mainScript = currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* mainScript = currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
         {
-            worldContainer->dispatchEvents();
+            sceneContainer->dispatchEvents();
             if (mainScript->systemCallMainScript(sim_syscb_suspended, nullptr, nullptr) == 0)
-                worldContainer->callScripts(sim_syscb_suspended, nullptr, nullptr);
+                sceneContainer->callScripts(sim_syscb_suspended, nullptr, nullptr);
         }
     }
 
@@ -461,48 +461,48 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     // Handle a running simulation:
     if (stepIfRunning && (CALL_C_API_CLEAR_ERRORS(simGetSimulationState) & sim_simulation_advancing) != 0)
     {
-        if ((!App::currentWorld->simulation->getIsRealTimeSimulation()) || App::currentWorld->simulation->isRealTimeCalculationStepNeeded())
+        if ((!App::currentScene->simulation->getIsRealTimeSimulation()) || App::currentScene->simulation->isRealTimeCalculationStepNeeded())
         {
-            if ((!worldContainer->shouldTemporarilySuspendMainScript()) || App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart())
+            if ((!sceneContainer->shouldTemporarilySuspendMainScript()) || App::currentScene->simulation->didStopRequestCounterChangeSinceSimulationStart())
             {
-                CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+                CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
                 if (it != nullptr)
                 {
-                    worldContainer->calcInfo->simulationPassStart();
-                    App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
+                    sceneContainer->calcInfo->simulationPassStart();
+                    App::currentScene->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(App::currentScene->simulation->getSimulationTime()); // remove invalid elements
                     it->systemCallMainScript(-1, nullptr, nullptr);
-                    worldContainer->calcInfo->simulationPassEnd();
+                    sceneContainer->calcInfo->simulationPassEnd();
                 }
-                App::currentWorld->simulation->advanceSimulationByOneStep();
+                App::currentScene->simulation->advanceSimulationByOneStep();
             }
             // Following for backward compatibility:
-            worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old, nullptr, nullptr);
+            sceneContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old, nullptr, nullptr);
         }
         else
-            worldContainer->callScripts(sim_syscb_realtimeidle, nullptr, nullptr);
+            sceneContainer->callScripts(sim_syscb_realtimeidle, nullptr, nullptr);
     }
     //*******************************
 
-    currentWorld->sceneObjects->eraseObjects(nullptr, true); // remove objects that have a delayed destruction
-    currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_simulation);
-    currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
+    currentScene->sceneObjects->eraseObjects(nullptr, true); // remove objects that have a delayed destruction
+    currentScene->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_simulation);
+    currentScene->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
 
     // Async reset some scripts:
     for (size_t i = 0; i < _scriptsToReset.size(); i++)
     {
-        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_scriptsToReset[i]);
+        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(_scriptsToReset[i]);
         if (it != nullptr)
             it->initScript();
     }
     _scriptsToReset.clear();
 
     // Keep for backward compatibility:
-    if (!currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
-        worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old, nullptr, nullptr);
+    if (!currentScene->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
+        sceneContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old, nullptr, nullptr);
 
     simThread->executeMessages(); // rendering, queued command execution, etc.
 #ifdef SIM_WITH_GUI
-    currentWorld->simulation->showAndHandleEmergencyStopButton(false, ""); // 10/10/2015
+    currentScene->simulation->showAndHandleEmergencyStopButton(false, ""); // 10/10/2015
 #else
     qtApp->processEvents();
 #endif
@@ -525,7 +525,7 @@ long long int App::getFreshUniqueId(int objectType)
     if (objectType == sim_objecttype_mesh)
         uniqueId = _nextHandle_mesh++;
     if (uniqueId != -1)
-        currentWorld->registerNewHandle(uniqueId, objectType);
+        currentScene->registerNewHandle(uniqueId, objectType);
     else
         uniqueId = _nextUniqueId++;
 #else
@@ -536,7 +536,7 @@ long long int App::getFreshUniqueId(int objectType)
 
 void App::releaseUniqueId(long long int uid, int objectType /*= -1 */)
 {
-    currentWorld->releaseNewHandle(uid, objectType);
+    currentScene->releaseNewHandle(uid, objectType);
     //    releaseForAppWide(uid, -1);
 }
 
@@ -548,7 +548,7 @@ UID App::getNewHandleFromOldHandle(int oldHandle)
     {
         UID handleFlags = oldHandle & sim_handleflag_flagmask;
         oldHandle = oldHandle & sim_handleflag_handlemask;
-        retVal = currentWorld->getNewHandleFromOldHandle(oldHandle);
+        retVal = currentScene->getNewHandleFromOldHandle(oldHandle);
         if (retVal >= 0)
             retVal = retVal | (handleFlags * 0x100000000);
     }
@@ -564,7 +564,7 @@ int App::getOldHandleFromNewHandle(UID newHandle)
     {
         UID handleFlags = newHandle & 0x3c0000000000000;
         newHandle = newHandle & 0x03fffffffffffff;
-        retVal = currentWorld->getOldHandleFromNewHandle(newHandle);
+        retVal = currentScene->getOldHandleFromNewHandle(newHandle);
         if (retVal >= 0)
             retVal = retVal | int(handleFlags / 0x100000000);
     }
@@ -665,13 +665,13 @@ void App::setAppNamedParam(const char* paramName, const char* param, int paramLe
     if (diff)
     {
         _applicationNamedParams[paramName] = newVal;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             std::string cmd(NAMEDPARAMPREFIX);
             cmd += paramName;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyText(cmd.c_str(), param);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -684,13 +684,13 @@ bool App::removeAppNamedParam(const char* paramName)
     {
         _applicationNamedParams.erase(it);
         retVal = true;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             std::string cmd(NAMEDPARAMPREFIX);
             cmd += paramName;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyNull(cmd.c_str());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
     return retVal;
@@ -712,15 +712,15 @@ bool App::logPluginMsg(const char* pluginName, int verbosityLevel, const char* l
 
     CPlugin* it = nullptr;
 
-    if (worldContainer != nullptr)
+    if (sceneContainer != nullptr)
     {
         if (pluginName == nullptr)
-            it = worldContainer->pluginContainer->getCurrentPlugin();
+            it = sceneContainer->pluginContainer->getCurrentPlugin();
         else
         {
-            it = worldContainer->pluginContainer->getPluginFromName(pluginName);
+            it = sceneContainer->pluginContainer->getPluginFromName(pluginName);
             if (it == nullptr)
-                it = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+                it = sceneContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         }
     }
     int realVerbosityLevel = verbosityLevel & 0x0fff;
@@ -964,12 +964,12 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
                 _logOnceMessages[originName][realVerbosityLevel][msg] = true;
         }
 
-        if ((worldContainer != nullptr) && VThread::isSimThread())
+        if ((sceneContainer != nullptr) && VThread::isSimThread())
         {
             std::string orig("CoppeliaSim");
             if (originName != nullptr)
                 orig = originName;
-            CCbor* ev = worldContainer->createEvent("logMsg", -1, -1, nullptr, false);
+            CCbor* ev = sceneContainer->createEvent("logMsg", -1, -1, nullptr, false);
             ev->appendKeyText("origin", orig.c_str());
             ev->appendKeyText("msg", msg);
             ev->appendKeyInt64("verbosity", realVerbosityLevel);
@@ -977,7 +977,7 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
             ev->appendKeyBool("undecorated", verbosityLevel & sim_verbosity_undecorated);
             ev->appendKeyBool("onlyterminal", verbosityLevel & sim_verbosity_onlyterminal);
             ev->closeArrayOrMap();
-            worldContainer->pushEvent();
+            sceneContainer->pushEvent();
         }
 
         inside = true;
@@ -1154,12 +1154,12 @@ void App::setDlgVerbosity(int v)
     if (diff)
     {
         _dlgVerbosity = v;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_dialogVerbosity.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyInt64(cmd, _dlgVerbosity);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1191,7 +1191,7 @@ void App::undoRedo_sceneChanged(const char* txt)
     }
     else
 #endif
-        currentWorld->undoBufferContainer->announceChange();
+        currentScene->undoBufferContainer->announceChange();
 }
 
 void App::undoRedo_sceneChangedGradual(const char* txt)
@@ -1205,7 +1205,7 @@ void App::undoRedo_sceneChangedGradual(const char* txt)
         App::appendSimulationThreadCommand(cmd);
     }
     else
-        currentWorld->undoBufferContainer->announceChangeGradual();
+        currentScene->undoBufferContainer->announceChangeGradual();
 #endif
 }
 
@@ -1214,7 +1214,7 @@ int App::getConsoleVerbosity(const char* pluginName /*=nullptr*/)
     int retVal = _consoleVerbosity;
     if (pluginName != nullptr)
     {
-        CPlugin* pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+        CPlugin* pl = sceneContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         if (pl != nullptr)
         {
             if (pl->getConsoleVerbosity() != sim_verbosity_useglobal)
@@ -1265,7 +1265,7 @@ void App::setConsoleVerbosity(int v, const char* pluginName /*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName != nullptr)
     {
-        CPlugin* pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+        CPlugin* pl = sceneContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         if (pl != nullptr)
             pl->setConsoleVerbosity(v);
     }
@@ -1275,12 +1275,12 @@ void App::setConsoleVerbosity(int v, const char* pluginName /*=nullptr*/)
         if (diff)
         {
             _consoleVerbosity = v;
-            if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+            if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
             {
                 const char* cmd = propApp_consoleVerbosity.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+                CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
                 ev->appendKeyInt64(cmd, _consoleVerbosity);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
     }
@@ -1291,7 +1291,7 @@ int App::getStatusbarVerbosity(const char* pluginName /*=nullptr*/)
     int retVal = _statusbarVerbosity;
     if (pluginName != nullptr)
     {
-        CPlugin* pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+        CPlugin* pl = sceneContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         if (pl != nullptr)
         {
             if (pl->getStatusbarVerbosity() != sim_verbosity_useglobal)
@@ -1305,7 +1305,7 @@ void App::setStatusbarVerbosity(int v, const char* pluginName /*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName != nullptr)
     {
-        CPlugin* pl = worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+        CPlugin* pl = sceneContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         if (pl != nullptr)
             pl->setStatusbarVerbosity(v);
     }
@@ -1315,12 +1315,12 @@ void App::setStatusbarVerbosity(int v, const char* pluginName /*=nullptr*/)
         if (diff)
         {
             _statusbarVerbosity = v;
-            if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+            if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
             {
                 const char* cmd = propApp_statusbarVerbosity.name;
-                CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+                CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
                 ev->appendKeyInt64(cmd, _statusbarVerbosity);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
     }
@@ -1392,7 +1392,7 @@ bool App::disassemble(int objectHandle, bool justTest, bool msgs /* = false*/)
 {
     bool retVal = false;
     CSceneObject* it;
-    it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+    it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
     CSceneObject* parent = it->getParent();
     if (parent != nullptr)
     {
@@ -1435,7 +1435,7 @@ bool App::disassemble(int objectHandle, bool justTest, bool msgs /* = false*/)
     {
         if (msgs)
             App::logMsg(sim_verbosity_msgs, "Disassembling item...");
-        App::currentWorld->sceneObjects->setObjectParent(it, nullptr, true);
+        App::currentScene->sceneObjects->setObjectParent(it, nullptr, true);
         App::undoRedo_sceneChanged("");
         if (msgs)
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -1450,8 +1450,8 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
     CSceneObject* it2;  // gripper dummy (or object itself (special case))
     CSceneObject* obj1; // robot part
     CSceneObject* obj2; // gripper base
-    it1 = App::currentWorld->sceneObjects->getObjectFromHandle(parentHandle);
-    it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
+    it1 = App::currentScene->sceneObjects->getObjectFromHandle(parentHandle);
+    it2 = App::currentScene->sceneObjects->getObjectFromHandle(childHandle);
     obj1 = it1->getParent();
     obj2 = it2->getParent();
     if ((it1->getObjectType() == sim_sceneobject_dummy) && (obj1 != nullptr))
@@ -1499,8 +1499,8 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
     if (!retVal)
     { // old method of assembling 2 objects. We limit the scope to joint/fsensor as parent and shape as child, since we
         // slowly want to get rid of that method
-        it1 = App::currentWorld->sceneObjects->getObjectFromHandle(parentHandle);
-        it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
+        it1 = App::currentScene->sceneObjects->getObjectFromHandle(parentHandle);
+        it2 = App::currentScene->sceneObjects->getObjectFromHandle(childHandle);
         if ((it1->getParent() != it2) && (it2->getParent() != it1))
         {
             if (((it1->getObjectType() == sim_sceneobject_joint) ||
@@ -1529,7 +1529,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
         if (it1 != nullptr)
         { // new method (via dummies)
             C7Vector newLocal(it1->getFullLocalTransformation() * it2->getFullLocalTransformation().getInverse());
-            App::currentWorld->sceneObjects->setObjectParent(obj2, obj1, true);
+            App::currentScene->sceneObjects->setObjectParent(obj2, obj1, true);
             obj2->setLocalTransformation(newLocal);
         }
         else
@@ -1541,9 +1541,9 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
             if (directAssembly || (potParents.size() == 1))
             {
                 if (directAssembly)
-                    App::currentWorld->sceneObjects->setObjectParent(obj2, obj1, true);
+                    App::currentScene->sceneObjects->setObjectParent(obj2, obj1, true);
                 else
-                    App::currentWorld->sceneObjects->setObjectParent(obj2, potParents[0], true);
+                    App::currentScene->sceneObjects->setObjectParent(obj2, potParents[0], true);
                 if (obj2->getAssemblingLocalTransformationIsUsed())
                     obj2->setLocalTransformation(obj2->getAssemblingLocalTransformation());
             }
@@ -1557,49 +1557,51 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
 
 int App::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
         {
             setHierarchyEnabled(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_browserEnabled.name) == 0)
         {
 #ifdef SIM_WITH_GUI
             GuiApp::setBrowserEnabled(pState);
 #endif
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_displayEnabled.name) == 0)
         {
             setOpenGlDisplayEnabled(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setBoolProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setBoolProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
         {
             pState = getHierarchyEnabled();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_browserEnabled.name) == 0)
         {
@@ -1608,24 +1610,24 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 #else
             pState = false;
 #endif
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_displayEnabled.name) == 0)
         {
             pState = getOpenGlDisplayEnabled();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_canSave.name) == 0)
         {
             pState = canSave();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_execUnsafe.name) == 0)
         {
             if (userSettings != nullptr)
             {
                 pState = userSettings->execUnsafe;
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else
                 retVal = 0;
@@ -1635,81 +1637,85 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
             if (userSettings != nullptr)
             {
                 pState = userSettings->execUnsafeExt;
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else
                 retVal = 0;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getBoolProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getBoolProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setIntProperty(long long int target, const char* ppName, int pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_protocolVersion.name) == 0)
         {
             setEventProtocolVersion(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
         {
             setConsoleVerbosity(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
         {
             setStatusbarVerbosity(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_dialogVerbosity.name) == 0)
         {
             setDlgVerbosity(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_idleFps.name) == 0)
         {
             if (userSettings != nullptr)
                 userSettings->setIdleFps_session(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setIntProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setIntProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getIntProperty(long long int target, const char* ppName, int& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_protocolVersion.name) == 0)
         {
             pState = _eventProtocolVersion;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_productVersionNb.name) == 0)
         {
             pState = SIM_PROGRAM_FULL_VERSION_NB;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_platform.name) == 0)
         {
             pState = getPlatform();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_flavor.name) == 0)
         {
@@ -1718,12 +1724,12 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
 #else
             pState = -1;
 #endif
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_qtVersion.name) == 0)
         {
             pState = (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_processId.name) == 0)
         {
@@ -1731,7 +1737,7 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
                 pState = instancesList->thisInstanceId();
             else
                 pState = -1;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_processCnt.name) == 0)
         {
@@ -1739,27 +1745,27 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
                 pState = instancesList->numInstances();
             else
                 pState = -1;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
         {
             pState = getConsoleVerbosity();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
         {
             pState = getStatusbarVerbosity();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_dialogVerbosity.name) == 0)
         {
             pState = getDlgVerbosity();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_headlessMode.name) == 0)
         {
             pState = getHeadlessMode();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_idleFps.name) == 0)
         {
@@ -1767,7 +1773,7 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
                 pState = userSettings->getIdleFps();
             else
                 pState = -1;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_notifyDeprecated.name) == 0)
         {
@@ -1775,105 +1781,115 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
                 pState = userSettings->notifyDeprecated;
             else
                 pState = -1;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getIntProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getIntProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setLongProperty(long long int target, const char* ppName, long long int pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setLongProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setLongProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getLongProperty(long long int target, const char* ppName, long long int& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         retVal = _obj->getLongProperty(ppName, pState);
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
             if (strcmp(pName, propApp_pid.name) == 0)
             {
                 pState = pid;
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
         }
     }
-    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (worldContainer != nullptr))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (sceneContainer != nullptr))
     {
-        CustomObject* obj = worldContainer->getCustomObject(target);
+        CustomObject* obj = sceneContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getLongProperty(ppName, pState);
         else
-            retVal = -2; // property does not exist
+            retVal = RET_INEXISTANT_TARGET;
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getLongProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getLongProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setHandleProperty(long long int target, const char* ppName, long long int pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setHandleProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setHandleProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getHandleProperty(long long int target, const char* ppName, long long int& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_sandbox.name) == 0)
         {
-            if ( (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
-                pState = worldContainer->sandboxScript->getScriptHandle();
+            if ( (sceneContainer != nullptr) && (sceneContainer->sandboxScript != nullptr) )
+                pState = sceneContainer->sandboxScript->getScriptHandle();
             else
                 pState = -1;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getHandleProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getHandleProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setFloatProperty(long long int target, const char* ppName, double pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
@@ -1881,26 +1897,28 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
         {
             if (userSettings != nullptr)
                 userSettings->setTranslationStepSize(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_defaultRotationStepSize.name) == 0)
         {
             if (userSettings != nullptr)
                 userSettings->setRotationStepSize(pState);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setFloatProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setFloatProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getFloatProperty(long long int target, const char* ppName, double& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
@@ -1910,7 +1928,7 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
                 pState = userSettings->getTranslationStepSize();
             else
                 pState = 0.0;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_defaultRotationStepSize.name) == 0)
         {
@@ -1918,30 +1936,32 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
                 pState = userSettings->getRotationStepSize();
             else
                 pState = 0.0;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_randomFloat.name) == 0)
         {
             pState = SIM_RAND_FLOAT;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_systemTime.name) == 0)
         {
             pState = VDateTime::getTime();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getFloatProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getFloatProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setStringProperty(long long int target, const char* ppName, const char* pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
@@ -1951,122 +1971,124 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
             if (pN.size() > 0)
             {
                 setAppNamedParam(pN.c_str(), pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
         }
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
             if (strcmp(pName, propApp_sceneDir.name) == 0)
             {
                 if (folders != nullptr)
                     folders->setScenesPath(pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_modelDir.name) == 0)
             {
                 if (folders != nullptr)
                     folders->setModelsPath(pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_importExportDir.name) == 0)
             {
                 if (folders != nullptr)
                     folders->setImportExportPath(pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_consoleVerbosityStr.name) == 0)
             {
                 setStringVerbosity(0, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_statusbarVerbosityStr.name) == 0)
             {
                 setStringVerbosity(1, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_dialogVerbosityStr.name) == 0)
             {
                 setStringVerbosity(2, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_auxAddOn1.name) == 0)
             {
                 setAdditionalAddOnScript1(pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_auxAddOn2.name) == 0)
             {
                 setAdditionalAddOnScript2(pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_startupCode.name) == 0)
             {
                 setStartupScriptString(pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg1.name) == 0)
             {
                 setApplicationArgument(0, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg2.name) == 0)
             {
                 setApplicationArgument(1, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg3.name) == 0)
             {
                 setApplicationArgument(2, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg4.name) == 0)
             {
                 setApplicationArgument(3, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg5.name) == 0)
             {
                 setApplicationArgument(4, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg6.name) == 0)
             {
                 setApplicationArgument(5, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg7.name) == 0)
             {
                 setApplicationArgument(6, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg8.name) == 0)
             {
                 setApplicationArgument(7, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg9.name) == 0)
             {
                 setApplicationArgument(8, pState);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setStringProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setStringProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getStringProperty(long long int target, const char* ppName, std::string& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         retVal = _obj->getStringProperty(ppName, pState);
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
             std::string pN(pName);
             if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
@@ -2074,24 +2096,24 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                 if (pN.size() > 0)
                 {
                     if (getAppNamedParam(pN.c_str(), pState))
-                        retVal = 1;
+                        retVal = RET_FOUND_PROPERTY;
                 }
             }
         }
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
             if (strcmp(pName, propApp_sessionId.name) == 0)
             {
-                if (worldContainer != nullptr)
-                    pState = worldContainer->getSessionId();
+                if (sceneContainer != nullptr)
+                    pState = sceneContainer->getSessionId();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_productVersion.name) == 0)
             {
                 pState = SIM_VERSION_STR_SHORT;
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appDir.name) == 0)
             {
@@ -2099,17 +2121,17 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getExecutablePath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_machineId.name) == 0)
             {
                 pState = CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_legacyMachineId.name) == 0)
             {
                 pState = CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id_legacy);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_tempDir.name) == 0)
             {
@@ -2117,7 +2139,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getTempDataPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_sceneTempDir.name) == 0)
             {
@@ -2125,7 +2147,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getSceneTempDataPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_settingsDir.name) == 0)
             {
@@ -2133,7 +2155,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getUserSettingsPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_luaDir.name) == 0)
             {
@@ -2141,7 +2163,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getLuaPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_pythonDir.name) == 0)
             {
@@ -2149,7 +2171,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getPythonPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_mujocoDir.name) == 0)
             {
@@ -2157,7 +2179,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getMujocoPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_systemDir.name) == 0)
             {
@@ -2165,7 +2187,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getSystemPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_resourceDir.name) == 0)
             {
@@ -2173,7 +2195,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getResourcesPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_addOnDir.name) == 0)
             {
@@ -2181,7 +2203,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getAddOnPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_sceneDir.name) == 0)
             {
@@ -2189,7 +2211,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getScenesPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_modelDir.name) == 0)
             {
@@ -2197,7 +2219,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getModelsPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_importExportDir.name) == 0)
             {
@@ -2205,7 +2227,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = folders->getImportExportPath();
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_defaultPython.name) == 0)
             {
@@ -2221,7 +2243,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                         pState = "python3";
                     #endif
                 }
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_sandboxLang.name) == 0)
             {
@@ -2229,139 +2251,141 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
                     pState = userSettings->preferredSandboxLang;
                 else
                     pState = "";
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg1.name) == 0)
             {
                 pState = getApplicationArgument(0);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg2.name) == 0)
             {
                 pState = getApplicationArgument(1);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg3.name) == 0)
             {
                 pState = getApplicationArgument(2);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg4.name) == 0)
             {
                 pState = getApplicationArgument(3);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg5.name) == 0)
             {
                 pState = getApplicationArgument(4);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg6.name) == 0)
             {
                 pState = getApplicationArgument(5);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg7.name) == 0)
             {
                 pState = getApplicationArgument(6);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg8.name) == 0)
             {
                 pState = getApplicationArgument(7);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_appArg9.name) == 0)
             {
                 pState = getApplicationArgument(8);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_dongleSerial.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(22);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_machineSerialND.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(23);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_machineSerial.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(24);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_dongleID.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(25);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_machineIDX.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(26);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_machineID0.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(27);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_machineID1.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(28);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_machineID2.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(29);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_machineID3.name) == 0)
             {
                 pState = CSimFlavor::getStringVal(30);
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_randomString.name) == 0)
             {
                 pState = utils::generateUniqueAlphaNumericString();
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_auxAddOn1.name) == 0)
             {
                 pState = getAdditionalAddOnScript1();
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_auxAddOn2.name) == 0)
             {
                 pState = getAdditionalAddOnScript2();
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
             else if (strcmp(pName, propApp_startupCode.name) == 0)
             {
                 pState = _startupScriptString;
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
         }
     }
-    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (worldContainer != nullptr))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (sceneContainer != nullptr))
     {
-        CustomObject* obj = worldContainer->getCustomObject(target);
+        CustomObject* obj = sceneContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getStringProperty(ppName, pState);
         else
-            retVal = -2; // property does not exist
+            retVal = RET_INEXISTANT_TARGET;
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getStringProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getStringProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     if (buffer == nullptr)
         bufferL = 0;
     const char* pName = ppName;
@@ -2376,47 +2400,49 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
                 // CPersistentDataContainer cont("appStorage.dat");
                 if (_appStorage->writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true))
                 {
-                    if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+                    if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
                     {
-                        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                         _appStorage->appendEventData(pN.c_str(), ev);
-                        App::worldContainer->pushEvent();
+                        App::sceneContainer->pushEvent();
                     }
                 }
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
         }
         else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
         {
             if (pN.size() > 0)
             {
-                if (worldContainer != nullptr)
+                if (sceneContainer != nullptr)
                 {
-                    bool diff = worldContainer->customAppData_volatile.setData(pN.c_str(), buffer, bufferL, true);
-                    if (diff && worldContainer->getEventsEnabled())
+                    bool diff = sceneContainer->customAppData_volatile.setData(pN.c_str(), buffer, bufferL, true);
+                    if (diff && sceneContainer->getEventsEnabled())
                     {
-                        CCbor* ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
-                        worldContainer->customAppData_volatile.appendEventData(pN.c_str(), ev);
-                        worldContainer->pushEvent();
+                        CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        sceneContainer->customAppData_volatile.appendEventData(pN.c_str(), ev);
+                        sceneContainer->pushEvent();
                     }
-                    retVal = 1;
+                    retVal = RET_FOUND_PROPERTY;
                 }
                 else
                     retVal = 0;
             }
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setBufferProperty(target, pName, buffer, bufferL);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setBufferProperty(target, pName, buffer, bufferL);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getBufferProperty(long long int target, const char* ppName, std::string& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
@@ -2428,410 +2454,460 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
             {
                 //CPersistentDataContainer cont("appStorage.dat");
                 if (_appStorage->readData(pN.c_str(), pState))
-                    retVal = 1;
+                    retVal = RET_FOUND_PROPERTY;
             }
         }
         else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
         {
             if (pN.size() > 0)
             {
-                if (worldContainer != nullptr)
+                if (sceneContainer != nullptr)
                 {
-                    if (worldContainer->customAppData_volatile.hasData(pN.c_str(), false) >= 0)
+                    if (sceneContainer->customAppData_volatile.hasData(pN.c_str(), false) >= 0)
                     {
-                        pState = worldContainer->customAppData_volatile.getData(pN.c_str());
-                        retVal = 1;
+                        pState = sceneContainer->customAppData_volatile.getData(pN.c_str());
+                        retVal = RET_FOUND_PROPERTY;
                     }
                 }
             }
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getBufferProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getBufferProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setIntArray2Property(long long int target, const char* ppName, const int* pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setIntArray2Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setIntArray2Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getIntArray2Property(long long int target, const char* ppName, int* pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getIntArray2Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getIntArray2Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setVector2Property(long long int target, const char* ppName, const double* pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setVector2Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setVector2Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getVector2Property(long long int target, const char* ppName, double* pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getVector2Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getVector2Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setVector3Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setVector3Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getVector3Property(long long int target, const char* ppName, C3Vector& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getVector3Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getVector3Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setMatrixProperty(long long int target, const char* ppName, const CMatrix& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setMatrixProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setMatrixProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getMatrixProperty(long long int target, const char* ppName, CMatrix& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getMatrixProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getMatrixProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setMatrix3x3Property(long long int target, const char* ppName, const CMatrix& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setMatrix3x3Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setMatrix3x3Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getMatrix3x3Property(long long int target, const char* ppName, CMatrix& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getMatrix3x3Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getMatrix3x3Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setMatrix4x4Property(long long int target, const char* ppName, const CMatrix& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setMatrix4x4Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setMatrix4x4Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getMatrix4x4Property(long long int target, const char* ppName, CMatrix& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getMatrix4x4Property(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getMatrix4x4Property(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setQuaternionProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setQuaternionProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_randomQuaternion.name) == 0)
         {
             pState.buildRandomOrientation();
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getQuaternionProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getQuaternionProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setPoseProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setPoseProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getPoseProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getPoseProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setColorProperty(long long int target, const char* ppName, const float* pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setColorProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setColorProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getColorProperty(long long int target, const char* ppName, float* pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getColorProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getColorProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setFloatArrayProperty(target, pName, v, vL);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setFloatArrayProperty(target, pName, v, vL);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getFloatArrayProperty(long long int target, const char* ppName, std::vector<double>& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     pState.clear();
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getFloatArrayProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getFloatArrayProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setIntArrayProperty(target, pName, v, vL);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setIntArrayProperty(target, pName, v, vL);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getIntArrayProperty(long long int target, const char* ppName, std::vector<int>& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     pState.clear();
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getIntArrayProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getIntArrayProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setHandleArrayProperty(target, pName, v, vL);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setHandleArrayProperty(target, pName, v, vL);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getHandleArrayProperty(long long int target, const char* ppName, std::vector<long long int>& pState)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     pState.clear();
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         if (strcmp(pName, propApp_addOns.name) == 0)
         {
-            std::vector<int> addOnList(worldContainer->addOnScriptContainer->getAddOnHandles());
+            std::vector<int> addOnList(sceneContainer->addOnScriptContainer->getAddOnHandles());
             for (size_t i = 0; i < addOnList.size(); i++)
                 pState.push_back(addOnList[i]);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getHandleArrayProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getHandleArrayProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::setStringArrayProperty(long long int target, const char* ppName, const std::vector<std::string>& pState)
 {
-//    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-//        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
@@ -2841,20 +2917,22 @@ int App::setStringArrayProperty(long long int target, const char* ppName, const 
             ps.resize(9);
             for (size_t i = 0; i < ps.size(); i++)
                 setApplicationArgument(i, ps[i]);
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->setStringArrayProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->setStringArrayProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getStringArrayProperty(long long int target, const char* ppName, std::vector<std::string>& pState)
 {
-//    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-//        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     pState.clear();
     const char* pName = ppName;
     if (target == sim_handle_app)
@@ -2862,25 +2940,27 @@ int App::getStringArrayProperty(long long int target, const char* ppName, std::v
         if (strcmp(pName, propApp_appArgs.name) == 0)
         {
             pState = _applicationArguments;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
         else if (strcmp(pName, propApp_pluginNames.name) == 0)
         {
             pState = _pluginNames;
-            retVal = 1;
+            retVal = RET_FOUND_PROPERTY;
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getStringArrayProperty(target, pName, pState);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getStringArrayProperty(target, pName, pState);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::removeProperty(long long int target, const char* ppName)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
@@ -2894,33 +2974,33 @@ int App::removeProperty(long long int target, const char* ppName)
             {
                 if (_appStorage->clearData((propertyStrings[tp] + pN).c_str(), true))
                 {
-                    if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+                    if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
                     {
-                        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                         _appStorage->appendEventData(pN.c_str(), ev, true);
-                        App::worldContainer->pushEvent();
+                        App::sceneContainer->pushEvent();
                     }
                 }
-                retVal = 1;
+                retVal = RET_FOUND_PROPERTY;
             }
         }
         else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
         {
             if (pN.size() > 0)
             {
-                if (worldContainer != nullptr)
+                if (sceneContainer != nullptr)
                 {
-                    int tp = worldContainer->customAppData_volatile.hasData(pN.c_str(), true);
+                    int tp = sceneContainer->customAppData_volatile.hasData(pN.c_str(), true);
                     if (tp >= 0)
                     {
-                        bool diff = worldContainer->customAppData_volatile.clearData((propertyStrings[tp] + pN).c_str());
-                        if (diff && worldContainer->getEventsEnabled())
+                        bool diff = sceneContainer->customAppData_volatile.clearData((propertyStrings[tp] + pN).c_str());
+                        if (diff && sceneContainer->getEventsEnabled())
                         {
-                            CCbor* ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
-                            worldContainer->customAppData_volatile.appendEventData(pN.c_str(), ev, true);
-                            worldContainer->pushEvent();
+                            CCbor* ev = sceneContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                            sceneContainer->customAppData_volatile.appendEventData(pN.c_str(), ev, true);
+                            sceneContainer->pushEvent();
                         }
-                        retVal = 1;
+                        retVal = RET_FOUND_PROPERTY;
                     }
                 }
             }
@@ -2930,26 +3010,29 @@ int App::removeProperty(long long int target, const char* ppName)
             if (pN.size() > 0)
             {
                 if (removeAppNamedParam(pN.c_str()))
-                    retVal = 1;
+                    retVal = RET_FOUND_PROPERTY;
                 else
                     retVal = 0;
             }
         }
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->removeProperty(target, pName);
+    else if (currentScene != nullptr)
+        retVal = currentScene->removeProperty(target, pName);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
-    int retVal = -1;
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
+
     if (target == sim_handle_app)
     {
         retVal = _obj->getPropertyName(index, pName, appartenance, excludeFlags);
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
             appartenance = _obj->getObjectTypeStr();
             for (size_t i = 0; i < allProps_app.size(); i++)
@@ -2962,30 +3045,30 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                         if (index == -1)
                         {
                             pName = allProps_app[i].name;
-                            retVal = 1;
+                            retVal = RET_FOUND_PROPERTY;
                             break;
                         }
                     }
                 }
             }
-            if (retVal == -1)
+            if (retVal == RET_INEXISTANT_PROPERTY)
             {
                 //CPersistentDataContainer cont("appStorage.dat");
                 if (_appStorage->getPropertyName(index, pName, excludeFlags))
                 {
                     pName = CUSTOMDATAPREFIX + pName;
-                    retVal = 1;
+                    retVal = RET_FOUND_PROPERTY;
                 }
             }
-            if ((retVal == -1) && (worldContainer != nullptr))
+            if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneContainer != nullptr))
             {
-                if (worldContainer->customAppData_volatile.getPropertyName(index, pName, excludeFlags))
+                if (sceneContainer->customAppData_volatile.getPropertyName(index, pName, excludeFlags))
                 {
                     pName = SIGNALPREFIX + pName;
-                    retVal = 1;
+                    retVal = RET_FOUND_PROPERTY;
                 }
             }
-            if (retVal == -1)
+            if (retVal == RET_INEXISTANT_PROPERTY)
             {
                 for (const auto& pair : _applicationNamedParams)
                 {
@@ -3000,7 +3083,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                             if (index == -1)
                             {
                                 pName = NAMEDPARAMPREFIX + pair.first;
-                                retVal = 1;
+                                retVal = RET_FOUND_PROPERTY;
                                 break;
                             }
                         }
@@ -3009,30 +3092,32 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             }
         }
     }
-    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (worldContainer != nullptr))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (sceneContainer != nullptr))
     {
-        CustomObject* obj = worldContainer->getCustomObject(target);
+        CustomObject* obj = sceneContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getPropertyName(index, pName, appartenance, excludeFlags);
         else
-            retVal = -2; // property does not exist
+            retVal = RET_INEXISTANT_TARGET;
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getPropertyName(target, index, pName, appartenance, excludeFlags);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getPropertyName(target, index, pName, appartenance, excludeFlags);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
 int App::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt)
 {
-    if ((target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr))
-        target = worldContainer->sandboxScript->getScriptHandle();
+    int retVal = RET_INEXISTANT_PROPERTY;
+    if (!_resolveTarget(target))
+        retVal = RET_INEXISTANT_TARGET;
 
-    int retVal = -1;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
         retVal = _obj->getPropertyInfo(ppName, info, infoTxt);
-        if (retVal == -1)
+        if (retVal == RET_INEXISTANT_PROPERTY)
         {
             for (size_t i = 0; i < allProps_app.size(); i++)
             {
@@ -3055,7 +3140,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     break;
                 }
             }
-            if (retVal == -1)
+            if (retVal == RET_INEXISTANT_PROPERTY)
             {
                 std::string pN(pName);
                 if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
@@ -3073,13 +3158,13 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     }
                 }
             }
-            if ((retVal == -1) && (worldContainer != nullptr))
+            if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneContainer != nullptr))
             {
                 std::string pN(pName);
                 if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
                 {
                     int s;
-                    retVal = worldContainer->customAppData_volatile.hasData(pN.c_str(), true, &s);
+                    retVal = sceneContainer->customAppData_volatile.hasData(pN.c_str(), true, &s);
                     if (retVal >= 0)
                     {
                         info = SIGNALFLAGS;
@@ -3089,7 +3174,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
                     }
                 }
             }
-            if (retVal == -1)
+            if (retVal == RET_INEXISTANT_PROPERTY)
             {
                 std::string pN(pName);
                 pN.erase(0, 11);
@@ -3108,16 +3193,18 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
             }
         }
     }
-    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (worldContainer != nullptr))
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (sceneContainer != nullptr))
     {
-        CustomObject* obj = worldContainer->getCustomObject(target);
+        CustomObject* obj = sceneContainer->getCustomObject(target);
         if (obj != nullptr)
             retVal = obj->getPropertyInfo(pName, info, infoTxt);
         else
-            retVal = -2; // property does not exist
+            retVal = RET_INEXISTANT_TARGET;
     }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getPropertyInfo(target, pName, info, infoTxt);
+    else if (currentScene != nullptr)
+        retVal = currentScene->getPropertyInfo(target, pName, info, infoTxt);
+    else
+        retVal = RET_INEXISTANT_TARGET;
     return retVal;
 }
 
@@ -3126,7 +3213,26 @@ bool App::isTargetValid(long long int target)
     int ind = 0;
     std::string pName, appart;
     return App::getPropertyName(target, ind, pName, appart, 0) > 0;
+}
 
+bool App::_resolveTarget(long long int& target)
+{
+    bool retVal = true;
+    if (target == sim_handle_sandbox)
+    {
+        if ((sceneContainer != nullptr) && (sceneContainer->sandboxScript != nullptr))
+            target = sceneContainer->sandboxScript->getScriptHandle();
+        else
+            retVal = false; // target does not exist
+    }
+    else if (target == sim_handle_mainscript)
+    {
+        if ((currentScene != nullptr) && (currentScene->sceneObjects->embeddedScriptContainer->getMainScript() != nullptr))
+            target = currentScene->sceneObjects->embeddedScriptContainer->getMainScript()->getScriptHandle();
+        else
+            retVal = false; // target does not exist
+    }
+    return retVal;
 }
 
 void App::setHierarchyEnabled(bool v)
@@ -3135,12 +3241,12 @@ void App::setHierarchyEnabled(bool v)
     if (diff)
     {
         _hierarchyEnabled = v;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_hierarchyEnabled.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _hierarchyEnabled);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow != nullptr)
@@ -3165,12 +3271,12 @@ void App::setOpenGlDisplayEnabled(bool e)
     if (diff)
     {
         _openGlDisplayEnabled = e;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_displayEnabled.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _openGlDisplayEnabled);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setToolbarRefreshFlag();
@@ -3198,7 +3304,7 @@ int App::getHeadlessMode()
 bool App::canSave()
 {
     bool retVal = false;
-    if (App::currentWorld->simulation->isSimulationStopped() && CSimFlavor::getBoolVal(16))
+    if (App::currentScene->simulation->isSimulationStopped() && CSimFlavor::getBoolVal(16))
     {
         retVal = true;
 #ifdef SIM_WITH_GUI
@@ -3316,17 +3422,17 @@ void App::setEventProtocolVersion(int v)
 
 void App::pushGenesisEvents()
 {
-    if ((worldContainer != nullptr) && worldContainer->getEventsEnabled())
+    if ((sceneContainer != nullptr) && sceneContainer->getEventsEnabled())
     {
         CSimFlavor::getStringVal(22); // trigger calculations and print mids
-        CCbor* ev = worldContainer->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
-        worldContainer->pushEvent();
+        CCbor* ev = sceneContainer->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
+        sceneContainer->pushEvent();
 
         if (App::getEventProtocolVersion() == 2)
-            ev = worldContainer->createEvent("appSession", sim_handle_app, sim_handle_app, nullptr, false);
+            ev = sceneContainer->createEvent("appSession", sim_handle_app, sim_handle_app, nullptr, false);
         else
-            ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
-        ev->appendKeyText(propApp_sessionId.name, worldContainer->getSessionId().c_str());
+            ev = sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
+        ev->appendKeyText(propApp_sessionId.name, sceneContainer->getSessionId().c_str());
         ev->appendKeyText(propObject_objectType.name, _obj->getObjectTypeStr().c_str());
         ev->appendKeyInt64(propApp_protocolVersion.name, _eventProtocolVersion);
         ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
@@ -3339,8 +3445,8 @@ void App::pushGenesisEvents()
 #endif
         ev->appendKeyInt64(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
         int sbh = -1;
-        if (worldContainer->sandboxScript != nullptr)
-            sbh = worldContainer->sandboxScript->getScriptHandle();
+        if (sceneContainer->sandboxScript != nullptr)
+            sbh = sceneContainer->sandboxScript->getScriptHandle();
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt64(propApp_sandbox.name, sbh);
         else
@@ -3355,7 +3461,7 @@ void App::pushGenesisEvents()
         ev->appendKeyInt64(propApp_dialogVerbosity.name, getDlgVerbosity());
         ev->appendKeyTextArray(propApp_appArgs.name, _applicationArguments);
         ev->appendKeyTextArray(propApp_pluginNames.name, _pluginNames);
-        std::vector<int> addOnList(worldContainer->addOnScriptContainer->getAddOnHandles());
+        std::vector<int> addOnList(sceneContainer->addOnScriptContainer->getAddOnHandles());
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(propApp_addOns.name, addOnList.data(), addOnList.size());
         else
@@ -3385,7 +3491,7 @@ void App::pushGenesisEvents()
             ev->appendKeyText(propApp_importExportDir.name, folders->getImportExportPath().c_str());
         }
 
-        worldContainer->customAppData_volatile.appendEventData(nullptr, ev);
+        sceneContainer->customAppData_volatile.appendEventData(nullptr, ev);
 
         if (userSettings != nullptr)
         {
@@ -3394,8 +3500,8 @@ void App::pushGenesisEvents()
         }
         if (App::getEventProtocolVersion() == 2)
         {
-            worldContainer->pushEvent();
-            ev = worldContainer->createEvent("appSettingsChanged", sim_handle_app, sim_handle_app, nullptr, false);
+            sceneContainer->pushEvent();
+            ev = sceneContainer->createEvent("appSettingsChanged", sim_handle_app, sim_handle_app, nullptr, false);
         }
         if (userSettings != nullptr)
         {
@@ -3436,23 +3542,23 @@ void App::pushGenesisEvents()
         if (userSettings != nullptr)
             ev->appendKeyInt64(propApp_idleFps.name, userSettings->getIdleFps());
 
-        worldContainer->pushEvent();
+        sceneContainer->pushEvent();
 
-        ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
+        ev = sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
         //CPersistentDataContainer cont("appStorage.dat");
         _appStorage->appendEventData(nullptr, ev);
-        worldContainer->pushEvent();
+        sceneContainer->pushEvent();
 
-        if (worldContainer->sandboxScript != nullptr)
-            worldContainer->sandboxScript->pushObjectCreationEvent();
+        if (sceneContainer->sandboxScript != nullptr)
+            sceneContainer->sandboxScript->pushObjectCreationEvent();
 
-        if (worldContainer->addOnScriptContainer != nullptr)
-            worldContainer->addOnScriptContainer->pushGenesisEvents();
+        if (sceneContainer->addOnScriptContainer != nullptr)
+            sceneContainer->addOnScriptContainer->pushGenesisEvents();
 
-        currentWorld->pushGenesisEvents();
+        currentScene->pushGenesisEvents();
 
-        ev = worldContainer->createEvent(EVENTTYPE_GENESISEND, -1, -1, nullptr, false);
-        worldContainer->pushEvent();
+        ev = sceneContainer->createEvent(EVENTTYPE_GENESISEND, -1, -1, nullptr, false);
+        sceneContainer->pushEvent();
     }
 }
 
@@ -3464,12 +3570,12 @@ void App::setPluginList(const std::vector<CPlugin*>* plugins)
         _pluginNames.push_back(plugins->at(i)->getName());
     if (_pluginNames != oldNames)
     {
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_pluginNames.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyTextArray(cmd, _pluginNames);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }

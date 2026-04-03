@@ -39,8 +39,8 @@ void CQDlgCommonProperties::refresh()
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
 
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
-    CSceneObject* ls = App::currentWorld->sceneObjects->getLastSelectionObject();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
+    CSceneObject* ls = App::currentScene->sceneObjects->getLastSelectionObject();
     bool objIsSelected = (ls != nullptr);
     bool isDummy = false;
     bool isOctree = false;
@@ -52,7 +52,7 @@ void CQDlgCommonProperties::refresh()
     bool isPath = false;
     bool isGraph = false;
     bool isScript = false;
-    bool bigSel = App::currentWorld->sceneObjects->getSelectionCount() >= 2;
+    bool bigSel = App::currentScene->sceneObjects->getSelectionCount() >= 2;
     if (objIsSelected)
     {
         isMirror = (ls->getObjectType() == sim_sceneobject_mirror);
@@ -187,9 +187,9 @@ void CQDlgCommonProperties::refresh()
         std::vector<int> ids;
 
         // Collections:
-        for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
+        for (size_t i = 0; i < App::currentScene->collections->getObjectCount(); i++)
         {
-            CCollection* it2 = App::currentWorld->collections->getObjectFromIndex(i);
+            CCollection* it2 = App::currentScene->collections->getObjectFromIndex(i);
             std::string name(tt::decorateString("[", IDSN_COLLECTION, "] "));
             name += it2->getCollectionName();
             names.push_back(name);
@@ -202,9 +202,9 @@ void CQDlgCommonProperties::refresh()
         // Cameras:
         names.clear();
         ids.clear();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
         {
-            CCamera* it2 = App::currentWorld->sceneObjects->getCameraFromIndex(i);
+            CCamera* it2 = App::currentScene->sceneObjects->getCameraFromIndex(i);
             std::string name(tt::decorateString("[", IDSN_CAMERA, "] "));
             name += it2->getObjectAlias_printPath();
             names.push_back(name);
@@ -217,9 +217,9 @@ void CQDlgCommonProperties::refresh()
         // Vision sensors:
         names.clear();
         ids.clear();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
         {
-            CVisionSensor* it2 = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
+            CVisionSensor* it2 = App::currentScene->sceneObjects->getVisionSensorFromIndex(i);
             std::string name(tt::decorateString("[", IDSN_VISION_SENSOR, "] "));
             name += it2->getObjectAlias_printPath();
             names.push_back(name);
@@ -343,7 +343,7 @@ void CQDlgCommonProperties::on_qqSelectable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SELECTABLE_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -354,7 +354,7 @@ void CQDlgCommonProperties::on_qqSelectBaseInstead_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SELECTBASEOFMODEL_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -365,7 +365,7 @@ void CQDlgCommonProperties::on_qqDontShowInModelSelection_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_DONGTSHOWINSIDEMODELSELECTION_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -376,7 +376,7 @@ void CQDlgCommonProperties::on_qqIgnoreForViewFitting_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_VIEWFITTINGIGNORED_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -386,14 +386,14 @@ void CQDlgCommonProperties::on_qqApplyGeneralProperties_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::currentWorld->sceneObjects->getSelectionCount() >= 2)
+        if (App::currentScene->sceneObjects->getSelectionCount() >= 2)
         {
-            CSceneObject* last = App::currentWorld->sceneObjects->getLastSelectionObject();
+            CSceneObject* last = App::currentScene->sceneObjects->getLastSelectionObject();
             SSimulationThreadCommand cmd;
             cmd.cmdId = APPLY_GENERALPROP_COMMONPROPGUITRIGGEREDCMD;
             cmd.intParams.push_back(last->getObjectHandle());
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount() - 1; i++)
-                cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
+                cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -404,7 +404,7 @@ void CQDlgCommonProperties::on_a_1_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 1;
@@ -421,7 +421,7 @@ void CQDlgCommonProperties::on_a_2_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 2;
@@ -438,7 +438,7 @@ void CQDlgCommonProperties::on_a_3_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 4;
@@ -455,7 +455,7 @@ void CQDlgCommonProperties::on_a_4_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 8;
@@ -472,7 +472,7 @@ void CQDlgCommonProperties::on_a_5_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 16;
@@ -489,7 +489,7 @@ void CQDlgCommonProperties::on_a_6_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 32;
@@ -506,7 +506,7 @@ void CQDlgCommonProperties::on_a_7_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 64;
@@ -523,7 +523,7 @@ void CQDlgCommonProperties::on_a_8_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 128;
@@ -540,7 +540,7 @@ void CQDlgCommonProperties::on_a_9_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 256;
@@ -557,7 +557,7 @@ void CQDlgCommonProperties::on_a_10_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 512;
@@ -574,7 +574,7 @@ void CQDlgCommonProperties::on_a_11_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 1024;
@@ -591,7 +591,7 @@ void CQDlgCommonProperties::on_a_12_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 2048;
@@ -608,7 +608,7 @@ void CQDlgCommonProperties::on_a_13_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 4096;
@@ -625,7 +625,7 @@ void CQDlgCommonProperties::on_a_14_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 8192;
@@ -642,7 +642,7 @@ void CQDlgCommonProperties::on_a_15_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 16384;
@@ -659,7 +659,7 @@ void CQDlgCommonProperties::on_a_16_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
         if (it != nullptr)
         {
             int layer = it->getVisibilityLayer() ^ 32768;
@@ -676,14 +676,14 @@ void CQDlgCommonProperties::on_qqApplyLayers_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::currentWorld->sceneObjects->getSelectionCount() >= 2)
+        if (App::currentScene->sceneObjects->getSelectionCount() >= 2)
         {
-            CSceneObject* last = App::currentWorld->sceneObjects->getLastSelectionObject();
+            CSceneObject* last = App::currentScene->sceneObjects->getLastSelectionObject();
             SSimulationThreadCommand cmd;
             cmd.cmdId = APPLY_VISIBILITYPROP_COMMONPROPGUITRIGGEREDCMD;
             cmd.intParams.push_back(last->getObjectHandle());
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount() - 1; i++)
-                cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
+                cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -695,7 +695,7 @@ void CQDlgCommonProperties::on_qqModelBase_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_MODELBASE_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -705,9 +705,9 @@ void CQDlgCommonProperties::on_qqEditModelProperties_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::currentWorld->sceneObjects->getSelectionCount() > 0)
+        if (App::currentScene->sceneObjects->getSelectionCount() > 0)
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+            CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
             if ((it != nullptr) && it->getModelBase())
             {
                 CQDlgModelProperties theDialog(this);
@@ -723,7 +723,7 @@ void CQDlgCommonProperties::on_qqCollidable_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* ls = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* ls = App::currentScene->sceneObjects->getLastSelectionObject();
         if ((ls != nullptr) && ls->isPotentiallyCollidable())
         {
             App::appendSimulationThreadCommand(TOGGLE_COLLIDABLE_COMMONPROPGUITRIGGEREDCMD, ls->getObjectHandle());
@@ -737,7 +737,7 @@ void CQDlgCommonProperties::on_qqMeasurable_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* ls = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* ls = App::currentScene->sceneObjects->getLastSelectionObject();
         if ((ls != nullptr) && ls->isPotentiallyMeasurable())
         {
             App::appendSimulationThreadCommand(TOGGLE_MEASURABLE_COMMONPROPGUITRIGGEREDCMD, ls->getObjectHandle());
@@ -751,7 +751,7 @@ void CQDlgCommonProperties::on_qqRenderable_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* ls = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* ls = App::currentScene->sceneObjects->getLastSelectionObject();
         if ((ls != nullptr) && ls->isPotentiallyRenderable())
         {
             App::appendSimulationThreadCommand(TOGGLE_RENDERABLE_COMMONPROPGUITRIGGEREDCMD, ls->getObjectHandle());
@@ -765,7 +765,7 @@ void CQDlgCommonProperties::on_qqDetectable_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* ls = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* ls = App::currentScene->sceneObjects->getLastSelectionObject();
         if ((ls != nullptr) && ls->isPotentiallyDetectable())
         {
             App::appendSimulationThreadCommand(TOGGLE_DETECTABLE_COMMONPROPGUITRIGGEREDCMD, ls->getObjectHandle());
@@ -779,7 +779,7 @@ void CQDlgCommonProperties::on_qqEditDetectableDetails_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CSceneObject* last = App::currentWorld->sceneObjects->getLastSelectionObject();
+        CSceneObject* last = App::currentScene->sceneObjects->getLastSelectionObject();
         if ((last != nullptr) && last->isPotentiallyDetectable())
         {
             CQDlgDetectableProperties dlg(this);
@@ -800,14 +800,14 @@ void CQDlgCommonProperties::on_qqApplySpecialProperties_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::currentWorld->sceneObjects->getSelectionCount() >= 2)
+        if (App::currentScene->sceneObjects->getSelectionCount() >= 2)
         {
-            CSceneObject* last = App::currentWorld->sceneObjects->getLastSelectionObject();
+            CSceneObject* last = App::currentScene->sceneObjects->getLastSelectionObject();
             SSimulationThreadCommand cmd;
             cmd.cmdId = APPLY_SPECIALPROP_COMMONPROPGUITRIGGEREDCMD;
             cmd.intParams.push_back(last->getObjectHandle());
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount() - 1; i++)
-                cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
+                cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -818,7 +818,7 @@ void CQDlgCommonProperties::on_qqOpenScalingDialog_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        if (App::currentWorld->sceneObjects->getSelectionCount() == 0)
+        if (App::currentScene->sceneObjects->getSelectionCount() == 0)
             return;
         CQDlgScaling theDialog(this);
         theDialog.refresh();
@@ -830,10 +830,10 @@ void CQDlgCommonProperties::on_qqAssembling_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        if (App::currentWorld->sceneObjects->getSelectionCount() == 0)
+        if (App::currentScene->sceneObjects->getSelectionCount() == 0)
             return;
         CQDlgAssembly theDialog(this);
-        theDialog.obj = App::currentWorld->sceneObjects->getLastSelectionObject();
+        theDialog.obj = App::currentScene->sceneObjects->getLastSelectionObject();
         theDialog.refresh();
         theDialog.makeDialogModal(); // things are modified in the dlg
     }
@@ -844,7 +844,7 @@ void CQDlgCommonProperties::on_qqSelectInvisible_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SELECTINVISIBLE_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -855,7 +855,7 @@ void CQDlgCommonProperties::on_qqDepthInvisible_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_DEPTHMAPIGNORED_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -872,7 +872,7 @@ void CQDlgCommonProperties::on_qqSelfCollisionIndicator_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SELFCOLLISIONINDICATOR_COMMONPROPGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -887,7 +887,7 @@ void CQDlgCommonProperties::on_qqViewableObjects_currentIndexChanged(int index)
         {
             int objID = ui->qqViewableObjects->itemData(ui->qqViewableObjects->currentIndex()).toInt();
             App::appendSimulationThreadCommand(SET_CANBESEENBY_COMMONPROPGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), objID);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -901,7 +901,7 @@ void CQDlgCommonProperties::on_qqExtensionString_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(SET_EXTENSIONSTRING_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, 0, 0,
+                                           App::currentScene->sceneObjects->getLastSelectionHandle(), -1, 0, 0,
                                            ui->qqExtensionString->text().toStdString().c_str());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -913,7 +913,7 @@ void CQDlgCommonProperties::on_qqCannotBeDeleted_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_CANNOTBEDELETED_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -924,7 +924,7 @@ void CQDlgCommonProperties::on_qqCannotBeDeletedDuringSimul_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_CANNOTBEDELETEDDURINGSIMULATION_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -935,7 +935,7 @@ void CQDlgCommonProperties::on_qqHiddenDuringSimul_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_HIDDENDURINGSIMULATION_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -946,7 +946,7 @@ void CQDlgCommonProperties::on_qqNotMoveable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_NOTMOVEABLE_COMMONPROPGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

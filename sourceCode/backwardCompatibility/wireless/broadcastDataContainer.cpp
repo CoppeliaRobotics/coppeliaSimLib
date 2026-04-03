@@ -53,14 +53,14 @@ void CBroadcastDataContainer::broadcastData(int emitterID, int targetID, int dat
         new CBroadcastData(emitterID, targetID, dataHeader, dataName, timeOutSimulationTime, actionRadius,
                            antennaHandle, emissionAngle1, emissionAngle2, data, dataLength);
     _allObjects.push_back(it);
-    if (App::currentWorld->environment->getVisualizeWirelessEmitters() || _wirelessForceShow_emission)
+    if (App::currentScene->environment->getVisualizeWirelessEmitters() || _wirelessForceShow_emission)
     {
         bool err = false;
         C7Vector antennaConf;
         antennaConf.setIdentity();
         if (antennaHandle != sim_handle_default)
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(antennaHandle);
             if (it != nullptr)
                 antennaConf = it->getCumulativeTransformation();
             else
@@ -91,7 +91,7 @@ char* CBroadcastDataContainer::receiveData(int receiverID, double simulationTime
         {
             if (originalIndex == -1)
             {
-                if (App::currentWorld->environment->getVisualizeWirelessReceivers() || _wirelessForceShow_reception)
+                if (App::currentScene->environment->getVisualizeWirelessReceivers() || _wirelessForceShow_reception)
                 {
                     bool err = false;
                     C3Vector antennaPos1;
@@ -99,7 +99,7 @@ char* CBroadcastDataContainer::receiveData(int receiverID, double simulationTime
                     if (_allObjects[i]->getAntennaHandle() != sim_handle_default)
                     {
                         CSceneObject* it =
-                            App::currentWorld->sceneObjects->getObjectFromHandle(_allObjects[i]->getAntennaHandle());
+                            App::currentScene->sceneObjects->getObjectFromHandle(_allObjects[i]->getAntennaHandle());
                         if (it != nullptr)
                             antennaPos1 = it->getCumulativeTransformation().X;
                         else
@@ -109,7 +109,7 @@ char* CBroadcastDataContainer::receiveData(int receiverID, double simulationTime
                     antennaPos2.clear();
                     if (antennaHandle != sim_handle_default)
                     {
-                        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+                        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(antennaHandle);
                         if (it != nullptr)
                             antennaPos2 = it->getCumulativeTransformation().X;
                         else

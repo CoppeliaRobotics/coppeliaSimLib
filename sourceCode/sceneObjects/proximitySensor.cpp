@@ -118,12 +118,12 @@ void CProxSensor::setShowVolume(bool s)
     if (_showVolume != s)
     {
         _showVolume = s;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_showVolume.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _showVolume);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -223,10 +223,10 @@ void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*
             _detectedPoint = detectedPt[0];
             _detectedNormalVector = detectedN[0];
         }
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_detectedObjectHandle.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _detectedObjectHandle);
             if (App::getEventProtocolVersion() <= 3)
             {
@@ -238,7 +238,7 @@ void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*
                 ev->appendKeyVector3(propProximitySensor_detectedPoint.name, _detectedPoint);
                 ev->appendKeyVector3(propProximitySensor_detectedNormal.name, _detectedNormalVector);
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -258,12 +258,12 @@ void CProxSensor::setExplicitHandling(bool setExplicit)
     if (_explicitHandling != setExplicit)
     {
         _explicitHandling = setExplicit;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_explicitHandling.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _explicitHandling);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -390,13 +390,13 @@ void CProxSensor::performObjectLoadingMapping(const std::map<int, int>* map, int
 {
     CSceneObject::performObjectLoadingMapping(map, opType);
     if (_sensableObject_deprecated <= sim_object_sceneobjectend)
-        _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
+        _sensableObject_deprecated = CScene::getLoadingMapping(map, _sensableObject_deprecated);
 }
 void CProxSensor::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performCollectionLoadingMapping(map, opType);
     if (_sensableObject_deprecated > sim_object_sceneobjectend)
-        _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
+        _sensableObject_deprecated = CScene::getLoadingMapping(map, _sensableObject_deprecated);
 }
 void CProxSensor::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
@@ -671,12 +671,12 @@ void CProxSensor::serialize(CSer& ar)
             else
             {
                 std::string str;
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sensableObject_deprecated);
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sensableObject_deprecated);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 else
                 {
-                    CCollection* coll = App::currentWorld->collections->getObjectFromHandle(_sensableObject_deprecated);
+                    CCollection* coll = App::currentScene->collections->getObjectFromHandle(_sensableObject_deprecated);
                     if (coll != nullptr)
                         str = "@collection@" + coll->getCollectionName();
                 }
@@ -972,9 +972,9 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
     if (exceptExplicitHandling && getExplicitHandling())
         return (false); // We don't want to handle those
     _calcTimeInMs = 0;
-    if (!App::currentWorld->mainSettings_old->proximitySensorsEnabled)
+    if (!App::currentScene->mainSettings_old->proximitySensorsEnabled)
         return (false);
-    if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
+    if (!App::sceneContainer->pluginContainer->isGeomPluginAvailable())
         return (false);
     int stTime = (int)VDateTime::getTimeInMs();
 
@@ -999,7 +999,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
 
         if (scripts.size() > 0)
         {
-            CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* inStack = App::sceneContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
 
             inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
@@ -1013,7 +1013,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
                 if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
                     bool hasTriggerWord = false;
-                    CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+                    CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
                     script->systemCallScript(sim_syscb_trigger, inStack, outStack);
                     if (outStack->getStackSize() >= 1)
                     {
@@ -1026,12 +1026,12 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
                                 detectedObject = -1;
                         }
                     }
-                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                    App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
                     if (hasTriggerWord)
                         break;
                 }
             }
-            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+            App::sceneContainer->interfaceStackContainer->destroyStack(inStack);
         }
     }
     _setDetectedObjectAndInfo(detectedObject, &detectedP, &detectedN);
@@ -1071,12 +1071,12 @@ void CProxSensor::setFrontFaceDetection(bool faceOn)
     if (_frontFaceDetection != faceOn)
     {
         _frontFaceDetection = faceOn;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_frontFaceDetection.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _frontFaceDetection);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         if (!faceOn)
             setBackFaceDetection(true);
@@ -1088,12 +1088,12 @@ void CProxSensor::setBackFaceDetection(bool faceOn)
     if (_backFaceDetection != faceOn)
     {
         _backFaceDetection = faceOn;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_backFaceDetection.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _backFaceDetection);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         if (!faceOn)
             setFrontFaceDetection(true);
@@ -1106,12 +1106,12 @@ void CProxSensor::setAllowedNormal(double al)
     if (_angleThreshold != al)
     {
         _angleThreshold = al;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_angleThreshold.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _angleThreshold);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1126,12 +1126,12 @@ void CProxSensor::setExactMode(bool closestObjMode)
     if (_exactMode != closestObjMode)
     {
         _exactMode = closestObjMode;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_exactMode.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _exactMode);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         _setDetectedObjectAndInfo(-1);
         _calcTimeInMs = 0;
@@ -1150,12 +1150,12 @@ void CProxSensor::setProxSensorSize(double newSize)
     if (diff)
     {
         _proxSensorSize = newSize;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_size.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _proxSensorSize);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         computeBoundingBox();
     }

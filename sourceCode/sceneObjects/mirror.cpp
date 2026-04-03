@@ -265,13 +265,13 @@ void CMirror::performObjectLoadingMapping(const std::map<int, int>* map, int opT
 {
     CSceneObject::performObjectLoadingMapping(map, opType);
     if (_clippingObjectOrCollection <= sim_object_sceneobjectend)
-        _clippingObjectOrCollection = CWorld::getLoadingMapping(map, _clippingObjectOrCollection);
+        _clippingObjectOrCollection = CScene::getLoadingMapping(map, _clippingObjectOrCollection);
 }
 void CMirror::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performCollectionLoadingMapping(map, opType);
     if (_clippingObjectOrCollection > sim_object_sceneobjectend)
-        _clippingObjectOrCollection = CWorld::getLoadingMapping(map, _clippingObjectOrCollection);
+        _clippingObjectOrCollection = CScene::getLoadingMapping(map, _clippingObjectOrCollection);
 }
 void CMirror::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {

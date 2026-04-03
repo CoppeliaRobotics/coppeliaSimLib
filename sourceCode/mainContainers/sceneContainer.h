@@ -10,7 +10,7 @@
 #include <simulatorMessageQueue.h>
 #include <calculationInfo.h>
 #include <moduleMenuItemContainer.h>
-#include <world.h>
+#include <scene.h>
 #include <customData.h>
 #include <customObject.h>
 #include <tuple>
@@ -28,11 +28,11 @@
 #define EVENTTYPE_GENESISEND "genesisEnd"
 #define EVENTTYPE_MSGDISPATCHTIME "msgDispatchTime"
 
-class CWorldContainer
+class CSceneContainer
 {
   public:
-    CWorldContainer();
-    virtual ~CWorldContainer();
+    CSceneContainer();
+    virtual ~CSceneContainer();
 
     void initialize();
     void deinitialize();
@@ -40,12 +40,12 @@ class CWorldContainer
     void setModificationFlag(int bitMask);
     int getModificationFlags(bool clearTheFlagsAfter);
 
-    int createNewWorld();
-    int destroyCurrentWorld();
-    int getWorldCount() const;
-    int getCurrentWorldIndex() const;
-    bool switchToWorld(int worldIndex);
-    bool isWorldSwitchingLocked() const;
+    int createNewScene();
+    int destroyCurrentScene();
+    int getSceneCount() const;
+    int getCurrentSceneIndex() const;
+    bool switchToScene(int sceneIndex);
+    bool isSceneSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string>& l) const;
 
     CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
@@ -105,7 +105,7 @@ class CWorldContainer
     CAddOnScriptContainer* addOnScriptContainer;
     CDetachedScript* sandboxScript;
     CModuleMenuItemContainer* moduleMenuItemContainer;
-    CWorld* currentWorld;
+    CScene* currentScene;
 #ifdef SIM_WITH_GUI
     CGlobalGuiTextureContainer* globalGuiTextureCont;
     CSerialPortContainer* serialPortContainer;
@@ -114,10 +114,10 @@ class CWorldContainer
   private:
     CCbor* _createGeneralEvent(const char* event, long long int objectHandle, long long int uid, const char* objType,
                                const char* fieldName, bool mergeable, bool openDataField = true);
-    bool _switchToWorld(int newWorldIndex);
+    bool _switchToScene(int newSceneIndex);
 
-    std::vector<CWorld*> _worlds;
-    int _currentWorldIndex;
+    std::vector<CScene*> _scenes;
+    int _currentSceneIndex;
     std::string _sessionId;
 
     static long long int _eventSeq;

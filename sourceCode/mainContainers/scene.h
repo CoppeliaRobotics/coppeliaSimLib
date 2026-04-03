@@ -32,20 +32,18 @@ struct SLoadOperationIssue
     int objectHandle;
 };
 
-class CWorld : public Obj
+class CScene : public Obj
 {
   public:
-    CWorld();
-    virtual ~CWorld();
+    CScene();
+    virtual ~CScene();
 
-    void rebuildWorld_oldIk();
-    void removeWorld_oldIk();
+    void rebuildScene_oldIk();
+    void removeScene_oldIk();
 
-    void initializeWorld();
+    void initializeScene();
     void clearScene(bool notCalledFromUndoFunction);
-    void deleteWorld();
-    int getWorldHandle() const;
-    void setWorldHandle(int handle);
+    void deleteScene();
 
     bool loadScene(CSer& ar, bool forUndoRedoOperation);
     void saveScene(CSer& ar, bool regularSave = true);
@@ -60,7 +58,7 @@ class CWorld : public Obj
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
 
-    void addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
+    void addGeneralObjectsToSceneAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
                                                     std::vector<CCollection*>* loadedCollectionList,
                                                     std::vector<CCollisionObject_old*>* loadedCollisionList,
                                                     std::vector<CDistanceObject_old*>* loadedDistanceList,
@@ -192,7 +190,6 @@ class CWorld : public Obj
     bool _canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
     void _setSuffix1ToSuffix2(int suffix1, int suffix2);
 
-    int _worldHandle;
     int _savedMouseMode;
     std::vector<long long int> _initialObjectUniqueIdentifiersForRemovingNewObjects;
 
@@ -209,14 +206,8 @@ class CWorld : public Obj
 
 #ifdef SIM_WITH_GUI
   public:
-    void renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject, int displayAttrib,
-                                                             int windowSize[2], double verticalViewSizeOrAngle,
-                                                             bool perspective);
-    void renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject, int displayAttrib,
-                                                            int windowSize[2], double verticalViewSizeOrAngle,
-                                                            bool perspective);
-    void renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject, int displayAttrib,
-                                                              int windowSize[2], double verticalViewSizeOrAngle,
-                                                              bool perspective);
+    void renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject, int displayAttrib, int windowSize[2], double verticalViewSizeOrAngle, bool perspective);
+    void renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject, int displayAttrib, int windowSize[2], double verticalViewSizeOrAngle, bool perspective);
+    void renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject, int displayAttrib, int windowSize[2], double verticalViewSizeOrAngle, bool perspective);
 #endif
 };

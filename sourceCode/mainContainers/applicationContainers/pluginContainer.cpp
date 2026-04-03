@@ -116,7 +116,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, lo
         std::string msgB("plugin ");
         msgB += std::string(namespaceAndVersion) + ": ";
         std::string msg(msgB + "loading...");
-        CDetachedScript* scr = App::worldContainer->getDetachedScriptFromUid(loadOrigin);
+        CDetachedScript* scr = App::sceneContainer->getDetachedScriptFromUid(loadOrigin);
         if (scr != nullptr)
             App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
         else
@@ -284,7 +284,7 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle, long long int unloadOri
             std::string msgB("plugin ");
             msgB += it->getName() + ": ";
             std::string msg(msgB + "cleanup...");
-            CDetachedScript* scr = App::worldContainer->getDetachedScriptFromUid(unloadOrigin);
+            CDetachedScript* scr = App::sceneContainer->getDetachedScriptFromUid(unloadOrigin);
             if (scr != nullptr)
                 App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
             else
@@ -352,7 +352,7 @@ bool CPluginContainer::unloadPlugin_old(int handle)
         it->cleanup();
         std::string nm(it->getName());
         _removePlugin_old(handle);
-        App::worldContainer->scriptCustomFuncAndVarContainer->announcePluginWasKilled(nm.c_str());
+        App::sceneContainer->scriptCustomFuncAndVarContainer->announcePluginWasKilled(nm.c_str());
         retVal = true;
     }
     return (retVal);
@@ -848,7 +848,7 @@ double CPluginContainer::dyn_computeInertia(int shapeHandle, C7Vector& tr, C3Vec
     }
     if (mass == 0.0)
     { // fallback algo
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         if (it->getMesh()->isConvex())
         {
             std::vector<double> vert;
@@ -4016,7 +4016,7 @@ bool _validationCallback(double* conf)
     std::vector<CJoint*> joints;
     for (size_t i = 0; i < _ikValidationCb_jointHandles.size(); i++)
     {
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(_ikValidationCb_jointHandles[i]);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(_ikValidationCb_jointHandles[i]);
         joints.push_back(it);
         memorized.push_back(it->getPosition());
         it->setPosition(conf[i]);
@@ -4065,10 +4065,10 @@ int CPluginContainer::oldIkPlugin_getConfigForTipPose(int ikGroupHandle, int joi
             _ikValidationCb_collisionPairs.clear();
             for (size_t i = 0; i < size_t(collisionPairCnt); i++)
             {
-                CSceneObject* eo1 = App::currentWorld->sceneObjects->getObjectFromHandle(collisionPairs[2 * i + 0]);
-                CCollection* ec1 = App::currentWorld->collections->getObjectFromHandle(collisionPairs[2 * i + 0]);
-                CSceneObject* eo2 = App::currentWorld->sceneObjects->getObjectFromHandle(collisionPairs[2 * i + 1]);
-                CCollection* ec2 = App::currentWorld->collections->getObjectFromHandle(collisionPairs[2 * i + 1]);
+                CSceneObject* eo1 = App::currentScene->sceneObjects->getObjectFromHandle(collisionPairs[2 * i + 0]);
+                CCollection* ec1 = App::currentScene->collections->getObjectFromHandle(collisionPairs[2 * i + 0]);
+                CSceneObject* eo2 = App::currentScene->sceneObjects->getObjectFromHandle(collisionPairs[2 * i + 1]);
+                CCollection* ec2 = App::currentScene->collections->getObjectFromHandle(collisionPairs[2 * i + 1]);
                 err = err || (((eo1 == nullptr) && (ec1 == nullptr)) ||
                               ((eo2 == nullptr) && (ec2 == nullptr) && (collisionPairs[2 * i + 1] != sim_handle_all)));
                 _ikValidationCb_collisionPairs.push_back(collisionPairs[2 * i + 0]);

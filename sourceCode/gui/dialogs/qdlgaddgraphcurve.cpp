@@ -27,7 +27,7 @@ void CQDlgAddGraphCurve::okEvent()
 
 void CQDlgAddGraphCurve::refresh()
 {
-    CGraph* it = App::currentWorld->sceneObjects->getLastSelectionGraph();
+    CGraph* it = App::currentScene->sceneObjects->getLastSelectionGraph();
     ui->qqZValue->setVisible(!xyGraph);
     ui->qqComboZ->setVisible(!xyGraph);
 

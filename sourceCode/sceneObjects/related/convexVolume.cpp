@@ -2009,8 +2009,8 @@ void CConvexVolume::sendEventData(CCbor* eev)
     CCbor* ev = eev;
     if (ev == nullptr)
     {
-        if ((_parentObjHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
-            ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjHandleForEvents, false, "volumeData", false);
+        if ((_parentObjHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
+            ev = App::sceneContainer->createSceneObjectChangedEvent(_parentObjHandleForEvents, false, "volumeData", false);
         else
             return;
     }
@@ -2034,7 +2034,7 @@ void CConvexVolume::sendEventData(CCbor* eev)
     ev->appendKeyDoubleArray(propConvexVolume_closeEdges.name, nonDetectingVolumeEdges.data(), nonDetectingVolumeEdges.size());
 
     if (eev == nullptr)
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
 }
 
 int CConvexVolume::setBoolProperty(const char* pName, bool pState)

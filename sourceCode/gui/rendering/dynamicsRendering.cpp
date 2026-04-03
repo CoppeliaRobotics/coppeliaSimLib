@@ -96,7 +96,7 @@ void displayParticles(void** particlesPointer, int particlesCount, int displayAt
     {
         if (particlesPointer[i] != nullptr)
         {
-            if (App::worldContainer->pluginContainer->dyn_getParticleData(particlesPointer[i], pos.data, &size,
+            if (App::sceneContainer->pluginContainer->dyn_getParticleData(particlesPointer[i], pos.data, &size,
                                                                           &particleType, &additionalColor))
             {
                 //  displayParticle(displayAttrib,m,pos,size,particleType,additionalColor);

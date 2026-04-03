@@ -11,8 +11,8 @@ CQDlgColor::CQDlgColor(QWidget* parent)
     _dlgType = COLOR_DLG;
     ui->setupUi(this);
     inRefreshPart = false;
-    _validityCheck1 = App::currentWorld->sceneObjects->getLastSelectionHandle();
-    _validityCheck2 = App::currentWorld->sceneObjects->getSelectionCount();
+    _validityCheck1 = App::currentScene->sceneObjects->getLastSelectionHandle();
+    _validityCheck2 = App::currentScene->sceneObjects->getSelectionCount();
 }
 
 CQDlgColor::~CQDlgColor()
@@ -133,11 +133,11 @@ void CQDlgColor::initializeDlg(int objType, int objID1, int objID2, int colCompo
 
 bool CQDlgColor::isLinkedDataValid()
 {
-    if (_validityCheck1 != App::currentWorld->sceneObjects->getLastSelectionHandle())
+    if (_validityCheck1 != App::currentScene->sceneObjects->getLastSelectionHandle())
         return (false);
-    if (_validityCheck2 != App::currentWorld->sceneObjects->getSelectionCount())
+    if (_validityCheck2 != App::currentScene->sceneObjects->getSelectionCount())
         return (false);
-    if (!App::currentWorld->simulation->isSimulationStopped())
+    if (!App::currentScene->simulation->isSimulationStopped())
         return (false);
     return (GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, _colComponent, nullptr) != nullptr);
 }

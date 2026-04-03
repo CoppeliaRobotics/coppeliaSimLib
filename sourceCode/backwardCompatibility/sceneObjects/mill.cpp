@@ -190,13 +190,13 @@ void CMill::performObjectLoadingMapping(const std::map<int, int>* map, int opTyp
 {
     CSceneObject::performObjectLoadingMapping(map, opType);
     if (_millableObject <= sim_object_sceneobjectend)
-        _millableObject = CWorld::getLoadingMapping(map, _millableObject);
+        _millableObject = CScene::getLoadingMapping(map, _millableObject);
 }
 void CMill::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performCollectionLoadingMapping(map, opType);
     if (_millableObject > sim_object_sceneobjectend)
-        _millableObject = CWorld::getLoadingMapping(map, _millableObject);
+        _millableObject = CScene::getLoadingMapping(map, _millableObject);
 }
 void CMill::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
@@ -479,9 +479,9 @@ int CMill::handleMill(bool exceptExplicitHandling, double& milledSurface, double
         return (0); // We don't want to handle those
     _millDataValid = false;
     _calcTimeInMs = 0;
-    if (!App::currentWorld->mainSettings_old->millsEnabled)
+    if (!App::currentScene->mainSettings_old->millsEnabled)
         return (0);
-    if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
+    if (!App::sceneContainer->pluginContainer->isGeomPluginAvailable())
         return (0);
 
     int stTime = (int)VDateTime::getTimeInMs();

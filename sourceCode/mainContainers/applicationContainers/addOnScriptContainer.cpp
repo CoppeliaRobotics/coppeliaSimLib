@@ -264,7 +264,7 @@ int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
             _allAddOnFunctionNames_old.push_back(nm);
             nm = "Compatibility mode add-on functions\n" + nm;
             _allAddOnFunctionUiHandles_old.push_back(
-                App::worldContainer->moduleMenuItemContainer->addMenuItem(nm.c_str(), -1));
+                App::sceneContainer->moduleMenuItemContainer->addMenuItem(nm.c_str(), -1));
             addOnsCount++;
         }
         cnt++;

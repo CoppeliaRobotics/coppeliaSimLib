@@ -205,12 +205,12 @@ void CFolderSystem::setScenesPath(const char* path)
     if (diff)
     {
         _scenesPath = pp;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_sceneDir.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyText(cmd, _scenesPath.c_str());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -228,12 +228,12 @@ void CFolderSystem::setModelsPath(const char* path)
     if (diff)
     {
         _modelsPath = pp;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_modelDir.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyText(cmd, _modelsPath.c_str());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -251,12 +251,12 @@ void CFolderSystem::setImportExportPath(const char* path)
     if (diff)
     {
         _importExportPath = pp;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_importExportDir.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyText(cmd, _importExportPath.c_str());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -362,7 +362,7 @@ std::string CFolderSystem::getTempDataPath() const
 std::string CFolderSystem::getSceneTempDataPath() const
 {
     std::string folder =
-        _tempDataPath + "/sceneData" + std::to_string(App::currentWorld->environment->getSceneUniqueID());
+        _tempDataPath + "/sceneData" + std::to_string(App::currentScene->environment->getSceneUniqueID());
     if (!VFile::doesFolderExist(folder.c_str()))
         VFile::createFolder(folder.c_str());
     return (folder);

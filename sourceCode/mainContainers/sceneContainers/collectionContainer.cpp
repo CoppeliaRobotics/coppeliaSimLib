@@ -92,7 +92,7 @@ void CCollectionContainer::getCollidableObjectsFromCollection(long long int coll
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
             CSceneObject* anObject =
-                App::currentWorld->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
+                App::currentScene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyCollidable()))
             {
                 if ((anObject->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_collidable) ||
@@ -113,7 +113,7 @@ void CCollectionContainer::getMeasurableObjectsFromCollection(long long int coll
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
             CSceneObject* anObject =
-                App::currentWorld->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
+                App::currentScene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyMeasurable()))
             {
                 if ((anObject->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_measurable) ||
@@ -134,7 +134,7 @@ void CCollectionContainer::getDetectableObjectsFromCollection(long long int coll
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
             CSceneObject* anObject =
-                App::currentWorld->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
+                App::currentScene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyDetectable()))
             {
                 if ((anObject->getCumulativeObjectSpecialProperty() & detectableMask) || overridePropertyFlags)
@@ -157,7 +157,7 @@ void CCollectionContainer::setUpDefaultValues()
 
 void CCollectionContainer::removeCollection(long long int collectionHandle)
 {
-    App::currentWorld->announceCollectionWillBeErased(int(collectionHandle));
+    App::currentScene->announceCollectionWillBeErased(int(collectionHandle));
     _removeCollection(collectionHandle);
 #ifdef SIM_WITH_GUI
     GuiApp::setFullDialogRefreshFlag();
@@ -258,7 +258,7 @@ void CCollectionContainer::addCollectionToSelection(long long int collectionHand
     if (it != nullptr)
     {
         for (size_t i = 0; i < it->getSceneObjectCountInCollection(); i++)
-            App::currentWorld->sceneObjects->addObjectToSelection(it->getSceneObjectHandleFromIndex(i));
+            App::currentScene->sceneObjects->addObjectToSelection(it->getSceneObjectHandleFromIndex(i));
     }
 }
 
@@ -417,17 +417,17 @@ void CCollectionContainer::_removeCollection(long long int collectionHandle)
     {
         if (_allCollections[i]->getObjectHandle() == collectionHandle)
         {
-            if (App::worldContainer->getEventsEnabled())
+            if (App::sceneContainer->getEventsEnabled())
             {
                 if (App::getEventProtocolVersion()  >= 3)
                 {
-                    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, collectionHandle, collectionHandle, nullptr, false);
-                    App::worldContainer->pushEvent();
+                    App::sceneContainer->createEvent(EVENTTYPE_OBJECTREMOVED, collectionHandle, collectionHandle, nullptr, false);
+                    App::sceneContainer->pushEvent();
                 }
                 if (App::getEventProtocolVersion() <= 3)
                 { // For backw. compatibility
-                    App::worldContainer->createEvent("collectionRemoved", -1, collectionHandle, nullptr, false);
-                    App::worldContainer->pushEvent();
+                    App::sceneContainer->createEvent("collectionRemoved", -1, collectionHandle, nullptr, false);
+                    App::sceneContainer->pushEvent();
                 }
             }
             delete _allCollections[i];
@@ -442,18 +442,18 @@ void CCollectionContainer::_addCollection(CCollection* collection)
     _allCollections.push_back(collection);
     collection->pushCreationEvent();
 
-    if (App::worldContainer->getEventsEnabled())
+    if (App::sceneContainer->getEventsEnabled())
     {
         std::vector<long long int> handles;
         for (size_t i = 0; i < _allCollections.size(); i++)
             handles.push_back(_allCollections[i]->getObjectHandle());
         const char* cmd = propCollectionCont_collections.name;
-        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt64Array(cmd, handles.data(), handles.size());
         else
             ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 
@@ -509,12 +509,12 @@ void CCollectionContainer::pushGenesisEvents() const
         // We need to "fake" adding that collection:
         addedCollections.push_back(coll->getObjectHandle());
         const char* cmd = propCollectionCont_collections.name;
-        CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedCollections.data(), addedCollections.size());
         else
             ev->appendKeyHandleArray(cmd, addedCollections.data(), addedCollections.size());
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 

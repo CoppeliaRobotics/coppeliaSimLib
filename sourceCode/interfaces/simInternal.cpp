@@ -165,7 +165,7 @@ bool canBoolIntOrFloatParameterBeSetOrGet(const char* functionName, int when)
 #else
     st |= 4;
 #endif
-    if (App::currentWorld->simulation->isSimulationStopped())
+    if (App::currentScene->simulation->isSimulationStopped())
         st |= 16;
     else
         st |= 32;
@@ -189,7 +189,7 @@ bool canBoolIntOrFloatParameterBeSetOrGet(const char* functionName, int when)
 
 bool doesObjectExist(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -203,9 +203,9 @@ bool doesObjectOrScriptExist(const char* functionName, int identifier)
 {
     bool retVal;
     if (identifier > sim_object_sceneobjectend)
-        retVal = (App::worldContainer->getDetachedScriptFromHandle(identifier) != nullptr);
+        retVal = (App::sceneContainer->getDetachedScriptFromHandle(identifier) != nullptr);
     else
-        retVal = (App::currentWorld->sceneObjects->getObjectFromHandle(identifier) != nullptr);
+        retVal = (App::currentScene->sceneObjects->getObjectFromHandle(identifier) != nullptr);
     if (!retVal)
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
     return retVal;
@@ -215,7 +215,7 @@ bool doesEntityExist(const char* functionName, int identifier)
 {
     if (identifier > sim_object_sceneobjectend)
     {
-        if (App::currentWorld->collections->getObjectFromHandle(identifier) == nullptr)
+        if (App::currentScene->collections->getObjectFromHandle(identifier) == nullptr)
         {
             CApiErrors::setLastError(functionName, SIM_ERROR_ENTITY_INEXISTANT);
             return (false);
@@ -224,7 +224,7 @@ bool doesEntityExist(const char* functionName, int identifier)
     }
     else
     {
-        if (App::currentWorld->sceneObjects->getObjectFromHandle(identifier) == nullptr)
+        if (App::currentScene->sceneObjects->getObjectFromHandle(identifier) == nullptr)
         {
             CApiErrors::setLastError(functionName, SIM_ERROR_ENTITY_INEXISTANT);
             return (false);
@@ -235,7 +235,7 @@ bool doesEntityExist(const char* functionName, int identifier)
 
 bool doesCollectionExist(const char* functionName, int identifier)
 {
-    if (App::currentWorld->collections->getObjectFromHandle(identifier) == nullptr)
+    if (App::currentScene->collections->getObjectFromHandle(identifier) == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_COLLECTION_INEXISTANT);
         return (false);
@@ -245,7 +245,7 @@ bool doesCollectionExist(const char* functionName, int identifier)
 
 bool doesCollisionObjectExist(const char* functionName, int identifier)
 {
-    if (App::currentWorld->collisions_old->getObjectFromHandle(identifier) == nullptr)
+    if (App::currentScene->collisions_old->getObjectFromHandle(identifier) == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_COLLISION_INEXISTANT);
         return (false);
@@ -256,7 +256,7 @@ bool doesCollisionObjectExist(const char* functionName, int identifier)
 
 bool doesDistanceObjectExist(const char* functionName, int identifier)
 {
-    if (App::currentWorld->distances_old->getObjectFromHandle(identifier) == nullptr)
+    if (App::currentScene->distances_old->getObjectFromHandle(identifier) == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_DISTANCE_INEXISTANT);
         return (false);
@@ -267,7 +267,7 @@ bool doesDistanceObjectExist(const char* functionName, int identifier)
 
 bool isJoint(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -282,7 +282,7 @@ bool isJoint(const char* functionName, int identifier)
 }
 bool isShape(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -297,7 +297,7 @@ bool isShape(const char* functionName, int identifier)
 }
 bool isSensor(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -312,7 +312,7 @@ bool isSensor(const char* functionName, int identifier)
 }
 bool isMill(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -327,7 +327,7 @@ bool isMill(const char* functionName, int identifier)
 }
 bool isForceSensor(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -342,7 +342,7 @@ bool isForceSensor(const char* functionName, int identifier)
 }
 bool isVisionSensor(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -357,7 +357,7 @@ bool isVisionSensor(const char* functionName, int identifier)
 }
 bool isCamera(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -372,7 +372,7 @@ bool isCamera(const char* functionName, int identifier)
 }
 bool isGraph(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -387,7 +387,7 @@ bool isGraph(const char* functionName, int identifier)
 }
 bool isPath(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -402,7 +402,7 @@ bool isPath(const char* functionName, int identifier)
 }
 bool isLight(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -417,7 +417,7 @@ bool isLight(const char* functionName, int identifier)
 }
 bool isDummy(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -432,7 +432,7 @@ bool isDummy(const char* functionName, int identifier)
 }
 bool isOctree(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -447,7 +447,7 @@ bool isOctree(const char* functionName, int identifier)
 }
 bool isPointCloud(const char* functionName, int identifier)
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(identifier);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
@@ -462,7 +462,7 @@ bool isPointCloud(const char* functionName, int identifier)
 }
 bool doesUIExist(const char* functionName, int elementHandle)
 {
-    CButtonBlock* it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
+    CButtonBlock* it = App::currentScene->buttonBlockContainer_old->getBlockWithID(elementHandle);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_UI_INEXISTANT);
@@ -473,7 +473,7 @@ bool doesUIExist(const char* functionName, int elementHandle)
 
 bool doesUIButtonExist(const char* functionName, int elementHandle, int buttonHandle)
 {
-    CButtonBlock* it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
+    CButtonBlock* it = App::currentScene->buttonBlockContainer_old->getBlockWithID(elementHandle);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_UI_INEXISTANT);
@@ -489,7 +489,7 @@ bool doesUIButtonExist(const char* functionName, int elementHandle, int buttonHa
 
 bool doesIKGroupExist(const char* functionName, int identifier)
 {
-    CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(identifier);
+    CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastError(functionName, SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -3457,8 +3457,8 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->getStack(inputStack);
-        CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->getStack(outputStack);
+        CInterfaceStack* inStack = App::sceneContainer->interfaceStackContainer->getStack(inputStack);
+        CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->getStack(outputStack);
         int retVal = 0; // -1: error in method, 0: method not found, 1: ok
         // Check if such a method is supported in here, or if we have to call Lua:
         // ...
@@ -3468,19 +3468,19 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
             retVal = 0;
             CInterfaceStack* _inStack = inStack;
             if (inStack == nullptr)
-                _inStack = App::worldContainer->interfaceStackContainer->createStack();
+                _inStack = App::sceneContainer->interfaceStackContainer->createStack();
             CInterfaceStack* _outStack = outStack;
             if (outStack == nullptr)
-                _outStack = App::worldContainer->interfaceStackContainer->createStack();
+                _outStack = App::sceneContainer->interfaceStackContainer->createStack();
             _outStack->clear();
 
             std::string err(callMethod(target, name, (CDetachedScript*)currentScript, _inStack, _outStack));
 
 
             if (inStack == nullptr)
-                App::worldContainer->interfaceStackContainer->destroyStack(_inStack);
+                App::sceneContainer->interfaceStackContainer->destroyStack(_inStack);
             if (outStack == nullptr)
-                App::worldContainer->interfaceStackContainer->destroyStack(_outStack);
+                App::sceneContainer->interfaceStackContainer->destroyStack(_outStack);
 
             if (err.size() == 0)
                 retVal = 1; // success
@@ -3505,25 +3505,25 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
         }
         if ((retVal == 0) && (currentScript == nullptr))
         { // method was not found here. Let's try the method as a pure Lua method:
-            if (App::worldContainer->sandboxScript != nullptr)
+            if (App::sceneContainer->sandboxScript != nullptr)
             {
                 retVal = -1; // error
 
-                CInterfaceStack* outStackT = App::worldContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* outStackT = App::sceneContainer->interfaceStackContainer->createStack();
                 if (outStack != nullptr)
                     outStack->clear();
                 if (VThread::isSimThread())
                 {
                     std::string methodName(name);
                     methodName = "@" + methodName; // to indicate that we come from c
-                    CInterfaceStack* inStackT = App::worldContainer->interfaceStackContainer->createStack();
+                    CInterfaceStack* inStackT = App::sceneContainer->interfaceStackContainer->createStack();
                     if (inStack != nullptr)
                         inStackT->copyFrom(inStack);
                     inStackT->insertItem(0, new CInterfaceStackString(methodName.c_str()));
                     inStackT->insertItem(0, new CInterfaceStackHandle(target));
                     std::string errorMsg;
-                    retVal = App::worldContainer->sandboxScript->callCustomScriptFunction("@sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext
-                    App::worldContainer->interfaceStackContainer->destroyStack(inStackT);
+                    retVal = App::sceneContainer->sandboxScript->callCustomScriptFunction("@sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext
+                    App::sceneContainer->interfaceStackContainer->destroyStack(inStackT);
                 }
                 if (retVal <= 0)
                 {
@@ -3566,7 +3566,7 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
         CSceneObject* prox = nullptr;
         if (proxy != -1)
         {
-            prox = App::currentWorld->sceneObjects->getObjectFromHandle(proxy);
+            prox = App::currentScene->sceneObjects->getObjectFromHandle(proxy);
             if (prox == nullptr)
             {
                 CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PROXY_OBJECT);
@@ -3578,7 +3578,7 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
         {
             if (_currentScriptHandle <= sim_object_sceneobjectend)
             {
-                CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(_currentScriptHandle);
+                CScript* it = App::currentScene->sceneObjects->getScriptFromHandle(_currentScriptHandle);
                 if (it != nullptr)
                 {
                     if (it->detachedScript->getParentIsProxy())
@@ -3589,13 +3589,13 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
             }
             else
             { // legacy child+customization scripts (and main script)
-                int objHandle = App::currentWorld->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
-                emittingObj = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+                int objHandle = App::currentScene->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
+                emittingObj = App::currentScene->sceneObjects->getObjectFromHandle(objHandle);
             }
         }
         else
             emittingObj = prox;
-        it = App::currentWorld->sceneObjects->getObjectFromPath(emittingObj, objectPath, index);
+        it = App::currentScene->sceneObjects->getObjectFromPath(emittingObj, objectPath, index);
 
         if (it != nullptr)
             retVal = it->getObjectHandle();
@@ -3623,7 +3623,7 @@ long long int simGetObjectUid_internal(int objectHandle)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         return (it->getObjectUid());
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -3636,7 +3636,7 @@ int simGetObjectFromUid_internal(long long int uid, int options)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromUid(uid);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromUid(uid);
         if (it != nullptr)
             return (it->getObjectHandle());
         if ((options & 1) == 0)
@@ -3655,17 +3655,17 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
     {
         CDetachedScript* it = nullptr;
         if (scriptType == sim_scripttype_main)
-            it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+            it = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (scriptType == sim_scripttype_sandbox)
-            it = App::worldContainer->sandboxScript;
+            it = App::sceneContainer->sandboxScript;
         if ((scriptType == sim_scripttype_simulation) || (scriptType == sim_scripttype_customization))
         { // deprecated with new scripts
             if ((objectHandle < 0) && (scriptName != nullptr))
                 objectHandle = simGetObjectHandleEx_internal(scriptName, -1, -1, 0); // deprecated usage
-            it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, objectHandle);
+            it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, objectHandle);
             if (it == nullptr)
             {
-                CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
                 if (obj != nullptr)
                 {
                     std::vector<CDetachedScript*> scripts;
@@ -3676,10 +3676,10 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
             }
         }
         if ((scriptType == sim_scripttype_addon) && (scriptName != nullptr))
-            it = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);
+            it = App::sceneContainer->addOnScriptContainer->getAddOnFromName(scriptName);
         if (it == nullptr)
         { // new scripts:
-            it = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(objectHandle);
+            it = App::currentScene->sceneObjects->getDetachedScriptFromHandle(objectHandle);
             if (it != nullptr)
             {
                 if (it->getScriptType() != scriptType)
@@ -3687,7 +3687,7 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
             }
             else
             {
-                CSceneObject* o = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                CSceneObject* o = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
                 if (o != nullptr)
                 {
                     for (size_t i = 0; i < o->getChildCount(); i++)
@@ -3727,7 +3727,7 @@ int simRemoveObjects_internal(const int* objectHandles, int count)
         std::vector<int> sel;
         for (int i = 0; i < count; i++)
             sel.push_back(objectHandles[size_t(i)]);
-        if (App::currentWorld->sceneObjects->eraseObjects(&sel, true, delayed))
+        if (App::currentScene->sceneObjects->eraseObjects(&sel, true, delayed))
             return (1);
 
         CApiErrors::setLastError(__func__, SIM_ERROR_FOUND_INVALID_HANDLES);
@@ -3747,7 +3747,7 @@ int simRemoveModel_internal(int objectHandle)
         if (delayed)
             objectHandle = -objectHandle - 1;
 
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
@@ -3761,19 +3761,19 @@ int simRemoveModel_internal(int objectHandle)
 
         /*        // memorize current selection:
         std::vector<int> initSel;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
-            initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+            initSel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
 */
         // Erase the objects:
         std::vector<int> sel;
         sel.push_back(objectHandle);
-        App::currentWorld->sceneObjects->addModelObjects(sel);
-        App::currentWorld->sceneObjects->eraseObjects(&sel, true, delayed);
+        App::currentScene->sceneObjects->addModelObjects(sel);
+        App::currentScene->sceneObjects->eraseObjects(&sel, true, delayed);
 
         /*        // Restore the initial selection:
-        App::currentWorld->sceneObjects->deselectObjects();
+        App::currentScene->sceneObjects->deselectObjects();
         for (size_t i = 0; i < initSel.size(); i++)
-            App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
+            App::currentScene->sceneObjects->addObjectToSelection(initSel[i]);
 */
         return ((int)sel.size());
     }
@@ -3789,7 +3789,7 @@ char* simGetObjectAlias_internal(int objectHandle, int options)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (nullptr);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         std::string nm;
         if (options == -1)
             nm = it->getObjectAlias(); // just the alias, e.g. "alias"
@@ -3801,7 +3801,7 @@ char* simGetObjectAlias_internal(int objectHandle, int options)
             nm = it->getObjectAlias_fullPath(); // the alias with full path, e.g. "/obj/obj2/alias[0]"
         if (options == 3)
         { // just the alias, if unique, e.g. "alias", otherwise the alias with handle, e.g. "alias__42__"
-            if (App::currentWorld->sceneObjects->getObjectFromPath(
+            if (App::currentScene->sceneObjects->getObjectFromPath(
                     nullptr, (std::string("/") + it->getObjectAlias()).c_str(), 1) == nullptr)
                 nm = it->getObjectAlias();
             else
@@ -3843,8 +3843,8 @@ int simSetObjectAlias_internal(int objectHandle, const char* objectAlias, int op
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        App::currentWorld->sceneObjects->setObjectAlias(it, objectAlias, true);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
+        App::currentScene->sceneObjects->setObjectAlias(it, objectAlias, true);
         return (1);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -3861,7 +3861,7 @@ int simGetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, do
         objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -3880,7 +3880,7 @@ int simGetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, do
             if (!doesObjectExist(__func__, relativeToObjectHandle))
                 return (-1);
         }
-        CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* relObj = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         C7Vector tr;
         if (relObj == nullptr)
             tr = it->getCumulativeTransformation();
@@ -3917,7 +3917,7 @@ int simSetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, co
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -3943,9 +3943,9 @@ int simSetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, co
         m.M.normalize();
         if (inverse)
             m.inverse();
-        CSceneObject* objRel = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* objRel = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (objRel == nullptr)
-            App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(), m.getTransformation(), false);
+            App::currentScene->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(), m.getTransformation(), false);
         else
         {
             C7Vector relTr;
@@ -3953,7 +3953,7 @@ int simSetObjectMatrix_internal(int objectHandle, int relativeToObjectHandle, co
                 relTr = objRel->getCumulativeTransformation();
             else
                 relTr = objRel->getFullCumulativeTransformation();
-            App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(), relTr * m.getTransformation(),
+            App::currentScene->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(), relTr * m.getTransformation(),
                                                                    false);
         }
         return (1);
@@ -3974,7 +3974,7 @@ int simGetObjectPose_internal(int objectHandle, int relativeToObjectHandle, doub
         objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -3993,7 +3993,7 @@ int simGetObjectPose_internal(int objectHandle, int relativeToObjectHandle, doub
             if (!doesObjectExist(__func__, relativeToObjectHandle))
                 return (-1);
         }
-        CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* relObj = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         C7Vector tr;
         if (relObj == nullptr)
             tr = it->getCumulativeTransformation();
@@ -4030,7 +4030,7 @@ int simSetObjectPose_internal(int objectHandle, int relativeToObjectHandle, cons
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -4056,9 +4056,9 @@ int simSetObjectPose_internal(int objectHandle, int relativeToObjectHandle, cons
         tr.Q.normalize();
         if (inverse)
             tr.inverse();
-        CSceneObject* objRel = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* objRel = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (objRel == nullptr)
-            App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(), tr, false);
+            App::currentScene->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(), tr, false);
         else
         {
             C7Vector relTr;
@@ -4066,7 +4066,7 @@ int simSetObjectPose_internal(int objectHandle, int relativeToObjectHandle, cons
                 relTr = objRel->getCumulativeTransformation();
             else
                 relTr = objRel->getFullCumulativeTransformation();
-            App::currentWorld->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(), relTr * tr, false);
+            App::currentScene->sceneObjects->setObjectAbsolutePose(it->getObjectHandle(), relTr * tr, false);
         }
         return (1);
     }
@@ -4084,7 +4084,7 @@ int simGetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
         objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -4097,7 +4097,7 @@ int simGetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
             if (!doesObjectExist(__func__, relativeToObjectHandle))
                 return (-1);
         }
-        CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* relObj = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         C7Vector tr;
         if (relObj == nullptr)
             tr = it->getCumulativeTransformation();
@@ -4141,7 +4141,7 @@ int simSetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -4156,9 +4156,9 @@ int simSetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
         }
         if (it->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
             it->setDynamicsResetFlag(true, true);
-        CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* relObj = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj == nullptr)
-            App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(), C3Vector(position));
+            App::currentScene->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(), C3Vector(position));
         else
         {
             if ((handleFlags & sim_handleflag_reljointbaseframe) != 0)
@@ -4168,7 +4168,7 @@ int simSetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
                 C7Vector x(relTr.getInverse() * absTr);
                 x.X.setData(position);
                 absTr = relTr * x;
-                App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(), absTr.X);
+                App::currentScene->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(), absTr.X);
             }
             else
             {
@@ -4185,7 +4185,7 @@ int simSetObjectPosition_internal(int objectHandle, int relativeToObjectHandle, 
                     C7Vector x(relTr.getInverse() * absTr);
                     x.X.setData(position);
                     absTr = relTr * x;
-                    App::currentWorld->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(), absTr.X);
+                    App::currentScene->sceneObjects->setObjectAbsolutePosition(it->getObjectHandle(), absTr.X);
                 }
             }
         }
@@ -4205,7 +4205,7 @@ int simGetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
         objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -4224,7 +4224,7 @@ int simGetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
             if (!doesObjectExist(__func__, relativeToObjectHandle))
                 return (-1);
         }
-        CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* relObj = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         C7Vector tr;
         if (relObj == nullptr)
             tr = it->getCumulativeTransformation();
@@ -4265,7 +4265,7 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -4286,7 +4286,7 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
         }
         if (it->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
             it->setDynamicsResetFlag(true, true);
-        CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* relObj = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj == nullptr)
         {
             C3Vector eul(eulerAngles);
@@ -4297,7 +4297,7 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
                 q.inverse();
                 eul = q.getEulerAngles();
             }
-            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(), eul);
+            App::currentScene->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(), eul);
         }
         else
         {
@@ -4312,7 +4312,7 @@ int simSetObjectOrientation_internal(int objectHandle, int relativeToObjectHandl
             if (inverse)
                 x.Q.inverse();
             absTr = relTr * x;
-            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),
+            App::currentScene->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),
                                                                           absTr.Q.getEulerAngles());
         }
         return (1);
@@ -4331,7 +4331,7 @@ int simGetJointPosition_internal(int objectHandle, double* position)
             return (-1);
         if (!isJoint(__func__, objectHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
@@ -4354,7 +4354,7 @@ int simSetJointPosition_internal(int objectHandle, double position)
             return (-1);
         if (!isJoint(__func__, objectHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
@@ -4389,7 +4389,7 @@ int simSetJointTargetPosition_internal(int objectHandle, double targetPosition)
             return (-1);
         if (!isJoint(__func__, objectHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
@@ -4426,7 +4426,7 @@ int simGetJointTargetPosition_internal(int objectHandle, double* targetPosition)
             return (-1);
         if (!isJoint(__func__, objectHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
@@ -4449,7 +4449,7 @@ int simSetJointTargetVelocity_internal(int objectHandle, double targetVelocity)
             return (-1);
         if (!isJoint(__func__, objectHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
@@ -4486,7 +4486,7 @@ int simGetJointTargetVelocity_internal(int objectHandle, double* targetVelocity)
             return (-1);
         if (!isJoint(__func__, objectHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
@@ -4507,7 +4507,7 @@ int simGetObjectChildPose_internal(int objectHandle, double* pose)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         C7Vector tr;
         tr.setIdentity();
         if (obj->getObjectType() == sim_sceneobject_joint)
@@ -4534,7 +4534,7 @@ int simSetObjectChildPose_internal(int objectHandle, const double* pose)
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (obj->getObjectType() == sim_sceneobject_joint)
         {
             CJoint* it = (CJoint*)obj;
@@ -4568,7 +4568,7 @@ int simGetJointInterval_internal(int objectHandle, bool* cyclic, double* interva
             return (-1);
         if (!isJoint(__func__, objectHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         cyclic[0] = 0;
         if (it->getIsCyclic())
             cyclic[0] = 1;
@@ -4595,10 +4595,10 @@ int simSetJointInterval_internal(int objectHandle, bool cyclic, const double* in
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         // Some models need to modify that
         //        if (
-        //        App::currentWorld->simulation->isSimulationStopped()||((it->getJointMode()!=sim_jointmode_dynamic)&&(!it->getHybridFunctionality_old()))
+        //        App::currentScene->simulation->isSimulationStopped()||((it->getJointMode()!=sim_jointmode_dynamic)&&(!it->getHybridFunctionality_old()))
         //        )
         {
             double previousPos = it->getPosition();
@@ -4624,7 +4624,7 @@ int simGetObjectParent_internal(int objectHandle)
         {
             return (-1);
         }
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = -1;
         if (it->getParent() != nullptr)
             retVal = it->getParent()->getObjectHandle();
@@ -4643,7 +4643,7 @@ int simGetObjectChild_internal(int objectHandle, int index)
         int retVal = -1;
         if (objectHandle == sim_handle_scene)
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getOrphanFromIndex(index);
+            CSceneObject* it = App::currentScene->sceneObjects->getOrphanFromIndex(index);
             if (it != nullptr)
                 retVal = it->getObjectHandle();
         }
@@ -4651,7 +4651,7 @@ int simGetObjectChild_internal(int objectHandle, int index)
         {
             if (doesObjectExist(__func__, objectHandle))
             {
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
                 if (int(it->getChildCount()) > index)
                     retVal = it->getChildFromIndex(index)->getObjectHandle();
             }
@@ -4673,8 +4673,8 @@ int simGetObjectHierarchyOrder_internal(int objectHandle, int* totalSiblings)
             totalSiblings[0] = 0;
         if (doesObjectExist(__func__, objectHandle))
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            retVal = App::currentWorld->sceneObjects->getObjectSequence(it, totalSiblings);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
+            retVal = App::currentScene->sceneObjects->getObjectSequence(it, totalSiblings);
         }
         return (retVal);
     }
@@ -4691,8 +4691,8 @@ int simSetObjectHierarchyOrder_internal(int objectHandle, int order)
         int retVal = -1;
         if (doesObjectExist(__func__, objectHandle))
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            if (App::currentWorld->sceneObjects->setObjectSequence(it, order))
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
+            if (App::currentScene->sceneObjects->setObjectSequence(it, order))
                 retVal = 1;
             else
                 CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_FAILED);
@@ -4722,8 +4722,8 @@ int simSetObjectParent_internal(int objectHandle, int parentObjectHandle, bool k
             if (!doesObjectExist(__func__, parentObjectHandle))
                 return (-1);
         }
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        CSceneObject* parentIt = App::currentWorld->sceneObjects->getObjectFromHandle(parentObjectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* parentIt = App::currentScene->sceneObjects->getObjectFromHandle(parentObjectHandle);
         CSceneObject* pp = parentIt;
         while (pp != nullptr)
         {
@@ -4735,7 +4735,7 @@ int simSetObjectParent_internal(int objectHandle, int parentObjectHandle, bool k
             pp = pp->getParent();
         }
         if (keepInPlace)
-            App::currentWorld->sceneObjects->setObjectParent(it, parentIt, true);
+            App::currentScene->sceneObjects->setObjectParent(it, parentIt, true);
         else
         {
             if (handleFlags & sim_handleflag_assembly)
@@ -4755,7 +4755,7 @@ int simSetObjectParent_internal(int objectHandle, int parentObjectHandle, bool k
                 }
             }
             else
-                App::currentWorld->sceneObjects->setObjectParent(it, parentIt, false);
+                App::currentScene->sceneObjects->setObjectParent(it, parentIt, false);
         }
         return (1);
     }
@@ -4771,7 +4771,7 @@ int simGetObjectType_internal(int objectHandle)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = it->getObjectType();
         return (retVal);
     }
@@ -4793,7 +4793,7 @@ int simGetJointType_internal(int objectHandle)
         {
             return (-1);
         }
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         int retVal = it->getJointType();
         return (retVal);
     }
@@ -5046,7 +5046,7 @@ int simReservedCommand_internal(int v, int w)
     if (v == 2)
     {
         App::logMsg(sim_verbosity_errors, "functionality deprecated! (simReservedCommand, v=2)");
-        int retVal = App::worldContainer->getModificationFlags(true);
+        int retVal = App::sceneContainer->getModificationFlags(true);
         return (retVal);
     }
     return (CSimFlavor::getIntVal_2int(0, v, w));
@@ -5057,7 +5057,7 @@ double simGetSimulationTime_internal()
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    return (App::currentWorld->simulation->getSimulationTime());
+    return (App::currentScene->simulation->getSimulationTime());
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1.0);
 }
@@ -5068,7 +5068,7 @@ int simGetSimulationState_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal = App::currentWorld->simulation->getSimulationState();
+        int retVal = App::currentScene->simulation->getSimulationState();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5086,7 +5086,7 @@ int simLoadScene_internal(const char* filename)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (!App::currentWorld->simulation->isSimulationStopped())
+        if (!App::currentScene->simulation->isSimulationStopped())
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
             return (-1);
@@ -5110,7 +5110,7 @@ int simLoadScene_internal(const char* filename)
                     GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are
                                                              // set to the correct dimensions
 #endif
-                App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                App::currentScene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
             }
             else
             {
@@ -5132,13 +5132,13 @@ int simCloseScene_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (!App::currentWorld->simulation->isSimulationStopped())
+        if (!App::currentScene->simulation->isSimulationStopped())
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
             return (-1);
         }
         CFileOperations::closeScene();
-        return (App::worldContainer->getCurrentWorldIndex());
+        return (App::sceneContainer->getCurrentSceneIndex());
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
@@ -5163,7 +5163,7 @@ int simLoadModel_internal(const char* filename)
 #ifdef SIM_WITH_GUI
             GuiApp::setRebuildHierarchyFlag();
 #endif
-            return (App::currentWorld->sceneObjects->getLastSelectionHandle());
+            return (App::currentScene->sceneObjects->getLastSelectionHandle());
         }
         else
         {
@@ -5180,7 +5180,7 @@ char* simGetSimulatorMessage_internal(int* messageID, int* auxiliaryData, int* r
     C_API_START;
 
     char* retVal =
-        App::worldContainer->simulatorMessageQueue->extractOneCommand(messageID[0], auxiliaryData, returnedDataSize[0]);
+        App::sceneContainer->simulatorMessageQueue->extractOneCommand(messageID[0], auxiliaryData, returnedDataSize[0]);
     return (retVal);
 }
 
@@ -5188,7 +5188,7 @@ int simSaveScene_internal(const char* filename)
 {
     C_API_START;
 
-    if (App::currentWorld->environment->getSceneLocked())
+    if (App::currentScene->environment->getSceneLocked())
     {
         CApiErrors::setLastError(__func__, SIM_ERROR_SCENE_LOCKED);
         return (-1);
@@ -5196,8 +5196,8 @@ int simSaveScene_internal(const char* filename)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (App::currentWorld->environment->getRequestFinalSave())
-            App::currentWorld->environment->setSceneLocked(); // silent locking!
+        if (App::currentScene->environment->getRequestFinalSave())
+            App::currentScene->environment->setSceneLocked(); // silent locking!
 
         std::string errorStr;
         if (CFileOperations::saveScene(filename, false, false, nullptr, &lastInfoString, &errorStr))
@@ -5205,7 +5205,7 @@ int simSaveScene_internal(const char* filename)
 #ifdef SIM_WITH_GUI
             GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
 #endif
-            App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+            App::currentScene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
             return (1);
         }
         else
@@ -5222,14 +5222,14 @@ int simSaveModel_internal(int baseOfModelHandle, const char* filename)
 {
     C_API_START;
 
-    if (App::currentWorld->environment->getSceneLocked())
+    if (App::currentScene->environment->getSceneLocked())
     {
         CApiErrors::setLastError(__func__, SIM_ERROR_SCENE_LOCKED);
         return (-1);
     }
     if (!doesObjectExist(__func__, baseOfModelHandle))
         return (-1);
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(baseOfModelHandle);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(baseOfModelHandle);
     if (!it->getModelBase())
     {
         CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_MODEL_BASE);
@@ -5237,11 +5237,11 @@ int simSaveModel_internal(int baseOfModelHandle, const char* filename)
     }
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
+        std::vector<int> initSelection(App::currentScene->sceneObjects->getSelectedObjectHandlesPtr()[0]);
         std::string errorStr;
         if (CFileOperations::saveModel(baseOfModelHandle, filename, false, nullptr, &lastInfoString, &errorStr))
         {
-            App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
+            App::currentScene->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
             return (1);
         }
         else
@@ -5269,7 +5269,7 @@ int* simGetObjectSel_internal(int* cnt)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        const std::vector<int>* handles = App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
+        const std::vector<int>* handles = App::currentScene->sceneObjects->getSelectedObjectHandlesPtr();
         int* retVal = new int[handles->size()];
         for (size_t i = 0; i < handles->size(); i++)
             retVal[i] = handles->at(i);
@@ -5286,13 +5286,13 @@ int simSetObjectSel_internal(const int* handles, int cnt)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        App::currentWorld->sceneObjects->deselectObjects();
+        App::currentScene->sceneObjects->deselectObjects();
         if ((handles != nullptr) && (cnt > 0))
         {
             for (int i = 0; i < cnt; i++)
-                App::currentWorld->sceneObjects->addObjectToSelection(handles[i]);
+                App::currentScene->sceneObjects->addObjectToSelection(handles[i]);
         }
-        return (int(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()->size()));
+        return (int(App::currentScene->sceneObjects->getSelectedObjectHandlesPtr()->size()));
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
@@ -5306,7 +5306,7 @@ int simHandleProximitySensor_internal(int sensorHandle, double* detectedPoint, i
     {
         if (sensorHandle >= 0)
         { // handle just one sensor (this is explicit handling)
-            CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
+            CProxSensor* it = App::currentScene->sceneObjects->getProximitySensorFromHandle(sensorHandle);
             if (it == nullptr)
             {
                 return (-1);
@@ -5356,11 +5356,11 @@ int simHandleProximitySensor_internal(int sensorHandle, double* detectedPoint, i
             int detectedObjectID = -1;
             C3Vector detectedSurfaceNormal;
             double allSmallestL = DBL_MAX;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor); i++)
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor); i++)
             {
                 int detectedObj;
                 C3Vector detectedSurf;
-                CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromIndex(i);
+                CProxSensor* it = App::currentScene->sceneObjects->getProximitySensorFromIndex(i);
                 bool detected = false;
                 detected = it->handleSensor(sensorHandle == sim_handle_all_except_explicit, detectedObj, detectedSurf);
                 if (detected)
@@ -5412,7 +5412,7 @@ int simReadProximitySensor_internal(int sensorHandle, double* detectedPoint, int
     {
         if (!isSensor(__func__, sensorHandle))
             return (-1);
-        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
+        CProxSensor* it = App::currentScene->sceneObjects->getProximitySensorFromHandle(sensorHandle);
         C3Vector dPt;
         int dObjHandle;
         C3Vector nVect;
@@ -5441,14 +5441,14 @@ int simHandleDynamics_internal(double deltaTime)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->dynamicsContainer->handleDynamics(deltaTime);
+        App::currentScene->dynamicsContainer->handleDynamics(deltaTime);
         CApiErrors::getAndClearLastError();
-        if ((!App::currentWorld->dynamicsContainer->isWorldThere()) && App::currentWorld->dynamicsContainer->getDynamicsEnabled())
+        if ((!App::currentScene->dynamicsContainer->isWorldThere()) && App::currentScene->dynamicsContainer->getDynamicsEnabled())
         {
-            App::currentWorld->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();
+            App::currentScene->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();
             return (0);
         }
-        return (App::worldContainer->pluginContainer->dyn_getDynamicStepDivider());
+        return (App::sceneContainer->pluginContainer->dyn_getDynamicStepDivider());
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
@@ -5462,10 +5462,10 @@ int simResetScript_internal(int scriptHandle)
     {
         if (scriptHandle == sim_handle_all)
         {
-            App::currentWorld->sceneObjects->embeddedScriptContainer->killAllSimulationLuaStates();
+            App::currentScene->sceneObjects->embeddedScriptContainer->killAllSimulationLuaStates();
             return (1);
         }
-        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
+        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5491,12 +5491,12 @@ int simResetProximitySensor_internal(int sensorHandle)
                 return (-1);
             }
         }
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor); i++)
         {
-            CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromIndex(i);
+            CProxSensor* it = App::currentScene->sceneObjects->getProximitySensorFromIndex(i);
             if (sensorHandle >= 0)
             { // Explicit handling
-                it = (CProxSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(sensorHandle);
+                it = (CProxSensor*)App::currentScene->sceneObjects->getObjectFromHandle(sensorHandle);
                 if (!it->getExplicitHandling())
                 {
                     CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -5526,7 +5526,7 @@ int simCheckProximitySensor_internal(int sensorHandle, int entityHandle, double*
             return (-1);
         if ((entityHandle != sim_handle_all) && (!doesEntityExist(__func__, entityHandle)))
             return (-1);
-        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
+        CProxSensor* it = App::currentScene->sceneObjects->getProximitySensorFromHandle(sensorHandle);
         int options = 0;
         if (it->getFrontFaceDetection())
             options = options | 1;
@@ -5560,7 +5560,7 @@ int simCheckProximitySensorEx_internal(int sensorHandle, int entityHandle, int d
             return (-1);
         if (entityHandle == sim_handle_all)
             entityHandle = -1;
-        if (!App::currentWorld->mainSettings_old->proximitySensorsEnabled)
+        if (!App::currentScene->mainSettings_old->proximitySensorsEnabled)
             return (0);
 
         bool frontFace = SIM_IS_BIT_SET(detectionMode, 0);
@@ -5577,7 +5577,7 @@ int simCheckProximitySensorEx_internal(int sensorHandle, int entityHandle, int d
         int detectedObj;
         C3Vector dPoint;
         double minThreshold = -1.0;
-        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
+        CProxSensor* it = App::currentScene->sceneObjects->getProximitySensorFromHandle(sensorHandle);
         if ((it != nullptr) && (it->convexVolume->getSmallestDistanceAllowed() > 0.0))
             minThreshold = it->convexVolume->getSmallestDistanceAllowed();
         C3Vector normV;
@@ -5624,7 +5624,7 @@ int simCheckProximitySensorEx2_internal(int sensorHandle, double* vertexPointer,
             return (-1);
         }
 
-        if (!App::currentWorld->mainSettings_old->proximitySensorsEnabled)
+        if (!App::currentScene->mainSettings_old->proximitySensorsEnabled)
         {
             return (0);
         }
@@ -5639,7 +5639,7 @@ int simCheckProximitySensorEx2_internal(int sensorHandle, double* vertexPointer,
         tt::limitValue(0.0, piValD2, maxAngle);
         C3Vector dPoint;
         double minThreshold = -1.0;
-        CProxSensor* it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
+        CProxSensor* it = App::currentScene->sceneObjects->getProximitySensorFromHandle(sensorHandle);
         if ((it != nullptr) && (it->convexVolume->getSmallestDistanceAllowed() > 0.0))
             minThreshold = it->convexVolume->getSmallestDistanceAllowed();
         C3Vector normV;
@@ -5678,7 +5678,7 @@ int simRegisterScriptCallbackFunction_internal(const char* func, const char* res
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        CPlugin* plug = App::worldContainer->pluginContainer->getCurrentPlugin();
+        CPlugin* plug = App::sceneContainer->pluginContainer->getCurrentPlugin();
         /*
         if (plug!=nullptr)
         {
@@ -5708,7 +5708,7 @@ int simRegisterScriptCallbackFunction_internal(const char* func, const char* res
         { // old plugins
             if (strcmp(func, "vhacd") == 0)
                 printf("failed registering vhacd\n");
-            // App::worldContainer->pluginContainer->printPluginStack();
+            // App::sceneContainer->pluginContainer->printPluginStack();
             std::string funcName;
             std::string pluginName;
 
@@ -5726,10 +5726,10 @@ int simRegisterScriptCallbackFunction_internal(const char* func, const char* res
             }
 
             retVal = 1;
-            if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(func))
+            if (App::sceneContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(func))
                 retVal = 0; // that function already existed. We remove it and replace it!
             CScriptCustomFunction* newFunction = new CScriptCustomFunction(func, reserved_setToNull, callBack, true);
-            if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
+            if (!App::sceneContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
             {
                 delete newFunction;
                 CApiErrors::setLastError(__func__, SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
@@ -5749,7 +5749,7 @@ int simRegisterScriptVariable_internal(const char* var, const char* val, int sta
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        CPlugin* plug = App::worldContainer->pluginContainer->getCurrentPlugin();
+        CPlugin* plug = App::sceneContainer->pluginContainer->getCurrentPlugin();
         if ((plug != nullptr) && (!plug->isLegacyPlugin()))
         { // new plugins. e.g. 'method_jacobian_transpose', not 'simIK.method_jacobian_transpose'
             if (plug->getPluginVariableContainer()->addVariable(var, val, stackHandle))
@@ -5760,9 +5760,9 @@ int simRegisterScriptVariable_internal(const char* var, const char* val, int sta
         else
         { // old plugins
             retVal = 1;
-            if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomVariable(var))
+            if (App::sceneContainer->scriptCustomFuncAndVarContainer->removeCustomVariable(var))
                 retVal = 0; // that variable already existed. We remove it and replace it!
-            if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(var, val, stackHandle))
+            if (!App::sceneContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(var, val, stackHandle))
             {
                 CApiErrors::setLastError(__func__, SIM_ERROR_CUSTOM_LUA_VAR_COULD_NOT_BE_REGISTERED);
                 retVal = -1;
@@ -5782,7 +5782,7 @@ int simRegisterScriptFuncHook_internal(int scriptHandle, const char* funcToHook,
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
+        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
         if (it != nullptr)
             retVal = it->registerFunctionHook(funcToHook, userFunction, executeBefore);
         else
@@ -5821,7 +5821,7 @@ int simCheckCollision_internal(int entity1Handle, int entity2Handle)
         if (entity2Handle == sim_handle_all)
             entity2Handle = -1;
 
-        if (!App::currentWorld->mainSettings_old->collisionDetectionEnabled)
+        if (!App::currentScene->mainSettings_old->collisionDetectionEnabled)
             return (0);
         bool returnValue =
             CCollisionRoutine::doEntitiesCollide(entity1Handle, entity2Handle, nullptr, true, true, nullptr);
@@ -5845,7 +5845,7 @@ int simCheckCollisionEx_internal(int entity1Handle, int entity2Handle, double** 
         if (entity2Handle == sim_handle_all)
             entity2Handle = -1;
 
-        if (!App::currentWorld->mainSettings_old->collisionDetectionEnabled)
+        if (!App::currentScene->mainSettings_old->collisionDetectionEnabled)
         {
             return (0);
         }
@@ -5878,16 +5878,16 @@ int simCheckDistance_internal(int entity1Handle, int entity2Handle, double thres
         if (entity2Handle == sim_handle_all)
             entity2Handle = -1;
 
-        if (!App::currentWorld->mainSettings_old->distanceCalculationEnabled)
+        if (!App::currentScene->mainSettings_old->distanceCalculationEnabled)
             return (0);
 
         int buffer[4];
-        App::currentWorld->cacheData->getCacheDataDist(entity1Handle, entity2Handle, buffer);
+        App::currentScene->cacheData->getCacheDataDist(entity1Handle, entity2Handle, buffer);
         if (threshold <= 0.0)
             threshold = DBL_MAX;
         bool result = CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(
             entity1Handle, entity2Handle, threshold, distanceData, buffer, buffer + 2, true, true);
-        App::currentWorld->cacheData->setCacheDataDist(entity1Handle, entity2Handle, buffer);
+        App::currentScene->cacheData->setCacheDataDist(entity1Handle, entity2Handle, buffer);
         if (result)
             return (1);
         return (0);
@@ -5902,12 +5902,12 @@ int simSetSimulationTimeStep_internal(double timeStep)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (!App::currentWorld->simulation->isSimulationStopped())
+        if (!App::currentScene->simulation->isSimulationStopped())
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
             return (-1);
         }
-        App::currentWorld->simulation->setTimeStep(timeStep);
+        App::currentScene->simulation->setTimeStep(timeStep);
         return (1);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5919,7 +5919,7 @@ double simGetSimulationTimeStep_internal()
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    return (App::currentWorld->simulation->getTimeStep());
+    return (App::currentScene->simulation->getTimeStep());
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1.0);
 }
@@ -5930,7 +5930,7 @@ int simGetRealTimeSimulation_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (App::currentWorld->simulation->getIsRealTimeSimulation())
+        if (App::currentScene->simulation->getIsRealTimeSimulation())
         {
             return (1);
         }
@@ -5949,9 +5949,9 @@ int simStartSimulation_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (!App::currentWorld->simulation->isSimulationRunning())
+        if (!App::currentScene->simulation->isSimulationRunning())
         {
-            App::currentWorld->simulation->startOrResumeSimulation();
+            App::currentScene->simulation->startOrResumeSimulation();
             return (1);
         }
         return (0);
@@ -5966,10 +5966,10 @@ int simStopSimulation_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (!App::currentWorld->simulation->isSimulationStopped())
+        if (!App::currentScene->simulation->isSimulationStopped())
         {
-            App::currentWorld->simulation->incrementStopRequestCounter();
-            App::currentWorld->simulation->stopSimulation();
+            App::currentScene->simulation->incrementStopRequestCounter();
+            App::currentScene->simulation->stopSimulation();
             return (1);
         }
         return (0);
@@ -5984,9 +5984,9 @@ int simPauseSimulation_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (App::currentWorld->simulation->isSimulationRunning())
+        if (App::currentScene->simulation->isSimulationRunning())
         {
-            App::currentWorld->simulation->pauseSimulation();
+            App::currentScene->simulation->pauseSimulation();
             return (1);
         }
         return (0);
@@ -6008,16 +6008,16 @@ int simHandleGraph_internal(int graphHandle, double simulationTime)
         }
         if (graphHandle < 0)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
             {
-                CGraph* it = App::currentWorld->sceneObjects->getGraphFromIndex(i);
+                CGraph* it = App::currentScene->sceneObjects->getGraphFromIndex(i);
                 if ((!it->getExplicitHandling()) || (graphHandle == sim_handle_all))
                     it->addNextPoint(simulationTime);
             }
         }
         else
         { // explicit handling
-            CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+            CGraph* it = App::currentScene->sceneObjects->getGraphFromHandle(graphHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -6044,16 +6044,16 @@ int simResetGraph_internal(int graphHandle)
         }
         if (graphHandle < 0)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
             {
-                CGraph* it = App::currentWorld->sceneObjects->getGraphFromIndex(i);
+                CGraph* it = App::currentScene->sceneObjects->getGraphFromIndex(i);
                 if ((!it->getExplicitHandling()) || (graphHandle == sim_handle_all))
                     it->resetGraph();
             }
         }
         else
         { // explicit handling
-            CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+            CGraph* it = App::currentScene->sceneObjects->getGraphFromHandle(graphHandle);
             //            if (!it->getExplicitHandling())
             //            {
             //                CApiErrors::setLastError(__func__,SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -6083,7 +6083,7 @@ int simAddGraphStream_internal(int graphHandle, const char* streamName, const ch
         }
         std::string nm(streamName);
         tt::removeIllegalCharacters(nm, false);
-        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraph* it = App::currentScene->sceneObjects->getGraphFromHandle(graphHandle);
         CGraphDataStream* str =
             new CGraphDataStream(nm.c_str(), unitStr, options, color, cyclicRange, _currentScriptHandle);
         int retVal = it->addOrUpdateDataStream(str);
@@ -6106,7 +6106,7 @@ int simDestroyGraphCurve_internal(int graphHandle, int curveId)
     {
         if (!isGraph(__func__, graphHandle))
             return (-1);
-        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraph* it = App::currentScene->sceneObjects->getGraphFromHandle(graphHandle);
         if (curveId == -1)
         {
             it->removeAllStreamsAndCurves();
@@ -6136,7 +6136,7 @@ int simSetGraphStreamTransformation_internal(int graphHandle, int streamId, int 
     {
         if (!isGraph(__func__, graphHandle))
             return (-1);
-        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraph* it = App::currentScene->sceneObjects->getGraphFromHandle(graphHandle);
         if (it->setDataStreamTransformation(streamId, trType, mult, off, movingAvgPeriod))
             return (1);
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_CURVE_ID);
@@ -6154,7 +6154,7 @@ int simDuplicateGraphCurveToStatic_internal(int graphHandle, int curveId, const 
     {
         if (!isGraph(__func__, graphHandle))
             return (-1);
-        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraph* it = App::currentScene->sceneObjects->getGraphFromHandle(graphHandle);
         std::string nm(curveName);
         tt::removeIllegalCharacters(nm, false);
         int retVal = it->duplicateCurveToStatic(curveId, nm.c_str());
@@ -6183,7 +6183,7 @@ int simAddGraphCurve_internal(int graphHandle, const char* curveName, int dim, c
         }
         std::string nm(curveName);
         tt::removeIllegalCharacters(nm, false);
-        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraph* it = App::currentScene->sceneObjects->getGraphFromHandle(graphHandle);
         CGraphCurve* curve = new CGraphCurve(dim, streamIds, defaultValues, nm.c_str(), unitStr, options, color,
                                              curveWidth, _currentScriptHandle);
         int retVal = it->addOrUpdateCurve(curve);
@@ -6206,7 +6206,7 @@ int simSetGraphStreamValue_internal(int graphHandle, int streamId, double value)
     {
         if (!isGraph(__func__, graphHandle))
             return (-1);
-        CGraph* it = App::currentWorld->sceneObjects->getGraphFromHandle(graphHandle);
+        CGraph* it = App::currentScene->sceneObjects->getGraphFromHandle(graphHandle);
         if (it->setNextValueToInsert(streamId, value))
             return (1);
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_CURVE_ID);
@@ -6260,7 +6260,7 @@ int simSetPage_internal(int index)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        App::currentWorld->pageContainer->setActivePage(index);
+        App::currentScene->pageContainer->setActivePage(index);
 #endif
         return (1);
     }
@@ -6275,7 +6275,7 @@ int simGetPage_internal()
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        int retVal = App::currentWorld->pageContainer->getActivePageIndex();
+        int retVal = App::currentScene->pageContainer->getActivePageIndex();
         return (retVal);
 #else
         return (0);
@@ -6298,17 +6298,17 @@ int simCopyPasteObjects_internal(int* objectHandles, int objectCount, int option
         {
             // memorize current selection:
             std::vector<int> initSel;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
-                initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+                initSel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
 
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
-                App::currentWorld->sceneObjects->getObjectFromIndex(i)->setCopyString("");
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+                App::currentScene->sceneObjects->getObjectFromIndex(i)->setCopyString("");
 
             // adjust the selection to copy:
             std::vector<int> selT;
             for (int i = 0; i < objectCount; i++)
             {
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandles[i]);
                 if (it != nullptr)
                 {
                     if (((options & 1) == 0) || it->getModelBase())
@@ -6324,13 +6324,13 @@ int simCopyPasteObjects_internal(int* objectHandles, int objectCount, int option
             {
                 for (size_t i = 0; i < selT.size(); i++)
                 {
-                    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(selT[i]);
+                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(selT[i]);
                     bool ok = true;
                     if (it->getParent() != nullptr)
                     {
                         for (size_t j = 0; j < selT.size(); j++)
                         {
-                            CSceneObject* it2 = App::currentWorld->sceneObjects->getObjectFromHandle(selT[j]);
+                            CSceneObject* it2 = App::currentScene->sceneObjects->getObjectFromHandle(selT[j]);
                             if (it != it2)
                             {
                                 if (it->hasAncestor(it2))
@@ -6349,32 +6349,32 @@ int simCopyPasteObjects_internal(int* objectHandles, int objectCount, int option
                 sel.assign(selT.begin(), selT.end());
 
             if (options & 1)
-                App::currentWorld->sceneObjects->addModelObjects(sel);
+                App::currentScene->sceneObjects->addModelObjects(sel);
             if ((options & 2) == 0)
-                App::currentWorld->sceneObjects->addCompatibilityScripts(sel);
-            App::worldContainer->copyBuffer->memorizeBuffer();
-            App::worldContainer->copyBuffer->copyCurrentSelection(sel, App::currentWorld->environment->getSceneLocked(), options >> 1);
-            App::currentWorld->sceneObjects->deselectObjects();
-            App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(), 0);
-            App::worldContainer->copyBuffer->restoreBuffer();
-            App::worldContainer->copyBuffer->clearMemorizedBuffer();
+                App::currentScene->sceneObjects->addCompatibilityScripts(sel);
+            App::sceneContainer->copyBuffer->memorizeBuffer();
+            App::sceneContainer->copyBuffer->copyCurrentSelection(sel, App::currentScene->environment->getSceneLocked(), options >> 1);
+            App::currentScene->sceneObjects->deselectObjects();
+            App::sceneContainer->copyBuffer->pasteBuffer(App::currentScene->environment->getSceneLocked(), 0);
+            App::sceneContainer->copyBuffer->restoreBuffer();
+            App::sceneContainer->copyBuffer->clearMemorizedBuffer();
 
             // Restore the initial selection:
-            App::currentWorld->sceneObjects->deselectObjects();
+            App::currentScene->sceneObjects->deselectObjects();
             for (size_t i = 0; i < initSel.size(); i++)
-                App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
+                App::currentScene->sceneObjects->addObjectToSelection(initSel[i]);
 
             for (int i = 0; i < objectCount; i++)
             { // now return the handles of the copies. Each input handle has a corresponding output handle:
-                CSceneObject* original = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+                CSceneObject* original = App::currentScene->sceneObjects->getObjectFromHandle(objectHandles[i]);
                 objectHandles[i] = -1; // a handle in the output array can be -1 (e.g. with stripped-away scripts)
                 if (original != nullptr)
                 {
                     std::string str = original->getCopyString();
                     original->setCopyString("");
-                    for (size_t j = 0; j < App::currentWorld->sceneObjects->getObjectCount(); j++)
+                    for (size_t j = 0; j < App::currentScene->sceneObjects->getObjectCount(); j++)
                     {
-                        CSceneObject* potentialCopy = App::currentWorld->sceneObjects->getObjectFromIndex(j);
+                        CSceneObject* potentialCopy = App::currentScene->sceneObjects->getObjectFromIndex(j);
                         if (potentialCopy->getCopyString().compare(str) == 0)
                         {
                             objectHandles[i] = potentialCopy->getObjectHandle();
@@ -6446,7 +6446,7 @@ int simAddDrawingObject_internal(int objectType, double size, double duplicateTo
             if ((objectType & sim_drawing_auxchannelcolor1) != 0)
                 it->color.setColor(setToNULL3 + 3, sim_colorcomponent_auxiliary);
         }
-        int retVal = App::currentWorld->drawingCont->addObject(it);
+        int retVal = App::currentScene->drawingCont->addObject(it);
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -6468,12 +6468,12 @@ int simRemoveDrawingObject_internal(int objectHandle)
         }
 
         if (handle == sim_handle_all)
-            App::currentWorld->drawingCont->eraseAllObjects();
+            App::currentScene->drawingCont->eraseAllObjects();
         else
         {
-            CDrawingObject* it = App::currentWorld->drawingCont->getObjectFromHandle(handle);
+            CDrawingObject* it = App::currentScene->drawingCont->getObjectFromHandle(handle);
             if (it != nullptr)
-                App::currentWorld->drawingCont->removeObject(handle);
+                App::currentScene->drawingCont->removeObject(handle);
             else
             {
                 if (handleFlags != sim_handleflag_silenterror)
@@ -6493,7 +6493,7 @@ int simAddDrawingObjectItem_internal(int objectHandle, const double* itemData)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDrawingObject* it = App::currentWorld->drawingCont->getObjectFromHandle(objectHandle);
+        CDrawingObject* it = App::currentScene->drawingCont->getObjectFromHandle(objectHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
@@ -6513,7 +6513,7 @@ int simAnnounceSceneContentChange_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (App::currentWorld->undoBufferContainer->announceChange())
+        if (App::currentScene->undoBufferContainer->announceChange())
             return (1);
         return (0);
     }
@@ -6539,12 +6539,12 @@ int simReadForceSensor_internal(int objectHandle, double* forceVector, double* t
             return (-1);
         if (!isForceSensor(__func__, handle))
             return (-1);
-        if (App::currentWorld->simulation->isSimulationStopped())
+        if (App::currentScene->simulation->isSimulationStopped())
         {
             //            CApiErrors::setLastError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
             return (0);
         }
-        CForceSensor* it = App::currentWorld->sceneObjects->getForceSensorFromHandle(handle);
+        CForceSensor* it = App::currentScene->sceneObjects->getForceSensorFromHandle(handle);
         int retVal = 0;
 
         C3Vector f, t;
@@ -6578,7 +6578,7 @@ int simGetVelocity_internal(int shapeHandle, double* linearVelocity, double* ang
             return (-1);
         if (!isShape(__func__, shapeHandle))
             return (-1);
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         C3Vector lv(it->getDynamicLinearVelocity());
         C3Vector av(it->getDynamicAngularVelocity());
         if (linearVelocity != nullptr)
@@ -6606,7 +6606,7 @@ int simGetObjectVelocity_internal(int objectHandle, double* linearVelocity, doub
         }
         if (!doesObjectExist(__func__, handle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(handle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(handle);
         C3Vector lv(it->getMeasuredLinearVelocity());
         C3Vector av;
         if ((handleFlags & sim_handleflag_axis) != 0)
@@ -6631,7 +6631,7 @@ int simGetJointVelocity_internal(int jointHandle, double* velocity)
     {
         if (!isJoint(__func__, jointHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(jointHandle);
         velocity[0] = it->getMeasuredJointVelocity();
         return (1);
     }
@@ -6656,7 +6656,7 @@ int simAddForceAndTorque_internal(int shapeHandle, const double* force, const do
             return (-1);
         if (!isShape(__func__, handle))
             return (-1);
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(handle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(handle);
         C3Vector f;
         C3Vector t;
         f.clear();
@@ -6719,7 +6719,7 @@ int simAddForce_internal(int shapeHandle, const double* position, const double* 
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(handle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(handle);
         C3Vector r(position);
         C3Vector f(force);
         C3Vector t(r ^ f);
@@ -6751,7 +6751,7 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
             {
                 return (-1);
             }
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
             if (it->getObjectType() == sim_sceneobject_joint)
             { // Joints
                 ((CJoint*)it)->setExplicitHandling_DEPRECATED(explicitFlags & 1);
@@ -6791,7 +6791,7 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
             {
                 return (-1);
             }
-            CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(objectHandle);
+            CCollisionObject_old* it = App::currentScene->collisions_old->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags & 1);
             return (1);
         }
@@ -6801,7 +6801,7 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
             {
                 return (-1);
             }
-            CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(objectHandle);
+            CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags & 1);
             return (1);
         }
@@ -6811,7 +6811,7 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
             {
                 return (-1);
             }
-            CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(objectHandle);
+            CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags & 1);
             return (1);
         }
@@ -6833,7 +6833,7 @@ int simGetExplicitHandling_internal(int objectHandle)
         { // scene objects
             if (!doesObjectExist(__func__, objectHandle))
                 return (-1);
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
             if (it->getObjectType() == sim_sceneobject_joint)
             { // Joints
                 bool exp = ((CJoint*)it)->getExplicitHandling_DEPRECATED();
@@ -6873,7 +6873,7 @@ int simGetExplicitHandling_internal(int objectHandle)
             {
                 return (-1);
             }
-            CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(objectHandle);
+            CCollisionObject_old* it = App::currentScene->collisions_old->getObjectFromHandle(objectHandle);
             bool exp = it->getExplicitHandling();
             return (exp);
         }
@@ -6883,7 +6883,7 @@ int simGetExplicitHandling_internal(int objectHandle)
             {
                 return (-1);
             }
-            CDistanceObject_old* it = App::currentWorld->distances_old->getObjectFromHandle(objectHandle);
+            CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(objectHandle);
             bool exp = it->getExplicitHandling();
             return (exp);
         }
@@ -6893,7 +6893,7 @@ int simGetExplicitHandling_internal(int objectHandle)
             {
                 return (-1);
             }
-            CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(objectHandle);
+            CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(objectHandle);
             bool exp = it->getExplicitHandling();
             return (exp);
         }
@@ -6915,7 +6915,7 @@ int simGetLinkDummy_internal(int dummyHandle)
         {
             return (-1);
         }
-        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(dummyHandle);
+        CDummy* it = App::currentScene->sceneObjects->getDummyFromHandle(dummyHandle);
         int retVal = it->getLinkedDummyHandle();
         return (retVal);
     }
@@ -6936,7 +6936,7 @@ int simSetLinkDummy_internal(int dummyHandle, int linkedDummyHandle)
             if (!isDummy(__func__, linkedDummyHandle))
                 return (-1);
         }
-        CDummy* it = App::currentWorld->sceneObjects->getDummyFromHandle(dummyHandle);
+        CDummy* it = App::currentScene->sceneObjects->getDummyFromHandle(dummyHandle);
         it->setLinkedDummyHandle(linkedDummyHandle, true);
         return (1);
     }
@@ -6952,7 +6952,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = 0;
         if (it->getObjectType() == sim_sceneobject_shape)
         {
@@ -7107,7 +7107,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = 0;
         if (it->getObjectType() == sim_sceneobject_shape)
         {
@@ -7203,15 +7203,15 @@ int simSetShapeColor_internal(int shapeHandle, const char* colorName, int colorC
             return (-1);
         if (shapeHandle == sim_handle_all)
         { // deprecated functionality
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
-                CShape* it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
+                CShape* it = App::currentScene->sceneObjects->getShapeFromIndex(i);
                 it->setColor(colorName, colorComponent, rgbData);
             }
         }
         else
         {
-            CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+            CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
             it->setColor(colorName, colorComponent, rgbData);
         }
         return (1);
@@ -7228,7 +7228,7 @@ int simGetShapeColor_internal(int shapeHandle, const char* colorName, int colorC
     {
         if (!isShape(__func__, shapeHandle))
             return (-1);
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         int retVal = 0;
         if (it->getColor(colorName, colorComponent, rgbData))
             retVal = 1;
@@ -7253,9 +7253,9 @@ int simResetDynamicObject_internal(int objectHandle)
 
         if ((objectHandle != sim_handle_all) && (!doesObjectExist(__func__, objectHandle)))
             return (-1);
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
             if ((it->getObjectHandle() == objectHandle) || (objectHandle == sim_handle_all))
             {
                 if (it->getObjectHandle() == objectHandle)
@@ -7278,7 +7278,7 @@ int simSetJointMode_internal(int jointHandle, int jointMode, int options)
     {
         if (!isJoint(__func__, jointHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(jointHandle);
         it->setJointMode(jointMode);
         it->setHybridFunctionality_old(options & 1);
         return (1);
@@ -7295,7 +7295,7 @@ int simGetJointMode_internal(int jointHandle, int* options)
     {
         if (!isJoint(__func__, jointHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(jointHandle);
         int retVal = it->getJointMode();
         options[0] = 0;
         if (it->getHybridFunctionality_old())
@@ -7314,7 +7314,7 @@ int simSerialOpen_internal(const char* portString, int baudRate, void* reserved1
     {
         int handle = -1;
 #ifdef SIM_WITH_GUI
-        handle = App::worldContainer->serialPortContainer->serialPortOpen(false, portString, baudRate);
+        handle = App::sceneContainer->serialPortContainer->serialPortOpen(false, portString, baudRate);
 #endif
         return (handle);
     }
@@ -7330,7 +7330,7 @@ int simSerialClose_internal(int portHandle)
     {
         int retVal = -1;
 #ifdef SIM_WITH_GUI
-        if (App::worldContainer->serialPortContainer->serialPortClose(portHandle))
+        if (App::sceneContainer->serialPortContainer->serialPortClose(portHandle))
             retVal = 1;
         else
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
@@ -7348,7 +7348,7 @@ int simSerialSend_internal(int portHandle, const char* data, int dataLength)
     int retVal = -1;
 #ifdef SIM_WITH_GUI
     std::string dat(data, data + dataLength);
-    retVal = App::worldContainer->serialPortContainer->serialPortSend(portHandle, dat);
+    retVal = App::sceneContainer->serialPortContainer->serialPortSend(portHandle, dat);
     if (retVal == -1)
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
@@ -7363,7 +7363,7 @@ int simSerialRead_internal(int portHandle, char* buffer, int dataLengthToRead)
 #ifdef SIM_WITH_GUI
     std::string data;
     data.resize(dataLengthToRead);
-    retVal = App::worldContainer->serialPortContainer->serialPortReceive(portHandle, data, dataLengthToRead);
+    retVal = App::sceneContainer->serialPortContainer->serialPortReceive(portHandle, data, dataLengthToRead);
     if (retVal > 0)
     {
         for (int i = 0; i < retVal; i++)
@@ -7381,7 +7381,7 @@ int simSerialCheck_internal(int portHandle)
 
     int retVal = -1;
 #ifdef SIM_WITH_GUI
-    retVal = App::worldContainer->serialPortContainer->serialPortCheck(portHandle);
+    retVal = App::sceneContainer->serialPortContainer->serialPortCheck(portHandle);
     if (retVal == -1)
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PORT_HANDLE);
 #endif
@@ -7395,7 +7395,7 @@ int simGetContactInfo_internal(int dynamicPass, int objectHandle, int index, int
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-        if (App::currentWorld->dynamicsContainer->getContactForce(dynamicPass, objectHandle, index, objectHandles,
+        if (App::currentScene->dynamicsContainer->getContactForce(dynamicPass, objectHandle, index, objectHandles,
                                                                   contactInfo) != 0)
             retVal = 1;
         return (retVal);
@@ -7512,7 +7512,7 @@ int simImportShape_internal(int fileformat, const char* pathAndFilename, int opt
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
+        if (!App::sceneContainer->pluginContainer->isAssimpPluginAvailable())
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return (-1);
@@ -7536,13 +7536,13 @@ int simImportShape_internal(int fileformat, const char* pathAndFilename, int opt
         int h = -1;
         int cnt = 0;
         int* shapes =
-            App::worldContainer->pluginContainer->assimp_importShapes(pathAndFilename, 512, scalingFactor, 1, op, &cnt);
+            App::sceneContainer->pluginContainer->assimp_importShapes(pathAndFilename, 512, scalingFactor, 1, op, &cnt);
         if (cnt > 0)
         {
             h = shapes[0];
             delete[] shapes;
         }
-        App::currentWorld->sceneObjects->deselectObjects();
+        App::currentScene->sceneObjects->deselectObjects();
         return (h);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -7562,7 +7562,7 @@ int simImportMesh_internal(int fileformat, const char* pathAndFilename, int opti
             CApiErrors::setLastError(__func__, SIM_ERROR_FILE_NOT_FOUND);
             return (-1);
         }
-        if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
+        if (!App::sceneContainer->pluginContainer->isAssimpPluginAvailable())
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return (-1);
@@ -7572,7 +7572,7 @@ int simImportMesh_internal(int fileformat, const char* pathAndFilename, int opti
             op |= 16;
         if ((options & 128) != 0)
             op |= 128;
-        int retVal = App::worldContainer->pluginContainer->assimp_importMeshes(
+        int retVal = App::sceneContainer->pluginContainer->assimp_importMeshes(
             pathAndFilename, scalingFactor, 1, op, vertices, verticesSizes, indices, indicesSizes);
         if (names != nullptr)
             names[0] = new char*[retVal];
@@ -7598,12 +7598,12 @@ int simExportMesh_internal(int fileformat, const char* pathAndFilename, int opti
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (App::currentWorld->environment->getSceneLocked())
+        if (App::currentScene->environment->getSceneLocked())
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCENE_LOCKED);
             return (-1);
         }
-        if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
+        if (!App::sceneContainer->pluginContainer->isAssimpPluginAvailable())
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return (-1);
@@ -7648,7 +7648,7 @@ int simExportMesh_internal(int fileformat, const char* pathAndFilename, int opti
             return (-1);
         }
         int op = 0;
-        App::worldContainer->pluginContainer->assimp_exportMeshes(elementCount, vertices, verticesSizes, indices,
+        App::sceneContainer->pluginContainer->assimp_exportMeshes(elementCount, vertices, verticesSizes, indices,
                                                                   indicesSizes, pathAndFilename, format.c_str(),
                                                                   scalingFactor, 1, op);
         return (1);
@@ -7698,14 +7698,14 @@ int simCreateShape_internal(int options, double shadingAngle, const double* vert
         shape->alignBB("mesh");
         shape->getSingleMesh()->setShadingAngle(shadingAngle);
         shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
-        int h = App::currentWorld->sceneObjects->addObjectToScene(shape, false, true);
+        int h = App::currentScene->sceneObjects->addObjectToScene(shape, false, true);
         if (img != nullptr)
         {
             CTextureObject* textureObj = new CTextureObject(textureRes[0], textureRes[1]);
             textureObj->setImage(options & 16, options & 32, (options & 64) == 0, texture);
             textureObj->setObjectName("importedTexture");
             textureObj->addDependentObject(h, shape->getSingleMesh()->getObjectHandle());
-            int h = App::currentWorld->textureContainer->addObject(
+            int h = App::currentScene->textureContainer->addObject(
                 textureObj, false); // might erase the textureObj and return a similar object already present!!
             shape->getSingleMesh()->getTextureProperty()->setTextureObjectID(h);
         }
@@ -7752,7 +7752,7 @@ int simCreateMeshShape_internal(int options, double shadingAngle, const double* 
                     shape->getSingleMesh()->setEdgeThresholdAngle(shadingAngle);
                     shape->setCulling((options & 1) != 0);
                     shape->setVisibleEdges((options & 2) != 0);
-                    App::currentWorld->sceneObjects->addObjectToScene(shape, false, true);
+                    App::currentScene->sceneObjects->addObjectToScene(shape, false, true);
                     return (shape->getObjectHandle());
                 }
                 CApiErrors::setLastError(__func__, SIM_ERROR_BAD_VERTICES);
@@ -7775,7 +7775,7 @@ int simGetShapeMesh_internal(int shapeHandle, double** vertices, int* verticesSi
     {
         if (!isShape(__func__, shapeHandle))
             return (-1);
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         std::vector<double> wvert;
         std::vector<int> wind;
         std::vector<double> wnorm;
@@ -7845,7 +7845,7 @@ int simCreateDummy_internal(double size, const float* reserved)
             it->getDummyColor()->setColor(reserved + 6, sim_materialcomponent_specular);
             it->getDummyColor()->setColor(reserved + 9, sim_materialcomponent_emission);
         }
-        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        App::currentScene->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
     }
@@ -7860,7 +7860,7 @@ int simCreateScript_internal(int scriptType, const char* scriptText, int options
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CScript* it = new CScript(scriptType, scriptText, options, lang);
-        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        App::currentScene->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
     }
@@ -7935,7 +7935,7 @@ int simCreateProximitySensor_internal(int sensorType, int subType, int options, 
 
         it->setProxSensorSize(floatParams[12]);
 
-        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        App::currentScene->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
     }
@@ -7962,7 +7962,7 @@ int simCreateForceSensor_internal(int options, const int* intParams, const doubl
         it->setForceThreshold(floatParams[1]);
         it->setTorqueThreshold(floatParams[2]);
 
-        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        App::currentScene->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
     }
@@ -7996,7 +7996,7 @@ int simCreateVisionSensor_internal(int options, const int* intParams, const doub
         float w[3] = {(float)floatParams[6], (float)floatParams[7], (float)floatParams[8]};
         it->setDefaultBufferValues(w);
 
-        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        App::currentScene->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
     }
@@ -8022,7 +8022,7 @@ int simCreateJoint_internal(int jointType, int jointMode, int options, const dou
             }
             it->setSize(sizes[0], sizes[1]);
         }
-        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        App::currentScene->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
     }
@@ -8038,7 +8038,7 @@ int simFloatingViewAdd_internal(double posX, double posY, double sizeX, double s
     {
 #ifdef SIM_WITH_GUI
         CSPage* page =
-            App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
+            App::currentScene->pageContainer->getPage(App::currentScene->pageContainer->getActivePageIndex());
         if (page == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_PAGE_INEXISTANT);
@@ -8087,7 +8087,7 @@ int simFloatingViewRemove_internal(int floatingViewHandle)
     {
         for (int i = 0; i < 8; i++)
         {
-            CSPage* page = App::currentWorld->pageContainer->getPage(i);
+            CSPage* page = App::currentScene->pageContainer->getPage(i);
             if (page != nullptr)
             {
                 int viewIndex = page->getViewIndexFromViewUniqueID(floatingViewHandle);
@@ -8130,7 +8130,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
             {
                 for (int i = 0; i < 8; i++)
                 {
-                    CSPage* page = App::currentWorld->pageContainer->getPage(i);
+                    CSPage* page = App::currentScene->pageContainer->getPage(i);
                     int index = page->getViewIndexFromViewUniqueID(viewHandleOrIndex);
                     if (index != -1)
                     {
@@ -8143,9 +8143,9 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
             {
 #ifdef SIM_WITH_GUI
                 CSPage* page =
-                    App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
+                    App::currentScene->pageContainer->getPage(App::currentScene->pageContainer->getActivePageIndex());
 #else
-                CSPage* page = App::currentWorld->pageContainer->getPage(0);
+                CSPage* page = App::currentScene->pageContainer->getPage(0);
 #endif
                 if (page == nullptr)
                 {
@@ -8159,7 +8159,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
             { // silent error
                 return (0);
             }
-            camera = App::currentWorld->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
+            camera = App::currentScene->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
             if (camera == nullptr)
             { // silent error
                 return (0);
@@ -8170,7 +8170,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
             if (!isCamera(__func__, viewHandleOrIndex))
                 return (-1);
             options |= 2; // 1x1 proportions
-            camera = App::currentWorld->sceneObjects->getCameraFromHandle(viewHandleOrIndex);
+            camera = App::currentScene->sceneObjects->getCameraFromHandle(viewHandleOrIndex);
         }
 
         std::vector<int> objectsToFrame;
@@ -8216,7 +8216,7 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
         {
             for (int i = 0; i < 8; i++)
             {
-                CSPage* page = App::currentWorld->pageContainer->getPage(i);
+                CSPage* page = App::currentScene->pageContainer->getPage(i);
                 int index = page->getViewIndexFromViewUniqueID(viewHandleOrIndex);
                 if (index != -1)
                 {
@@ -8229,9 +8229,9 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
         {
 #ifdef SIM_WITH_GUI
             CSPage* page =
-                App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
+                App::currentScene->pageContainer->getPage(App::currentScene->pageContainer->getActivePageIndex());
 #else
-            CSPage* page = App::currentWorld->pageContainer->getPage(0);
+            CSPage* page = App::currentScene->pageContainer->getPage(0);
 #endif
             if (page == nullptr)
             {
@@ -8259,7 +8259,7 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
             {
                 return (-1);
             }
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(associatedViewableObjectHandle);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(associatedViewableObjectHandle);
             int objType = it->getObjectType();
             if ((objType != sim_sceneobject_camera) && (objType != sim_sceneobject_graph) &&
                 (objType != sim_sceneobject_visionsensor))
@@ -8428,7 +8428,7 @@ int simGetJointForce_internal(int jointHandle, double* forceOrTorque)
             return (-1);
         if (!isJoint(__func__, handle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(handle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(handle);
         if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_JOINT_SPHERICAL);
@@ -8457,7 +8457,7 @@ int simGetJointTargetForce_internal(int jointHandle, double* forceOrTorque)
             return (-1);
         if (!isJoint(__func__, jointHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(jointHandle);
         forceOrTorque[0] = it->getTargetForce(true);
         return (1);
     }
@@ -8475,7 +8475,7 @@ int simSetJointTargetForce_internal(int objectHandle, double forceOrTorque, bool
             return (-1);
         if (!isJoint(__func__, objectHandle))
             return (-1);
-        CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
+        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectHandle);
         it->setTargetForce(forceOrTorque, signedValue);
         return (1);
     }
@@ -8490,36 +8490,36 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_sceneobject)) &&
-            (App::currentWorld->sceneObjects->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentScene->sceneObjects->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_collection)) &&
-            (App::currentWorld->collections->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentScene->collections->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_script_type)) &&
-            (App::worldContainer->getDetachedScriptFromHandle(generalObjectHandle) != nullptr))
+            (App::sceneContainer->getDetachedScriptFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_texture)) &&
-            (App::currentWorld->textureContainer->getObject(generalObjectHandle) != nullptr))
+            (App::currentScene->textureContainer->getObject(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_drawingobject)) &&
-            (App::currentWorld->drawingCont->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentScene->drawingCont->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
 
         // Old:
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_ui_type)) &&
-            (App::currentWorld->buttonBlockContainer_old->getBlockWithID(generalObjectHandle) != nullptr))
+            (App::currentScene->buttonBlockContainer_old->getBlockWithID(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_collision_type)) &&
-            (App::currentWorld->collisions_old->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentScene->collisions_old->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_distance_type)) &&
-            (App::currentWorld->distances_old->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentScene->distances_old->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_ik_type)) &&
-            (App::currentWorld->ikGroups_old->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentScene->ikGroups_old->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_pathplanning_type)) &&
-            (App::currentWorld->pathPlanning_old->getObject(generalObjectHandle) != nullptr))
+            (App::currentScene->pathPlanning_old->getObject(generalObjectHandle) != nullptr))
             return (1);
         return (0); // handle is not valid!
     }
@@ -8543,12 +8543,12 @@ int simHandleVisionSensor_internal(int visionSensorHandle, double** auxValues, i
         if (auxValuesCount != nullptr)
             auxValuesCount[0] = nullptr;
         int retVal = 0;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
         {
-            CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
+            CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromIndex(i);
             if (visionSensorHandle >= 0)
             { // explicit handling
-                it = (CVisionSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(visionSensorHandle);
+                it = (CVisionSensor*)App::currentScene->sceneObjects->getObjectFromHandle(visionSensorHandle);
                 if (!it->getExplicitHandling())
                 {
                     CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -8598,7 +8598,7 @@ int simReadVisionSensor_internal(int visionSensorHandle, double** auxValues, int
             auxValues[0] = nullptr;
         if (auxValuesCount != nullptr)
             auxValuesCount[0] = nullptr;
-        CVisionSensor* it = (CVisionSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(visionSensorHandle);
+        CVisionSensor* it = (CVisionSensor*)App::currentScene->sceneObjects->getObjectFromHandle(visionSensorHandle);
         int retVal = -1;
         if (it->sensorResult.sensorResultIsValid)
         {
@@ -8642,12 +8642,12 @@ int simResetVisionSensor_internal(int visionSensorHandle)
                 return (-1);
             }
         }
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
         {
-            CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
+            CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromIndex(i);
             if (visionSensorHandle >= 0)
             { // Explicit handling
-                it = (CVisionSensor*)App::currentWorld->sceneObjects->getObjectFromHandle(visionSensorHandle);
+                it = (CVisionSensor*)App::currentScene->sceneObjects->getObjectFromHandle(visionSensorHandle);
                 if (!it->getExplicitHandling())
                 {
                     CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -8683,7 +8683,7 @@ int simCheckVisionSensor_internal(int sensorHandle, int entityHandle, double** a
         if (entityHandle == sim_handle_all)
             entityHandle = -1;
 
-        if (!App::currentWorld->mainSettings_old->visionSensorsEnabled)
+        if (!App::currentScene->mainSettings_old->visionSensorsEnabled)
             return (0);
 
         if (auxValues != nullptr)
@@ -8692,7 +8692,7 @@ int simCheckVisionSensor_internal(int sensorHandle, int entityHandle, double** a
             auxValuesCount[0] = nullptr;
         int retVal = 0;
 
-        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         if (it->checkSensor(entityHandle, true))
             retVal = 1;
 
@@ -8733,10 +8733,10 @@ float* simCheckVisionSensorEx_internal(int sensorHandle, int entityHandle, bool 
         if (entityHandle == sim_handle_all)
             entityHandle = -1;
 
-        if (!App::currentWorld->mainSettings_old->visionSensorsEnabled)
+        if (!App::currentScene->mainSettings_old->visionSensorsEnabled)
             return (nullptr);
 
-        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         float* retBuffer = it->checkSensorEx(entityHandle, returnImage != 0, false, false, true);
         return (retBuffer);
     }
@@ -8755,7 +8755,7 @@ unsigned char* simGetVisionSensorImg_internal(int sensorHandle, int options, dou
             return (nullptr);
         if (!isVisionSensor(__func__, sensorHandle))
             return (nullptr);
-        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
         it->getResolution(res);
         if (resolution != nullptr)
@@ -8796,7 +8796,7 @@ int simSetVisionSensorImg_internal(int sensorHandle, const unsigned char* img, i
             return (-1);
         if (!isVisionSensor(__func__, sensorHandle))
             return (-1);
-        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
         it->getResolution(res);
         int posX = 0;
@@ -8834,7 +8834,7 @@ float* simGetVisionSensorDepth_internal(int sensorHandle, int options, const int
             return (nullptr);
         if (!isVisionSensor(__func__, sensorHandle))
             return (nullptr);
-        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         int res[2];
         it->getResolution(res);
         if (resolution != nullptr)
@@ -8886,7 +8886,7 @@ int _simSetVisionSensorDepth_internal(int sensorHandle, int options, const float
             return (-1);
         if (!isVisionSensor(__func__, sensorHandle))
             return (-1);
-        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         it->writeImage(depth, 2);
         return (1);
     }
@@ -8903,7 +8903,7 @@ int simRuckigPos_internal(int dofs, double baseCycleTime, int flags, const doubl
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal = App::worldContainer->pluginContainer->ruckigPlugin_pos(
+        int retVal = App::sceneContainer->pluginContainer->ruckigPlugin_pos(
             _currentScriptHandle, dofs, baseCycleTime, flags, currentPos, currentVel, currentAccel, maxVel, maxAccel,
             maxJerk, selection, targetPos, targetVel);
         if (retVal == -2)
@@ -8922,7 +8922,7 @@ int simRuckigVel_internal(int dofs, double baseCycleTime, int flags, const doubl
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal = App::worldContainer->pluginContainer->ruckigPlugin_vel(_currentScriptHandle, dofs, baseCycleTime,
+        int retVal = App::sceneContainer->pluginContainer->ruckigPlugin_vel(_currentScriptHandle, dofs, baseCycleTime,
                                                                             flags, currentPos, currentVel, currentAccel,
                                                                             maxAccel, maxJerk, selection, targetVel);
         if (retVal == -2)
@@ -8940,7 +8940,7 @@ int simRuckigStep_internal(int objHandle, double cycleTime, double* newPos, doub
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal = App::worldContainer->pluginContainer->ruckigPlugin_step(objHandle, cycleTime, newPos, newVel,
+        int retVal = App::sceneContainer->pluginContainer->ruckigPlugin_step(objHandle, cycleTime, newPos, newVel,
                                                                              newAccel, syncTime);
         if (retVal == -3)
             CApiErrors::setLastError(__func__, SIM_ERROR_RUCKIG_CYCLETIME_ERROR);
@@ -8960,7 +8960,7 @@ int simRuckigRemove_internal(int objHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal = App::worldContainer->pluginContainer->ruckigPlugin_remove(objHandle);
+        int retVal = App::sceneContainer->pluginContainer->ruckigPlugin_remove(objHandle);
         if (retVal == -2)
             CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         if (retVal == -1)
@@ -8984,7 +8984,7 @@ int simGetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
 
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -9003,7 +9003,7 @@ int simGetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
             if (!doesObjectExist(__func__, relativeToObjectHandle))
                 return (-1);
         }
-        CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* relObj = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         C7Vector tr;
         if (relObj == nullptr)
             tr = it->getCumulativeTransformation();
@@ -9052,7 +9052,7 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if (relativeToObjectHandle == sim_handle_parent)
         {
             relativeToObjectHandle = sim_handle_world;
@@ -9073,7 +9073,7 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
         }
         if (it->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
             it->setDynamicsResetFlag(true, true);
-        CSceneObject* relObj = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
+        CSceneObject* relObj = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjectHandle);
         if (relObj == nullptr)
         {
             C4Vector q;
@@ -9081,7 +9081,7 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
             q.normalize();
             if (inverse)
                 q.inverse();
-            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(), q.getEulerAngles());
+            App::currentScene->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(), q.getEulerAngles());
         }
         else
         {
@@ -9108,7 +9108,7 @@ int simSetObjectQuaternion_internal(int objectHandle, int relativeToObjectHandle
                 if (inverse)
                     x.Q.inverse();
                 absTr = relTr * x;
-                App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),
+                App::currentScene->sceneObjects->setObjectAbsoluteOrientation(it->getObjectHandle(),
                                                                               absTr.Q.getEulerAngles());
             }
         }
@@ -9126,7 +9126,7 @@ int simGetShapeMass_internal(int shapeHandle, double* mass)
     {
         if (!isShape(__func__, shapeHandle))
             return (-1);
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
 
         mass[0] = it->getMesh()->getMass();
         return (1);
@@ -9143,7 +9143,7 @@ int simSetShapeMass_internal(int shapeHandle, double mass)
     {
         if (!isShape(__func__, shapeHandle))
             return (-1);
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
 
         if (mass < 0.0000001)
             mass = 0.0000001;
@@ -9163,7 +9163,7 @@ int simGetShapeInertia_internal(int shapeHandle, double* inertiaMatrix, double* 
     {
         if (!isShape(__func__, shapeHandle))
             return (-1);
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
 
         C4X4Matrix tr;
         tr.setIdentity();
@@ -9196,7 +9196,7 @@ int simSetShapeInertia_internal(int shapeHandle, const double* inertiaMatrix, co
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
 
         C4X4Matrix tr;
         tr.setData(transformationMatrix);
@@ -9227,7 +9227,7 @@ int simIsDynamicallyEnabled_internal(int objectHandle)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = 0;
         if (it->getObjectType() == sim_sceneobject_shape)
         {
@@ -9463,7 +9463,7 @@ int simInitScript_internal(int scriptHandle)
         int h = scriptHandle;
         if (h < 0)
             h = - h - 1;
-        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(h);
+        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(h);
         if (it != nullptr)
         {
             if (scriptHandle < 0)
@@ -9492,13 +9492,13 @@ int simModuleEntry_internal(int handle, const char* label, int state)
         if (handle == -1)
         {
             first = true;
-            handle = App::worldContainer->moduleMenuItemContainer->addMenuItem(label, _currentScriptHandle);
+            handle = App::sceneContainer->moduleMenuItemContainer->addMenuItem(label, _currentScriptHandle);
         }
-        CModuleMenuItem* item = App::worldContainer->moduleMenuItemContainer->getItemFromHandle(handle);
+        CModuleMenuItem* item = App::sceneContainer->moduleMenuItemContainer->getItemFromHandle(handle);
         if (item != nullptr)
         {
             if (state == -2)
-                App::worldContainer->moduleMenuItemContainer->removeMenuItem(handle);
+                App::sceneContainer->moduleMenuItemContainer->removeMenuItem(handle);
             else
             {
                 if ((!first) && (label != nullptr))
@@ -9534,7 +9534,7 @@ int simCheckExecAuthorization_internal(const char* what, const char* args, int s
             std::string x, y;
             if (h >= 0)
             {
-                it = App::worldContainer->getDetachedScriptFromHandle(h);
+                it = App::sceneContainer->getDetachedScriptFromHandle(h);
                 if (it != nullptr)
                 {
                     x = x + args + " ";
@@ -9599,7 +9599,7 @@ int simGroupShapes_internal(const int* shapeHandles, int shapeCount)
             shapeCount = -shapeCount;
         for (int i = 0; i < shapeCount; i++)
         {
-            CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandles[i]);
+            CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandles[i]);
             if (it != nullptr)
                 shapes.push_back(it->getObjectHandle());
         }
@@ -9608,13 +9608,13 @@ int simGroupShapes_internal(const int* shapeHandles, int shapeCount)
             CApiErrors::setLastError(__func__, SIM_ERROR_NOT_ENOUGH_SHAPES);
             return (-1);
         }
-        std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
+        std::vector<int> initSelection(App::currentScene->sceneObjects->getSelectedObjectHandlesPtr()[0]);
         int retVal;
         if (merging)
             retVal = CSceneObjectOperations::mergeSelection(&shapes);
         else
             retVal = CSceneObjectOperations::groupSelection(&shapes);
-        App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
+        App::currentScene->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -9639,7 +9639,7 @@ int* simUngroupShape_internal(int shapeHandle, int* shapeCount)
             shapeCount[0] = 0;
             return (nullptr);
         }
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         if (it->getMesh()->isMesh())
         {
             if (dividing)
@@ -9722,15 +9722,15 @@ int simSetShapeMaterial_internal(int shapeHandle, int materialIdOrShapeHandle)
             {
                 if (materialIdOrShapeHandle >= sim_dynmat_default)
                 { // set a predefined material
-                    CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+                    CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
                     shape->getDynMaterial()->generateDefaultMaterial(materialIdOrShapeHandle);
                 }
                 else
                 { // set the same material as another shape
-                    CShape* matShape = App::currentWorld->sceneObjects->getShapeFromHandle(materialIdOrShapeHandle);
+                    CShape* matShape = App::currentScene->sceneObjects->getShapeFromHandle(materialIdOrShapeHandle);
                     if (matShape != nullptr)
                     {
-                        CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+                        CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
                         shape->setDynMaterial(matShape->getDynMaterial()->copyYourself());
                         retVal = 1;
                     }
@@ -9750,7 +9750,7 @@ int simGetTextureId_internal(const char* textureName, int* resolution)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1; // means error
-        CTextureObject* to = App::currentWorld->textureContainer->getObject(textureName);
+        CTextureObject* to = App::currentScene->textureContainer->getObject(textureName);
         if (to != nullptr)
         {
             retVal = to->getObjectID();
@@ -9771,7 +9771,7 @@ unsigned char* simReadTexture_internal(int textureId, int options, int posX, int
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CTextureObject* to = App::currentWorld->textureContainer->getObject(textureId);
+        CTextureObject* to = App::currentScene->textureContainer->getObject(textureId);
         if (to != nullptr)
         {
             int resX, resY;
@@ -9809,7 +9809,7 @@ int simWriteTexture_internal(int textureId, int options, const char* data, int p
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CTextureObject* to = App::currentWorld->textureContainer->getObject(textureId);
+        CTextureObject* to = App::currentScene->textureContainer->getObject(textureId);
         if (to != nullptr)
         {
             int resX, resY;
@@ -9889,7 +9889,7 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                     textureObj->setObjectName(App::folders->getNameFromFull(fileName).c_str());
                     delete[] data;
                     textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
-                    int texID = App::currentWorld->textureContainer->addObject(
+                    int texID = App::currentScene->textureContainer->addObject(
                         textureObj, false); // might erase the textureObj and return a similar object already present!!
                     CTextureProperty* tp = new CTextureProperty(texID);
                     shape->getSingleMesh()->setTextureProperty(tp);
@@ -9943,7 +9943,7 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                 textureObj->setRandomContent();
                 textureObj->setObjectName(App::folders->getNameFromFull(fileName).c_str());
                 textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
-                int texID = App::currentWorld->textureContainer->addObject(
+                int texID = App::currentScene->textureContainer->addObject(
                     textureObj, false); // might erase the textureObj and return a similar object already present!!
                 CTextureProperty* tp = new CTextureProperty(texID);
                 shape->getSingleMesh()->setTextureProperty(tp);
@@ -9989,7 +9989,7 @@ int simGetShapeGeomInfo_internal(int shapeHandle, int* intData, double* floatDat
         int retVal = -1; // means error
         if (isShape(__func__, shapeHandle))
         {
-            CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+            CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
             retVal = 0;
             if (shape->getMesh()->isMesh())
             {
@@ -10034,9 +10034,9 @@ int simGetObjects_internal(int index, int objectType)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int cnter = 0;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
         {
-            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
             if (objectType != sim_handle_all)
             {
                 if (it->getObjectType() != objectType)
@@ -10070,14 +10070,14 @@ int* simGetObjectsInTree_internal(int treeBaseHandle, int objectType, int option
             std::vector<CSceneObject*> toExplore;
             if (treeBaseHandle != sim_handle_scene)
             {
-                CSceneObject* baseObj = App::currentWorld->sceneObjects->getObjectFromHandle(treeBaseHandle);
+                CSceneObject* baseObj = App::currentScene->sceneObjects->getObjectFromHandle(treeBaseHandle);
                 toExplore.push_back(baseObj);
             }
             else
             {
-                for (size_t i = 0; i < App::currentWorld->sceneObjects->getOrphanCount(); i++)
+                for (size_t i = 0; i < App::currentScene->sceneObjects->getOrphanCount(); i++)
                 {
-                    CSceneObject* obj = App::currentWorld->sceneObjects->getOrphanFromIndex(i);
+                    CSceneObject* obj = App::currentScene->sceneObjects->getOrphanFromIndex(i);
                     toExplore.push_back(obj);
                 }
             }
@@ -10129,7 +10129,7 @@ int simScaleObject_internal(int objectHandle, double xScale, double yScale, doub
     {
         if (doesObjectExist(__func__, objectHandle))
         {
-            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
 
             if ((xScale >= 0.0001) && (yScale >= 0.0001) && (zScale >= 0.0001) && obj->scaleObjectNonIsometrically(xScale, yScale, zScale))
                 return (1);
@@ -10149,13 +10149,13 @@ int simGetShapeTextureId_internal(int shapeHandle)
     {
         if (isShape(__func__, shapeHandle))
         {
-            CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+            CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
             if (shape->getMesh()->isMesh())
             {
                 CTextureProperty* tp = shape->getSingleMesh()->getTextureProperty();
                 if (tp != nullptr)
                 {
-                    CTextureObject* to = App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
+                    CTextureObject* to = App::currentScene->textureContainer->getObject(tp->getTextureObjectID());
                     return (to->getObjectID());
                 }
                 return (-1);
@@ -10176,10 +10176,10 @@ int simSetShapeTexture_internal(int shapeHandle, int textureId, int mappingMode,
     {
         if (isShape(__func__, shapeHandle))
         {
-            CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+            CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
             CTextureObject* to = nullptr;
             if (textureId != -1)
-                to = App::currentWorld->textureContainer->getObject(textureId);
+                to = App::currentScene->textureContainer->getObject(textureId);
             std::vector<CMesh*> meshItems;
             shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshItems);
             for (size_t i = 0; i < meshItems.size(); i++)
@@ -10188,7 +10188,7 @@ int simSetShapeTexture_internal(int shapeHandle, int textureId, int mappingMode,
                 CTextureProperty* tp = mesh->getTextureProperty();
                 if (tp != nullptr)
                 { // first remove any existing texture:
-                    //         App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
+                    //         App::currentScene->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
                     delete tp;
                     mesh->setTextureProperty(nullptr);
                 }
@@ -10231,7 +10231,7 @@ int simCreateCollectionEx_internal(int options)
     {
         CCollection* it = new CCollection(_currentScriptHandle);
         it->setCollectionName("___col___", false); // is actually not used anymore
-        App::currentWorld->collections->addCollection(it, false);
+        App::currentScene->collections->addCollection(it, false);
         it->setOverridesObjectMainProperties((options & 1) != 0);
         return (int(it->getObjectHandle()));
     }
@@ -10247,7 +10247,7 @@ int simAddItemToCollection_internal(int collectionHandle, int what, int objectHa
     {
         if (!doesCollectionExist(__func__, collectionHandle))
             return (-1);
-        CCollection* it = App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+        CCollection* it = App::currentScene->collections->getObjectFromHandle(collectionHandle);
         if (what != sim_handle_all)
         {
             if (!doesObjectExist(__func__, objectHandle))
@@ -10290,13 +10290,13 @@ int simDestroyCollection_internal(int collectionHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CCollection* it = App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+        CCollection* it = App::currentScene->collections->getObjectFromHandle(collectionHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_COLLECTION_INEXISTANT);
             return (-1);
         }
-        App::currentWorld->collections->removeCollection(collectionHandle);
+        App::currentScene->collections->removeCollection(collectionHandle);
         return (1);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -10311,7 +10311,7 @@ int* simGetCollectionObjects_internal(int collectionHandle, int* objectCount)
     {
         if (doesCollectionExist(__func__, collectionHandle))
         {
-            CCollection* coll = App::currentWorld->collections->getObjectFromHandle(collectionHandle);
+            CCollection* coll = App::currentScene->collections->getObjectFromHandle(collectionHandle);
             objectCount[0] = int(coll->getSceneObjectCountInCollection());
             int* retVal = new int[objectCount[0]];
             for (int i = 0; i < objectCount[0]; i++)
@@ -10331,7 +10331,7 @@ int simAlignShapeBB_internal(int shapeHandle, const double* pose)
     {
         if (!isShape(__func__, shapeHandle))
             return (-1);
-        CShape* theShape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* theShape = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         if ((!theShape->getMesh()->isPure()) || (theShape->isCompound()))
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
             if (pose == nullptr)
@@ -10369,7 +10369,7 @@ int simRelocateShapeFrame_internal(int shapeHandle, const double* pose)
     {
         if (!isShape(__func__, shapeHandle))
             return (-1);
-        CShape* theShape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* theShape = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         if ((!theShape->getMesh()->isPure()) || (theShape->isCompound()))
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
             if (pose == nullptr)
@@ -10595,7 +10595,7 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
         funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
     else
         funcName = funcNameAtScriptName;
-    script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
+    script = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
 
     std::string tmp("External call to simCallScriptFunction failed ('");
     tmp += functionName;
@@ -10603,7 +10603,7 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
     if (script != nullptr)
     {
         int retVal = -1; // error
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackId);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackId);
         if (stack != nullptr)
         {
             if (VThread::isSimThread())
@@ -10620,7 +10620,7 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
                         funcName += "@lua"; // explicit lua when Python script
                 }
 
-                CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
                 retVal = script->callCustomScriptFunction(funcName.c_str(), stack, outStack);
                 if (outStack->getStackSize() > 0)
                 { // when the script is a Python script, we must check for other errors, since the call is handled
@@ -10644,7 +10644,7 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
                 }
                 stack->clear();
                 stack->copyFrom(outStack);
-                App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
             }
             if (retVal == -1)
             {
@@ -10690,12 +10690,12 @@ char* simGetExtensionString_internal(int objectHandle, int index, const char* ke
         char* retVal = nullptr;
         std::string extensionString;
         if (objectHandle == -1)
-            extensionString = App::currentWorld->environment->getExtensionString();
+            extensionString = App::currentScene->environment->getExtensionString();
         else
         {
             if (doesObjectExist(__func__, objectHandle))
             {
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
                 if ((it->getObjectType() == sim_sceneobject_shape) && (index >= 0))
                 {
                     CMesh* geom =
@@ -10737,7 +10737,7 @@ int simComputeMassAndInertia_internal(int shapeHandle, double density)
     {
         if (isShape(__func__, shapeHandle))
         {
-            CShape* shape = (CShape*)App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+            CShape* shape = (CShape*)App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
             if (shape->computeMassAndInertia(density))
                 return (1);
             return (0);
@@ -10755,7 +10755,7 @@ int simCreateStack_internal()
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
         return (stack->getObjectHandle());
     }
 
@@ -10769,7 +10769,7 @@ int simReleaseStack_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (App::worldContainer->interfaceStackContainer->destroyStack(stackHandle))
+        if (App::sceneContainer->interfaceStackContainer->destroyStack(stackHandle))
             return (1);
         return (0);
     }
@@ -10784,9 +10784,9 @@ int simCopyStack_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
-            return (App::worldContainer->interfaceStackContainer->createStackCopy(stack)->getObjectHandle());
+            return (App::sceneContainer->interfaceStackContainer->createStackCopy(stack)->getObjectHandle());
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
         return (-1);
     }
@@ -10801,7 +10801,7 @@ int simPushNullOntoStack_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushNullOntoStack();
@@ -10821,7 +10821,7 @@ int simPushBoolOntoStack_internal(int stackHandle, bool value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushBoolOntoStack(value);
@@ -10841,7 +10841,7 @@ int simPushInt32OntoStack_internal(int stackHandle, int value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushInt32OntoStack(value);
@@ -10861,7 +10861,7 @@ int simPushInt64OntoStack_internal(int stackHandle, long long int value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushInt64OntoStack(value);
@@ -10881,7 +10881,7 @@ int simPushFloatOntoStack_internal(int stackHandle, float value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushFloatOntoStack(value);
@@ -10901,7 +10901,7 @@ int simPushDoubleOntoStack_internal(int stackHandle, double value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushDoubleOntoStack(value);
@@ -10921,7 +10921,7 @@ int simPushTextOntoStack_internal(int stackHandle, const char* value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushTextOntoStack(value);
@@ -10941,7 +10941,7 @@ int simPushStringOntoStack_internal(int stackHandle, const char* value, int stri
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stringSize == 0)
@@ -10964,7 +10964,7 @@ int simPushBufferOntoStack_internal(int stackHandle, const char* value, int stri
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushBufferOntoStack(value, size_t(stringSize));
@@ -10984,7 +10984,7 @@ int simPushMatrixOntoStack_internal(int stackHandle, const double* value, int ro
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushMatrixOntoStack(value, size_t(rows), size_t(cols));
@@ -11004,7 +11004,7 @@ int simPushQuaternionOntoStack_internal(int stackHandle, const double* value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushQuaternionOntoStack(value, true);
@@ -11024,7 +11024,7 @@ int simPushPoseOntoStack_internal(int stackHandle, const double* value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushPoseOntoStack(value, true);
@@ -11044,7 +11044,7 @@ int simPushColorOntoStack_internal(int stackHandle, const float* value)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushColorOntoStack(value, true);
@@ -11064,7 +11064,7 @@ int simPushUInt8TableOntoStack_internal(int stackHandle, const unsigned char* va
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushUCharArrayOntoStack(values, size_t(valueCnt));
@@ -11084,7 +11084,7 @@ int simPushInt32TableOntoStack_internal(int stackHandle, const int* values, int 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushInt32ArrayOntoStack(values, size_t(valueCnt));
@@ -11104,7 +11104,7 @@ int simPushInt64TableOntoStack_internal(int stackHandle, const long long int* va
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushInt64ArrayOntoStack(values, size_t(valueCnt));
@@ -11124,7 +11124,7 @@ int simPushFloatTableOntoStack_internal(int stackHandle, const float* values, in
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushFloatArrayOntoStack(values, size_t(valueCnt));
@@ -11150,7 +11150,7 @@ int simPushDoubleTableOntoStack_internal(int stackHandle, const double* values, 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushDoubleArrayOntoStack(values, size_t(valueCnt));
@@ -11170,7 +11170,7 @@ int simPushTableOntoStack_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->pushTableOntoStack();
@@ -11190,7 +11190,7 @@ int simInsertDataIntoStackTable_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->insertDataIntoStackTable())
@@ -11212,7 +11212,7 @@ int simGetStackSize_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
             return (stack->getStackSize());
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
@@ -11229,7 +11229,7 @@ int simPopStackItem_internal(int stackHandle, int count)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             stack->popStackValue(count);
@@ -11249,7 +11249,7 @@ int simMoveStackItemToTop_internal(int stackHandle, int cIndex)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (cIndex < 0)
@@ -11273,7 +11273,7 @@ int simGetStackItemType_internal(int stackHandle, int cIndex)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (cIndex < 0)
@@ -11297,7 +11297,7 @@ int simGetStackStringType_internal(int stackHandle, int cIndex)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (cIndex < 0)
@@ -11326,7 +11326,7 @@ int simGetStackBoolValue_internal(int stackHandle, bool* boolValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11358,7 +11358,7 @@ int simGetStackInt32Value_internal(int stackHandle, int* numberValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11388,7 +11388,7 @@ int simGetStackInt64Value_internal(int stackHandle, long long int* numberValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11418,7 +11418,7 @@ int simGetStackFloatValue_internal(int stackHandle, float* numberValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11448,7 +11448,7 @@ int simGetStackDoubleValue_internal(int stackHandle, double* numberValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11480,7 +11480,7 @@ char* simGetStackStringValue_internal(int stackHandle, int* stringSize)
         stringSize[0] = -1;
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11521,7 +11521,7 @@ double* simGetStackMatrix_internal(int stackHandle, int* rows, int* cols)
         cols[0] = -1;
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11560,7 +11560,7 @@ double* simGetStackQuaternion_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11591,7 +11591,7 @@ double* simGetStackPose_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11622,7 +11622,7 @@ float* simGetStackColor_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11655,7 +11655,7 @@ int simGetStackTableInfo_internal(int stackHandle, int infoType)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11680,7 +11680,7 @@ int simGetStackUInt8Table_internal(int stackHandle, unsigned char* array, int co
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11706,7 +11706,7 @@ int simGetStackInt32Table_internal(int stackHandle, int* array, int count)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11732,7 +11732,7 @@ int simGetStackInt64Table_internal(int stackHandle, long long int* array, int co
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11758,7 +11758,7 @@ int simGetStackFloatTable_internal(int stackHandle, float* array, int count)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11784,7 +11784,7 @@ int simGetStackDoubleTable_internal(int stackHandle, double* array, int count)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11810,7 +11810,7 @@ int simUnfoldStackTable_internal(int stackHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -11835,7 +11835,7 @@ int simDebugStack_internal(int stackHandle, int cIndex)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             std::string buffer;
@@ -11879,7 +11879,7 @@ int simCreateOctree_internal(double voxelSize, int options, double pointSize, vo
         it->setShowOctree(options & 2);
         it->setUsePointsInsteadOfCubes(options & 4);
         it->setColorIsEmissive(options & 16);
-        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        App::currentScene->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
     }
@@ -11901,7 +11901,7 @@ int simCreatePointCloud_internal(double maxVoxelSize, int maxPtCntPerVoxel, int 
         it->setShowOctree(options & 2);
         it->setDoNotUseCalculationStructure(options & 8);
         it->setColorIsEmissive(options & 16);
-        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        App::currentScene->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
     }
@@ -11918,7 +11918,7 @@ int simSetPointCloudOptions_internal(int pointCloudHandle, double maxVoxelSize, 
     {
         if (!isPointCloud(__func__, pointCloudHandle))
             return (-1);
-        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
+        CPointCloud* it = App::currentScene->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         it->setCellSize(maxVoxelSize);
         it->setMaxPointCountPerCell(maxPtCntPerVoxel);
         it->setPointSize(int(pointSize + 0.5));
@@ -11941,7 +11941,7 @@ int simGetPointCloudOptions_internal(int pointCloudHandle, double* maxVoxelSize,
     {
         if (!isPointCloud(__func__, pointCloudHandle))
             return (-1);
-        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
+        CPointCloud* it = App::currentScene->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         maxVoxelSize[0] = it->getCellSize();
         maxPtCntPerVoxel[0] = it->getMaxPointCountPerCell();
         pointSize[0] = (double)it->getPointSize();
@@ -11974,7 +11974,7 @@ int simInsertVoxelsIntoOctree_internal(int octreeHandle, int options, const doub
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it = App::currentScene->sceneObjects->getOctreeFromHandle(octreeHandle);
         if ((tag == nullptr) || (color == nullptr))
         {
             if (color == nullptr)
@@ -12006,7 +12006,7 @@ int simRemoveVoxelsFromOctree_internal(int octreeHandle, int options, const doub
     {
         if (!isOctree(__func__, octreeHandle))
             return (-1);
-        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it = App::currentScene->sceneObjects->getOctreeFromHandle(octreeHandle);
         if (pts == nullptr)
             it->clear();
         else
@@ -12039,7 +12039,7 @@ int simInsertPointsIntoPointCloud_internal(int pointCloudHandle, int options, co
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_DATA);
             return (-1);
         }
-        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
+        CPointCloud* it = App::currentScene->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         double insertionToleranceSaved = it->getInsertionDistanceTolerance();
         int optionalValuesBits = 0;
         if (optionalValues != nullptr)
@@ -12064,7 +12064,7 @@ int simRemovePointsFromPointCloud_internal(int pointCloudHandle, int options, co
     {
         if (!isPointCloud(__func__, pointCloudHandle))
             return (-1);
-        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
+        CPointCloud* it = App::currentScene->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         if (pts == nullptr)
             it->clear();
         else
@@ -12092,7 +12092,7 @@ int simIntersectPointsWithPointCloud_internal(int pointCloudHandle, int options,
     {
         if (!isPointCloud(__func__, pointCloudHandle))
             return (-1);
-        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
+        CPointCloud* it = App::currentScene->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         if (pts == nullptr)
             it->clear();
         else
@@ -12119,7 +12119,7 @@ const double* simGetOctreeVoxels_internal(int octreeHandle, int* ptCnt, void* re
     {
         if (!isOctree(__func__, octreeHandle))
             return (nullptr);
-        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it = App::currentScene->sceneObjects->getOctreeFromHandle(octreeHandle);
         const std::vector<double>* p = it->getCubePositions();
         if (p->size() == 0)
         {
@@ -12141,7 +12141,7 @@ const double* simGetPointCloudPoints_internal(int pointCloudHandle, int* ptCnt, 
     {
         if (!isPointCloud(__func__, pointCloudHandle))
             return (nullptr);
-        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
+        CPointCloud* it = App::currentScene->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         const std::vector<double>* p = it->getPoints();
         if (p->size() == 0)
         {
@@ -12166,7 +12166,7 @@ int simInsertObjectIntoOctree_internal(int octreeHandle, int objectHandle, int o
             return (-1);
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it = App::currentScene->sceneObjects->getOctreeFromHandle(octreeHandle);
 
         float savedCols[3];
         it->getColor()->getColor(savedCols, sim_materialcomponent_diffuse);
@@ -12177,7 +12177,7 @@ int simInsertObjectIntoOctree_internal(int octreeHandle, int objectHandle, int o
             cptr[1] = float(color[1]) / 255.1;
             cptr[2] = float(color[2]) / 255.1;
         }
-        it->insertObject(App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle), tag);
+        it->insertObject(App::currentScene->sceneObjects->getObjectFromHandle(objectHandle), tag);
         cptr[0] = savedCols[0];
         cptr[1] = savedCols[1];
         cptr[2] = savedCols[2];
@@ -12198,8 +12198,8 @@ int simSubtractObjectFromOctree_internal(int octreeHandle, int objectHandle, int
             return (-1);
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
-        it->subtractObject(App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle));
+        COcTree* it = App::currentScene->sceneObjects->getOctreeFromHandle(octreeHandle);
+        it->subtractObject(App::currentScene->sceneObjects->getObjectFromHandle(objectHandle));
         int retVal = int(it->getCubePositions()->size()) / 3;
         return (retVal);
     }
@@ -12218,7 +12218,7 @@ int simInsertObjectIntoPointCloud_internal(int pointCloudHandle, int objectHandl
             return (-1);
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
+        CPointCloud* it = App::currentScene->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
         double savedGridSize = it->getBuildResolution();
         it->setBuildResolution(gridSize);
         float savedCols[3];
@@ -12235,7 +12235,7 @@ int simInsertObjectIntoPointCloud_internal(int pointCloudHandle, int objectHandl
             optionalValuesBits = ((int*)optionalValues)[0];
         if (optionalValuesBits & 1)
             it->setInsertionDistanceTolerance((double)((float*)optionalValues)[1]);
-        it->insertObject(App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle));
+        it->insertObject(App::currentScene->sceneObjects->getObjectFromHandle(objectHandle));
         it->setInsertionDistanceTolerance(insertionToleranceSaved);
         it->setBuildResolution(savedGridSize);
         it->getColor()->getColorsPtr()[0] = savedCols[0];
@@ -12259,8 +12259,8 @@ int simSubtractObjectFromPointCloud_internal(int pointCloudHandle, int objectHan
             return (-1);
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CPointCloud* it = App::currentWorld->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
-        it->subtractObject(App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle), tolerance);
+        CPointCloud* it = App::currentScene->sceneObjects->getPointCloudFromHandle(pointCloudHandle);
+        it->subtractObject(App::currentScene->sceneObjects->getObjectFromHandle(objectHandle), tolerance);
         int retVal = int(it->getPoints()->size()) / 3;
         return (retVal);
     }
@@ -12279,7 +12279,7 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle, int options, const d
             return (-1);
         if (ptCnt <= 0)
             return (-1);
-        COcTree* it = App::currentWorld->sceneObjects->getOctreeFromHandle(octreeHandle);
+        COcTree* it = App::currentScene->sceneObjects->getOctreeFromHandle(octreeHandle);
         if (it->getOctreeInfo() == nullptr)
             return (0);
         if (!isFloatArrayOk(points, ptCnt * 3))
@@ -12304,13 +12304,13 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle, int options, const d
         }
         if (ptCnt == 1)
         {
-            if (App::worldContainer->pluginContainer->geomPlugin_getOctreePointCollision(
+            if (App::sceneContainer->pluginContainer->geomPlugin_getOctreePointCollision(
                     it->getOctreeInfo(), it->getFullCumulativeTransformation(), C3Vector(_pts), tag, location))
                 return (1);
         }
         else
         {
-            if (App::worldContainer->pluginContainer->geomPlugin_getOctreePointsCollision(
+            if (App::sceneContainer->pluginContainer->geomPlugin_getOctreePointsCollision(
                     it->getOctreeInfo(), it->getFullCumulativeTransformation(), _pts, ptCnt))
                 return (1);
         }
@@ -12344,7 +12344,7 @@ char* simPackTable_internal(int stackHandle, int* bufferSize)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->getStackSize() > 0)
@@ -12375,7 +12375,7 @@ int simUnpackTable_internal(int stackHandle, const char* buffer, int bufferSize)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
             if (stack->pushTableFromBuffer(buffer, bufferSize))
@@ -12404,7 +12404,7 @@ int simSetReferencedHandles_internal(int objectHandle, int count, const int* ref
         std::string ttag("");
         if (tag != nullptr)
             ttag = tag;
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         if ((handleFlags & sim_handleflag_keeporiginal) == 0)
             it->setReferencedHandles(size_t(count), referencedHandles, ttag.c_str());
         else
@@ -12425,7 +12425,7 @@ int simGetReferencedHandles_internal(int objectHandle, int** referencedHandles, 
         objectHandle = objectHandle & sim_handleflag_handlemask;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectHandle);
         int* handles = nullptr;
         int cnt;
         std::string ttag("");
@@ -12468,7 +12468,7 @@ int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo* in
         if (!isShape(__func__, shapeHandle))
             return (-1);
         int retVal = 0;
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         std::vector<CMesh*> all;
         std::vector<C7Vector> allTr;
         it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
@@ -12584,7 +12584,7 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof* 
         if (!isShape(__func__, shapeHandle))
             return (-1);
         int retVal = 0;
-        CShape* it = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
         std::vector<CMesh*> all;
         std::vector<C7Vector> allTr;
         it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
@@ -12715,12 +12715,12 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
             stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
         else
             stringToExec = strAtScriptName;
-        script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
+        script = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
 
         if (script != nullptr)
         {
             bool noReturnDesired = (stackHandle == 0);
-            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+            CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(stackHandle);
             if ((stack == nullptr) && (!noReturnDesired))
             {
                 CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
@@ -12737,14 +12737,14 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
                     {
                         if (script->getScriptState() == CDetachedScript::scriptState_initialized)
                         {
-                            CInterfaceStack* tmpStack = App::worldContainer->interfaceStackContainer->createStack();
-                            CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
+                            CInterfaceStack* tmpStack = App::sceneContainer->interfaceStackContainer->createStack();
+                            CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
                             tmpStack->pushTextOntoStack(stringToExec.c_str());
                             retVal = script->callCustomScriptFunction("_evalExecRet", tmpStack, outStack);
                             if (stack != nullptr)
                                 stack->copyFrom(outStack);
-                            App::worldContainer->interfaceStackContainer->destroyStack(outStack);
-                            App::worldContainer->interfaceStackContainer->destroyStack(tmpStack);
+                            App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
+                            App::sceneContainer->interfaceStackContainer->destroyStack(tmpStack);
                             if (retVal == 1)
                             {
                                 retVal = 0;
@@ -12793,7 +12793,7 @@ char* simGetApiFunc_internal(int scriptHandle, const char* apiWord)
     {
         CDetachedScript* script = nullptr;
         if (scriptHandle >= sim_object_detachedscriptstart)
-            script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
+            script = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
         std::string apiW(apiWord);
         bool funcs = true;
         bool vars = true;
@@ -12839,7 +12839,7 @@ char* simGetApiInfo_internal(int scriptHandle, const char* apiWord)
     {
         CDetachedScript* script = nullptr;
         if (scriptHandle >= sim_object_detachedscriptstart)
-            script = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
+            script = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
         if (strlen(apiWord) > 0)
         {
             std::string tip(CDetachedScript::getFunctionCalltip(apiWord, script));
@@ -12862,12 +12862,12 @@ int simSetPluginInfo_internal(const char* pluginName, int infoType, const char* 
     {
         CPlugin* plug = nullptr;
         if (pluginName == nullptr)
-            plug = App::worldContainer->pluginContainer->getCurrentPlugin();
+            plug = App::sceneContainer->pluginContainer->getCurrentPlugin();
         else
         {
-            plug = App::worldContainer->pluginContainer->getPluginFromName(pluginName);
+            plug = App::sceneContainer->pluginContainer->getPluginFromName(pluginName);
             if (plug == nullptr)
-                plug = App::worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+                plug = App::sceneContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         }
         if (plug != nullptr)
         {
@@ -12914,12 +12914,12 @@ int simGetPluginInfo_internal(const char* pluginName, int infoType, char** strin
     {
         CPlugin* plug = nullptr;
         if (pluginName == nullptr)
-            plug = App::worldContainer->pluginContainer->getCurrentPlugin();
+            plug = App::sceneContainer->pluginContainer->getCurrentPlugin();
         else
         {
-            plug = App::worldContainer->pluginContainer->getPluginFromName(pluginName);
+            plug = App::sceneContainer->pluginContainer->getPluginFromName(pluginName);
             if (plug == nullptr)
-                plug = App::worldContainer->pluginContainer->getPluginFromName_old(pluginName, true);
+                plug = App::sceneContainer->pluginContainer->getPluginFromName_old(pluginName, true);
         }
         if (plug != nullptr)
         {
@@ -13002,14 +13002,14 @@ int simEventNotification_internal(const char* event)
                                 if (strlen(data) != 0)
                                 {
                                     int callingScript = GuiApp::mainWindow->codeEditorContainer->getCallingScriptHandle(h);
-                                    CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+                                    CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
                                     int posAndSize[4];
                                     std::string txt = GuiApp::mainWindow->codeEditorContainer->getText(h, posAndSize);
                                     stack->pushTextOntoStack(txt.c_str());
                                     stack->pushInt32ArrayOntoStack(posAndSize + 0, 2);
                                     stack->pushInt32ArrayOntoStack(posAndSize + 2, 2);
                                     simCallScriptFunctionEx_internal(callingScript, data, stack->getObjectHandle());
-                                    App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                                    App::sceneContainer->interfaceStackContainer->destroyStack(stack);
                                 }
                                 if ((strlen(data) == 0) ||
                                     GuiApp::mainWindow->codeEditorContainer->getCloseAfterCallbackCalled(h))
@@ -13047,14 +13047,14 @@ int simApplyTexture_internal(int shapeHandle, const double* textureCoordinates, 
     {
         if (isShape(__func__, shapeHandle))
         {
-            CShape* shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
+            CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
             if (shape->getMesh()->isMesh())
             {
                 // first remove any existing texture:
                 CTextureProperty* tp = shape->getSingleMesh()->getTextureProperty();
                 if (tp != nullptr)
                 {
-                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
+                    App::currentScene->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
                     delete tp;
                     shape->getSingleMesh()->setTextureProperty(nullptr);
                 }
@@ -13065,7 +13065,7 @@ int simApplyTexture_internal(int shapeHandle, const double* textureCoordinates, 
                     textureObj->setImage(options & 16, options & 32, (options & 64) == 0, texture);
                     textureObj->setObjectName("importedTexture");
                     textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
-                    retVal = App::currentWorld->textureContainer->addObject(
+                    retVal = App::currentScene->textureContainer->addObject(
                         textureObj, false); // might erase the textureObj and return a similar object already present!!
                     tp = new CTextureProperty(retVal);
                     shape->getSingleMesh()->setTextureProperty(tp);
@@ -13103,7 +13103,7 @@ int simSetJointDependency_internal(int jointHandle, int masterJointHandle, doubl
         {
             if ((masterJointHandle == -1) || isJoint(__func__, masterJointHandle))
             {
-                CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+                CJoint* joint = App::currentScene->sceneObjects->getJointFromHandle(jointHandle);
                 joint->setDependencyMasterJointHandle(masterJointHandle);
                 if (joint->getDependencyMasterJointHandle() == masterJointHandle)
                 {
@@ -13127,7 +13127,7 @@ int simGetJointDependency_internal(int jointHandle, int* masterJointHandle, doub
     {
         if (isJoint(__func__, jointHandle))
         {
-            CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
+            CJoint* joint = App::currentScene->sceneObjects->getJointFromHandle(jointHandle);
             masterJointHandle[0] = joint->getDependencyMasterJointHandle();
             joint->getDependencyParams(offset[0], multCoeff[0]);
             retVal = 0;
@@ -13162,10 +13162,10 @@ double _simGetLocalInertiaInfo_internal(const void* object, double* pos, double*
     double mass = shape->getMesh()->getMass();
     C3Vector diagI;
     C7Vector localTr(shape->getMesh()->getDiagonalInertiaInfo(diagI));
-    if (App::currentWorld->dynamicsContainer->getComputeInertias())
+    if (App::currentScene->dynamicsContainer->getComputeInertias())
     {
         if (shape->getMesh()->isPure())
-            mass = App::worldContainer->pluginContainer->dyn_computeInertia(shape->getObjectHandle(), localTr, diagI);
+            mass = App::sceneContainer->pluginContainer->dyn_computeInertia(shape->getObjectHandle(), localTr, diagI);
         else
         { // we use the convex hull
             std::vector<double> vert;
@@ -13173,7 +13173,7 @@ double _simGetLocalInertiaInfo_internal(const void* object, double* pos, double*
             std::vector<double> hull;
             std::vector<int> indices;
             if (CMeshRoutines::getConvexHull(vert, hull, indices))
-                mass = App::worldContainer->pluginContainer->dyn_computePMI(hull, indices, localTr, diagI);
+                mass = App::sceneContainer->pluginContainer->dyn_computePMI(hull, indices, localTr, diagI);
         }
     }
     if (mass > 0.0)
@@ -13233,17 +13233,17 @@ void _simMakeDynamicAnnouncement_internal(int announceType)
 {
     C_API_START;
     if (announceType == sim_announce_pureconenotsupported)
-        App::currentWorld->dynamicsContainer->markForWarningDisplay_pureConeNotSupported();
+        App::currentScene->dynamicsContainer->markForWarningDisplay_pureConeNotSupported();
     if (announceType == sim_announce_purespheroidnotsupported)
-        App::currentWorld->dynamicsContainer->markForWarningDisplay_pureSpheroidNotSupported();
+        App::currentScene->dynamicsContainer->markForWarningDisplay_pureSpheroidNotSupported();
     if (announceType == sim_announce_containsnonpurenonconvexshapes)
-        App::currentWorld->dynamicsContainer->markForWarningDisplay_containsNonPureNonConvexShapes();
+        App::currentScene->dynamicsContainer->markForWarningDisplay_containsNonPureNonConvexShapes();
     if (announceType == sim_announce_containsstaticshapesondynamicconstruction)
-        App::currentWorld->dynamicsContainer->markForWarningDisplay_containsStaticShapesOnDynamicConstruction();
+        App::currentScene->dynamicsContainer->markForWarningDisplay_containsStaticShapesOnDynamicConstruction();
     if (announceType == sim_announce_purehollowshapenotsupported)
-        App::currentWorld->dynamicsContainer->markForWarningDisplay_pureHollowShapeNotSupported();
+        App::currentScene->dynamicsContainer->markForWarningDisplay_pureHollowShapeNotSupported();
     if (announceType == sim_announce_vortexpluginisdemo)
-        App::currentWorld->dynamicsContainer->markForWarningDisplay_vortexPluginIsDemo();
+        App::currentScene->dynamicsContainer->markForWarningDisplay_vortexPluginIsDemo();
 }
 
 void _simGetVerticesLocalFrame_internal(const void* shape, const void* geometric, double* pos, double* quat)
@@ -13449,7 +13449,7 @@ void _simDynReportObjectCumulativeTransformation_internal(void* obj, const doubl
                 sensor->setIntrinsicTransformationError(x);
             }
             else
-                App::currentWorld->sceneObjects->setObjectAbsolutePose(object->getObjectHandle(), tr, false);
+                App::currentScene->sceneObjects->setObjectAbsolutePose(object->getObjectHandle(), tr, false);
         }
         else
             object->setLocalTransformation(tr);
@@ -13463,7 +13463,7 @@ void _simSetObjectCumulativeTransformation_internal(void* object, const double* 
     C7Vector tr;
     tr.X.setData(pos);
     tr.Q.setData(quat);
-    App::currentWorld->sceneObjects->setObjectAbsolutePose(((CSceneObject*)object)->getObjectHandle(), tr,
+    App::currentScene->sceneObjects->setObjectAbsolutePose(((CSceneObject*)object)->getObjectHandle(), tr,
                                                            keepChildrenInPlace != 0);
 }
 
@@ -13502,13 +13502,13 @@ bool _simGetJointPositionInterval_internal(const void* joint, double* minValue, 
 const void* _simGetObject_internal(int objID)
 {
     C_API_START;
-    return (App::currentWorld->sceneObjects->getObjectFromHandle(objID));
+    return (App::currentScene->sceneObjects->getObjectFromHandle(objID));
 }
 
 const void* _simGetIkGroupObject_internal(int ikGroupID)
 {
     C_API_START;
-    return (App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupID));
+    return (App::currentScene->ikGroups_old->getObjectFromHandle(ikGroupID));
 }
 
 int _simMpHandleIkGroupObject_internal(const void* ikGroup)
@@ -13575,76 +13575,76 @@ int _simGetObjectListSize_internal(int objType)
 {
     C_API_START;
     if (objType == sim_sceneobject_shape)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_shape)));
     if (objType == sim_sceneobject_joint)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_joint)));
     if (objType == sim_handle_all)
-        return (int(App::currentWorld->sceneObjects->getObjectCount())); // we put it also here for faster access!
+        return (int(App::currentScene->sceneObjects->getObjectCount())); // we put it also here for faster access!
     if (objType == sim_sceneobject_dummy)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_dummy)));
     if (objType == sim_sceneobject_octree)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_octree)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_octree)));
     if (objType == sim_sceneobject_pointcloud)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_pointcloud)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_pointcloud)));
     if (objType == sim_sceneobject_graph)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_graph)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_graph)));
     if (objType == sim_sceneobject_camera)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_camera)));
     if (objType == sim_sceneobject_proximitysensor)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor)));
     if (objType == sim_sceneobject_path)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_path)));
     if (objType == sim_sceneobject_visionsensor)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor)));
     if (objType == sim_sceneobject_mill)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mill)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_mill)));
     if (objType == sim_sceneobject_forcesensor)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_forcesensor)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_forcesensor)));
     if (objType == sim_sceneobject_light)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_light)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_light)));
     if (objType == sim_sceneobject_mirror)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror)));
+        return (int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_mirror)));
     if (objType == -1)
-        return (int(App::currentWorld->sceneObjects->getOrphanCount()));
-    return (int(App::currentWorld->sceneObjects->getObjectCount()));
+        return (int(App::currentScene->sceneObjects->getOrphanCount()));
+    return (int(App::currentScene->sceneObjects->getObjectCount()));
 }
 
 const void* _simGetObjectFromIndex_internal(int objType, int index)
 {
     C_API_START;
     if (objType == sim_sceneobject_shape)
-        return (App::currentWorld->sceneObjects->getShapeFromIndex(index));
+        return (App::currentScene->sceneObjects->getShapeFromIndex(index));
     if (objType == sim_sceneobject_joint)
-        return (App::currentWorld->sceneObjects->getJointFromIndex(index));
+        return (App::currentScene->sceneObjects->getJointFromIndex(index));
     if (objType == sim_handle_all)
-        return (App::currentWorld->sceneObjects->getObjectFromIndex(index)); // we put it also here for faster access!
+        return (App::currentScene->sceneObjects->getObjectFromIndex(index)); // we put it also here for faster access!
     if (objType == sim_sceneobject_dummy)
-        return (App::currentWorld->sceneObjects->getDummyFromIndex(index));
+        return (App::currentScene->sceneObjects->getDummyFromIndex(index));
     if (objType == sim_sceneobject_octree)
-        return (App::currentWorld->sceneObjects->getOctreeFromIndex(index));
+        return (App::currentScene->sceneObjects->getOctreeFromIndex(index));
     if (objType == sim_sceneobject_pointcloud)
-        return (App::currentWorld->sceneObjects->getPointCloudFromIndex(index));
+        return (App::currentScene->sceneObjects->getPointCloudFromIndex(index));
     if (objType == sim_sceneobject_graph)
-        return (App::currentWorld->sceneObjects->getGraphFromIndex(index));
+        return (App::currentScene->sceneObjects->getGraphFromIndex(index));
     if (objType == sim_sceneobject_camera)
-        return (App::currentWorld->sceneObjects->getCameraFromIndex(index));
+        return (App::currentScene->sceneObjects->getCameraFromIndex(index));
     if (objType == sim_sceneobject_proximitysensor)
-        return (App::currentWorld->sceneObjects->getProximitySensorFromIndex(index));
+        return (App::currentScene->sceneObjects->getProximitySensorFromIndex(index));
     if (objType == sim_sceneobject_path)
-        return (App::currentWorld->sceneObjects->getPathFromIndex(index));
+        return (App::currentScene->sceneObjects->getPathFromIndex(index));
     if (objType == sim_sceneobject_visionsensor)
-        return (App::currentWorld->sceneObjects->getVisionSensorFromIndex(index));
+        return (App::currentScene->sceneObjects->getVisionSensorFromIndex(index));
     if (objType == sim_sceneobject_mill)
-        return (App::currentWorld->sceneObjects->getMillFromIndex(index));
+        return (App::currentScene->sceneObjects->getMillFromIndex(index));
     if (objType == sim_sceneobject_forcesensor)
-        return (App::currentWorld->sceneObjects->getForceSensorFromIndex(index));
+        return (App::currentScene->sceneObjects->getForceSensorFromIndex(index));
     if (objType == sim_sceneobject_light)
-        return (App::currentWorld->sceneObjects->getLightFromIndex(index));
+        return (App::currentScene->sceneObjects->getLightFromIndex(index));
     if (objType == sim_sceneobject_mirror)
-        return (App::currentWorld->sceneObjects->getMirrorFromIndex(index));
+        return (App::currentScene->sceneObjects->getMirrorFromIndex(index));
     if (objType == -1)
-        return (App::currentWorld->sceneObjects->getOrphanFromIndex(index));
-    return (App::currentWorld->sceneObjects->getObjectFromIndex(index));
+        return (App::currentScene->sceneObjects->getOrphanFromIndex(index));
+    return (App::currentScene->sceneObjects->getObjectFromIndex(index));
 }
 
 void _simSetDynamicSimulationIconCode_internal(void* object, int code)
@@ -13748,7 +13748,7 @@ void _simSetDynamicMotorPositionControlTargetPosition_internal(const void* joint
 void _simGetGravity_internal(double* gravity)
 {
     C_API_START;
-    App::currentWorld->dynamicsContainer->getGravity().getData(gravity);
+    App::currentScene->dynamicsContainer->getGravity().getData(gravity);
 }
 
 int _simGetTimeDiffInMs_internal(int previousTime)
@@ -13799,19 +13799,19 @@ int _simHandleCustomContact_internal(int objHandle1, int objHandle2, int engine,
     C_API_START;
 
     // 1. We handle the new calling method:
-    if (App::worldContainer->getSysFuncAndHookCnt(sim_syscb_contact) > 0)
+    if (App::sceneContainer->getSysFuncAndHookCnt(sim_syscb_contact) > 0)
     {
         if ((engine & 1024) == 0) // the engine flag 1024 means: the calling thread is not the simulation thread. We
                                   // would have problems with the scripts
         {
-            CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* inStack = App::sceneContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
             inStack->insertKeyInt32IntoStackTable("handle1", objHandle1);
             inStack->insertKeyInt32IntoStackTable("handle2", objHandle2);
             inStack->insertKeyInt32IntoStackTable("engine", engine);
-            CInterfaceStack* outStack = App::worldContainer->interfaceStackContainer->createStack();
-            App::worldContainer->callScripts(sim_syscb_contact, inStack, outStack);
-            App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+            CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
+            App::sceneContainer->callScripts(sim_syscb_contact, inStack, outStack);
+            App::sceneContainer->interfaceStackContainer->destroyStack(inStack);
 
             bool ignoreContact;
             if (outStack->getStackMapBoolValue("ignoreContact", ignoreContact))
@@ -13861,17 +13861,17 @@ int _simHandleCustomContact_internal(int objHandle1, int objHandle2, int engine,
                         if (engine == sim_physics_mujoco)
                         {
                         }
-                        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                        App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
                         return (1); // collision
                     }
                     else
                     {
-                        App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                        App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
                         return (0); // no collision
                     }
                 }
             }
-            App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+            App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
         }
     }
     return (-1); // we let CoppeliaSim handle the contact
@@ -13887,9 +13887,9 @@ void _simDynCallback_internal(const int* intData, const double* floatData)
 {
     C_API_START;
 
-    if (App::worldContainer->getSysFuncAndHookCnt(sim_syscb_dyn) > 0)
+    if (App::sceneContainer->getSysFuncAndHookCnt(sim_syscb_dyn) > 0)
     { // to make it a bit faster than blindly parsing the whole object hierarchy
-        CInterfaceStack* inStack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* inStack = App::sceneContainer->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
 
         inStack->insertKeyInt32IntoStackTable("passCnt", intData[1]);
@@ -13897,8 +13897,8 @@ void _simDynCallback_internal(const int* intData, const double* floatData)
         inStack->insertKeyFloatIntoStackTable("dynStepSize", floatData[0]); // deprecated
         inStack->insertKeyFloatIntoStackTable("dt", floatData[0]);
         inStack->insertKeyBoolIntoStackTable("afterStep", intData[3] != 0);
-        App::worldContainer->callScripts(sim_syscb_dyn, inStack, nullptr);
-        App::worldContainer->interfaceStackContainer->destroyStack(inStack);
+        App::sceneContainer->callScripts(sim_syscb_dyn, inStack, nullptr);
+        App::sceneContainer->interfaceStackContainer->destroyStack(inStack);
     }
 }
 
@@ -13912,7 +13912,7 @@ int simGetVisionSensorRes_internal(int sensorHandle, int* resolution)
             return (-1);
         if (!isVisionSensor(__func__, sensorHandle))
             return (-1);
-        CVisionSensor* it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
+        CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromHandle(sensorHandle);
         it->getResolution(resolution);
         return (1);
     }

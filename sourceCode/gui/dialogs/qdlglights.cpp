@@ -29,9 +29,9 @@ void CQDlgLights::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
 
-    CLight* it = App::currentWorld->sceneObjects->getLastSelectionLight();
+    CLight* it = App::currentScene->sceneObjects->getLastSelectionLight();
 
     ui->qqEnabled->setEnabled((it != nullptr) && noEditModeNoSim);
     ui->qqLocal->setEnabled((it != nullptr) && noEditModeNoSim);
@@ -104,7 +104,7 @@ void CQDlgLights::on_qqEnabled_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_ENABLED_LIGHTGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -115,7 +115,7 @@ void CQDlgLights::on_qqLocal_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_LIGHTISLOCAL_LIGHTGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -132,7 +132,7 @@ void CQDlgLights::on_qqSize_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_LIGHTGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -150,7 +150,7 @@ void CQDlgLights::on_qqSpotCutoff_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SPOTCUTOFF_LIGHTGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1,
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1,
                                                newVal * degToRad);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -169,7 +169,7 @@ void CQDlgLights::on_qqSpotExponent_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SPOTEXPONENT_LIGHTGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -187,7 +187,7 @@ void CQDlgLights::on_qqConstantFactor_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_CONSTATTENUATION_LIGHTGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -205,7 +205,7 @@ void CQDlgLights::on_qqLinearFactor_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LINATTENUATION_LIGHTGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -223,7 +223,7 @@ void CQDlgLights::on_qqQuadraticFactor_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_QUADATTENUATION_LIGHTGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -235,7 +235,7 @@ void CQDlgLights::on_qqLightColor_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgLightMaterial::displayMaterialDlg(
-            COLOR_ID_LIGHT_LIGHT, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, GuiApp::mainWindow);
+            COLOR_ID_LIGHT_LIGHT, App::currentScene->sceneObjects->getLastSelectionHandle(), -1, GuiApp::mainWindow);
     }
 }
 
@@ -244,6 +244,6 @@ void CQDlgLights::on_qqCasingColor_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgMaterial::displayMaterialDlg(
-            COLOR_ID_LIGHT_CASING, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, GuiApp::mainWindow);
+            COLOR_ID_LIGHT_CASING, App::currentScene->sceneObjects->getLastSelectionHandle(), -1, GuiApp::mainWindow);
     }
 }

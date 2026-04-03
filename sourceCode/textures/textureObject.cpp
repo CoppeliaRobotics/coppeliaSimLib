@@ -62,7 +62,7 @@ int CTextureObject::getObjectID() const
 void CTextureObject::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
-        _objectID = CWorld::getLoadingMapping(map, _objectID); // model save
+        _objectID = CScene::getLoadingMapping(map, _objectID); // model save
 }
 
 void CTextureObject::setObjectName(const char* newName)
@@ -449,11 +449,11 @@ void CTextureObject::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
-            if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+            if (App::currentScene->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
             { // undo/redo serialization:
                 ar.storeDataName("Img");
-                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addTextureBuffer(
-                    _textureBuffer, App::currentWorld->undoBufferContainer->getNextBufferId());
+                ar << App::currentScene->undoBufferContainer->undoBufferArrays.addTextureBuffer(
+                    _textureBuffer, App::currentScene->undoBufferContainer->getNextBufferId());
                 ar.flush();
             }
             else
@@ -502,7 +502,7 @@ void CTextureObject::serialize(CSer& ar)
                         ar >> nothing;
                         _providedImageWasRGBA = SIM_IS_BIT_SET(nothing, 0);
                     }
-                    if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+                    if (App::currentScene->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
                     { // undo/redo serialization
                         if (theName.compare("Img") == 0)
                         {
@@ -510,7 +510,7 @@ void CTextureObject::serialize(CSer& ar)
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentWorld->undoBufferContainer->undoBufferArrays.getTextureBuffer(id,
+                            App::currentScene->undoBufferContainer->undoBufferArrays.getTextureBuffer(id,
                                                                                                       _textureBuffer);
                             _changedFlag = true;
                             _currentTextureContentUniqueId = _textureContentUniqueId++;

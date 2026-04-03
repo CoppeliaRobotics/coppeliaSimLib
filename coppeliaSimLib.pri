@@ -425,8 +425,8 @@ HEADERS += $$PWD/sourceCode/communication/serialPort/serialPort.h \
     $$PWD/sourceCode/communication/serialPort/serial_win_mac_linux.h \
     $$PWD/sourceCode/communication/serialPort/serialPortWin.h \
 
-HEADERS += $$PWD/sourceCode/mainContainers/worldContainer.h \
-    $$PWD/sourceCode/mainContainers/world.h \
+HEADERS += $$PWD/sourceCode/mainContainers/sceneContainer.h \
+    $$PWD/sourceCode/mainContainers/scene.h \
 
 HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/textureContainer.h \
@@ -820,8 +820,8 @@ SOURCES += $$PWD/sourceCode/communication/serialPort/serialPort.cpp \
     $$PWD/sourceCode/communication/serialPort/serial_win_mac_linux.cpp \
     $$PWD/sourceCode/communication/serialPort/serialPortWin.cpp \
 
-SOURCES += $$PWD/sourceCode/mainContainers/worldContainer.cpp \
-    $$PWD/sourceCode/mainContainers/world.cpp \
+SOURCES += $$PWD/sourceCode/mainContainers/sceneContainer.cpp \
+    $$PWD/sourceCode/mainContainers/scene.cpp \
 
 SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/textureContainer.cpp \

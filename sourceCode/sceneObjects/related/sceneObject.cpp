@@ -158,10 +158,10 @@ void CSceneObject::_setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang
         _measuredAngularVelocity3_velocityMeasurement = ang;
         _measuredAngularVelocityAxis_velocityMeasurement = rotAxis;
         _measuredAngularVelocity_velocityMeasurement = angle;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_calcLinearVelocity.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyDoubleArray(cmd, _measuredLinearVelocity_velocityMeasurement.data, 3);
@@ -173,7 +173,7 @@ void CSceneObject::_setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang
                 ev->appendKeyVector3(propSceneObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement);
             }
             ev->appendKeyDouble(propSceneObject_calcRotationVelocity.name, _measuredAngularVelocity_velocityMeasurement);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -224,12 +224,12 @@ void CSceneObject::setHierarchyColorIndex(int c)
     if (diff)
     {
         _hierarchyColorIndex = c;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_hierarchyColor.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _hierarchyColorIndex);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -245,12 +245,12 @@ void CSceneObject::setCollectionSelfCollisionIndicator(int c)
     if (diff)
     {
         _collectionSelfCollisionIndicator = c;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_collectionSelfCollInd.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _collectionSelfCollisionIndicator);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -266,12 +266,12 @@ void CSceneObject::setDynamicFlag(int flag)
     if (diff)
     {
         _dynamicFlag = flag;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_dynamicFlag.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt64(cmd, _dynamicFlag);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -385,7 +385,7 @@ std::string CSceneObject::getObjectAlias_shortPath() const
                 if (it->getParent() == nullptr)
                 {
                     if (it->getModelBase() || doNotSkip ||
-                        (App::currentWorld->sceneObjects->getObjectFromPath(nullptr, retVal.c_str(), 0) != this))
+                        (App::currentScene->sceneObjects->getObjectFromPath(nullptr, retVal.c_str(), 0) != this))
                     {
                         previousAlias = itAlias;
                         retVal = "/" + previousAlias + retVal;
@@ -406,7 +406,7 @@ std::string CSceneObject::getObjectAlias_shortPath() const
                     std::string tmp(".");
                     tmp += retVal;
                     if (it->getModelBase() || doNotSkip ||
-                        (App::currentWorld->sceneObjects->getObjectFromPath(it->getParent(), tmp.c_str(), 0) != this))
+                        (App::currentScene->sceneObjects->getObjectFromPath(it->getParent(), tmp.c_str(), 0) != this))
                     {
                         previousAlias = itAlias;
                         retVal = "/" + previousAlias + retVal;
@@ -502,12 +502,12 @@ std::string CSceneObject::getObjectPathAndIndex(size_t modelCnt) const
         int index = 0;
         while (true)
         {
-            if (it == App::currentWorld->sceneObjects->getObjectFromPath(nullptr, retVal.c_str(), index))
+            if (it == App::currentScene->sceneObjects->getObjectFromPath(nullptr, retVal.c_str(), index))
                 break;
             index++;
         }
         // Following: we try to omit {0} if {1} doesn't exist
-        if ((index != 0) || (App::currentWorld->sceneObjects->getObjectFromPath(nullptr, retVal.c_str(), 1) != nullptr))
+        if ((index != 0) || (App::currentScene->sceneObjects->getObjectFromPath(nullptr, retVal.c_str(), 1) != nullptr))
             retVal += "{" + std::to_string(index) + "}";
     }
     return (retVal);
@@ -599,12 +599,12 @@ void CSceneObject::setSelected(bool s)
     if (diff)
     {
         _selected = s;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_selected.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _selected);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -625,12 +625,12 @@ void CSceneObject::_setModelInvisible(bool inv)
     if (diff)
     {
         _modelInvisible = inv;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_modelInvisible.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyBool(cmd, inv);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -654,7 +654,7 @@ bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle, int displayAtt
         else
         {
             display = ((!isObjectPartOfInvisibleModel()) &&
-                       ((App::currentWorld->environment->getActiveLayers() & getVisibilityLayer()) ||
+                       ((App::currentScene->environment->getActiveLayers() & getVisibilityLayer()) ||
                         (displayAttrib & sim_displayattribute_ignorelayer)));
 
             if (display)
@@ -670,7 +670,7 @@ bool CSceneObject::getShouldObjectBeDisplayed(int viewableHandle, int displayAtt
                         else
                         {
                             CCollection* gr =
-                                App::currentWorld->collections->getObjectFromHandle(_authorizedViewableObjects);
+                                App::currentScene->collections->getObjectFromHandle(_authorizedViewableObjects);
                             if (gr != nullptr)
                                 display = gr->isObjectInCollection(viewableHandle);
                             else
@@ -694,12 +694,12 @@ void CSceneObject::setModelAcknowledgement(const char* a)
     if (diff)
     {
         _modelAcknowledgement = ma;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_modelAcknowledgment.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyText(cmd, _modelAcknowledgement.c_str());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -827,12 +827,12 @@ void CSceneObject::setModelBase(bool m)
     if (diff)
     {
         _modelBase = m;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_modelBase.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyBool(cmd, m);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         bool diff2 = false;
         if (_modelBase)
@@ -852,10 +852,10 @@ void CSceneObject::setObjectProperty(int p)
     {
         int cb = _objectProperty ^ p;
         _objectProperty = p;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_objectProperty.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             if (App::getEventProtocolVersion() == 2)
                 ev->appendKeyInt64("objectProperty", _objectProperty); // deprecated
             ev->appendKeyInt64(propSceneObject_objectProperty.name, _objectProperty);
@@ -877,7 +877,7 @@ void CSceneObject::setObjectProperty(int p)
                 ev->appendKeyBool(propSceneObject_cannotDelete.name, _objectProperty & sim_objectproperty_cannotdelete);
             if (cb & sim_objectproperty_cannotdeleteduringsim)
                 ev->appendKeyBool(propSceneObject_cannotDeleteSim.name, _objectProperty & sim_objectproperty_cannotdeleteduringsim);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         recomputeModelInfluencedValues();
     }
@@ -908,19 +908,19 @@ void CSceneObject::setLocalObjectSpecialProperty(int prop)
     {
         int cb = _localObjectSpecialProperty ^ prop;
         _localObjectSpecialProperty = prop;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             if (cb & (sim_objectspecialproperty_collidable | sim_objectspecialproperty_measurable | sim_objectspecialproperty_detectable))
             {
                 const char* cmd = propSceneObject_collidable.name;
-                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
                 if (cb & sim_objectspecialproperty_collidable)
                     ev->appendKeyBool(propSceneObject_collidable.name, _localObjectSpecialProperty & sim_objectspecialproperty_collidable);
                 if (cb & sim_objectspecialproperty_measurable)
                     ev->appendKeyBool(propSceneObject_measurable.name, _localObjectSpecialProperty & sim_objectspecialproperty_measurable);
                 if (cb & sim_objectspecialproperty_detectable)
                     ev->appendKeyBool(propSceneObject_detectable.name, _localObjectSpecialProperty & sim_objectspecialproperty_detectable);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
     }
@@ -965,10 +965,10 @@ bool CSceneObject::setModelProperty(int prop)
     {
         int cb = _modelProperty ^ prop;
         _modelProperty = prop;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_modelProperty.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             if (App::getEventProtocolVersion() == 2)
                 ev->appendKeyInt64("modelProperty", _modelProperty); // Deprecated
             ev->appendKeyInt64(propSceneObject_modelProperty.name, _modelProperty);
@@ -988,7 +988,7 @@ bool CSceneObject::setModelProperty(int prop)
                 ev->appendKeyBool(propSceneObject_modelScriptsNotActive.name, _modelProperty & sim_modelproperty_scripts_inactive);
             if (cb & sim_modelproperty_not_showasinsidemodel)
                 ev->appendKeyBool(propSceneObject_modelNotInParentBB.name, _modelProperty & sim_modelproperty_not_showasinsidemodel);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         recomputeModelInfluencedValues();
     }
@@ -1012,7 +1012,7 @@ bool CSceneObject::isObjectVisible() const
 
 bool CSceneObject::isObjectInVisibleLayer() const
 {
-    return ((App::currentWorld->environment->getActiveLayers() & _visibilityLayer) != 0);
+    return ((App::currentScene->environment->getActiveLayers() & _visibilityLayer) != 0);
 }
 
 bool CSceneObject::isObjectPartOfInvisibleModel() const
@@ -1084,7 +1084,7 @@ void CSceneObject::scaleObject(double scalingFactor)
     _sizeValues[0] *= scalingFactor;
     _sizeValues[1] *= scalingFactor;
     _sizeValues[2] *= scalingFactor;
-    App::worldContainer->setModificationFlag(256); // object scaled
+    App::sceneContainer->setModificationFlag(256); // object scaled
     computeBoundingBox();
     pushObjectRefreshEvent();
 }
@@ -1279,7 +1279,7 @@ void CSceneObject::performIkLoadingMapping(const std::map<int, int>* map, int op
         for (size_t i = 0; i < it->second.size(); i++)
         {
             if (it->second[i].generalObjectType == sim_appobj_ik_type)
-                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                it->second[i].generalObjectHandle = CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
     if (opType == 0)
@@ -1290,7 +1290,7 @@ void CSceneObject::performIkLoadingMapping(const std::map<int, int>* map, int op
             {
                 if (it->second[i].generalObjectType == sim_appobj_ik_type)
                     it->second[i].generalObjectHandle =
-                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                        CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
             }
         }
     }
@@ -1299,13 +1299,13 @@ void CSceneObject::performIkLoadingMapping(const std::map<int, int>* map, int op
 void CSceneObject::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if ((_authorizedViewableObjects >= 0) && (_authorizedViewableObjects > sim_object_sceneobjectend))
-        _authorizedViewableObjects = CWorld::getLoadingMapping(map, _authorizedViewableObjects);
+        _authorizedViewableObjects = CScene::getLoadingMapping(map, _authorizedViewableObjects);
     for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
         for (size_t i = 0; i < it->second.size(); i++)
         {
             if (it->second[i].generalObjectType == sim_objecttype_collection)
-                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                it->second[i].generalObjectHandle = CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
     if (opType == 0)
@@ -1316,7 +1316,7 @@ void CSceneObject::performCollectionLoadingMapping(const std::map<int, int>* map
             {
                 if (it->second[i].generalObjectType == sim_objecttype_collection)
                     it->second[i].generalObjectHandle =
-                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                        CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
             }
         }
     }
@@ -1329,7 +1329,7 @@ void CSceneObject::performCollisionLoadingMapping(const std::map<int, int>* map,
         for (size_t i = 0; i < it->second.size(); i++)
         {
             if (it->second[i].generalObjectType == sim_appobj_collision_type)
-                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                it->second[i].generalObjectHandle = CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
     if (opType == 0)
@@ -1340,7 +1340,7 @@ void CSceneObject::performCollisionLoadingMapping(const std::map<int, int>* map,
             {
                 if (it->second[i].generalObjectType == sim_appobj_collision_type)
                     it->second[i].generalObjectHandle =
-                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                        CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
             }
         }
     }
@@ -1353,7 +1353,7 @@ void CSceneObject::performDistanceLoadingMapping(const std::map<int, int>* map, 
         for (size_t i = 0; i < it->second.size(); i++)
         {
             if (it->second[i].generalObjectType == sim_appobj_distance_type)
-                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                it->second[i].generalObjectHandle = CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
     if (opType == 0)
@@ -1364,7 +1364,7 @@ void CSceneObject::performDistanceLoadingMapping(const std::map<int, int>* map, 
             {
                 if (it->second[i].generalObjectType == sim_appobj_distance_type)
                     it->second[i].generalObjectHandle =
-                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                        CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
             }
         }
     }
@@ -1638,11 +1638,11 @@ void CSceneObject::addObjectEventData(CCbor* ev)
 
 void CSceneObject::pushObjectCreationEvent()
 {
-    if (_isInScene && App::worldContainer->getEventsEnabled())
+    if (_isInScene && App::sceneContainer->getEventsEnabled())
     {
-        CCbor* ev = App::worldContainer->createSceneObjectAddEvent(this);
+        CCbor* ev = App::sceneContainer->createSceneObjectAddEvent(this);
         addObjectEventData(ev);
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
 
         if (_objectType == sim_sceneobject_shape)
         {
@@ -1659,11 +1659,11 @@ void CSceneObject::pushObjectCreationEvent()
 
 void CSceneObject::pushObjectRefreshEvent()
 {
-    if (_isInScene && App::worldContainer->getEventsEnabled())
+    if (_isInScene && App::sceneContainer->getEventsEnabled())
     {
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+        CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
         addObjectEventData(ev);
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 
@@ -1806,12 +1806,12 @@ void CSceneObject::writeCustomDataBlock(bool tmpData, const char* dataName, cons
     else
         diff = customObjectData.setData(dataName, data, dataLength, false);
 
-    if (diff && (!tmpData) && _isInScene && App::worldContainer->getEventsEnabled())
+    if (diff && (!tmpData) && _isInScene && App::sceneContainer->getEventsEnabled())
     {
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+        CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
         customObjectData.appendEventData(dataName, ev);
         //ev->appendKeyBuffer(cmd.c_str(), data, dataLength);
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 
@@ -1864,10 +1864,10 @@ void CSceneObject::setObjectMovementPreferredAxes(int p)
     {
         int cb = _objectMovementPreferredAxes ^ p;
         _objectMovementPreferredAxes = p;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_movementPreferredAxes.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             if (App::getEventProtocolVersion() == 2)
                 ev->appendKeyInt64("movementPreferredAxes", _objectMovementPreferredAxes); // deprecated
             if (cb & 1)
@@ -1882,7 +1882,7 @@ void CSceneObject::setObjectMovementPreferredAxes(int p)
                 ev->appendKeyBool(propSceneObject_movPrefRotY.name, _objectMovementPreferredAxes & 16);
             if (cb & 32)
                 ev->appendKeyBool(propSceneObject_movPrefRotZ.name, _objectMovementPreferredAxes & 32);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1899,10 +1899,10 @@ void CSceneObject::setObjectMovementOptions(int p)
     {
         int cb = _objectMovementOptions ^ p;
         _objectMovementOptions = p;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_movementOptions.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             if (App::getEventProtocolVersion() == 2)
                 ev->appendKeyInt64("movementOptions", _objectMovementOptions); // deprecated
             if (cb & 1)
@@ -1917,7 +1917,7 @@ void CSceneObject::setObjectMovementOptions(int p)
                 ev->appendKeyBool(propSceneObject_movAltTransl.name, (_objectMovementOptions & 16) == 0);
             if (cb & 32)
                 ev->appendKeyBool(propSceneObject_movAltRot.name, (_objectMovementOptions & 32) == 0);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1933,12 +1933,12 @@ void CSceneObject::setObjectMovementRelativity(int index, int p)
     if (diff)
     {
         _objectMovementRelativity[index] = p;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_movementRelativity.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt32Array(cmd, _objectMovementRelativity, 2);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1997,12 +1997,12 @@ void CSceneObject::setObjectMovementStepSize(int index, double s)
     if (diff)
     {
         _objectMovementStepSize[index] = s;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_movementStepSize.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyDoubleArray(cmd, _objectMovementStepSize, 2);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -2075,8 +2075,8 @@ void CSceneObject::simulationEnded_restoreHierarchy()
                 puid = p->getObjectUid();
             if (puid != _initialParentUniqueId)
             {
-                CSceneObject* oldParent = App::currentWorld->sceneObjects->getObjectFromUid(_initialParentUniqueId);
-                App::currentWorld->sceneObjects->setObjectParent(this, oldParent, true);
+                CSceneObject* oldParent = App::currentScene->sceneObjects->getObjectFromUid(_initialParentUniqueId);
+                App::currentScene->sceneObjects->setObjectParent(this, oldParent, true);
             }
         }
     }
@@ -2126,10 +2126,10 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
     {
         _bbFrame = bbFrame;
         _bbHalfSize = bbHalfSize;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = "boundingBox";
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             if (App::getEventProtocolVersion() == 2)
             {
                 double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
@@ -2151,7 +2151,7 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
                 ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
                 ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize * 2.0);
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -2181,12 +2181,12 @@ void CSceneObject::setDynamicSimulationIconCode(int c)
     if (diff)
     {
         _dynamicSimulationIconCode = c;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_dynamicIcon.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _dynamicSimulationIconCode);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setRefreshHierarchyViewFlag();
@@ -2300,12 +2300,12 @@ int CSceneObject::getAllChildrenThatMayBecomeAssemblyParent(const std::vector<st
 void CSceneObject::generateDnaString()
 {
     _dnaString = utils::generateUniqueString();
-    if (_isInScene && App::worldContainer->getEventsEnabled())
+    if (_isInScene && App::sceneContainer->getEventsEnabled())
     {
         const char* cmd = propSceneObject_dna.name;
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyBuff(cmd, (unsigned char*)_dnaString.data(), _dnaString.size());
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 
@@ -2338,7 +2338,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
         {
             CDetachedScript* it = nullptr;
             if (legacyEmbeddedScripts)
-                it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);
+                it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);
             else
             {
                 if ((_objectType == sim_sceneobject_script) && (((CScript*)this)->detachedScript != nullptr) && (((CScript*)this)->detachedScript->getScriptType() == sim_scripttype_customization))
@@ -2354,11 +2354,11 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
             }
         }
 
-        if (((scriptType & 0x0f) == sim_scripttype_simulation) && (!App::currentWorld->simulation->isSimulationStopped()))
+        if (((scriptType & 0x0f) == sim_scripttype_simulation) && (!App::currentScene->simulation->isSimulationStopped()))
         {
             CDetachedScript* it = nullptr;
             if (legacyEmbeddedScripts)
-                it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
+                it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
             else
             {
                 if ((_objectType == sim_sceneobject_script) && (((CScript*)this)->detachedScript != nullptr) && (((CScript*)this)->detachedScript->getScriptType() == sim_scripttype_simulation))
@@ -2410,12 +2410,12 @@ size_t CSceneObject::getAttachedScripts(std::vector<CDetachedScript*>& scripts, 
         {
             if (legacyEmbeddedScripts)
             {
-                CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
+                CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
                 if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
                         scripts.push_back(it);
-                    if ((scriptType == sim_scripttype_simulation) && (!App::currentWorld->simulation->isSimulationStopped()))
+                    if ((scriptType == sim_scripttype_simulation) && (!App::currentScene->simulation->isSimulationStopped()))
                         scripts.push_back(it);
                 }
             }
@@ -2464,12 +2464,12 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
         {
             if (legacyEmbeddedScripts)
             {
-                CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
+                CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
                 if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
                         scripts.push_back(it->getScriptHandle());
-                    if ((scriptType == sim_scripttype_simulation) && (!App::currentWorld->simulation->isSimulationStopped()))
+                    if ((scriptType == sim_scripttype_simulation) && (!App::currentScene->simulation->isSimulationStopped()))
                         scripts.push_back(it->getScriptHandle());
                 }
             }
@@ -2521,7 +2521,7 @@ void CSceneObject::_setLocalTransformation_send(const C7Vector& tr) const
 {
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle != -1)
-        App::worldContainer->pluginContainer->oldIkPlugin_setObjectLocalTransformation(_ikPluginCounterpartHandle,
+        App::sceneContainer->pluginContainer->oldIkPlugin_setObjectLocalTransformation(_ikPluginCounterpartHandle,
                                                                                        _localTransformation);
 }
 
@@ -2533,7 +2533,7 @@ void CSceneObject::_setParent_send(int parentHandle) const
         int p = -1;
         if (getParent() != nullptr)
             p = getParent()->getIkPluginCounterpartHandle();
-        App::worldContainer->pluginContainer->oldIkPlugin_setObjectParent(_ikPluginCounterpartHandle, p);
+        App::sceneContainer->pluginContainer->oldIkPlugin_setObjectParent(_ikPluginCounterpartHandle, p);
     }
 }
 
@@ -2550,17 +2550,17 @@ bool CSceneObject::setParent(CSceneObject* parent)
             pUid = _parentObject->getObjectUid();
             pH = _parentObject->getObjectHandle();
         }
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_parentUid.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt64(cmd, pUid);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt64(propSceneObject_parent.name, pH);
             else
                 ev->appendKeyHandle(propSceneObject_parent.name, pH);
             ev->appendKeyInt64(propSceneObject_parentHandle.name, pH); // for backward compatibility
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         _setParent_send(pH);
     }
@@ -4081,21 +4081,21 @@ void CSceneObject::serialize(CSer& ar)
 void CSceneObject::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
-        _objectHandle = CWorld::getLoadingMapping(map, _objectHandle);
-    _parentObjectHandle_forSerializationOnly = CWorld::getLoadingMapping(map, _parentObjectHandle_forSerializationOnly);
+        _objectHandle = CScene::getLoadingMapping(map, _objectHandle);
+    _parentObjectHandle_forSerializationOnly = CScene::getLoadingMapping(map, _parentObjectHandle_forSerializationOnly);
 
     if (opType <= 1) // scene or model loading only
-        App::currentWorld->sceneObjects->setObjectParent(this, App::currentWorld->sceneObjects->getObjectFromHandle(_parentObjectHandle_forSerializationOnly), false);
+        App::currentScene->sceneObjects->setObjectParent(this, App::currentScene->sceneObjects->getObjectFromHandle(_parentObjectHandle_forSerializationOnly), false);
 
     if ((_authorizedViewableObjects >= 0) && (_authorizedViewableObjects <= sim_object_sceneobjectend))
-        _authorizedViewableObjects = CWorld::getLoadingMapping(map, _authorizedViewableObjects);
+        _authorizedViewableObjects = CScene::getLoadingMapping(map, _authorizedViewableObjects);
 
     for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
         for (size_t i = 0; i < it->second.size(); i++)
         {
             if (it->second[i].generalObjectType == sim_objecttype_sceneobject)
-                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                it->second[i].generalObjectHandle = CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
     if (opType == 0)
@@ -4106,7 +4106,7 @@ void CSceneObject::performObjectLoadingMapping(const std::map<int, int>* map, in
             {
                 if (it->second[i].generalObjectType == sim_objecttype_sceneobject)
                     it->second[i].generalObjectHandle =
-                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+                        CScene::getLoadingMapping(map, it->second[i].generalObjectHandle);
             }
         }
     }
@@ -4146,7 +4146,7 @@ void CSceneObject::announceObjectWillBeErased(const CSceneObject* object, bool c
         if (parent != nullptr)
         {
             if (parent == object)
-                App::currentWorld->sceneObjects->setObjectParent(this, parent->getParent(), true);
+                App::currentScene->sceneObjects->setObjectParent(this, parent->getParent(), true);
         }
         removeChild(object);
     }
@@ -4243,26 +4243,26 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const ch
                 r.generalObjectHandle = -1;
                 if (handles[i] >= 0)
                 {
-                    if (App::currentWorld->sceneObjects->getObjectFromHandle(handles[i]) != nullptr)
+                    if (App::currentScene->sceneObjects->getObjectFromHandle(handles[i]) != nullptr)
                         r.generalObjectHandle = handles[i];
                     else
                     { // backw. compatibility:
-                        if (App::currentWorld->collisions_old->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentScene->collisions_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_collision_type;
                             r.generalObjectHandle = handles[i];
                         }
-                        if (App::currentWorld->distances_old->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentScene->distances_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_distance_type;
                             r.generalObjectHandle = handles[i];
                         }
-                        if (App::currentWorld->ikGroups_old->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentScene->ikGroups_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_ik_type;
                             r.generalObjectHandle = handles[i];
                         }
-                        if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentScene->collections->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_objecttype_collection;
                             r.generalObjectHandle = handles[i];
@@ -4276,9 +4276,9 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const ch
 
     if (cpy != _customReferencedHandles)
     {
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
             std::vector<std::string> tags;
             getReferencedHandlesTags(tags);
             std::set<std::string> usedTags;
@@ -4299,7 +4299,7 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const ch
                 if ( (initTags[i].size() > 0) && (usedTags.find(initTags[i]) == usedTags.end()) )
                     ev->appendKeyNull((REFSPREFIX + initTags[i]).c_str());
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -4364,41 +4364,41 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int* handles, con
                 r.generalObjectHandle = -1;
                 if (handles[i] >= 0)
                 {
-                    if (App::currentWorld->sceneObjects->getObjectFromHandle(handles[i]) != nullptr)
+                    if (App::currentScene->sceneObjects->getObjectFromHandle(handles[i]) != nullptr)
                     {
                         r.generalObjectHandle = handles[i];
                         r.uniquePersistentIdString =
-                            App::currentWorld->sceneObjects->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                            App::currentScene->sceneObjects->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
                     }
                     else
                     { // backw. compatibility
-                        if (App::currentWorld->collisions_old->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentScene->collisions_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_collision_type;
                             r.generalObjectHandle = handles[i];
                             r.uniquePersistentIdString =
-                                App::currentWorld->collisions_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                                App::currentScene->collisions_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
                         }
-                        if (App::currentWorld->distances_old->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentScene->distances_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_distance_type;
                             r.generalObjectHandle = handles[i];
                             r.uniquePersistentIdString =
-                                App::currentWorld->distances_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                                App::currentScene->distances_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
                         }
-                        if (App::currentWorld->ikGroups_old->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentScene->ikGroups_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_ik_type;
                             r.generalObjectHandle = handles[i];
                             r.uniquePersistentIdString =
-                                App::currentWorld->ikGroups_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                                App::currentScene->ikGroups_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
                         }
-                        if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentScene->collections->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_objecttype_collection;
                             r.generalObjectHandle = handles[i];
                             r.uniquePersistentIdString =
-                                App::currentWorld->collections->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                                App::currentScene->collections->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
                         }
                     }
                 }
@@ -4409,9 +4409,9 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int* handles, con
 
     if (cpy != _customReferencedOriginalHandles)
     {
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
             std::vector<std::string> tags;
             getReferencedOriginalHandlesTags(tags);
             std::set<std::string> usedTags;
@@ -4432,7 +4432,7 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int* handles, con
                 if ( (initTags[i].size() > 0) && (usedTags.find(initTags[i]) == usedTags.end()) )
                     ev->appendKeyNull((ORIGREFSPREFIX + initTags[i]).c_str());
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -4964,13 +4964,13 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
 bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf, double rotationAmount,
                                                                 bool perspective, int eventID)
 { // bits 0-2: position x,y,z (relative to parent frame), bits 3-5: Euler e9,e1,e2 (relative to own frame)
-    if ((!App::currentWorld->simulation->isSimulationStopped()) && (getObjectMovementOptions() & 8))
+    if ((!App::currentScene->simulation->isSimulationStopped()) && (getObjectMovementOptions() & 8))
     {
         _objectManipulationMode_flaggedForGridOverlay = 0;
         _objectManipulationModeEventId = -1;
         return (false);
     }
-    if (App::currentWorld->simulation->isSimulationStopped() && (getObjectMovementOptions() & 4))
+    if (App::currentScene->simulation->isSimulationStopped() && (getObjectMovementOptions() & 4))
     {
         _objectManipulationMode_flaggedForGridOverlay = 0;
         _objectManipulationModeEventId = -1;
@@ -5098,13 +5098,13 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
                                                                    double halfSizes[2], bool perspective, int eventID)
 { // bits 0-2: position x,y,z (relative to parent frame), bits 3-5: Euler e9,e1,e2 (relative to own frame)
 
-    if ((!App::currentWorld->simulation->isSimulationStopped()) && (getObjectMovementOptions() & 2))
+    if ((!App::currentScene->simulation->isSimulationStopped()) && (getObjectMovementOptions() & 2))
     {
         _objectManipulationMode_flaggedForGridOverlay = 0;
         _objectManipulationModeEventId = -1;
         return (false);
     }
-    if (App::currentWorld->simulation->isSimulationStopped() && (getObjectMovementOptions() & 1))
+    if (App::currentScene->simulation->isSimulationStopped() && (getObjectMovementOptions() & 1))
     {
         _objectManipulationMode_flaggedForGridOverlay = 0;
         _objectManipulationModeEventId = -1;
@@ -5341,7 +5341,7 @@ void CSceneObject::buildOrUpdate_oldIk()
 {
     // Build IK plugin counterpart, if not a joint:
     if (_ikPluginCounterpartHandle == -1)
-        _ikPluginCounterpartHandle = App::worldContainer->pluginContainer->oldIkPlugin_createDummy();
+        _ikPluginCounterpartHandle = App::sceneContainer->pluginContainer->oldIkPlugin_createDummy();
     // Update the remote object:
     _setLocalTransformation_send(_localTransformation);
 }
@@ -5357,7 +5357,7 @@ void CSceneObject::connect_oldIk()
 void CSceneObject::remove_oldIk()
 {
     if (_ikPluginCounterpartHandle != -1)
-        App::worldContainer->pluginContainer->oldIkPlugin_eraseObject(_ikPluginCounterpartHandle);
+        App::sceneContainer->pluginContainer->oldIkPlugin_eraseObject(_ikPluginCounterpartHandle);
     _ikPluginCounterpartHandle = -1;
 }
 
@@ -5372,12 +5372,12 @@ void CSceneObject::setVisibilityLayer(int l)
     if (diff)
     {
         _visibilityLayer = l;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_layer.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt64(cmd, l);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -5388,12 +5388,12 @@ void CSceneObject::setChildOrder(int order)
     if (diff)
     {
         _childOrder = order;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_childOrder.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt64(cmd, order);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -5402,12 +5402,12 @@ bool CSceneObject::canDestroyNow()
 { // can be overridden
     bool retVal = true;
 
-    if ((App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr))
+    if ((App::currentScene != nullptr) && (App::currentScene->sceneObjects != nullptr))
     { // For old scripts
-        CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
+        CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
         if ((it != nullptr) && (it->getExecutionDepth() != 0))
             retVal = false;
-        it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);
+        it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);
         if ((it != nullptr) && (it->getExecutionDepth() != 0))
             retVal = false;
     }
@@ -5426,14 +5426,14 @@ void CSceneObject::setObjectAlias_direct(const char* newName)
     if (diff)
     {
         _objectAlias = newName;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             std::string cmd = propSceneObject_name.name;
             if (App::getEventProtocolVersion() <= 3)
                 cmd = propSceneObject_alias.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd.c_str(), true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd.c_str(), true);
             ev->appendKeyText(cmd.c_str(), newName);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -5454,10 +5454,10 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
     if (diff)
     {
         _localTransformation = tr;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_pose.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
@@ -5471,7 +5471,7 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
                 ev->appendKeyPose(cmd, tr);
                 ev->appendKeyQuaternion(propSceneObject_quaternion.name, tr.Q);
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         _setLocalTransformation_send(_localTransformation);
     }
@@ -5483,10 +5483,10 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
     if (diff)
     {
         _localTransformation.Q = q;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_pose.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
@@ -5500,7 +5500,7 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
                 ev->appendKeyPose(cmd, _localTransformation);
                 ev->appendKeyQuaternion(propSceneObject_quaternion.name, _localTransformation.Q);
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         C7Vector tr(_localTransformation);
         tr.Q = q;
@@ -5514,10 +5514,10 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
     if (diff)
     {
         _localTransformation.X = x;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_pose.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
@@ -5531,7 +5531,7 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
                 ev->appendKeyVector3(propSceneObject_position.name, _localTransformation.X);
                 ev->appendKeyPose(cmd, _localTransformation);
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         C7Vector tr(_localTransformation);
         tr.X = x;
@@ -5614,10 +5614,10 @@ bool CSceneObject::_setChildren(std::vector<CSceneObject*>* children)
         else
             _childList.clear();
         handleOrderIndexOfChildren();
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propSceneObject_children.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             std::vector<int> ch;
             for (size_t i = 0; i < _childList.size(); i++)
                 ch.push_back(_childList[i]->getObjectHandle());
@@ -5625,7 +5625,7 @@ bool CSceneObject::_setChildren(std::vector<CSceneObject*>* children)
                 ev->appendKeyInt32Array(cmd, ch.data(), ch.size());
             else
                 ev->appendKeyHandleArray(cmd, ch.data(), ch.size());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setRefreshHierarchyViewFlag();
@@ -5859,9 +5859,9 @@ int CSceneObject::setBoolProperty(const char* ppName, bool pState)
     {
         retVal = 1;
         if (pState)
-            App::currentWorld->sceneObjects->addObjectToSelection(_objectHandle);
+            App::currentScene->sceneObjects->addObjectToSelection(_objectHandle);
         else
-            App::currentWorld->sceneObjects->removeObjectFromSelection(_objectHandle);
+            App::currentScene->sceneObjects->removeObjectFromSelection(_objectHandle);
     }
     else if (_pName == propSceneObject_collidable.name)
     {
@@ -6084,10 +6084,10 @@ int CSceneObject::setIntProperty(const char* ppName, int pState)
     else if (strcmp(ppName, propSceneObject_parentHandle.name) == 0)
     {
         retVal = 0;
-        CSceneObject* newParent = App::currentWorld->sceneObjects->getObjectFromHandle(pState);
+        CSceneObject* newParent = App::currentScene->sceneObjects->getObjectFromHandle(pState);
         if ( (newParent != nullptr) || (pState == -1) )
         {
-            if (App::currentWorld->sceneObjects->setObjectParent(this, newParent, false))
+            if (App::currentScene->sceneObjects->setObjectParent(this, newParent, false))
                 retVal = 1;
         }
     }
@@ -6228,10 +6228,10 @@ int CSceneObject::setHandleProperty(const char* ppName, long long int pState)
     if (strcmp(ppName, propSceneObject_parent.name) == 0)
     {
         retVal = 0;
-        CSceneObject* newParent = App::currentWorld->sceneObjects->getObjectFromHandle(pState);
+        CSceneObject* newParent = App::currentScene->sceneObjects->getObjectFromHandle(pState);
         if ( (newParent != nullptr) || (pState == -1) )
         {
-            if (App::currentWorld->sceneObjects->setObjectParent(this, newParent, false))
+            if (App::currentScene->sceneObjects->setObjectParent(this, newParent, false))
                 retVal = 1;
         }
     }
@@ -6284,7 +6284,7 @@ int CSceneObject::setStringProperty(const char* ppName, const char* pState)
 
     if ((_pName == propSceneObject_alias.name) || (_pName == propSceneObject_name.name))
     {
-        App::currentWorld->sceneObjects->setObjectAlias(this, pState, false);
+        App::currentScene->sceneObjects->setObjectAlias(this, pState, false);
         retVal = 1;
     }
     else if (_pName == propSceneObject_deprecatedName.name)
@@ -6330,7 +6330,7 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
         else if (_pName == propSceneObject_modelHash.name)
         {
             retVal = 1;
-            pState = App::currentWorld->sceneObjects->getModelState(_objectHandle);
+            pState = App::currentScene->sceneObjects->getModelState(_objectHandle);
             size_t hv = std::hash<std::string>{}(pState);
             std::stringstream ss;
             ss << std::hex << hv;
@@ -6357,12 +6357,12 @@ int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int 
         if (pN.size() > 0)
         {
             bool diff = customDataPtr->setData(pN.c_str(), buffer, bufferL, true);
-            if (diff && _isInScene && App::worldContainer->getEventsEnabled())
+            if (diff && _isInScene && App::sceneContainer->getEventsEnabled())
             {
-                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+                CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
                 customDataPtr->appendEventData(pN.c_str(), ev);
                 // ev->appendKeyBuffer(cmd.c_str(), buffer, bufferL);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
             retVal = 1;
         }
@@ -6838,11 +6838,11 @@ int CSceneObject::removeProperty(const char* ppName)
             if (tp >= 0)
             {
                 bool diff = customDataPtr->clearData((propertyStrings[tp] + pN).c_str());
-                if (diff && _isInScene && App::worldContainer->getEventsEnabled())
+                if (diff && _isInScene && App::sceneContainer->getEventsEnabled())
                 {
-                    CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+                    CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
                     customDataPtr->appendEventData(pN.c_str(), ev, true);
-                    App::worldContainer->pushEvent();
+                    App::sceneContainer->pushEvent();
                 }
                 retVal = 1;
             }

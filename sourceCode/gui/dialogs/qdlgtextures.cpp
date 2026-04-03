@@ -39,7 +39,7 @@ void CQDlgTextures::refresh()
     CMesh* geom = nullptr;
     CTextureProperty* tp =
         GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, &applyTexture3D, nullptr, &geom);
-    bool simStopped = App::currentWorld->simulation->isSimulationStopped();
+    bool simStopped = App::currentScene->simulation->isSimulationStopped();
     bool usingFixedTextureCoordinates = false;
     bool forbidU = false;
     bool forbidV = false;
@@ -169,7 +169,7 @@ void CQDlgTextures::refresh()
         std::string textureName = IDS_TEXTURE_NAME_NONE;
         if (tp->getTextureObjectID() > sim_object_sceneobjectend)
         { // we have a static texture
-            CTextureObject* to = App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
+            CTextureObject* to = App::currentScene->textureContainer->getObject(tp->getTextureObjectID());
             if (to != nullptr)
             {
                 textureName = to->getObjectName();
@@ -182,7 +182,7 @@ void CQDlgTextures::refresh()
         }
         else
         { // we have a dynamic texture
-            CVisionSensor* rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
+            CVisionSensor* rs = App::currentScene->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
             if (rs != nullptr)
             {
                 textureName = rs->getObjectAlias_printPath();
@@ -204,8 +204,8 @@ void CQDlgTextures::refresh()
     else
     {
         // Check if there are already existing textures:
-        ui->qqRemoveSelect->setEnabled((App::currentWorld->textureContainer->getObjectAtIndex(0) != nullptr) ||
-                                       (App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor) != 0));
+        ui->qqRemoveSelect->setEnabled((App::currentScene->textureContainer->getObjectAtIndex(0) != nullptr) ||
+                                       (App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor) != 0));
         ui->qqTextureCoordinates->setText(IDS_TEXTURE_NAME_NONE); // Actually just "none"
 
         ui->qqX->setText("");
@@ -236,11 +236,11 @@ bool CQDlgTextures::needsDestruction()
 
 bool CQDlgTextures::isLinkedDataValid()
 {
-    if (!App::currentWorld->simulation->isSimulationStopped())
+    if (!App::currentScene->simulation->isSimulationStopped())
         return (false);
     if (_objType == TEXTURE_ID_SIMPLE_SHAPE)
     {
-        if (App::currentWorld->sceneObjects->getLastSelectionHandle() != _objID1)
+        if (App::currentScene->sceneObjects->getLastSelectionHandle() != _objID1)
             return (false);
     }
     if (_objType == TEXTURE_ID_COMPOUND_SHAPE)
@@ -253,22 +253,22 @@ bool CQDlgTextures::isLinkedDataValid()
     }
     if (_objType == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
     {
-        if (App::currentWorld->buttonBlockContainer_old->getBlockInEdition() != _objID1)
+        if (App::currentScene->buttonBlockContainer_old->getBlockInEdition() != _objID1)
             return (false);
-        if (App::currentWorld->buttonBlockContainer_old->selectedButtons.size() > 0)
+        if (App::currentScene->buttonBlockContainer_old->selectedButtons.size() > 0)
             return (false);
     }
     if (_objType == TEXTURE_ID_OPENGL_GUI_BUTTON)
     {
-        if (App::currentWorld->buttonBlockContainer_old->getBlockInEdition() != _objID1)
+        if (App::currentScene->buttonBlockContainer_old->getBlockInEdition() != _objID1)
             return (false);
-        CButtonBlock* itBlock = App::currentWorld->buttonBlockContainer_old->getBlockWithID(_objID1);
+        CButtonBlock* itBlock = App::currentScene->buttonBlockContainer_old->getBlockWithID(_objID1);
         if (itBlock == nullptr)
             return (false);
-        if (App::currentWorld->buttonBlockContainer_old->selectedButtons.size() <= 0)
+        if (App::currentScene->buttonBlockContainer_old->selectedButtons.size() <= 0)
             return (false);
-        int butt = App::currentWorld->buttonBlockContainer_old
-                       ->selectedButtons[App::currentWorld->buttonBlockContainer_old->selectedButtons.size() - 1];
+        int butt = App::currentScene->buttonBlockContainer_old
+                       ->selectedButtons[App::currentScene->buttonBlockContainer_old->selectedButtons.size() - 1];
         VPoint size;
         itBlock->getBlockSize(size);
         CSoftButton* itButton = itBlock->getButtonAtPos(butt % size.x, butt / size.x);

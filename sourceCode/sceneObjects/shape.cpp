@@ -182,15 +182,15 @@ void CShape::setInitialDynamicLinearVelocity(const C3Vector& vel)
     if (diff)
     {
         _initialDynamicLinearVelocity = vel;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_initLinearVelocity.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _initialDynamicLinearVelocity.data, 3);
             else
                 ev->appendKeyVector3(cmd, _initialDynamicLinearVelocity);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -206,15 +206,15 @@ void CShape::setInitialDynamicAngularVelocity(const C3Vector& vel)
     if (diff)
     {
         _initialDynamicAngularVelocity = vel;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_initAngularVelocity.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _initialDynamicAngularVelocity.data, 3);
             else
                 ev->appendKeyVector3(cmd, _initialDynamicAngularVelocity);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -250,12 +250,12 @@ void CShape::setRespondableMask(int m)
     if (diff)
     {
         _respondableMask = m;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_respondableMask.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _respondableMask);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -383,10 +383,10 @@ void CShape::setDynamicVelocity(const C3Vector& linearV, const C3Vector& angular
     {
         _dynamicLinearVelocity = linearV;
         _dynamicAngularVelocity = angularV;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_dynLinearVelocity.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyDoubleArray(cmd, _dynamicLinearVelocity.data, 3);
@@ -397,7 +397,7 @@ void CShape::setDynamicVelocity(const C3Vector& linearV, const C3Vector& angular
                 ev->appendKeyVector3(cmd, _dynamicLinearVelocity);
                 ev->appendKeyVector3(propShape_dynAngularVelocity.name, _dynamicAngularVelocity);
             }
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -450,12 +450,12 @@ void CShape::setRespondable(bool r)
     if (diff)
     {
         _shapeIsDynamicallyRespondable = r;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_respondable.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _shapeIsDynamicallyRespondable);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -476,12 +476,12 @@ void CShape::setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic)
     if (diff)
     {
         _setAutomaticallyToNonStaticIfGetsParent = autoNonStatic;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_setToDynamicWithParent.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _setAutomaticallyToNonStaticIfGetsParent);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -497,12 +497,12 @@ void CShape::setStartInDynamicSleeping(bool sleeping)
     if (diff)
     {
         _startInDynamicSleeping = sleeping;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_startInDynSleepMode.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _startInDynamicSleeping);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -518,12 +518,12 @@ void CShape::setStatic(bool sta)
     if (diff)
     {
         _shapeIsDynamicallyStatic = sta;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_dynamic.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, !_shapeIsDynamicallyStatic);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
         if (!sta)
             setSetAutomaticallyToNonStaticIfGetsParent(false);
@@ -548,12 +548,12 @@ void CShape::setDynKinematic(bool kin)
     if (diff)
     {
         _shapeIsDynamicallyKinematic = kin;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propShape_kinematic.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _shapeIsDynamicallyKinematic);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -608,7 +608,7 @@ void CShape::scaleObject(double scalingFactor)
     _meshModificationCounter++;
     // Scale collision info
     if (_meshCalculationStructure != nullptr)
-        App::worldContainer->pluginContainer->geomPlugin_scaleMesh(_meshCalculationStructure, scalingFactor);
+        App::sceneContainer->pluginContainer->geomPlugin_scaleMesh(_meshCalculationStructure, scalingFactor);
     // Scale meshes and adjust textures:
     getMesh()->scale(scalingFactor);
     _dynamicsResetFlag = true;
@@ -1028,11 +1028,11 @@ void CShape::_serializeMesh(CSer& ar)
                 _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
 
             // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
-            if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp() &&
+            if (App::currentScene->environment->getSaveExistingCalculationStructuresTemp() &&
                 isMeshCalculationStructureInitialized())
             {
                 std::vector<unsigned char> serializationData;
-                App::worldContainer->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,
+                App::sceneContainer->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,
                                                                                           serializationData);
                 ar.storeDataName("Coj");
                 ar.setCountingMode(true);
@@ -1091,7 +1091,7 @@ void CShape::_serializeMesh(CSer& ar)
                             data.push_back(dummy);
                         }
                         _meshCalculationStructure =
-                            App::worldContainer->pluginContainer->geomPlugin_getMeshFromSerializationData(&data[0]);
+                            App::sceneContainer->pluginContainer->geomPlugin_getMeshFromSerializationData(&data[0]);
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -1105,11 +1105,11 @@ void CShape::_serializeMesh(CSer& ar)
         if (ar.isStoring())
         {
             ar.clearIncrementCounter();
-            if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp() &&
+            if (App::currentScene->environment->getSaveExistingCalculationStructuresTemp() &&
                 isMeshCalculationStructureInitialized())
             {
                 std::vector<unsigned char> collInfoData;
-                App::worldContainer->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,
+                App::sceneContainer->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,
                                                                                           collInfoData);
                 ar.xmlPushNewNode("calculationStructure");
                 if (ar.xmlSaveDataInline(int(collInfoData.size())))
@@ -1144,7 +1144,7 @@ void CShape::_serializeMesh(CSer& ar)
                 std::vector<int> wind;
                 _mesh->getCumulativeMeshes(C7Vector::identityTransformation, wvert, &wind, nullptr);
                 _meshCalculationStructure =
-                    App::worldContainer->pluginContainer->geomPlugin_getMeshFromSerializationData(
+                    App::sceneContainer->pluginContainer->geomPlugin_getMeshFromSerializationData(
                         (unsigned char*)str.c_str());
                 ar.xmlPopNode();
             }
@@ -1179,7 +1179,7 @@ bool CShape::computeMassAndInertia(double density)
     C3Vector diagI;
 
     if (_mesh->isPure())
-        mass = App::worldContainer->pluginContainer->dyn_computeInertia(_objectHandle, localTr, diagI);
+        mass = App::sceneContainer->pluginContainer->dyn_computeInertia(_objectHandle, localTr, diagI);
     else
     { // we use the convex hull
         std::vector<double> vert;
@@ -1187,7 +1187,7 @@ bool CShape::computeMassAndInertia(double density)
         std::vector<double> hull;
         std::vector<int> indices;
         if (CMeshRoutines::getConvexHull(vert, hull, indices))
-            mass = App::worldContainer->pluginContainer->dyn_computePMI(hull, indices, localTr, diagI);
+            mass = App::sceneContainer->pluginContainer->dyn_computePMI(hull, indices, localTr, diagI);
     }
     if (mass > 0.0)
     {
@@ -1324,7 +1324,7 @@ void CShape::removeMeshCalculationStructure()
     TRACE_INTERNAL;
     if (_meshCalculationStructure != nullptr)
     {
-        App::worldContainer->pluginContainer->geomPlugin_destroyMesh(_meshCalculationStructure);
+        App::sceneContainer->pluginContainer->geomPlugin_destroyMesh(_meshCalculationStructure);
         _meshCalculationStructure = nullptr;
     }
 }
@@ -1347,12 +1347,12 @@ void CShape::initializeMeshCalculationStructureIfNeeded()
         std::vector<int> wind;
         // use a centered mesh (required by the geom plugin)
         _mesh->getCumulativeMeshes(_mesh->getBB(nullptr).getInverse(), wvert, &wind, nullptr);
-        double maxTriSize = App::currentWorld->environment->getCalculationMaxTriangleSize();
+        double maxTriSize = App::currentScene->environment->getCalculationMaxTriangleSize();
         double minTriSize = (std::max<double>(std::max<double>(_bbHalfSize(0), _bbHalfSize(1)), _bbHalfSize(2))) * 2.0 *
-                            App::currentWorld->environment->getCalculationMinRelTriangleSize();
+                            App::currentScene->environment->getCalculationMinRelTriangleSize();
         if (maxTriSize < minTriSize)
             maxTriSize = minTriSize;
-        _meshCalculationStructure = App::worldContainer->pluginContainer->geomPlugin_createMesh(
+        _meshCalculationStructure = App::sceneContainer->pluginContainer->geomPlugin_createMesh(
             &wvert[0], (int)wvert.size(), &wind[0], (int)wind.size(), nullptr, maxTriSize,
             App::userSettings->triCountInOBB);
     }
@@ -1370,14 +1370,14 @@ void CShape::setCulling(bool culState)
     _mesh->setCulling(culState);
     if (App::getEventProtocolVersion() == 2)
     {
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = "color";
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->openKeyMap(cmd);
             ev->appendKeyBool("culling", culState);
             ev->appendKeyInt64("index", 0);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1394,14 +1394,14 @@ void CShape::setVisibleEdges(bool v)
     _mesh->setVisibleEdges(v);
     if (App::getEventProtocolVersion() == 2)
     {
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = "color";
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, false);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, false);
             ev->openKeyMap(cmd);
             ev->appendKeyBool("showEdges", v);
             ev->appendKeyInt64("index", 0);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1461,7 +1461,7 @@ bool CShape::doesShapeCollideWithShape(CShape* collidee, std::vector<double>* in
     std::vector<double>* _intersectP = nullptr;
     if (intersections != nullptr)
         _intersectP = &_intersect;
-    if (App::worldContainer->pluginContainer->geomPlugin_getMeshMeshCollision(
+    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshMeshCollision(
             _meshCalculationStructure, getCumulCenteredMeshFrame(), collidee->_meshCalculationStructure,
             collidee->getCumulCenteredMeshFrame(), _intersectP, nullptr, nullptr))
     { // There was a collision
@@ -1481,7 +1481,7 @@ bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy, double& dist, double ra
 
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector rayPart0;
-    if (App::worldContainer->pluginContainer->geomPlugin_getMeshPointDistanceIfSmaller(
+    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshPointDistanceIfSmaller(
             _meshCalculationStructure, getCumulCenteredMeshFrame(), dummyPos, dist, &rayPart0, &buffer))
     {
         rayPart0.getData(ray + 0);
@@ -1507,13 +1507,13 @@ bool CShape::getShapeShapeDistance_IfSmaller(CShape* it, double& dist, double ra
     C3Vector ptOnShapeB;
 
     bool smaller = false;
-    if (App::worldContainer->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeA->_meshCalculationStructure) <
-        App::worldContainer->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeB->_meshCalculationStructure))
-        smaller = App::worldContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
+    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeA->_meshCalculationStructure) <
+        App::sceneContainer->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeB->_meshCalculationStructure))
+        smaller = App::sceneContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
             shapeA->_meshCalculationStructure, shapeATr, shapeB->_meshCalculationStructure, shapeBTr, dist, &ptOnShapeA,
             &ptOnShapeB, &buffer[0], &buffer[1]);
     else
-        smaller = App::worldContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
+        smaller = App::sceneContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
             shapeB->_meshCalculationStructure, shapeBTr, shapeA->_meshCalculationStructure, shapeATr, dist, &ptOnShapeB,
             &ptOnShapeA, &buffer[1], &buffer[0]);
 
@@ -1707,7 +1707,7 @@ CSceneObject* CShape::copyYourself()
         newShape->_mesh = _mesh->copyYourself();
 
     if (_meshCalculationStructure != nullptr)
-        newShape->_meshCalculationStructure = App::worldContainer->pluginContainer->geomPlugin_copyMesh(_meshCalculationStructure);
+        newShape->_meshCalculationStructure = App::sceneContainer->pluginContainer->geomPlugin_copyMesh(_meshCalculationStructure);
 
     delete newShape->_dynMaterial;
     newShape->_dynMaterial = _dynMaterial->copyYourself();

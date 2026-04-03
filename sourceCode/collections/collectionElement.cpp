@@ -44,11 +44,11 @@ std::string CCollectionElement::getMainObjectTempName() const
 
 void CCollectionElement::addOrRemoveYourObjects(std::vector<int>* theObjects) const
 {
-    CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_mainObjectHandle);
+    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_mainObjectHandle);
     if (it == nullptr)
     {
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
-            addOrRemoveAnObject(theObjects, App::currentWorld->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+            addOrRemoveAnObject(theObjects, App::currentScene->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
     }
     if (_elementType == sim_collectionelement_loose)
         addOrRemoveAnObject(theObjects, it->getObjectHandle());
@@ -87,7 +87,7 @@ bool CCollectionElement::isSame(CCollectionElement* it) const
 
 void CCollectionElement::performObjectLoadingMapping(const std::map<int, int>* map)
 {
-    _mainObjectHandle = CWorld::getLoadingMapping(map, _mainObjectHandle);
+    _mainObjectHandle = CScene::getLoadingMapping(map, _mainObjectHandle);
 }
 
 CCollectionElement* CCollectionElement::copyYourself() const
@@ -170,7 +170,7 @@ void CCollectionElement::serialize(CSer& ar)
             else
             {
                 std::string str;
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_mainObjectHandle);
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_mainObjectHandle);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(" 'objectName' tag: required if 'type' is not 'everything'. Has to be an "

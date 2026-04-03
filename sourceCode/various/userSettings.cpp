@@ -401,8 +401,8 @@ double CUserSettings::getRotationStepSize()
 void CUserSettings::setUndoRedoEnabled(bool isEnabled)
 {
     _undoRedoEnabled = isEnabled;
-    if (App::currentWorld->undoBufferContainer != nullptr)
-        App::currentWorld->undoBufferContainer->emptySceneProcedure();
+    if (App::currentScene->undoBufferContainer != nullptr)
+        App::currentScene->undoBufferContainer->emptySceneProcedure();
 }
 
 bool CUserSettings::getUndoRedoEnabled()
@@ -432,12 +432,12 @@ void CUserSettings::setIdleFps_session(int fps)
     if (fps != _idleFps_session)
     {
         _idleFps_session = fps;
-        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        if ((App::sceneContainer != nullptr) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propApp_idleFps.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyInt64(cmd, _idleFps_session);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }

@@ -106,20 +106,20 @@ bool CScript::canDestroyNow()
             detachedScript->_scriptState = CDetachedScript::scriptState_ended; // just in case
             detachedScript->resetScript();
             // Announcements need to happen immediately after calling cleanup!
-            App::worldContainer->announceScriptStateWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
-            App::worldContainer->announceScriptWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
-            App::worldContainer->setModificationFlag(16384);
+            App::sceneContainer->announceScriptStateWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
+            App::sceneContainer->announceScriptWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
+            App::sceneContainer->setModificationFlag(16384);
             CDetachedScript::destroy(detachedScript, true, true);
             detachedScript = nullptr;
-            if (_isInScene && App::worldContainer->getEventsEnabled())
+            if (_isInScene && App::sceneContainer->getEventsEnabled())
             { // indicate that this object does not have any detachedScript attached anymore
                 const char* cmd = propScript_detachedScript.name;
-                CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
                 if (App::getEventProtocolVersion() <= 3)
                     ev->appendKeyInt64(cmd, -1);
                 else
                     ev->appendKeyHandle(cmd, -1);
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
             }
         }
     }
@@ -454,12 +454,12 @@ void CScript::setScriptSize(double s)
     {
         _scriptSize = s;
         computeBoundingBox();
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScript_size.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _scriptSize);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -470,12 +470,12 @@ void CScript::resetAfterSimError(bool r)
     if (diff)
     {
         _resetAfterSimError = r;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScript_resetAfterSimError.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _resetAfterSimError);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }

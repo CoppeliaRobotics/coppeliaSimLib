@@ -137,7 +137,7 @@ void CEmbeddedScriptContainer::removeAllScripts()
         it->resetScript(); // should not be done in the destructor!
         allScripts.erase(allScripts.begin());
         CDetachedScript::destroy(it, true);
-        App::worldContainer->setModificationFlag(16384);
+        App::sceneContainer->setModificationFlag(16384);
     }
 }
 
@@ -191,7 +191,7 @@ bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
             it->resetScript(); // should not be done in the destructor!
             allScripts.erase(allScripts.begin() + i);
             CDetachedScript::destroy(it, true);
-            App::worldContainer->setModificationFlag(16384);
+            App::sceneContainer->setModificationFlag(16384);
             break;
         }
     }
@@ -299,7 +299,7 @@ CDetachedScript* CEmbeddedScriptContainer::getMainScript() const
 int CEmbeddedScriptContainer::insertScript(CDetachedScript* script)
 {
     allScripts.push_back(script);
-    App::worldContainer->setModificationFlag(8192);
+    App::sceneContainer->setModificationFlag(8192);
     return (script->getScriptHandle());
 }
 
@@ -403,7 +403,7 @@ int CEmbeddedScriptContainer::getEquivalentScriptExecPriority_old(int objectHand
 
 void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved_old(int modelBase)
 {
-    CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(modelBase);
+    CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(modelBase);
     if (obj != nullptr)
     {
         std::vector<CSceneObject*> toExplore;
@@ -441,7 +441,7 @@ bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
 {
     bool retVal = false;
     std::vector<int> scriptHandles;
-    App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, -1, true, false);
+    App::currentScene->sceneObjects->getScriptsToExecute(scriptHandles, -1, true, false);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CDetachedScript* it = getDetachedScriptFromHandle(scriptHandles[i]);
@@ -457,7 +457,7 @@ bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
 void CEmbeddedScriptContainer::getActiveLegacyScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/) const
 {
     std::vector<int> scriptHandles;
-    App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, -1, true, reverse);
+    App::currentScene->sceneObjects->getScriptsToExecute(scriptHandles, -1, true, reverse);
 
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
@@ -476,7 +476,7 @@ int CEmbeddedScriptContainer::callLegacyScripts(int scriptType, int callTypeOrRe
     std::vector<int> scriptHandles;
 
     if (objectBranch == nullptr)
-        App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, scriptType, true, CDetachedScript::isSystemCallbackInReverseOrder(callTypeOrResumeLocation));
+        App::currentScene->sceneObjects->getScriptsToExecute(scriptHandles, scriptType, true, CDetachedScript::isSystemCallbackInReverseOrder(callTypeOrResumeLocation));
     else
         objectBranch->getScriptsInChain(scriptHandles, scriptType, true);
 

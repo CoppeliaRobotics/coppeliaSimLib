@@ -54,7 +54,7 @@ char* CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
     antennaConf1.setIdentity();
     if (_antennaHandle != sim_handle_default)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_antennaHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_antennaHandle);
         if (it == nullptr)
             return (nullptr); // the emission antenna was destroyed!
         antennaConf1 = it->getCumulativeTransformation();
@@ -64,7 +64,7 @@ char* CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
     antennaPos2.clear();
     if (antennaHandle != sim_handle_default)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(antennaHandle);
         if (it == nullptr)
             return (nullptr); // that shouldn't happen!
         antennaPos2 = it->getCumulativeTransformation().X;
@@ -83,17 +83,17 @@ char* CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
     { // message not for everyone
         if (_receiverID == sim_handle_tree)
         { // we have to check if receiverID has a parent _emitterID:
-            CDetachedScript* rec = App::worldContainer->getDetachedScriptFromHandle(receiverID);
-            CDetachedScript* em = App::worldContainer->getDetachedScriptFromHandle(_emitterID);
+            CDetachedScript* rec = App::sceneContainer->getDetachedScriptFromHandle(receiverID);
+            CDetachedScript* em = App::sceneContainer->getDetachedScriptFromHandle(_emitterID);
             if ((rec == nullptr) || (em == nullptr))
                 return (nullptr);
             if (em->getScriptType() != sim_scripttype_main)
             {
                 if (rec->getScriptType() == sim_scripttype_main)
                     return (nullptr);
-                CSceneObject* recObj = App::currentWorld->sceneObjects->getObjectFromHandle(
+                CSceneObject* recObj = App::currentScene->sceneObjects->getObjectFromHandle(
                     rec->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
-                CSceneObject* emObj = App::currentWorld->sceneObjects->getObjectFromHandle(
+                CSceneObject* emObj = App::currentScene->sceneObjects->getObjectFromHandle(
                     em->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
                 bool found = false;
                 while (recObj != nullptr)
@@ -111,17 +111,17 @@ char* CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
         }
         if (_receiverID == sim_handle_chain)
         { // we have to check if _emitterID has a parent receiverID:
-            CDetachedScript* rec = App::worldContainer->getDetachedScriptFromHandle(receiverID);
-            CDetachedScript* em = App::worldContainer->getDetachedScriptFromHandle(_emitterID);
+            CDetachedScript* rec = App::sceneContainer->getDetachedScriptFromHandle(receiverID);
+            CDetachedScript* em = App::sceneContainer->getDetachedScriptFromHandle(_emitterID);
             if ((rec == nullptr) || (em == nullptr))
                 return (nullptr);
             if (rec->getScriptType() != sim_scripttype_main)
             {
                 if (em->getScriptType() == sim_scripttype_main)
                     return (nullptr);
-                CSceneObject* recObj = App::currentWorld->sceneObjects->getObjectFromHandle(
+                CSceneObject* recObj = App::currentScene->sceneObjects->getObjectFromHandle(
                     rec->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
-                CSceneObject* emObj = App::currentWorld->sceneObjects->getObjectFromHandle(
+                CSceneObject* emObj = App::currentScene->sceneObjects->getObjectFromHandle(
                     em->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
                 bool found = false;
                 while (emObj != nullptr)

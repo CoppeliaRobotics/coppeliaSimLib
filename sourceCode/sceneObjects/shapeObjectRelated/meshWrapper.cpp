@@ -138,7 +138,7 @@ void CMeshWrapper::performTextureObjectLoadingMapping(const std::map<int, int>* 
 
 void CMeshWrapper::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
-    _dynMaterialId_old = CWorld::getLoadingMapping(map, _dynMaterialId_old);
+    _dynMaterialId_old = CScene::getLoadingMapping(map, _dynMaterialId_old);
 }
 
 void CMeshWrapper::announceSceneObjectWillBeErased(const CSceneObject* object)
@@ -287,12 +287,12 @@ void CMeshWrapper::setMass(double m)
     if (m != _mass)
     {
         _mass = m;
-        if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >= 0) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propMeshWrapper_mass.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             ev->appendKeyDouble(cmd, _mass);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -445,15 +445,15 @@ void CMeshWrapper::setCOM(const C3Vector& com)
     if (_com != com)
     {
         _com = com;
-        if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >= 0) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propMeshWrapper_com.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _com.data, 3);
             else
                 ev->appendKeyVector3(cmd, _com);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -487,10 +487,10 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
     {
         _iMatrix = _in;
         getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
-        if ((_parentObjectHandle >= 0) && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >= 0) && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propMeshWrapper_inertia.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             double dat[9];
             _in *= _mass;
             _in.getData(dat);
@@ -504,7 +504,7 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
             }
             else
                 ev->appendKeyQuaternion(propMeshWrapper_pmiQuaternion.name, _pmiRotFrame);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
     else if (forcePMICalc)

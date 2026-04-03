@@ -677,5 +677,5 @@ bool CGraphCurve::announceScriptWillBeErased(int scriptHandle, bool simulationSc
 
 void CGraphCurve::performScriptLoadingMapping(const std::map<int, int>* map)
 {
-    _scriptHandle = CWorld::getLoadingMapping(map, _scriptHandle);
+    _scriptHandle = CScene::getLoadingMapping(map, _scriptHandle);
 }

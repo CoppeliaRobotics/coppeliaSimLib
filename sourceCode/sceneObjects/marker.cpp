@@ -649,13 +649,13 @@ void CMarker::scaleObject(double scalingFactor)
 
     CSceneObject::scaleObject(scalingFactor);
     _initialize();
-    if ( (_isInScene && App::worldContainer->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
+    if ( (_isInScene && App::sceneContainer->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
     {
-        CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "vertices", true);
+        CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "vertices", true);
         ev->appendKeyFloatArray(propMarker_vertices.name, _vertices.data(), _vertices.size());
         ev->appendKeyInt32Array(propMarker_indices.name, _indices.data(), _indices.size());
         ev->appendKeyFloatArray(propMarker_normals.name, _normals.data(), _normals.size());
-        App::worldContainer->pushEvent();
+        App::sceneContainer->pushEvent();
     }
 }
 
@@ -1320,7 +1320,7 @@ int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
 void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
 {
     CCbor* ev = evv;
-    if ((evv != nullptr) || (_isInScene && App::worldContainer->getEventsEnabled()))
+    if ((evv != nullptr) || (_isInScene && App::sceneContainer->getEventsEnabled()))
     {
         if (!incremental)
             _sendFullEvent = true;
@@ -1328,7 +1328,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
         {
             _sendFullEvent = false;
             if (evv == nullptr)
-                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
             ev->appendKeyFloatArray(propMarker_points.name, _pts.data(), _pts.size());
             ev->appendKeyFloatArray(propMarker_quaternions.name, _quats.data(), _quats.size());
@@ -1337,14 +1337,14 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             ev->appendKeyInt64Array("ids", _ids.data(), _ids.size());
             ev->closeArrayOrMap();
             if (evv == nullptr)
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
         }
         else
         {
             if ( (_newItemsCnt > 0) || (_remIds.size() > 0) )
             {
                 if (evv == nullptr)
-                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                    ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                 if (_newItemsCnt > 0)
                 {
                     ev->openKeyMap("add");
@@ -1368,7 +1368,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     ev->closeArrayOrMap();
                 }
                 if (evv == nullptr)
-                    App::worldContainer->pushEvent();
+                    App::sceneContainer->pushEvent();
             }
         }
         _newItemsCnt = 0;

@@ -29,12 +29,12 @@ void CQDlgPointclouds::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
-    bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim = noEditMode && App::currentScene->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_pointcloud);
-    size_t objCnt = App::currentWorld->sceneObjects->getSelectionCount();
+    bool sel = App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_pointcloud);
+    size_t objCnt = App::currentScene->sceneObjects->getSelectionCount();
     bool octreeStruct = false;
-    CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+    CPointCloud* it = App::currentScene->sceneObjects->getLastSelectionPointCloud();
     if (sel)
         octreeStruct = !it->getDoNotUseCalculationStructure();
 
@@ -103,7 +103,7 @@ void CQDlgPointclouds::on_qqMaxCellSize_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MAXVOXELSIZE_PTCLOUDGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -114,7 +114,7 @@ void CQDlgPointclouds::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgColor::displayDlg(COLOR_ID_POINTCLOUD, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, 0,
+        CQDlgColor::displayDlg(COLOR_ID_POINTCLOUD, App::currentScene->sceneObjects->getLastSelectionHandle(), -1, 0,
                                GuiApp::mainWindow);
     }
 }
@@ -124,7 +124,7 @@ void CQDlgPointclouds::on_qqShowOctree_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SHOWOCTREE_PTCLOUDGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -135,7 +135,7 @@ void CQDlgPointclouds::on_qqRandomColors_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_RANDOMCOLORS_PTCLOUDGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -152,7 +152,7 @@ void CQDlgPointclouds::on_qqPointSize_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_PTSIZE_PTCLOUDGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -164,7 +164,7 @@ void CQDlgPointclouds::on_qqClear_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(CLEAR_PTCLOUDGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -174,7 +174,7 @@ void CQDlgPointclouds::on_qqInsert_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+        CPointCloud* it = App::currentScene->sceneObjects->getLastSelectionPointCloud();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -196,7 +196,7 @@ void CQDlgPointclouds::on_qqMaxPointCount_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MAXPTCNT_PTCLOUDGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -214,7 +214,7 @@ void CQDlgPointclouds::on_qqBuildResolution_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_BUILDRESOLUTION_PTCLOUDGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -225,7 +225,7 @@ void CQDlgPointclouds::on_qqNoOctreeStructure_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+        CPointCloud* it = App::currentScene->sceneObjects->getLastSelectionPointCloud();
         if (it != nullptr)
         {
             if (!it->getDoNotUseCalculationStructure())
@@ -236,7 +236,7 @@ void CQDlgPointclouds::on_qqNoOctreeStructure_clicked()
                     "case.",
                     VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
             App::appendSimulationThreadCommand(TOGGLE_USEOCTREE_PTCLOUDGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                               App::currentScene->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -248,7 +248,7 @@ void CQDlgPointclouds::on_qqEmissiveColor_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_EMISSIVECOLOR_PTCLOUDGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -265,7 +265,7 @@ void CQDlgPointclouds::on_qqDisplayRatio_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DISPLAYRATIO_PTCLOUDGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -276,7 +276,7 @@ void CQDlgPointclouds::on_qqSubtract_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CPointCloud* it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();
+        CPointCloud* it = App::currentScene->sceneObjects->getLastSelectionPointCloud();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -298,7 +298,7 @@ void CQDlgPointclouds::on_qqSubtractionTolerance_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SUBTRACTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -316,7 +316,7 @@ void CQDlgPointclouds::on_qqInsertionTolerance_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_INSERTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

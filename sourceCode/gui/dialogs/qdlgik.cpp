@@ -53,13 +53,13 @@ void CQDlgIk::refresh()
     inMainRefreshRoutine = true;
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
 
-    if (!App::currentWorld->mainSettings_old->ikCalculationEnabled)
+    if (!App::currentScene->mainSettings_old->ikCalculationEnabled)
         noEditModeNoSim = false;
 
     int groupID = getSelectedObjectID();
-    CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(groupID);
+    CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(groupID);
 
     if (!inListSelectionRoutine)
     {
@@ -82,7 +82,7 @@ void CQDlgIk::refresh()
     ui->qqEditConditional->setEnabled((it != nullptr) && noEditModeNoSim && it->getEnabled());
     ui->qqEditIkElements->setEnabled((it != nullptr) && noEditModeNoSim);
 
-    ui->qqIkEnabled->setChecked(App::currentWorld->mainSettings_old->ikCalculationEnabled);
+    ui->qqIkEnabled->setChecked(App::currentScene->mainSettings_old->ikCalculationEnabled);
 
     ui->qqExplicitHandling->setChecked((it != nullptr) && it->getExplicitHandling());
     ui->qqGroupIsActive->setChecked((it != nullptr) && it->getEnabled());
@@ -123,9 +123,9 @@ void CQDlgIk::updateObjectsInList()
     noListSelectionAllowed = true;
     ui->qqList->clear();
 
-    for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
+    for (size_t i = 0; i < App::currentScene->ikGroups_old->getObjectCount(); i++)
     {
-        CIkGroup_old* ikg = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
+        CIkGroup_old* ikg = App::currentScene->ikGroups_old->getObjectFromIndex(i);
         std::string txt = ikg->getObjectName();
         txt += " [containing ";
         txt += utils::getIntString(false, int(ikg->getIkElementCount())).c_str();
@@ -228,7 +228,7 @@ void CQDlgIk::on_qqList_itemSelectionChanged()
             CQDlgIkElements::_invalid = true;
             GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
             int objID = getSelectedObjectID();
-            CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(objID);
+            CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(objID);
             if (it != nullptr)
                 ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText = it->getObjectName();
             else
@@ -343,7 +343,7 @@ void CQDlgIk::on_qqEditConditional_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(getSelectedObjectID());
+        CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
         {
             CQDlgIkConditional theDialog(this);
@@ -370,7 +370,7 @@ void CQDlgIk::on_qqEditIkElements_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CIkGroup_old* it = App::currentWorld->ikGroups_old->getObjectFromHandle(getSelectedObjectID());
+        CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(getSelectedObjectID());
         if (it != nullptr)
             CQDlgIkElements::display(it->getObjectHandle(), GuiApp::mainWindow);
     }

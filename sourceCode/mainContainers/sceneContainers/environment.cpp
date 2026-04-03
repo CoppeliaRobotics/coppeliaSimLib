@@ -154,7 +154,7 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyBool(propScene_saveCalculationStructs.name, _saveExistingCalculationStructures);
     ev->appendKeyInt64(propScene_sceneUid.name, _sceneUniqueID);
     int msh = -1;
-    CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+    CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
         msh = it->getScriptHandle();
     ev->appendKeyInt64(propScene_visibilityLayers.name, _activeLayers);
@@ -180,15 +180,15 @@ void CEnvironment::setAmbientLight(const float c[3])
     {
         for (size_t i = 0; i < 3; i++)
             ambientLightColor[i] = c[i];
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScene_ambientLight.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
             else
                 ev->appendKeyColor(cmd, ambientLightColor);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -199,12 +199,12 @@ void CEnvironment::setActiveLayers(int l)
     if (diff)
     {
         _activeLayers = l;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScene_visibilityLayers.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyInt64(cmd, _activeLayers);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setRefreshHierarchyViewFlag();
@@ -239,12 +239,12 @@ void CEnvironment::setSaveExistingCalculationStructures(bool s)
     if (diff)
     {
         _saveExistingCalculationStructures = s;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScene_saveCalculationStructs.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _saveExistingCalculationStructures);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -318,12 +318,12 @@ void CEnvironment::setRequestFinalSave(bool finalSaveActivated)
     if (diff)
     {
         _requestFinalSave = finalSaveActivated;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScene_finalSaveRequest.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _requestFinalSave);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -339,12 +339,12 @@ void CEnvironment::setSceneLocked()
     {
         setRequestFinalSave(false);
         _sceneIsLocked = true;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScene_sceneIsLocked.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _sceneIsLocked);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -437,12 +437,12 @@ void CEnvironment::setAcknowledgement(const char* a)
     if (diff)
     {
         _acknowledgement = ack;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScene_acknowledgment.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyText(cmd, _acknowledgement.c_str());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -1046,12 +1046,12 @@ void CEnvironment::setScenePathAndName(const char* pathAndName)
     if (diff)
     {
         _scenePathAndName = pathAndName;
-        if (App::worldContainer->getEventsEnabled())
+        if (App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propScene_scenePath.name;
-            CCbor* ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyText(cmd, _scenePathAndName.c_str());
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         SUIThreadCommand cmdIn;
@@ -1175,7 +1175,7 @@ int CEnvironment::getHandleProperty(const char* pName, long long int& pState) co
 
     if (strcmp(pName, propScene_mainScript.name) == 0)
     {
-        CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
         pState = -1;
         if (it != nullptr)
             pState = it->getScriptHandle();

@@ -265,7 +265,7 @@ void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle, lon
         {
             int handle = _allEditors[i].handle;
             int pas[4];
-            App::worldContainer->pluginContainer->codeEditor_close(handle, pas);
+            App::sceneContainer->pluginContainer->codeEditor_close(handle, pas);
             // Here we need to find the correct index again, ordering might have changed (see above):
             for (size_t j = 0; j < _allEditors.size(); j++)
             {
@@ -283,10 +283,10 @@ void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle, lon
 int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 {
     int retVal = -1;
-    CDetachedScript* it = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(scriptHandle);
+    CDetachedScript* it = App::currentScene->sceneObjects->getDetachedScriptFromHandle(scriptHandle);
     if (it != nullptr)
     {
-        if (!App::currentWorld->environment->getSceneLocked())
+        if (!App::currentScene->environment->getSceneLocked())
         {
             std::string fname(it->getFilenameForExternalScriptEditor());
             VVarious::executeExternalApplication(
@@ -305,22 +305,22 @@ int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 
 int CCodeEditorContainer::open(const char* initText, const char* xml, int callingScriptHandle)
 {
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(callingScriptHandle);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(callingScriptHandle);
     int retVal = -1;
-    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
+    if (App::sceneContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         if (it != nullptr)
         {
-            if (!App::currentWorld->environment->getSceneLocked())
+            if (!App::currentScene->environment->getSceneLocked())
             {
-                retVal = App::worldContainer->pluginContainer->codeEditor_open(initText, xml);
+                retVal = App::sceneContainer->pluginContainer->codeEditor_open(initText, xml);
                 SCodeEditor inf;
                 inf.handle = retVal;
                 inf.scriptHandle = -1;
                 inf.scriptUid = -1;
                 inf.callingScriptHandle = callingScriptHandle;
                 inf.callingScriptUid = it->getScriptUid();
-                inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
+                inf.sceneUniqueId = App::currentScene->environment->getSceneUniqueID();
                 inf.openAcrossScenes = ((it->getScriptType() == sim_scripttype_sandbox) ||
                                         (it->getScriptType() == sim_scripttype_addon));
                 inf.closeAtSimulationEnd = it->isSimulationOrMainScript();
@@ -345,20 +345,20 @@ int CCodeEditorContainer::open(const char* initText, const char* xml, int callin
 int CCodeEditorContainer::openSimulationScript(int scriptHandle)
 {
     int retVal = -1;
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
     if (it != nullptr)
     {
-        if (!App::currentWorld->environment->getSceneLocked())
+        if (!App::currentScene->environment->getSceneLocked())
         {
             if (App::userSettings->externalScriptEditor.size() == 0)
             {
-                int sceneId = App::currentWorld->environment->getSceneUniqueID();
+                int sceneId = App::currentScene->environment->getSceneUniqueID();
                 for (size_t i = 0; i < _allEditors.size(); i++)
                 {
                     if ((_allEditors[i].scriptHandle == scriptHandle) && (_allEditors[i].sceneUniqueId == sceneId))
                         return (_allEditors[i].handle);
                 }
-                if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
+                if (App::sceneContainer->pluginContainer->isCodeEditorPluginAvailable())
                 {
                     int posAndSize[4];
                     it->getPreviousEditionWindowPosAndSize(posAndSize);
@@ -429,14 +429,14 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle)
                     xmlDoc.Print(&printer);
                     // printf("%s\n",printer.CStr());
 
-                    retVal = App::worldContainer->pluginContainer->codeEditor_open(it->getScriptText(), printer.CStr());
+                    retVal = App::sceneContainer->pluginContainer->codeEditor_open(it->getScriptText(), printer.CStr());
                     SCodeEditor inf;
                     inf.handle = retVal;
                     inf.scriptHandle = scriptHandle;
                     inf.scriptUid = it->getScriptUid();
                     inf.callingScriptHandle = -1;
                     inf.callingScriptUid = -1;
-                    inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
+                    inf.sceneUniqueId = App::currentScene->environment->getSceneUniqueID();
                     inf.openAcrossScenes = false;
                     inf.closeAtSimulationEnd = false;
                     inf.systemVisibility = true;
@@ -465,18 +465,18 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle)
     int retVal = -1;
     if (App::userSettings->externalScriptEditor.size() == 0)
     {
-        int sceneId = App::currentWorld->environment->getSceneUniqueID();
+        int sceneId = App::currentScene->environment->getSceneUniqueID();
         for (size_t i = 0; i < _allEditors.size(); i++)
         {
             if ((_allEditors[i].scriptHandle == scriptHandle) && (_allEditors[i].sceneUniqueId == sceneId))
                 return (_allEditors[i].handle);
         }
-        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
-        if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
+        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
+        if (App::sceneContainer->pluginContainer->isCodeEditorPluginAvailable())
         {
             if (it != nullptr)
             {
-                if (!App::currentWorld->environment->getSceneLocked())
+                if (!App::currentScene->environment->getSceneLocked())
                 {
                     int posAndSize[4];
                     it->getPreviousEditionWindowPosAndSize(posAndSize);
@@ -547,14 +547,14 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle)
                     xmlDoc.Print(&printer);
                     // printf("%s\n",printer.CStr());
 
-                    retVal = App::worldContainer->pluginContainer->codeEditor_open(it->getScriptText(), printer.CStr());
+                    retVal = App::sceneContainer->pluginContainer->codeEditor_open(it->getScriptText(), printer.CStr());
                     SCodeEditor inf;
                     inf.handle = retVal;
                     inf.scriptHandle = scriptHandle;
                     inf.scriptUid = it->getScriptUid();
                     inf.callingScriptHandle = -1;
                     inf.callingScriptUid = -1;
-                    inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
+                    inf.sceneUniqueId = App::currentScene->environment->getSceneUniqueID();
                     inf.openAcrossScenes = false;
                     inf.closeAtSimulationEnd = false;
                     inf.systemVisibility = true;
@@ -581,7 +581,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle)
 int CCodeEditorContainer::openConsole(const char* title, int maxLines, int mode, const int position[2], const int size[2], const int textColor[3], const int backColor[3], int callingScriptHandle)
 {
     int retVal = -1;
-    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
+    if (App::sceneContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         int _position[2] = {100, 100};
         int _size[2] = {640, 200};
@@ -642,18 +642,18 @@ int CCodeEditorContainer::openConsole(const char* title, int maxLines, int mode,
         xmlDoc.Print(&printer);
         // printf("%s\n",printer.CStr());
 
-        retVal = App::worldContainer->pluginContainer->codeEditor_open("", printer.CStr());
+        retVal = App::sceneContainer->pluginContainer->codeEditor_open("", printer.CStr());
         SCodeEditor inf;
         inf.handle = retVal;
         inf.scriptHandle = -1;
         inf.scriptUid = -1;
         inf.callingScriptHandle = callingScriptHandle;
-        CDetachedScript* so = App::worldContainer->getDetachedScriptFromHandle(callingScriptHandle);
+        CDetachedScript* so = App::sceneContainer->getDetachedScriptFromHandle(callingScriptHandle);
         if (so != nullptr)
             inf.callingScriptUid = so->getScriptUid();
         else
             inf.callingScriptUid = -1;
-        inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
+        inf.sceneUniqueId = App::currentScene->environment->getSceneUniqueID();
         inf.openAcrossScenes = ((mode & 16) > 0);
         inf.closeAtSimulationEnd = ((mode & 1) > 0);
         inf.systemVisibility = true;
@@ -674,7 +674,7 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText, cons
                                                       bool oldXml) const
 {
     std::string retVal;
-    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
+    if (App::sceneContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         std::string newXml;
         if (xml != nullptr)
@@ -685,7 +685,7 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText, cons
                 newXml = xml;
         }
         int posAndSize[4];
-        App::worldContainer->pluginContainer->codeEditor_openModal(initText, newXml.c_str(), retVal, posAndSize);
+        App::sceneContainer->pluginContainer->codeEditor_openModal(initText, newXml.c_str(), retVal, posAndSize);
         if (windowSizeAndPos != nullptr)
         {
             windowSizeAndPos[0] = posAndSize[2];
@@ -703,18 +703,18 @@ int CCodeEditorContainer::openTextEditor_old(const char* initText, const char* x
                                              const CDetachedScript* requestOrigin)
 {
     int retVal = -1;
-    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
+    if (App::sceneContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         std::string newXml;
         newXml = translateXml(xml, callback, requestOrigin);
-        retVal = App::worldContainer->pluginContainer->codeEditor_open(initText, newXml.c_str());
+        retVal = App::sceneContainer->pluginContainer->codeEditor_open(initText, newXml.c_str());
         SCodeEditor inf;
         inf.handle = retVal;
         inf.scriptHandle = -1;
         inf.scriptUid = -1;
         inf.callingScriptHandle = requestOrigin->getScriptHandle();
         inf.callingScriptUid = requestOrigin->getScriptUid();
-        inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
+        inf.sceneUniqueId = App::currentScene->environment->getSceneUniqueID();
         inf.openAcrossScenes = false;
         inf.closeAtSimulationEnd = requestOrigin->isSimulationOrMainScript();
         inf.systemVisibility = true;
@@ -739,8 +739,8 @@ bool CCodeEditorContainer::close(int handle, int posAndSize[4], std::string* txt
             if (callback != nullptr)
                 callback[0] = _allEditors[i].callbackFunction;
             std::string _txt;
-            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
-            if (App::worldContainer->pluginContainer->codeEditor_getText(handle, _txt, nullptr))
+            CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
+            if (App::sceneContainer->pluginContainer->codeEditor_getText(handle, _txt, nullptr))
             {
                 if (txt != nullptr)
                     txt[0] = _txt;
@@ -749,7 +749,7 @@ bool CCodeEditorContainer::close(int handle, int posAndSize[4], std::string* txt
                     applyChanges(_allEditors[i].handle);
                     if (_allEditors[i].restartScriptWhenClosing)
                     {
-                        CDetachedScript* itt = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
+                        CDetachedScript* itt = App::sceneContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
                         if ((itt != nullptr) && itt->resetScript())
                         {
                             std::string msg(itt->getDescriptiveName());
@@ -760,7 +760,7 @@ bool CCodeEditorContainer::close(int handle, int posAndSize[4], std::string* txt
                 }
             }
             int pas[4];
-            App::worldContainer->pluginContainer->codeEditor_close(handle, pas);
+            App::sceneContainer->pluginContainer->codeEditor_close(handle, pas);
             if (it != nullptr)
                 it->setPreviousEditionWindowPosAndSize(pas);
             if (posAndSize != nullptr)
@@ -788,16 +788,16 @@ void CCodeEditorContainer::applyChanges(int handle) const
 {
     if (App::userSettings->externalScriptEditor.size() > 0)
     {
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
-            App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i]->fromFileToBuffer();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_script); i++)
+        for (size_t i = 0; i < App::currentScene->sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
+            App::currentScene->sceneObjects->embeddedScriptContainer->allScripts[i]->fromFileToBuffer();
+        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_script); i++)
         {
-            CScript* it = App::currentWorld->sceneObjects->getScriptFromIndex(i);
+            CScript* it = App::currentScene->sceneObjects->getScriptFromIndex(i);
             if (it->detachedScript != nullptr)
                 it->detachedScript->fromFileToBuffer();
         }
     }
-    int sceneId = App::currentWorld->environment->getSceneUniqueID();
+    int sceneId = App::currentScene->environment->getSceneUniqueID();
     for (size_t i = 0; i < _allEditors.size(); i++)
     {
         if (_allEditors[i].sceneUniqueId == sceneId)
@@ -805,10 +805,10 @@ void CCodeEditorContainer::applyChanges(int handle) const
             if ((_allEditors[i].handle == handle) || (handle == -1))
             {
                 std::string _txt;
-                CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
+                CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
                 if (it != nullptr)
                 {
-                    if (App::worldContainer->pluginContainer->codeEditor_getText(_allEditors[i].handle, _txt, nullptr))
+                    if (App::sceneContainer->pluginContainer->codeEditor_getText(_allEditors[i].handle, _txt, nullptr))
                         it->setScriptText(_txt.c_str());
                 }
             }
@@ -825,11 +825,11 @@ bool CCodeEditorContainer::closeFromScriptUid(long long int scriptUid, int posAn
             if (_allEditors[i].scriptUid == scriptUid)
             {
                 std::string txt;
-                CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
+                CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
                 if (!ignoreChange)
                     applyChanges(_allEditors[i].handle);
                 int pas[4];
-                App::worldContainer->pluginContainer->codeEditor_close(_allEditors[i].handle, pas);
+                App::sceneContainer->pluginContainer->codeEditor_close(_allEditors[i].handle, pas);
                 if (it != nullptr)
                     it->setPreviousEditionWindowPosAndSize(pas);
                 if (posAndSize != nullptr)
@@ -853,7 +853,7 @@ bool CCodeEditorContainer::closeFromScriptUid(long long int scriptUid, int posAn
 void CCodeEditorContainer::closeAll()
 { // before unloading the code editor plugin
     for (size_t i = 0; i < _allEditors.size(); i++)
-        App::worldContainer->pluginContainer->codeEditor_close(_allEditors[i].handle, nullptr);
+        App::sceneContainer->pluginContainer->codeEditor_close(_allEditors[i].handle, nullptr);
     _allEditors.clear();
 }
 
@@ -864,8 +864,8 @@ void CCodeEditorContainer::restartScript(int handle) const
         if (_allEditors[i].handle == handle)
         {
             std::string txt;
-            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
-            if (App::worldContainer->pluginContainer->codeEditor_getText(handle, txt, nullptr))
+            CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
+            if (App::sceneContainer->pluginContainer->codeEditor_getText(handle, txt, nullptr))
             {
                 if (it != nullptr)
                 {
@@ -901,7 +901,7 @@ std::string CCodeEditorContainer::getText(int handle, int posAndSize[4]) const
     {
         if (_allEditors[i].handle == handle)
         {
-            App::worldContainer->pluginContainer->codeEditor_getText(handle, retVal, posAndSize);
+            App::sceneContainer->pluginContainer->codeEditor_getText(handle, retVal, posAndSize);
             break;
         }
     }
@@ -914,7 +914,7 @@ bool CCodeEditorContainer::setText(int handle, const char* txt) const
     {
         if (_allEditors[i].handle == handle)
         {
-            App::worldContainer->pluginContainer->codeEditor_setText(handle, txt, 0);
+            App::sceneContainer->pluginContainer->codeEditor_setText(handle, txt, 0);
             return (true);
         }
     }
@@ -927,7 +927,7 @@ bool CCodeEditorContainer::appendText(int handle, const char* txt) const
     {
         if (_allEditors[i].handle == handle)
         {
-            App::worldContainer->pluginContainer->codeEditor_setText(handle, txt, 1);
+            App::sceneContainer->pluginContainer->codeEditor_setText(handle, txt, 1);
             return (true);
         }
     }
@@ -937,15 +937,15 @@ bool CCodeEditorContainer::appendText(int handle, const char* txt) const
 bool CCodeEditorContainer::hasSomethingBeenModifiedInCurrentScene() const
 {
     bool retVal = false;
-    int sceneId = App::currentWorld->environment->getSceneUniqueID();
+    int sceneId = App::currentScene->environment->getSceneUniqueID();
     for (size_t i = 0; i < _allEditors.size(); i++)
     {
         if (_allEditors[i].sceneUniqueId == sceneId)
         {
-            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
+            CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
             std::string txt;
             if ((it != nullptr) &&
-                App::worldContainer->pluginContainer->codeEditor_getText(_allEditors[i].handle, txt, nullptr))
+                App::sceneContainer->pluginContainer->codeEditor_getText(_allEditors[i].handle, txt, nullptr))
             {
                 std::string txt2(it->getScriptText());
                 utils::removeSpacesAtBeginningAndEnd(txt);
@@ -985,12 +985,12 @@ void CCodeEditorContainer::simulationAboutToStart() const
 {
     if (App::userSettings->externalScriptEditor.size() == 0)
     {
-        int sceneId = App::currentWorld->environment->getSceneUniqueID();
+        int sceneId = App::currentScene->environment->getSceneUniqueID();
         for (size_t i = 0; i < _allEditors.size(); i++)
         {
             if ((_allEditors[i].sceneUniqueId == sceneId) && (_allEditors[i].scriptHandle >= 0))
             {
-                CDetachedScript* it = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
+                CDetachedScript* it = App::currentScene->sceneObjects->getDetachedScriptFromHandle(_allEditors[i].scriptHandle);
                 if ((it != nullptr) && ((it->getScriptType() == sim_scripttype_main) ||
                                         (it->getScriptType() == sim_scripttype_simulation)))
                     applyChanges(_allEditors[i].handle);
@@ -1003,12 +1003,12 @@ void CCodeEditorContainer::simulationAboutToStart() const
 
 void CCodeEditorContainer::simulationAboutToEnd()
 {
-    int sceneId = App::currentWorld->environment->getSceneUniqueID();
+    int sceneId = App::currentScene->environment->getSceneUniqueID();
     for (int i = 0; i < int(_allEditors.size()); i++)
     {
         if ((_allEditors[i].sceneUniqueId == sceneId) && _allEditors[i].closeAtSimulationEnd)
         {
-            App::worldContainer->pluginContainer->codeEditor_close(_allEditors[i].handle, nullptr);
+            App::sceneContainer->pluginContainer->codeEditor_close(_allEditors[i].handle, nullptr);
             _allEditors.erase(_allEditors.begin() + i);
             i--;
         }
@@ -1022,7 +1022,7 @@ void CCodeEditorContainer::saveOrCopyOperationAboutToHappen() const
 
 bool CCodeEditorContainer::areSceneEditorsOpen() const
 {
-    int sceneId = App::currentWorld->environment->getSceneUniqueID();
+    int sceneId = App::currentScene->environment->getSceneUniqueID();
     for (size_t i = 0; i < _allEditors.size(); i++)
     {
         if ((_allEditors[i].sceneUniqueId == sceneId) && (_allEditors[i].scriptHandle >= 0))
@@ -1057,7 +1057,7 @@ void CCodeEditorContainer::sceneClosed(int sceneUniqueId)
     {
         if ((_allEditors[i].sceneUniqueId == sceneUniqueId) && (!_allEditors[i].openAcrossScenes))
         {
-            App::worldContainer->pluginContainer->codeEditor_close(_allEditors[i].handle, nullptr);
+            App::sceneContainer->pluginContainer->codeEditor_close(_allEditors[i].handle, nullptr);
             _allEditors.erase(_allEditors.begin() + i);
             i--;
         }
@@ -1066,18 +1066,18 @@ void CCodeEditorContainer::sceneClosed(int sceneUniqueId)
 
 void CCodeEditorContainer::showOrHideAll(bool showState)
 {
-    if (App::currentWorld->environment != nullptr)
+    if (App::currentScene->environment != nullptr)
     {
-        int sceneId = App::currentWorld->environment->getSceneUniqueID();
+        int sceneId = App::currentScene->environment->getSceneUniqueID();
         for (size_t i = 0; i < _allEditors.size(); i++)
         {
             if ((_allEditors[i].sceneUniqueId == sceneId) && (!_allEditors[i].openAcrossScenes))
             {
                 _allEditors[i].systemVisibility = showState;
                 if (showState && _allEditors[i].userVisibility)
-                    App::worldContainer->pluginContainer->codeEditor_show(_allEditors[i].handle, 1);
+                    App::sceneContainer->pluginContainer->codeEditor_show(_allEditors[i].handle, 1);
                 else
-                    App::worldContainer->pluginContainer->codeEditor_show(_allEditors[i].handle, 0);
+                    App::sceneContainer->pluginContainer->codeEditor_show(_allEditors[i].handle, 0);
             }
         }
     }
@@ -1086,7 +1086,7 @@ void CCodeEditorContainer::showOrHideAll(bool showState)
 int CCodeEditorContainer::showOrHide(int handle, bool showState)
 {
     int retVal = -1;
-    int sceneId = App::currentWorld->environment->getSceneUniqueID();
+    int sceneId = App::currentScene->environment->getSceneUniqueID();
     for (size_t i = 0; i < _allEditors.size(); i++)
     {
         if (_allEditors[i].handle == handle)
@@ -1096,9 +1096,9 @@ int CCodeEditorContainer::showOrHide(int handle, bool showState)
                 retVal = 1;
             _allEditors[i].userVisibility = showState;
             if (showState && _allEditors[i].systemVisibility)
-                App::worldContainer->pluginContainer->codeEditor_show(_allEditors[i].handle, 1);
+                App::sceneContainer->pluginContainer->codeEditor_show(_allEditors[i].handle, 1);
             else
-                App::worldContainer->pluginContainer->codeEditor_show(_allEditors[i].handle, 0);
+                App::sceneContainer->pluginContainer->codeEditor_show(_allEditors[i].handle, 0);
             break;
         }
     }

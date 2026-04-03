@@ -168,10 +168,10 @@ void CTextureContainer::clearAllDependencies()
 void CTextureContainer::updateAllDependencies()
 { // should not be called from "ct::objCont->addObjectsToSceneAndPerformMapping" routine!!
     clearAllDependencies();
-    App::currentWorld->buttonBlockContainer_old->setTextureDependencies();
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
+    App::currentScene->buttonBlockContainer_old->setTextureDependencies();
+    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
     {
-        CShape* sh = App::currentWorld->sceneObjects->getShapeFromIndex(i);
+        CShape* sh = App::currentScene->sceneObjects->getShapeFromIndex(i);
         if (sh->getMesh() != nullptr)
             sh->getMesh()->setTextureDependencies(sh->getObjectHandle());
     }

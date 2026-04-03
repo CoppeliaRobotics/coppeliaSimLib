@@ -333,8 +333,8 @@ CButtonBlock* CButtonBlockContainer::getBlockWithID(int id)
 
 bool CButtonBlockContainer::removeBlockFromID(int id)
 {
-    if (App::currentWorld != nullptr)
-        App::currentWorld->announce2DElementWillBeErased(id);
+    if (App::currentScene != nullptr)
+        App::currentScene->announce2DElementWillBeErased(id);
     for (int i = 0; i < int(allBlocks.size()); i++)
     {
         if (allBlocks[i]->blockID == id)
@@ -497,22 +497,22 @@ void CButtonBlockContainer::displayAllBlocks(int currentView, bool dialogsHaveFo
             static bool previousOpenState = true;
             int butt = infoBox->getLastEventButtonID(nullptr);
             if (butt == 0)
-                App::currentWorld->mainSettings_old->infoWindowOpenState =
-                    !App::currentWorld->mainSettings_old->infoWindowOpenState;
+                App::currentScene->mainSettings_old->infoWindowOpenState =
+                    !App::currentScene->mainSettings_old->infoWindowOpenState;
             if (butt == 200)
             {
-                App::currentWorld->mainSettings_old->infoWindowColorStyle++;
-                if (App::currentWorld->mainSettings_old->infoWindowColorStyle > 2)
-                    App::currentWorld->mainSettings_old->infoWindowColorStyle = 0;
+                App::currentScene->mainSettings_old->infoWindowColorStyle++;
+                if (App::currentScene->mainSettings_old->infoWindowColorStyle > 2)
+                    App::currentScene->mainSettings_old->infoWindowColorStyle = 0;
             }
             // Following needs to be run at every frame, since the amount of displayed info changes (when sim runs. for
             // example). Tested!
-            updateInfoWindowColorStyle(App::currentWorld->mainSettings_old->infoWindowColorStyle);
+            updateInfoWindowColorStyle(App::currentScene->mainSettings_old->infoWindowColorStyle);
 
-            if (previousOpenState != App::currentWorld->mainSettings_old->infoWindowOpenState)
+            if (previousOpenState != App::currentScene->mainSettings_old->infoWindowOpenState)
             {
                 CSoftButton* it = infoBox->getButtonWithID(0);
-                if (App::currentWorld->mainSettings_old->infoWindowOpenState)
+                if (App::currentScene->mainSettings_old->infoWindowOpenState)
                 {
                     infoBox->setAttributes((infoBox->getAttributes() | sim_ui_property_rolledup) -
                                            sim_ui_property_rolledup);
@@ -526,7 +526,7 @@ void CButtonBlockContainer::displayAllBlocks(int currentView, bool dialogsHaveFo
                         it->setAttributes((it->getAttributes() | sim_buttonproperty_isdown) -
                                           sim_buttonproperty_isdown);
                 }
-                previousOpenState = App::currentWorld->mainSettings_old->infoWindowOpenState;
+                previousOpenState = App::currentScene->mainSettings_old->infoWindowOpenState;
             }
         }
     }
@@ -651,13 +651,13 @@ bool CButtonBlockContainer::mouseDown(int xCoord, int yCoord, int currentView, i
                         (GuiApp::getEditModeType() == NO_EDIT_MODE))
                     {
                         CSceneObject* obj =
-                            App::currentWorld->sceneObjects->getObjectFromHandle(itBlock->getObjectIDAttachedTo());
+                            App::currentScene->sceneObjects->getObjectFromHandle(itBlock->getObjectIDAttachedTo());
                         if (obj != nullptr)
                         {
                             // Modified on 2/6/2013 (was annoying when several objects were selected and an UI was
                             // clicked)
-                            App::currentWorld->sceneObjects->removeObjectFromSelection(obj->getObjectHandle());
-                            App::currentWorld->sceneObjects->addObjectToSelection(obj->getObjectHandle());
+                            App::currentScene->sceneObjects->removeObjectFromSelection(obj->getObjectHandle());
+                            App::currentScene->sceneObjects->addObjectToSelection(obj->getObjectHandle());
                         }
                     }
                     caught = true;
@@ -671,7 +671,7 @@ bool CButtonBlockContainer::mouseDown(int xCoord, int yCoord, int currentView, i
     if (caught)
     {
         bool simNotPausedOrActiveAtPause =
-            (!App::currentWorld->simulation->isSimulationPaused()) ||
+            (!App::currentScene->simulation->isSimulationPaused()) ||
             (itBlock->getAttributes() &
              sim_ui_property_pauseactive); // getActiveDuringPause(); // New since 2010/10/29: 2DElements now stay
                                            // visible (but inactive) during pause:
@@ -956,7 +956,7 @@ bool CButtonBlockContainer::mouseUp(int xCoord, int yCoord, int currentView)
         {
             if (bb->getButtonType() == sim_buttonproperty_slider)
             {
-                App::currentWorld->outsideCommandQueue_old->addCommand(sim_message_ui_button_state_change, caughtBlock,
+                App::currentScene->outsideCommandQueue_old->addCommand(sim_message_ui_button_state_change, caughtBlock,
                                                                        caughtButton, bb->getAttributes(),
                                                                        int(500.0 * (bb->getSliderPos() + 1.0)), nullptr, 0);
                 int auxVals[2] = {bb->getAttributes(), int(500.0 * (bb->getSliderPos() + 1.0))};
@@ -997,7 +997,7 @@ bool CButtonBlockContainer::mouseUp(int xCoord, int yCoord, int currentView)
 
             if ((itButton->getAttributes() & sim_buttonproperty_downupevent) == 0)
             { // buttons with up/down events are handled elsewhere!
-                App::currentWorld->outsideCommandQueue_old->addCommand(
+                App::currentScene->outsideCommandQueue_old->addCommand(
                     sim_message_ui_button_state_change, caughtBlock, caughtButton, itButton->getAttributes(),
                     itButton->getAttributes() ^ sim_buttonproperty_isdown, nullptr, 0);
                 int auxVals[2] = {itButton->getAttributes(), itButton->getAttributes() ^ sim_buttonproperty_isdown};
@@ -1022,23 +1022,23 @@ bool CButtonBlockContainer::mouseUp(int xCoord, int yCoord, int currentView)
         caughtButton = -1;
 
         // Now make sure you post the up event for down/up event buttons (if not already posted!)
-        if ((App::currentWorld->buttonBlockContainer_old->caughtBlockForDownUpEvent != -1) &&
-            (App::currentWorld->buttonBlockContainer_old->caughtButtonForDownUpEvent != -1))
+        if ((App::currentScene->buttonBlockContainer_old->caughtBlockForDownUpEvent != -1) &&
+            (App::currentScene->buttonBlockContainer_old->caughtButtonForDownUpEvent != -1))
         {
-            CButtonBlock* udBlock = getBlockWithID(App::currentWorld->buttonBlockContainer_old->caughtBlockForDownUpEvent);
+            CButtonBlock* udBlock = getBlockWithID(App::currentScene->buttonBlockContainer_old->caughtBlockForDownUpEvent);
             CSoftButton* udButton = nullptr;
             if (udBlock != nullptr)
                 udButton =
-                    udBlock->getButtonWithID(App::currentWorld->buttonBlockContainer_old->caughtButtonForDownUpEvent);
-            if ((udButton != nullptr) && App::currentWorld->buttonBlockContainer_old->caughtButtonDownForDownUpEvent)
+                    udBlock->getButtonWithID(App::currentScene->buttonBlockContainer_old->caughtButtonForDownUpEvent);
+            if ((udButton != nullptr) && App::currentScene->buttonBlockContainer_old->caughtButtonDownForDownUpEvent)
             { // We have to generate an up event:
-                App::currentWorld->outsideCommandQueue_old->addCommand(
+                App::currentScene->outsideCommandQueue_old->addCommand(
                     sim_message_ui_button_state_change,
-                    App::currentWorld->buttonBlockContainer_old->caughtBlockForDownUpEvent,
-                    App::currentWorld->buttonBlockContainer_old->caughtButtonForDownUpEvent, udButton->getAttributes(), 0,
+                    App::currentScene->buttonBlockContainer_old->caughtBlockForDownUpEvent,
+                    App::currentScene->buttonBlockContainer_old->caughtButtonForDownUpEvent, udButton->getAttributes(), 0,
                     nullptr, 0);
                 int auxVals[2] = {udButton->getAttributes(), 0};
-                udBlock->setLastEventButtonID(App::currentWorld->buttonBlockContainer_old->caughtButtonForDownUpEvent,
+                udBlock->setLastEventButtonID(App::currentScene->buttonBlockContainer_old->caughtButtonForDownUpEvent,
                                               auxVals);
             }
         }
@@ -1116,7 +1116,7 @@ bool CButtonBlockContainer::mouseMove(int xCoord, int yCoord)
                 }
                 mousePos.x = xCoord;
                 mousePos.y = yCoord;
-                App::currentWorld->outsideCommandQueue_old->addCommand(sim_message_ui_button_state_change, caughtBlock,
+                App::currentScene->outsideCommandQueue_old->addCommand(sim_message_ui_button_state_change, caughtBlock,
                                                                        caughtButton, bb->getAttributes(),
                                                                        int(500.0 * (bb->getSliderPos() + 1.0)), nullptr, 0);
                 int auxVals[2] = {bb->getAttributes(), int(500.0 * (bb->getSliderPos() + 1.0))};
@@ -1142,7 +1142,7 @@ void CButtonBlockContainer::looseFocus()
 {
     setEditBoxEdition(-1, -1, true);
     deselectButtons();
-    if (App::currentWorld->sceneObjects != nullptr)
+    if (App::currentScene->sceneObjects != nullptr)
     { // In the button edit mode, we don't want this to happen
         setBlockInEdition(-1);
     }
@@ -1161,7 +1161,7 @@ void CButtonBlockContainer::setEditBoxEdition(int block, int button, bool applyC
                 if (itButton->label != editBoxEditionText)
                 {
                     itButton->label = editBoxEditionText;
-                    App::currentWorld->outsideCommandQueue_old->addCommand(sim_message_ui_button_state_change,
+                    App::currentScene->outsideCommandQueue_old->addCommand(sim_message_ui_button_state_change,
                                                                            editBoxInEditionBlock, editBoxInEditionButton,
                                                                            itButton->getAttributes(), 0, nullptr, 0);
                     int auxVals[2] = {itButton->getAttributes(), 0};
@@ -1274,7 +1274,7 @@ bool CButtonBlockContainer::getButtonEditMode_editMode()
 
 void CButtonBlockContainer::setButtonEditMode_editMode(bool isOn)
 {
-    if (!App::currentWorld->simulation->isSimulationRunning())
+    if (!App::currentScene->simulation->isSimulationRunning())
     {
         setEditBoxEdition(-1, -1, false);
         editMode = isOn;

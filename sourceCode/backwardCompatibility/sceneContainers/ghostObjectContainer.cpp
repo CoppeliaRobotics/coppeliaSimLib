@@ -42,12 +42,12 @@ int CGhostObjectContainer::addGhost(int theGroupId, int theObjectHandle, int the
     std::vector<int> rootSel;
     rootSel.push_back(theObjectHandle);
     if ((theOptions & 1) != 0)
-        App::currentWorld->sceneObjects->addModelObjects(rootSel);
+        App::currentScene->sceneObjects->addModelObjects(rootSel);
 
     std::vector<CShape*> objsToAdd;
     for (size_t i = 0; i < rootSel.size(); i++)
     {
-        CShape* obj = App::currentWorld->sceneObjects->getShapeFromHandle(rootSel[i]);
+        CShape* obj = App::currentScene->sceneObjects->getShapeFromHandle(rootSel[i]);
         if (obj != nullptr)
             objsToAdd.push_back(obj);
     }
@@ -199,7 +199,7 @@ void CGhostObjectContainer::announceObjectWillBeErased(int objID)
 void CGhostObjectContainer::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     for (size_t i = 0; i < _allObjects.size(); i++)
-        _allObjects[i]->objectHandle = CWorld::getLoadingMapping(map, _allObjects[i]->objectHandle);
+        _allObjects[i]->objectHandle = CScene::getLoadingMapping(map, _allObjects[i]->objectHandle);
 }
 
 void CGhostObjectContainer::serialize(CSer& ar)
@@ -434,13 +434,13 @@ void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase* rend
 {
     if ((displayAttrib & sim_displayattribute_noghosts) == 0)
     {
-        if (!App::currentWorld->simulation->isSimulationStopped())
+        if (!App::currentScene->simulation->isSimulationStopped())
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
             {
                 if (_allObjects[i]->transparencyFactor == 0)
-                    _allObjects[i]->render(displayAttrib, App::currentWorld->simulation->getSimulationTime(),
-                                           App::currentWorld->simulation->getSimulationTime_real());
+                    _allObjects[i]->render(displayAttrib, App::currentScene->simulation->getSimulationTime(),
+                                           App::currentScene->simulation->getSimulationTime_real());
             }
         }
     }
@@ -450,13 +450,13 @@ void CGhostObjectContainer::renderYour3DStuff_transparent(CViewableBase* renderi
 {
     if ((displayAttrib & sim_displayattribute_noghosts) == 0)
     {
-        if (!App::currentWorld->simulation->isSimulationStopped())
+        if (!App::currentScene->simulation->isSimulationStopped())
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
             {
                 if (_allObjects[i]->transparencyFactor != 0)
-                    _allObjects[i]->render(displayAttrib, App::currentWorld->simulation->getSimulationTime(),
-                                           App::currentWorld->simulation->getSimulationTime_real());
+                    _allObjects[i]->render(displayAttrib, App::currentScene->simulation->getSimulationTime(),
+                                           App::currentScene->simulation->getSimulationTime_real());
             }
         }
     }

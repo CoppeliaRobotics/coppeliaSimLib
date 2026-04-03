@@ -29,11 +29,11 @@ void CQDlgOctrees::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
-    bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim = noEditMode && App::currentScene->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_octree);
-    size_t objCnt = App::currentWorld->sceneObjects->getSelectionCount();
-    COcTree* it = App::currentWorld->sceneObjects->getLastSelectionOctree();
+    bool sel = App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_octree);
+    size_t objCnt = App::currentScene->sceneObjects->getSelectionCount();
+    COcTree* it = App::currentScene->sceneObjects->getLastSelectionOctree();
 
     ui->qqSize->setEnabled(sel && noEditModeAndNoSim);
     ui->qqColor->setEnabled(sel && noEditModeAndNoSim);
@@ -80,7 +80,7 @@ void CQDlgOctrees::on_qqSize_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VOXELSIZE_OCTREEGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -91,7 +91,7 @@ void CQDlgOctrees::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgColor::displayDlg(COLOR_ID_OCTREE, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, 0,
+        CQDlgColor::displayDlg(COLOR_ID_OCTREE, App::currentScene->sceneObjects->getLastSelectionHandle(), -1, 0,
                                GuiApp::mainWindow);
     }
 }
@@ -101,7 +101,7 @@ void CQDlgOctrees::on_qqShowOctree_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SHOWSTRUCTURE_OCTREEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -112,7 +112,7 @@ void CQDlgOctrees::on_qqRandomColors_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_RANDOMCOLORS_OCTREEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -123,7 +123,7 @@ void CQDlgOctrees::on_qqUsePoints_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SHOWPOINTS_OCTREEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -140,7 +140,7 @@ void CQDlgOctrees::on_qqPointSize_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_POINTSIZE_OCTREEGUITRIGGEREDCMD,
-                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), newVal);
+                                               App::currentScene->sceneObjects->getLastSelectionHandle(), newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -152,7 +152,7 @@ void CQDlgOctrees::on_qqClear_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(CLEAR_OCTREEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -162,7 +162,7 @@ void CQDlgOctrees::on_qqInsert_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        COcTree* it = App::currentWorld->sceneObjects->getLastSelectionOctree();
+        COcTree* it = App::currentScene->sceneObjects->getLastSelectionOctree();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -177,7 +177,7 @@ void CQDlgOctrees::on_qqSubtract_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        COcTree* it = App::currentWorld->sceneObjects->getLastSelectionOctree();
+        COcTree* it = App::currentScene->sceneObjects->getLastSelectionOctree();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -193,7 +193,7 @@ void CQDlgOctrees::on_qqEmissiveColor_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_COLOREMISSIVE_OCTREEGUITRIGGEREDCMD,
-                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
+                                           App::currentScene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

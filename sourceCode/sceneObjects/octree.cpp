@@ -104,8 +104,8 @@ void COcTree::_readPositionsAndColorsAndSetDimensions()
     bool generateEvent = true;
     if (_octreeInfo != nullptr)
     {
-        App::worldContainer->pluginContainer->geomPlugin_getOctreeVoxelPositions(_octreeInfo, _voxelPositions);
-        App::worldContainer->pluginContainer->geomPlugin_getOctreeVoxelColors(_octreeInfo, _colors);
+        App::sceneContainer->pluginContainer->geomPlugin_getOctreeVoxelPositions(_octreeInfo, _voxelPositions);
+        App::sceneContainer->pluginContainer->geomPlugin_getOctreeVoxelColors(_octreeInfo, _colors);
         if (_useRandomColors)
         {
             _colors.clear();
@@ -127,7 +127,7 @@ void COcTree::_readPositionsAndColorsAndSetDimensions()
         clear();
         generateEvent = false;
     }
-    if (generateEvent && _isInScene && App::worldContainer->getEventsEnabled())
+    if (generateEvent && _isInScene && App::sceneContainer->getEventsEnabled())
     {
         if (_voxelPositions_old.size() == _voxelPositions.size())
         {
@@ -205,19 +205,19 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
     if (!incremental)
         _refreshDisplay = true;
     CCbor* ev = evv;
-    if ((evv != nullptr) || (_isInScene && App::worldContainer->getEventsEnabled()))
+    if ((evv != nullptr) || (_isInScene && App::sceneContainer->getEventsEnabled()))
     {
         if (App::getEventProtocolVersion() == 2)
         {
             const char* cmd = "voxels";
             if (evv == nullptr)
-                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
             ev->openKeyMap(cmd);
             ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
             ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
             if (evv == nullptr)
-                App::worldContainer->pushEvent();
+                App::sceneContainer->pushEvent();
         }
         else
         {
@@ -225,14 +225,14 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
             {
                 const char* cmd = propOctree_voxels.name;
                 if (evv == nullptr)
-                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                    ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
                 ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
                 ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
                 ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
                 ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
                 ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
                 if (evv == nullptr)
-                    App::worldContainer->pushEvent();
+                    App::sceneContainer->pushEvent();
             }
             else
             {
@@ -240,7 +240,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 {
                     _remBBPts(nullptr, 0);
                     if (evv == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                        ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "set", true);
                     ev->openKeyMap("set");
                     ev->appendKeyFloatArray(propOctree_points.name, nullptr, 0);
                     ev->appendKeyUint8Array(propOctree_colors.name, nullptr, 0);
@@ -248,19 +248,19 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     ev->closeArrayOrMap();
                     if (evv == nullptr)
                     {
-                        App::worldContainer->pushEvent();
+                        App::sceneContainer->pushEvent();
                         computeBoundingBox();
-                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                        ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                         ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
                         ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
-                        App::worldContainer->pushEvent();
+                        App::sceneContainer->pushEvent();
                     }
                 }
                 else
                 {
                     if (_refreshDisplay)
                     {
-                        App::worldContainer->pluginContainer->geomPlugin_refreshDisplayOctreeData(_octreeInfo);
+                        App::sceneContainer->pluginContainer->geomPlugin_refreshDisplayOctreeData(_octreeInfo);
                         _refreshDisplay = false;
                     }
                     float* pts;
@@ -268,7 +268,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     unsigned int* ids;
                     unsigned int* remIds;
                     int newCnt, remCnt;
-                    int r = App::worldContainer->pluginContainer->geomPlugin_getDisplayOctreeData(_octreeInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
+                    int r = App::sceneContainer->pluginContainer->geomPlugin_getDisplayOctreeData(_octreeInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
                     if (r >= 0)
                     {
                         if (r == 1)
@@ -276,7 +276,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             _remBBPts(nullptr, 0);
                             _addBBPts(pts, ids, newCnt);
                             if (evv == nullptr)
-                                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                                ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "set", true);
                             ev->openKeyMap("set");
                             ev->appendKeyFloatArray(propOctree_points.name, pts, newCnt * 3);
                             ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
@@ -284,12 +284,12 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             ev->closeArrayOrMap();
                             if (evv == nullptr)
                             {
-                                App::worldContainer->pushEvent();
+                                App::sceneContainer->pushEvent();
                                 computeBoundingBox();
-                                ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                                ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                                 ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
                                 ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
-                                App::worldContainer->pushEvent();
+                                App::sceneContainer->pushEvent();
                             }
                         }
                         else
@@ -300,7 +300,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             if (newCnt + remCnt > 0)
                             {
                                 if (evv == nullptr)
-                                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                                    ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
                                 ev->openKeyMap("add");
                                 ev->appendKeyFloatArray(propOctree_points.name, pts, newCnt * 3);
                                 ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
@@ -311,12 +311,12 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                 ev->closeArrayOrMap();
                                 if (evv == nullptr)
                                 {
-                                    App::worldContainer->pushEvent();
+                                    App::sceneContainer->pushEvent();
                                     computeBoundingBox();
-                                    ev = App::worldContainer->createSceneObjectChangedEvent(this, false, "bb", true);
+                                    ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "bb", true);
                                     ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
                                     ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
-                                    App::worldContainer->pushEvent();
+                                    App::sceneContainer->pushEvent();
                                 }
                             }
                         }
@@ -358,16 +358,16 @@ void COcTree::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToO
             unsigned char cols[3] = {(unsigned char)(color.getColorsPtr()[0] * 255.1),
                                      (unsigned char)(color.getColorsPtr()[1] * 255.1),
                                      (unsigned char)(color.getColorsPtr()[2] * 255.1)};
-            _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromPoints_rgb(
+            _octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_createOctreeFromPoints_rgb(
                 _pts, ptsCnt, nullptr, _cellSize, cols, theTagWhenOptionalTagsIsNull);
         }
         else
         {
             if (colorsAreIndividual)
-                _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromColorPoints_rgb(
+                _octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_createOctreeFromColorPoints_rgb(
                     _pts, ptsCnt, nullptr, _cellSize, optionalColors3, optionalTags);
             else
-                _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromPoints_rgb(
+                _octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_createOctreeFromPoints_rgb(
                     _pts, ptsCnt, nullptr, _cellSize, optionalColors3, optionalTags[0]);
         }
     }
@@ -378,16 +378,16 @@ void COcTree::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToO
             unsigned char cols[3] = {(unsigned char)(color.getColorsPtr()[0] * 255.1),
                                      (unsigned char)(color.getColorsPtr()[1] * 255.1),
                                      (unsigned char)(color.getColorsPtr()[2] * 255.1)};
-            App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoOctree_rgb(
+            App::sceneContainer->pluginContainer->geomPlugin_insertPointsIntoOctree_rgb(
                 _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt, cols, theTagWhenOptionalTagsIsNull);
         }
         else
         {
             if (colorsAreIndividual)
-                App::worldContainer->pluginContainer->geomPlugin_insertColorPointsIntoOctree_rgb(
+                App::sceneContainer->pluginContainer->geomPlugin_insertColorPointsIntoOctree_rgb(
                     _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags);
             else
-                App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoOctree_rgb(
+                App::sceneContainer->pluginContainer->geomPlugin_insertPointsIntoOctree_rgb(
                     _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags[0]);
         }
     }
@@ -406,10 +406,10 @@ void COcTree::insertShape(CShape* shape, unsigned int theTag)
                              (unsigned char)(color.getColorsPtr()[1] * 255.1),
                              (unsigned char)(color.getColorsPtr()[2] * 255.1)};
     if (_octreeInfo == nullptr)
-        _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromMesh_rgb(
+        _octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_createOctreeFromMesh_rgb(
             shape->_meshCalculationStructure, shapeTr, &octreeTr, _cellSize, cols, theTag);
     else
-        App::worldContainer->pluginContainer->geomPlugin_insertMeshIntoOctree_rgb(
+        App::sceneContainer->pluginContainer->geomPlugin_insertMeshIntoOctree_rgb(
             _octreeInfo, octreeTr, shape->_meshCalculationStructure, shapeTr, cols, theTag);
     _readPositionsAndColorsAndSetDimensions();
     _updateOctreeEvent(true);
@@ -458,11 +458,11 @@ void COcTree::insertOctree(const void* octree2Info, const C7Vector& octree2Tr, u
     if (_octreeInfo == nullptr)
     {
         const C7Vector tr(getFullCumulativeTransformation());
-        _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_createOctreeFromOctree_rgb(
+        _octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_createOctreeFromOctree_rgb(
             octree2Info, octree2Tr, &tr, _cellSize, cols, theTag);
     }
     else
-        App::worldContainer->pluginContainer->geomPlugin_insertOctreeIntoOctree_rgb(
+        App::sceneContainer->pluginContainer->geomPlugin_insertOctreeIntoOctree_rgb(
             _octreeInfo, getFullCumulativeTransformation(), octree2Info, octree2Tr, cols, theTag);
     _readPositionsAndColorsAndSetDimensions();
     _updateOctreeEvent(true);
@@ -473,7 +473,7 @@ void COcTree::insertObjects(const std::vector<int>& sel)
 {
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sel[i]);
         if ((it != nullptr) && (it != this))
             insertObject(it, 0);
     }
@@ -511,10 +511,10 @@ void COcTree::subtractPoints(const double* pts, int ptsCnt, bool ptsAreRelativeT
     }
     if (_octreeInfo != nullptr)
     {
-        if (App::worldContainer->pluginContainer->geomPlugin_removePointsFromOctree(
+        if (App::sceneContainer->pluginContainer->geomPlugin_removePointsFromOctree(
                 _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt))
         {
-            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
+            App::sceneContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo = nullptr;
         }
     }
@@ -531,10 +531,10 @@ void COcTree::subtractShape(CShape* shape)
 
         C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
         C4X4Matrix shapeM(((CShape*)shape)->getCumulCenteredMeshFrame().getMatrix());
-        if (App::worldContainer->pluginContainer->geomPlugin_removeMeshFromOctree(
+        if (App::sceneContainer->pluginContainer->geomPlugin_removeMeshFromOctree(
                 _octreeInfo, octreeM, shape->_meshCalculationStructure, shapeM))
         {
-            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
+            App::sceneContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo = nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -580,10 +580,10 @@ void COcTree::subtractOctree(const void* octree2Info, const C7Vector& octree2Tr)
     TRACE_INTERNAL;
     if (_octreeInfo != nullptr)
     {
-        if (App::worldContainer->pluginContainer->geomPlugin_removeOctreeFromOctree(
+        if (App::sceneContainer->pluginContainer->geomPlugin_removeOctreeFromOctree(
                 _octreeInfo, getFullCumulativeTransformation(), octree2Info, octree2Tr))
         {
-            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
+            App::sceneContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo = nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -595,7 +595,7 @@ void COcTree::subtractObjects(const std::vector<int>& sel)
 {
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sel[i]);
         if ((it != nullptr) && (it != this))
             subtractObject(it);
     }
@@ -618,7 +618,7 @@ void COcTree::clear()
     TRACE_INTERNAL;
     if (_octreeInfo != nullptr)
     {
-        App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
+        App::sceneContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
         _octreeInfo = nullptr;
     }
     _voxelPositions.clear();
@@ -641,12 +641,12 @@ void COcTree::setUseRandomColors(bool r)
         _useRandomColors = r;
         _readPositionsAndColorsAndSetDimensions();
         _updateOctreeEvent(false);
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propOctree_randomColors.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _useRandomColors);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -672,12 +672,12 @@ void COcTree::setUsePointsInsteadOfCubes(bool r)
     if (diff)
     {
         _usePointsInsteadOfCubes = r;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
+        if (_isInScene && App::sceneContainer->getEventsEnabled())
         {
             const char* cmd = propOctree_showPoints.name;
-            CCbor* ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _usePointsInsteadOfCubes);
-            App::worldContainer->pushEvent();
+            App::sceneContainer->pushEvent();
         }
     }
 }
@@ -795,7 +795,7 @@ void COcTree::scaleObject(double scalingFactor)
     for (size_t i = 0; i < _voxelPositions.size(); i++)
         _voxelPositions[i] *= scalingFactor;
     if (_octreeInfo != nullptr)
-        App::worldContainer->pluginContainer->geomPlugin_scaleOctree(_octreeInfo, scalingFactor);
+        App::sceneContainer->pluginContainer->geomPlugin_scaleOctree(_octreeInfo, scalingFactor);
     _updateOctreeEvent(false);
 
     CSceneObject::scaleObject(scalingFactor);
@@ -839,7 +839,7 @@ CSceneObject* COcTree::copyYourself()
     color.copyYourselfInto(&newOctree->color);
 
     if (_octreeInfo != nullptr)
-        newOctree->_octreeInfo = App::worldContainer->pluginContainer->geomPlugin_copyOctree(_octreeInfo);
+        newOctree->_octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_copyOctree(_octreeInfo);
     newOctree->_voxelPositions.assign(_voxelPositions.begin(), _voxelPositions.end());
     newOctree->_colors.assign(_colors.begin(), _colors.end());
     newOctree->_colorsByte.assign(_colorsByte.begin(), _colorsByte.end());
@@ -866,7 +866,7 @@ void COcTree::setCellSize(double theNewSize)
             _octreeInfo = nullptr;
             clear();
             insertOctree(octree2Info, getFullCumulativeTransformation().getMatrix(), 0);
-            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(octree2Info);
+            App::sceneContainer->pluginContainer->geomPlugin_destroyOctree(octree2Info);
         }
     }
 }
@@ -1011,7 +1011,7 @@ void COcTree::serialize(CSer& ar)
             if (_octreeInfo != nullptr)
             {
                 std::vector<unsigned char> data;
-                App::worldContainer->pluginContainer->geomPlugin_getOctreeSerializationData(_octreeInfo, data);
+                App::sceneContainer->pluginContainer->geomPlugin_getOctreeSerializationData(_octreeInfo, data);
                 ar.storeDataName("_o3");
                 ar.setCountingMode(true);
                 for (size_t i = 0; i < data.size(); i++)
@@ -1027,7 +1027,7 @@ void COcTree::serialize(CSer& ar)
                 // Keep following a while (and after _o3) so that older versions can still read this:
                 //*********************************************************************
                 data.clear();
-                App::worldContainer->pluginContainer->geomPlugin_getOctreeSerializationData_ver2(_octreeInfo, data);
+                App::sceneContainer->pluginContainer->geomPlugin_getOctreeSerializationData_ver2(_octreeInfo, data);
                 ar.storeDataName("_o2");
                 ar.setCountingMode(true);
                 for (size_t i = 0; i < data.size(); i++)
@@ -1160,8 +1160,8 @@ void COcTree::serialize(CSer& ar)
                             data.push_back(dummy);
                         }
                         if (_octreeInfo != nullptr)
-                            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
-                        _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData_float(&data[0]);
+                            App::sceneContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
+                        _octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData_float(&data[0]);
                     }
 
                     if ((theName.compare("_o2") == 0) && (!readVersion3))
@@ -1176,8 +1176,8 @@ void COcTree::serialize(CSer& ar)
                             data.push_back(dummy);
                         }
                         if (_octreeInfo != nullptr) // we could have also read "Co2"
-                            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
-                        _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData(&data[0]);
+                            App::sceneContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
+                        _octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData(&data[0]);
                     }
                     if (theName.compare("_o3") == 0)
                     { // ver3
@@ -1191,7 +1191,7 @@ void COcTree::serialize(CSer& ar)
                             ar >> dummy;
                             data.push_back(dummy);
                         }
-                        _octreeInfo = App::worldContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData(&data[0]);
+                        _octreeInfo = App::sceneContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData(&data[0]);
                     }
 
                     if (noHit)

@@ -1,7 +1,7 @@
 bool isObjectAssociatedWithThisThreadedChildScriptValid_old(luaWrap_lua_State* L)
 {
     int id = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* script = App::worldContainer->getDetachedScriptFromHandle(id);
+    CDetachedScript* script = App::sceneContainer->getDetachedScriptFromHandle(id);
     if (script == nullptr)
         return (false);
     int h = script->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation);
@@ -52,17 +52,17 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
     scriptHandles.clear();
     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
 
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
     if (it != nullptr)
     {
         if (it->getScriptType() == sim_scripttype_main)
         { // we have a main script here
             if (selfIncluded)
                 scriptHandles.push_back(currentScriptID);
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
+            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
             {
-                CSceneObject* q = App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                CDetachedScript* lso = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                CSceneObject* q = App::currentScene->sceneObjects->getObjectFromIndex(i);
+                CDetachedScript* lso = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                     sim_scripttype_simulation, q->getObjectHandle());
                 if (lso != nullptr)
                     scriptHandles.push_back(lso->getScriptHandle());
@@ -71,7 +71,7 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
 
         if (it->getScriptType() == sim_scripttype_simulation)
         { // we have a simulation script
-            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+            CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(
                 it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
             if (obj != nullptr)
             { // should always pass
@@ -82,7 +82,7 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
                 obj->getAllObjectsRecursive(&objList, false);
                 for (int i = 0; i < int(objList.size()); i++)
                 {
-                    CDetachedScript* lso = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    CDetachedScript* lso = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, objList[i]->getObjectHandle());
                     if (lso != nullptr)
                         scriptHandles.push_back(lso->getScriptHandle());
@@ -92,13 +92,13 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
 
         if (it->getScriptType() == sim_scripttype_customization)
         { // we have a customization script
-            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+            CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(
                 it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customization));
             if (obj != nullptr)
             { // should always pass
                 if (selfIncluded)
                 {
-                    CDetachedScript* aScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    CDetachedScript* aScript = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, obj->getObjectHandle());
                     if (aScript != nullptr)
                         scriptHandles.push_back(aScript->getScriptHandle());
@@ -108,7 +108,7 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
                 obj->getAllObjectsRecursive(&objList, false);
                 for (int i = 0; i < int(objList.size()); i++)
                 {
-                    CDetachedScript* lso = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    CDetachedScript* lso = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, objList[i]->getObjectHandle());
                     if (lso != nullptr)
                     {
@@ -125,7 +125,7 @@ void getScriptChain_old(luaWrap_lua_State* L, bool selfIncluded, bool mainInclud
     scriptHandles.clear();
     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
 
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
 
     if (it != nullptr)
     {
@@ -137,7 +137,7 @@ void getScriptChain_old(luaWrap_lua_State* L, bool selfIncluded, bool mainInclud
 
         if (it->getScriptType() == sim_scripttype_simulation)
         { // we have a simulation script here
-            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+            CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(
                 it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
             if (obj != nullptr)
             {
@@ -146,14 +146,14 @@ void getScriptChain_old(luaWrap_lua_State* L, bool selfIncluded, bool mainInclud
                 while (obj->getParent() != nullptr)
                 {
                     obj = obj->getParent();
-                    CDetachedScript* lso = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    CDetachedScript* lso = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, obj->getObjectHandle());
                     if (lso != nullptr)
                         scriptHandles.push_back(lso->getScriptHandle());
                 }
                 if (mainIncluded)
                 {
-                    CDetachedScript* lso = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+                    CDetachedScript* lso = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
                     if (lso != nullptr)
                         scriptHandles.push_back(lso->getScriptHandle());
                 }
@@ -162,13 +162,13 @@ void getScriptChain_old(luaWrap_lua_State* L, bool selfIncluded, bool mainInclud
 
         if (it->getScriptType() == sim_scripttype_customization)
         { // we have a customization script here
-            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+            CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(
                 it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customization));
             if (obj != nullptr)
             {
                 if (selfIncluded)
                 {
-                    CDetachedScript* aScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    CDetachedScript* aScript = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, obj->getObjectHandle());
                     if (aScript != nullptr)
                         scriptHandles.push_back(aScript->getScriptHandle());
@@ -176,14 +176,14 @@ void getScriptChain_old(luaWrap_lua_State* L, bool selfIncluded, bool mainInclud
                 while (obj->getParent() != nullptr)
                 {
                     obj = obj->getParent();
-                    CDetachedScript* lso = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    CDetachedScript* lso = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, obj->getObjectHandle());
                     if (lso != nullptr)
                         scriptHandles.push_back(lso->getScriptHandle());
                 }
                 if (mainIncluded)
                 {
-                    CDetachedScript* lso = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+                    CDetachedScript* lso = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
                     if (lso != nullptr)
                         scriptHandles.push_back(lso->getScriptHandle());
                 }
@@ -439,7 +439,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
             { // non-modal dlg
                 int handle = -1;
                 CDetachedScript* it =
-                    App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                    App::sceneContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
                 if (it != nullptr)
                 {
                     std::string callbackFunction(luaWrap_lua_tostring(L, 3));
@@ -482,15 +482,15 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
         if ((res > 0) && (!ignoreCb))
         { // We call the callback directly from here:
             CDetachedScript* it =
-                App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                App::sceneContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
             if (it != nullptr)
             {
-                CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
                 stack->pushTextOntoStack(txt.c_str());
                 stack->pushInt32ArrayOntoStack(posAndSize + 0, 2);
                 stack->pushInt32ArrayOntoStack(posAndSize + 2, 2);
                 it->callCustomScriptFunction(cb.c_str(), stack);
-                App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                App::sceneContainer->interfaceStackContainer->destroyStack(stack);
             }
         }
         luaWrap_lua_pushinteger(L, res);
@@ -623,7 +623,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
         double posTarget[3];
         double eulerTarget[3];
         double maxVelocity;
-        CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* object = App::currentScene->sceneObjects->getObjectFromHandle(objID);
         CSceneObject* relToObject = nullptr;
         double accel = 0.0;                                    // means infinite accel!! (default value)
         double angleToLinearCoeff = 0.1 / (90.0 * degToRad);   // (default value)
@@ -643,7 +643,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
         }
         if ((!foundError) && (relativeToObjID != -1))
         {
-            relToObject = App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjID);
+            relToObject = App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjID);
             if (relToObject == nullptr)
             { // error, object doesn't exist!
                 errorString = SIM_ERROR_OBJECT_INEXISTANT;
@@ -758,7 +758,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
             if (vdl == 0.0)
             { // if the path length is 0 (the two positions might still be not-coincident, depending on the calculation
                 // method!)
-                if (App::currentWorld->sceneObjects->getObjectFromHandle(objID) ==
+                if (App::currentScene->sceneObjects->getObjectFromHandle(objID) ==
                     object) // make sure the object is still valid (running in a thread)
                 {
                     if (relToObject == nullptr)
@@ -768,7 +768,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
                     }
                     else
                     { // relative to a specific object (2009/11/17)
-                        if (App::currentWorld->sceneObjects->getObjectFromHandle(relativeToObjID) ==
+                        if (App::currentScene->sceneObjects->getObjectFromHandle(relativeToObjID) ==
                             relToObject) // make sure the object is still valid (running in a thread)
                         {                // ok
                             C7Vector relToTr(relToObject->getFullCumulativeTransformation());
@@ -790,7 +790,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
                 mem->accel = accel;
                 mem->vdl = vdl;
                 mem->currentPos = currentPos;
-                mem->lastTime = App::currentWorld->simulation->getSimulationTime();
+                mem->lastTime = App::currentScene->simulation->getSimulationTime();
                 mem->maxVelocity = maxVelocity;
                 mem->currentVel = currentVel;
                 mem->startTr = startTr;
@@ -834,7 +834,7 @@ int _sim_moveToPos_2(luaWrap_lua_State* L)
             bool err = false;
             bool movementFinished = false;
             double currentTime =
-                App::currentWorld->simulation->getSimulationTime() + App::currentWorld->simulation->getTimeStep();
+                App::currentScene->simulation->getSimulationTime() + App::currentScene->simulation->getTimeStep();
             double dt = currentTime - mem->lastTime;
             mem->lastTime = currentTime;
 
@@ -875,11 +875,11 @@ int _sim_moveToPos_2(luaWrap_lua_State* L)
                 ll = 1.0;
             C7Vector newAbs;
             newAbs.buildInterpolation(mem->startTr, mem->targetTr, ll);
-            if (App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID) ==
+            if (App::currentScene->sceneObjects->getObjectFromHandle(mem->objID) ==
                 mem->object) // make sure the object is still valid (running in a thread)
             {
                 if ((mem->relToObject != nullptr) &&
-                    (App::currentWorld->sceneObjects->getObjectFromHandle(mem->relativeToObjID) != mem->relToObject))
+                    (App::currentScene->sceneObjects->getObjectFromHandle(mem->relativeToObjID) != mem->relToObject))
                     movementFinished = true; // the object was destroyed during execution of the command!
                 else
                 {
@@ -1053,7 +1053,7 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
                 if (!accelTablePresent)
                     jointAccels[i] = accel;
 
-                CJoint* it = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
+                CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(jointHandles[i]);
                 if ((it != nullptr) && (it->getJointType() != sim_joint_spherical))
                 { // make sure target is within allowed range, and check the maximum virtual distance:
                     jointStartPositions[i] = it->getPosition();
@@ -1089,9 +1089,9 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
                     jointVirtualDistances[i] = 0.0;
                 }
             }
-            double lastTime = App::currentWorld->simulation->getSimulationTime();
+            double lastTime = App::currentScene->simulation->getSimulationTime();
             bool movementFinished = false;
-            double dt = App::currentWorld->simulation->getTimeStep(); // this is the time left if we leave here
+            double dt = App::currentScene->simulation->getTimeStep(); // this is the time left if we leave here
 
             if (maxVirtualDist == 0.0)
                 luaWrap_lua_pushinteger(L, -1);
@@ -1152,7 +1152,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
             bool err = false;
             bool movementFinished = false;
             double currentTime =
-                App::currentWorld->simulation->getSimulationTime() + App::currentWorld->simulation->getTimeStep();
+                App::currentScene->simulation->getSimulationTime() + App::currentScene->simulation->getTimeStep();
             double dt = currentTime - mem->lastTime;
             double minTimeLeft = dt;
             mem->lastTime = currentTime;
@@ -1161,7 +1161,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                 double timeLeftLocal = dt;
                 // 1. handle the joint with longest distance first:
                 // Does the main joint still exist?
-                if (App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[mem->maxVirtualDistIndex]) !=
+                if (App::currentScene->sceneObjects->getJointFromHandle(mem->jointHandles[mem->maxVirtualDistIndex]) !=
                     nullptr)
                 {
                     if (mem->accel == 0.0)
@@ -1222,7 +1222,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
                 bool withinTolerance = true;
                 for (int i = 0; i < tableLen; i++)
                 {
-                    if (App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[i]) != nullptr)
+                    if (App::currentScene->sceneObjects->getJointFromHandle(mem->jointHandles[i]) != nullptr)
                     {
                         // Check if within tolerance (before):
                         if (fabs(mem->jointCurrentVirtualPositions[i] - mem->jointVirtualDistances[i]) > 0.00001)
@@ -1273,7 +1273,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State* L)
             // We set all joint positions:
             for (int i = 0; i < tableLen; i++)
             {
-                CJoint* joint = App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[i]);
+                CJoint* joint = App::currentScene->sceneObjects->getJointFromHandle(mem->jointHandles[i]);
                 if ((joint != nullptr) && (joint->getJointType() != sim_joint_spherical) &&
                     (mem->jointVirtualDistances[i] != 0.0))
                 {
@@ -1444,7 +1444,7 @@ int _simSearchPath(luaWrap_lua_State* L)
         }
         if (!foundError)
         {
-            CPathPlanningTask* it = App::currentWorld->pathPlanning_old->getObject(pathPlanningObjectHandle);
+            CPathPlanningTask* it = App::currentScene->pathPlanning_old->getObject(pathPlanningObjectHandle);
             if (it == nullptr)
                 errorString = SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT;
             else
@@ -2298,7 +2298,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
             if (handle == sim_handle_self)
             {
                 handle = selfScriptHandle;
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(handle);
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(handle);
                 if (it != nullptr)
                 {
                     it = it->getParent();
@@ -2318,11 +2318,11 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                 handle = selfScriptHandle;
 
                 // Since this routine can also be called by customization scripts, check for that here:
-                CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(handle);
+                CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(handle);
                 if (it->getScriptType() == sim_scripttype_customization)
                 {
                     handle = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customization);
-                    it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, handle);
                     if (it != nullptr)
                         handle = it->getScriptHandle();
@@ -2382,7 +2382,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
             if (handle == sim_handle_self)
             {
                 handle = selfScriptHandle;
-                CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(handle);
+                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(handle);
                 if (it != nullptr)
                 {
                     it = it->getParent();
@@ -2401,11 +2401,11 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
             {
                 handle = selfScriptHandle;
                 // Since this routine can also be called by customization scripts, check for that here:
-                CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(handle);
+                CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(handle);
                 if (it->getScriptType() == sim_scripttype_customization)
                 {
                     handle = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customization);
-                    it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    it = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, handle);
                     if (it != nullptr)
                         handle = it->getScriptHandle();
@@ -2543,7 +2543,7 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
             {
                 // retVal=CALL_C_API(simAddStatusbarMessage, luaWrap_lua_tostring(L,1));
                 CDetachedScript* it =
-                    App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                    App::sceneContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
                 if (it != nullptr)
                 {
                     App::logScriptMsg(it, sim_verbosity_msgs, luaWrap_lua_tostring(L, 1));
@@ -2657,8 +2657,8 @@ int _sim_moveToObj_1(luaWrap_lua_State* L)
         double maxVelocity = 0.1;
         double relativeDistanceOnPath = -1.0;
         int positionAndOrOrientation = 3; // position and orientation (default value)
-        CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-        CSceneObject* targetObject = App::currentWorld->sceneObjects->getObjectFromHandle(targetObjID);
+        CSceneObject* object = App::currentScene->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* targetObject = App::currentScene->sceneObjects->getObjectFromHandle(targetObjID);
         double accel = 0.0; // means infinite accel!! (default value)
         bool foundError = false;
         if ((!foundError) && ((object == nullptr) || (targetObject == nullptr)))
@@ -2721,7 +2721,7 @@ int _sim_moveToObj_1(luaWrap_lua_State* L)
         { // do the job here!
             C7Vector startTr(object->getCumulativeTransformation());
             double currentVel = 0.0;
-            double lastTime = App::currentWorld->simulation->getSimulationTime();
+            double lastTime = App::currentScene->simulation->getSimulationTime();
             double vdl = 1.0;
             // vld is the totalvirtual distance
             double currentPos = 0.0;
@@ -2775,7 +2775,7 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
         {
             bool movementFinished = false;
             double currentTime =
-                App::currentWorld->simulation->getSimulationTime() + App::currentWorld->simulation->getTimeStep();
+                App::currentScene->simulation->getSimulationTime() + App::currentScene->simulation->getTimeStep();
             double dt = currentTime - mem->lastTime;
             mem->lastTime = currentTime;
 
@@ -2814,8 +2814,8 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
             double ll = mem->currentPos / mem->vdl;
             if (ll > 1.0)
                 ll = 1.0;
-            if ((App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID) == mem->object) &&
-                (App::currentWorld->sceneObjects->getObjectFromHandle(mem->targetObjID) ==
+            if ((App::currentScene->sceneObjects->getObjectFromHandle(mem->objID) == mem->object) &&
+                (App::currentScene->sceneObjects->getObjectFromHandle(mem->targetObjID) ==
                  mem->targetObject)) // make sure the objects are still valid (running in a thread)
             {
                 C7Vector targetTr(mem->targetObject->getCumulativeTransformation());
@@ -3333,8 +3333,8 @@ int _simTubeOpen(luaWrap_lua_State* L)
     {
         std::string strTmp = luaWrap_lua_tostring(L, 2);
         int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
-        retVal = App::currentWorld->commTubeContainer_old->openTube(luaToInt(L, 1), strTmp.c_str(),
+        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
+        retVal = App::currentScene->commTubeContainer_old->openTube(luaToInt(L, 1), strTmp.c_str(),
                                                                     (it->getScriptType() == sim_scripttype_main) ||
                                                                         (it->getScriptType() == sim_scripttype_simulation),
                                                                     luaToInt(L, 3));
@@ -3407,7 +3407,7 @@ int _simSendData(luaWrap_lua_State* L)
 
     int retVal = -1;
     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
     if ((it->getScriptType() == sim_scripttype_main) || (it->getScriptType() == sim_scripttype_simulation))
     {
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0,
@@ -3463,7 +3463,7 @@ int _simSendData(luaWrap_lua_State* L)
                                     if (antennaHandle != sim_handle_default)
                                     {
                                         CSceneObject* ant =
-                                            App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+                                            App::currentScene->sceneObjects->getObjectFromHandle(antennaHandle);
                                         if (ant == nullptr)
                                         {
                                             errorString = SIM_ERROR_INVALID_ANTENNA_HANDLE;
@@ -3511,11 +3511,11 @@ int _simSendData(luaWrap_lua_State* L)
                                 emissionAngle2 = tt::getLimitedFloat(0.0, piValT2, emissionAngle2);
                                 persistence = tt::getLimitedFloat(0.0, 99999999999999.9, persistence);
                                 if (persistence == 0.0)
-                                    persistence = App::currentWorld->simulation->getTimeStep() * 1.5;
+                                    persistence = App::currentScene->simulation->getTimeStep() * 1.5;
 
-                                App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.broadcastData(
+                                App::currentScene->sceneObjects->embeddedScriptContainer->broadcastDataContainer.broadcastData(
                                     currentScriptID, targetID, dataHeader, dataName,
-                                    App::currentWorld->simulation->getSimulationTime() + persistence, actionRadius,
+                                    App::currentScene->simulation->getSimulationTime() + persistence, actionRadius,
                                     antennaHandle, emissionAngle1, emissionAngle2, data, (int)dataLength);
                                 retVal = 1;
                             }
@@ -3539,7 +3539,7 @@ int _simReceiveData(luaWrap_lua_State* L)
     LUA_START("sim.receiveData");
 
     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
     if ((it->getScriptType() == sim_scripttype_main) || (it->getScriptType() == sim_scripttype_simulation))
     {
         int dataHeader = -1;
@@ -3589,7 +3589,7 @@ int _simReceiveData(luaWrap_lua_State* L)
                     antennaHandle = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation);
                 if (antennaHandle != sim_handle_default)
                 {
-                    CSceneObject* ant = App::currentWorld->sceneObjects->getObjectFromHandle(antennaHandle);
+                    CSceneObject* ant = App::currentScene->sceneObjects->getObjectFromHandle(antennaHandle);
                     if (ant == nullptr)
                     {
                         errorString = SIM_ERROR_INVALID_ANTENNA_HANDLE;
@@ -3615,8 +3615,8 @@ int _simReceiveData(luaWrap_lua_State* L)
             int theDataLength;
             int theSenderID;
             std::string theDataName;
-            char* data0 = App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.receiveData(
-                currentScriptID, App::currentWorld->simulation->getSimulationTime(), dataHeader, dataName,
+            char* data0 = App::currentScene->sceneObjects->embeddedScriptContainer->broadcastDataContainer.receiveData(
+                currentScriptID, App::currentScene->simulation->getSimulationTime(), dataHeader, dataName,
                 antennaHandle, theDataLength, index, theSenderID, theDataHeader, theDataName);
             if (data0 != nullptr)
             {
@@ -3664,8 +3664,8 @@ int _sim_followPath_1(luaWrap_lua_State* L)
         if (positionAndOrOrientation == 0)
             positionAndOrOrientation = 1;
         double maxVelocity = luaToDouble(L, 5);
-        CSceneObject* object = App::currentWorld->sceneObjects->getObjectFromHandle(objID);
-        CPath_old* path = App::currentWorld->sceneObjects->getPathFromHandle(pathID);
+        CSceneObject* object = App::currentScene->sceneObjects->getObjectFromHandle(objID);
+        CPath_old* path = App::currentScene->sceneObjects->getPathFromHandle(pathID);
         double accel = 0.0; // means infinite accel!! (default value)
         bool foundError = false;
         if ((!foundError) && (object == nullptr))
@@ -3705,7 +3705,7 @@ int _sim_followPath_1(luaWrap_lua_State* L)
             double bezierPathLength = path->pathContainer->getBezierVirtualPathLength();
             double pos = posOnPath * bezierPathLength;
             double vel = 0.0;
-            double lastTime = App::currentWorld->simulation->getSimulationTime();
+            double lastTime = App::currentScene->simulation->getSimulationTime();
             bool movementFinished = (bezierPathLength == 0.0);
             if (movementFinished)
                 luaWrap_lua_pushinteger(L, -1);
@@ -3753,14 +3753,14 @@ int _sim_followPath_2(luaWrap_lua_State* L)
         }
         if (mem != nullptr)
         {
-            if ((App::currentWorld->sceneObjects->getObjectFromHandle(mem->objID) == mem->object) &&
-                (App::currentWorld->sceneObjects->getPathFromHandle(mem->pathID) ==
+            if ((App::currentScene->sceneObjects->getObjectFromHandle(mem->objID) == mem->object) &&
+                (App::currentScene->sceneObjects->getPathFromHandle(mem->pathID) ==
                  mem->path)) // make sure the objects are still valid (running in a thread)
             {
-                double dt = App::currentWorld->simulation->getTimeStep(); // this is the time left if we leave here
+                double dt = App::currentScene->simulation->getTimeStep(); // this is the time left if we leave here
                 bool movementFinished = false;
                 double currentTime =
-                    App::currentWorld->simulation->getSimulationTime() + App::currentWorld->simulation->getTimeStep();
+                    App::currentScene->simulation->getSimulationTime() + App::currentScene->simulation->getTimeStep();
                 dt = currentTime - mem->lastTime;
                 mem->lastTime = currentTime;
                 if (mem->accel == 0.0)
@@ -4059,7 +4059,7 @@ int _simGetScriptExecutionCount(luaWrap_lua_State* L)
     LUA_START("sim.getScriptExecutionCount");
 
     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, it->getNumberOfPasses());
@@ -4129,12 +4129,12 @@ int _simGetUserParameter(luaWrap_lua_State* L)
         if (handle == sim_handle_self)
         {
             handle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(handle);
+            CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(handle);
             if (handle <= sim_object_sceneobjectend)
             { // is a CScript
                 if (it->getParentIsProxy())
                 {
-                    CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(handle);
+                    CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(handle);
                     obj = obj->getParent();
                     if (obj != nullptr)
                         handle = obj->getObjectHandle();
@@ -4184,12 +4184,12 @@ int _simSetUserParameter(luaWrap_lua_State* L)
         if (handle == sim_handle_self)
         {
             handle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(handle);
+            CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(handle);
             if (handle <= sim_object_sceneobjectend)
             { // is a CScript
                 if (it->getParentIsProxy())
                 {
-                    CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(handle);
+                    CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(handle);
                     obj = obj->getParent();
                     if (obj != nullptr)
                         handle = obj->getObjectHandle();
@@ -4232,18 +4232,18 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L, CScriptCustomFunction* fun
 
     // Now we retrieve the object ID this script might be attached to:
     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* itObj = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+    CDetachedScript* itObj = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
     int linkedObject = -1;
     if (itObj->getScriptType() == sim_scripttype_simulation)
     {
-        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(
             itObj->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
         if (obj != nullptr)
             linkedObject = obj->getObjectHandle();
     }
     if (itObj->getScriptType() == sim_scripttype_customization)
     {
-        CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(
+        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(
             itObj->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customization));
         if (obj != nullptr)
             linkedObject = obj->getObjectHandle();
@@ -4500,7 +4500,7 @@ int _simHandleCollision(luaWrap_lua_State* L)
         if ((retVal > 0) && (objHandle >= 0))
         {
             int collObjHandles[2];
-            CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(objHandle);
+            CCollisionObject_old* it = App::currentScene->collisions_old->getObjectFromHandle(objHandle);
             if (it != nullptr)
             {
                 it->readCollision(collObjHandles);
@@ -4529,7 +4529,7 @@ int _simReadCollision(luaWrap_lua_State* L)
         if (retVal > 0)
         {
             int collObjHandles[2];
-            CCollisionObject_old* it = App::currentWorld->collisions_old->getObjectFromHandle(objHandle);
+            CCollisionObject_old* it = App::currentScene->collisions_old->getObjectFromHandle(objHandle);
             if (it != nullptr)
             {
                 it->readCollision(collObjHandles);
@@ -4739,8 +4739,8 @@ int _simAddBanner(luaWrap_lua_State* L)
                 { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++
                     // interface or an add-on:
                     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-                    CDetachedScript* itScrObj = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
-                    CBannerObject* anObj = App::currentWorld->bannerCont_old->getObject(retVal);
+                    CDetachedScript* itScrObj = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
+                    CBannerObject* anObj = App::currentScene->bannerCont_old->getObject(retVal);
                     if (anObj != nullptr)
                         anObj->setCreatedFromScript((itScrObj->getScriptType() == sim_scripttype_main) ||
                                                     (itScrObj->getScriptType() == sim_scripttype_simulation));
@@ -4765,7 +4765,7 @@ int _simRemoveBanner(luaWrap_lua_State* L)
         int objectHandle = luaToInt(L, 1);
         if (objectHandle == sim_handle_all)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a C/c++ call
-            App::currentWorld->bannerCont_old->eraseAllObjects(true);
+            App::currentScene->bannerCont_old->eraseAllObjects(true);
             retVal = 1;
         }
         else
@@ -4901,7 +4901,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
         int objectHandle = luaToInt(L, 3);
         int options = luaToInt(L, 4);
         int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
         if ((it->getScriptType() == sim_scripttype_main) || (it->getScriptType() == sim_scripttype_simulation))
             options = (options | 1) -
                       1; // cloud is automatically removed at the end of the simulation (i.e. is not persistent)
@@ -5135,10 +5135,10 @@ int _simSetScriptVariable(luaWrap_lua_State* L)
         int numberOfArguments = luaWrap_lua_gettop(L);
         if (numberOfArguments >= 3)
         {
-            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
             CDetachedScript::buildFromInterpreterStack_lua(L, stack, 3, 1);
             retVal = CALL_C_API(simSetScriptVariable, scriptHandleOrType, varAndScriptName.c_str(), stack->getObjectHandle());
-            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+            App::sceneContainer->interfaceStackContainer->destroyStack(stack);
         }
         else
             errorString = SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
@@ -5241,7 +5241,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
     LUA_START("sim.getConfigurationTree");
 
     CDetachedScript* it =
-        App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        App::sceneContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
     {
         int id = luaToInt(L, 1);
@@ -5251,7 +5251,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
             id = objID;
             if (id != -1)
             {
-                CScript* s = App::currentWorld->sceneObjects->getScriptFromHandle(id);
+                CScript* s = App::currentScene->sceneObjects->getScriptFromHandle(id);
                 if (s != nullptr)
                 {
                     if (s->detachedScript->getParentIsProxy())
@@ -5395,7 +5395,7 @@ void moduleCommonPart_old(luaWrap_lua_State* L, int action, std::string* errorSt
         (action == sim_message_eventcallback_modulehandleinsensingpart))
         functionName = "sim.handleModule";
     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
     if (it->getScriptType() != sim_scripttype_main)
     {
         if (errorString != nullptr)
@@ -5410,7 +5410,7 @@ void moduleCommonPart_old(luaWrap_lua_State* L, int action, std::string* errorSt
             if (luaToInt(L, 1) == sim_handle_all)
             {
                 handleAll = true;
-                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(action);
+                App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(action);
                 luaWrap_lua_pushinteger(L, 1);
             }
         }
@@ -5431,7 +5431,7 @@ int _simGetLastError(luaWrap_lua_State* L)
     }
     else
         scriptHandle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(scriptHandle);
+    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(scriptHandle);
     if (it != nullptr)
     {
         luaWrap_lua_pushtext(L, "");
@@ -5551,8 +5551,8 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
             {
                 for (int i = 0; i < tableLen; i++)
                 {
-                    if (App::currentWorld->sceneObjects->getObjectFromHandle(buffer[i]) != nullptr)
-                        App::currentWorld->sceneObjects->addObjectToSelection(buffer[i]);
+                    if (App::currentScene->sceneObjects->getObjectFromHandle(buffer[i]) != nullptr)
+                        App::currentScene->sceneObjects->addObjectToSelection(buffer[i]);
                 }
                 retVal = 1;
             }
@@ -5635,7 +5635,7 @@ int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
         }
         else
         { // for backward compatibility
-            int cnt = int(App::currentWorld->sceneObjects->getObjectCount());
+            int cnt = int(App::currentScene->sceneObjects->getObjectCount());
             int* buffer = new int[cnt];
             if (CALL_C_API(simGetObjectUniqueIdentifier, handle, buffer) != -1)
             {
@@ -5718,10 +5718,10 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
             int a = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
             if (a <= sim_object_sceneobjectend)
             { // is a CScript
-                CDetachedScript* it = App::currentWorld->sceneObjects->getDetachedScriptFromHandle(a);
+                CDetachedScript* it = App::currentScene->sceneObjects->getDetachedScriptFromHandle(a);
                 if (it->getParentIsProxy())
                 {
-                    CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(a);
+                    CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(a);
                     obj = obj->getParent();
                     if (obj != nullptr)
                         retVal = obj->getObjectHandle();
@@ -5910,7 +5910,7 @@ int _simRemoveObject(luaWrap_lua_State* L)
     {
         int objId = luaToInt(L, 1);
         int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+        CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
         retVal = CALL_C_API(simRemoveObject, objId);
     }
 
@@ -6004,7 +6004,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State* L)
                             if (res == 2)
                                 retType = luaToInt(L, 6);
                             CVisionSensor* rs =
-                                App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+                                App::currentScene->sceneObjects->getVisionSensorFromHandle(objectHandle);
                             if (rs != nullptr)
                             {
                                 if ((sizeX == 0) && (sizeY == 0))
@@ -6067,7 +6067,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
             noProcessing = true;
         if ((handleFlags & sim_handleflag_depthbuffer) != 0)
             setDepthBufferInstead = true;
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sensHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sensHandle);
         if (it != nullptr)
         { // Ok we have a valid object
             if (it->getObjectType() == sim_sceneobject_visionsensor)
@@ -6202,7 +6202,7 @@ int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
                             if (res == 2)
                                 rgbaCutOff = luaToDouble(L, 6);
                             CVisionSensor* rs =
-                                App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+                                App::currentScene->sceneObjects->getVisionSensorFromHandle(objectHandle);
                             if (rs != nullptr)
                             {
                                 int reso[2];
@@ -6268,7 +6268,7 @@ int _simSetVisionSensorCharImage(luaWrap_lua_State* L)
         bool noProcessing = false;
         if ((handleFlags & sim_handleflag_rawvalue) != 0)
             noProcessing = true;
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sensHandle);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sensHandle);
         if (it != nullptr)
         { // Ok we have a valid object
             if (it->getObjectType() == sim_sceneobject_visionsensor)
@@ -6342,7 +6342,7 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
                         bool returnString = (sensHandle & sim_handleflag_codedstring) != 0;
                         bool toMeters = (sensHandle & sim_handleflag_depthbuffermeters) != 0;
                         sensHandle = sensHandle & 0xfffff;
-                        CVisionSensor* rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensHandle);
+                        CVisionSensor* rs = App::currentScene->sceneObjects->getVisionSensorFromHandle(sensHandle);
                         if (rs != nullptr)
                         {
                             if ((sizeX == 0) && (sizeY == 0))
@@ -6512,7 +6512,7 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
 
     int retVal = -1;
     int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* itScrObj = App::worldContainer->getDetachedScriptFromHandle(currentScriptID);
+    CDetachedScript* itScrObj = App::sceneContainer->getDetachedScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
@@ -6525,8 +6525,8 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
 #endif
             if (editMode == NO_EDIT_MODE)
             {
-                retVal = App::currentWorld->sceneObjects->callScripts_noMainScript(sim_scripttype_customization, callType, nullptr, nullptr);
-                App::currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
+                retVal = App::currentScene->sceneObjects->callScripts_noMainScript(sim_scripttype_customization, callType, nullptr, nullptr);
+                App::currentScene->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
             }
         }
     }
@@ -6723,12 +6723,12 @@ int _simRegisterScriptFunction(luaWrap_lua_State* L)
         if (pluginName.size() > 0)
         {
             retVal = 1;
-            if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(
+            if (App::sceneContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(
                     funcNameAtPluginName.c_str()))
                 retVal = 0; // that function already existed. We remove it and replace it!
             CScriptCustomFunction* newFunction =
                 new CScriptCustomFunction(funcNameAtPluginName.c_str(), ct.c_str(), nullptr, false);
-            if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
+            if (!App::sceneContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
             {
                 delete newFunction;
                 CApiErrors::setLastError(__func__, SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
@@ -6763,7 +6763,7 @@ int _simRegisterScriptVariable(luaWrap_lua_State* L)
             varName.assign(varNameAtPluginName.begin(), varNameAtPluginName.begin() + p);
         }
         retVal = 1;
-        App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(varNameAtPluginName.c_str(), nullptr,
+        App::sceneContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(varNameAtPluginName.c_str(), nullptr,
                                                                                    0);
     }
 
@@ -6798,7 +6798,7 @@ int _simLoadModule(luaWrap_lua_State* L)
         if (retVal >= 0)
         {
             CDetachedScript* it =
-                App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                App::sceneContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
             it->registerNewFunctions_lua(); // otherwise we can only use the custom Lua functions that the plugin
                                             // registers after this script has re-initialized!
             it->registerPluginFunctions();
@@ -7174,7 +7174,7 @@ int _simSetInt32Param(luaWrap_lua_State* L)
         if (paramIndex == sim_intparam_error_report_mode)
         { // for backward compatibility (2020)
             CDetachedScript* it =
-                App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                App::sceneContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
             if (it != nullptr)
             {
                 bool r = true; // default
@@ -7203,7 +7203,7 @@ int _simGetInt32Param(luaWrap_lua_State* L)
         if (paramIndex == sim_intparam_error_report_mode)
         { // for backward compatibility (2020)
             CDetachedScript* it =
-                App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                App::sceneContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
             if (it != nullptr)
             {
                 int v = 1; // default
@@ -7286,7 +7286,7 @@ int _simGetStringParam(luaWrap_lua_State* L)
         if (sim_stringparam_addonpath == param)
         {
             std::string s;
-            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+            CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
             if (it != nullptr)
                 s = it->getAddOnPath();
             luaWrap_lua_pushtext(L, s.c_str());

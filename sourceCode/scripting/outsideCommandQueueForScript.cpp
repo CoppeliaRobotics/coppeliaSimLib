@@ -100,14 +100,14 @@ int COutsideCommandQueueForScript::extractOneCommand(int auxVals[4], double aux2
 
 void COutsideCommandQueueForScript::_checkSelections()
 {
-    if (!App::currentWorld->sceneObjects->isSelectionSame(previousObjectSelection, true))
+    if (!App::currentScene->sceneObjects->isSelectionSame(previousObjectSelection, true))
     {
         int l = -1;
         int t = -1;
         if (previousObjectSelection.size() != 0)
         {
             l = previousObjectSelection[previousObjectSelection.size() - 1];
-            CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+            CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
             if (it != nullptr)
                 t = it->getObjectType();
         }

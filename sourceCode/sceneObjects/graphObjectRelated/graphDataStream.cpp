@@ -860,5 +860,5 @@ bool CGraphDataStream::announceScriptWillBeErased(int scriptHandle, bool simulat
 
 void CGraphDataStream::performScriptLoadingMapping(const std::map<int, int>* map)
 {
-    _scriptHandle = CWorld::getLoadingMapping(map, _scriptHandle);
+    _scriptHandle = CScene::getLoadingMapping(map, _scriptHandle);
 }

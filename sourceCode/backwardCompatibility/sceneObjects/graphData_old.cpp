@@ -163,22 +163,22 @@ std::string CGraphData_old::getName() const
 void CGraphData_old::performObjectLoadingMapping(const std::map<int, int>* map)
 {
     if ((dataType > GRAPH_SCENEOBJECT_START) && (dataType < GRAPH_SCENEOBJECT_END))
-        dataObjectID = CWorld::getLoadingMapping(map, dataObjectID);
+        dataObjectID = CScene::getLoadingMapping(map, dataObjectID);
 }
 void CGraphData_old::performCollisionLoadingMapping(const std::map<int, int>* map)
 {
     if ((dataType > GRAPH_COLLISION_START) && (dataType < GRAPH_COLLISION_END))
-        dataObjectID = CWorld::getLoadingMapping(map, dataObjectID);
+        dataObjectID = CScene::getLoadingMapping(map, dataObjectID);
 }
 void CGraphData_old::performDistanceLoadingMapping(const std::map<int, int>* map)
 {
     if ((dataType > GRAPH_DISTANCE_START) && (dataType < GRAPH_DISTANCE_END))
-        dataObjectID = CWorld::getLoadingMapping(map, dataObjectID);
+        dataObjectID = CScene::getLoadingMapping(map, dataObjectID);
 }
 void CGraphData_old::performIkLoadingMapping(const std::map<int, int>* map)
 {
     if ((dataType > GRAPH_IK_START) && (dataType < GRAPH_IK_END))
-        dataObjectID = CWorld::getLoadingMapping(map, dataObjectID);
+        dataObjectID = CScene::getLoadingMapping(map, dataObjectID);
 }
 
 bool CGraphData_old::announceObjectWillBeErased(int objID, bool copyBuffer)

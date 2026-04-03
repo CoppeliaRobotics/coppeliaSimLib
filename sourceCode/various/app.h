@@ -2,7 +2,7 @@
 
 #include <folderSystem.h>
 #include <userSettings.h>
-#include <worldContainer.h>
+#include <sceneContainer.h>
 #include <sigHandler.h>
 #include <simThread.h>
 #include <gm.h>
@@ -178,8 +178,8 @@ class App
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
     static CSimThread* simThread;
-    static CWorldContainer* worldContainer;
-    static CWorld* currentWorld; // actually worldContainer->currentWorld
+    static CSceneContainer* sceneContainer;
+    static CScene* currentScene; // actually sceneContainer->currentScene
     static CGm* gm;
     static std::vector<void*> callbacks;
     static InstancesList* instancesList;
@@ -190,14 +190,12 @@ class App
 #endif
 
   private:
-    static void _logMsg(const char* originName, int verbosityLevel, const char* msg, const char* subStr1,
-                        const char* subStr2 = nullptr, const char* subStr3 = nullptr);
-    static void _logMsg(const char* originName, int verbosityLevel, const char* msg, int int1, int int2 = 0,
-                        int int3 = 0);
-    static void __logMsg(const char* originName, int verbosityLevel, const char* msg, int consoleVerbosity = -1,
-                         int statusbarVerbosity = -1);
+    static void _logMsg(const char* originName, int verbosityLevel, const char* msg, const char* subStr1, const char* subStr2 = nullptr, const char* subStr3 = nullptr);
+    static void _logMsg(const char* originName, int verbosityLevel, const char* msg, int int1, int int2 = 0, int int3 = 0);
+    static void __logMsg(const char* originName, int verbosityLevel, const char* msg, int consoleVerbosity = -1, int statusbarVerbosity = -1);
     static bool _consoleLogFilter(const char* msg);
     static std::string _getHtmlEscapedString(const char* str);
+    static bool _resolveTarget(long long int& target);
     static bool _consoleMsgsToFile;
     static std::string _consoleMsgsFilename;
     static VFile* _consoleMsgsFile;

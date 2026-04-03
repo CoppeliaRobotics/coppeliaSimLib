@@ -20,7 +20,7 @@ CQDlgModelThumbnail::CQDlgModelThumbnail(QWidget* parent)
 
 CQDlgModelThumbnail::~CQDlgModelThumbnail()
 {
-    App::currentWorld->sceneObjects->eraseObject(rs, false, true); // delayed destruction
+    App::currentScene->sceneObjects->eraseObject(rs, false, true); // delayed destruction
     delete ui;
 }
 
@@ -50,7 +50,7 @@ void CQDlgModelThumbnail::initialize()
     thumbnail.setRandomImage();
 
     rs = new CVisionSensor();
-    App::currentWorld->sceneObjects->addObjectToScene(rs, false,
+    App::currentScene->sceneObjects->addObjectToScene(rs, false,
                                                       false); // oops, we are in the wrong thread here. Very dangerous
     int res[2] = {256, 256};
     rs->setResolution(res);
@@ -61,7 +61,7 @@ void CQDlgModelThumbnail::initialize()
     rs->setVisibilityLayer(0);
     sel.clear();
     sel.push_back(modelBaseDummyID);
-    App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, -1, true, false);
+    App::currentScene->sceneObjects->getSelectedObjectHandles(sel, -1, true, false);
     actualizeBitmap();
 }
 
@@ -71,7 +71,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
     C3Vector maxC(-999.0, -999.0, -999.0);
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
+        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sel[i]);
         bool display = true;
         if (it->getObjectType() == sim_sceneobject_proximitysensor)
         {
@@ -84,7 +84,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
                 display = false;
         }
         if ((!it->isObjectPartOfInvisibleModel()) &&
-            (it->getVisibilityLayer() & App::currentWorld->environment->getActiveLayers()) && display)
+            (it->getVisibilityLayer() & App::currentScene->environment->getActiveLayers()) && display)
         {
             C3Vector hs;
             C7Vector tr(it->getCumulativeTransformation() * it->getBB(&hs));

@@ -42,7 +42,7 @@ void CQDlgOldScripts::refresh()
 {
     inMainRefreshRoutine = true;
     bool noEditMode = (GuiApp::getEditModeType() == NO_EDIT_MODE);
-    bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim = noEditMode && App::currentScene->simulation->isSimulationStopped();
 
     ui->qqCombo->setEnabled(noEditMode);
     ui->qqCombo->clear();
@@ -59,11 +59,11 @@ void CQDlgOldScripts::refresh()
 
     ui->qqExecutionOrder->clear();
 
-    CDetachedScript* theScript = App::worldContainer->getDetachedScriptFromHandle(getSelectedObjectID());
+    CDetachedScript* theScript = App::sceneContainer->getDetachedScriptFromHandle(getSelectedObjectID());
     CSceneObject* associatedObject = nullptr;
     if (theScript != nullptr)
-        associatedObject = App::currentWorld->sceneObjects->getObjectFromHandle(
-            App::currentWorld->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(theScript->getScriptHandle()));
+        associatedObject = App::currentScene->sceneObjects->getObjectFromHandle(
+            App::currentScene->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(theScript->getScriptHandle()));
     ui->qqExecutionOrder->setEnabled((associatedObject != nullptr) && noEditModeAndNoSim);
     ui->qqDisabled->setEnabled((theScript != nullptr) && noEditMode &&
                                ((theScript->getScriptType() == sim_scripttype_simulation) ||
@@ -100,7 +100,7 @@ void CQDlgOldScripts::updateObjectsInList()
 
     if (scriptViewMode == 0)
     { // Main and simulation scripts
-        CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
         {
             std::string tmp = it->getDescriptiveName();
@@ -111,9 +111,9 @@ void CQDlgOldScripts::updateObjectsInList()
             itm->setForeground(QColor(255, 128, 128)); // RED
             ui->qqScriptList->addItem(itm);
         }
-        for (int i = 0; i < int(App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts.size()); i++)
+        for (int i = 0; i < int(App::currentScene->sceneObjects->embeddedScriptContainer->allScripts.size()); i++)
         {
-            it = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i];
+            it = App::currentScene->sceneObjects->embeddedScriptContainer->allScripts[i];
             int t = it->getScriptType();
             if (t == sim_scripttype_simulation)
             {
@@ -130,9 +130,9 @@ void CQDlgOldScripts::updateObjectsInList()
 
     if (scriptViewMode == 1)
     { // Customization scripts
-        for (int i = 0; i < int(App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts.size()); i++)
+        for (int i = 0; i < int(App::currentScene->sceneObjects->embeddedScriptContainer->allScripts.size()); i++)
         {
-            CDetachedScript* it = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i];
+            CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->allScripts[i];
             int t = it->getScriptType();
             if (t == sim_scripttype_customization)
             {
@@ -180,7 +180,7 @@ void CQDlgOldScripts::onDeletePressed()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if ((focusWidget() == ui->qqScriptList) && App::currentWorld->simulation->isSimulationStopped())
+        if ((focusWidget() == ui->qqScriptList) && App::currentScene->simulation->isSimulationStopped())
         {
             int scriptID = getSelectedObjectID();
             App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD, scriptID);
@@ -203,9 +203,9 @@ void CQDlgOldScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem* item)
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        if ((item != nullptr) && App::currentWorld->simulation->isSimulationStopped())
+        if ((item != nullptr) && App::currentScene->simulation->isSimulationStopped())
         {
-            CDetachedScript* it = App::worldContainer->getDetachedScriptFromHandle(item->data(Qt::UserRole).toInt());
+            CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(item->data(Qt::UserRole).toInt());
             if (it != nullptr)
             {
                 // Process the command via the simulation thread (delayed):
@@ -248,7 +248,7 @@ void CQDlgOldScripts::on_qqExecutionOrder_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_READ_DATA
         {
             int scriptID = getSelectedObjectID();
-            int objectId = App::currentWorld->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(scriptID);
+            int objectId = App::currentScene->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(scriptID);
             if (objectId != -1)
             {
                 int executionOrder = ui->qqExecutionOrder->itemData(ui->qqExecutionOrder->currentIndex()).toInt();

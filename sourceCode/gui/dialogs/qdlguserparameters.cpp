@@ -36,9 +36,9 @@ void CQDlgUserParameters::okEvent()
 
 void CQDlgUserParameters::refresh()
 {
-    ui->qqAddNew->setEnabled(App::currentWorld->simulation->isSimulationStopped());
-    ui->qqUp->setEnabled(App::currentWorld->simulation->isSimulationStopped());
-    ui->qqDown->setEnabled(App::currentWorld->simulation->isSimulationStopped());
+    ui->qqAddNew->setEnabled(App::currentScene->simulation->isSimulationStopped());
+    ui->qqUp->setEnabled(App::currentScene->simulation->isSimulationStopped());
+    ui->qqDown->setEnabled(App::currentScene->simulation->isSimulationStopped());
     int selectedObjectID = getSelectedObjectID();
     if (!inSelectionRoutine)
     {
@@ -51,7 +51,7 @@ void CQDlgUserParameters::refresh()
 void CQDlgUserParameters::refreshPart2()
 {
     bool noEditModeAndNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
 
     ui->qqAddNew->setEnabled(noEditModeAndNoSim);
     CUserParameters* it = object->getUserScriptParameterObject();
@@ -182,7 +182,7 @@ void CQDlgUserParameters::updateObjectsInList()
     CUserParameters* it = object->getUserScriptParameterObject();
     for (size_t i = 0; i < it->userParamEntries.size(); i++)
     {
-        if (((it->userParamEntries[i].properties & 1) == 0) || App::currentWorld->simulation->isSimulationStopped())
+        if (((it->userParamEntries[i].properties & 1) == 0) || App::currentScene->simulation->isSimulationStopped())
         {
             QListWidgetItem* itm = new QListWidgetItem(it->userParamEntries[i].name.c_str());
             itm->setData(Qt::UserRole, QVariant(int(i)));
