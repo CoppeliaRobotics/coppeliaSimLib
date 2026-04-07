@@ -1575,7 +1575,7 @@ void CSceneObject::addObjectEventData(CCbor* ev)
             auto it = _customReferencedHandles.find(tags[i]);
             for (size_t j = 0; j < it->second.size(); j++)
                 handles.push_back(it->second[j].generalObjectHandle);
-            ev->appendKeyInt32Array((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+            ev->appendKeyHandleArray((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
         }
     }
     tags.clear();
@@ -1588,7 +1588,7 @@ void CSceneObject::addObjectEventData(CCbor* ev)
             auto it = _customReferencedOriginalHandles.find(tags[i]);
             for (size_t j = 0; j < it->second.size(); j++)
                 handles.push_back(it->second[j].generalObjectHandle);
-            ev->appendKeyInt32Array((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+            ev->appendKeyHandleArray((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
         }
     }
 
@@ -4290,7 +4290,7 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const ch
                     auto it = _customReferencedHandles.find(tags[i]);
                     for (size_t j = 0; j < it->second.size(); j++)
                         handles.push_back(it->second[j].generalObjectHandle);
-                    ev->appendKeyInt32Array((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+                    ev->appendKeyHandleArray((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
                     usedTags.insert(tags[i]);
                 }
             }
@@ -4423,7 +4423,7 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int* handles, con
                     auto it = _customReferencedOriginalHandles.find(tags[i]);
                     for (size_t j = 0; j < it->second.size(); j++)
                         handles.push_back(it->second[j].generalObjectHandle);
-                    ev->appendKeyInt32Array((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+                    ev->appendKeyHandleArray((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
                     usedTags.insert(tags[i]);
                 }
             }
