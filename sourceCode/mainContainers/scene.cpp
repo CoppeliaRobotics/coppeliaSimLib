@@ -2657,20 +2657,20 @@ void CScene::resetOldSerializationHandles()
 
 int CScene::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setBoolProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->setBoolProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->setBoolProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setBoolProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -2686,26 +2686,26 @@ int CScene::setBoolProperty(long long int target, const char* ppName, bool pStat
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getBoolProperty(long long int target, const char* ppName, bool& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getBoolProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->getBoolProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->getBoolProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getBoolProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -2721,26 +2721,26 @@ int CScene::getBoolProperty(long long int target, const char* ppName, bool& pSta
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setIntProperty(long long int target, const char* ppName, int pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->setIntProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->setIntProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setIntProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -2756,26 +2756,26 @@ int CScene::setIntProperty(long long int target, const char* ppName, int pState)
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getIntProperty(long long int target, const char* ppName, int& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->getIntProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->getIntProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getIntProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -2791,13 +2791,13 @@ int CScene::getIntProperty(long long int target, const char* ppName, int& pState
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setLongProperty(long long int target, const char* ppName, long long int pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -2805,17 +2805,17 @@ int CScene::setLongProperty(long long int target, const char* ppName, long long 
         /*
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setLongProperty(pName, pState);
-        if ( (retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr) )
+        if ( (retVal == sim_propertyret_unknownproperty) && (simulation != nullptr) )
             retVal = simulation->setLongProperty(pName, pState);
-        if ( (retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr) )
+        if ( (retVal == sim_propertyret_unknownproperty) && (environment != nullptr) )
             retVal = environment->setLongProperty(pName, pState);
-        if ( (retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr) )
+        if ( (retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr) )
             retVal = sceneObjects->setLongProperty(-1, pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (collections != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (collections != nullptr))
             retVal = collections->setLongProperty(-1, pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (drawingCont != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (drawingCont != nullptr))
             retVal = drawingCont->setLongProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
         */
@@ -2832,18 +2832,18 @@ int CScene::setLongProperty(long long int target, const char* ppName, long long 
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getLongProperty(long long int target, const char* ppName, long long int& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         retVal = Obj::getLongProperty(ppName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
             retVal = environment->getLongProperty(ppName, pState);
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
@@ -2860,13 +2860,13 @@ int CScene::getLongProperty(long long int target, const char* ppName, long long 
         retVal = drawingCont->getLongProperty(target, ppName, pState);
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setHandleProperty(long long int target, const char* ppName, long long int pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -2884,13 +2884,13 @@ int CScene::setHandleProperty(long long int target, const char* ppName, long lon
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getHandleProperty(long long int target, const char* ppName, long long int& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -2909,24 +2909,24 @@ int CScene::getHandleProperty(long long int target, const char* ppName, long lon
         retVal = drawingCont->getHandleProperty(target, ppName, pState);
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setFloatProperty(long long int target, const char* ppName, double pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->setFloatProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setFloatProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -2942,24 +2942,24 @@ int CScene::setFloatProperty(long long int target, const char* ppName, double pS
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getFloatProperty(long long int target, const char* ppName, double& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (simulation != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->getFloatProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getFloatProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -2975,24 +2975,24 @@ int CScene::getFloatProperty(long long int target, const char* ppName, double& p
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setStringProperty(long long int target, const char* ppName, const char* pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setStringProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->setStringProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setStringProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3008,28 +3008,28 @@ int CScene::setStringProperty(long long int target, const char* ppName, const ch
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getStringProperty(long long int target, const char* ppName, std::string& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         retVal = Obj::getStringProperty(ppName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (dynamicsContainer != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (dynamicsContainer != nullptr))
             retVal = dynamicsContainer->getStringProperty(ppName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (environment != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->getStringProperty(ppName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getStringProperty(-1, ppName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (collections != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (collections != nullptr))
             retVal = collections->getStringProperty(-1, ppName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (drawingCont != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (drawingCont != nullptr))
             retVal = drawingCont->getStringProperty(-1, ppName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3049,13 +3049,13 @@ int CScene::getStringProperty(long long int target, const char* ppName, std::str
         retVal = drawingCont->getStringProperty(target, pName, pState);
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (buffer == nullptr)
         bufferL = 0;
@@ -3095,13 +3095,13 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const ch
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getBufferProperty(long long int target, const char* ppName, std::string& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -3136,22 +3136,22 @@ int CScene::getBufferProperty(long long int target, const char* ppName, std::str
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setIntArray2Property(long long int target, const char* ppName, const int* pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntArray2Property(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setIntArray2Property(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3167,22 +3167,22 @@ int CScene::setIntArray2Property(long long int target, const char* ppName, const
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getIntArray2Property(long long int target, const char* ppName, int* pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntArray2Property(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getIntArray2Property(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3198,22 +3198,22 @@ int CScene::getIntArray2Property(long long int target, const char* ppName, int* 
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setVector2Property(long long int target, const char* ppName, const double* pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector2Property(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setVector2Property(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3229,22 +3229,22 @@ int CScene::setVector2Property(long long int target, const char* ppName, const d
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getVector2Property(long long int target, const char* ppName, double* pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector2Property(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getVector2Property(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3260,22 +3260,22 @@ int CScene::getVector2Property(long long int target, const char* ppName, double*
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector3Property(pName, &pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setVector3Property(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3291,22 +3291,22 @@ int CScene::setVector3Property(long long int target, const char* ppName, const C
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getVector3Property(long long int target, const char* ppName, C3Vector& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector3Property(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getVector3Property(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3322,13 +3322,13 @@ int CScene::getVector3Property(long long int target, const char* ppName, C3Vecto
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setMatrixProperty(long long int target, const char* ppName, const CMatrix& pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -3343,13 +3343,13 @@ int CScene::setMatrixProperty(long long int target, const char* ppName, const CM
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getMatrixProperty(long long int target, const char* ppName, CMatrix& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -3364,13 +3364,13 @@ int CScene::getMatrixProperty(long long int target, const char* ppName, CMatrix&
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setMatrix3x3Property(long long int target, const char* ppName, const CMatrix& pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -3385,13 +3385,13 @@ int CScene::setMatrix3x3Property(long long int target, const char* ppName, const
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getMatrix3x3Property(long long int target, const char* ppName, CMatrix& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -3406,13 +3406,13 @@ int CScene::getMatrix3x3Property(long long int target, const char* ppName, CMatr
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setMatrix4x4Property(long long int target, const char* ppName, const CMatrix& pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -3427,13 +3427,13 @@ int CScene::setMatrix4x4Property(long long int target, const char* ppName, const
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getMatrix4x4Property(long long int target, const char* ppName, CMatrix& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -3448,20 +3448,20 @@ int CScene::getMatrix4x4Property(long long int target, const char* ppName, CMatr
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (sceneObjects != nullptr)
             retVal = sceneObjects->setQuaternionProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3477,20 +3477,20 @@ int CScene::setQuaternionProperty(long long int target, const char* ppName, cons
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (sceneObjects != nullptr)
             retVal = sceneObjects->getQuaternionProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3506,20 +3506,20 @@ int CScene::getQuaternionProperty(long long int target, const char* ppName, C4Ve
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (sceneObjects != nullptr)
             retVal = sceneObjects->setPoseProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3535,20 +3535,20 @@ int CScene::setPoseProperty(long long int target, const char* ppName, const C7Ve
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getPoseProperty(long long int target, const char* ppName, C7Vector& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (sceneObjects != nullptr)
             retVal = sceneObjects->getPoseProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3564,22 +3564,22 @@ int CScene::getPoseProperty(long long int target, const char* ppName, C7Vector& 
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setColorProperty(long long int target, const char* ppName, const float* pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (environment != nullptr)
             retVal = environment->setColorProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setColorProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3595,22 +3595,22 @@ int CScene::setColorProperty(long long int target, const char* ppName, const flo
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getColorProperty(long long int target, const char* ppName, float* pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (environment != nullptr)
             retVal = environment->getColorProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getColorProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3626,22 +3626,22 @@ int CScene::getColorProperty(long long int target, const char* ppName, float* pS
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatArrayProperty(pName, v, vL);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setFloatArrayProperty(-1, pName, v, vL);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3657,13 +3657,13 @@ int CScene::setFloatArrayProperty(long long int target, const char* ppName, cons
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getFloatArrayProperty(long long int target, const char* ppName, std::vector<double>& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     pState.clear();
     if (target == sim_handle_scene)
@@ -3671,9 +3671,9 @@ int CScene::getFloatArrayProperty(long long int target, const char* ppName, std:
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatArrayProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getFloatArrayProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3689,22 +3689,22 @@ int CScene::getFloatArrayProperty(long long int target, const char* ppName, std:
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntArrayProperty(pName, v, vL);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setIntArrayProperty(-1, pName, v, vL);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3720,13 +3720,13 @@ int CScene::setIntArrayProperty(long long int target, const char* ppName, const 
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getIntArrayProperty(long long int target, const char* ppName, std::vector<int>& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     pState.clear();
     if (target == sim_handle_scene)
@@ -3734,9 +3734,9 @@ int CScene::getIntArrayProperty(long long int target, const char* ppName, std::v
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntArrayProperty(pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getIntArrayProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3752,20 +3752,20 @@ int CScene::getIntArrayProperty(long long int target, const char* ppName, std::v
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setHandleArrayProperty(-1, pName, v, vL);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3781,25 +3781,25 @@ int CScene::setHandleArrayProperty(long long int target, const char* ppName, con
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getHandleArrayProperty(long long int target, const char* ppName, std::vector<long long int>& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     pState.clear();
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getHandleArrayProperty(-1, pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (collections != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (collections != nullptr))
             retVal = collections->getHandleArrayProperty(-1, pName, pState);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (drawingCont != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (drawingCont != nullptr))
             retVal = drawingCont->getHandleArrayProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3819,20 +3819,20 @@ int CScene::getHandleArrayProperty(long long int target, const char* ppName, std
         retVal = drawingCont->getHandleArrayProperty(target, pName, pState);
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::setStringArrayProperty(long long int target, const char* ppName, const std::vector<std::string>& pState)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setStringArrayProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3848,21 +3848,21 @@ int CScene::setStringArrayProperty(long long int target, const char* ppName, con
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getStringArrayProperty(long long int target, const char* ppName, std::vector<std::string>& pState) const
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     pState.clear();
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (sceneObjects != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getStringArrayProperty(-1, pName, pState);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
@@ -3878,13 +3878,13 @@ int CScene::getStringArrayProperty(long long int target, const char* ppName, std
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::removeProperty(long long int target, const char* ppName)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
@@ -3939,29 +3939,29 @@ int CScene::removeProperty(long long int target, const char* ppName)
     {
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             appartenance = _objectTypeStr;
-            if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->dynamicsContainer != nullptr))
+            if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->dynamicsContainer != nullptr))
                 retVal = App::currentScene->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
-            if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->simulation != nullptr))
+            if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->simulation != nullptr))
                 retVal = App::currentScene->simulation->getPropertyName(index, pName, excludeFlags);
-            if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->environment != nullptr))
+            if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->environment != nullptr))
                 retVal = App::currentScene->environment->getPropertyName(index, pName, excludeFlags);
-            if (retVal == RET_INEXISTANT_PROPERTY)
+            if (retVal == sim_propertyret_unknownproperty)
                 retVal = sceneObjects->getPropertyName(-1, index, pName, appartenance, excludeFlags);
-            if (retVal == RET_INEXISTANT_PROPERTY)
+            if (retVal == sim_propertyret_unknownproperty)
             {
                 if (customSceneData.getPropertyName(index, pName, excludeFlags))
                 {
@@ -3974,9 +3974,9 @@ int CScene::getPropertyName(long long int target, int& index, std::string& pName
                     retVal = 1;
                 }
             }
-            if (retVal == RET_INEXISTANT_PROPERTY)
+            if (retVal == sim_propertyret_unknownproperty)
                 retVal = collections->getPropertyName(-1, index, pName, appartenance, excludeFlags);
-            if (retVal == RET_INEXISTANT_PROPERTY)
+            if (retVal == sim_propertyret_unknownproperty)
                 retVal = drawingCont->getPropertyName(-1, index, pName, appartenance, excludeFlags);
         }
     }
@@ -3993,27 +3993,27 @@ int CScene::getPropertyName(long long int target, int& index, std::string& pName
         retVal = drawingCont->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
 int CScene::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt)
 {
-    int retVal = RET_INEXISTANT_PROPERTY;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
         retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->dynamicsContainer != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->dynamicsContainer != nullptr))
             retVal = App::currentScene->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->simulation != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->simulation != nullptr))
             retVal = App::currentScene->simulation->getPropertyInfo(pName, info, infoTxt);
-        if ((retVal == RET_INEXISTANT_PROPERTY) && (App::currentScene->environment != nullptr))
+        if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->environment != nullptr))
             retVal = App::currentScene->environment->getPropertyInfo(pName, info, infoTxt);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
             retVal = sceneObjects->getPropertyInfo(-1, pName, info, infoTxt);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             std::string pN(pName);
             if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
@@ -4047,9 +4047,9 @@ int CScene::getPropertyInfo(long long int target, const char* ppName, int& info,
                 }
             }
         }
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
             retVal = collections->getPropertyInfo(-1, pName, info, infoTxt);
-        if (retVal == RET_INEXISTANT_PROPERTY)
+        if (retVal == sim_propertyret_unknownproperty)
             retVal = drawingCont->getPropertyInfo(-1, pName, info, infoTxt);
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
@@ -4059,7 +4059,7 @@ int CScene::getPropertyInfo(long long int target, const char* ppName, int& info,
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
         retVal = drawingCont->getPropertyInfo(target, ppName, info, infoTxt);
     else
-        retVal = RET_INEXISTANT_TARGET;
+        retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 

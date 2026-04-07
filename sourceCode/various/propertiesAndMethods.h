@@ -50,10 +50,6 @@ struct SJointProperty
     const std::string infoTxt;
 };
 
-#define RET_INEXISTANT_TARGET (-2)
-#define RET_INEXISTANT_PROPERTY (-1)
-#define RET_FOUND_PROPERTY (1)
-
 #define CUSTOMDATAPREFIX "customData."
 #define CUSTOMDATAFLAGS (sim_propertyinfo_removable)
 
