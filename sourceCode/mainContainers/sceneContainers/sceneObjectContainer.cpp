@@ -4486,7 +4486,7 @@ int CSceneObjectContainer::getCalledScriptsCountInThisSimulationStep(bool onlySi
 
 int CSceneObjectContainer::setBoolProperty(long long int target, const char* pName, bool pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -4536,14 +4536,14 @@ int CSceneObjectContainer::setBoolProperty(long long int target, const char* pNa
             if (mesh != nullptr)
                 return mesh->setBoolProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getBoolProperty(long long int target, const char* pName, bool& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -4593,14 +4593,14 @@ int CSceneObjectContainer::getBoolProperty(long long int target, const char* pNa
             if (mesh != nullptr)
                 return mesh->getBoolProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setIntProperty(long long int target, const char* pName, int pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -4650,30 +4650,30 @@ int CSceneObjectContainer::setIntProperty(long long int target, const char* pNam
             if (mesh != nullptr)
                 return mesh->setIntProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getIntProperty(long long int target, const char* pName, int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         if (strcmp(pName, propSceneObjectCont_objectCreationCounter.name) == 0)
         {
             pState = _objectCreationCounter;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propSceneObjectCont_objectDestructionCounter.name) == 0)
         {
             pState = _objectDestructionCounter;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propSceneObjectCont_hierarchyChangeCounter.name) == 0)
         {
             pState = _hierarchyChangeCounter;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     else
@@ -4722,14 +4722,14 @@ int CSceneObjectContainer::getIntProperty(long long int target, const char* pNam
             if (mesh != nullptr)
                 return mesh->getIntProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setLongProperty(long long int target, const char* pName, long long int pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -4781,14 +4781,14 @@ int CSceneObjectContainer::setLongProperty(long long int target, const char* pNa
                 return mesh->setLongProperty(pName, pState, shapeRelTr);
                 */
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getLongProperty(long long int target, const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -4838,14 +4838,14 @@ int CSceneObjectContainer::getLongProperty(long long int target, const char* pNa
             if (mesh != nullptr)
                 return mesh->getLongProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setHandleProperty(long long int target, const char* pName, long long int pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -4897,14 +4897,14 @@ int CSceneObjectContainer::setHandleProperty(long long int target, const char* p
                 return mesh->setHandleProperty(pName, pState, shapeRelTr);
                 */
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getHandleProperty(long long int target, const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -4954,14 +4954,14 @@ int CSceneObjectContainer::getHandleProperty(long long int target, const char* p
             if (mesh != nullptr)
                 return mesh->getHandleProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setFloatProperty(long long int target, const char* pName, double pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5011,14 +5011,14 @@ int CSceneObjectContainer::setFloatProperty(long long int target, const char* pN
             if (mesh != nullptr)
                 return mesh->setFloatProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getFloatProperty(long long int target, const char* pName, double& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5068,14 +5068,14 @@ int CSceneObjectContainer::getFloatProperty(long long int target, const char* pN
             if (mesh != nullptr)
                 return mesh->getFloatProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setStringProperty(long long int target, const char* pName, const char* pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5125,14 +5125,14 @@ int CSceneObjectContainer::setStringProperty(long long int target, const char* p
             if (mesh != nullptr)
                 return mesh->setStringProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5182,14 +5182,14 @@ int CSceneObjectContainer::getStringProperty(long long int target, const char* p
             if (mesh != nullptr)
                 return mesh->getStringProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5239,14 +5239,14 @@ int CSceneObjectContainer::setBufferProperty(long long int target, const char* p
             if (mesh != nullptr)
                 return mesh->setBufferProperty(pName, buffer, bufferL, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getBufferProperty(long long int target, const char* pName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5296,14 +5296,14 @@ int CSceneObjectContainer::getBufferProperty(long long int target, const char* p
             if (mesh != nullptr)
                 return mesh->getBufferProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setIntArray2Property(long long int target, const char* pName, const int* pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5353,14 +5353,14 @@ int CSceneObjectContainer::setIntArray2Property(long long int target, const char
             if (mesh != nullptr)
                 return mesh->setIntArray2Property(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getIntArray2Property(long long int target, const char* pName, int* pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5410,14 +5410,14 @@ int CSceneObjectContainer::getIntArray2Property(long long int target, const char
             if (mesh != nullptr)
                 return mesh->getIntArray2Property(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setVector2Property(long long int target, const char* pName, const double* pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5467,14 +5467,14 @@ int CSceneObjectContainer::setVector2Property(long long int target, const char* 
             if (mesh != nullptr)
                 return mesh->setVector2Property(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getVector2Property(long long int target, const char* pName, double* pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5524,14 +5524,14 @@ int CSceneObjectContainer::getVector2Property(long long int target, const char* 
             if (mesh != nullptr)
                 return mesh->getVector2Property(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setVector3Property(long long int target, const char* pName, const C3Vector& pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5581,14 +5581,14 @@ int CSceneObjectContainer::setVector3Property(long long int target, const char* 
             if (mesh != nullptr)
                 return mesh->setVector3Property(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getVector3Property(long long int target, const char* pName, C3Vector& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5638,14 +5638,14 @@ int CSceneObjectContainer::getVector3Property(long long int target, const char* 
             if (mesh != nullptr)
                 return mesh->getVector3Property(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5695,14 +5695,14 @@ int CSceneObjectContainer::setQuaternionProperty(long long int target, const cha
             if (mesh != nullptr)
                 return mesh->setQuaternionProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getQuaternionProperty(long long int target, const char* pName, C4Vector& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5752,14 +5752,14 @@ int CSceneObjectContainer::getQuaternionProperty(long long int target, const cha
             if (mesh != nullptr)
                 return mesh->getQuaternionProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setPoseProperty(long long int target, const char* pName, const C7Vector& pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5809,14 +5809,14 @@ int CSceneObjectContainer::setPoseProperty(long long int target, const char* pNa
             if (mesh != nullptr)
                 return mesh->setPoseProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getPoseProperty(long long int target, const char* pName, C7Vector& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5866,14 +5866,14 @@ int CSceneObjectContainer::getPoseProperty(long long int target, const char* pNa
             if (mesh != nullptr)
                 return mesh->getPoseProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setColorProperty(long long int target, const char* pName, const float* pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5923,14 +5923,14 @@ int CSceneObjectContainer::setColorProperty(long long int target, const char* pN
             if (mesh != nullptr)
                 return mesh->setColorProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getColorProperty(long long int target, const char* pName, float* pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -5980,14 +5980,14 @@ int CSceneObjectContainer::getColorProperty(long long int target, const char* pN
             if (mesh != nullptr)
                 return mesh->getColorProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setFloatArrayProperty(long long int target, const char* pName, const double* v, int vL)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -6037,14 +6037,14 @@ int CSceneObjectContainer::setFloatArrayProperty(long long int target, const cha
             if (mesh != nullptr)
                 return mesh->setFloatArrayProperty(pName, v, vL, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
     if (target == -1)
     {
@@ -6095,21 +6095,21 @@ int CSceneObjectContainer::getFloatArrayProperty(long long int target, const cha
             if (mesh != nullptr)
                 return mesh->getFloatArrayProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setIntArrayProperty(long long int target, const char* pName, const int* v, int vL)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         // --- For backward compatibility ---
         if (strcmp(pName, propSceneObjectCont_selectionHandles.name) == 0)
         {
             setSelectedObjectHandles(v, vL);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         // -----------------------------------
     }
@@ -6159,14 +6159,14 @@ int CSceneObjectContainer::setIntArrayProperty(long long int target, const char*
             if (mesh != nullptr)
                 return mesh->setIntArrayProperty(pName, v, vL, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
     if (target == -1)
     {
@@ -6175,18 +6175,18 @@ int CSceneObjectContainer::getIntArrayProperty(long long int target, const char*
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
                 pState.push_back(_allObjects[i]->getObjectHandle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propSceneObjectCont_orphanHandles.name) == 0)
         {
             for (size_t i = 0; i < _orphanObjects.size(); i++)
                 pState.push_back(_orphanObjects[i]->getObjectHandle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propSceneObjectCont_selectionHandles.name) == 0)
         {
             pState.assign(_selectedObjectHandles.begin(), _selectedObjectHandles.end());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         // ------------------------------------
     }
@@ -6236,14 +6236,14 @@ int CSceneObjectContainer::getIntArrayProperty(long long int target, const char*
             if (mesh != nullptr)
                 return mesh->getIntArrayProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         if (strcmp(pName, propSceneObjectCont_selection.name) == 0)
@@ -6252,7 +6252,7 @@ int CSceneObjectContainer::setHandleArrayProperty(long long int target, const ch
             for (int i = 0; i < vL; i++)
                 hh.push_back((int)v[i]);
             setSelectedObjectHandles(hh.data(), vL);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     else
@@ -6301,14 +6301,14 @@ int CSceneObjectContainer::setHandleArrayProperty(long long int target, const ch
             //if (mesh != nullptr)
             //    return mesh->setHandleArrayProperty(pName, v, vL, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
     if (target == -1)
     {
@@ -6316,19 +6316,19 @@ int CSceneObjectContainer::getHandleArrayProperty(long long int target, const ch
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
                 pState.push_back(_allObjects[i]->getObjectHandle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propSceneObjectCont_orphans.name) == 0)
         {
             for (size_t i = 0; i < _orphanObjects.size(); i++)
                 pState.push_back(_orphanObjects[i]->getObjectHandle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propSceneObjectCont_selection.name) == 0)
         {
             for (size_t i = 0; i < _selectedObjectHandles.size(); i++)
                 pState.push_back(_selectedObjectHandles[i]);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     else
@@ -6377,19 +6377,19 @@ int CSceneObjectContainer::getHandleArrayProperty(long long int target, const ch
             //if (mesh != nullptr)
             //    return mesh->getHandleArrayProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         // if (strcmp(pName, propSceneObjectCont_selection.name) == 0)
         //{
-        //    retVal = 1;
+        //    retVal = sim_propertyret_ok;
         //}
     }
     else
@@ -6438,20 +6438,20 @@ int CSceneObjectContainer::setStringArrayProperty(long long int target, const ch
             //if (mesh != nullptr)
             //    return mesh->setStringArrayProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
     if (target == -1)
     {
         //if (strcmp(pName, propSceneObjectCont_objects.name) == 0)
         //{
-        //    retVal = 1;
+        //    retVal = sim_propertyret_ok;
         //}
     }
     else
@@ -6500,14 +6500,14 @@ int CSceneObjectContainer::getStringArrayProperty(long long int target, const ch
             //if (mesh != nullptr)
             //    return mesh->getStringArrayProperty(pName, pState, shapeRelTr);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::removeProperty(long long int target, const char* pName)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -6556,14 +6556,14 @@ int CSceneObjectContainer::removeProperty(long long int target, const char* pNam
             if (mesh != nullptr)
                 return mesh->removeProperty(pName);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         appartenance = "scene";
@@ -6577,7 +6577,7 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
                     if (index == -1)
                     {
                         pName = allProps_objCont[i].name;
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
@@ -6630,14 +6630,14 @@ int CSceneObjectContainer::getPropertyName(long long int target, int& index, std
             if (mesh != nullptr)
                 return mesh->getPropertyName(index, pName, appartenance, excludeFlags);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }
 
 int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         for (size_t i = 0; i < allProps_objCont.size(); i++)
@@ -6707,7 +6707,7 @@ int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pNa
             if (mesh != nullptr)
                 return mesh->getPropertyInfo(pName, info, infoTxt);
         }
-        retVal = -2; // object does not exist
+        retVal = sim_propertyret_unknowntarget;
     }
     return retVal;
 }

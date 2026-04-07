@@ -1913,12 +1913,7 @@ int CDetachedScript::___loadCode(const char* code, const char* functionsToFind, 
     { // A compilation error occurred!
         retVal = -1;
         if (errorMsg != nullptr)
-        {
-            if (luaWrap_lua_isstring(L, -1))
-                errorMsg[0] = std::string(luaWrap_lua_tostring(L, -1));
-            else
-                errorMsg[0] = "(error unknown)";
-        }
+            errorMsg[0] = luaWrap_lua_tostring(L, -1);
         luaWrap_lua_pop(L, 1); // pop error from stack
     }
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
@@ -2299,18 +2294,13 @@ int CDetachedScript::_callScriptFunc(const char* functionName, const CInterfaceS
             retVal = -1;
             if (errorMsg != nullptr)
             {
-                if (luaWrap_lua_isstring(L, -1))
-                {
-                    errorMsg[0] = std::string(luaWrap_lua_tostring(L, -1));
-                    size_t p = errorMsg[0].find("__]]__");
-                    if (p != std::string::npos)
-                        errorMsg[0] = errorMsg[0].substr(0, p);
-                    p = errorMsg[0].find("__[[__");
-                    if (p != std::string::npos)
-                        errorMsg[0] = errorMsg[0].substr(p + 6);
-                }
-                else
-                    errorMsg[0] = "(error unknown)";
+                errorMsg[0] = luaWrap_lua_tostring(L, -1);
+                size_t p = errorMsg[0].find("__]]__");
+                if (p != std::string::npos)
+                    errorMsg[0] = errorMsg[0].substr(0, p);
+                p = errorMsg[0].find("__[[__");
+                if (p != std::string::npos)
+                    errorMsg[0] = errorMsg[0].substr(p + 6);
             }
             luaWrap_lua_pop(L, 1); // pop error from stack
         }
@@ -2443,11 +2433,7 @@ bool CDetachedScript::_execScriptString(const char* scriptString, CInterfaceStac
         luaWrap_lua_insert(L, errindex);
         if (luaWrap_lua_pcall(L, 0, luaWrapGet_LUA_MULTRET(), errindex) != 0)
         { // a runtime error occurred!
-            std::string errMsg;
-            if (luaWrap_lua_isstring(L, -1))
-                errMsg = std::string(luaWrap_lua_tostring(L, -1));
-            else
-                errMsg = "(error unknown)";
+            std::string errMsg = luaWrap_lua_tostring(L, -1);
             if (outStack != nullptr)
             {
                 outStack->clear();
@@ -2466,11 +2452,7 @@ bool CDetachedScript::_execScriptString(const char* scriptString, CInterfaceStac
     }
     else
     { // A compilation error occurred!
-        std::string errMsg;
-        if (luaWrap_lua_isstring(L, -1))
-            errMsg = std::string(luaWrap_lua_tostring(L, -1));
-        else
-            errMsg = "(error unknown)";
+        std::string errMsg = luaWrap_lua_tostring(L, -1);
         if (outStack != nullptr)
         {
             outStack->clear();
@@ -4803,11 +4785,7 @@ int CDetachedScript::callScriptFunction_DEPRECATED(const char* functionName, SLu
         setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = -1;
-        std::string errMsg;
-        if (luaWrap_lua_isstring(L, -1))
-            errMsg = std::string(luaWrap_lua_tostring(L, -1));
-        else
-            errMsg = "(error unknown)";
+        std::string errMsg = luaWrap_lua_tostring(L, -1);
         luaWrap_lua_pop(L, 1); // pop error from stack
         _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
 
